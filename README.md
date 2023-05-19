@@ -10,3 +10,5 @@
 Minim is a lightweight Python 3 library that can retrieve media information,
 (semi-)automate music tagging, and more through the iTunes Store, Spotify, and
 TIDAL APIs.
+
+**Documentation**: https://bbye98.github.io/minim/
