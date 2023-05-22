@@ -173,16 +173,20 @@
 <li class="toctree-l3"><a class="reference internal" href="minim.itunes.search.html">minim.itunes.search</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">minim.spotify</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.qobuz.html">minim.qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Session.html">minim.qobuz.Session</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">minim.spotify</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsAPISession.html">minim.spotify.LyricsAPISession</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPISession.html">minim.spotify.WebAPISession</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current has-children"><a class="reference internal" href="minim.tidal.html">minim.tidal</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="minim.tidal.html">minim.tidal</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">minim.tidal.Session</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">minim.utility</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">minim.utility</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.utility.levenshtein_ratio.html">minim.utility.levenshtein_ratio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.utility.multivalue_formatter.html">minim.utility.multivalue_formatter</a></li>
 </ul>
@@ -247,8 +251,8 @@ will be performed.</p>
 <div class="docutils container">
 <p><strong>Valid values</strong>:</p>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">authorization_code</span></code> for the authorization code flow</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">device_code</span></code> for the device_code flow</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">authorization_code</span></code> for the authorization code flow.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">device_code</span></code> for the device_code flow.</p></li>
 </ul>
 </div>
 </dd>
@@ -570,16 +574,18 @@ if you are making requests too quickly.</p>
 </dd>
 <dt><strong>items</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite>, optional</span></dt><dd><p>Items to add to the playlist. If not specified,
 <cite>from_playlist_uuid</cite> must be provided.</p>
-<blockquote>
-<div><p><strong>Note</strong>: If both <cite>items</cite> and <cite>from_playlist_uuid</cite> are
-specified, only the items in <cite>items</cite> will be added to
-the playlist.</p>
-</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If both <cite>items</cite> and <cite>from_playlist_uuid</cite> are specified,
+only the items in <cite>items</cite> will be added to the playlist.</p>
+</div>
 </dd>
 <dt><strong>from_playlist_uuid</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>TIDAL playlist from which to copy items.</p>
 </dd>
-<dt><strong>on_duplicate</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;FAIL&quot;,</span> <span class="pre">&quot;SKIP&quot;,</span> <span class="pre">&quot;ADD&quot;}</span></code></span></dt><dd><p>Behavior when the item to be added is already in the
+<dt><strong>on_duplicate</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;FAIL&quot;</span></code></span></dt><dd><p>Behavior when the item to be added is already in the
 playlist.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;ADD&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;SKIP&quot;</span></code>, and
+<code class="code docutils literal notranslate"><span class="pre">&quot;FAIL&quot;</span></code>.</p>
 </dd>
 <dt><strong>on_not_found</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;FAIL&quot;</span></code></span></dt><dd><p>Behavior when the item to be added does not exist.</p>
 <p><strong>Valid value</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;FAIL&quot;</span></code>.</p>
@@ -1356,23 +1362,11 @@ user and the number of results.</p>
 the next page of search results.</p>
 <p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
 </dd>
-<dt><strong>order</strong><span class="classifier"><cite>str</cite>, keyword-only, <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code></span></dt><dd><p>Sorting order.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code> to sort by date.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;NAME&quot;</span></code> to sort by name.</p></li>
-</ul>
-</div>
+<dt><strong>order</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code></span></dt><dd><p>Sorting order.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;NAME&quot;</span></code>.</p>
 </dd>
-<dt><strong>order_direction</strong><span class="classifier"><cite>str</cite>, keyword-only, <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code></span></dt><dd><p>Sorting order direction.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code> to sort in descending order.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;ASC&quot;</span></code> to sort in ascending order.</p></li>
-</ul>
-</div>
+<dt><strong>order_direction</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code></span></dt><dd><p>Sorting order direction.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;ASC&quot;</span></code>.</p>
 </dd>
 <dt><strong>country</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>An ISO 3166-1 alpha-2 country code. If not specified, the
 country associated with the user account will be used.</p>
@@ -1407,23 +1401,11 @@ number of results returned.</p>
 the next page of search results.</p>
 <p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
 </dd>
-<dt><strong>order</strong><span class="classifier"><cite>str</cite>, keyword-only, <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code></span></dt><dd><p>Sorting order.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code> to sort by date.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;NAME&quot;</span></code> to sort by name.</p></li>
-</ul>
-</div>
+<dt><strong>order</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code></span></dt><dd><p>Sorting order.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;NAME&quot;</span></code>.</p>
 </dd>
-<dt><strong>order_direction</strong><span class="classifier"><cite>str</cite>, keyword-only, <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code></span></dt><dd><p>Sorting order direction.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code> to sort in descending order.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;ASC&quot;</span></code> to sort in ascending order.</p></li>
-</ul>
-</div>
+<dt><strong>order_direction</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code></span></dt><dd><p>Sorting order direction.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;ASC&quot;</span></code>.</p>
 </dd>
 <dt><strong>country</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>An ISO 3166-1 alpha-2 country code. If not specified, the
 country associated with the user account will be used.</p>
@@ -1509,23 +1491,11 @@ cursor position.</p>
 the next page of search results.</p>
 <p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
 </dd>
-<dt><strong>order</strong><span class="classifier"><cite>str</cite>, keyword-only, <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code></span></dt><dd><p>Sorting order.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code> to sort by date.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;NAME&quot;</span></code> to sort by name.</p></li>
-</ul>
-</div>
+<dt><strong>order</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code></span></dt><dd><p>Sorting order.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;NAME&quot;</span></code>.</p>
 </dd>
-<dt><strong>order_direction</strong><span class="classifier"><cite>str</cite>, keyword-only, <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code></span></dt><dd><p>Sorting order direction.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code> to sort in descending order.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;ASC&quot;</span></code> to sort in ascending order.</p></li>
-</ul>
-</div>
+<dt><strong>order_direction</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code></span></dt><dd><p>Sorting order direction.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;ASC&quot;</span></code>.</p>
 </dd>
 <dt><strong>country</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>An ISO 3166-1 alpha-2 country code. If not specified, the
 country associated with the user account will be used.</p>
@@ -1560,23 +1530,11 @@ number of results returned.</p>
 the next page of search results.</p>
 <p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
 </dd>
-<dt><strong>order</strong><span class="classifier"><cite>str</cite>, keyword-only, <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code></span></dt><dd><p>Sorting order.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code> to sort by date.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;NAME&quot;</span></code> to sort by name.</p></li>
-</ul>
-</div>
+<dt><strong>order</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code></span></dt><dd><p>Sorting order.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;NAME&quot;</span></code>.</p>
 </dd>
-<dt><strong>order_direction</strong><span class="classifier"><cite>str</cite>, keyword-only, <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code></span></dt><dd><p>Sorting order direction.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code> to sort in descending order.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;ASC&quot;</span></code> to sort in ascending order.</p></li>
-</ul>
-</div>
+<dt><strong>order_direction</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code></span></dt><dd><p>Sorting order direction.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;ASC&quot;</span></code>.</p>
 </dd>
 <dt><strong>country</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>An ISO 3166-1 alpha-2 country code. If not specified, the
 country associated with the user account will be used.</p>
@@ -1713,35 +1671,17 @@ Playlists” are returned.</p>
 <dt><strong>flattened</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Determines whether the results are flattened into a list.</p>
 </dd>
 <dt><strong>include</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Type of playlist-related item to return.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;FAVORITE_PLAYLIST&quot;</span></code> for favorite playlists.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;FOLDER&quot;</span></code> for playlist folders.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;PLAYLIST&quot;</span></code> for playlists.</p></li>
-</ul>
-</div>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;FAVORITE_PLAYLIST&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;FOLDER&quot;</span></code>, and <code class="code docutils literal notranslate"><span class="pre">&quot;PLAYLIST&quot;</span></code>.</p>
 </dd>
 <dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">50</span></code></span></dt><dd><p>The maximum number of results to return.</p>
 </dd>
-<dt><strong>order</strong><span class="classifier"><cite>str</cite>, keyword-only, <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code></span></dt><dd><p>Sorting order.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code> to sort by date.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;DATE_UPDATED&quot;</span></code> to sort by date last updated.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;NAME&quot;</span></code> to sort by name.</p></li>
-</ul>
-</div>
+<dt><strong>order</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code></span></dt><dd><p>Sorting order.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;DATE&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;DATE_UPDATED&quot;</span></code>,
+and <code class="code docutils literal notranslate"><span class="pre">&quot;NAME&quot;</span></code>.</p>
 </dd>
-<dt><strong>order_direction</strong><span class="classifier"><cite>str</cite>, keyword-only, <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code></span></dt><dd><p>Sorting order direction.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code> to sort in descending order.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;ASC&quot;</span></code> to sort in ascending order.</p></li>
-</ul>
-</div>
+<dt><strong>order_direction</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code></span></dt><dd><p>Sorting order direction.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;DESC&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;ASC&quot;</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -1762,7 +1702,7 @@ number of items available.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>uuid</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>TIDAL playlist UUID.</p>
+<dt><strong>uuid</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>TIDAL playlist UUID.</p>
 </dd>
 <dt><strong>country</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>An ISO 3166-1 alpha-2 country code. If not specified, the
 country associated with the user account will be used.</p>
@@ -1794,7 +1734,7 @@ a TIDAL API endpoint.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>uuid</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>TIDAL playlist UUID.</p>
+<dt><strong>uuid</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>TIDAL playlist UUID.</p>
 </dd>
 <dt><strong>country</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>An ISO 3166-1 alpha-2 country code. If not specified, the
 country associated with the user account will be used.</p>
@@ -1903,24 +1843,24 @@ number of results returned.</p>
 <span class="sig-name descname"><span class="pre">get_streams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BROWSER'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_quality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HI_RES'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_quality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HIGH'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">playback_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'STREAM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_presentation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FULL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streaming_session_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.tidal.Session.get_streams" title="Permalink to this definition">#</a></dt>
 <dd><p>Get audio and video stream data for all tracks and videos in an
 album, mix, or playlist.</p>
-<p>Requires user authentication for high-quality, offline, or full
-audio and video streams.</p>
-<blockquote>
-<div><p><strong>Note</strong>: This method is provided for convenience and is not
-a TIDAL API endpoint.</p>
-</div></blockquote>
+<div class="admonition-oauth-2-0-authentication admonition">
+<p class="admonition-title">OAuth 2.0 authentication</p>
+<p>Requires user authentication for high-quality, offline, or
+full audio and video streams.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method is provided for convenience and is not a TIDAL
+API endpoint.</p>
+</div>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>TIDAL collection ID or UUID.</p>
 </dd>
 <dt><strong>type</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>TIDAL collection type.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:
-* <code class="code docutils literal notranslate"><span class="pre">&quot;album&quot;</span></code> for albums.
-* <code class="code docutils literal notranslate"><span class="pre">&quot;mix&quot;</span></code> for mixes.
-* <code class="code docutils literal notranslate"><span class="pre">&quot;playlist&quot;</span></code> for playlists.</p>
-</div>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;album&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;mix&quot;</span></code>, and
+<code class="code docutils literal notranslate"><span class="pre">&quot;playlist&quot;</span></code>.</p>
 </dd>
 <dt><strong>device</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;BROWSER&quot;</span></code></span></dt><dd><p>Device type.</p>
 <div class="docutils container">
@@ -1933,35 +1873,36 @@ a TIDAL API endpoint.</p>
 </ul>
 </div>
 </dd>
-<dt><strong>audio_quality</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;HI_RES&quot;,</span> <span class="pre">&quot;LOSSLESS&quot;,</span> <span class="pre">&quot;HIGH&quot;,</span> <span class="pre">&quot;LOW&quot;}</span></code></span></dt><dd><p>Audio quality:</p>
+<dt><strong>audio_quality</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;HI-RES&quot;</span></code></span></dt><dd><p>Audio quality.</p>
+<div class="docutils container">
+<p><strong>Valid values</strong>:</p>
 <ul class="simple">
-<li><dl class="simple">
-<dt><code class="code docutils literal notranslate"><span class="pre">&quot;LOW&quot;</span></code>: 64 kbps (22.05 kHz) MP3 without user</dt><dd><p>authentication or 96 kbps AAC with user authentication.</p>
-</dd>
-</dl>
-</li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HIGH&quot;</span></code>: 320 kbps AAC.</p></li>
-<li><dl class="simple">
-<dt><code class="code docutils literal notranslate"><span class="pre">&quot;LOSSLESS&quot;</span></code>: 1411 kbps (16-bit, 44.1 kHz) ALAC or</dt><dd><p>FLAC.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="code docutils literal notranslate"><span class="pre">&quot;HI_RES&quot;</span></code>: Up to 9216 kbps (24-bit, 96 kHz)</dt><dd><p>MQA-encoded FLAC.</p>
-</dd>
-</dl>
-</li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;LOW&quot;</span></code> for 64 kbps (22.05 kHz) MP3 without user
+authentication or 96 kbps AAC with user authentication.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HIGH&quot;</span></code> for 320 kbps AAC.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;LOSSLESS&quot;</span></code> for 1411 kbps (16-bit, 44.1 kHz) ALAC
+or FLAC.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HI_RES&quot;</span></code> for Up to 9216 kbps (24-bit, 96 kHz)
+MQA-encoded FLAC.</p></li>
 </ul>
+</div>
 </dd>
-<dt><strong>video_quality</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;HIGH&quot;,</span> <span class="pre">&quot;MEDIUM&quot;,</span> <span class="pre">&quot;LOW&quot;,</span> <span class="pre">&quot;AUDIO_ONLY&quot;}</span></code></span></dt><dd><p>Video quality.</p>
+<dt><strong>video_quality</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;HIGH&quot;</span></code></span></dt><dd><p>Video quality.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;AUDIO_ONLY&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;LOW&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;MEDIUM&quot;</span></code>, and <code class="code docutils literal notranslate"><span class="pre">&quot;HIGH&quot;</span></code>.</p>
 </dd>
-<dt><strong>playback_mode</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;STREAM&quot;,</span> <span class="pre">&quot;OFFLINE&quot;}</span></code></span></dt><dd><p>Playback mode.</p>
+<dt><strong>playback_mode</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;STREAM&quot;</span></code></span></dt><dd><p>Playback mode.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;STREAM&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;OFFLINE&quot;</span></code>.</p>
 </dd>
-<dt><strong>asset_presentation</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;FULL&quot;,</span> <span class="pre">&quot;PREVIEW&quot;}</span></code></span></dt><dd><p>Asset presentation:</p>
+<dt><strong>asset_presentation</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;FULL&quot;</span></code></span></dt><dd><p>Asset presentation.</p>
+<div class="docutils container">
+<p><strong>Valid values</strong>:</p>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;FULL&quot;</span></code>: Full track.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code>: 30-second preview of the track.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;FULL&quot;</span></code>: Full track or video.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code>: 30-second preview of the track or
+video.</p></li>
 </ul>
+</div>
 </dd>
 <dt><strong>streaming_session_id</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Streaming session ID.</p>
 </dd>
@@ -2017,10 +1958,11 @@ country associated with the user account will be used.</p>
 <dt class="sig sig-object py" id="minim.tidal.Session.get_track_composers">
 <span class="sig-name descname"><span class="pre">get_track_composers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.tidal.Session.get_track_composers" title="Permalink to this definition">#</a></dt>
 <dd><p>Get the composers, lyricists, and/or writers of a track.</p>
-<blockquote>
-<div><p><strong>Note</strong>: This method is provided for convenience and is not
-a TIDAL API endpoint.</p>
-</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method is provided for convenience and is not a TIDAL
+API endpoint.</p>
+</div>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
@@ -2157,31 +2099,41 @@ request URL, like <cite>locale</cite> and <cite>deviceType</cite>.</p>
 <dt class="sig sig-object py" id="minim.tidal.Session.get_track_playback_info">
 <span class="sig-name descname"><span class="pre">get_track_playback_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_quality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HI_RES'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">playback_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'STREAM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_presentation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FULL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streaming_session_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.tidal.Session.get_track_playback_info" title="Permalink to this definition">#</a></dt>
 <dd><p>Get playback information for a track.</p>
-<p>Requires user authentication for high-quality, offline, or full
-audio playback information.</p>
+<div class="admonition-oauth-2-0-authentication admonition">
+<p class="admonition-title">OAuth 2.0 authentication</p>
+<p>Requires user authentication for high-quality, offline, or
+full audio playback information.</p>
+</div>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>TIDAL track ID.</p>
 </dd>
-<dt><strong>audio_quality</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;HI_RES&quot;,</span> <span class="pre">&quot;LOW&quot;,</span> <span class="pre">&quot;HIGH&quot;,</span> <span class="pre">&quot;LOSSLESS&quot;}</span></code></span></dt><dd><p>Audio quality:</p>
+<dt><strong>audio_quality</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;HI-RES&quot;</span></code></span></dt><dd><p>Audio quality.</p>
+<div class="docutils container">
+<p><strong>Valid values</strong>:</p>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;LOW&quot;</span></code>: 64 kbps (22.05 kHz) MP3 without user
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;LOW&quot;</span></code> for 64 kbps (22.05 kHz) MP3 without user
 authentication or 96 kbps AAC with user authentication.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HIGH&quot;</span></code>: 320 kbps AAC.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;LOSSLESS&quot;</span></code>: 1411 kbps (16-bit, 44.1 kHz) ALAC or
-FLAC.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HI_RES&quot;</span></code>: Up to 9216 kbps (24-bit, 96 kHz)
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HIGH&quot;</span></code> for 320 kbps AAC.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;LOSSLESS&quot;</span></code> for 1411 kbps (16-bit, 44.1 kHz) ALAC
+or FLAC.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HI_RES&quot;</span></code> for Up to 9216 kbps (24-bit, 96 kHz)
 MQA-encoded FLAC.</p></li>
 </ul>
+</div>
 </dd>
-<dt><strong>playback_mode</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;STREAM&quot;,</span> <span class="pre">&quot;OFFLINE&quot;}</span></code></span></dt><dd><p>Playback mode.</p>
+<dt><strong>playback_mode</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;STREAM&quot;</span></code></span></dt><dd><p>Playback mode.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;STREAM&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;OFFLINE&quot;</span></code>.</p>
 </dd>
-<dt><strong>asset_presentation</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;FULL&quot;,</span> <span class="pre">&quot;PREVIEW&quot;}</span></code></span></dt><dd><p>Asset presentation:</p>
+<dt><strong>asset_presentation</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;FULL&quot;</span></code></span></dt><dd><p>Asset presentation.</p>
+<div class="docutils container">
+<p><strong>Valid values</strong>:</p>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">&quot;FULL&quot;</span></code>: Full track.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code>: 30-second preview of the track.</p></li>
 </ul>
+</div>
 </dd>
 <dt><strong>streaming_session_id</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Streaming session ID.</p>
 </dd>
@@ -2228,35 +2180,46 @@ country associated with the user account will be used.</p>
 <dt class="sig sig-object py" id="minim.tidal.Session.get_track_stream">
 <span class="sig-name descname"><span class="pre">get_track_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_quality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HI_RES'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">playback_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'STREAM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_presentation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FULL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streaming_session_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">album_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a></span></span><a class="headerlink" href="#minim.tidal.Session.get_track_stream" title="Permalink to this definition">#</a></dt>
 <dd><p>Get a track’s audio stream data.</p>
-<p>Requires user authentication for high-quality, offline, or full
-audio streams.</p>
+<div class="admonition-oauth-2-0-authentication admonition">
+<p class="admonition-title">OAuth 2.0 authentication</p>
+<p>Requires user authentication for high-quality, offline, or
+full audio streams.</p>
+</div>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>TIDAL track ID.</p>
 </dd>
-<dt><strong>audio_quality</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;HI_RES&quot;,</span> <span class="pre">&quot;LOSSLESS&quot;,</span> <span class="pre">&quot;HIGH&quot;,</span> <span class="pre">&quot;LOW&quot;}</span></code></span></dt><dd><p>Audio quality:</p>
+<dt><strong>audio_quality</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;HI-RES&quot;</span></code></span></dt><dd><p>Audio quality.</p>
+<div class="docutils container">
+<p><strong>Valid values</strong>:</p>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;LOW&quot;</span></code>: 64 kbps (22.05 kHz) MP3 without user
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;LOW&quot;</span></code> for 64 kbps (22.05 kHz) MP3 without user
 authentication or 96 kbps AAC with user authentication.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HIGH&quot;</span></code>: 320 kbps AAC.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;LOSSLESS&quot;</span></code>: 1411 kbps (16-bit, 44.1 kHz) ALAC or
-FLAC.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HI_RES&quot;</span></code>: Up to 9216 kbps (24-bit, 96 kHz)
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HIGH&quot;</span></code> for 320 kbps AAC.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;LOSSLESS&quot;</span></code> for 1411 kbps (16-bit, 44.1 kHz) ALAC
+or FLAC.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HI_RES&quot;</span></code> for Up to 9216 kbps (24-bit, 96 kHz)
 MQA-encoded FLAC.</p></li>
 </ul>
+</div>
 </dd>
-<dt><strong>playback_mode</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;STREAM&quot;,</span> <span class="pre">&quot;OFFLINE&quot;}</span></code></span></dt><dd><p>Playback mode.</p>
+<dt><strong>playback_mode</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;STREAM&quot;</span></code></span></dt><dd><p>Playback mode.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;STREAM&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;OFFLINE&quot;</span></code>.</p>
 </dd>
-<dt><strong>asset_presentation</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;FULL&quot;,</span> <span class="pre">&quot;PREVIEW&quot;}</span></code></span></dt><dd><p>Asset presentation:</p>
+<dt><strong>asset_presentation</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;FULL&quot;</span></code></span></dt><dd><p>Asset presentation.</p>
+<div class="docutils container">
+<p><strong>Valid values</strong>:</p>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">&quot;FULL&quot;</span></code>: Full track.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code>: 30-second preview of the track.</p></li>
 </ul>
+</div>
 </dd>
 <dt><strong>streaming_session_id</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Streaming session ID.</p>
 </dd>
-<dt><strong>album_data</strong><span class="classifier"><cite>dict</cite>, keyword-only, optional</span></dt><dd><p>TIDAL catalog information for an album.</p>
+<dt><strong>album_data</strong><span class="classifier"><cite>dict</cite>, keyword-only, optional</span></dt><dd><p>TIDAL catalog information for an album. If not provided, it
+will be retrieved.</p>
 </dd>
 <dt><strong>save</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Determines whether the stream is saved to an audio file.</p>
 </dd>
@@ -2373,13 +2336,7 @@ position.</p>
 used.</p>
 </dd>
 <dt><strong>include</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Type of people to return.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;ARTIST&quot;</span></code> for artists.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;USER&quot;</span></code> for users.</p></li>
-</ul>
-</div>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;ARTIST&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;USER&quot;</span></code>.</p>
 </dd>
 <dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">500</span></code></span></dt><dd><p>The maximum number of results to return.</p>
 </dd>
@@ -2545,22 +2502,31 @@ country associated with the user account will be used.</p>
 <dt class="sig sig-object py" id="minim.tidal.Session.get_video_playback_info">
 <span class="sig-name descname"><span class="pre">get_video_playback_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_quality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HIGH'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">playback_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'STREAM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_presentation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FULL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streaming_session_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.tidal.Session.get_video_playback_info" title="Permalink to this definition">#</a></dt>
 <dd><p>Get playback information for a video.</p>
-<p>Requires user authentication for high-quality, offline, or full
-video playback information.</p>
+<div class="admonition-oauth-2-0-authentication admonition">
+<p class="admonition-title">OAuth 2.0 authentication</p>
+<p>Requires user authentication for high-quality, offline, or
+full video playback information.</p>
+</div>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>TIDAL video ID.</p>
 </dd>
-<dt><strong>audio_quality</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;HIGH&quot;,</span> <span class="pre">&quot;LOW&quot;,</span> <span class="pre">&quot;MEDIUM&quot;,</span> <span class="pre">&quot;AUDIO_ONLY&quot;}</span></code></span></dt><dd><p>Video quality.</p>
+<dt><strong>video_quality</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;HIGH&quot;</span></code></span></dt><dd><p>Video quality.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;AUDIO_ONLY&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;LOW&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;MEDIUM&quot;</span></code>, and <code class="code docutils literal notranslate"><span class="pre">&quot;HIGH&quot;</span></code>.</p>
 </dd>
-<dt><strong>playback_mode</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;STREAM&quot;,</span> <span class="pre">&quot;OFFLINE&quot;}</span></code></span></dt><dd><p>Playback mode.</p>
+<dt><strong>playback_mode</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;STREAM&quot;</span></code></span></dt><dd><p>Playback mode.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;STREAM&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;OFFLINE&quot;</span></code>.</p>
 </dd>
-<dt><strong>asset_presentation</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;FULL&quot;,</span> <span class="pre">&quot;PREVIEW&quot;}</span></code></span></dt><dd><p>Asset presentation:</p>
+<dt><strong>asset_presentation</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;FULL&quot;</span></code></span></dt><dd><p>Asset presentation.</p>
+<div class="docutils container">
+<p><strong>Valid values</strong>:</p>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">&quot;FULL&quot;</span></code>: Full video.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code>: 30-second preview of the video.</p></li>
 </ul>
+</div>
 </dd>
 <dt><strong>streaming_session_id</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Streaming session ID.</p>
 </dd>
@@ -2579,24 +2545,33 @@ video playback information.</p>
 <dt class="sig sig-object py" id="minim.tidal.Session.get_video_stream">
 <span class="sig-name descname"><span class="pre">get_video_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_quality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'HIGH'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2160</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">playback_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'STREAM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">asset_presentation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FULL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">streaming_session_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a></span></span><a class="headerlink" href="#minim.tidal.Session.get_video_stream" title="Permalink to this definition">#</a></dt>
 <dd><p>Get a video’s audio and video stream data.</p>
-<p>Requires user authentication for high-quality, offline, or full
-video streams.</p>
+<div class="admonition-oauth-2-0-authentication admonition">
+<p class="admonition-title">OAuth 2.0 authentication</p>
+<p>Requires user authentication for high-quality, offline, or
+full video streams.</p>
+</div>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>TIDAL video ID.</p>
 </dd>
-<dt><strong>video_quality</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;HIGH&quot;,</span> <span class="pre">&quot;MEDIUM&quot;,</span> <span class="pre">&quot;LOW&quot;,</span> <span class="pre">&quot;AUDIO_ONLY&quot;}</span></code></span></dt><dd><p>Video quality.</p>
+<dt><strong>video_quality</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;HIGH&quot;</span></code></span></dt><dd><p>Video quality.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;AUDIO_ONLY&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;LOW&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;MEDIUM&quot;</span></code>, and <code class="code docutils literal notranslate"><span class="pre">&quot;HIGH&quot;</span></code>.</p>
 </dd>
 <dt><strong>max_resolution</strong><span class="classifier"><cite>int</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">2160</span></code></span></dt><dd><p>Maximum video resolution (number of vertical pixels).</p>
 </dd>
-<dt><strong>playback_mode</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;STREAM&quot;,</span> <span class="pre">&quot;OFFLINE&quot;}</span></code></span></dt><dd><p>Playback mode.</p>
+<dt><strong>playback_mode</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;STREAM&quot;</span></code></span></dt><dd><p>Playback mode.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;STREAM&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;OFFLINE&quot;</span></code>.</p>
 </dd>
-<dt><strong>asset_presentation</strong><span class="classifier"><cite>str</cite>, keyword-only,         <code class="code docutils literal notranslate"><span class="pre">{&quot;FULL&quot;,</span> <span class="pre">&quot;PREVIEW&quot;}</span></code></span></dt><dd><p>Asset presentation:</p>
+<dt><strong>asset_presentation</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;FULL&quot;</span></code></span></dt><dd><p>Asset presentation.</p>
+<div class="docutils container">
+<p><strong>Valid values</strong>:</p>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">&quot;FULL&quot;</span></code>: Full video.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">&quot;PREVIEW&quot;</span></code>: 30-second preview of the video.</p></li>
 </ul>
+</div>
 </dd>
 <dt><strong>streaming_session_id</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Streaming session ID.</p>
 </dd>
@@ -2678,17 +2653,9 @@ playlist directly under “My Playlists”, use
 <dt><strong>query</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>Search query.</p>
 </dd>
 <dt><strong>type</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Specific media type to search for.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code> for artists.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;album&quot;</span></code> for albums.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;playlist&quot;</span></code> for playlists.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;track&quot;</span></code> for tracks.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;userProfile&quot;</span></code> for user profiles.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;video&quot;</span></code> for videos.</p></li>
-</ul>
-</div>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;album&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;playlist&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;track&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;userProfile&quot;</span></code>,
+and <code class="code docutils literal notranslate"><span class="pre">&quot;video&quot;</span></code>.</p>
 </dd>
 <dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Maximum number of results to return.</p>
 <p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">10</span></code>.</p>

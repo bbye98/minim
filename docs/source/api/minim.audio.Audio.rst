@@ -18,6 +18,7 @@ minim.audio.Audio
    
       ~Audio.convert
       ~Audio.from_itunes
+      ~Audio.from_qobuz
       ~Audio.from_spotify
       ~Audio.from_tidal
    

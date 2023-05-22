@@ -173,16 +173,20 @@
 <li class="toctree-l3"><a class="reference internal" href="minim.itunes.search.html">minim.itunes.search</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current has-children"><a class="reference internal" href="minim.spotify.html">minim.spotify</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.qobuz.html">minim.qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Session.html">minim.qobuz.Session</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="minim.spotify.html">minim.spotify</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsAPISession.html">minim.spotify.LyricsAPISession</a></li>
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">minim.spotify.WebAPISession</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="minim.tidal.html">minim.tidal</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.tidal.html">minim.tidal</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.tidal.Session.html">minim.tidal.Session</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">minim.utility</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">minim.utility</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.utility.levenshtein_ratio.html">minim.utility.levenshtein_ratio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.utility.multivalue_formatter.html">minim.utility.multivalue_formatter</a></li>
 </ul>
@@ -245,10 +249,10 @@ environment variables, it must be provided here.</p>
 <div class="docutils container">
 <p><strong>Valid values</strong>:</p>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">authorization_code</span></code> for the authorization code flow</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">client_credentials</span></code> for the client credentials flow</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">authorization_code</span></code> for the authorization code flow.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">client_credentials</span></code> for the client credentials flow.</p></li>
 </ul>
-<p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">client_credentials</span></code></p>
+<p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">client_credentials</span></code>.</p>
 </div>
 </dd>
 <dt><strong>browser</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Determines whether a web browser is automatically opened and the
@@ -264,13 +268,13 @@ be used to specify which backend is used for authorization
 code retrieval.</p>
 </div>
 </dd>
-<dt><strong>backend</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Backend used for authorization code retrieval when
+<dt><strong>backend</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">&quot;flask&quot;</span></code></span></dt><dd><p>Backend used for authorization code retrieval when
 <code class="code docutils literal notranslate"><span class="pre">browser=True</span></code>.</p>
 <div class="docutils container">
 <p><strong>Valid values</strong>:</p>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">flask</span></code> for the Flask web application framework</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">playwright</span></code> for the Playwright library by Microsoft</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">flask</span></code> for the Flask web application framework.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">playwright</span></code> for the Playwright library by Microsoft.</p></li>
 </ul>
 </div>
 </dd>
@@ -743,13 +747,7 @@ users.</p>
 <span class="pre">57dN52uHvrHOxijzpIgu3E,</span> <span class="pre">1vCWHaC5f2uS3yhpwWbIA6&quot;</span></code>.</p>
 </dd>
 <dt><strong>type</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>The ID type.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code> for artists.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;user&quot;</span></code> for users.</p></li>
-</ul>
-</div>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;user&quot;</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -1015,13 +1013,7 @@ one or more artists or other Spotify users.</p>
 <span class="pre">57dN52uHvrHOxijzpIgu3E,</span> <span class="pre">1vCWHaC5f2uS3yhpwWbIA6&quot;</span></code>.</p>
 </dd>
 <dt><strong>type</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>The ID type.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code> for artists.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;user&quot;</span></code> for users.</p></li>
-</ul>
-</div>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;user&quot;</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -1137,7 +1129,7 @@ albums identified by their Spotify IDs.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>ids</strong><span class="classifier"><cite>str</cite> or <cite>list</cite></span></dt><dd><p>A (comma-separated) list of the Spotify IDs for the albums.</p>
-<p><strong>Maximum</strong>: 20 IDs..</p>
+<p><strong>Maximum</strong>: 20 IDs.</p>
 <p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;382ObEPsp2rxGrnsizN5TX,</span>
 <span class="pre">1A2GTWGtFfWp7KSQTwWOyo,</span> <span class="pre">2noRn2Aes5aoNVsU6iWThc&quot;</span></code>.</p>
 </dd>
@@ -2151,13 +2143,7 @@ track type.</p>
 to maintain their current behavior and might be
 deprecated in the future.</p>
 </div>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;track&quot;</span></code> for tracks.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;episode&quot;</span></code> for episodes.</p></li>
-</ul>
-</div>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;track&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;episode&quot;</span></code>.</p>
 </dd>
 <dt><strong>fields</strong><span class="classifier"><cite>str</cite> or <cite>list</cite>, keyword-only, optional</span></dt><dd><p>Filters for the query: a (comma-separated) list of the
 fields to return. If omitted, all fields are returned.
@@ -2966,13 +2952,7 @@ artists or tracks based on calculated affinity.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>type</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>The type of entity to return.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;artists&quot;</span></code> for artists.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;tracks&quot;</span></code> for tracks.</p></li>
-</ul>
-</div>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;artists&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;tracks&quot;</span></code>.</p>
 </dd>
 <dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The maximum number of results to return in each item type.</p>
 <p><strong>Valid values</strong>: <cite>limit</cite> must be between 0 and 50.</p>
@@ -3315,8 +3295,7 @@ string.</p>
 <dt><strong>q</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>Your search query.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<blockquote>
-<div><p>You can narrow down your search using field filters. The
+<p>You can narrow down your search using field filters. The
 available filters are <code class="code docutils literal notranslate"><span class="pre">album</span></code>, <code class="code docutils literal notranslate"><span class="pre">artist</span></code>,
 <code class="code docutils literal notranslate"><span class="pre">track</span></code>, <code class="code docutils literal notranslate"><span class="pre">year</span></code>, <code class="code docutils literal notranslate"><span class="pre">upc</span></code>,
 <code class="code docutils literal notranslate"><span class="pre">tag:hipster</span></code>, <code class="code docutils literal notranslate"><span class="pre">tag:new</span></code>, <code class="code docutils literal notranslate"><span class="pre">isrc</span></code>, and
@@ -3328,7 +3307,6 @@ filter on a single <code class="code docutils literal notranslate"><span class="
 1955-1960).</p>
 <p>The <code class="code docutils literal notranslate"><span class="pre">album</span></code> filter can be used while searching
 albums and tracks.</p>
-</div></blockquote>
 <p>The <code class="code docutils literal notranslate"><span class="pre">genre</span></code> filter can be used while searching
 artists and tracks.</p>
 <p>The <code class="code docutils literal notranslate"><span class="pre">isrc</span></code> and <code class="code docutils literal notranslate"><span class="pre">track</span></code> filters can be used
@@ -3345,17 +3323,10 @@ return only albums with the lowest 10% popularity.</p>
 <dt><strong>type</strong><span class="classifier"><cite>str</cite> or <cite>list</cite></span></dt><dd><p>A comma-separated list of item types to search across.
 Search results include hits from all the specified item
 types.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;album&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;audiobook&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;episode&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;playlist&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;show&quot;</span></code>, and <code class="code docutils literal notranslate"><span class="pre">&quot;track&quot;</span></code>.</p>
 <div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;album&quot;</span></code> for albums.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code> for artists.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;playlist&quot;</span></code> for playlists.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;track&quot;</span></code> for tracks.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;show&quot;</span></code> for shows.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;episode&quot;</span></code> for episodes.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;audiobook&quot;</span></code> for audiobooks.</p></li>
-</ul>
 <p><strong>Example</strong>:</p>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">&quot;track,artist&quot;</span></code> returns both tracks and artists
@@ -3597,14 +3568,7 @@ for user’s playback.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>state</strong><span class="classifier"><cite>bool</cite></span></dt><dd><p>Shuffle mode.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">True</span></code>: Shuffle user’s playback.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">False</span></code>: Do not shuffle user’s playback.</p></li>
-</ul>
-</div>
+<dt><strong>state</strong><span class="classifier"><cite>bool</cite></span></dt><dd><p>Shuffle mode. If <code class="code docutils literal notranslate"><span class="pre">True</span></code>, shuffle the user’s playback.</p>
 </dd>
 <dt><strong>device_id</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The ID of the device this method is targeting. If not
 supplied, the user’s currently active device is the target.</p>
@@ -3666,13 +3630,7 @@ as a follower of one or more artists or other Spotify users.</p>
 <span class="pre">57dN52uHvrHOxijzpIgu3E,</span> <span class="pre">1vCWHaC5f2uS3yhpwWbIA6&quot;</span></code>.</p>
 </dd>
 <dt><strong>type</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>The ID type.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code> for artists.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;user&quot;</span></code> for users.</p></li>
-</ul>
-</div>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;user&quot;</span></code>.</p>
 </dd>
 </dl>
 </dd>

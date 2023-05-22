@@ -18,6 +18,7 @@ minim.audio.WAVEAudio
    
       ~WAVEAudio.convert
       ~WAVEAudio.from_itunes
+      ~WAVEAudio.from_qobuz
       ~WAVEAudio.from_spotify
       ~WAVEAudio.from_tidal
       ~WAVEAudio.write_metadata

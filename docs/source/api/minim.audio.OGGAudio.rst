@@ -18,6 +18,7 @@ minim.audio.OGGAudio
    
       ~OGGAudio.convert
       ~OGGAudio.from_itunes
+      ~OGGAudio.from_qobuz
       ~OGGAudio.from_spotify
       ~OGGAudio.from_tidal
       ~OGGAudio.write_metadata

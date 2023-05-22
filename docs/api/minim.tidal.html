@@ -173,16 +173,20 @@
 <li class="toctree-l3"><a class="reference internal" href="minim.itunes.search.html">minim.itunes.search</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">minim.spotify</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.qobuz.html">minim.qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Session.html">minim.qobuz.Session</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">minim.spotify</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsAPISession.html">minim.spotify.LyricsAPISession</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPISession.html">minim.spotify.WebAPISession</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">minim.tidal</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">minim.tidal</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.tidal.Session.html">minim.tidal.Session</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">minim.utility</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">minim.utility</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.utility.levenshtein_ratio.html">minim.utility.levenshtein_ratio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.utility.multivalue_formatter.html">minim.utility.multivalue_formatter</a></li>
 </ul>
@@ -229,10 +233,10 @@
 <h2><a class="reference internal" href="#module-minim.tidal" title="minim.tidal"><code class="xref py py-mod docutils literal notranslate"><span class="pre">minim.tidal</span></code></a> – TIDAL API<a class="headerlink" href="#minim-tidal-tidal-api" title="Permalink to this heading">#</a></h2>
 <p>This module contains a minimal Python implementation of the TIDAL API,
 which allows media (tracks, videos), collections (albums, playlists),
-and performers to be downloaded or queried, and information about them
-to be retrieved. As the TIDAL API is not public, there is no available
-official documentation documentation for it. Its endpoints have been
-determined by watching HTTP network traffic.</p>
+and performers to be queried, and information about them to be
+retrieved. As the TIDAL API is not public, there is no available
+official documentation for it. Its endpoints have been determined by
+watching HTTP network traffic.</p>
 <p>Without authentication, the TIDAL API can be used to query for and
 retrieve information about media and performers.</p>
 <p>With OAuth 2.0 authentication, the TIDAL API allows access to user

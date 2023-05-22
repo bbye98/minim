@@ -18,6 +18,7 @@ minim.audio.FLACAudio
    
       ~FLACAudio.convert
       ~FLACAudio.from_itunes
+      ~FLACAudio.from_qobuz
       ~FLACAudio.from_spotify
       ~FLACAudio.from_tidal
       ~FLACAudio.write_metadata

@@ -173,16 +173,20 @@
 <li class="toctree-l3"><a class="reference internal" href="minim.itunes.search.html">minim.itunes.search</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">minim.spotify</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.qobuz.html">minim.qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Session.html">minim.qobuz.Session</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">minim.spotify</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsAPISession.html">minim.spotify.LyricsAPISession</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPISession.html">minim.spotify.WebAPISession</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="minim.tidal.html">minim.tidal</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.tidal.html">minim.tidal</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.tidal.Session.html">minim.tidal.Session</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">minim.utility</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">minim.utility</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.utility.levenshtein_ratio.html">minim.utility.levenshtein_ratio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.utility.multivalue_formatter.html">minim.utility.multivalue_formatter</a></li>
 </ul>
@@ -279,13 +283,16 @@ concatenate the first <span class="math notranslate nohighlight">\(n - 1\)</span
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.audio.MP4Audio.from_itunes" title="minim.audio.MP4Audio.from_itunes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_itunes</span></code></a></p></td>
 <td><p>Populate tags using data retrieved from the iTunes Store API.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.audio.MP4Audio.from_spotify" title="minim.audio.MP4Audio.from_spotify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_spotify</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.audio.MP4Audio.from_qobuz" title="minim.audio.MP4Audio.from_qobuz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_qobuz</span></code></a></p></td>
+<td><p>Populate tags using data retrieved from the Qobuz API.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.audio.MP4Audio.from_spotify" title="minim.audio.MP4Audio.from_spotify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_spotify</span></code></a></p></td>
 <td><p>Populate tags using data retrieved from the Spotify APIs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.audio.MP4Audio.from_tidal" title="minim.audio.MP4Audio.from_tidal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_tidal</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.audio.MP4Audio.from_tidal" title="minim.audio.MP4Audio.from_tidal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_tidal</span></code></a></p></td>
 <td><p>Populate tags using data retrieved from the TIDAL API.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.audio.MP4Audio.write_metadata" title="minim.audio.MP4Audio.write_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_metadata</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.audio.MP4Audio.write_metadata" title="minim.audio.MP4Audio.write_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_metadata</span></code></a></p></td>
 <td><p>Write metadata to file.</p></td>
 </tr>
 </tbody>
@@ -396,6 +403,39 @@ image is retrieved, regardless of size.</p>
 <dt><strong>artwork_format</strong><span class="classifier"><cite>str</cite>, keyword-only, <code class="code docutils literal notranslate"><span class="pre">{&quot;jpg&quot;,</span> <span class="pre">&quot;png&quot;}</span></code></span></dt><dd><p>Artwork file format. If <code class="code docutils literal notranslate"><span class="pre">artwork_size=&quot;raw&quot;</span></code>, the file
 format of the uncompressed high-resolution image takes
 precedence.</p>
+</dd>
+<dt><strong>overwrite</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Determines whether existing metadata should be overwritten.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.audio.MP4Audio.from_qobuz">
+<span class="sig-name descname"><span class="pre">from_qobuz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">artists</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">composers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artwork</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#minim.audio.MP4Audio.from_qobuz" title="Permalink to this definition">#</a></dt>
+<dd><p>Populate tags using data retrieved from the Qobuz API.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>data</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Information about the track in JSON format obtained using
+the Qobuz API via <a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session.get_track" title="minim.qobuz.Session.get_track"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.qobuz.Session.get_track()</span></code></a>.</p>
+</dd>
+<dt><strong>artists</strong><span class="classifier"><cite>str</cite> or <cite>list</cite>, keyword-only, optional</span></dt><dd><p>Information about the track’s artists obtained using the
+Qobuz API via <a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session.get_track" title="minim.qobuz.Session.get_track"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.qobuz.Session.get_track()</span></code></a> and/or
+<a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session.get_track_credits" title="minim.qobuz.Session.get_track_credits"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.qobuz.Session.get_track_credits()</span></code></a>. If not
+provided, only information about the main artist will be
+available.</p>
+</dd>
+<dt><strong>composers</strong><span class="classifier"><cite>str</cite> or <cite>list</cite>, keyword-only, optional</span></dt><dd><p>Information about the track’s composers obtained using the
+Qobuz API via <a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session.get_track" title="minim.qobuz.Session.get_track"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.qobuz.Session.get_track()</span></code></a> and/or
+<a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session.get_track_credits" title="minim.qobuz.Session.get_track_credits"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.qobuz.Session.get_track_credits()</span></code></a>. If not
+provided, songwriting credits are unavailable.</p>
+</dd>
+<dt><strong>artwork</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Qobuz URL of the track cover art obtained using the Qobuz
+API via <a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session.get_track" title="minim.qobuz.Session.get_track"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.qobuz.Session.get_track()</span></code></a>.</p>
+</dd>
+<dt><strong>comment</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Comment or description.</p>
 </dd>
 <dt><strong>overwrite</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Determines whether existing metadata should be overwritten.</p>
 </dd>
@@ -537,6 +577,7 @@ API via <a class="reference internal" href="minim.tidal.Session.html#minim.tidal
 <li><a class="reference internal" href="#minim.audio.MP4Audio"><code class="docutils literal notranslate"><span class="pre">MP4Audio</span></code></a><ul>
 <li><a class="reference internal" href="#minim.audio.MP4Audio.convert"><code class="docutils literal notranslate"><span class="pre">convert()</span></code></a></li>
 <li><a class="reference internal" href="#minim.audio.MP4Audio.from_itunes"><code class="docutils literal notranslate"><span class="pre">from_itunes()</span></code></a></li>
+<li><a class="reference internal" href="#minim.audio.MP4Audio.from_qobuz"><code class="docutils literal notranslate"><span class="pre">from_qobuz()</span></code></a></li>
 <li><a class="reference internal" href="#minim.audio.MP4Audio.from_spotify"><code class="docutils literal notranslate"><span class="pre">from_spotify()</span></code></a></li>
 <li><a class="reference internal" href="#minim.audio.MP4Audio.from_tidal"><code class="docutils literal notranslate"><span class="pre">from_tidal()</span></code></a></li>
 <li><a class="reference internal" href="#minim.audio.MP4Audio.write_metadata"><code class="docutils literal notranslate"><span class="pre">write_metadata()</span></code></a></li>

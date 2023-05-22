@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="minim.spotify" href="minim.spotify.html" /><link rel="prev" title="minim.itunes.lookup" href="minim.itunes.lookup.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="minim.qobuz" href="minim.qobuz.html" /><link rel="prev" title="minim.itunes.lookup" href="minim.itunes.lookup.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
         <title>minim.itunes.search - minim documentation</title>
@@ -173,16 +173,20 @@
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">minim.itunes.search</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">minim.spotify</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.qobuz.html">minim.qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Session.html">minim.qobuz.Session</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">minim.spotify</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsAPISession.html">minim.spotify.LyricsAPISession</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPISession.html">minim.spotify.WebAPISession</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="minim.tidal.html">minim.tidal</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.tidal.html">minim.tidal</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.tidal.Session.html">minim.tidal.Session</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">minim.utility</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">minim.utility</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="minim.utility.levenshtein_ratio.html">minim.utility.levenshtein_ratio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.utility.multivalue_formatter.html">minim.utility.multivalue_formatter</a></li>
 </ul>
@@ -254,18 +258,10 @@ country.</p>
 </dd>
 <dt><strong>media</strong><span class="classifier">str, keyword-only, optional</span></dt><dd><p>The media type you want to search for.</p>
 <div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;movie&quot;</span></code> for movies</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;podcast&quot;</span></code> for podcasts</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;music&quot;</span></code> for songs</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;musicVideo&quot;</span></code> for music videos</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;audioBook&quot;</span></code> for audiobooks</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;shortFilm&quot;</span></code> for short films</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;tvShow&quot;</span></code> for television shows</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;software&quot;</span></code> for applications and software</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;ebook&quot;</span></code> for ebooks</p></li>
-</ul>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;movie&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;podcast&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;music&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;musicVideo&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;audioBook&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;shortFilm&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;tvShow&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;software&quot;</span></code>,
+and <code class="code docutils literal notranslate"><span class="pre">&quot;ebook&quot;</span></code>.</p>
 </div>
 <p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code>.</p>
 </dd>
@@ -316,7 +312,7 @@ five-letter codename.</p>
 </dd>
 <dt><strong>version</strong><span class="classifier"><cite>int</cite> or <cite>str</cite>, keyword-only, optional</span></dt><dd><p>The search result key version you want to receive back from your
 search.</p>
-<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">1</span></code> or <code class="code docutils literal notranslate"><span class="pre">2</span></code>.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">1</span></code> and <code class="code docutils literal notranslate"><span class="pre">2</span></code>.</p>
 <p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">2</span></code>.</p>
 </dd>
 <dt><strong>explicit</strong><span class="classifier"><cite>bool</cite> or <cite>str</cite>, keyword-only, optional</span></dt><dd><p>A flag indicating whether or not you want to include explicit
@@ -367,12 +363,12 @@ from the United States iTunes Store,</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="minim.spotify.html">
+          <a class="next-page" href="minim.qobuz.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">minim.spotify</div>
+                <div class="title">minim.qobuz</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

@@ -28,6 +28,7 @@
 
    minim.audio
    minim.itunes
+   minim.qobuz
    minim.spotify
    minim.tidal
    minim.utility
