@@ -2566,7 +2566,6 @@ class Session:
             **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
 
         asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
-
             Asset presentation.
 
             .. container::
@@ -2614,17 +2613,20 @@ class Session:
                 False
             )
             title = data["title"]
+            items = self.get_album_items(id)["items"]
         elif type == "mix":
             data = self.get_mix_page(id, device=device)
             artist = data["rows"][0]["modules"][0]["mix"]["subTitle"]
             title = data["rows"][0]["modules"][0]["mix"]["title"]
-        else:
+            items = self.get_mix_items(id)["items"]
+        elif type == "playlist":
             data = self.get_playlist(id)
             artist = utility.multivalue_formatter(
                 [a["name"] for a in data["promotedArtists"] if a["type"] == "MAIN"], 
                 False
             )
             title = data["title"]
+            items = self.get_playlist_items(id)["items"]
 
         if save:
             if path is not None:
@@ -2636,13 +2638,6 @@ class Session:
                 os.chdir(dirname)
         else:
             streams = []
-
-        if type == "album":
-            items = self.get_album_items(id)["items"]
-        elif type == "mix":
-            items = self.get_mix_items(id)["items"]
-        else:
-            items = self.get_playlist_items(id)["items"]
 
         for item in items:
             if item["type"] == "track":

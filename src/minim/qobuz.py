@@ -68,6 +68,8 @@ class Session:
         "mpeg": "mp3"
     }
     _AUDIO_QUALITIES = {"MP3": 5, "CD": 6, "HI-RES-96": 7, "HI-RES-192": 27}
+    _COLLECTION_TYPES = {"album", "playlist"}
+    _COMPOSER_ROLES = {"composer", "composerlyricist", "lyricist", "writer"}
     _ILLEGAL_CHARACTERS = {ord(c): '_' for c in '<>:"/\|?*'}
 
     API_URL = "https://www.qobuz.com/api.json/0.2"
@@ -485,7 +487,7 @@ class Session:
 
         data = self.get_track(track_id)
         credits = self.get_track_credits(
-            performers=data["performers"], roles=["mainartist", "writer"]
+            performers=data["performers"], roles=["mainartist", "composers"]
         )
         i = credits["mainartist"].index(data["performer"]["name"])
         if i != 0:
@@ -531,7 +533,7 @@ class Session:
                 Track.from_qobuz(
                     data,
                     artists=credits["mainartist"],
-                    composers=credits["writer"],
+                    composers=credits["composers"],
                     artwork=data["album"]["image"]["large"],
                     comment=f"https://open.qobuz.com/track/{data['id']}"
                 )
@@ -561,10 +563,15 @@ class Session:
             from calling :meth:`Session.get_track`.
 
         roles : `list`, keyword-only, optional
-            Role filter.
+            Role filter. The special :code:`"composers"` filter will 
+            combine the :code:`"composer"`, :code:`"lyricist"`, and
+            :code:`"writer"` roles.
 
-            **Valid values**: :code:`"mainartist"`, :code:`"producer"`, 
-            :code:`"writer"`, etc.
+            **Valid values**: :code:`"mainartist"`, 
+            :code:`"featuredartist"`, :code:`"producer"`, 
+            :code:`"mixer"`, :code:`"composers"` (:code:`"composer"`, 
+            :code:`"composerlyricist"`, :code:`"lyricist"`, 
+            :code:`"writer"`), :code:`"musicpublisher"`, etc.
 
         Returns
         -------
@@ -586,6 +593,14 @@ class Session:
         credits = {}
         if roles is None:
             roles = set(c for r in performers.values() for c in r)
+        if "composers" in roles:
+            roles.remove("composers")
+            lookup = set()
+            credits["composers"] = [
+                p for cr in self._COMPOSER_ROLES 
+                for p, r in performers.items() 
+                if cr in r and p not in lookup and lookup.add(p) is None
+            ]
         for role in roles:
             credits[role] = [p for p, r in performers.items() if role in r]
         
@@ -635,3 +650,117 @@ class Session:
                 "type": type
             }
         )
+    
+    def get_streams(
+            self, id: Union[int, str], type: str, *, 
+            quality: Union[int, str] = 27, save: bool = False, 
+            path: str = None, folder: bool = False, metadata: bool = True
+        ) -> Union[None, bytes]:
+
+        """
+        Get a track's audio stream data.
+
+        .. admonition:: User authentication
+
+           Requires user authentication and an active Qobuz streaming 
+           plan for full, high-quality audio streams.
+
+        .. note::
+           This method is provided for convenience and is not a Qobuz 
+           API endpoint.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            Qobuz collection ID.
+
+        type : `str`
+            Qobuz collection type.
+
+            **Valid values**: :code:`"album"` and :code:`"playlist"`.
+
+        quality : `str`, keyword-only, default: :code:`27`
+            Maximum audio quality.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`5` or :code:`"LOSSY"` for constant bitrate 
+                 (320 kbps) MP3.
+               * :code:`6` or :code:`"CD"` for CD-quality 
+                 (16-bit, 44.1 kHz) FLAC.
+               * :code:`7` or :code:`"HI-RES-96"` for up to 24-bit,
+                 96 kHz Hi-Res FLAC.
+               * :code:`27` or :code:`"HI-RES-192"` for up to 24-bit,
+                 192 kHz Hi-Res FLAC.
+
+        save : `bool`, keyword-only, default: :code:`False`
+            Determines whether the stream is saved to an audio file.
+
+        path : `str`, keyword-only, optional
+            If :code:`save=True`, path in which the audio file is saved.
+
+        folder : `bool`, keyword-only, default: :code:`False`
+            Determines whether a folder in `path` (or in the current
+            directory if `path` is not specified) is created to hold the
+            audio file.
+
+        metadata : `bool`, keyword-only, default: :code:`True`
+            Determines whether the audio file's metadata is
+            populated.
+
+        Returns
+        -------
+        stream : `bytes`
+            Audio stream data. If :code:`save=True`, :code:`None` is 
+            returned and the stream data is saved to an audio file 
+            instead.
+        """
+
+        if type not in self._COLLECTION_TYPES:
+            raise ValueError("Invalid collection type. The supported " 
+                             f"types are {', '.join(self._COLLECTION_TYPES)}.")
+        
+        if type == "album":
+            data = self.get_album(id)
+            artist = [a["name"] for a in data["artists"]]
+            main_artist = data["artist"]["name"]
+            i = artist.index(main_artist)
+            if i != 0:
+                artist.insert(0, artist.pop(i))
+            artist = utility.multivalue_formatter(artist, False)
+            title = data["title"]
+        elif type == "playlist":
+            data = self.get_playlist(id, limit=500)
+            if data["featured_artists"]:
+                artist = utility.multivalue_formatter(
+                    [a["name"] for a in data["featured_artists"]], 
+                    False
+                )
+            else:
+                artist = data["owner"]["name"]
+            title = data["name"]
+        items = data["tracks"]["items"]
+
+        if save:
+            if path is not None:
+                os.chdir(path)
+            if folder:
+                dirname = f"{artist} - {title}"
+                if not os.path.isdir(dirname):
+                    os.mkdir(dirname)
+                os.chdir(dirname)
+        else:
+            streams = []
+
+        for item in items:
+            stream = self.get_track_stream(item["id"], quality=quality,
+                                           save=save, metadata=metadata)
+            if not save:
+                streams.append(stream)
+        
+        if not save:
+            return streams
+        elif folder:
+            os.chdir("..")

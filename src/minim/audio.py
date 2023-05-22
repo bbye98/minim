@@ -948,7 +948,8 @@ class Audio:
         if self.album is None or overwrite:
             self.album = data["album"]["title"]
         if self.album_artist is None or overwrite:
-            album_artists = [a["name"] for a in data["album"]["artists"]]
+            album_artists = [a["name"] for a in data["album"]["artists"] 
+                             if "main-artist" in a["roles"]]
             main_album_artist = data["album"]["artist"]["name"]
             i = album_artists.index(main_album_artist)
             if i != 0:
@@ -967,7 +968,8 @@ class Audio:
             self.copyright = data["album"]["copyright"]
         if self.date is None or overwrite:
             self.date = datetime.utcfromtimestamp(
-                min(data["purchasable_at"], data["streamable_at"])
+                min(data["purchasable_at"] or 2 ** 31, 
+                    data["streamable_at"] or 2 ** 31 - 1)
             ).strftime('%Y-%m-%dT%H:%M:%SZ')
         if self.disc_number is None or overwrite:
             self.disc_number = data["media_number"]

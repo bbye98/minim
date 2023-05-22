@@ -272,19 +272,22 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_playlist" title="minim.qobuz.Session.get_playlist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_playlist</span></code></a></p></td>
 <td><p>Get Qobuz catalog information for a playlist.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_track" title="minim.qobuz.Session.get_track"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track</span></code></a></p></td>
-<td><p>Get Qobuz catalog information for a track.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_track_credits" title="minim.qobuz.Session.get_track_credits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track_credits</span></code></a></p></td>
-<td><p>Get credits for a track.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_track_file_url" title="minim.qobuz.Session.get_track_file_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track_file_url</span></code></a></p></td>
-<td><p>Get the file URL for a track.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_track_stream" title="minim.qobuz.Session.get_track_stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track_stream</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_streams" title="minim.qobuz.Session.get_streams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_streams</span></code></a></p></td>
 <td><p>Get a track's audio stream data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_user_favorites" title="minim.qobuz.Session.get_user_favorites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_favorites</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_track" title="minim.qobuz.Session.get_track"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track</span></code></a></p></td>
+<td><p>Get Qobuz catalog information for a track.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_track_credits" title="minim.qobuz.Session.get_track_credits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track_credits</span></code></a></p></td>
+<td><p>Get credits for a track.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_track_file_url" title="minim.qobuz.Session.get_track_file_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track_file_url</span></code></a></p></td>
+<td><p>Get the file URL for a track.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_track_stream" title="minim.qobuz.Session.get_track_stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track_stream</span></code></a></p></td>
+<td><p>Get a track's audio stream data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_user_favorites" title="minim.qobuz.Session.get_user_favorites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_favorites</span></code></a></p></td>
 <td><p>Get the user's favorite albums, artists, articles, and tracks.</p></td>
 </tr>
 </tbody>
@@ -407,6 +410,67 @@ get the next page of tracks. Has no effect if
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.get_streams">
+<span class="sig-name descname"><span class="pre">get_streams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">27</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a></span></span><a class="headerlink" href="#minim.qobuz.Session.get_streams" title="Permalink to this definition">#</a></dt>
+<dd><p>Get a track’s audio stream data.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication and an active Qobuz streaming
+plan for full, high-quality audio streams.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method is provided for convenience and is not a Qobuz
+API endpoint.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>Qobuz collection ID.</p>
+</dd>
+<dt><strong>type</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>Qobuz collection type.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;album&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;playlist&quot;</span></code>.</p>
+</dd>
+<dt><strong>quality</strong><span class="classifier"><cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">27</span></code></span></dt><dd><p>Maximum audio quality.</p>
+<div class="docutils container">
+<p><strong>Valid values</strong>:</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">5</span></code> or <code class="code docutils literal notranslate"><span class="pre">&quot;LOSSY&quot;</span></code> for constant bitrate
+(320 kbps) MP3.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">6</span></code> or <code class="code docutils literal notranslate"><span class="pre">&quot;CD&quot;</span></code> for CD-quality
+(16-bit, 44.1 kHz) FLAC.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">7</span></code> or <code class="code docutils literal notranslate"><span class="pre">&quot;HI-RES-96&quot;</span></code> for up to 24-bit,
+96 kHz Hi-Res FLAC.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">27</span></code> or <code class="code docutils literal notranslate"><span class="pre">&quot;HI-RES-192&quot;</span></code> for up to 24-bit,
+192 kHz Hi-Res FLAC.</p></li>
+</ul>
+</div>
+</dd>
+<dt><strong>save</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Determines whether the stream is saved to an audio file.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>If <code class="code docutils literal notranslate"><span class="pre">save=True</span></code>, path in which the audio file is saved.</p>
+</dd>
+<dt><strong>folder</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Determines whether a folder in <cite>path</cite> (or in the current
+directory if <cite>path</cite> is not specified) is created to hold the
+audio file.</p>
+</dd>
+<dt><strong>metadata</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Determines whether the audio file’s metadata is
+populated.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>stream</strong><span class="classifier"><cite>bytes</cite></span></dt><dd><p>Audio stream data. If <code class="code docutils literal notranslate"><span class="pre">save=True</span></code>, <code class="code docutils literal notranslate"><span class="pre">None</span></code> is
+returned and the stream data is saved to an audio file
+instead.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="minim.qobuz.Session.get_track">
 <span class="sig-name descname"><span class="pre">get_track</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.qobuz.Session.get_track" title="Permalink to this definition">#</a></dt>
 <dd><p>Get Qobuz catalog information for a track.</p>
@@ -443,9 +507,14 @@ API endpoint.</p>
 <dt><strong>performers</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>An unformatted string containing the track credits obtained
 from calling <a class="reference internal" href="#minim.qobuz.Session.get_track" title="minim.qobuz.Session.get_track"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Session.get_track()</span></code></a>.</p>
 </dd>
-<dt><strong>roles</strong><span class="classifier"><cite>list</cite>, keyword-only, optional</span></dt><dd><p>Role filter.</p>
-<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;mainartist&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;producer&quot;</span></code>,
-<code class="code docutils literal notranslate"><span class="pre">&quot;writer&quot;</span></code>, etc.</p>
+<dt><strong>roles</strong><span class="classifier"><cite>list</cite>, keyword-only, optional</span></dt><dd><p>Role filter. The special <code class="code docutils literal notranslate"><span class="pre">&quot;composers&quot;</span></code> filter will
+combine the <code class="code docutils literal notranslate"><span class="pre">&quot;composer&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;lyricist&quot;</span></code>, and
+<code class="code docutils literal notranslate"><span class="pre">&quot;writer&quot;</span></code> roles.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;mainartist&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;featuredartist&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;producer&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;mixer&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;composers&quot;</span></code> (<code class="code docutils literal notranslate"><span class="pre">&quot;composer&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;composerlyricist&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;lyricist&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;writer&quot;</span></code>), <code class="code docutils literal notranslate"><span class="pre">&quot;musicpublisher&quot;</span></code>, etc.</p>
 </dd>
 </dl>
 </dd>
@@ -651,6 +720,7 @@ favorite items are returned.</p>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_artist"><code class="docutils literal notranslate"><span class="pre">get_artist()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_label"><code class="docutils literal notranslate"><span class="pre">get_label()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_playlist"><code class="docutils literal notranslate"><span class="pre">get_playlist()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.get_streams"><code class="docutils literal notranslate"><span class="pre">get_streams()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_track"><code class="docutils literal notranslate"><span class="pre">get_track()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_track_credits"><code class="docutils literal notranslate"><span class="pre">get_track_credits()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_track_file_url"><code class="docutils literal notranslate"><span class="pre">get_track_file_url()</span></code></a></li>

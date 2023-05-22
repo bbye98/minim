@@ -1,4 +1,4 @@
-minim.qobuz.Session
+﻿minim.qobuz.Session
 ===================
 
 .. currentmodule:: minim.qobuz
@@ -20,6 +20,7 @@ minim.qobuz.Session
       ~Session.get_artist
       ~Session.get_label
       ~Session.get_playlist
+      ~Session.get_streams
       ~Session.get_track
       ~Session.get_track_credits
       ~Session.get_track_file_url
