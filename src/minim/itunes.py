@@ -59,17 +59,10 @@ def search(
 
         .. container::
 
-           **Valid values**: 
-
-           * :code:`"movie"` for movies
-           * :code:`"podcast"` for podcasts
-           * :code:`"music"` for songs
-           * :code:`"musicVideo"` for music videos
-           * :code:`"audioBook"` for audiobooks
-           * :code:`"shortFilm"` for short films
-           * :code:`"tvShow"` for television shows
-           * :code:`"software"` for applications and software
-           * :code:`"ebook"` for ebooks
+           **Valid values**: :code:`"movie"`, :code:`"podcast"`, 
+           :code:`"music"`, :code:`"musicVideo"`, :code:`"audioBook"`,
+           :code:`"shortFilm"`, :code:`"tvShow"`, :code:`"software"`,
+           and :code:`"ebook"`.
 
         **Default**: :code:`"all"`.
     
@@ -137,7 +130,7 @@ def search(
         The search result key version you want to receive back from your
         search.
 
-        **Valid values**: :code:`1` or :code:`2`.
+        **Valid values**: :code:`1` and :code:`2`.
         
         **Default**: :code:`2`.
 

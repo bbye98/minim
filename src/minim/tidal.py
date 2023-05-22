@@ -5,10 +5,10 @@
 
 This module contains a minimal Python implementation of the TIDAL API,
 which allows media (tracks, videos), collections (albums, playlists),
-and performers to be downloaded or queried, and information about them
-to be retrieved. As the TIDAL API is not public, there is no available
-official documentation documentation for it. Its endpoints have been
-determined by watching HTTP network traffic.
+and performers to be queried, and information about them to be 
+retrieved. As the TIDAL API is not public, there is no available
+official documentation for it. Its endpoints have been determined by 
+watching HTTP network traffic.
 
 Without authentication, the TIDAL API can be used to query for and
 retrieve information about media and performers.
@@ -82,8 +82,8 @@ class Session:
 
            **Valid values**:
            
-           * :code:`authorization_code` for the authorization code flow
-           * :code:`device_code` for the device_code flow
+           * :code:`authorization_code` for the authorization code flow.
+           * :code:`device_code` for the device_code flow.
     
     scopes : `str` or `list`, keyword-only, optional
         Authorization scopes to request user access for in the
@@ -146,15 +146,13 @@ class Session:
 
     _ASSET_PRESENTATIONS = {"FULL", "PREVIEW"}
     _AUDIO_FORMATS_EXTENSIONS = {
-        "aac": "m4a",
-        "aiff": "aiff",
         "alac": "m4a",
         "flac": "flac",
         "m4a": "m4a",
         "mp3": "mp3",
+        "mpeg": "mp3",
         "mp4a": "m4a",
-        "mqa": "flac",
-        "wav": "wav"
+        "mqa": "flac"
     }
     _AUDIO_QUALITIES = {"LOW", "HIGH", "LOSSLESS", "HI_RES"}
     _COLLECTION_TYPES = {"album", "mix", "playlist"}
@@ -208,7 +206,7 @@ class Session:
             self._country = country if country else self._me["countryCode"]
         elif flow is None:
             self._client_id = os.environ.get("TIDAL_CLIENT_ID") \
-                             if client_id is None else client_id
+                              if client_id is None else client_id
             self._expiry = None
             self._flow = flow
             self._country = country if country else self.get_country_code()
@@ -379,7 +377,7 @@ class Session:
             queries = dict(
                 urllib.parse.parse_qsl(
                     urllib.parse.urlparse(
-                        re.search(f'{self.REDIRECT_URI}\?(.*?)"', har)[0]
+                        re.search(f'{self.REDIRECT_URI}\?(.*?)"', har).group(0)
                     ).query
                 )
             )
@@ -788,26 +786,16 @@ class Session:
             the next page of search results.
 
             **Default**: :code:`0`.
-            
-        order : `str`, keyword-only, :code:`"DATE"`
+
+        order : `str`, keyword-only, default: :code:`"DATE"`
             Sorting order.
 
-            .. container::
+            **Valid values**: :code:`"DATE"` and :code:`"NAME"`.
 
-               **Valid values**:
-
-               * :code:`"DATE"` to sort by date.
-               * :code:`"NAME"` to sort by name.
-               
-        order_direction : `str`, keyword-only, :code:`"DESC"`
+        order_direction : `str`, keyword-only, default: :code:`"DESC"`
             Sorting order direction.
 
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"DESC"` to sort in descending order.
-               * :code:`"ASC"` to sort in ascending order.
+            **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
 
         country : `str`, keyword-only, optional
             An ISO 3166-1 alpha-2 country code. If not specified, the
@@ -1151,25 +1139,15 @@ class Session:
 
             **Default**: :code:`0`.
             
-        order : `str`, keyword-only, :code:`"DATE"`
+        order : `str`, keyword-only, default: :code:`"DATE"`
             Sorting order.
 
-            .. container::
+            **Valid values**: :code:`"DATE"` and :code:`"NAME"`.
 
-               **Valid values**:
-
-               * :code:`"DATE"` to sort by date.
-               * :code:`"NAME"` to sort by name.
-
-        order_direction : `str`, keyword-only, :code:`"DESC"`
+        order_direction : `str`, keyword-only, default: :code:`"DESC"`
             Sorting order direction.
 
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"DESC"` to sort in descending order.
-               * :code:`"ASC"` to sort in ascending order.
+            **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
 
         country : `str`, keyword-only, optional
             An ISO 3166-1 alpha-2 country code. If not specified, the
@@ -1715,7 +1693,7 @@ class Session:
 
         Parameters
         ----------
-        uuid : `int` or `str`
+        uuid : `str`
             TIDAL playlist UUID.
 
         country : `str`, keyword-only, optional
@@ -1751,7 +1729,7 @@ class Session:
 
         Parameters
         ----------
-        uuid : `int` or `str`
+        uuid : `str`
             TIDAL playlist UUID.
 
         country : `str`, keyword-only, optional
@@ -2100,37 +2078,22 @@ class Session:
         include : `str`, keyword-only, optional
             Type of playlist-related item to return.
 
-            .. container::
-
-               **Valid values**: 
-               
-               * :code:`"FAVORITE_PLAYLIST"` for favorite playlists.
-               * :code:`"FOLDER"` for playlist folders.
-               * :code:`"PLAYLIST"` for playlists.
+            **Valid values**: :code:`"FAVORITE_PLAYLIST"`, 
+            :code:`"FOLDER"`, and :code:`"PLAYLIST"`.
 
         limit : `int`, keyword-only, default: :code:`50`
             The maximum number of results to return.
 
-        order : `str`, keyword-only, :code:`"DATE"`
+        order : `str`, keyword-only, default: :code:`"DATE"`
             Sorting order.
 
-            .. container::
+            **Valid values**: :code:`"DATE"`, :code:`"DATE_UPDATED"`, 
+            and :code:`"NAME"`.
 
-               **Valid values**:
-
-               * :code:`"DATE"` to sort by date.
-               * :code:`"DATE_UPDATED"` to sort by date last updated.
-               * :code:`"NAME"` to sort by name.
-
-        order_direction : `str`, keyword-only, :code:`"DESC"`
+        order_direction : `str`, keyword-only, default: :code:`"DESC"`
             Sorting order direction.
 
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"DESC"` to sort in descending order.
-               * :code:`"ASC"` to sort in ascending order.
+            **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
 
         Returns
         -------
@@ -2370,17 +2333,20 @@ class Session:
             Items to add to the playlist. If not specified, 
             `from_playlist_uuid` must be provided. 
             
-                **Note**: If both `items` and `from_playlist_uuid` are
-                specified, only the items in `items` will be added to
-                the playlist.
+            .. note::
+                
+               If both `items` and `from_playlist_uuid` are specified,
+               only the items in `items` will be added to the playlist.
 
         from_playlist_uuid : `str`, keyword-only, optional
             TIDAL playlist from which to copy items.
         
-        on_duplicate : `str`, keyword-only, \
-        :code:`{"FAIL", "SKIP", "ADD"}`
+        on_duplicate : `str`, keyword-only, default: :code:`"FAIL"`
             Behavior when the item to be added is already in the 
             playlist.
+
+            **Valid values**: :code:`"ADD"`, :code:`"SKIP"`, and 
+            :code:`"FAIL"`.
 
         on_not_found : `str`, keyword-only, default: :code:`"FAIL"`
             Behavior when the item to be added does not exist.
@@ -2485,16 +2451,9 @@ class Session:
         type : `str`, keyword-only, optional
             Specific media type to search for.
 
-            .. container::
-
-               **Valid values**: 
-               
-               * :code:`"artist"` for artists.
-               * :code:`"album"` for albums.
-               * :code:`"playlist"` for playlists.
-               * :code:`"track"` for tracks.
-               * :code:`"userProfile"` for user profiles.
-               * :code:`"video"` for videos.
+            **Valid values**: :code:`"artist"`, :code:`"album"`, 
+            :code:`"playlist"`, :code:`"track"`, :code:`"userProfile"`,
+            and :code:`"video"`.
 
         limit : `int`, keyword-only, optional
             Maximum number of results to return.
@@ -2548,11 +2507,14 @@ class Session:
         Get audio and video stream data for all tracks and videos in an 
         album, mix, or playlist.
 
-        Requires user authentication for high-quality, offline, or full
-        audio and video streams.
+        .. admonition:: OAuth 2.0 authentication
 
-            **Note**: This method is provided for convenience and is not
-            a TIDAL API endpoint.
+           Requires user authentication for high-quality, offline, or 
+           full audio and video streams.
+
+        .. note::
+           This method is provided for convenience and is not a TIDAL 
+           API endpoint.
 
         Parameters
         ----------
@@ -2562,12 +2524,8 @@ class Session:
         type : `str`
             TIDAL collection type.
 
-            .. container::
-
-               **Valid values**: 
-               * :code:`"album"` for albums.
-               * :code:`"mix"` for mixes. 
-               * :code:`"playlist"` for playlists.
+            **Valid values**: :code:`"album"`, :code:`"mix"`, and 
+            :code:`"playlist"`.
 
         device : `str`, keyword-only, default: :code:`"BROWSER"`
             Device type.
@@ -2581,32 +2539,43 @@ class Session:
                * :code:`"PHONE"` for the mobile TIDAL application.
                * :code:`"TV"` for the smart TV TIDAL application.
 
-        audio_quality : `str`, keyword-only, \
-        :code:`{"HI_RES", "LOSSLESS", "HIGH", "LOW"}`
-            Audio quality:
+        audio_quality : `str`, keyword-only, default: :code:`"HI-RES"`
+            Audio quality.
 
-            * :code:`"LOW"`: 64 kbps (22.05 kHz) MP3 without user 
-                authentication or 96 kbps AAC with user authentication.
-            * :code:`"HIGH"`: 320 kbps AAC.
-            * :code:`"LOSSLESS"`: 1411 kbps (16-bit, 44.1 kHz) ALAC or
-                FLAC.
-            * :code:`"HI_RES"`: Up to 9216 kbps (24-bit, 96 kHz) 
-                MQA-encoded FLAC.
+            .. container::
 
-        video_quality : `str`, keyword-only, \
-        :code:`{"HIGH", "MEDIUM", "LOW", "AUDIO_ONLY"}`
+               **Valid values**:
+
+               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user 
+                 authentication or 96 kbps AAC with user authentication.
+               * :code:`"HIGH"` for 320 kbps AAC.
+               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
+                 or FLAC.
+               * :code:`"HI_RES"` for Up to 9216 kbps (24-bit, 96 kHz) 
+                 MQA-encoded FLAC.
+
+        video_quality : `str`, keyword-only, default: :code:`"HIGH"`
             Video quality.
 
-        playback_mode : `str`, keyword-only, \
-        :code:`{"STREAM", "OFFLINE"}`
+            **Valid values**: :code:`"AUDIO_ONLY"`, :code:`"LOW"`,
+            :code:`"MEDIUM"`, and :code:`"HIGH"`.
+
+        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
             Playback mode.
 
-        asset_presentation : `str`, keyword-only, \
-        :code:`{"FULL", "PREVIEW"}`
-            Asset presentation:
+            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
+
+        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
+
+            Asset presentation.
+
+            .. container::
+
+               **Valid values**:
             
-            * :code:`"FULL"`: Full track.
-            * :code:`"PREVIEW"`: 30-second preview of the track.
+               * :code:`"FULL"`: Full track or video.
+               * :code:`"PREVIEW"`: 30-second preview of the track or 
+                 video.
 
         streaming_session_id : `str`, keyword-only, optional
             Streaming session ID.
@@ -2710,42 +2679,52 @@ class Session:
         """
         Get a track's audio stream data.
 
-        Requires user authentication for high-quality, offline, or full
-        audio streams.
+        .. admonition:: OAuth 2.0 authentication
+
+           Requires user authentication for high-quality, offline, or 
+           full audio streams.
 
         Parameters
         ----------
         id : `int` or `str`
             TIDAL track ID.
 
-        audio_quality : `str`, keyword-only, \
-        :code:`{"HI_RES", "LOSSLESS", "HIGH", "LOW"}`
-            Audio quality:
+        audio_quality : `str`, keyword-only, default: :code:`"HI-RES"`
+            Audio quality.
 
-            * :code:`"LOW"`: 64 kbps (22.05 kHz) MP3 without user 
-              authentication or 96 kbps AAC with user authentication.
-            * :code:`"HIGH"`: 320 kbps AAC.
-            * :code:`"LOSSLESS"`: 1411 kbps (16-bit, 44.1 kHz) ALAC or
-              FLAC.
-            * :code:`"HI_RES"`: Up to 9216 kbps (24-bit, 96 kHz) 
-              MQA-encoded FLAC.
+            .. container::
 
-        playback_mode : `str`, keyword-only, \
-        :code:`{"STREAM", "OFFLINE"}`
+               **Valid values**:
+
+               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user 
+                 authentication or 96 kbps AAC with user authentication.
+               * :code:`"HIGH"` for 320 kbps AAC.
+               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
+                 or FLAC.
+               * :code:`"HI_RES"` for Up to 9216 kbps (24-bit, 96 kHz) 
+                 MQA-encoded FLAC.
+
+        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
             Playback mode.
 
-        asset_presentation : `str`, keyword-only, \
-        :code:`{"FULL", "PREVIEW"}`
-            Asset presentation:
+            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
+
+        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
+            Asset presentation.
+
+            .. container::
+
+               **Valid values**:
             
-            * :code:`"FULL"`: Full track.
-            * :code:`"PREVIEW"`: 30-second preview of the track.
+               * :code:`"FULL"`: Full track.
+               * :code:`"PREVIEW"`: 30-second preview of the track.
 
         streaming_session_id : `str`, keyword-only, optional
             Streaming session ID.
 
         album_data : `dict`, keyword-only, optional
-            TIDAL catalog information for an album.
+            TIDAL catalog information for an album. If not provided, it
+            will be retrieved.
 
         save : `bool`, keyword-only, default: :code:`False`
             Determines whether the stream is saved to an audio file.
@@ -2886,31 +2865,39 @@ class Session:
         """
         Get a video's audio and video stream data.
 
-        Requires user authentication for high-quality, offline, or full
-        video streams.
+        .. admonition:: OAuth 2.0 authentication
+
+           Requires user authentication for high-quality, offline, or 
+           full video streams.
 
         Parameters
         ----------
         id : `int` or `str`
             TIDAL video ID.
 
-        video_quality : `str`, keyword-only, \
-        :code:`{"HIGH", "MEDIUM", "LOW", "AUDIO_ONLY"}`
+        video_quality : `str`, keyword-only, default: :code:`"HIGH"`
             Video quality.
+
+            **Valid values**: :code:`"AUDIO_ONLY"`, :code:`"LOW"`,
+            :code:`"MEDIUM"`, and :code:`"HIGH"`.
 
         max_resolution : `int`, keyword-only, default: :code:`2160`
             Maximum video resolution (number of vertical pixels).
 
-        playback_mode : `str`, keyword-only, \
-        :code:`{"STREAM", "OFFLINE"}`
+        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
             Playback mode.
 
-        asset_presentation : `str`, keyword-only, \
-        :code:`{"FULL", "PREVIEW"}`
-            Asset presentation:
+            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
+
+        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
+            Asset presentation.
+
+            .. container::
+
+               **Valid values**:
             
-            * :code:`"FULL"`: Full video.
-            * :code:`"PREVIEW"`: 30-second preview of the video.
+               * :code:`"FULL"`: Full video.
+               * :code:`"PREVIEW"`: 30-second preview of the video.
 
         streaming_session_id : `str`, keyword-only, optional
             Streaming session ID.
@@ -3032,8 +3019,9 @@ class Session:
         """
         Get the composers, lyricists, and/or writers of a track.
 
-            **Note**: This method is provided for convenience and is not
-            a TIDAL API endpoint.
+        .. note::
+           This method is provided for convenience and is not a TIDAL 
+           API endpoint.
 
         Parameters
         ----------
@@ -3216,36 +3204,45 @@ class Session:
         """
         Get playback information for a track.
 
-        Requires user authentication for high-quality, offline, or full
-        audio playback information.
+        .. admonition:: OAuth 2.0 authentication
+
+           Requires user authentication for high-quality, offline, or 
+           full audio playback information.
 
         Parameters
         ----------
         id : `int` or `str`
             TIDAL track ID.
 
-        audio_quality : `str`, keyword-only, \
-        :code:`{"HI_RES", "LOW", "HIGH", "LOSSLESS"}`
-            Audio quality:
+        audio_quality : `str`, keyword-only, default: :code:`"HI-RES"`
+            Audio quality.
 
-            * :code:`"LOW"`: 64 kbps (22.05 kHz) MP3 without user 
-              authentication or 96 kbps AAC with user authentication.
-            * :code:`"HIGH"`: 320 kbps AAC.
-            * :code:`"LOSSLESS"`: 1411 kbps (16-bit, 44.1 kHz) ALAC or
-              FLAC.
-            * :code:`"HI_RES"`: Up to 9216 kbps (24-bit, 96 kHz) 
-              MQA-encoded FLAC.
+            .. container::
 
-        playback_mode : `str`, keyword-only, \
-        :code:`{"STREAM", "OFFLINE"}`
+               **Valid values**:
+
+               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user 
+                 authentication or 96 kbps AAC with user authentication.
+               * :code:`"HIGH"` for 320 kbps AAC.
+               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
+                 or FLAC.
+               * :code:`"HI_RES"` for Up to 9216 kbps (24-bit, 96 kHz) 
+                 MQA-encoded FLAC.
+
+        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
             Playback mode.
 
-        asset_presentation : `str`, keyword-only, \
-        :code:`{"FULL", "PREVIEW"}`
-            Asset presentation:
+            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
+
+        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
+            Asset presentation.
+
+            .. container::
+
+               **Valid values**:
             
-            * :code:`"FULL"`: Full track.
-            * :code:`"PREVIEW"`: 30-second preview of the track.
+               * :code:`"FULL"`: Full track.
+               * :code:`"PREVIEW"`: 30-second preview of the track.
 
         streaming_session_id : `str`, keyword-only, optional
             Streaming session ID.
@@ -3351,25 +3348,15 @@ class Session:
 
             **Default**: :code:`0`.
             
-        order : `str`, keyword-only, :code:`"DATE"`
+        order : `str`, keyword-only, default: :code:`"DATE"`
             Sorting order.
 
-            .. container::
+            **Valid values**: :code:`"DATE"` and :code:`"NAME"`.
 
-               **Valid values**:
-
-               * :code:`"DATE"` to sort by date.
-               * :code:`"NAME"` to sort by name.
-
-        order_direction : `str`, keyword-only, :code:`"DESC"`
+        order_direction : `str`, keyword-only, default: :code:`"DESC"`
             Sorting order direction.
 
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"DESC"` to sort in descending order.
-               * :code:`"ASC"` to sort in ascending order.
+            **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
 
         country : `str`, keyword-only, optional
             An ISO 3166-1 alpha-2 country code. If not specified, the
@@ -3581,12 +3568,7 @@ class Session:
         include : `str`, keyword-only, optional
             Type of people to return.
 
-            .. container::
-
-               **Valid values**: 
-               
-               * :code:`"ARTIST"` for artists. 
-               * :code:`"USER"` for users.
+            **Valid values**: :code:`"ARTIST"` and :code:`"USER"`.
 
         limit : `int`, keyword-only, default: :code:`500`
             The maximum number of results to return.
@@ -3782,28 +3764,36 @@ class Session:
         """
         Get playback information for a video.
 
-        Requires user authentication for high-quality, offline, or full
-        video playback information.
+        .. admonition:: OAuth 2.0 authentication
+
+           Requires user authentication for high-quality, offline, or 
+           full video playback information.
 
         Parameters
         ----------
         id : `int` or `str`
             TIDAL video ID.
 
-        audio_quality : `str`, keyword-only, \
-        :code:`{"HIGH", "LOW", "MEDIUM", "AUDIO_ONLY"}`
+        video_quality : `str`, keyword-only, default: :code:`"HIGH"`
             Video quality.
 
-        playback_mode : `str`, keyword-only, \
-        :code:`{"STREAM", "OFFLINE"}`
+            **Valid values**: :code:`"AUDIO_ONLY"`, :code:`"LOW"`,
+            :code:`"MEDIUM"`, and :code:`"HIGH"`.
+
+        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
             Playback mode.
 
-        asset_presentation : `str`, keyword-only, \
-        :code:`{"FULL", "PREVIEW"}`
-            Asset presentation:
+            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
+
+        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
+            Asset presentation.
+
+            .. container::
+
+               **Valid values**:
             
-            * :code:`"FULL"`: Full video.
-            * :code:`"PREVIEW"`: 30-second preview of the video.
+               * :code:`"FULL"`: Full video.
+               * :code:`"PREVIEW"`: 30-second preview of the video.
 
         streaming_session_id : `str`, keyword-only, optional
             Streaming session ID.
@@ -3872,25 +3862,15 @@ class Session:
 
             **Default**: :code:`0`.
             
-        order : `str`, keyword-only, :code:`"DATE"`
+        order : `str`, keyword-only, default: :code:`"DATE"`
             Sorting order.
 
-            .. container::
+            **Valid values**: :code:`"DATE"` and :code:`"NAME"`.
 
-               **Valid values**:
-
-               * :code:`"DATE"` to sort by date.
-               * :code:`"NAME"` to sort by name.
-
-        order_direction : `str`, keyword-only, :code:`"DESC"`
+        order_direction : `str`, keyword-only, default: :code:`"DESC"`
             Sorting order direction.
 
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"DESC"` to sort in descending order.
-               * :code:`"ASC"` to sort in ascending order.
+            **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
 
         country : `str`, keyword-only, optional
             An ISO 3166-1 alpha-2 country code. If not specified, the

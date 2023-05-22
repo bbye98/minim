@@ -261,7 +261,7 @@ class LyricsAPISession(_Session):
         id : `str`
             The Spotify ID for the track.
 
-            **Example**: :code:`"11dFghVXANMlKmJXsNCbNl"`
+            **Example**: :code:`"11dFghVXANMlKmJXsNCbNl"`.
 
         Returns
         -------
@@ -297,10 +297,10 @@ class WebAPISession(_Session):
 
            **Valid values**:
            
-           * :code:`authorization_code` for the authorization code flow
-           * :code:`client_credentials` for the client credentials flow
+           * :code:`authorization_code` for the authorization code flow.
+           * :code:`client_credentials` for the client credentials flow.
 
-           **Default**: :code:`client_credentials`
+           **Default**: :code:`client_credentials`.
     
     browser : `bool`, keyword-only, default: :code:`True`
         Determines whether a web browser is automatically opened and the
@@ -315,7 +315,7 @@ class WebAPISession(_Session):
            be used to specify which backend is used for authorization
            code retrieval.
 
-    backend : `str`, keyword-only, optional
+    backend : `str`, keyword-only, default: :code:`"flask"`
         Backend used for authorization code retrieval when 
         :code:`browser=True`.
 
@@ -323,8 +323,8 @@ class WebAPISession(_Session):
 
            **Valid values**:
            
-           * :code:`flask` for the Flask web application framework
-           * :code:`playwright` for the Playwright library by Microsoft
+           * :code:`flask` for the Flask web application framework.
+           * :code:`playwright` for the Playwright library by Microsoft.
 
     scope : `str` or `list`, keyword-only, optional
         Authorization scopes to request user access for in the
@@ -643,7 +643,7 @@ class WebAPISession(_Session):
                 queries = dict(
                     urllib.parse.parse_qsl(
                         urllib.parse.urlparse(
-                            re.search(f'{self.REDIRECT_URI}\?(.*?)"', har)[0]
+                            re.search(f'{self.REDIRECT_URI}\?(.*?)"', har).group(0)
                         ).query
                     )
                 )
@@ -796,7 +796,7 @@ class WebAPISession(_Session):
         ids : `str` or `list`
             A (comma-separated) list of the Spotify IDs for the albums.
             
-            **Maximum**: 20 IDs..
+            **Maximum**: 20 IDs.
 
             **Example**: :code:`"382ObEPsp2rxGrnsizN5TX,
             1A2GTWGtFfWp7KSQTwWOyo, 2noRn2Aes5aoNVsU6iWThc"`.
@@ -2532,14 +2532,7 @@ class WebAPISession(_Session):
         Parameters
         ----------
         state : `bool`
-            Shuffle mode.
-
-            .. container::
-               
-               **Valid values**:
-
-               * :code:`True`: Shuffle user's playback.
-               * :code:`False`: Do not shuffle user's playback.
+            Shuffle mode. If :code:`True`, shuffle the user's playback.
 
         device_id : `str`, keyword-only, optional
             The ID of the device this method is targeting. If not 
@@ -2841,12 +2834,7 @@ class WebAPISession(_Session):
                to maintain their current behavior and might be 
                deprecated in the future.
         
-            .. container::
-
-               **Valid values**: 
-            
-               * :code:`"track"` for tracks.
-               * :code:`"episode"` for episodes.
+            **Valid values**: :code:`"track"` and :code:`"episode"`.
 
         fields : `str` or `list`, keyword-only, optional
             Filters for the query: a (comma-separated) list of the
@@ -3541,6 +3529,7 @@ class WebAPISession(_Session):
             Your search query.
 
             .. note::
+
                You can narrow down your search using field filters. The
                available filters are :code:`album`, :code:`artist`, 
                :code:`track`, :code:`year`, :code:`upc`, 
@@ -3556,17 +3545,17 @@ class WebAPISession(_Session):
                The :code:`album` filter can be used while searching
                albums and tracks.
 
-              The :code:`genre` filter can be used while searching
-              artists and tracks.
+               The :code:`genre` filter can be used while searching
+               artists and tracks.
 
-              The :code:`isrc` and :code:`track` filters can be used
-              while searching tracks.
+               The :code:`isrc` and :code:`track` filters can be used
+               while searching tracks.
 
-              The :code:`upc`, :code:`tag:new` and :code:`tag:hipster`
-              filters can only be used while searching albums. The
-              :code:`tag:new` filter will return albums released in the
-              past two weeks and :code:`tag:hipster` can be used to
-              return only albums with the lowest 10% popularity.
+               The :code:`upc`, :code:`tag:new` and :code:`tag:hipster`
+               filters can only be used while searching albums. The
+               :code:`tag:new` filter will return albums released in the
+               past two weeks and :code:`tag:hipster` can be used to
+               return only albums with the lowest 10% popularity.
 
             **Example**:
             :code:`"remaster track:Doxy artist:Miles Davis"`.
@@ -3576,17 +3565,11 @@ class WebAPISession(_Session):
             Search results include hits from all the specified item
             types.
 
+            **Valid values**: :code:`"album"`, :code:`"artist"`, 
+            :code:`"audiobook"`, :code:`"episode"`, :code:`"playlist"`, 
+            :code:`"show"`, and :code:`"track"`.
+
             .. container::
-
-               **Valid values**:
-
-               * :code:`"album"` for albums.
-               * :code:`"artist"` for artists.
-               * :code:`"playlist"` for playlists.
-               * :code:`"track"` for tracks.
-               * :code:`"show"` for shows.
-               * :code:`"episode"` for episodes.
-               * :code:`"audiobook"` for audiobooks.
 
                **Example**: 
                
@@ -4403,12 +4386,7 @@ class WebAPISession(_Session):
         type : `str`
             The type of entity to return.
 
-            .. container::
-            
-               **Valid values**: 
-               
-               * :code:`"artists"` for artists.
-               * :code:`"tracks"` for tracks.
+            **Valid values**: :code:`"artists"` and :code:`"tracks"`.
 
         limit : `int`, keyword-only, optional
             The maximum number of results to return in each item type.
@@ -4590,12 +4568,7 @@ class WebAPISession(_Session):
         type : `str`
             The ID type.
 
-            .. container::
-            
-               **Valid values**: 
-            
-               * :code:`"artist"` for artists.
-               * :code:`"user"` for users.
+            **Valid values**: :code:`"artist"` and :code:`"user"`.
         """
 
         self._check_scope("follow_person", "user-follow-modify")
@@ -4632,12 +4605,7 @@ class WebAPISession(_Session):
         type : `str`
             The ID type.
 
-            .. container::
-            
-               **Valid values**: 
-            
-               * :code:`"artist"` for artists.
-               * :code:`"user"` for users.
+            **Valid values**: :code:`"artist"` and :code:`"user"`.
         """
 
         self._check_scope("unfollow_person", "user-follow-modify")
@@ -4676,12 +4644,7 @@ class WebAPISession(_Session):
         type : `str`
             The ID type.
 
-            .. container::
-            
-               **Valid values**: 
-            
-               * :code:`"artist"` for artists.
-               * :code:`"user"` for users.
+            **Valid values**: :code:`"artist"` and :code:`"user"`.
         
         Returns
         -------

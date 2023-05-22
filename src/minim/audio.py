@@ -8,6 +8,7 @@ file handles and information.
 """
 
 import base64
+from datetime import datetime
 import os
 import re
 import subprocess
@@ -193,7 +194,8 @@ class _ID3:
 
         if self.artwork:
             if isinstance(self.artwork, str):
-                with urllib.request.urlopen(self.artwork) if "http" in str \
+                with urllib.request.urlopen(self.artwork) \
+                        if "http" in self.artwork \
                         else open(self.artwork, "rb") as f:
                     self.artwork = f.read()
             self._tags.add(
@@ -306,7 +308,7 @@ class _VorbisComment:
         else:
             self.track_number = self.track_count = None
 
-        if hasattr(self._file, "pictures"):
+        if hasattr(self._file, "pictures") and self._file.pictures:
             self.artwork = self._file.pictures[0].data
             self._artwork_format = self._file.pictures[0].mime.split("/")[1]
         elif "metadata_block_picture" in self._tags:
@@ -337,7 +339,8 @@ class _VorbisComment:
             artwork.type = id3.PictureType.COVER_FRONT
             artwork.mime = f"image/{self._artwork_format}"
             if isinstance(self.artwork, str):
-                with urllib.request.urlopen(self.artwork) if "http" in str \
+                with urllib.request.urlopen(self.artwork) \
+                        if "http" in self.artwork \
                         else open(self.artwork, "rb") as f:
                     self.artwork = f.read()
             artwork.data = self.artwork
@@ -351,10 +354,9 @@ class _VorbisComment:
 class Audio:
 
     """
-    A generic audio file handler.
+    A generic audio file.
 
-    Classes that are meant for a specific audio container or format are
-    as follows:
+    Subclasses for specific audio containers or formats include
       
     * :class:`FLACAudio` for audio encoded using the Free
       Lossless Audio Codec (FLAC),
@@ -374,7 +376,7 @@ class Audio:
        above for an audio file by examining its file extension. However,
        there may be instances when this detection fails, especially when
        the audio codec and format combination is rarely seen. As such,
-       it is always best to directly use one of the classes above to
+       it is always best to directly use one of the subclasses above to
        create a file handler for your audio file when its audio codec 
        and format are known.
 
@@ -876,7 +878,7 @@ class Audio:
                            if a["type"] == "MAIN"]
         if (self.artwork is None or overwrite) and artwork:
             self.artwork = artwork
-            self._artwork_format = "jpg"
+            self._artwork_format = os.path.splitext(artwork)[1][1:]
         if (self.comment is None or overwrite) and comment:
             self.comment = comment
         if (self.composer is None or overwrite) and composers:
@@ -904,6 +906,83 @@ class Audio:
                 self.disc_count = album_data["numberOfVolumes"]
             if self.track_count is None or overwrite:
                 self.track_count = album_data["numberOfTracks"]
+
+    def from_qobuz(
+            self, data: dict, artists: Union[str, list[str]] = None,
+            composers: Union[str, list[str]] = None, artwork: bytes = None,
+            comment: str = None, overwrite: bool = False) -> None:
+
+        """
+        Populate tags using data retrieved from the Qobuz API.
+
+        Parameters
+        ----------
+        data : `dict`
+            Information about the track in JSON format obtained using
+            the Qobuz API via :meth:`minim.qobuz.Session.get_track`.
+
+        artists : `str` or `list`, keyword-only, optional
+            Information about the track's artists obtained using the
+            Qobuz API via :meth:`minim.qobuz.Session.get_track` and/or 
+            :meth:`minim.qobuz.Session.get_track_credits`. If not 
+            provided, only information about the main artist will be
+            available.
+
+        composers : `str` or `list`, keyword-only, optional
+            Information about the track's composers obtained using the
+            Qobuz API via :meth:`minim.qobuz.Session.get_track` and/or 
+            :meth:`minim.qobuz.Session.get_track_credits`. If not 
+            provided, songwriting credits are unavailable.
+
+        artwork : `str`, keyword-only, optional
+            Qobuz URL of the track cover art obtained using the Qobuz
+            API via :meth:`minim.qobuz.Session.get_track`.
+
+        comment : `str`, keyword-only, optional
+            Comment or description.
+
+        overwrite : `bool`, keyword-only, default: :code:`False`
+            Determines whether existing metadata should be overwritten.
+        """
+
+        if self.album is None or overwrite:
+            self.album = data["album"]["title"]
+        if self.album_artist is None or overwrite:
+            album_artists = [a["name"] for a in data["album"]["artists"]]
+            main_album_artist = data["album"]["artist"]["name"]
+            i = album_artists.index(main_album_artist)
+            if i != 0:
+                album_artists.insert(0, album_artists.pop(i))
+            self.album_artist = album_artists
+        if self.artist is None or overwrite:
+            self.artist = artists if artists else data["performer"]["name"]
+        if (self.artwork is None or overwrite) and artwork:
+            self.artwork = artwork
+            self._artwork_format = os.path.splitext(artwork)[1][1:]
+        if self.comment is None or overwrite:
+            self.comment = comment
+        if (self.composer is None or overwrite) and composers:
+            self.composer = composers
+        if self.copyright is None or overwrite:
+            self.copyright = data["album"]["copyright"]
+        if self.date is None or overwrite:
+            self.date = datetime.utcfromtimestamp(
+                min(data["purchasable_at"], data["streamable_at"])
+            ).strftime('%Y-%m-%dT%H:%M:%SZ')
+        if self.disc_number is None or overwrite:
+            self.disc_number = data["media_number"]
+        if self.disc_count is None or overwrite:
+            self.disc_count = data["album"]["media_count"]
+        if self.genre is None or overwrite:
+            self.genre = data["album"]["genre"]["name"]
+        if self.isrc is None or overwrite:
+            self.isrc = data["isrc"]
+        if self.title is None or overwrite:
+            self.title = data["title"]
+        if self.track_number is None or overwrite:
+            self.track_number = data["track_number"]
+        if self.track_count is None or overwrite:
+            self.track_count = data["album"]["tracks_count"]
 
 class FLACAudio(Audio, _VorbisComment):
 
@@ -1220,7 +1299,8 @@ class MP4Audio(Audio):
         
         if self.artwork:
             if isinstance(self.artwork, str):
-                with urllib.request.urlopen(self.artwork) if "http" in str \
+                with urllib.request.urlopen(self.artwork) \
+                        if "http" in self.artwork \
                         else open(self.artwork, "rb") as f:
                     self.artwork = f.read()
             self._tags["covr"] = [
