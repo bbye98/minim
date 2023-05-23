@@ -237,11 +237,17 @@
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>email</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Account email address.</p>
+<dt><strong>email</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Account email address. If it is not stored as
+<code class="code docutils literal notranslate"><span class="pre">QOBUZ_EMAIL</span></code> in the operating system’s environment
+variables, it can be provided here.</p>
 </dd>
-<dt><strong>password</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Account password.</p>
+<dt><strong>password</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Account password. If it is not stored as <code class="code docutils literal notranslate"><span class="pre">QOBUZ_PASSWORD</span></code>
+in the operating system’s environment variables, it can be
+provided here.</p>
 </dd>
-<dt><strong>auth_token</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>User authentication token.</p>
+<dt><strong>auth_token</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>User authentication token. If it is not stored as
+<code class="code docutils literal notranslate"><span class="pre">QOBUZ_USER_AUTH_TOKEN</span></code> in the operating system’s
+environment variables, it can be provided here.</p>
 </dd>
 <dt><strong>user_agent</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>User agent information to send in the header of HTTP requests.</p>
 </dd>
@@ -260,11 +266,35 @@
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_album" title="minim.qobuz.Session.get_album"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_album</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.add_playlist_tracks" title="minim.qobuz.Session.add_playlist_tracks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_playlist_tracks</span></code></a></p></td>
+<td><p>Add tracks to a user playlist.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.create_playlist" title="minim.qobuz.Session.create_playlist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_playlist</span></code></a></p></td>
+<td><p>Create a user playlist.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.delete_playlist" title="minim.qobuz.Session.delete_playlist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_playlist</span></code></a></p></td>
+<td><p>Delete a user playlist.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.delete_playlist_tracks" title="minim.qobuz.Session.delete_playlist_tracks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_playlist_tracks</span></code></a></p></td>
+<td><p>Delete tracks from a user playlist.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.favorite" title="minim.qobuz.Session.favorite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">favorite</span></code></a></p></td>
+<td><p>Favorite albums, artists, and/or tracks.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_album" title="minim.qobuz.Session.get_album"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_album</span></code></a></p></td>
 <td><p>Get Qobuz catalog information for an album.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_artist" title="minim.qobuz.Session.get_artist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_artist</span></code></a></p></td>
-<td><p>Get Qobuz catalog information for an album.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_artist" title="minim.qobuz.Session.get_artist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_artist</span></code></a></p></td>
+<td><p>Get Qobuz catalog information for an artist.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_curated_tracks" title="minim.qobuz.Session.get_curated_tracks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_curated_tracks</span></code></a></p></td>
+<td><p>Get weekly curated tracks for the user.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_featured_albums" title="minim.qobuz.Session.get_featured_albums"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_featured_albums</span></code></a></p></td>
+<td><p>Get Qobuz catalog information for featured albums.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_featured_playlists" title="minim.qobuz.Session.get_featured_playlists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_featured_playlists</span></code></a></p></td>
+<td><p>Get Qobuz catalog information for featured playlists.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_label" title="minim.qobuz.Session.get_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_label</span></code></a></p></td>
 <td><p>Get Qobuz catalog information for a record label.</p></td>
@@ -273,7 +303,7 @@
 <td><p>Get Qobuz catalog information for a playlist.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_streams" title="minim.qobuz.Session.get_streams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_streams</span></code></a></p></td>
-<td><p>Get a track's audio stream data.</p></td>
+<td><p>Get audio stream data for all tracks in an album or a playlist.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_track" title="minim.qobuz.Session.get_track"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track</span></code></a></p></td>
 <td><p>Get Qobuz catalog information for a track.</p></td>
@@ -288,11 +318,142 @@
 <td><p>Get a track's audio stream data.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_user_favorites" title="minim.qobuz.Session.get_user_favorites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_favorites</span></code></a></p></td>
-<td><p>Get the user's favorite albums, artists, articles, and tracks.</p></td>
+<td><p>Get the user's favorite albums, artists, and tracks.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_user_playlists" title="minim.qobuz.Session.get_user_playlists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_playlists</span></code></a></p></td>
+<td><p>Get the user's playlists.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.get_user_purchases" title="minim.qobuz.Session.get_user_purchases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_purchases</span></code></a></p></td>
+<td><p>Get the user's purchases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.move_playlist_tracks" title="minim.qobuz.Session.move_playlist_tracks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_playlist_tracks</span></code></a></p></td>
+<td><p>Move tracks in a user playlist.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.unfavorite" title="minim.qobuz.Session.unfavorite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unfavorite</span></code></a></p></td>
+<td><p>Unfavorite albums, artists, and/or tracks.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.qobuz.Session.update_playlist" title="minim.qobuz.Session.update_playlist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_playlist</span></code></a></p></td>
+<td><p>Update the title, description, and/or privacy of a playlist owned by the current user.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.qobuz.Session.update_playlist_position" title="minim.qobuz.Session.update_playlist_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_playlist_position</span></code></a></p></td>
+<td><p>Organize a user's playlists.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.add_playlist_tracks">
+<span class="sig-name descname"><span class="pre">add_playlist_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playlist_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#minim.qobuz.Session.add_playlist_tracks" title="Permalink to this definition">#</a></dt>
+<dd><p>Add tracks to a user playlist.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>playlist_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>Qobuz playlist ID.</p>
+</dd>
+<dt><strong>track_ids</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite></span></dt><dd><p>Qobuz track ID(s).</p>
+</dd>
+<dt><strong>duplicate</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Determines whether duplicate tracks should be added to the
+playlist.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.create_playlist">
+<span class="sig-name descname"><span class="pre">create_playlist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collaborative</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#minim.qobuz.Session.create_playlist" title="Permalink to this definition">#</a></dt>
+<dd><p>Create a user playlist.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>name</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>Qobuz playlist name.</p>
+</dd>
+<dt><strong>description</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Brief playlist description.</p>
+</dd>
+<dt><strong>public</strong><span class="classifier"><cite>bool</cite>, keyword-only, optional</span></dt><dd><p>Determines whether the playlist is public (<code class="code docutils literal notranslate"><span class="pre">True</span></code>) or
+private (<code class="code docutils literal notranslate"><span class="pre">False</span></code>).</p>
+</dd>
+<dt><strong>collaborative</strong><span class="classifier"><cite>bool</cite>, keyword-only, optional</span></dt><dd><p>Determines whether the playlist is collaborative.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.delete_playlist">
+<span class="sig-name descname"><span class="pre">delete_playlist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playlist_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#minim.qobuz.Session.delete_playlist" title="Permalink to this definition">#</a></dt>
+<dd><p>Delete a user playlist.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>playlist_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>Qobuz playlist ID.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.delete_playlist_tracks">
+<span class="sig-name descname"><span class="pre">delete_playlist_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playlist_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">playlist_track_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#minim.qobuz.Session.delete_playlist_tracks" title="Permalink to this definition">#</a></dt>
+<dd><p>Delete tracks from a user playlist.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>playlist_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>Qobuz playlist ID.</p>
+</dd>
+<dt><strong>playlist_track_ids</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite></span></dt><dd><p>Qobuz playlist track ID(s).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Playlist track IDs are not the same as track IDs. To get
+playlist track IDs, use <a class="reference internal" href="#minim.qobuz.Session.get_playlist" title="minim.qobuz.Session.get_playlist"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_playlist()</span></code></a>.</p>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.favorite">
+<span class="sig-name descname"><span class="pre">favorite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">album_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artist_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#minim.qobuz.Session.favorite" title="Permalink to this definition">#</a></dt>
+<dd><p>Favorite albums, artists, and/or tracks.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>album_ids</strong><span class="classifier"><cite>str</cite> or <cite>list</cite>, keyword-only, optional</span></dt><dd><p>Qobuz album ID(s).</p>
+</dd>
+<dt><strong>artist_ids</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite>, keyword-only, optional</span></dt><dd><p>Qobuz artist ID(s).</p>
+</dd>
+<dt><strong>track_ids</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite>, keyword-only, optional</span></dt><dd><p>Qobuz track ID(s).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.qobuz.Session.get_album">
 <span class="sig-name descname"><span class="pre">get_album</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">album_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.qobuz.Session.get_album" title="Permalink to this definition">#</a></dt>
@@ -315,15 +476,15 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.qobuz.Session.get_artist">
-<span class="sig-name descname"><span class="pre">get_artist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artist_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">albums</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.qobuz.Session.get_artist" title="Permalink to this definition">#</a></dt>
-<dd><p>Get Qobuz catalog information for an album.</p>
+<span class="sig-name descname"><span class="pre">get_artist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artist_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.qobuz.Session.get_artist" title="Permalink to this definition">#</a></dt>
+<dd><p>Get Qobuz catalog information for an artist.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>artist_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>Qobuz artist ID.</p>
 </dd>
-<dt><strong>albums</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Specifies whether information on the artist’s albums is
-returned.</p>
+<dt><strong>extra</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Specifies extra information about the artist to return.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;albums&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;tracks&quot;</span></code>.</p>
 </dd>
 <dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The maximum number of albums to return. Has no effect if
 <code class="code docutils literal notranslate"><span class="pre">albums=False</span></code>.</p>
@@ -339,6 +500,88 @@ get the next page of albums. Has no effect if
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
 <dt><strong>artist</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Qobuz catalog information for the artist in JSON format.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.get_curated_tracks">
+<span class="sig-name descname"><span class="pre">get_curated_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minim.qobuz.Session.get_curated_tracks" title="Permalink to this definition">#</a></dt>
+<dd><p>Get weekly curated tracks for the user.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The maximum number of tracks to return.</p>
+<p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">50</span></code>.</p>
+</dd>
+<dt><strong>offset</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The index of the first track to return. Use with <cite>limit</cite>
+to get the next page of tracks.</p>
+<p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.get_featured_albums">
+<span class="sig-name descname"><span class="pre">get_featured_albums</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'new-releases'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.qobuz.Session.get_featured_albums" title="Permalink to this definition">#</a></dt>
+<dd><p>Get Qobuz catalog information for featured albums.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>type</strong><span class="classifier"><cite>str</cite>, default: <code class="code docutils literal notranslate"><span class="pre">&quot;new-releases&quot;</span></code></span></dt><dd><p>Feature type.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;album-of-the-week&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;best-sellers&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;editor-picks&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;ideal-discography&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;most-featured&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;most-streamed&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;new-releases&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;new-releases-full&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;press-awards&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;re-release-of-the-week&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;recent-releases&quot;</span></code>,
+and <code class="code docutils literal notranslate"><span class="pre">&quot;qobuzissims&quot;</span></code>.</p>
+</dd>
+<dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The maximum number of albums to return.</p>
+<p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">50</span></code>.</p>
+</dd>
+<dt><strong>offset</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The index of the first album to return. Use with <cite>limit</cite> to
+get the next page of albums.</p>
+<p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>albums</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Qobuz catalog information for the albums in JSON format.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.get_featured_playlists">
+<span class="sig-name descname"><span class="pre">get_featured_playlists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'editor-picks'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.qobuz.Session.get_featured_playlists" title="Permalink to this definition">#</a></dt>
+<dd><p>Get Qobuz catalog information for featured playlists.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>type: `str`, default: :code:`”editor-picks”`</strong></dt><dd><p>Feature type.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;editor-picks&quot;</span></code> and
+<code class="code docutils literal notranslate"><span class="pre">&quot;last-created&quot;</span></code>.</p>
+</dd>
+<dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The maximum number of playlists to return.</p>
+<p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">50</span></code>.</p>
+</dd>
+<dt><strong>offset</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The index of the first playlist to return. Use with <cite>limit</cite>
+to get the next page of playlists.</p>
+<p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>playlists</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Qobuz catalog information for the playlists in JSON format.</p>
 </dd>
 </dl>
 </dd>
@@ -411,8 +654,8 @@ get the next page of tracks. Has no effect if
 
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.qobuz.Session.get_streams">
-<span class="sig-name descname"><span class="pre">get_streams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">27</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a></span></span><a class="headerlink" href="#minim.qobuz.Session.get_streams" title="Permalink to this definition">#</a></dt>
-<dd><p>Get a track’s audio stream data.</p>
+<span class="sig-name descname"><span class="pre">get_streams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">27</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.qobuz.Session.get_streams" title="Permalink to this definition">#</a></dt>
+<dd><p>Get audio stream data for all tracks in an album or a playlist.</p>
 <div class="admonition-user-authentication admonition">
 <p class="admonition-title">User authentication</p>
 <p>Requires user authentication and an active Qobuz streaming
@@ -446,24 +689,24 @@ API endpoint.</p>
 </ul>
 </div>
 </dd>
-<dt><strong>save</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Determines whether the stream is saved to an audio file.</p>
+<dt><strong>save</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Determines whether the streams are saved to audio files.</p>
 </dd>
-<dt><strong>path</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>If <code class="code docutils literal notranslate"><span class="pre">save=True</span></code>, path in which the audio file is saved.</p>
+<dt><strong>path</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>If <code class="code docutils literal notranslate"><span class="pre">save=True</span></code>, path in which the audio files are
+saved.</p>
 </dd>
 <dt><strong>folder</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Determines whether a folder in <cite>path</cite> (or in the current
 directory if <cite>path</cite> is not specified) is created to hold the
-audio file.</p>
+audio files.</p>
 </dd>
-<dt><strong>metadata</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Determines whether the audio file’s metadata is
+<dt><strong>metadata</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Determines whether the audio files’ metadata is
 populated.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>stream</strong><span class="classifier"><cite>bytes</cite></span></dt><dd><p>Audio stream data. If <code class="code docutils literal notranslate"><span class="pre">save=True</span></code>, <code class="code docutils literal notranslate"><span class="pre">None</span></code> is
-returned and the stream data is saved to an audio file
-instead.</p>
+<dt><strong>streams</strong><span class="classifier"><cite>list</cite></span></dt><dd><p>Audio stream data. If <code class="code docutils literal notranslate"><span class="pre">save=True</span></code>, <code class="code docutils literal notranslate"><span class="pre">None</span></code> is
+returned and the streams are saved to audio files instead.</p>
 </dd>
 </dl>
 </dd>
@@ -508,8 +751,8 @@ API endpoint.</p>
 from calling <a class="reference internal" href="#minim.qobuz.Session.get_track" title="minim.qobuz.Session.get_track"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Session.get_track()</span></code></a>.</p>
 </dd>
 <dt><strong>roles</strong><span class="classifier"><cite>list</cite>, keyword-only, optional</span></dt><dd><p>Role filter. The special <code class="code docutils literal notranslate"><span class="pre">&quot;composers&quot;</span></code> filter will
-combine the <code class="code docutils literal notranslate"><span class="pre">&quot;composer&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;lyricist&quot;</span></code>, and
-<code class="code docutils literal notranslate"><span class="pre">&quot;writer&quot;</span></code> roles.</p>
+combine the <code class="code docutils literal notranslate"><span class="pre">&quot;composer&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;composerlyricist&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;lyricist&quot;</span></code>, and <code class="code docutils literal notranslate"><span class="pre">&quot;writer&quot;</span></code> roles.</p>
 <p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;mainartist&quot;</span></code>,
 <code class="code docutils literal notranslate"><span class="pre">&quot;featuredartist&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;producer&quot;</span></code>,
 <code class="code docutils literal notranslate"><span class="pre">&quot;mixer&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;composers&quot;</span></code> (<code class="code docutils literal notranslate"><span class="pre">&quot;composer&quot;</span></code>,
@@ -629,7 +872,7 @@ instead.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.qobuz.Session.get_user_favorites">
 <span class="sig-name descname"><span class="pre">get_user_favorites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.qobuz.Session.get_user_favorites" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the user’s favorite albums, artists, articles, and tracks.</p>
+<dd><p>Get the user’s favorite albums, artists, and tracks.</p>
 <div class="admonition-user-authentication admonition">
 <p class="admonition-title">User authentication</p>
 <p>Requires user authentication.</p>
@@ -640,8 +883,8 @@ instead.</p>
 <dt><strong>type</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>Media type to return. If not specified, all of the user’s
 favorite items are returned.</p>
 <div class="docutils container">
-<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;albums&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;articles&quot;</span></code>,
-<code class="code docutils literal notranslate"><span class="pre">&quot;artists&quot;</span></code>, and <code class="code docutils literal notranslate"><span class="pre">&quot;tracks&quot;</span></code>.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;albums&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;artists&quot;</span></code>,
+and <code class="code docutils literal notranslate"><span class="pre">&quot;tracks&quot;</span></code>.</p>
 </div>
 </dd>
 </dl>
@@ -649,6 +892,150 @@ favorite items are returned.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
 <dt><strong>favorites</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>The user’s favorite items.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.get_user_playlists">
+<span class="sig-name descname"><span class="pre">get_user_playlists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.qobuz.Session.get_user_playlists" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the user’s playlists.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>playlists</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>The user’s playlists.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.get_user_purchases">
+<span class="sig-name descname"><span class="pre">get_user_purchases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'albums'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minim.qobuz.Session.get_user_purchases" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the user’s purchases.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>type</strong><span class="classifier"><cite>str</cite>, default: <code class="code docutils literal notranslate"><span class="pre">&quot;albums&quot;</span></code></span></dt><dd><p>Item type.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;albums&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;tracks&quot;</span></code>.</p>
+</dd>
+<dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The maximum number of albums or tracks to return.</p>
+<p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">50</span></code>.</p>
+</dd>
+<dt><strong>offset</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The index of the first album or track to return. Use with
+<cite>limit</cite> to get the next page of albums or tracks.</p>
+<p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>purchases</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>The user’s purchases.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.move_playlist_tracks">
+<span class="sig-name descname"><span class="pre">move_playlist_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playlist_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insert_before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#minim.qobuz.Session.move_playlist_tracks" title="Permalink to this definition">#</a></dt>
+<dd><p>Move tracks in a user playlist.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>playlist_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>Qobuz playlist ID.</p>
+</dd>
+<dt><strong>track_ids</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite></span></dt><dd><p>Qobuz track ID(s).</p>
+</dd>
+<dt><strong>insert_before</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>Position to which to move the tracks specified in
+<cite>track_ids</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.unfavorite">
+<span class="sig-name descname"><span class="pre">unfavorite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">album_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artist_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#minim.qobuz.Session.unfavorite" title="Permalink to this definition">#</a></dt>
+<dd><p>Unfavorite albums, artists, and/or tracks.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>album_ids</strong><span class="classifier"><cite>str</cite> or <cite>list</cite>, keyword-only, optional</span></dt><dd><p>Qobuz album ID(s).</p>
+</dd>
+<dt><strong>artist_ids</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite>, keyword-only, optional</span></dt><dd><p>Qobuz artist ID(s).</p>
+</dd>
+<dt><strong>track_ids</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite>, keyword-only, optional</span></dt><dd><p>Qobuz track ID(s).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.update_playlist">
+<span class="sig-name descname"><span class="pre">update_playlist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playlist_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collaborative</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#minim.qobuz.Session.update_playlist" title="Permalink to this definition">#</a></dt>
+<dd><p>Update the title, description, and/or privacy of a playlist
+owned by the current user.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>playlist_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>Qobuz playlist ID.</p>
+</dd>
+<dt><strong>name</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Qobuz playlist name.</p>
+</dd>
+<dt><strong>description</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Brief playlist description.</p>
+</dd>
+<dt><strong>public</strong><span class="classifier"><cite>bool</cite>, keyword-only, optional</span></dt><dd><p>Determines whether the playlist is public (<code class="code docutils literal notranslate"><span class="pre">True</span></code>) or
+private (<code class="code docutils literal notranslate"><span class="pre">False</span></code>).</p>
+</dd>
+<dt><strong>collaborative</strong><span class="classifier"><cite>bool</cite>, keyword-only, optional</span></dt><dd><p>Determines whether the playlist is collaborative.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Session.update_playlist_position">
+<span class="sig-name descname"><span class="pre">update_playlist_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_playlist_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_playlist_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#minim.qobuz.Session.update_playlist_position" title="Permalink to this definition">#</a></dt>
+<dd><p>Organize a user’s playlists.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>from_playlist_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>Qobuz playlist ID of playlist to move.</p>
+</dd>
+<dt><strong>to_playlist_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>Qobuz playlist ID of playlist to swap with that in
+<cite>from_playlist_id</cite>.</p>
 </dd>
 </dl>
 </dd>
@@ -716,8 +1103,16 @@ favorite items are returned.</p>
             <ul>
 <li><a class="reference internal" href="#">minim.qobuz.Session</a><ul>
 <li><a class="reference internal" href="#minim.qobuz.Session"><code class="docutils literal notranslate"><span class="pre">Session</span></code></a><ul>
+<li><a class="reference internal" href="#minim.qobuz.Session.add_playlist_tracks"><code class="docutils literal notranslate"><span class="pre">add_playlist_tracks()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.create_playlist"><code class="docutils literal notranslate"><span class="pre">create_playlist()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.delete_playlist"><code class="docutils literal notranslate"><span class="pre">delete_playlist()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.delete_playlist_tracks"><code class="docutils literal notranslate"><span class="pre">delete_playlist_tracks()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.favorite"><code class="docutils literal notranslate"><span class="pre">favorite()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_album"><code class="docutils literal notranslate"><span class="pre">get_album()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_artist"><code class="docutils literal notranslate"><span class="pre">get_artist()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.get_curated_tracks"><code class="docutils literal notranslate"><span class="pre">get_curated_tracks()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.get_featured_albums"><code class="docutils literal notranslate"><span class="pre">get_featured_albums()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.get_featured_playlists"><code class="docutils literal notranslate"><span class="pre">get_featured_playlists()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_label"><code class="docutils literal notranslate"><span class="pre">get_label()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_playlist"><code class="docutils literal notranslate"><span class="pre">get_playlist()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_streams"><code class="docutils literal notranslate"><span class="pre">get_streams()</span></code></a></li>
@@ -726,6 +1121,12 @@ favorite items are returned.</p>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_track_file_url"><code class="docutils literal notranslate"><span class="pre">get_track_file_url()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_track_stream"><code class="docutils literal notranslate"><span class="pre">get_track_stream()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Session.get_user_favorites"><code class="docutils literal notranslate"><span class="pre">get_user_favorites()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.get_user_playlists"><code class="docutils literal notranslate"><span class="pre">get_user_playlists()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.get_user_purchases"><code class="docutils literal notranslate"><span class="pre">get_user_purchases()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.move_playlist_tracks"><code class="docutils literal notranslate"><span class="pre">move_playlist_tracks()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.unfavorite"><code class="docutils literal notranslate"><span class="pre">unfavorite()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.update_playlist"><code class="docutils literal notranslate"><span class="pre">update_playlist()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Session.update_playlist_position"><code class="docutils literal notranslate"><span class="pre">update_playlist_position()</span></code></a></li>
 </ul>
 </li>
 </ul>

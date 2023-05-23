@@ -16,8 +16,16 @@
    .. autosummary::
       :nosignatures:
    
+      ~Session.add_playlist_tracks
+      ~Session.create_playlist
+      ~Session.delete_playlist
+      ~Session.delete_playlist_tracks
+      ~Session.favorite
       ~Session.get_album
       ~Session.get_artist
+      ~Session.get_curated_tracks
+      ~Session.get_featured_albums
+      ~Session.get_featured_playlists
       ~Session.get_label
       ~Session.get_playlist
       ~Session.get_streams
@@ -26,5 +34,11 @@
       ~Session.get_track_file_url
       ~Session.get_track_stream
       ~Session.get_user_favorites
+      ~Session.get_user_playlists
+      ~Session.get_user_purchases
+      ~Session.move_playlist_tracks
+      ~Session.unfavorite
+      ~Session.update_playlist
+      ~Session.update_playlist_position
    
    
