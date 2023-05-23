@@ -289,7 +289,9 @@ class Session:
             resp = requests.post(f"{self.AUTH_URL}/device_authorization",
                                  data=data).json()
             if "error" in resp:
-                raise ValueError(f"{resp['status']}.{resp['sub_status']} {resp['error_description']}")
+                emsg = (f"{resp['status']}.{resp['sub_status']} "
+                        f"{resp['error_description']}")
+                raise ValueError(emsg)
             data["device_code"] = resp["deviceCode"]
             data["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code"
             verification_uri = f"http://{resp['verificationUriComplete']}"
@@ -1354,8 +1356,9 @@ class Session:
             if type and type in self._MEDIA_TYPES:
                 width, height = self._IMAGE_SIZES[type.lower()]
             else:
-                raise ValueError("Either the image dimensions or a "
-                                 "valid media type must be specified.")
+                emsg = ("Either the image dimensions or a valid media "
+                        "type must be specified.")
+                raise ValueError(emsg)
 
         with urllib.request.urlopen(f"{self.RESOURCES_URL}/images"
                                     f"/{uuid.replace('-', '/')}"
@@ -1531,8 +1534,9 @@ class Session:
         """
 
         if device not in self._DEVICE_TYPES:
-            raise ValueError("Invalid device type. The supported types "
-                             f"are {', '.join(self._DEVICE_TYPES)}.")
+            emsg = ("Invalid device type. The supported types are "
+                    f"{', '.join(self._DEVICE_TYPES)}.")
+            raise ValueError(emsg)
 
         return self._get_json(
             f"{self.API_URL}/v1/pages/album",
@@ -1578,8 +1582,9 @@ class Session:
         """
 
         if device not in self._DEVICE_TYPES:
-            raise ValueError("Invalid device type. The supported types "
-                             f"are {', '.join(self._DEVICE_TYPES)}.")
+            emsg = ("Invalid device type. The supported types are "
+                    f"{', '.join(self._DEVICE_TYPES)}.")
+            raise ValueError(emsg)
 
         return self._get_json(
             f"{self.API_URL}/v1/pages/artist",
@@ -1625,8 +1630,9 @@ class Session:
         """
 
         if device not in self._DEVICE_TYPES:
-            raise ValueError("Invalid device type. The supported types "
-                             f"are {', '.join(self._DEVICE_TYPES)}.")
+            emsg = ("Invalid device type. The supported types are "
+                    f"{', '.join(self._DEVICE_TYPES)}.")
+            raise ValueError(emsg)
 
         return self._get_json(
             f"{self.API_URL}/v1/pages/mix",
@@ -1672,8 +1678,9 @@ class Session:
         """
 
         if device not in self._DEVICE_TYPES:
-            raise ValueError("Invalid device type. The supported types "
-                             f"are {', '.join(self._DEVICE_TYPES)}.")
+            emsg = ("Invalid device type. The supported types are "
+                    f"{', '.join(self._DEVICE_TYPES)}.")
+            raise ValueError(emsg)
 
         return self._get_json(
             f"{self.API_URL}/v1/pages/videos",
@@ -2108,8 +2115,9 @@ class Session:
         
         _allowed_includes = {None, "FAVORITE_PLAYLIST", "FOLDER", "PLAYLIST"}
         if include not in _allowed_includes:
-            raise ValueError("Invalid include type. The supported "
-                             f"types are {', '.join(_allowed_includes)}.")
+            emsg = ("Invalid include type. The supported types are "
+                    f"{', '.join(_allowed_includes)}.")
+            raise ValueError(emsg)
 
         url = f"{self.API_URL}/v2/my-collection/playlists/folders"
         params = {}
@@ -2359,7 +2367,7 @@ class Session:
                                "requires user authentication.")
 
         if items is None and from_playlist_uuid is None:
-            raise ValueError(f"No items to add to playlist!")
+            raise ValueError("No items to add to playlist!")
         elif items:
             body = {"trackIds": items}
         else:
@@ -2481,8 +2489,9 @@ class Session:
         url = f"{self.API_URL}/v1/search"
         if type:
             if type not in self._MEDIA_TYPES:
-                raise ValueError("Invalid media type. The supported "
-                                 f"types are {', '.join(self._MEDIA_TYPES)}.")
+                emsg = ("Invalid media type. The supported types are "
+                        f"{', '.join(self._MEDIA_TYPES)}.")
+                raise ValueError(emsg)
             url += f"/{type}s"
 
         return self._get_json(
@@ -2505,7 +2514,7 @@ class Session:
 
         """
         Get audio and video stream data for all tracks and videos in an 
-        album, mix, or playlist.
+        album, a mix, or a playlist.
 
         .. admonition:: OAuth 2.0 authentication
 
@@ -2580,31 +2589,32 @@ class Session:
             Streaming session ID.
 
         save : `bool`, keyword-only, default: :code:`False`
-            Determines whether the stream is saved to an audio file.
+            Determines whether the streams are saved to audio files.
 
         path : `str`, keyword-only, optional
-            If :code:`save=True`, path in which the audio file is saved.
+            If :code:`save=True`, path in which the audio files are 
+            saved.
 
         folder : `bool`, keyword-only, default: :code:`False`
             Determines whether a folder in `path` (or in the current
             directory if `path` is not specified) is created to hold the
-            audio file.
+            audio files.
 
         metadata : `bool`, keyword-only, default: :code:`True`
-            Determines whether the audio file's metadata is
+            Determines whether the audio files' metadata is
             populated.
 
         Returns
         -------
-        stream : `bytes`
+        stream : `list`
             Audio stream data. If :code:`save=True`, :code:`None` is 
-            returned and the stream data is saved to an audio file 
-            instead.
+            returned and the streams are saved to audio files instead.
         """
 
         if type not in self._COLLECTION_TYPES:
-            raise ValueError("Invalid collection type. The supported " 
-                             f"types are {', '.join(self._COLLECTION_TYPES)}.")
+            emsg = ("Invalid collection type. The supported types are " 
+                    f"{', '.join(self._COLLECTION_TYPES)}.")
+            raise ValueError(emsg)
 
         if type == "album":
             data = self.get_album(id)
@@ -3249,26 +3259,26 @@ class Session:
         """
 
         if audio_quality not in self._AUDIO_QUALITIES:
-            raise ValueError("Invalid audio quality. The supported "
-                             "qualities are "
-                             f"{', '.join(self._AUDIO_QUALITIES)}.")
+            emsg = ("Invalid audio quality. The supported qualities "
+                    f"are{', '.join(self._AUDIO_QUALITIES)}.")
+            raise ValueError(emsg)
         if playback_mode not in self._PLAYBACK_MODES:
-            raise ValueError("Invalid playback mode. The supported "
-                             "playback modes are "
-                             f"{', '.join(self._PLAYBACK_MODES)}.")
+            emsg = ("Invalid playback mode. The supported playback "
+                    f"modes are {', '.join(self._PLAYBACK_MODES)}.")
+            raise ValueError(emsg)
         if asset_presentation not in self._ASSET_PRESENTATIONS:
-            raise ValueError("Invalid asset presentation. The "
-                             "supported asset presentations are "
-                             f"{', '.join(self._ASSET_PRESENTATIONS)}.")
+            emsg = ("Invalid asset presentation. The supported asset "
+                    "presentations are "
+                    f"{', '.join(self._ASSET_PRESENTATIONS)}.")
+            raise ValueError(emsg)
 
         if (audio_quality != "LOW" or playback_mode != "STREAM" 
             or asset_presentation != "PREVIEW") \
                 and "Authorization" not in self.session.headers:
-            raise RuntimeError(
-                "tidal.Session.get_track_playback_info() requires user "
-                f"authentication when {audio_quality=}, "
-                f"{playback_mode=}, and {asset_presentation=}."
-            )
+            emsg = ("tidal.Session.get_track_playback_info() requires "
+                    f"user authentication when {audio_quality=}, "
+                    f"{playback_mode=}, and {asset_presentation=}.")
+            raise RuntimeError(emsg)
         
         url = f"{self.API_URL}/v1/tracks/{id}/playbackinfo"
         url += "postpaywall" if "Authorization" in self.session.headers \
@@ -3585,8 +3595,9 @@ class Session:
 
         _allowed_includes = {None, "ARTIST", "USER"}
         if include not in _allowed_includes:
-            raise ValueError("Invalid include type. The supported "
-                             f"types are {', '.join(_allowed_includes)}.")
+            emsg = ("Invalid include type. The supported types are "
+                    f"{', '.join(_allowed_includes)}.")
+            raise ValueError(emsg)
 
         if id is None:
             id = self._me["userId"]
@@ -3800,26 +3811,26 @@ class Session:
         """
 
         if video_quality not in self._VIDEO_QUALITIES:
-            raise ValueError("Invalid video quality. The supported "
-                             "qualities are "
-                             f"{', '.join(self._VIDEO_QUALITIES)}.")
+            emsg = ("Invalid video quality. The supported qualities "
+                    f"are{', '.join(self._VIDEO_QUALITIES)}.")
+            raise ValueError(emsg)
         if playback_mode not in self._PLAYBACK_MODES:
-            raise ValueError("Invalid playback mode. The supported "
-                             "playback modes are "
-                             f"{', '.join(self._PLAYBACK_MODES)}.")
+            emsg = ("Invalid playback mode. The supported playback "
+                    f"modes are {', '.join(self._PLAYBACK_MODES)}.")
+            raise ValueError(emsg)
         if asset_presentation not in self._ASSET_PRESENTATIONS:
-            raise ValueError("Invalid asset presentation. The "
-                             "supported asset presentations are "
-                             f"{', '.join(self._ASSET_PRESENTATIONS)}.")
+            emsg = ("Invalid asset presentation. The supported asset "
+                    "presentations are "
+                    f"{', '.join(self._ASSET_PRESENTATIONS)}.")
+            raise ValueError(emsg)
 
         if (video_quality != "LOW" or playback_mode != "STREAM" 
             or asset_presentation != "PREVIEW") \
                 and "Authorization" not in self.session.headers:
-            raise RuntimeError(
-                "tidal.Session.get_video_playback_info() requires user "
-                f"authentication when {video_quality=}, "
-                f"{playback_mode=}, and {asset_presentation=}."
-            )
+            emsg = ("tidal.Session.get_video_playback_info() requires "
+                    f"user authentication when {video_quality=}, "
+                    f"{playback_mode=}, and {asset_presentation=}.")
+            raise RuntimeError(emsg)
         
         url = f"{self.API_URL}/v1/videos/{id}/playbackinfo"
         url += "postpaywall" if "Authorization" in self.session.headers \
