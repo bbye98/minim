@@ -290,7 +290,7 @@ class WebAPISession(_Session):
         :code:`SPOTIFY_CLIENT_SECRET` in the operating system's
         environment variables, it must be provided here.
 
-    flow : `str`, keyword-only, optional
+    flow : `str`, keyword-only, default: :code:`client_credentials`
         Authorization flow.
 
         .. container::
@@ -299,8 +299,6 @@ class WebAPISession(_Session):
            
            * :code:`authorization_code` for the authorization code flow.
            * :code:`client_credentials` for the client credentials flow.
-
-           **Default**: :code:`client_credentials`.
     
     browser : `bool`, keyword-only, default: :code:`True`
         Determines whether a web browser is automatically opened and the

@@ -23,29 +23,31 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.duration",
+    "sphinx.ext.githubpages",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
-    # "sphinx.ext.viewcode"
+    "sphinx.ext.viewcode"
 ]
-
-autosummary_generate = True
 exclude_patterns = []
-html_favicon = "../../assets/favicon.ico"
-html_logo = "../../assets/icon.svg"
-html_theme_options = {
-    "sidebar_hide_name": True,
-}
+templates_path = ["_templates"]
+add_module_names = False
+toc_object_entries_show_parents = "hide"
+
+numpydoc_show_class_members = False
+autosummary_generate = True
 intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "python": ("https://docs.python.org/3/", None)
 }
-numpydoc_show_class_members = False
-templates_path = ["_templates"]
-toc_object_entries_show_parents = "hide"
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
+html_favicon = "../../assets/favicon.ico"
+html_logo = "../../assets/icon.svg"
 html_show_sourcelink = False
 html_static_path = ["_static"]
 html_theme = "furo"
+html_theme_options = {
+    "sidebar_hide_name": True,
+}

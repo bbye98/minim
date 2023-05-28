@@ -6,7 +6,11 @@ Minim is a lightweight Python 3 library that can retrieve media information,
 Qobuz, and TIDAL APIs.
 
 .. important::
-   This project is under active development.
+   This project is under active development. As such, 
+   
+   * Minim is currently not available via :code:`pip` or :code:`conda`,
+   * there may be bugs or issues that can lead to data loss, unresponsive systems, etc., and
+   * the API can change at any time.
 
 .. toctree::
    :hidden:

@@ -121,6 +121,18 @@ class Session:
         else:
             self._me = self._auth_token = None
 
+    def __repr__(self) -> None:
+
+        """
+        Set the string representation of the Qobuz API object.
+        """
+
+        if hasattr(self, "_session") and hasattr(self, "_me"):
+            return (f"Qobuz API: {self._me['credential']['description']} / "
+                    f"user {self._me['display_name']} "
+                    f"(ID: {self._me['id']}, email: {self._me['email']})")
+        return f"<minim.qobuz.Session object at 0x{id(self):x}>"
+
     def _get_app_id_and_secret(self) -> None:
 
         """
@@ -753,14 +765,14 @@ class Session:
         
         if isinstance(quality, int) or quality.isnumeric():
             if int(quality) not in {5, 6, 7, 27}:
-                audio_qualities = ", ".join(f"'{s}' ({i})" for s, i 
+                audio_qualities = ", ".join(f"{s} ({i})" for s, i 
                                             in self._AUDIO_QUALITIES.items())
                 emsg = ("Invalid audio quality. The supported qualities "
                         f"are {audio_qualities}.")
                 raise ValueError(emsg)
         else:
             if quality not in {"LOSSY", "CD", "HI-RES-96", "HI-RES-192"}:
-                audio_qualities = ", ".join(f"'{s}' ({i})" for s, i 
+                audio_qualities = ", ".join(f"{s} ({i})" for s, i 
                                             in self._AUDIO_QUALITIES.items())
                 emsg = ("Invalid audio quality. The supported qualities "
                         f"are {audio_qualities}.")
@@ -854,11 +866,14 @@ class Session:
 
         data = self.get_track(track_id)
         credits = self.get_track_credits(
-            performers=data["performers"], roles=["mainartist", "composers"]
+            performers=data["performers"], roles=["mainartist", "featuredartist", "composers"]
         )
-        i = credits["mainartist"].index(data["performer"]["name"])
-        if i != 0:
-            credits["mainartist"].insert(0, credits["mainartist"].pop(i))
+        if data["performer"]["name"] in credits["mainartist"]:
+            i = credits["mainartist"].index(data["performer"]["name"])
+            if i != 0:
+                credits["mainartist"].insert(0, credits["mainartist"].pop(i))
+        else:
+            credits["mainartist"] = [data["performer"]["name"]]
 
         artist = utility.multivalue_formatter(credits["mainartist"], False)
         title = data["title"]
@@ -878,9 +893,18 @@ class Session:
             stream = r.read()
 
         if save:
-            file = (f"{data['track_number']:02} "
-                    f"{data['title'].translate(self._ILLEGAL_CHARACTERS)}"
-                    f".{self._AUDIO_FORMATS_EXTENSIONS[format]}")
+            file = (f"{data['track_number']:02} {data['title']}").rstrip()
+            if credits["featuredartist"] and "feat." not in file:
+                file += (" [feat. {}]" if "(" in file 
+                         else " (feat. {})").format(
+                    utility.multivalue_formatter(credits['featuredartist'], False)
+                )
+            if data["version"]:
+                file += (" [{}]" if "(" in file else " ({})").format(
+                    data['version']
+                )
+            file = (file.translate(self._ILLEGAL_CHARACTERS) 
+                    + f".{self._AUDIO_FORMATS_EXTENSIONS[format]}")
             with open(file, "wb") as f:
                 f.write(stream)
 
@@ -898,9 +922,9 @@ class Session:
                     Track = audio.Audio(file)
 
                 Track.from_qobuz(
-                    data,
-                    artists=credits["mainartist"],
-                    composers=credits["composers"],
+                    data, main_artist=credits["mainartist"],
+                    feat_artist=credits["featuredartist"],
+                    composer=credits["composers"],
                     artwork=data["album"]["image"]["large"],
                     comment=f"https://open.qobuz.com/track/{data['id']}"
                 )
@@ -1068,17 +1092,20 @@ class Session:
         TYPES = {"album", "playlist"}
         if type not in TYPES:
             emsg = ("Invalid collection type. The supported types are " 
-                    f"{', '.join(TYPES)}.")
+                    f"{'', ''.join(TYPES)}.")
             raise ValueError(emsg)
-        
+
         if type == "album":
             data = self.get_album(id)
             artist = [a["name"] for a in data["artists"]]
             main_artist = data["artist"]["name"]
-            i = artist.index(main_artist)
-            if i != 0:
-                artist.insert(0, artist.pop(i))
-            artist = utility.multivalue_formatter(artist, False)
+            if main_artist in artist:
+                i = artist.index(main_artist)
+                if i != 0:
+                    artist.insert(0, artist.pop(i))
+                artist = utility.multivalue_formatter(artist, False)
+            else:
+                artist = main_artist
             title = data["title"]
         elif type == "playlist":
             data = self.get_playlist(id, limit=500)
@@ -1105,7 +1132,8 @@ class Session:
 
         for item in items:
             stream = self.get_track_stream(item["id"], quality=quality,
-                                           save=save, metadata=metadata)
+                                           save=save, metadata=metadata) \
+                     if item["streamable"] else None
             if not save:
                 streams.append(stream)
         

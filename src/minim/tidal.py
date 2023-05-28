@@ -2848,7 +2848,7 @@ class Session:
                 Track.from_tidal(
                     data,
                     album_data=album_data,
-                    composers=self.get_track_composers(id),
+                    composer=self.get_track_composers(id),
                     artwork=self.get_image(data["album"]["cover"], "album"),
                     lyrics=self.get_track_lyrics(id), comment=data["url"]
                 )

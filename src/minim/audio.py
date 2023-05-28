@@ -22,6 +22,11 @@ from . import utility
 
 _ = subprocess.run(["ffmpeg", "-version"], capture_output=True)
 FOUND_FFMPEG = _.returncode == 0
+if not FOUND_FFMPEG:
+    wmsg = ("FFmpeg was not found, so certain features in minim.audio "
+            "are unavailable. To install FFmpeg, visit "
+            "https://ffmpeg.org/download.html.")
+    warnings.warn(wmsg)
 FFMPEG_AAC_CODEC = \
     "libfdk_aac" if FOUND_FFMPEG and b"--enable-libfdk-aac" in _.stdout \
     else "aac"
@@ -366,8 +371,8 @@ class Audio:
       Audio Coding (AAC) format, encoded using the Apple Lossless
       Audio Codec (ALAC), or stored in a MPEG-4 Part 14 (MP4, M4A)
       container,
-    * :class:`OGGAudio` for audio encoded using Opus or Vorbis stored in
-      an Ogg file, or
+    * :class:`OGGAudio` for Opus or Vorbis audio stored in an Ogg file,
+      or
     * :class:`WAVEAudio` for audio encoded using linear pulse-code 
       modulation (LPCM) and in the Waveform Audio File Format (WAVE).
 
@@ -528,6 +533,10 @@ class Audio:
 
         """
         Convert the current audio file to another format. 
+
+        .. admonition:: Software dependency
+
+           Requires `FFmpeg <https://ffmpeg.org/>`_.
         
         .. note::
            The audio file handler is automatically updated to reflect
@@ -546,14 +555,14 @@ class Audio:
                **Valid values**:
 
                * :code:`"aac"`, :code:`"m4a"`, :code:`"mp4"`, or 
-                 :code:`"mp4a"` for lossy AAC audio
-               * :code:`"alac"` for lossless ALAC audio
-               * :code:`"flac"` for lossless FLAC audio
-               * :code:`"mp3"` for lossy MP3 audio
+                 :code:`"mp4a"` for lossy AAC audio.
+               * :code:`"alac"` for lossless ALAC audio.
+               * :code:`"flac"` for lossless FLAC audio.
+               * :code:`"mp3"` for lossy MP3 audio.
                * :code:`"ogg"` or :code:`"opus"` for lossy Opus audio
-               * :code:`"vorbis"` for lossy Vorbis audio
+               * :code:`"vorbis"` for lossy Vorbis audio.
                * :code:`"lpcm"`, :code:`"wav"`, or :code:`"wave"` for 
-                 lossless LPCM audio
+                 lossless LPCM audio.
 
         container : `str`, optional
             New audio file container. If not specified, the best 
@@ -564,38 +573,41 @@ class Audio:
                **Valid values**:
 
                * :code:`"flac"` for a FLAC audio container, which only
-                 supports FLAC audio
+                 supports FLAC audio.
                * :code:`"m4a"`, :code:`"mp4"`, or :code:`"mp4a"` for
                  a MP4 audio container, which supports AAC and ALAC
-                 audio
+                 audio.
                * :code:`"mp3"` for a MP3 audio container, which only
-                 supports MP3 audio
+                 supports MP3 audio.
                * :code:`"ogg"` for an Ogg audio container, which
-                 supports Opus and Vorbis audio
+                 supports Opus and Vorbis audio.
                * :code:`"wav"` or :code:`"wave"` for an WAVE audio 
-                 container, which only supports LPCM audio
+                 container, which only supports LPCM audio.
 
         options : `str`, optional
             FFmpeg command-line options, excluding the input and output 
             files, the :code:`-y` flag (to overwrite files), and the 
-            :code:`-c:v copy` argument (to preserve cover art).
+            :code:`-c:v copy` argument (to preserve cover art for
+            containers that support it).
 
             .. container::
 
                **Defaults**:
 
-               * AAC: :code:`"-c:a aac -b:a 256k"` (or 
+               * :code:`"-c:a aac -b:a 256k"` (or 
                  :code:`"-c:a libfdk_aac -b:a 256k"` if FFmpeg was
-                 compiled with :code:`--enable-libfdk-aac`)
-               * ALAC: :code:`"-c:a alac"`
-               * FLAC: :code:`"-c:a flac"`
-               * MP3: :code:`"-q:a 0"`
-               * Opus: :code:`"-b:a 256k -c:a libopus -vn"`
-               * Vorbis: :code:`"-c:a vorbis -strict experimental -vn"` 
-                 (or :code:`"-c:a libvorbis -vn"` if FFmpeg was
-                 compiled with :code:`--enable-libvorbis`)
-               * WAVE: :code:`"-c:a pcm_s24le"` only if the original
-                 audio file has 24 bits per sample
+                 compiled with :code:`--enable-libfdk-aac`) for AAC 
+                 audio.
+               * :code:`"-c:a alac"` for ALAC audio.
+               * :code:`"-c:a flac"` for FLAC audio.
+               * :code:`"-c:a libmp3lame -q:a 0"` for MP3 audio.
+               * :code:`"-c:a libopus -b:a 256k -vn"` for Opus audio.
+               * :code:`"-c:a vorbis -strict experimental -vn"` (or 
+                 :code:`"-c:a libvorbis -vn"` if FFmpeg was compiled 
+                 with :code:`--enable-libvorbis`) for Vorbis audio.
+               * :code:`"-c:a pcm_s16le"` or :code:`"-c:a pcm_s24le"` 
+                 for WAVE audio, depending on the bit depth of the 
+                 original audio file.
 
         filename : `str`, keyword-only, optional
             Filename of the converted audio file. If not provided, the
@@ -606,6 +618,8 @@ class Audio:
             Determines whether the original audio file is kept.
         """
 
+        _codec = codec.capitalize() if codec in {"opus", "vorbis"} \
+                 else codec.upper()
         codec = codec.lower()
         if codec in {"m4a", "mp4", "mp4a"}:
             codec = "aac"
@@ -613,7 +627,7 @@ class Audio:
             codec = "opus"
         elif codec in "wave":
             codec = "lpcm"
-
+        
         if container:
             container = container.lower()
             if container == "m4a":
@@ -621,30 +635,32 @@ class Audio:
             elif container == "wave":
                 container = "wav"
             try:
-                acls = next(a for a in Audio.__subclasses__() if codec in a._CODECS 
+                acls = next(a for a in Audio.__subclasses__() 
+                            if codec in a._CODECS 
                             and container in a._EXTENSIONS)
             except:
-                emsg = (f"{codec.upper()} audio is not supported by the "
-                        f"{container.upper()} container.")
+                emsg = (f"{_codec} audio is incompatible with "
+                        f"the {container.upper()} container.")
                 raise RuntimeError(emsg)
         else:
             try:
-                acls = next(a for a in Audio.__subclasses__() if codec in a._CODECS)
+                acls = next(a for a in Audio.__subclasses__() 
+                            if codec in a._CODECS)
                 container = acls._EXTENSIONS[0]
             except:
-                raise RuntimeError(f"'{codec.upper()}' is not a supported audio codec.")
+                raise RuntimeError(f"The '{_codec}' codec is not supported.")
     
         if not FOUND_FFMPEG:
-            emsg = ("Audio conversion is unavailable because 'ffmpeg' "
+            emsg = ("Audio conversion is unavailable because FFmpeg "
                     "was not found.")
             raise RuntimeError(emsg)
         
         if ("mp4" if codec == "aac" else codec) in self.codec \
                 and isinstance(self, acls):
-            wmsg = (f"'{self._filename}' already has {codec.upper()} "
+            wmsg = (f"'{self._filename}' already has {_codec} "
                     f"audio in a {container.upper()} container. "
-                    "Re-encoding may cause unnecessary quality "
-                    "degradation.")
+                    "Re-encoding may lead to quality degradation from "
+                    "generation loss.")
             warnings.warn(wmsg, RuntimeWarning)
 
         ext = f".{acls._EXTENSIONS[0]}"
@@ -660,14 +676,15 @@ class Audio:
 
         if options is None:
             if codec == "lpcm":
-                bit_depth = self.bit_depth if hasattr(self, "bit_depth") else 16
-                options = acls._CODECS[codec]["ffmpeg"].format(bit_depth)
+                options = acls._CODECS[codec]["ffmpeg"].format(
+                    self.bit_depth if hasattr(self, "bit_depth") else 16
+                )
             else:
                 options = acls._CODECS[codec]["ffmpeg"]
 
         subprocess.run(
-            f"ffmpeg -y -i '{self._filename}' {options} -loglevel error "
-            f"-stats '{filename}'",
+            f'ffmpeg -y -i "{self._filename}" {options} -loglevel error '
+            f'-stats "{filename}"',
             shell=True
         )
         if not preserve:
@@ -830,7 +847,7 @@ class Audio:
 
     def from_tidal(
             self, data: dict, *, album_data: dict = None,
-            composers: Union[str, list[str]] = None, artwork: bytes = None,
+            composer: Union[str, list[str]] = None, artwork: bytes = None,
             lyrics: dict[str, Any] = None, comment: str = None,
             overwrite: bool = False) -> None:
         
@@ -850,7 +867,7 @@ class Audio:
             album artist, copyright, and disc and track numbering 
             information is unavailable.
         
-        composers : `str` or `list`, keyword-only, optional
+        composer : `str` or `list`, keyword-only, optional
             Information about the track's composers obtained using the
             TIDAL API via 
             :meth:`minim.tidal.Session.get_track_composers`. If not 
@@ -881,8 +898,8 @@ class Audio:
             self._artwork_format = os.path.splitext(artwork)[1][1:]
         if (self.comment is None or overwrite) and comment:
             self.comment = comment
-        if (self.composer is None or overwrite) and composers:
-            self.composer = composers
+        if (self.composer is None or overwrite) and composer:
+            self.composer = composer
         if self.date is None or overwrite:
             self.date = data["streamStartDate"].split(".")[0]
         if self.disc_number is None or overwrite:
@@ -908,8 +925,9 @@ class Audio:
                 self.track_count = album_data["numberOfTracks"]
 
     def from_qobuz(
-            self, data: dict, artists: Union[str, list[str]] = None,
-            composers: Union[str, list[str]] = None, artwork: bytes = None,
+            self, data: dict, main_artist: Union[str, list[str]] = None,
+            feat_artist: Union[str, list[str]] = None,
+            composer: Union[str, list[str]] = None, artwork: bytes = None,
             comment: str = None, overwrite: bool = False) -> None:
 
         """
@@ -921,14 +939,21 @@ class Audio:
             Information about the track in JSON format obtained using
             the Qobuz API via :meth:`minim.qobuz.Session.get_track`.
 
-        artists : `str` or `list`, keyword-only, optional
-            Information about the track's artists obtained using the
-            Qobuz API via :meth:`minim.qobuz.Session.get_track` and/or 
-            :meth:`minim.qobuz.Session.get_track_credits`. If not 
-            provided, only information about the main artist will be
+        main_artist : `str` or `list`, keyword-only, optional
+            Information about the track's main artists obtained using 
+            the Qobuz API via :meth:`minim.qobuz.Session.get_track` 
+            and/or :meth:`minim.qobuz.Session.get_track_credits`. If not 
+            provided, only information about the primary artist will be
             available.
 
-        composers : `str` or `list`, keyword-only, optional
+        feat_artist : `str` or `list`, keyword-only, optional
+            Information about the track's featured artists obtained 
+            using the Qobuz API via :meth:`minim.qobuz.Session.get_track` 
+            and/or :meth:`minim.qobuz.Session.get_track_credits`. If not 
+            provided, the featured artists will not be listed in the 
+            track's title.
+
+        composer : `str` or `list`, keyword-only, optional
             Information about the track's composers obtained using the
             Qobuz API via :meth:`minim.qobuz.Session.get_track` and/or 
             :meth:`minim.qobuz.Session.get_track_credits`. If not 
@@ -946,24 +971,41 @@ class Audio:
         """
 
         if self.album is None or overwrite:
-            self.album = data["album"]["title"]
+            self.album = data["album"]["title"].rstrip()
+            feat_album_artist = [a["name"] for a in data["album"]["artists"] 
+                                 if "featured-artist" in a["roles"]]
+            if feat_album_artist and "feat." not in self.album:
+                self.album += (" [feat. {}]" if "(" in self.album 
+                               else " (feat. {})").format(
+                    utility.multivalue_formatter(feat_album_artist, False)
+                )
+            if data["album"]["version"]:
+                self.album += (" [{}]" if "(" in self.album 
+                               else " ({})").format(
+                    data['album']['version']
+                )
         if self.album_artist is None or overwrite:
-            album_artists = [a["name"] for a in data["album"]["artists"] 
-                             if "main-artist" in a["roles"]]
+            album_artist = [a["name"] for a in data["album"]["artists"] 
+                            if "main-artist" in a["roles"]]
             main_album_artist = data["album"]["artist"]["name"]
-            i = album_artists.index(main_album_artist)
-            if i != 0:
-                album_artists.insert(0, album_artists.pop(i))
-            self.album_artist = album_artists
+            if main_album_artist in album_artist:
+                i = album_artist.index(main_album_artist) \
+                    if main_album_artist in album_artist else 0
+                if i != 0:
+                    album_artist.insert(0, album_artist.pop(i))
+                self.album_artist = album_artist
+            else:
+                self.album_artist = main_album_artist
         if self.artist is None or overwrite:
-            self.artist = artists if artists else data["performer"]["name"]
+            self.artist = main_artist if main_artist \
+                          else data["performer"]["name"]
         if (self.artwork is None or overwrite) and artwork:
             self.artwork = artwork
             self._artwork_format = os.path.splitext(artwork)[1][1:]
         if self.comment is None or overwrite:
             self.comment = comment
-        if (self.composer is None or overwrite) and composers:
-            self.composer = composers
+        if (self.composer is None or overwrite) and composer:
+            self.composer = composer
         if self.copyright is None or overwrite:
             self.copyright = data["album"]["copyright"]
         if self.date is None or overwrite:
@@ -980,11 +1022,26 @@ class Audio:
         if self.isrc is None or overwrite:
             self.isrc = data["isrc"]
         if self.title is None or overwrite:
-            self.title = data["title"]
+            self.title = data["title"].rstrip()
+            if feat_artist and "feat." not in self.title:
+                self.title += (" [feat. {}]" if "(" in self.title 
+                               else " (feat. {})").format(
+                    utility.multivalue_formatter(feat_artist, False)
+                )
+            if data["version"]:
+                self.title += (" [{}]" if "(" in self.title 
+                               else " ({})").format(data['version'])
         if self.track_number is None or overwrite:
             self.track_number = data["track_number"]
         if self.track_count is None or overwrite:
             self.track_count = data["album"]["tracks_count"]
+
+        if data["album"]["product_type"] == "single" \
+                and self.album == self.title:
+            self.album += " - Single"
+            self.album_artist = self.artist = max(self.artist, 
+                                                  self.album_artist, 
+                                                  key=len)
 
 class FLACAudio(Audio, _VorbisComment):
 
