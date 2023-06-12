@@ -16,4 +16,5 @@ Qobuz, and TIDAL APIs.
    :hidden:
 
    Home <self>
+   User Guide <guides>
    API Reference <api/minim>

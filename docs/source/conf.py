@@ -19,7 +19,9 @@ author = "Benjamin Ye"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    "myst_nb",
     "numpydoc",
+    "sphinx_copybutton",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.duration",
@@ -28,17 +30,21 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode"
 ]
-exclude_patterns = []
+exclude_patterns = ["_build"]
 templates_path = ["_templates"]
+
 add_module_names = False
 toc_object_entries_show_parents = "hide"
 
-numpydoc_show_class_members = False
 autosummary_generate = True
 intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "python": ("https://docs.python.org/3/", None)
 }
+myst_enable_extensions = ["colon_fence"]
+myst_heading_anchors = 3
+nb_execution_timeout = -1
+numpydoc_show_class_members = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

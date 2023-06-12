@@ -1,4 +1,4 @@
-minim.qobuz.Session
+﻿minim.qobuz.Session
 ===================
 
 .. currentmodule:: minim.qobuz
@@ -20,15 +20,17 @@ minim.qobuz.Session
       ~Session.create_playlist
       ~Session.delete_playlist
       ~Session.delete_playlist_tracks
-      ~Session.favorite
+      ~Session.favorite_items
+      ~Session.favorite_playlist
       ~Session.get_album
       ~Session.get_artist
+      ~Session.get_collection_streams
       ~Session.get_curated_tracks
       ~Session.get_featured_albums
       ~Session.get_featured_playlists
       ~Session.get_label
+      ~Session.get_me
       ~Session.get_playlist
-      ~Session.get_streams
       ~Session.get_track
       ~Session.get_track_credits
       ~Session.get_track_file_url
@@ -36,8 +38,11 @@ minim.qobuz.Session
       ~Session.get_user_favorites
       ~Session.get_user_playlists
       ~Session.get_user_purchases
+      ~Session.login
       ~Session.move_playlist_tracks
-      ~Session.unfavorite
+      ~Session.search
+      ~Session.unfavorite_items
+      ~Session.unfavorite_playlist
       ~Session.update_playlist
       ~Session.update_playlist_position
    

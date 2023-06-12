@@ -447,7 +447,7 @@ class Session:
             token has expired.
 
         **kwargs
-            Keyword arguments passed to :meth:`requests.request`.
+            Keyword arguments to pass to :meth:`requests.request`.
 
         Returns
         -------

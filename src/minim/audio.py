@@ -7,18 +7,17 @@ This module provides convenient Python objects to keep track of audio
 file handles and information.
 """
 
-import base64
+from base64 import b64encode, b64decode
 from datetime import datetime
 import os
 import re
 import subprocess
 from typing import Any, Sequence, Union
 import urllib
-import warnings
 
 from mutagen import id3, flac, mp3, mp4, oggopus, oggvorbis, wave
 
-from . import utility
+from . import utility, warnings
 
 _ = subprocess.run(["ffmpeg", "-version"], capture_output=True)
 FOUND_FFMPEG = _.returncode == 0
@@ -78,9 +77,6 @@ class _ID3:
         "tempo": ("TBPM", "text", str),
         "title": ("TIT2", "text", None),
     }
-    _IMAGE_FORMATS = dict.fromkeys(
-        ["jpg", "jpeg", "jpe", "jif", "jfif", "jfi"], "image/jpeg"
-    ) | {"png": "image/png"}
 
     def __init__(
             self, tags: id3.ID3, multivalue: bool, 
@@ -118,7 +114,8 @@ class _ID3:
                 else:
                     if type(value[0]) not in self._FIELDS_TYPES[field]:
                         try:
-                            value = [self._FIELDS_TYPES[field][0](v) for v in value]
+                            value = [self._FIELDS_TYPES[field][0](v) 
+                                     for v in value]
                         except:
                             continue
                     if len(value) == 1:
@@ -170,6 +167,10 @@ class _ID3:
         Write metadata to file.
         """
 
+        IMAGE_FORMATS = dict.fromkeys(
+            ["jpg", "jpeg", "jpe", "jif", "jfif", "jfi"], "image/jpeg"
+        ) | {"png": "image/png"}
+
         for field, (frame, base, func) in self._FIELDS.items():
             value = getattr(self, field)
             if value:
@@ -205,7 +206,7 @@ class _ID3:
                     self.artwork = f.read()
             self._tags.add(
                 id3.APIC(data=self.artwork, 
-                         mime=self._IMAGE_FORMATS[self._artwork_format])
+                         mime=IMAGE_FORMATS[self._artwork_format])
             )
 
         self._tags.save()
@@ -234,10 +235,6 @@ class _VorbisComment:
         "track_number": ("tracknumber", str),
         "track_count": ("tracktotal", str)
     }
-    _IMAGE_FILE_SIGS = {
-        "jpg": b"\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01",
-        "png": b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"
-    }
 
     def __init__(
             self, tags: id3.ID3, multivalue: bool, 
@@ -259,6 +256,11 @@ class _VorbisComment:
         Get metadata from the tags embedded in the FLAC audio file.
         """
 
+        IMAGE_FILE_SIGS = {
+            "jpg": b"\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01",
+            "png": b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"
+        }
+
         for field, (key, _) in self._FIELDS.items():
             value = self._tags.get(key)
             if value:
@@ -273,7 +275,8 @@ class _VorbisComment:
                 else:
                     if type(value[0]) not in self._FIELDS_TYPES[field]:
                         try:
-                            value = [self._FIELDS_TYPES[field][0](v) for v in value]
+                            value = [self._FIELDS_TYPES[field][0](v) 
+                                     for v in value]
                         except:
                             continue
                     if len(value) == 1:
@@ -317,10 +320,14 @@ class _VorbisComment:
             self.artwork = self._file.pictures[0].data
             self._artwork_format = self._file.pictures[0].mime.split("/")[1]
         elif "metadata_block_picture" in self._tags:
-            self.artwork = base64.b64decode(self._tags["metadata_block_picture"][0].encode())
-            for img_fmt, file_sig in self._IMAGE_FILE_SIGS.items():
+            self.artwork = b64decode(
+                self._tags["metadata_block_picture"][0].encode()
+            )
+            for img_fmt, file_sig in IMAGE_FILE_SIGS.items():
                 if file_sig in self.artwork:
-                    self.artwork = self.artwork[re.search(file_sig, self.artwork).span()[0]:]
+                    self.artwork = self.artwork[
+                        re.search(file_sig, self.artwork).span()[0]:
+                    ]
                     self._artwork_format = img_fmt
         else:
             self.artwork = self._artwork_format = None
@@ -352,7 +359,9 @@ class _VorbisComment:
             try:
                 self._file.add_picture(artwork)
             except:
-                self._tags["metadata_block_picture"] = base64.b64encode(artwork.write()).decode()
+                self._tags["metadata_block_picture"] = b64encode(
+                    artwork.write()
+                ).decode()
 
         self._file.save()
 
@@ -411,7 +420,7 @@ class Audio:
     bitrate : `int`
         Bitrate in bytes per second (B/s).
 
-    channels : `int`
+    channel_count : `int`
         Number of audio channels.
 
     codec : `str`
@@ -484,7 +493,6 @@ class Audio:
         "track_number": (int,),
         "track_count": (int,)
     }
-    _FILENAME_FIELDS = {"artist", "title", "track_number"}
 
     def __init__(self, filename: str):
         self._filename = filename
@@ -518,11 +526,15 @@ class Audio:
             field(s).
         """
 
+        FILENAME_FIELDS = {"artist", "title", "track_number"}
+
         if pattern:
-            groups = re.findall(pattern[0], os.path.splitext(self._filename)[0])
+            groups = re.findall(pattern[0], 
+                                os.path.splitext(self._filename)[0])
             if groups:
-                missing = tuple(k in self._FILENAME_FIELDS
-                                and getattr(self, k) is None for k in pattern[1])
+                missing = tuple(k in FILENAME_FIELDS 
+                                and getattr(self, k) is None 
+                                for k in pattern[1])
                 for flag, attr, val in zip(missing, pattern[1], groups[0]):
                     if flag:
                         setattr(self, attr, self._FIELDS_TYPES[attr][0](val))
@@ -835,7 +847,8 @@ class Audio:
             self.isrc = data["external_ids"]["isrc"]
         if (self.lyrics is None or overwrite) and lyrics:
             self.lyrics = lyrics if isinstance(lyrics, str) \
-                          else "\n".join(l["words"] for l in lyrics["lyrics"]["lines"])
+                          else "\n".join(l["words"] 
+                                         for l in lyrics["lyrics"]["lines"])
         if (self.tempo is None or overwrite) and audio_features:
             self.tempo = round(audio_features["tempo"])
         if self.title is None or overwrite:
@@ -907,7 +920,8 @@ class Audio:
         if self.isrc is None or overwrite:
             self.isrc = data["isrc"]
         if (self.lyrics is None or overwrite) and lyrics:
-            self.lyrics = lyrics if isinstance(lyrics, str) else lyrics["lyrics"]
+            self.lyrics = lyrics if isinstance(lyrics, str) \
+                          else lyrics["lyrics"]
         if self.title is None or overwrite:
             self.title = data["title"]
         if self.track_number is None or overwrite:
@@ -972,7 +986,7 @@ class Audio:
 
         if self.album is None or overwrite:
             self.album = data["album"]["title"].rstrip()
-            feat_album_artist = [a["name"] for a in data["album"]["artists"] 
+            feat_album_artist = [a["name"] for a in data["album"]["artists"]
                                  if "featured-artist" in a["roles"]]
             if feat_album_artist and "feat." not in self.album:
                 self.album += (" [feat. {}]" if "(" in self.album 
@@ -1010,8 +1024,16 @@ class Audio:
             self.copyright = data["album"]["copyright"]
         if self.date is None or overwrite:
             self.date = datetime.utcfromtimestamp(
-                min(data["purchasable_at"] or 2 ** 31, 
-                    data["streamable_at"] or 2 ** 31 - 1)
+                min(
+                    data.get(k) if k in data and data.get(k) 
+                    else 2 ** 31 - 1 for k in {
+                        "release_date_original", 
+                        "release_date_download", 
+                        "release_date_stream", 
+                        "purchasable_at", 
+                        "streamable_at"
+                    }
+                )
             ).strftime('%Y-%m-%dT%H:%M:%SZ')
         if self.disc_number is None or overwrite:
             self.disc_number = data["media_number"]
@@ -1110,7 +1132,7 @@ class FLACAudio(Audio, _VorbisComment):
 
         self.bit_depth = self._file.info.bits_per_sample
         self.bitrate = self._file.info.bitrate
-        self.channels = self._file.info.channels
+        self.channel_count = self._file.info.channels
         self.codec = "flac"
         self.sample_rate = self._file.info.sample_rate
 
@@ -1181,7 +1203,7 @@ class MP3Audio(Audio, _ID3):
 
         self.bit_depth = None
         self.bitrate = file.info.bitrate
-        self.channels = file.info.channels
+        self.channel_count = file.info.channels
         self.codec = "mp3"
         self.sample_rate = file.info.sample_rate
 
@@ -1233,7 +1255,8 @@ class MP4Audio(Audio):
         :code:`str` is used to append the final value.
     """
 
-    _CODECS = {"aac": {"ffmpeg": f"-b:a 256k -c:a {FFMPEG_AAC_CODEC} -c:v copy"}, 
+    _CODECS = {"aac": {"ffmpeg": f"-b:a 256k -c:a {FFMPEG_AAC_CODEC} "
+                                 "-c:v copy"},
                "alac": {"ffmpeg": "-c:a alac -c:v copy"}}
     _EXTENSIONS = ["m4a", "aac", "mp4"]
     _FIELDS = {
@@ -1270,7 +1293,7 @@ class MP4Audio(Audio):
         self._tags = mp4.MP4(filename)
         self.bit_depth = self._tags.info.bits_per_sample
         self.bitrate = self._tags.info.bitrate
-        self.channels = self._tags.info.channels
+        self.channel_count = self._tags.info.channels
         self.codec = self._tags.info.codec
         self.sample_rate = self._tags.info.sample_rate
         self._multivalue = multivalue
@@ -1299,7 +1322,8 @@ class MP4Audio(Audio):
                 else:
                     if type(value[0]) not in self._FIELDS_TYPES[field]:
                         try:
-                            value = [self._FIELDS_TYPES[field][0](v) for v in value]
+                            value = [self._FIELDS_TYPES[field][0](v) 
+                                     for v in value]
                         except:
                             continue
                     if len(value) == 1:
@@ -1352,9 +1376,11 @@ class MP4Audio(Audio):
             self._tags["----:com.apple.iTunes:ISRC"] = self.isrc.encode()
 
         if self.disc_number or self.disc_count:
-            self._tags["disk"] = [(self.disc_number or 0, self.disc_count or 0)]
+            self._tags["disk"] = [(self.disc_number or 0, 
+                                   self.disc_count or 0)]
         if self.track_number or self.track_count:
-            self._tags["trkn"] = [(self.track_number or 0, self.track_count or 0)]
+            self._tags["trkn"] = [(self.track_number or 0, 
+                                   self.track_count or 0)]
         
         if self.artwork:
             if isinstance(self.artwork, str):
@@ -1449,11 +1475,12 @@ class OGGAudio(Audio, _VorbisComment):
         self._tags = self._file.tags
         _VorbisComment.__init__(self, self._file.tags, multivalue, sep)
 
-        self.channels = self._file.info.channels
+        self.channel_count = self._file.info.channels
         if self.codec == "flac":
             self.bit_depth = self._file.info.bits_per_sample
             self.sample_rate = self._file.info.sample_rate 
-            self.bitrate = self.bit_depth * self.channels * self.sample_rate
+            self.bitrate = self.bit_depth * self.channel_count \
+                           * self.sample_rate
         elif self.codec == "opus":
             self.bit_depth = self.bitrate = self.sample_rate = None
         elif self.codec == "vorbis":
@@ -1530,7 +1557,7 @@ class WAVEAudio(Audio, _ID3):
 
         self.bit_depth = file.info.bits_per_sample
         self.bitrate = file.info.bitrate
-        self.channels = file.info.channels
+        self.channel_count = file.info.channels
         self.codec = "lpcm"
         self.sample_rate = file.info.sample_rate
 

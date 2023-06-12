@@ -20,7 +20,13 @@ minim.qobuz
       :template: class.rst
       :nosignatures:
    
+      Album
+      Artist
+      Label
+      Playlist
       Session
+      Track
+      User
    
    
 

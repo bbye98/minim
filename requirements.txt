@@ -1,3 +1,14 @@
-# levenshtein
+flask
+furo
+ipywidgets
+jupyterlab
+levenshtein
 mutagen
-# numpy
+myst-nb
+numpy
+numpydoc
+playwright
+pycryptodome
+requests
+sphinx
+sphinx-copybutton
