@@ -1,5 +1,5 @@
-minim.utility
-=============
+utility
+=======
 
 .. automodule:: minim.utility
 

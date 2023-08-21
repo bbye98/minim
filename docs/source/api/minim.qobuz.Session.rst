@@ -1,5 +1,5 @@
-﻿minim.qobuz.Session
-===================
+Session
+=======
 
 .. currentmodule:: minim.qobuz
 

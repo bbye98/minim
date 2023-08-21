@@ -29,7 +29,6 @@ import re
 import subprocess
 import time
 from typing import Any, Union
-import urllib
 
 import requests
 
@@ -1191,8 +1190,8 @@ class Session:
 
         file = self.get_track_file_url(track_id, quality=quality)
         format = file["mime_type"][6:]
-        with urllib.request.urlopen(file["url"]) as r:
-            stream = r.read()
+        with self.session.get(file["url"]) as r:
+            stream = r.content
 
         if save:
             file = (f"{json['track_number']:02} {json['title']}").rstrip()
@@ -1773,7 +1772,7 @@ class Album:
         object.
         """
 
-        return f"minim.qobuz.Album({self.id}) # {self.__str__()}"
+        return f"minim.qobuz.Album('{self.id}') # {self.__str__()}"
 
     def __str__(self) -> None:
 
@@ -1801,7 +1800,7 @@ class Album:
             self._json.update(json)
 
         self.primary_artist = Artist(json["artist"]["id"], 
-                                  session=self._session)
+                                     session=self._session)
         self.artists = {"main_artist": [], "featured_artist": []}
         if "artists" in json:
             for r in self.artists:
@@ -1834,8 +1833,11 @@ class Album:
                         if "duration" in json else None
         self.genre = json["genre"]["name"]
         self.hi_res = json["hires"]
-        self.label = Label(json["label"]["id"], data=json["label"], 
-                           session=self._session)
+        try:
+            self.label = Label(json["label"]["id"], data=json["label"], 
+                               session=self._session)
+        except RuntimeError:
+            self.label = None
         self.maximum_bit_depth = json["maximum_bit_depth"]
         self.maximum_channel_count = json["maximum_channel_count"]
         self.maximum_sample_rate = json["maximum_sampling_rate"]
@@ -2108,7 +2110,7 @@ class Artist:
         object.
         """
 
-        return f"minim.qobuz.Artist({self.id}) # {self.__str__()}"
+        return f"minim.qobuz.Artist('{self.id}') # {self.__str__()}"
 
     def __str__(self) -> None:
 
@@ -2392,7 +2394,7 @@ class Label:
         object.
         """
 
-        return f"minim.qobuz.Label({self.id}) # {self.__str__()}"
+        return f"minim.qobuz.Label('{self.id}') # {self.__str__()}"
 
     def __str__(self) -> None:
 
@@ -2586,7 +2588,7 @@ class Track:
         object.
         """
 
-        return f"minim.qobuz.Track({self.id}) # {self.__str__()}"
+        return f"minim.qobuz.Track('{self.id}') # {self.__str__()}"
 
     def __str__(self) -> None:
 
@@ -2877,7 +2879,7 @@ class Playlist:
         object.
         """
 
-        return f"minim.qobuz.Playlist({self.id}) # {self.__str__()}"
+        return f"minim.qobuz.Playlist('{self.id}') # {self.__str__()}"
 
     def __str__(self) -> None:
 

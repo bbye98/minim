@@ -1,5 +1,5 @@
-minim.audio.MP4Audio
-====================
+MP4Audio
+========
 
 .. currentmodule:: minim.audio
 

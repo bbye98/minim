@@ -1,5 +1,5 @@
-minim.spotify.WebAPISession
-===========================
+WebAPISession
+=============
 
 .. currentmodule:: minim.spotify
 
@@ -18,7 +18,7 @@ minim.spotify.WebAPISession
    
       ~WebAPISession.add_playlist_cover_image
       ~WebAPISession.add_playlist_items
-      ~WebAPISession.add_queue_item
+      ~WebAPISession.add_to_queue
       ~WebAPISession.change_playlist_details
       ~WebAPISession.check_followed_people
       ~WebAPISession.check_playlist_followers
@@ -40,7 +40,6 @@ minim.spotify.WebAPISession
       ~WebAPISession.get_audiobook
       ~WebAPISession.get_audiobook_chapters
       ~WebAPISession.get_audiobooks
-      ~WebAPISession.get_available_devices
       ~WebAPISession.get_categories
       ~WebAPISession.get_category
       ~WebAPISession.get_category_playlists
@@ -48,19 +47,20 @@ minim.spotify.WebAPISession
       ~WebAPISession.get_chapters
       ~WebAPISession.get_current_user_playlists
       ~WebAPISession.get_current_user_profile
-      ~WebAPISession.get_currently_playing_item
+      ~WebAPISession.get_currently_playing
+      ~WebAPISession.get_devices
       ~WebAPISession.get_episode
       ~WebAPISession.get_episodes
       ~WebAPISession.get_featured_playlists
       ~WebAPISession.get_followed_artists
       ~WebAPISession.get_genre_seeds
       ~WebAPISession.get_markets
-      ~WebAPISession.get_new_releases
+      ~WebAPISession.get_new_albums
       ~WebAPISession.get_playback_state
       ~WebAPISession.get_playlist
       ~WebAPISession.get_playlist_cover_image
       ~WebAPISession.get_playlist_items
-      ~WebAPISession.get_recently_played_tracks
+      ~WebAPISession.get_recently_played
       ~WebAPISession.get_recommendations
       ~WebAPISession.get_related_artists
       ~WebAPISession.get_saved_albums

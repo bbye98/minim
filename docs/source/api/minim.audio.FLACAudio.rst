@@ -1,5 +1,5 @@
-minim.audio.FLACAudio
-=====================
+FLACAudio
+=========
 
 .. currentmodule:: minim.audio
 

@@ -1,5 +1,5 @@
-minim.spotify
-=============
+spotify
+=======
 
 .. automodule:: minim.spotify
 

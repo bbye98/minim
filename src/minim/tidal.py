@@ -366,7 +366,7 @@ class Session:
                 page = context.new_page()
                 page.goto(auth_url, timeout=0)
                 try:
-                    page.wait_for_url(f"tidal://login/auth*", 
+                    page.wait_for_url("tidal://login/auth*", 
                                       wait_until="networkidle")
                 except:
                     pass
@@ -1360,11 +1360,11 @@ class Session:
                         "type must be specified.")
                 raise ValueError(emsg)
 
-        with urllib.request.urlopen(f"{self.RESOURCES_URL}/images"
-                                    f"/{uuid.replace('-', '/')}"
-                                    f"/{width}x{height}.jpg") as r:
-            image = r.read()
-
+        with self.session.get(f"{self.RESOURCES_URL}/images"
+                              f"/{uuid.replace('-', '/')}"
+                              f"/{width}x{height}.jpg") as r:
+            image = r.content
+            
         if filename:
             with open(filename, "wb") as f:
                 f.write(image)
@@ -2792,28 +2792,28 @@ class Session:
             format = self._AUDIO_FORMATS_EXTENSIONS[codec]
             segment = manifest.getElementsByTagName("SegmentTemplate")[0]
             stream = bytearray()
-            with urllib.request.urlopen(
+            with self.session.get(
                     segment.getAttribute("initialization")
                 ) as r:
-                stream.extend(r.read())
+                stream.extend(r.content)
             for i in range(1, sum(int(tl.getAttribute("r")) 
                                   if tl.hasAttribute("r") else 1 
                                   for tl in 
                                   segment.getElementsByTagName("S")) + 1):
-                with urllib.request.urlopen(
+                with self.session.get(
                         segment.getAttribute("media").replace(
                             "$Number$", str(i)
                         )
                     ) as r:
-                    stream.extend(r.read())
+                    stream.extend(r.content)
         else:
             manifest = json.loads(manifest)
             codec = manifest["codecs"]
             if "." in codec:
                 codec = codec[:codec.index(".")]
             format = self._AUDIO_FORMATS_EXTENSIONS[codec]
-            with urllib.request.urlopen(manifest["urls"][0]) as r:
-                stream = r.read()
+            with self.session.get(manifest["urls"][0]) as r:
+                stream = r.content
             if manifest["encryptionType"] != "NONE":
                 d_key_id = base64.b64decode(manifest['keyId'])
                 d_id = AES.new(self._MASTER_KEY, AES.MODE_CBC, 
@@ -2968,8 +2968,8 @@ class Session:
         stream = bytearray()
         for ts in re.findall("(?<=\n).*(http.*)", 
                              requests.get(m3u8).content.decode("utf-8")):
-            with urllib.request.urlopen(ts) as r:
-                stream.extend(r.read())
+            with self.session.get(ts) as r:
+                stream.extend(r.content)
 
         if save:
             file = (f"{data['trackNumber']:02} "

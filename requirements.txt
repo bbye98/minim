@@ -12,3 +12,4 @@ pycryptodome
 requests
 sphinx
 sphinx-copybutton
+sphinx-togglebutton

@@ -1,5 +1,5 @@
-minim.qobuz
-===========
+qobuz
+=====
 
 .. automodule:: minim.qobuz
 

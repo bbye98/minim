@@ -1,5 +1,5 @@
-minim.audio
-===========
+audio
+=====
 
 .. automodule:: minim.audio
 

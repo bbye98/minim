@@ -1,5 +1,5 @@
-minim.tidal.Session
-===================
+Session
+=======
 
 .. currentmodule:: minim.tidal
 

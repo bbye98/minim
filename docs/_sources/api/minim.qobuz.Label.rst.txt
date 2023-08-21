@@ -1,5 +1,5 @@
-minim.qobuz.Label
-=================
+Label
+=====
 
 .. currentmodule:: minim.qobuz
 

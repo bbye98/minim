@@ -1,5 +1,5 @@
-﻿minim.qobuz.Playlist
-====================
+Playlist
+========
 
 .. currentmodule:: minim.qobuz
 

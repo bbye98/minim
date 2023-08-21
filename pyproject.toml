@@ -1,0 +1,32 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools"]
+
+[project]
+name = "minim"
+version = "1.0.0"
+authors = [
+  { name = "Benjamin B. Ye", email = "benjaminbobinye@gmail.com" }
+]
+classifiers = [
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3"
+]
+dependencies = [
+  "levenshtein",
+  "mutagen",
+  "numpy",
+  "pycryptodome",
+  "requests"
+]
+description = """
+A collection of music service APIs to query media information and 
+(semi-)automate tagging.
+"""
+readme = "README.md"
+requires-python = ">=3.7"
+
+[project.urls]
+"Homepage" = "https://github.com/bbye98/minim"
+"Bug Tracker" = "https://github.com/bbye98/minim/issues"

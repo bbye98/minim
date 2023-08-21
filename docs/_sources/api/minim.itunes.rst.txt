@@ -1,5 +1,5 @@
-minim.itunes
-============
+itunes
+======
 
 .. automodule:: minim.itunes
 

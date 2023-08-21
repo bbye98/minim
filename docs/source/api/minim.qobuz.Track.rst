@@ -1,5 +1,5 @@
-minim.qobuz.Track
-=================
+Track
+=====
 
 .. currentmodule:: minim.qobuz
 

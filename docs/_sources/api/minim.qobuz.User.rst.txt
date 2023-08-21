@@ -1,5 +1,5 @@
-﻿minim.qobuz.User
-================
+User
+====
 
 .. currentmodule:: minim.qobuz
 

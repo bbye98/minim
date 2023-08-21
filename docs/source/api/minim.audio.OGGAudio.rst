@@ -1,5 +1,5 @@
-minim.audio.OGGAudio
-====================
+OGGAudio
+========
 
 .. currentmodule:: minim.audio
 

@@ -1,5 +1,5 @@
-minim.tidal
-===========
+tidal
+=====
 
 .. automodule:: minim.tidal
 

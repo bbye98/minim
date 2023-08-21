@@ -22,6 +22,7 @@ extensions = [
     "myst_nb",
     "numpydoc",
     "sphinx_copybutton",
+    "sphinx_togglebutton",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.duration",
@@ -32,8 +33,6 @@ extensions = [
 ]
 exclude_patterns = ["_build"]
 templates_path = ["_templates"]
-
-add_module_names = False
 toc_object_entries_show_parents = "hide"
 
 autosummary_generate = True
@@ -45,6 +44,7 @@ myst_enable_extensions = ["colon_fence"]
 myst_heading_anchors = 3
 nb_execution_timeout = -1
 numpydoc_show_class_members = False
+togglebutton_hint = togglebutton_hint_hide = ""
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

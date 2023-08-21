@@ -1,5 +1,5 @@
-﻿minim.qobuz.Album
-=================
+Album
+=====
 
 .. currentmodule:: minim.qobuz
 

@@ -1,5 +1,5 @@
-minim.qobuz.Artist
-==================
+Artist
+======
 
 .. currentmodule:: minim.qobuz
 

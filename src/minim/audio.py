@@ -554,7 +554,7 @@ class Audio:
            The audio file handler is automatically updated to reflect
            the new audio file format. For example, converting a FLAC
            audio file to an ALAC audio file will change the file handler
-           from an :class:`MP4Audio` object to a :class:`FLACAudio`
+           from a :class:`FLACAudio` object to an :class:`MP4Audio`
            object.
 
         Parameters
@@ -755,12 +755,12 @@ class Audio:
                     if "Feature" in self.artwork:
                         self.artwork = (
                             "https://a5.mzstatic.com/us/r1000/0"
-                            f"/{re.search('Feature.*?(png|jpg)', self.artwork)[0]}"
+                            f"/{re.search(r'Feature.*?(png|jpg)(?=/|$)', self.artwork)[0]}"
                         )
                     elif "Music" in self.artwork:
                         self.artwork = (
                             "https://a5.mzstatic.com/"
-                            f"{re.search('Music.*?(png|jpg)', self.artwork)[0]}"
+                            f"{re.search(r'Music.*?(png|jpg)(?=/|$)', self.artwork)[0]}"
                         )
                     self._artwork_format = os.path.splitext(self.artwork)[-1][1:]
                 else:

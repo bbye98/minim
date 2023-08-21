@@ -1,5 +1,5 @@
-minim.audio.MP3Audio
-====================
+MP3Audio
+========
 
 .. currentmodule:: minim.audio
 

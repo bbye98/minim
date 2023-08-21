@@ -1,5 +1,5 @@
-minim.spotify.LyricsAPISession
-==============================
+LyricsAPISession
+================
 
 .. currentmodule:: minim.spotify
 
