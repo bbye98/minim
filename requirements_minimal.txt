@@ -1,0 +1,5 @@
+levenshtein
+mutagen
+numpy
+pycryptodome
+requests

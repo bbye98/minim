@@ -1,15 +1,20 @@
+# CORE DEPENDENCIES
+levenshtein
+mutagen
+numpy
+pycryptodome
+requests
+
+# OPTIONAL DEPENDENCIES
 flask
+playwright
+
+# DOCUMENTATION DEPENDENCIES
 furo
 ipywidgets
 jupyterlab
-levenshtein
-mutagen
 myst-nb
-numpy
 numpydoc
-playwright
-pycryptodome
-requests
 sphinx
 sphinx-copybutton
 sphinx-togglebutton
