@@ -1,17 +1,23 @@
 """
-:mod:`minim.spotify` -- Spotify Web and Lyrics APIs
-===================================================
+Spotify Web and Lyrics APIs
+===========================
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
 This module contains a complete Python implementation of the Spotify Web
 API and a minimal implementation of the Spotify Lyrics API.
 
-The public Spotify Web API allows media (albums, tracks, etc.) and
-artists to be queried and information about them to be retrieved, as
-well as user information (playlists, profile, etc.) to be retrieved and
-updated. 
+The public Spotify Web API allows for the retrieval of information about
+artists, media (albums, tracks, etc.), and users (playlists, profiles, 
+etc.) and music playback control.
+
+.. important::
+
+   * Spotify content may not be downloaded.
+   * Keep visual content in its original form.
+   * Ensure content attribution.
 
 .. seealso::
+
    For more information, see the `Spotify Web API Reference
    <https://developer.spotify.com/documentation/web-api/reference/#/>`_.
 
@@ -25,6 +31,7 @@ accompanying expiry time and refresh token) can be provided to the
 :class:`WebAPISession` constructor to bypass the authorization flow.
 
 .. note::
+
    This module supports the `authorization code 
    <https://developer.spotify.com/documentation/general/guides/
    authorization/code-flow/>`_ and `client credentials 
@@ -32,6 +39,7 @@ accompanying expiry time and refresh token) can be provided to the
    authorization/client-credentials/>`_ flows.
 
 .. seealso::
+
    To get client credentials, see the `guide on how to create a new
    Spotify app <https://developer.spotify.com/documentation/general/
    guides/authorization/app-settings/>`_.
@@ -67,13 +75,13 @@ import webbrowser
 try:
     from flask import Flask, request
     FOUND_FLASK = True
-except:
+except ModuleNotFoundError:
     FOUND_FLASK = False
 
 try:
     from playwright.sync_api import sync_playwright
     FOUND_PLAYWRIGHT = True
-except:
+except ModuleNotFoundError:
     FOUND_PLAYWRIGHT = False
 
 TEMP_DIR = tempfile.gettempdir()
@@ -88,7 +96,8 @@ def _file_exists(
     Parameters
     ----------
     event : `multiprocessing.Event`
-        An indicator of whether the file has been created or found.
+        Function that indicates whether the file has been created or
+        found.
 
     filename : `str`, `bytes`, or `os.PathLike`
         Filename.
@@ -267,6 +276,377 @@ class LyricsAPISession(_Session):
         -------
         lyrics : `dict`
             Formatted or time-synced lyrics.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "lyrics": {
+                      "syncType": "LINE_SYNCED",
+                      "lines": [
+                        {
+                          "startTimeMs": "5850",
+                          "words": "I had a dream, or was it real?",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "7830",
+                          "words": "We crossed the line and it was on",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "10180",
+                          "words": "(We crossed the line, it was on this time)",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "14140",
+                          "words": "I've been denying how I feel",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "16290",
+                          "words": "You've been denying what you want",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "18520",
+                          "words": "(You want from me, talk to me baby)",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "22540",
+                          "words": "I want some satisfaction, take me to the stars",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "25880",
+                          "words": "Just like ah-ah-ah, ah-ah-ah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "30750",
+                          "words": "I wanna cut through the clouds, break the ceiling",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "34940",
+                          "words": "I wanna dance on the roof, you and me alone",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "39130",
+                          "words": "I wanna cut to the feeling, oh, yeah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "43280",
+                          "words": "I wanna cut to the feeling, oh, yeah (woo)",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "47450",
+                          "words": "I wanna play where you play with the angels",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "51650",
+                          "words": "I wanna wake up with you all in tangles, oh",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "55770",
+                          "words": "I wanna cut to the feeling, oh, yeah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "59920",
+                          "words": "I wanna cut to the feeling, oh, yeah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "65680",
+                          "words": "\u266a",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "68220",
+                          "words": "Cancel your reservations",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "70210",
+                          "words": "No more hesitations, this is on",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "72740",
+                          "words": "(Can't make it stop, give me all you got)",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "76960",
+                          "words": "I want it all or nothing",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "78520",
+                          "words": "No more in-between, now give your",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "80530",
+                          "words": "(Everything to me, let's get real baby)",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "85130",
+                          "words": "A chemical reaction, take me in your arms",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "88210",
+                          "words": "And make me ah-ah-ah, ah-ah-ah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "93570",
+                          "words": "I wanna cut through the clouds, break the ceiling",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "97620",
+                          "words": "I wanna dance on the roof, you and me alone",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "101730",
+                          "words": "I wanna cut to the feeling, oh, yeah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "105830",
+                          "words": "I wanna cut to the feeling, oh, yeah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "110080",
+                          "words": "I wanna play where you play with the angels",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "114250",
+                          "words": "I wanna wake up with you all in tangles, oh",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "118590",
+                          "words": "I wanna cut to the feeling, oh, yeah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "122640",
+                          "words": "I wanna cut to the feeling, oh, yeah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "127190",
+                          "words": "(Hey, woo)",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "130570",
+                          "words": "Take me to emotion (hey), I want to go all the way (all the way)",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "134880",
+                          "words": "Show me devotion and take me all the way",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "138980",
+                          "words": "Take me to emotion, I want to go all the way",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "143200",
+                          "words": "Show me devotion and take me all the way",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "146730",
+                          "words": "(Take me) all the way",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "147970",
+                          "words": "(Take me) all the way",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "149060",
+                          "words": "Take me all the way",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "151770",
+                          "words": "I wanna cut through the clouds, break the ceiling",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "156110",
+                          "words": "I wanna dance on the roof, you and me alone",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "160140",
+                          "words": "I wanna cut to the feeling (oh-oh), oh, yeah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "164320",
+                          "words": "I wanna cut to the feeling (yeah, yeah, yeah, yeah), oh, yeah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "168470",
+                          "words": "I wanna play where you play with the angels",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "172610",
+                          "words": "I wanna wake up with you all in tangles, oh",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "176950",
+                          "words": "I wanna cut to the feeling, oh, yeah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "181080",
+                          "words": "I wanna cut to the feeling, oh, yeah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "185130",
+                          "words": "I wanna cut through the clouds",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "187290",
+                          "words": "Mmm, cut to the feeling",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "189450",
+                          "words": "I wanna dance on the roof, oh-oh-oh, yeah",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "193660",
+                          "words": "I wanna cut to the feeling",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "195610",
+                          "words": "I wanna cut to the feeling",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "197780",
+                          "words": "I wanna cut to the feeling",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "199770",
+                          "words": "I wanna cut to the feeling",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        },
+                        {
+                          "startTimeMs": "201270",
+                          "words": "",
+                          "syllables": [],
+                          "endTimeMs": "0"
+                        }
+                      ],
+                      "provider": "MusixMatch",
+                      "providerLyricsId": "72545348",
+                      "providerDisplayName": "Musixmatch",
+                      "syncLyricsUri": "",
+                      "isDenseTypeface": False,
+                      "alternatives": [],
+                      "language": "en",
+                      "isRtlLanguage": False,
+                      "fullscreenAction": "FULLSCREEN_LYRICS",
+                      "showUpsell": false
+                    },
+                    "colors": {
+                      "background": -11567485,
+                      "text": -16777216,
+                      "highlightText": -1
+                    },
+                    "hasVocalRemoval": false
+                  }
         """
 
         return self._get_json(f"{self.API_URL}/{id}",
@@ -297,8 +677,8 @@ class WebAPISession(_Session):
 
            **Valid values**:
            
-           * :code:`authorization_code` for the authorization code flow.
-           * :code:`client_credentials` for the client credentials flow.
+           * :code:`"authorization_code"` for the authorization code flow.
+           * :code:`"client_credentials"` for the client credentials flow.
     
     browser : `bool`, keyword-only, default: :code:`True`
         Determines whether a web browser is automatically opened and the
@@ -308,6 +688,7 @@ class WebAPISession(_Session):
         URI via the terminal.
 
         .. note::
+
            Either Flask or Playwright must be installed if
            :code:`browser=True`. The `backend` keyword argument can
            be used to specify which backend is used for authorization
@@ -385,69 +766,74 @@ class WebAPISession(_Session):
     def get_scopes(self, categories: Union[str, list[str]]) -> str:
 
         """
-        Get Spotify authorization scopes for the specified categories.
+        Get authorization scopes for the desired categories.
 
-        .. container::
+        Parameters
+        ----------
+        categories : `str` or `list`
+            Authorization scope categories.
 
-           **Valid values**:
+            .. container::
 
-           * :code:`"images"`: Scopes related to images.
+               **Valid values**:
 
-             * :code:`ugc-image-upload`
+               * :code:`"images"`: Scopes related to images.
 
-           * :code:`"connect"`: Scopes related to Spotify Connect.
+                 * :code:`ugc-image-upload`
 
-             * :code:`user-read-playback-state`
-             * :code:`user-modify-playback-state`
-             * :code:`user-read-currently-playing`
+               * :code:`"connect"`: Scopes related to Spotify Connect.
 
-           * :code:`"playback"`: Scopes related to playback.
+                 * :code:`user-read-playback-state`
+                 * :code:`user-modify-playback-state`
+                 * :code:`user-read-currently-playing`
 
-             * :code:`app-remote-control`
-             * :code:`streaming`
+               * :code:`"playback"`: Scopes related to playback.
 
-           * :code:`"playlists"`: Scopes related to modifying and reading 
-             playlists.
+                 * :code:`app-remote-control`
+                 * :code:`streaming`
 
-             * :code:`playlist-read-private`
-             * :code:`playlist-read-collaborative`
-             * :code:`playlist-modify-private`
-             * :code:`playlist-modify-public`
+               * :code:`"playlists"`: Scopes related to modifying and reading 
+                 playlists.
 
-           * :code:`"follow`: Scopes related to following artists and other
-             users.
+                 * :code:`playlist-read-private`
+                 * :code:`playlist-read-collaborative`
+                 * :code:`playlist-modify-private`
+                 * :code:`playlist-modify-public`
 
-             * :code:`user-follow-modify`
-             * :code:`user-follow-read`
+               * :code:`"follow`: Scopes related to following artists and other
+                 users.
 
-           * :code:`"history"`: Scopes related to a user's listening 
-             history.
+                 * :code:`user-follow-modify`
+                 * :code:`user-follow-read`
 
-             * :code:`user-read-playback-position`
-             * :code:`user-top-read`
-             * :code:`user-read-recently-played`
+               * :code:`"history"`: Scopes related to a user's listening 
+                 history.
 
-           * :code:`"library"`: Scopes related to modifying and reading
-             a user's library.
+                 * :code:`user-read-playback-position`
+                 * :code:`user-top-read`
+                 * :code:`user-read-recently-played`
 
-             * :code:`user-library-modify`
-             * :code:`user-library-read`
+               * :code:`"library"`: Scopes related to modifying and reading
+                 a user's library.
 
-           * :code:`"users"`: Scopes related to accessing a user's 
-             information.
+                 * :code:`user-library-modify`
+                 * :code:`user-library-read`
 
-             * :code:`user-read-email`
-             * :code:`user-read-private`
+               * :code:`"users"`: Scopes related to accessing a user's 
+                 information.
 
-           * :code:`"all"`: All scopes above.
-           * :code:`"read"`: All scopes above that grant read access.
-           * :code:`"modify"`: All scopes above that grant modify access.
+                 * :code:`user-read-email`
+                 * :code:`user-read-private`
 
-        .. seealso::
-           For the endpoints that the scopes allow access to, see the
-           `Authorization Scopes page of the Spotify Web API Reference
-           <https://developer.spotify.com/documentation/general/guides/
-           authorization/scopes/>`_.
+               * :code:`"all"`: All scopes above.
+               * :code:`"read"`: All scopes above that grant read access.
+               * :code:`"modify"`: All scopes above that grant modify access.
+
+            .. seealso::
+               For the endpoints that the scopes allow access to, see the
+               `Authorization Scopes page of the Spotify Web API Reference
+               <https://developer.spotify.com/documentation/general/guides/
+               authorization/scopes/>`_.
         """
         
         if isinstance(categories, str):
@@ -514,7 +900,8 @@ class WebAPISession(_Session):
     def __repr__(self):
 
         """
-        Set the string representation of the Spotify Web API object.
+        Set the string representation of the Spotify Web API session
+        object.
         """
 
         if hasattr(self, "_me"):
@@ -526,7 +913,8 @@ class WebAPISession(_Session):
     def _get_access_token(self) -> None:
 
         """
-        Get Spotify Web API access token.
+        Get an access token via a supported OAuth 2.0 authentication 
+        flow.
         """
 
         if self._client_id is None or self._client_secret is None:
@@ -571,8 +959,7 @@ class WebAPISession(_Session):
     def _get_authorization_code(self) -> str:
 
         """
-        Get an authorization code to be exchanged for an access token 
-        for the Spotify Web API.
+        Get an authorization code to be exchanged for an access token.
 
         Returns
         -------
@@ -735,7 +1122,7 @@ class WebAPISession(_Session):
             Required scope for `method`.
         """
 
-        if self._scopes is None or not scope in self._scopes:
+        if self._scopes is None or scope not in self._scopes:
             emsg = (f"spotify.WebAPISession.{method}() requires the "
                     f"'{scope}' authorization scope.")
             raise RuntimeError(emsg)
@@ -764,6 +1151,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -772,8 +1160,129 @@ class WebAPISession(_Session):
         Returns
         -------
         album : `dict`
-            Spotify catalog information for a single album in JSON
-            format.
+            Spotify catalog information for a single album.
+
+            .. admonition:: Sample response
+               :class: dropdown
+            
+               .. code::
+
+                  {
+                    "album_type": "compilation",
+                    "total_tracks": 9,
+                    "available_markets": ["CA", "BR", "IT"],
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "href": <str>,
+                    "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                    "images": [
+                      {
+                        "url": <str>,
+                        "height": 300,
+                        "width": 300
+                      }
+                    ],
+                    "name": <str>,
+                    "release_date": "1981-12",
+                    "release_date_precision": "year",
+                    "restrictions": {
+                      "reason": "market"
+                    },
+                    "type": "album",
+                    "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                    "copyrights": [
+                      {
+                        "text": <str>,
+                        "type": <str>
+                      }
+                    ],
+                    "external_ids": {
+                      "isrc": <str>,
+                      "ean": <str>,
+                      "upc": <str>
+                    },
+                    "genres": ["Egg punk", "Noise rock"],
+                    "label": <str>,
+                    "popularity": 0,
+                    "artists": [
+                      {
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "followers": {
+                          "href": <str>,
+                          "total": 0
+                        },
+                        "genres": ["Prog rock", "Grunge"],
+                        "href": <str>,
+                        "id": <str>,
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "name": <str>,
+                        "popularity": 0,
+                        "type": "artist",
+                        "uri": <str>
+                      }
+                    ],
+                    "tracks": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": <str>,
+                      "offset": 0,
+                      "previous": <str>,
+                      "total": 4,
+                      "items": [
+                        {
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "available_markets": [<str>],
+                          "disc_number": 0,
+                          "duration_ms": 0,
+                          "explicit": False,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "is_playable": False,
+                          "linked_from": {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "type": <str>,
+                            "uri": <str>
+                          },
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "name": <str>,
+                          "preview_url": <str>,
+                          "track_number": 0,
+                          "type": <str>,
+                          "uri": <str>,
+                          "is_local": false
+                        }
+                      ]
+                    }
+                  }
         """
 
         return self._get_json(f"{self.API_URL}/albums/{id}",
@@ -807,6 +1316,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -815,8 +1325,136 @@ class WebAPISession(_Session):
         Returns
         -------
         albums : `list`
-            A list of Spotify catalog information for multiple albums in
-            JSON format.
+            A list containing Spotify catalog information for multiple
+            albums.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+               
+                  [
+                    {
+                      "albums": [
+                        {
+                          "album_type": "compilation",
+                          "total_tracks": 9,
+                          "available_markets": ["CA", "BR", "IT"],
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "release_date": "1981-12",
+                          "release_date_precision": "year",
+                          "restrictions": {
+                            "reason": "market"
+                          },
+                          "type": "album",
+                          "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                          "copyrights": [
+                            {
+                              "text": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "external_ids": {
+                            "isrc": <str>,
+                            "ean": <str>,
+                            "upc": <str>
+                          },
+                          "genres": ["Egg punk", "Noise rock"],
+                          "label": <str>,
+                          "popularity": 0,
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "followers": {
+                                "href": <str>,
+                                "total": 0
+                              },
+                              "genres": ["Prog rock", "Grunge"],
+                              "href": <str>,
+                              "id": <str>,
+                              "images": [
+                                {
+                                  "url": <str>,
+                                  "height": 300,
+                                  "width": 300
+                                }
+                              ],
+                              "name": <str>,
+                              "popularity": 0,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "tracks": {
+                            "href": <str>,
+                            "limit": 20,
+                            "next": <str>,
+                            "offset": 0,
+                            "previous": <str>,
+                            "total": 4,
+                            "items": [
+                              {
+                                "artists": [
+                                  {
+                                    "external_urls": {
+                                      "spotify": <str>
+                                    },
+                                    "href": <str>,
+                                    "id": <str>,
+                                    "name": <str>,
+                                    "type": "artist",
+                                    "uri": <str>
+                                  }
+                                ],
+                                "available_markets": [<str>],
+                                "disc_number": 0,
+                                "duration_ms": 0,
+                                "explicit": False,
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "id": <str>,
+                                "is_playable": False,
+                                "linked_from": {
+                                  "external_urls": {
+                                    "spotify": <str>
+                                  },
+                                  "href": <str>,
+                                  "id": <str>,
+                                  "type": <str>,
+                                  "uri": <str>
+                                },
+                                "restrictions": {
+                                  "reason": <str>
+                                },
+                                "name": <str>,
+                                "preview_url": <str>,
+                                "track_number": 0,
+                                "type": <str>,
+                                "uri": <str>,
+                                "is_local": false
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  ]
         """
 
         return self._get_json(
@@ -858,6 +1496,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -874,8 +1513,66 @@ class WebAPISession(_Session):
         Returns
         -------
         tracks : `dict`
-            A dictionary containing the Spotify catalog information for
-            an album's tracks and the number of results returned.
+            A dictionary containing Spotify catalog information for an 
+            album's tracks and the number of results returned.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": <str>,
+                    "offset": 0,
+                    "previous": <str>,
+                    "total": 4,
+                    "items": [
+                      {
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str>
+                          }
+                        ],
+                        "available_markets": [<str>],
+                        "disc_number": 0,
+                        "duration_ms": 0,
+                        "explicit": False,
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "is_playable": False,
+                        "linked_from": {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "type": <str>,
+                          "uri": <str>
+                        },
+                        "restrictions": {
+                          "reason": <str>
+                        },
+                        "name": <str>,
+                        "preview_url": <str>,
+                        "track_number": 0,
+                        "type": <str>,
+                        "uri": <str>,
+                        "is_local": false
+                      }
+                    ]
+                  }
         """
 
         return self._get_json(
@@ -894,6 +1591,7 @@ class WebAPISession(_Session):
         current Spotify user's 'Your Music' library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-read` scope.
 
@@ -914,6 +1612,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -930,8 +1629,145 @@ class WebAPISession(_Session):
         Returns
         -------
         albums : `dict`
-            A dictionary containing the Spotify catalog information for
-            a user's saved albums and the number of results returned.
+            A dictionary containing Spotify catalog information for a
+            user's saved albums and the number of results returned.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": <str>,
+                      "offset": 0,
+                      "previous": <str>,
+                      "total": 4,
+                      "items": [
+                        {
+                          "added_at": <str>,
+                          "album": {
+                            "album_type": "compilation",
+                            "total_tracks": 9,
+                            "available_markets": ["CA", "BR", "IT"],
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                            "images": [
+                              {
+                                "url": <str>,
+                                "height": 300,
+                                "width": 300
+                              }
+                            ],
+                            "name": <str>,
+                            "release_date": "1981-12",
+                            "release_date_precision": "year",
+                            "restrictions": {
+                              "reason": "market"
+                            },
+                            "type": "album",
+                            "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                            "copyrights": [
+                              {
+                                "text": <str>,
+                                "type": <str>
+                              }
+                            ],
+                            "external_ids": {
+                              "isrc": <str>,
+                              "ean": <str>,
+                              "upc": <str>
+                            },
+                            "genres": ["Egg punk", "Noise rock"],
+                            "label": <str>,
+                            "popularity": 0,
+                            "artists": [
+                              {
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "followers": {
+                                  "href": <str>,
+                                  "total": 0
+                                },
+                                "genres": ["Prog rock", "Grunge"],
+                                "href": <str>,
+                                "id": <str>,
+                                "images": [
+                                  {
+                                    "url": <str>,
+                                    "height": 300,
+                                    "width": 300
+                                  }
+                                ],
+                                "name": <str>,
+                                "popularity": 0,
+                                "type": "artist",
+                                "uri": <str>
+                              }
+                            ],
+                            "tracks": {
+                              "href": <str>,
+                              "limit": 20,
+                              "next": <str>,
+                              "offset": 0,
+                              "previous": <str>,
+                              "total": 4,
+                              "items": [
+                                {
+                                  "artists": [
+                                    {
+                                      "external_urls": {
+                                        "spotify": <str>
+                                      },
+                                      "href": <str>,
+                                      "id": <str>,
+                                      "name": <str>,
+                                      "type": "artist",
+                                      "uri": <str>
+                                    }
+                                  ],
+                                  "available_markets": [<str>],
+                                  "disc_number": 0,
+                                  "duration_ms": 0,
+                                  "explicit": False,
+                                  "external_urls": {
+                                    "spotify": <str>
+                                  },
+                                  "href": <str>,
+                                  "id": <str>,
+                                  "is_playable": False,
+                                  "linked_from": {
+                                    "external_urls": {
+                                      "spotify": <str>
+                                    },
+                                    "href": <str>,
+                                    "id": <str>,
+                                    "type": <str>,
+                                    "uri": <str>
+                                  },
+                                  "restrictions": {
+                                    "reason": <str>
+                                  },
+                                  "name": <str>,
+                                  "preview_url": <str>,
+                                  "track_number": 0,
+                                  "type": <str>,
+                                  "uri": <str>,
+                                  "is_local": false
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
         """
 
         self._check_scope("get_saved_albums", "user-library-read")
@@ -950,6 +1786,7 @@ class WebAPISession(_Session):
         current user's 'Your Music' library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-modify` scope.
 
@@ -982,6 +1819,7 @@ class WebAPISession(_Session):
         from the current user's 'Your Music' library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-modify` scope.
         
@@ -1015,6 +1853,7 @@ class WebAPISession(_Session):
         Music' library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-read` scope.
 
@@ -1030,6 +1869,8 @@ class WebAPISession(_Session):
         contains : `list`
             Array of booleans specifying whether the albums are found in
             the user's 'Your Library > Albums'.
+
+            **Example**: :code:`[False, True]`.
         """
 
         self._check_scope("check_saved_albums", "user-library-read")
@@ -1039,7 +1880,7 @@ class WebAPISession(_Session):
             params={"ids": ids if isinstance(ids, str) else ",".join(ids)}
         )
 
-    def get_new_releases(
+    def get_new_albums(
             self, *, country: str = None, limit: int = None, offset: int = None
         ) -> list[dict[str, Any]]:
 
@@ -1078,8 +1919,77 @@ class WebAPISession(_Session):
         Returns
         -------
         albums : `list`
-            A list of newly-released albums in JSON format.
-        """
+            A list containing Spotify catalog information for
+            newly-released albums.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": <str>,
+                    "offset": 0,
+                    "previous": <str>,
+                    "total": 4,
+                    "items": [
+                      {
+                        "album_type": "compilation",
+                        "total_tracks": 9,
+                        "available_markets": ["CA", "BR", "IT"],
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "name": <str>,
+                        "release_date": "1981-12",
+                        "release_date_precision": "year",
+                        "restrictions": {
+                          "reason": "market"
+                        },
+                        "type": "album",
+                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "copyrights": [
+                          {
+                            "text": <str>,
+                            "type": <str>
+                          }
+                        ],
+                        "external_ids": {
+                          "isrc": <str>,
+                          "ean": <str>,
+                          "upc": <str>
+                        },
+                        "genres": ["Egg punk", "Noise rock"],
+                        "label": <str>,
+                        "popularity": 0,
+                        "album_group": "compilation",
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str>
+                          }
+                        ]
+                      }
+                    ]
+                  }
+    """
 
         return self._get_json(
             f"{self.API_URL}/browse/new-releases",
@@ -1106,8 +2016,36 @@ class WebAPISession(_Session):
         Returns
         -------
         artist : `dict`
-            Spotify catalog information for a single artist in JSON
-            format.
+            Spotify catalog information for a single artist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "followers": {
+                      "href": <str>,
+                      "total": 0
+                    },
+                    "genres": ["Prog rock", "Grunge"],
+                    "href": <str>,
+                    "id": <str>,
+                    "images": [
+                      {
+                        "url": <str>,
+                        "height": 300,
+                        "width": 300
+                      }
+                    ],
+                    "name": <str>,
+                    "popularity": 0,
+                    "type": "artist",
+                    "uri": <str>
+                  }
         """
         
         return self._get_json(f"{self.API_URL}/artists/{id}")
@@ -1135,8 +2073,39 @@ class WebAPISession(_Session):
         Returns
         -------
         artists : `list`
-            A list of Spotify catalog information for multiple artists
-            in JSON format.
+            A list containing Spotify catalog information for multiple
+            artists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+               
+               .. code::
+
+                  [
+                    {
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "followers": {
+                        "href": <str>,
+                        "total": 0
+                      },
+                      "genres": ["Prog rock", "Grunge"],
+                      "href": <str>,
+                      "id": <str>,
+                      "images": [
+                        {
+                          "url": <str>,
+                          "height": 300,
+                          "width": 300
+                        }
+                      ],
+                      "name": <str>,
+                      "popularity": 0,
+                      "type": "artist",
+                      "uri": <str>
+                    }
+                  ]
         """
 
         return self._get_json(
@@ -1199,6 +2168,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -1213,7 +2183,76 @@ class WebAPISession(_Session):
         Returns
         -------
         albums : `list`
-            A list of the artist's albums in JSON format.
+            A list containing Spotify catalog information for the
+            artist's albums.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": <str>,
+                    "offset": 0,
+                    "previous": <str>,
+                    "total": 4,
+                    "items": [
+                      {
+                        "album_type": "compilation",
+                        "total_tracks": 9,
+                        "available_markets": ["CA", "BR", "IT"],
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "name": <str>,
+                        "release_date": "1981-12",
+                        "release_date_precision": "year",
+                        "restrictions": {
+                          "reason": "market"
+                        },
+                        "type": "album",
+                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "copyrights": [
+                          {
+                            "text": <str>,
+                            "type": <str>
+                          }
+                        ],
+                        "external_ids": {
+                          "isrc": <str>,
+                          "ean": <str>,
+                          "upc": <str>
+                        },
+                        "genres": ["Egg punk", "Noise rock"],
+                        "label": <str>,
+                        "popularity": 0,
+                        "album_group": "compilation",
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str>
+                          }
+                        ]
+                      }
+                    ]
+                  }
         """
 
         return self._get_json(
@@ -1223,7 +2262,7 @@ class WebAPISession(_Session):
         )
 
     def get_artist_top_tracks(
-            self, id: str, *, market: str = None) -> list[dict[str, Any]]:
+            self, id: str, *, market: str = "US") -> list[dict[str, Any]]:
 
         """
         `Artist > Get Artist's Top Tracks
@@ -1238,7 +2277,7 @@ class WebAPISession(_Session):
 
             **Example**: :code:`"0TnOYISbd1XYRBk9myaseg"`.
 
-        market : `str`, keyword-only, optional
+        market : `str`, keyword-only, default: :code:`"US"`
             An ISO 3166-1 alpha-2 country code. If a country code is
             specified, only content that is available in that market
             will be returned. If a valid user access token is specified
@@ -1246,6 +2285,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -1254,11 +2294,126 @@ class WebAPISession(_Session):
         Returns
         -------
         tracks : `list`
-            A list of the artist's top tracks in JSON format.
+            A list containing Spotify catalog information for the 
+            artist's top tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "album": {
+                        "album_type": "compilation",
+                        "total_tracks": 9,
+                        "available_markets": ["CA", "BR", "IT"],
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "name": <str>,
+                        "release_date": "1981-12",
+                        "release_date_precision": "year",
+                        "restrictions": {
+                          "reason": "market"
+                        },
+                        "type": "album",
+                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "copyrights": [
+                          {
+                            "text": <str>,
+                            "type": <str>
+                          }
+                        ],
+                        "external_ids": {
+                          "isrc": <str>,
+                          "ean": <str>,
+                          "upc": <str>
+                        },
+                        "genres": ["Egg punk", "Noise rock"],
+                        "label": <str>,
+                        "popularity": 0,
+                        "album_group": "compilation",
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str>
+                          }
+                        ]
+                      },
+                      "artists": [
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "genres": ["Prog rock", "Grunge"],
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": 0,
+                          "type": "artist",
+                          "uri": <str>
+                        }
+                      ],
+                      "available_markets": [<str>],
+                      "disc_number": 0,
+                      "duration_ms": 0,
+                      "explicit": False,
+                      "external_ids": {
+                        "isrc": <str>,
+                        "ean": <str>,
+                        "upc": <str>
+                      },
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "is_playable": False,
+                      "linked_from": {
+                      },
+                      "restrictions": {
+                        "reason": <str>
+                      },
+                      "name": <str>,
+                      "popularity": 0,
+                      "preview_url": <str>,
+                      "track_number": 0,
+                      "type": "track",
+                      "uri": <str>,
+                      "is_local": false
+                    }
+                  ]
         """
 
         return self._get_json(f"{self.API_URL}/artists/{id}/top-tracks",
-                             params={"market": market})
+                              params={"market": market})["tracks"]
 
     def get_related_artists(self, id: str) -> list[dict[str, Any]]:
 
@@ -1280,10 +2435,42 @@ class WebAPISession(_Session):
         Returns
         -------
         artists : `list`
-            A list of the artist's related artists in JSON format.
+            A list containing Spotify catalog information for the 
+            artist's related artists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "followers": {
+                        "href": <str>,
+                        "total": 0
+                      },
+                      "genres": ["Prog rock", "Grunge"],
+                      "href": <str>,
+                      "id": <str>,
+                      "images": [
+                        {
+                          "url": <str>,
+                          "height": 300,
+                          "width": 300
+                        }
+                      ],
+                      "name": <str>,
+                      "popularity": 0,
+                      "type": "artist",
+                      "uri": <str>
+                    }
+                  ]
         """
 
-        return self._get_json(f"{self.API_URL}/artists/{id}/related-artists")
+        return self._get_json(f"{self.API_URL}/artists/{id}/related-artists")["artists"]
 
     ### AUDIOBOOKS ############################################################
 
@@ -1296,6 +2483,7 @@ class WebAPISession(_Session):
         information for a single audiobook.
 
         .. note::
+
            Audiobooks are only available for the US, UK, Ireland, New
            Zealand, and Australia markets.
     
@@ -1314,6 +2502,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -1322,8 +2511,100 @@ class WebAPISession(_Session):
         Returns
         -------
         audiobook : `dict`
-            Spotify catalog information for a single audiobook in JSON
-            format.
+            Spotify catalog information for a single audiobook.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "authors": [
+                      {
+                        "name": <str>
+                      }
+                    ],
+                    "available_markets": [<str>],
+                    "copyrights": [
+                      {
+                        "text": <str>,
+                        "type": <str>
+                      }
+                    ],
+                    "description": <str>,
+                    "html_description": <str>,
+                    "edition": "Unabridged",
+                    "explicit": False,
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "href": <str>,
+                    "id": <str>,
+                    "images": [
+                      {
+                        "url": <str>,
+                        "height": 300,
+                        "width": 300
+                      }
+                    ],
+                    "languages": [<str>],
+                    "media_type": <str>,
+                    "name": <str>,
+                    "narrators": [
+                      {
+                        "name": <str>
+                      }
+                    ],
+                    "publisher": <str>,
+                    "type": "audiobook",
+                    "uri": <str>,
+                    "total_chapters": 0,
+                    "chapters": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": <str>,
+                      "offset": 0,
+                      "previous": <str>,
+                      "total": 4,
+                      "items": [
+                        {
+                          "audio_preview_url": <str>,
+                          "available_markets": [<str>],
+                          "chapter_number": 1,
+                          "description": <str>,
+                          "html_description": <str>,
+                          "duration_ms": 1686230,
+                          "explicit": False,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": "5Xt5DXGzch68nYYamXrNxZ",
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "is_playable": False,
+                          "languages": ["fr", "en"],
+                          "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                          "release_date": "1981-12-15",
+                          "release_date_precision": "day",
+                          "resume_point": {
+                            "fully_played": False,
+                            "resume_position_ms": 0
+                          },
+                          "type": "episode",
+                          "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                          "restrictions": {
+                            "reason": <str>
+                          }
+                        }
+                      ]
+                    }
+                  }
         """
 
         return self._get_json(f"{self.API_URL}/audiobooks/{id}",
@@ -1341,6 +2622,7 @@ class WebAPISession(_Session):
         IDs.
 
         .. note::
+
            Audiobooks are only available for the US, UK, Ireland, New
            Zealand, and Australia markets.
 
@@ -1363,6 +2645,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -1371,8 +2654,101 @@ class WebAPISession(_Session):
         Returns
         -------
         audiobooks : `dict` or `list`
-            A list of Spotify catalog information for multiple
-            audiobooks in JSON format.
+            A list containing Spotify catalog information for multiple
+            audiobooks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "authors": [
+                      {
+                        "name": <str>
+                      }
+                    ],
+                    "available_markets": [<str>],
+                    "copyrights": [
+                      {
+                        "text": <str>,
+                        "type": <str>
+                      }
+                    ],
+                    "description": <str>,
+                    "html_description": <str>,
+                    "edition": "Unabridged",
+                    "explicit": False,
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "href": <str>,
+                    "id": <str>,
+                    "images": [
+                      {
+                        "url": <str>,
+                        "height": 300,
+                        "width": 300
+                      }
+                    ],
+                    "languages": [<str>],
+                    "media_type": <str>,
+                    "name": <str>,
+                    "narrators": [
+                      {
+                        "name": <str>
+                      }
+                    ],
+                    "publisher": <str>,
+                    "type": "audiobook",
+                    "uri": <str>,
+                    "total_chapters": 0,
+                    "chapters": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": <str>,
+                      "offset": 0,
+                      "previous": <str>,
+                      "total": 4,
+                      "items": [
+                        {
+                          "audio_preview_url": <str>,
+                          "available_markets": [<str>],
+                          "chapter_number": 1,
+                          "description": <str>,
+                          "html_description": <str>,
+                          "duration_ms": 1686230,
+                          "explicit": False,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": "5Xt5DXGzch68nYYamXrNxZ",
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "is_playable": False,
+                          "languages": ["fr", "en"],
+                          "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                          "release_date": "1981-12-15",
+                          "release_date_precision": "day",
+                          "resume_point": {
+                            "fully_played": False,
+                            "resume_position_ms": 0
+                          },
+                          "type": "episode",
+                          "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                          "restrictions": {
+                            "reason": <str>
+                          }
+                        }
+                      ]
+                    }
+                  }
         """
 
         return self._get_json(
@@ -1392,6 +2768,7 @@ class WebAPISession(_Session):
         information about an audiobook's chapters.
         
         .. note::
+
            Audiobooks are only available for the US, UK, Ireland, New
            Zealand, and Australia markets.
 
@@ -1417,6 +2794,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -1433,8 +2811,59 @@ class WebAPISession(_Session):
         Returns
         -------
         audiobooks : `dict`
-            A dictionary containing the Spotify catalog information for
-            an audiobook's chapters and the number of results returned.
+            A dictionary containing Spotify catalog information for an
+            audiobook's chapters and the number of results returned.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": <str>,
+                    "offset": 0,
+                    "previous": <str>,
+                    "total": 4,
+                    "items": [
+                      {
+                        "audio_preview_url": <str>,
+                        "available_markets": [<str>],
+                        "chapter_number": 1,
+                        "description": <str>,
+                        "html_description": <str>,
+                        "duration_ms": 1686230,
+                        "explicit": False,
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": "5Xt5DXGzch68nYYamXrNxZ",
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "is_playable": False,
+                        "languages": ["fr", "en"],
+                        "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                        "release_date": "1981-12-15",
+                        "release_date_precision": "day",
+                        "resume_point": {
+                          "fully_played": False,
+                          "resume_position_ms": 0
+                        },
+                        "type": "episode",
+                        "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                        "restrictions": {
+                          "reason": <str>
+                        }
+                      }
+                    ]
+                  }
         """
 
         return self._get_json(
@@ -1452,6 +2881,7 @@ class WebAPISession(_Session):
         albums saved in the current Spotify user's audiobooks library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-read` scope.
 
@@ -1473,9 +2903,67 @@ class WebAPISession(_Session):
         Returns
         -------
         audiobooks : `dict`
-            A dictionary containing the Spotify catalog information for
-            a user's saved audiobooks and the number of results
+            A dictionary containing Spotify catalog information for a
+            user's saved audiobooks and the number of results
             returned.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": <str>,
+                    "offset": 0,
+                    "previous": <str>,
+                    "total": 4,
+                    "items": [
+                      {
+                        "authors": [
+                          {
+                            "name": <str>
+                          }
+                        ],
+                        "available_markets": [<str>],
+                        "copyrights": [
+                          {
+                            "text": <str>,
+                            "type": <str>
+                          }
+                        ],
+                        "description": <str>,
+                        "html_description": <str>,
+                        "edition": "Unabridged",
+                        "explicit": False,
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "languages": [<str>],
+                        "media_type": <str>,
+                        "name": <str>,
+                        "narrators": [
+                          {
+                            "name": <str>
+                          }
+                        ],
+                        "publisher": <str>,
+                        "type": "audiobook",
+                        "uri": <str>,
+                        "total_chapters": 0
+                      }
+                    ]
+                  }
         """
 
         self._check_scope("get_saved_audiobooks", "user-library-read")
@@ -1492,6 +2980,7 @@ class WebAPISession(_Session):
         audiobooks to current Spotify user's library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-modify` scope.
 
@@ -1523,6 +3012,7 @@ class WebAPISession(_Session):
         audiobooks from current Spotify user's library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-modify` scope.
 
@@ -1555,6 +3045,7 @@ class WebAPISession(_Session):
         library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-read` scope.
 
@@ -1574,6 +3065,8 @@ class WebAPISession(_Session):
         contains : `list`
             Array of booleans specifying whether the audiobooks are
             found in the user's saved audiobooks.
+
+            **Example**: :code:`[False, True]`.
         """
 
         self._check_scope("check_saved_audiobooks", "user-library-read")
@@ -1616,6 +3109,7 @@ class WebAPISession(_Session):
             strings returned in a particular language.
 
             .. note::
+
                If `locale` is not supplied, or if the specified language
                is not available, the category strings returned will be 
                in the Spotify default language (American English).
@@ -1625,8 +3119,25 @@ class WebAPISession(_Session):
         Returns
         -------
         category : `dict`
-            Spotify catalog information for a single category in JSON
-            format.
+            Spotify catalog information for a single category.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "icons": [
+                      {
+                        "url": <str>,
+                        "height": 300,
+                        "width": 300
+                      }
+                    ],
+                    "id": "equal",
+                    "name": "EQUAL"
+                  }
         """
         
         return self._get_json(
@@ -1667,6 +3178,7 @@ class WebAPISession(_Session):
             strings returned in a particular language.
 
             .. note::
+
                If locale is not supplied, or if the specified language
                is not available, the category strings returned will be
                in the Spotify default language (American English).
@@ -1682,8 +3194,36 @@ class WebAPISession(_Session):
         Returns
         -------
         categories : `dict`
-            A dictionary containing the Spotify catalog information for
-            the browse categories and the number of results returned.
+            A dictionary containing Spotify catalog information for the
+            browse categories and the number of results returned.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                      "items": [
+                        {
+                          "href": <str>,
+                          "icons": [
+                            {
+                              "height": 275,
+                              "url": <str>,
+                              "width": 275
+                            }
+                          ],
+                          "id": "toplists",
+                          "name": "Top Lists"
+                        }
+                      ],
+                    "limit": 1,
+                    "next": "https://api.spotify.com/v1/browse/categories?offset=1&limit=1",
+                    "offset": 0,
+                    "previous": "https://api.spotify.com/v1/browse/categories?offset=1&limit=1",
+                    "total": 4
+                  }
         """
         
         return self._get_json(
@@ -1694,7 +3234,7 @@ class WebAPISession(_Session):
 
     ### CHAPTERS ##############################################################
 
-    def get_chapter(self, id: str, *, market: str) -> dict[str, Any]:
+    def get_chapter(self, id: str, *, market: str = None) -> dict[str, Any]:
 
         """
         `Chapters > Get a Chapter <https://developer.spotify.com/
@@ -1720,6 +3260,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -1728,8 +3269,90 @@ class WebAPISession(_Session):
         Returns
         -------
         chapter : `dict`
-            Spotify catalog information for a single chapter in JSON
-            format.
+            Spotify catalog information for a single chapter.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "audio_preview_url": <str>,
+                    "available_markets": [<str>],
+                    "chapter_number": 1,
+                    "description": <str>,
+                    "html_description": <str>,
+                    "duration_ms": 1686230,
+                    "explicit": False,
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "href": <str>,
+                    "id": "5Xt5DXGzch68nYYamXrNxZ",
+                    "images": [
+                      {
+                        "url": <str>,
+                        "height": 300,
+                        "width": 300
+                      }
+                    ],
+                    "is_playable": False,
+                    "languages": ["fr", "en"],
+                    "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                    "release_date": "1981-12-15",
+                    "release_date_precision": "day",
+                    "resume_point": {
+                      "fully_played": False,
+                      "resume_position_ms": 0
+                    },
+                    "type": "episode",
+                    "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                    "restrictions": {
+                      "reason": <str>
+                    },
+                    "audiobook": {
+                      "authors": [
+                        {
+                          "name": <str>
+                        }
+                      ],
+                      "available_markets": [<str>],
+                      "copyrights": [
+                        {
+                          "text": <str>,
+                          "type": <str>
+                        }
+                      ],
+                      "description": <str>,
+                      "html_description": <str>,
+                      "edition": "Unabridged",
+                      "explicit": False,
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "images": [
+                        {
+                          "url": <str>,
+                          "height": 300,
+                          "width": 300
+                        }
+                      ],
+                      "languages": [<str>],
+                      "media_type": <str>,
+                      "name": <str>,
+                      "narrators": [
+                        {
+                          "name": <str>
+                        }
+                      ],
+                      "publisher": <str>,
+                      "type": "audiobook",
+                      "uri": <str>,
+                      "total_chapters": 0
+                    }
+                  }
         """
 
         return self._get_json(f"{self.API_URL}/chapters/{id}",
@@ -1775,9 +3398,94 @@ class WebAPISession(_Session):
 
         Returns
         -------
-        chapters : `dict` or `list`
-            A list of Spotify catalog information for multiple chapters
-            in JSON format.
+        chapters : `list`
+            A list containing Spotify catalog information for multiple 
+            chapters.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "audio_preview_url": <str>,
+                      "available_markets": [<str>],
+                      "chapter_number": 1,
+                      "description": <str>,
+                      "html_description": <str>,
+                      "duration_ms": 1686230,
+                      "explicit": False,
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": "5Xt5DXGzch68nYYamXrNxZ",
+                      "images": [
+                        {
+                          "url": <str>,
+                          "height": 300,
+                          "width": 300
+                        }
+                      ],
+                      "is_playable": False,
+                      "languages": ["fr", "en"],
+                      "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                      "release_date": "1981-12-15",
+                      "release_date_precision": "day",
+                      "resume_point": {
+                        "fully_played": False,
+                        "resume_position_ms": 0
+                      },
+                      "type": "episode",
+                      "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                      "restrictions": {
+                        "reason": <str>
+                      },
+                      "audiobook": {
+                        "authors": [
+                          {
+                            "name": <str>
+                          }
+                        ],
+                        "available_markets": [<str>],
+                        "copyrights": [
+                          {
+                            "text": <str>,
+                            "type": <str>
+                          }
+                        ],
+                        "description": <str>,
+                        "html_description": <str>,
+                        "edition": "Unabridged",
+                        "explicit": False,
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "languages": [<str>],
+                        "media_type": <str>,
+                        "name": <str>,
+                        "narrators": [
+                          {
+                            "name": <str>
+                          }
+                        ],
+                        "publisher": <str>,
+                        "type": "audiobook",
+                        "uri": <str>,
+                        "total_chapters": 0
+                      }
+                    }
+                  ]
         """
 
         return self._get_json(
@@ -1788,7 +3496,7 @@ class WebAPISession(_Session):
 
     ### EPISODES ##############################################################
 
-    def get_episode(self, id: str, *, market: str) -> dict[str, Any]:
+    def get_episode(self, id: str, *, market: str = None) -> dict[str, Any]:
 
         """
         `Episodes > Get Episode <https://developer.spotify.com/
@@ -1819,8 +3527,80 @@ class WebAPISession(_Session):
         Returns
         -------
         episode : `dict`
-            Spotify catalog information for a single episode in JSON
-            format.
+            Spotify catalog information for a single episode.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "audio_preview_url": <str>,
+                    "description": <str>,
+                    "html_description": <str>,
+                    "duration_ms": 1686230,
+                    "explicit": False,
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "href": <str>,
+                    "id": "5Xt5DXGzch68nYYamXrNxZ",
+                    "images": [
+                      {
+                        "url": <str>,
+                        "height": 300,
+                        "width": 300
+                      }
+                    ],
+                    "is_externally_hosted": False,
+                    "is_playable": False,
+                    "language": "en",
+                    "languages": ["fr", "en"],
+                    "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                    "release_date": "1981-12-15",
+                    "release_date_precision": "day",
+                    "resume_point": {
+                      "fully_played": False,
+                      "resume_position_ms": 0
+                    },
+                    "type": "episode",
+                    "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                    "restrictions": {
+                      "reason": <str>
+                    },
+                    "show": {
+                      "available_markets": [<str>],
+                      "copyrights": [
+                        {
+                          "text": <str>,
+                          "type": <str>
+                        }
+                      ],
+                      "description": <str>,
+                      "html_description": <str>,
+                      "explicit": False,
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "images": [
+                        {
+                          "url": <str>,
+                          "height": 300,
+                          "width": 300
+                        }
+                      ],
+                      "is_externally_hosted": False,
+                      "languages": [<str>],
+                      "media_type": <str>,
+                      "name": <str>,
+                      "publisher": <str>,
+                      "type": "show",
+                      "uri": <str>,
+                      "total_episodes": 0
+                    }
+                  }
         """
 
         return self._get_json(f"{self.API_URL}/episodes/{id}",
@@ -1854,6 +3634,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -1861,9 +3642,84 @@ class WebAPISession(_Session):
 
         Returns
         -------
-        episodes : `dict` or `list`
-            A list of Spotify catalog information for multiple episodes in
-            JSON format.
+        episodes : `list`
+            A list containing Spotify catalog information for multiple 
+            episodes.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  [
+                      {
+                        "audio_preview_url": <str>,
+                        "description": <str>,
+                        "html_description": <str>,
+                        "duration_ms": 1686230,
+                        "explicit": False,
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": "5Xt5DXGzch68nYYamXrNxZ",
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "is_externally_hosted": False,
+                        "is_playable": False,
+                        "language": "en",
+                        "languages": ["fr", "en"],
+                        "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                        "release_date": "1981-12-15",
+                        "release_date_precision": "day",
+                        "resume_point": {
+                          "fully_played": False,
+                          "resume_position_ms": 0
+                        },
+                        "type": "episode",
+                        "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                        "restrictions": {
+                          "reason": <str>
+                        },
+                        "show": {
+                          "available_markets": [<str>],
+                          "copyrights": [
+                            {
+                              "text": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "description": <str>,
+                          "html_description": <str>,
+                          "explicit": False,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "is_externally_hosted": False,
+                          "languages": [<str>],
+                          "media_type": <str>,
+                          "name": <str>,
+                          "publisher": <str>,
+                          "type": "show",
+                          "uri": <str>,
+                          "total_episodes": 0
+                        }
+                      }
+                    ]
         """
 
         return self._get_json(
@@ -1883,6 +3739,7 @@ class WebAPISession(_Session):
         episodes saved in the current Spotify user's library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-read` scope.
 
@@ -1903,6 +3760,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -1917,8 +3775,94 @@ class WebAPISession(_Session):
         Returns
         -------
         episodes : `dict`
-            A dictionary containing the Spotify catalog information for
-            a user's saved episodes and the number of results returned.
+            A dictionary containing Spotify catalog information for a
+            user's saved episodes and the number of results returned.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "offset": 0,
+                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "total": 4,
+                    "items": [
+                      {
+                        "added_at": <str>,
+                        "episode": {
+                          "audio_preview_url": <str>,
+                          "description": <str>,
+                          "html_description": <str>,
+                          "duration_ms": 1686230,
+                          "explicit": False,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": "5Xt5DXGzch68nYYamXrNxZ",
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "is_externally_hosted": False,
+                          "is_playable": False,
+                          "language": "en",
+                          "languages": ["fr", "en"],
+                          "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                          "release_date": "1981-12-15",
+                          "release_date_precision": "day",
+                          "resume_point": {
+                            "fully_played": False,
+                            "resume_position_ms": 0
+                          },
+                          "type": "episode",
+                          "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "show": {
+                            "available_markets": [<str>],
+                            "copyrights": [
+                              {
+                                "text": <str>,
+                                "type": <str>
+                              }
+                            ],
+                            "description": <str>,
+                            "html_description": <str>,
+                            "explicit": False,
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "images": [
+                              {
+                                "url": <str>,
+                                "height": 300,
+                                "width": 300
+                              }
+                            ],
+                            "is_externally_hosted": False,
+                            "languages": [<str>],
+                            "media_type": <str>,
+                            "name": <str>,
+                            "publisher": <str>,
+                            "type": "show",
+                            "uri": <str>,
+                            "total_episodes": 0
+                          }
+                        }
+                      }
+                    ]
+                  }
         """
 
         self._check_scope("get_saved_episodes", "user-library-read")
@@ -1937,6 +3881,7 @@ class WebAPISession(_Session):
         the current user's library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-modify` scope.
 
@@ -1969,6 +3914,7 @@ class WebAPISession(_Session):
         episodes from the current user's library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-modify` scope.
 
@@ -2002,6 +3948,7 @@ class WebAPISession(_Session):
         Episodes' library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-read` scope.
 
@@ -2021,6 +3968,8 @@ class WebAPISession(_Session):
         contains : `list`
             Array of booleans specifying whether the episodes are found
             in the user's 'Liked Songs'.
+
+            **Example**: :code:`[False, True]`.
         """
 
         self._check_scope("check_saved_episodes", "user-library-read")
@@ -2045,6 +3994,8 @@ class WebAPISession(_Session):
         -------
         genres : `list`
             Array of genres.
+
+            **Example**: :code:`["alternative", "samba"]`.
         """
         
         return self._get_json(
@@ -2065,6 +4016,8 @@ class WebAPISession(_Session):
         -------
         markets : `list`
             Array of country codes.
+
+            **Example**: :code:`["CA", "BR", "IT"]`.
         """
 
         return self._get_json(f"{self.API_URL}/markets")["markets"]
@@ -2083,6 +4036,7 @@ class WebAPISession(_Session):
         track or episode, progress, and active device.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-read-playback-state` scope.
 
@@ -2096,6 +4050,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -2106,6 +4061,7 @@ class WebAPISession(_Session):
             supports besides the default track type. 
 
             .. note::
+
                This parameter was introduced to allow existing clients
                to maintain their current behavior and might be 
                deprecated in the future.            
@@ -2116,6 +4072,155 @@ class WebAPISession(_Session):
         -------
         state : `dict`
             Information about playback state.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "device": {
+                      "id": <str>,
+                      "is_active": False,
+                      "is_private_session": False,
+                      "is_restricted": False,
+                      "name": "Kitchen speaker",
+                      "type": "computer",
+                      "volume_percent": 59
+                    },
+                    "repeat_state": <str>,
+                    "shuffle_state": False,
+                    "context": {
+                      "type": <str>,
+                      "href": <str>,
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "uri": <str>
+                    },
+                    "timestamp": 0,
+                    "progress_ms": 0,
+                    "is_playing": False,
+                    "item": {
+                      "album": {
+                        "album_type": "compilation",
+                        "total_tracks": 9,
+                        "available_markets": ["CA", "BR", "IT"],
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "name": <str>,
+                        "release_date": "1981-12",
+                        "release_date_precision": "year",
+                        "restrictions": {
+                          "reason": "market"
+                        },
+                        "type": "album",
+                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "copyrights": [
+                          {
+                            "text": <str>,
+                            "type": <str>
+                          }
+                        ],
+                        "external_ids": {
+                          "isrc": <str>,
+                          "ean": <str>,
+                          "upc": <str>
+                        },
+                        "genres": ["Egg punk", "Noise rock"],
+                        "label": <str>,
+                        "popularity": 0,
+                        "album_group": "compilation",
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str>
+                          }
+                        ]
+                      },
+                      "artists": [
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "genres": ["Prog rock", "Grunge"],
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": 0,
+                          "type": "artist",
+                          "uri": <str>
+                        }
+                      ],
+                      "available_markets": [<str>],
+                      "disc_number": 0,
+                      "duration_ms": 0,
+                      "explicit": False,
+                      "external_ids": {
+                        "isrc": <str>,
+                        "ean": <str>,
+                        "upc": <str>
+                      },
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "is_playable": False,
+                      "linked_from": {
+                      },
+                      "restrictions": {
+                        "reason": <str>
+                      },
+                      "name": <str>,
+                      "popularity": 0,
+                      "preview_url": <str>,
+                      "track_number": 0,
+                      "type": "track",
+                      "uri": <str>,
+                      "is_local": false
+                    },
+                    "currently_playing_type": <str>,
+                    "actions": {
+                      "interrupting_playback": False,
+                      "pausing": False,
+                      "resuming": False,
+                      "seeking": False,
+                      "skipping_next": False,
+                      "skipping_prev": False,
+                      "toggling_repeat_context": False,
+                      "toggling_shuffle": False,
+                      "toggling_repeat_track": False,
+                      "transferring_playback": false
+                    }
+                  }
         """
         
         self._check_scope("get_playback_state", "user-read-playback-state")
@@ -2135,6 +4240,7 @@ class WebAPISession(_Session):
         start playing.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -2165,7 +4271,7 @@ class WebAPISession(_Session):
             json["play"] = play
         self._request("put", f"{self.API_URL}/me/player", json=json)
     
-    def get_available_devices(self) -> list[dict[str, Any]]:
+    def get_devices(self) -> list[dict[str, Any]]:
 
         """
         `Player > Get Available Devices <https://developer.spotify.com/
@@ -2174,6 +4280,7 @@ class WebAPISession(_Session):
         available devices.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-read-playback-state` scope.
 
@@ -2181,13 +4288,34 @@ class WebAPISession(_Session):
         -------
         devices : `list`
             A list containing information about the available devices.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "devices": [
+                        {
+                          "id": <str>,
+                          "is_active": False,
+                          "is_private_session": False,
+                          "is_restricted": False,
+                          "name": "Kitchen speaker",
+                          "type": "computer",
+                          "volume_percent": 59
+                        }
+                      ]
+                    }
+                  ]
         """
 
         self._check_scope("get_available_devices", "user-read-playback-state")
 
         self._get_json(f"{self.API_URL}/me/player/devices")
     
-    def get_currently_playing_item(
+    def get_currently_playing(
             self, *, market: str = None, additional_types: str = None
         ) -> dict[str, Any]:
 
@@ -2198,6 +4326,7 @@ class WebAPISession(_Session):
         currently being played on the user's Spotify account.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-read-currently-playing` scope.
 
@@ -2211,6 +4340,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -2221,6 +4351,7 @@ class WebAPISession(_Session):
             supports besides the default track type. 
     
             .. note::
+
                This parameter was introduced to allow existing clients
                to maintain their current behavior and might be 
                deprecated in the future.
@@ -2231,6 +4362,155 @@ class WebAPISession(_Session):
         -------
         item : `dict`
             Information about the object currently being played.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+             
+                  {
+                    "device": {
+                      "id": <str>,
+                      "is_active": False,
+                      "is_private_session": False,
+                      "is_restricted": False,
+                      "name": "Kitchen speaker",
+                      "type": "computer",
+                      "volume_percent": 59
+                    },
+                    "repeat_state": <str>,
+                    "shuffle_state": False,
+                    "context": {
+                      "type": <str>,
+                      "href": <str>,
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "uri": <str>
+                    },
+                    "timestamp": 0,
+                    "progress_ms": 0,
+                    "is_playing": False,
+                    "item": {
+                      "album": {
+                        "album_type": "compilation",
+                        "total_tracks": 9,
+                        "available_markets": ["CA", "BR", "IT"],
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "name": <str>,
+                        "release_date": "1981-12",
+                        "release_date_precision": "year",
+                        "restrictions": {
+                          "reason": "market"
+                        },
+                        "type": "album",
+                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "copyrights": [
+                          {
+                            "text": <str>,
+                            "type": <str>
+                          }
+                        ],
+                        "external_ids": {
+                          "isrc": <str>,
+                          "ean": <str>,
+                          "upc": <str>
+                        },
+                        "genres": ["Egg punk", "Noise rock"],
+                        "label": <str>,
+                        "popularity": 0,
+                        "album_group": "compilation",
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str>
+                          }
+                        ]
+                      },
+                      "artists": [
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "genres": ["Prog rock", "Grunge"],
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": 0,
+                          "type": "artist",
+                          "uri": <str>
+                        }
+                      ],
+                      "available_markets": [<str>],
+                      "disc_number": 0,
+                      "duration_ms": 0,
+                      "explicit": False,
+                      "external_ids": {
+                        "isrc": <str>,
+                        "ean": <str>,
+                        "upc": <str>
+                      },
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "is_playable": False,
+                      "linked_from": {
+                      },
+                      "restrictions": {
+                        "reason": <str>
+                      },
+                      "name": <str>,
+                      "popularity": 0,
+                      "preview_url": <str>,
+                      "track_number": 0,
+                      "type": "track",
+                      "uri": <str>,
+                      "is_local": false
+                    },
+                    "currently_playing_type": <str>,
+                    "actions": {
+                      "interrupting_playback": False,
+                      "pausing": False,
+                      "resuming": False,
+                      "seeking": False,
+                      "skipping_next": False,
+                      "skipping_prev": False,
+                      "toggling_repeat_context": False,
+                      "toggling_shuffle": False,
+                      "toggling_repeat_track": False,
+                      "transferring_playback": false
+                    }
+                  }
         """
         
         self._check_scope("get_currently_playing_item", 
@@ -2252,6 +4532,7 @@ class WebAPISession(_Session):
         device.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -2328,6 +4609,7 @@ class WebAPISession(_Session):
         playback on the user's account.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -2355,6 +4637,7 @@ class WebAPISession(_Session):
         user's queue.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -2382,6 +4665,7 @@ class WebAPISession(_Session):
         track in the user's queue.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -2410,6 +4694,7 @@ class WebAPISession(_Session):
         given position in the user's currently playing track.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -2448,6 +4733,7 @@ class WebAPISession(_Session):
         and off.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -2487,6 +4773,7 @@ class WebAPISession(_Session):
         current playback device.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -2524,6 +4811,7 @@ class WebAPISession(_Session):
         for user's playback.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -2546,7 +4834,7 @@ class WebAPISession(_Session):
         self._request("put", f"{self.API_URL}/me/player/shuffle",
                       params={"state": state, "device_id": device_id})
     
-    def get_recently_played_tracks(
+    def get_recently_played(
             self, *, limit: int = None, after: int = None, before: int = None
         ) -> dict[str, Any]:
 
@@ -2557,9 +4845,11 @@ class WebAPISession(_Session):
         recently played tracks. 
         
         .. note::
+
            Currently doesn't support podcast episodes.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-read-recently-played` scope.
 
@@ -2587,9 +4877,144 @@ class WebAPISession(_Session):
         Returns
         -------
         tracks : `dict`
-            A dictionary containing the Spotify catalog information for
+            A dictionary containing Spotify catalog information for
             the recently played tracks and the number of results 
             returned.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 0,
+                    "next": <str>,
+                    "cursors": {
+                      "after": <str>,
+                      "before": <str>
+                    },
+                    "total": 0,
+                    "items": [
+                      {
+                        "track": {
+                          "album": {
+                            "album_type": "compilation",
+                            "total_tracks": 9,
+                            "available_markets": ["CA", "BR", "IT"],
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                            "images": [
+                              {
+                                "url": <str>,
+                                "height": 300,
+                                "width": 300
+                              }
+                            ],
+                            "name": <str>,
+                            "release_date": "1981-12",
+                            "release_date_precision": "year",
+                            "restrictions": {
+                              "reason": "market"
+                            },
+                            "type": "album",
+                            "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                            "copyrights": [
+                              {
+                                "text": <str>,
+                                "type": <str>
+                              }
+                            ],
+                            "external_ids": {
+                              "isrc": <str>,
+                              "ean": <str>,
+                              "upc": <str>
+                            },
+                            "genres": ["Egg punk", "Noise rock"],
+                            "label": <str>,
+                            "popularity": 0,
+                            "album_group": "compilation",
+                            "artists": [
+                              {
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "id": <str>,
+                                "name": <str>,
+                                "type": "artist",
+                                "uri": <str>
+                              }
+                            ]
+                          },
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "followers": {
+                                "href": <str>,
+                                "total": 0
+                              },
+                              "genres": ["Prog rock", "Grunge"],
+                              "href": <str>,
+                              "id": <str>,
+                              "images": [
+                                {
+                                  "url": <str>,
+                                  "height": 300,
+                                  "width": 300
+                                }
+                              ],
+                              "name": <str>,
+                              "popularity": 0,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "available_markets": [<str>],
+                          "disc_number": 0,
+                          "duration_ms": 0,
+                          "explicit": False,
+                          "external_ids": {
+                            "isrc": <str>,
+                            "ean": <str>,
+                            "upc": <str>
+                          },
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "is_playable": False,
+                          "linked_from": {
+                          },
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "name": <str>,
+                          "popularity": 0,
+                          "preview_url": <str>,
+                          "track_number": 0,
+                          "type": "track",
+                          "uri": <str>,
+                          "is_local": false
+                        },
+                        "played_at": <str>,
+                        "context": {
+                          "type": <str>,
+                          "href": <str>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "uri": <str>
+                        }
+                      }
+                    ]
+                  }
         """
         
         self._check_scope("get_recently_played_tracks", 
@@ -2607,6 +5032,7 @@ class WebAPISession(_Session):
         objects that make up the user's queue.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-read-playback-state` scope.
 
@@ -2615,13 +5041,235 @@ class WebAPISession(_Session):
         queue : `dict`
             Information about the user's queue, such as the currently
             playing item and items in the queue.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "currently_playing": {
+                      "album": {
+                        "album_type": "compilation",
+                        "total_tracks": 9,
+                        "available_markets": ["CA", "BR", "IT"],
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "name": <str>,
+                        "release_date": "1981-12",
+                        "release_date_precision": "year",
+                        "restrictions": {
+                          "reason": "market"
+                        },
+                        "type": "album",
+                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "copyrights": [
+                          {
+                            "text": <str>,
+                            "type": <str>
+                          }
+                        ],
+                        "external_ids": {
+                          "isrc": <str>,
+                          "ean": <str>,
+                          "upc": <str>
+                        },
+                        "genres": ["Egg punk", "Noise rock"],
+                        "label": <str>,
+                        "popularity": 0,
+                        "album_group": "compilation",
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str>
+                          }
+                        ]
+                      },
+                      "artists": [
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "genres": ["Prog rock", "Grunge"],
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": 0,
+                          "type": "artist",
+                          "uri": <str>
+                        }
+                      ],
+                      "available_markets": [<str>],
+                      "disc_number": 0,
+                      "duration_ms": 0,
+                      "explicit": False,
+                      "external_ids": {
+                        "isrc": <str>,
+                        "ean": <str>,
+                        "upc": <str>
+                      },
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "is_playable": False,
+                      "linked_from": {
+                      },
+                      "restrictions": {
+                        "reason": <str>
+                      },
+                      "name": <str>,
+                      "popularity": 0,
+                      "preview_url": <str>,
+                      "track_number": 0,
+                      "type": "track",
+                      "uri": <str>,
+                      "is_local": false
+                    },
+                    "queue": [
+                      {
+                        "album": {
+                          "album_type": "compilation",
+                          "total_tracks": 9,
+                          "available_markets": ["CA", "BR", "IT"],
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "release_date": "1981-12",
+                          "release_date_precision": "year",
+                          "restrictions": {
+                            "reason": "market"
+                          },
+                          "type": "album",
+                          "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                          "copyrights": [
+                            {
+                              "text": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "external_ids": {
+                            "isrc": <str>,
+                            "ean": <str>,
+                            "upc": <str>
+                          },
+                          "genres": ["Egg punk", "Noise rock"],
+                          "label": <str>,
+                          "popularity": 0,
+                          "album_group": "compilation",
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ]
+                        },
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "followers": {
+                              "href": <str>,
+                              "total": 0
+                            },
+                            "genres": ["Prog rock", "Grunge"],
+                            "href": <str>,
+                            "id": <str>,
+                            "images": [
+                              {
+                                "url": <str>,
+                                "height": 300,
+                                "width": 300
+                              }
+                            ],
+                            "name": <str>,
+                            "popularity": 0,
+                            "type": "artist",
+                            "uri": <str>
+                          }
+                        ],
+                        "available_markets": [<str>],
+                        "disc_number": 0,
+                        "duration_ms": 0,
+                        "explicit": False,
+                        "external_ids": {
+                          "isrc": <str>,
+                          "ean": <str>,
+                          "upc": <str>
+                        },
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "is_playable": False,
+                        "linked_from": {
+                        },
+                        "restrictions": {
+                          "reason": <str>
+                        },
+                        "name": <str>,
+                        "popularity": 0,
+                        "preview_url": <str>,
+                        "track_number": 0,
+                        "type": "track",
+                        "uri": <str>,
+                        "is_local": false
+                      }
+                    ]
+                  }
         """
 
         self._check_scope("get_user_queue", "user-read-playback-state")
 
         return self._get_json(f"{self.API_URL}/me/player/queue")
     
-    def add_queue_item(self, uri: str, *, device_id: str = None) -> None:
+    def add_to_queue(self, uri: str, *, device_id: str = None) -> None:
 
         """
         `Player > Add Item to Playback Queue 
@@ -2630,6 +5278,7 @@ class WebAPISession(_Session):
         playback queue.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -2676,6 +5325,7 @@ class WebAPISession(_Session):
             track type.
 
             .. note::
+
                This parameter was introduced to allow existing clients
                to maintain their current behavior and might be 
                deprecated in the future.
@@ -2712,6 +5362,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -2720,8 +5371,185 @@ class WebAPISession(_Session):
         Returns
         -------
         playlist : `dict`
-            Spotify catalog information for a single playlist in JSON
-            format.
+            Spotify catalog information for a single playlist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "collaborative": False,
+                    "description": <str>,
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "followers": {
+                      "href": <str>,
+                      "total": 0
+                    },
+                    "href": <str>,
+                    "id": <str>,
+                    "images": [
+                      {
+                        "url": <str>,
+                        "height": 300,
+                        "width": 300
+                      }
+                    ],
+                    "name": <str>,
+                    "owner": {
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "followers": {
+                        "href": <str>,
+                        "total": 0
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "type": "user",
+                      "uri": <str>,
+                      "display_name": <str>
+                    },
+                    "public": False,
+                    "snapshot_id": <str>,
+                    "tracks": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "offset": 0,
+                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "total": 4,
+                      "items": [
+                        {
+                          "added_at": <str>,
+                          "added_by": {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "followers": {
+                              "href": <str>,
+                              "total": 0
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "type": "user",
+                            "uri": <str>
+                          },
+                          "is_local": False,
+                          "track": {
+                            "album": {
+                              "album_type": "compilation",
+                              "total_tracks": 9,
+                              "available_markets": ["CA", "BR", "IT"],
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                              "images": [
+                                {
+                                  "url": <str>,
+                                  "height": 300,
+                                  "width": 300
+                                }
+                              ],
+                              "name": <str>,
+                              "release_date": "1981-12",
+                              "release_date_precision": "year",
+                              "restrictions": {
+                                "reason": "market"
+                              },
+                              "type": "album",
+                              "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                              "copyrights": [
+                                {
+                                  "text": <str>,
+                                  "type": <str>
+                                }
+                              ],
+                              "external_ids": {
+                                "isrc": <str>,
+                                "ean": <str>,
+                                "upc": <str>
+                              },
+                              "genres": ["Egg punk", "Noise rock"],
+                              "label": <str>,
+                              "popularity": 0,
+                              "album_group": "compilation",
+                              "artists": [
+                                {
+                                  "external_urls": {
+                                    "spotify": <str>
+                                  },
+                                  "href": <str>,
+                                  "id": <str>,
+                                  "name": <str>,
+                                  "type": "artist",
+                                  "uri": <str>
+                                }
+                              ]
+                            },
+                            "artists": [
+                              {
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "followers": {
+                                  "href": <str>,
+                                  "total": 0
+                                },
+                                "genres": ["Prog rock", "Grunge"],
+                                "href": <str>,
+                                "id": <str>,
+                                "images": [
+                                  {
+                                    "url": <str>,
+                                    "height": 300,
+                                    "width": 300
+                                  }
+                                ],
+                                "name": <str>,
+                                "popularity": 0,
+                                "type": "artist",
+                                "uri": <str>
+                              }
+                            ],
+                            "available_markets": [<str>],
+                            "disc_number": 0,
+                            "duration_ms": 0,
+                            "explicit": False,
+                            "external_ids": {
+                              "isrc": <str>,
+                              "ean": <str>,
+                              "upc": <str>
+                            },
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "is_playable": False,
+                            "linked_from": {
+                            },
+                            "restrictions": {
+                              "reason": <str>
+                            },
+                            "name": <str>,
+                            "popularity": 0,
+                            "preview_url": <str>,
+                            "track_number": 0,
+                            "type": "track",
+                            "uri": <str>,
+                            "is_local": false
+                          }
+                        }
+                      ]
+                    },
+                    "type": <str>,
+                    "uri": <str>
+                  }
         """
 
         return self._get_json(
@@ -2749,6 +5577,7 @@ class WebAPISession(_Session):
         the playlist.)
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`playlist-modify-public` or the 
            :code:`playlist-modify-private` scope.
@@ -2775,6 +5604,7 @@ class WebAPISession(_Session):
             Spotify client.
 
             .. note::
+
                You can only set :code:`collaborative=True` on non-public
                playlists.
         
@@ -2804,7 +5634,7 @@ class WebAPISession(_Session):
             self, playlist_id: str, *,
             additional_types: Union[str, list[str]] = None,
             fields: str = None, limit: int = None, market: str = None,
-            offset: int = None) -> list[dict[str, Any]]:
+            offset: int = None) -> dict[str, Any]:
         
         """
         `Playlists > Get Playlist Items <https://developer.spotify.com/
@@ -2813,6 +5643,7 @@ class WebAPISession(_Session):
         playlist owned by a Spotify user.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`playlist-modify-private` scope.
         
@@ -2828,6 +5659,7 @@ class WebAPISession(_Session):
             track type.
 
             .. note::
+
                This parameter was introduced to allow existing clients
                to maintain their current behavior and might be 
                deprecated in the future.
@@ -2871,6 +5703,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -2881,6 +5714,151 @@ class WebAPISession(_Session):
             get the next page of search results.
 
             **Default**: :code:`0`.
+
+        Returns
+        -------
+        items : `dict`
+            A dictionary containing Spotify catalog information for the
+            playlist items and the number of results returned.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "offset": 0,
+                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "total": 4,
+                    "items": [
+                      {
+                        "added_at": <str>,
+                        "added_by": {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "type": "user",
+                          "uri": <str>
+                        },
+                        "is_local": False,
+                        "track": {
+                          "album": {
+                            "album_type": "compilation",
+                            "total_tracks": 9,
+                            "available_markets": ["CA", "BR", "IT"],
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                            "images": [
+                              {
+                                "url": <str>,
+                                "height": 300,
+                                "width": 300
+                              }
+                            ],
+                            "name": <str>,
+                            "release_date": "1981-12",
+                            "release_date_precision": "year",
+                            "restrictions": {
+                              "reason": "market"
+                            },
+                            "type": "album",
+                            "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                            "copyrights": [
+                              {
+                                "text": <str>,
+                                "type": <str>
+                              }
+                            ],
+                            "external_ids": {
+                              "isrc": <str>,
+                              "ean": <str>,
+                              "upc": <str>
+                            },
+                            "genres": ["Egg punk", "Noise rock"],
+                            "label": <str>,
+                            "popularity": 0,
+                            "album_group": "compilation",
+                            "artists": [
+                              {
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "id": <str>,
+                                "name": <str>,
+                                "type": "artist",
+                                "uri": <str>
+                              }
+                            ]
+                          },
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "followers": {
+                                "href": <str>,
+                                "total": 0
+                              },
+                              "genres": ["Prog rock", "Grunge"],
+                              "href": <str>,
+                              "id": <str>,
+                              "images": [
+                                {
+                                  "url": <str>,
+                                  "height": 300,
+                                  "width": 300
+                                }
+                              ],
+                              "name": <str>,
+                              "popularity": 0,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "available_markets": [<str>],
+                          "disc_number": 0,
+                          "duration_ms": 0,
+                          "explicit": False,
+                          "external_ids": {
+                            "isrc": <str>,
+                            "ean": <str>,
+                            "upc": <str>
+                          },
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "is_playable": False,
+                          "linked_from": {
+                          },
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "name": <str>,
+                          "popularity": 0,
+                          "preview_url": <str>,
+                          "track_number": 0,
+                          "type": "track",
+                          "uri": <str>,
+                          "is_local": false
+                        }
+                      }
+                    ]
+                  }
         """
 
         self._check_scope("get_playlist_item", "playlist-modify-private")
@@ -2911,6 +5889,7 @@ class WebAPISession(_Session):
         a user's playlist.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`playlist-modify-public` or the 
            :code:`playlist-modify-private` scope.
@@ -2928,6 +5907,7 @@ class WebAPISession(_Session):
             in one request.
 
             .. note::
+
                It is likely that passing a large number of item URIs as
                a query parameter will exceed the maximum length of the
                request URI. When adding a large number of items, it is 
@@ -2946,7 +5926,7 @@ class WebAPISession(_Session):
 
             .. container::
             
-               **Example**: 
+               **Examples**: 
             
                * :code:`0` to insert the items in the first position.
                * :code:`2` to insert the items in the third position.
@@ -2996,11 +5976,13 @@ class WebAPISession(_Session):
         playlist.
 
         .. note::
+
            Replace and reorder are mutually exclusive operations which 
            share the same endpoint, but have different parameters. These
            operations can't be applied together in a single request.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`playlist-modify-public` or the 
            :code:`playlist-modify-private` scope.
@@ -3018,6 +6000,7 @@ class WebAPISession(_Session):
             in one request.
 
             .. note::
+
                It is likely that passing a large number of item URIs as
                a query parameter will exceed the maximum length of the
                request URI. When adding a large number of items, it is
@@ -3112,6 +6095,7 @@ class WebAPISession(_Session):
         user's playlist.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`playlist-modify-public` or the 
            :code:`playlist-modify-private` scope.
@@ -3167,6 +6151,7 @@ class WebAPISession(_Session):
         playlists owned or followed by the current Spotify user.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`playlist-read-private` and the
            :code:`playlist-read-collaborative` scopes.
@@ -3191,6 +6176,61 @@ class WebAPISession(_Session):
         playlists : `dict`
             A dictionary containing the current user's playlists and the
             number of results returned.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "offset": 0,
+                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "total": 4,
+                    "items": [
+                      {
+                        "collaborative": False,
+                        "description": <str>,
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "name": <str>,
+                        "owner": {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "type": "user",
+                          "uri": <str>,
+                          "display_name": <str>
+                        },
+                        "public": False,
+                        "snapshot_id": <str>,
+                        "tracks": {
+                          "href": <str>,
+                          "total": 0
+                        },
+                        "type": <str>,
+                        "uri": <str>
+                      }
+                    ]
+                  }
         """
 
         self._check_scope("get_current_user_playlists",
@@ -3212,6 +6252,7 @@ class WebAPISession(_Session):
         or followed by a Spotify user.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`playlist-read-private` and the
            :code:`playlist-read-collaborative` scopes.
@@ -3241,6 +6282,61 @@ class WebAPISession(_Session):
         playlists : `dict`
             A dictionary containing the user's playlists and the number
             of results returned.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "offset": 0,
+                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "total": 4,
+                    "items": [
+                      {
+                        "collaborative": False,
+                        "description": <str>,
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "name": <str>,
+                        "owner": {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "type": "user",
+                          "uri": <str>,
+                          "display_name": <str>
+                        },
+                        "public": False,
+                        "snapshot_id": <str>,
+                        "tracks": {
+                          "href": <str>,
+                          "total": 0
+                        },
+                        "type": <str>,
+                        "uri": <str>
+                      }
+                    ]
+                  }
         """
 
         self._check_scope("get_user_playlists", "playlist-read-private")
@@ -3261,6 +6357,7 @@ class WebAPISession(_Session):
         you add tracks.)
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`playlist-modify-public` or the
            :code:`playlist-modify-private` scope.
@@ -3291,6 +6388,7 @@ class WebAPISession(_Session):
             If :code:`True`, the playlist will be collaborative. 
             
             .. note::
+
                To create a collaborative playlist, you must also set
                `public` to :code:`False`. To create collaborative 
                playlists, you must have granted the
@@ -3306,8 +6404,185 @@ class WebAPISession(_Session):
         Returns
         -------
         playlist : `dict`
-            Spotify catalog information for the newly created playlist
-            in JSON format.
+            Spotify catalog information for the newly created playlist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "collaborative": False,
+                    "description": <str>,
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "followers": {
+                      "href": <str>,
+                      "total": 0
+                    },
+                    "href": <str>,
+                    "id": <str>,
+                    "images": [
+                      {
+                        "url": <str>,
+                        "height": 300,
+                        "width": 300
+                      }
+                    ],
+                    "name": <str>,
+                    "owner": {
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "followers": {
+                        "href": <str>,
+                        "total": 0
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "type": "user",
+                      "uri": <str>,
+                      "display_name": <str>
+                    },
+                    "public": False,
+                    "snapshot_id": <str>,
+                    "tracks": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "offset": 0,
+                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "total": 4,
+                      "items": [
+                        {
+                          "added_at": <str>,
+                          "added_by": {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "followers": {
+                              "href": <str>,
+                              "total": 0
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "type": "user",
+                            "uri": <str>
+                          },
+                          "is_local": False,
+                          "track": {
+                            "album": {
+                              "album_type": "compilation",
+                              "total_tracks": 9,
+                              "available_markets": ["CA", "BR", "IT"],
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                              "images": [
+                                {
+                                  "url": <str>,
+                                  "height": 300,
+                                  "width": 300
+                                }
+                              ],
+                              "name": <str>,
+                              "release_date": "1981-12",
+                              "release_date_precision": "year",
+                              "restrictions": {
+                                "reason": "market"
+                              },
+                              "type": "album",
+                              "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                              "copyrights": [
+                                {
+                                  "text": <str>,
+                                  "type": <str>
+                                }
+                              ],
+                              "external_ids": {
+                                "isrc": <str>,
+                                "ean": <str>,
+                                "upc": <str>
+                              },
+                              "genres": ["Egg punk", "Noise rock"],
+                              "label": <str>,
+                              "popularity": 0,
+                              "album_group": "compilation",
+                              "artists": [
+                                {
+                                  "external_urls": {
+                                    "spotify": <str>
+                                  },
+                                  "href": <str>,
+                                  "id": <str>,
+                                  "name": <str>,
+                                  "type": "artist",
+                                  "uri": <str>
+                                }
+                              ]
+                            },
+                            "artists": [
+                              {
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "followers": {
+                                  "href": <str>,
+                                  "total": 0
+                                },
+                                "genres": ["Prog rock", "Grunge"],
+                                "href": <str>,
+                                "id": <str>,
+                                "images": [
+                                  {
+                                    "url": <str>,
+                                    "height": 300,
+                                    "width": 300
+                                  }
+                                ],
+                                "name": <str>,
+                                "popularity": 0,
+                                "type": "artist",
+                                "uri": <str>
+                              }
+                            ],
+                            "available_markets": [<str>],
+                            "disc_number": 0,
+                            "duration_ms": 0,
+                            "explicit": False,
+                            "external_ids": {
+                              "isrc": <str>,
+                              "ean": <str>,
+                              "upc": <str>
+                            },
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "is_playable": False,
+                            "linked_from": {
+                            },
+                            "restrictions": {
+                              "reason": <str>
+                            },
+                            "name": <str>,
+                            "popularity": 0,
+                            "preview_url": <str>,
+                            "track_number": 0,
+                            "type": "track",
+                            "uri": <str>,
+                            "is_local": false
+                          }
+                        }
+                      ]
+                    },
+                    "type": <str>,
+                    "uri": <str>
+                  }
         """
 
         self._check_scope(
@@ -3354,6 +6629,7 @@ class WebAPISession(_Session):
             strings returned in a particular language.
 
             .. note::
+            
                If `locale` is not supplied, or if the specified language
                is not available, the category strings returned will be 
                in the Spotify default language (American English).
@@ -3390,6 +6666,64 @@ class WebAPISession(_Session):
         playlists : `dict`
             A dictionary containing a message and a list of featured 
             playlists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "message": <str>,
+                    "playlists": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "offset": 0,
+                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "total": 4,
+                      "items": [
+                        {
+                          "collaborative": False,
+                          "description": <str>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "owner": {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "followers": {
+                              "href": <str>,
+                              "total": 0
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "type": "user",
+                            "uri": <str>,
+                            "display_name": <str>
+                          },
+                          "public": False,
+                          "snapshot_id": <str>,
+                          "tracks": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "type": <str>,
+                          "uri": <str>
+                        }
+                      ]
+                    }
+                  }
         """
         
         return self._get_json(f"{self.API_URL}/browse/featured-playlists",
@@ -3441,6 +6775,64 @@ class WebAPISession(_Session):
         playlists : `dict`
             A dictionary containing a message and a list of playlists in
             a particular category.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "message": <str>,
+                    "playlists": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "offset": 0,
+                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "total": 4,
+                      "items": [
+                        {
+                          "collaborative": False,
+                          "description": <str>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "owner": {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "followers": {
+                              "href": <str>,
+                              "total": 0
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "type": "user",
+                            "uri": <str>,
+                            "display_name": <str>
+                          },
+                          "public": False,
+                          "snapshot_id": <str>,
+                          "tracks": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "type": <str>,
+                          "uri": <str>
+                        }
+                      ]
+                    }
+                  }
         """
 
         return self._get_json(
@@ -3468,9 +6860,20 @@ class WebAPISession(_Session):
         image : `dict`
             A dictionary containing the URL to and the dimensions of
             the playlist cover image.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "url": <str>,
+                    "height": 300,
+                    "width": 300
+                  }
         """
 
-        return self._get_json(f"{self.API_URL}/playlists/{playlist_id}/images")
+        return self._get_json(f"{self.API_URL}/playlists/{playlist_id}/images")[0]
     
     def add_playlist_cover_image(self, playlist_id: str, image: bytes) -> None:
 
@@ -3481,6 +6884,7 @@ class WebAPISession(_Session):
         represent a specific playlist.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`ugc-image-upload` and the
            :code:`playlist-modify-public` or 
@@ -3591,6 +6995,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -3607,7 +7012,414 @@ class WebAPISession(_Session):
         Returns
         -------
         results : `dict`
-            The search results in JSON format.
+            The search results.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "tracks": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "offset": 0,
+                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "total": 4,
+                      "items": [
+                        {
+                          "album": {
+                            "album_type": "compilation",
+                            "total_tracks": 9,
+                            "available_markets": ["CA", "BR", "IT"],
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                            "images": [
+                              {
+                                "url": <str>,
+                                "height": 300,
+                                "width": 300
+                              }
+                            ],
+                            "name": <str>,
+                            "release_date": "1981-12",
+                            "release_date_precision": "year",
+                            "restrictions": {
+                              "reason": "market"
+                            },
+                            "type": "album",
+                            "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                            "copyrights": [
+                              {
+                                "text": <str>,
+                                "type": <str>
+                              }
+                            ],
+                            "external_ids": {
+                              "isrc": <str>,
+                              "ean": <str>,
+                              "upc": <str>
+                            },
+                            "genres": ["Egg punk", "Noise rock"],
+                            "label": <str>,
+                            "popularity": 0,
+                            "album_group": "compilation",
+                            "artists": [
+                              {
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "id": <str>,
+                                "name": <str>,
+                                "type": "artist",
+                                "uri": <str>
+                              }
+                            ]
+                          },
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "followers": {
+                                "href": <str>,
+                                "total": 0
+                              },
+                              "genres": ["Prog rock", "Grunge"],
+                              "href": <str>,
+                              "id": <str>,
+                              "images": [
+                                {
+                                  "url": <str>,
+                                  "height": 300,
+                                  "width": 300
+                                }
+                              ],
+                              "name": <str>,
+                              "popularity": 0,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "available_markets": [<str>],
+                          "disc_number": 0,
+                          "duration_ms": 0,
+                          "explicit": False,
+                          "external_ids": {
+                            "isrc": <str>,
+                            "ean": <str>,
+                            "upc": <str>
+                          },
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "is_playable": False,
+                          "linked_from": {
+                          },
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "name": <str>,
+                          "popularity": 0,
+                          "preview_url": <str>,
+                          "track_number": 0,
+                          "type": "track",
+                          "uri": <str>,
+                          "is_local": false
+                        }
+                      ]
+                    },
+                    "artists": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "offset": 0,
+                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "total": 4,
+                      "items": [
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "genres": ["Prog rock", "Grunge"],
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": 0,
+                          "type": "artist",
+                          "uri": <str>
+                        }
+                      ]
+                    },
+                    "albums": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "offset": 0,
+                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "total": 4,
+                      "items": [
+                        {
+                          "album_type": "compilation",
+                          "total_tracks": 9,
+                          "available_markets": ["CA", "BR", "IT"],
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "release_date": "1981-12",
+                          "release_date_precision": "year",
+                          "restrictions": {
+                            "reason": "market"
+                          },
+                          "type": "album",
+                          "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                          "copyrights": [
+                            {
+                              "text": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "external_ids": {
+                            "isrc": <str>,
+                            "ean": <str>,
+                            "upc": <str>
+                          },
+                          "genres": ["Egg punk", "Noise rock"],
+                          "label": <str>,
+                          "popularity": 0,
+                          "album_group": "compilation",
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "playlists": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "offset": 0,
+                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "total": 4,
+                      "items": [
+                        {
+                          "collaborative": False,
+                          "description": <str>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "owner": {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "followers": {
+                              "href": <str>,
+                              "total": 0
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "type": "user",
+                            "uri": <str>,
+                            "display_name": <str>
+                          },
+                          "public": False,
+                          "snapshot_id": <str>,
+                          "tracks": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "type": <str>,
+                          "uri": <str>
+                        }
+                      ]
+                    },
+                    "shows": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "offset": 0,
+                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "total": 4,
+                      "items": [
+                        {
+                          "available_markets": [<str>],
+                          "copyrights": [
+                            {
+                              "text": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "description": <str>,
+                          "html_description": <str>,
+                          "explicit": False,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "is_externally_hosted": False,
+                          "languages": [<str>],
+                          "media_type": <str>,
+                          "name": <str>,
+                          "publisher": <str>,
+                          "type": "show",
+                          "uri": <str>,
+                          "total_episodes": 0
+                        }
+                      ]
+                    },
+                    "episodes": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "offset": 0,
+                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "total": 4,
+                      "items": [
+                        {
+                          "audio_preview_url": <str>,
+                          "description": <str>,
+                          "html_description": <str>,
+                          "duration_ms": 1686230,
+                          "explicit": False,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": "5Xt5DXGzch68nYYamXrNxZ",
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "is_externally_hosted": False,
+                          "is_playable": False,
+                          "language": "en",
+                          "languages": ["fr", "en"],
+                          "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                          "release_date": "1981-12-15",
+                          "release_date_precision": "day",
+                          "resume_point": {
+                            "fully_played": False,
+                            "resume_position_ms": 0
+                          },
+                          "type": "episode",
+                          "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                          "restrictions": {
+                            "reason": <str>
+                          }
+                        }
+                      ]
+                    },
+                    "audiobooks": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "offset": 0,
+                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "total": 4,
+                      "items": [
+                        {
+                          "authors": [
+                            {
+                              "name": <str>
+                            }
+                          ],
+                          "available_markets": [<str>],
+                          "copyrights": [
+                            {
+                              "text": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "description": <str>,
+                          "html_description": <str>,
+                          "edition": "Unabridged",
+                          "explicit": False,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "languages": [<str>],
+                          "media_type": <str>,
+                          "name": <str>,
+                          "narrators": [
+                            {
+                              "name": <str>
+                            }
+                          ],
+                          "publisher": <str>,
+                          "type": "audiobook",
+                          "uri": <str>,
+                          "total_chapters": 0
+                        }
+                      ]
+                    }
+                  }
         """
 
         return self._get_json(
@@ -3645,6 +7457,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -3653,8 +7466,90 @@ class WebAPISession(_Session):
         Returns
         -------
         show : `dict`
-            Spotify catalog information for a single show in JSON
-            format.
+            Spotify catalog information for a single show.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "available_markets": [<str>],
+                    "copyrights": [
+                      {
+                        "text": <str>,
+                        "type": <str>
+                      }
+                    ],
+                    "description": <str>,
+                    "html_description": <str>,
+                    "explicit": False,
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "href": <str>,
+                    "id": <str>,
+                    "images": [
+                      {
+                        "url": <str>,
+                        "height": 300,
+                        "width": 300
+                      }
+                    ],
+                    "is_externally_hosted": False,
+                    "languages": [<str>],
+                    "media_type": <str>,
+                    "name": <str>,
+                    "publisher": <str>,
+                    "type": "show",
+                    "uri": <str>,
+                    "total_episodes": 0,
+                    "episodes": {
+                      "href": <str>,
+                      "limit": 20,
+                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "offset": 0,
+                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                      "total": 4,
+                      "items": [
+                        {
+                          "audio_preview_url": <str>,
+                          "description": <str>,
+                          "html_description": <str>,
+                          "duration_ms": 1686230,
+                          "explicit": False,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": "5Xt5DXGzch68nYYamXrNxZ",
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "is_externally_hosted": False,
+                          "is_playable": False,
+                          "language": "en",
+                          "languages": ["fr", "en"],
+                          "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                          "release_date": "1981-12-15",
+                          "release_date_precision": "day",
+                          "resume_point": {
+                            "fully_played": False,
+                            "resume_position_ms": 0
+                          },
+                          "type": "episode",
+                          "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                          "restrictions": {
+                            "reason": <str>
+                          }
+                        }
+                      ]
+                    }
+                  }
         """
         
         return self._get_json(f"{self.API_URL}/shows/{id}",
@@ -3688,6 +7583,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -3696,15 +7592,55 @@ class WebAPISession(_Session):
         Returns
         -------
         shows : `list`
-            A list of Spotify catalog information for multiple shows in
-            JSON format.
+            A list containing Spotify catalog information for multiple 
+            shows.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "available_markets": [<str>],
+                      "copyrights": [
+                        {
+                          "text": <str>,
+                          "type": <str>
+                        }
+                      ],
+                      "description": <str>,
+                      "html_description": <str>,
+                      "explicit": False,
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "images": [
+                        {
+                          "url": <str>,
+                          "height": 300,
+                          "width": 300
+                        }
+                      ],
+                      "is_externally_hosted": False,
+                      "languages": [<str>],
+                      "media_type": <str>,
+                      "name": <str>,
+                      "publisher": <str>,
+                      "type": "show",
+                      "uri": <str>,
+                      "total_episodes": 0
+                    }
+                  ]
         """
 
         return self._get_json(
             f"{self.API_URL}/shows",
             params={"ids": ids if isinstance(ids, str) else ",".join(ids),
                     "market": market}
-        )["albums"]
+        )["shows"]
 
     def get_show_episodes(
             self, id: str, *, limit: int = None, market: str = None,
@@ -3739,6 +7675,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -3753,8 +7690,59 @@ class WebAPISession(_Session):
         Returns
         -------
         episodes : `dict`
-            A dictionary containing the Spotify catalog information for
-            a show's episodes and the number of results returned.
+            A dictionary containing Spotify catalog information for a
+            show's episodes and the number of results returned.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "offset": 0,
+                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "total": 4,
+                    "items": [
+                      {
+                        "audio_preview_url": <str>,
+                        "description": <str>,
+                        "html_description": <str>,
+                        "duration_ms": 1686230,
+                        "explicit": False,
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": "5Xt5DXGzch68nYYamXrNxZ",
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "is_externally_hosted": False,
+                        "is_playable": False,
+                        "language": "en",
+                        "languages": ["fr", "en"],
+                        "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                        "release_date": "1981-12-15",
+                        "release_date_precision": "day",
+                        "resume_point": {
+                          "fully_played": False,
+                          "resume_position_ms": 0
+                        },
+                        "type": "episode",
+                        "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                        "restrictions": {
+                          "reason": <str>
+                        }
+                      }
+                    ]
+                  }
         """
 
         return self._get_json(
@@ -3773,6 +7761,7 @@ class WebAPISession(_Session):
         to limit the number of shows returned.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-read` scope.
 
@@ -3796,8 +7785,63 @@ class WebAPISession(_Session):
         Returns
         -------
         shows : `dict`
-            A dictionary containing the Spotify catalog information for
-            a user's saved shows and the number of results returned.
+            A dictionary containing Spotify catalog information for a
+            user's saved shows and the number of results returned.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "offset": 0,
+                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "total": 4,
+                    "items": [
+                      {
+                        "added_at": <str>,
+                        "show": {
+                          "available_markets": [
+                            <str>
+                          ],
+                          "copyrights": [
+                            {
+                              "text": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "description": <str>,
+                          "html_description": <str>,
+                          "explicit": False,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "is_externally_hosted": False,
+                          "languages": [
+                            <str>
+                          ],
+                          "media_type": <str>,
+                          "name": <str>,
+                          "publisher": <str>,
+                          "type": "show",
+                          "uri": <str>,
+                          "total_episodes": 0
+                        }
+                      }
+                    ]
+                  }
         """
 
         self._check_scope("get_saved_shows", "user-library-read")
@@ -3814,6 +7858,7 @@ class WebAPISession(_Session):
         current Spotify user's library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-modify` scope.
 
@@ -3844,6 +7889,7 @@ class WebAPISession(_Session):
         current Spotify user's library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-modify` scope.
 
@@ -3864,6 +7910,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -3886,6 +7933,7 @@ class WebAPISession(_Session):
         shows is already saved in the current Spotify user's library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-read` scope.
 
@@ -3904,6 +7952,8 @@ class WebAPISession(_Session):
         contains : `list`
             Array of booleans specifying whether the shows are found in
             the user's saved shows.
+
+            **Example**: :code:`[False, True]`.
         """
 
         self._check_scope("check_saved_shows", "user-library-read")
@@ -3946,8 +7996,119 @@ class WebAPISession(_Session):
         Returns
         -------
         track : `dict`
-            Spotify catalog information for a single track in JSON
-            format.
+            Spotify catalog information for a single track.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "album": {
+                      "album_type": "compilation",
+                      "total_tracks": 9,
+                      "available_markets": ["CA", "BR", "IT"],
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                      "images": [
+                        {
+                          "url": <str>,
+                          "height": 300,
+                          "width": 300
+                        }
+                      ],
+                      "name": <str>,
+                      "release_date": "1981-12",
+                      "release_date_precision": "year",
+                      "restrictions": {
+                        "reason": "market"
+                      },
+                      "type": "album",
+                      "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                      "copyrights": [
+                        {
+                          "text": <str>,
+                          "type": <str>
+                        }
+                      ],
+                      "external_ids": {
+                        "isrc": <str>,
+                        "ean": <str>,
+                        "upc": <str>
+                      },
+                      "genres": ["Egg punk", "Noise rock"],
+                      "label": <str>,
+                      "popularity": 0,
+                      "album_group": "compilation",
+                      "artists": [
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "name": <str>,
+                          "type": "artist",
+                          "uri": <str>
+                        }
+                      ]
+                    },
+                    "artists": [
+                      {
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "followers": {
+                          "href": <str>,
+                          "total": 0
+                        },
+                        "genres": ["Prog rock", "Grunge"],
+                        "href": <str>,
+                        "id": <str>,
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "name": <str>,
+                        "popularity": 0,
+                        "type": "artist",
+                        "uri": <str>
+                      }
+                    ],
+                    "available_markets": [<str>],
+                    "disc_number": 0,
+                    "duration_ms": 0,
+                    "explicit": False,
+                    "external_ids": {
+                      "isrc": <str>,
+                      "ean": <str>,
+                      "upc": <str>
+                    },
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "href": <str>,
+                    "id": <str>,
+                    "is_playable": False,
+                    "linked_from": {
+                    },
+                    "restrictions": {
+                      "reason": <str>
+                    },
+                    "name": <str>,
+                    "popularity": 0,
+                    "preview_url": <str>,
+                    "track_number": 0,
+                    "type": "track",
+                    "uri": <str>,
+                    "is_local": false
+                  }
         """
 
         return self._get_json(f"{self.API_URL}/tracks/{id}",
@@ -3981,6 +8142,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -3989,8 +8151,122 @@ class WebAPISession(_Session):
         Returns
         -------
         tracks : `dict` or `list`
-            A list of Spotify catalog information for multiple tracks in
-            JSON format.
+            A list containing Spotify catalog information for multiple
+            tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "album": {
+                        "album_type": "compilation",
+                        "total_tracks": 9,
+                        "available_markets": ["CA", "BR", "IT"],
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "name": <str>,
+                        "release_date": "1981-12",
+                        "release_date_precision": "year",
+                        "restrictions": {
+                          "reason": "market"
+                        },
+                        "type": "album",
+                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "copyrights": [
+                          {
+                            "text": <str>,
+                            "type": <str>
+                          }
+                        ],
+                        "external_ids": {
+                          "isrc": <str>,
+                          "ean": <str>,
+                          "upc": <str>
+                        },
+                        "genres": ["Egg punk", "Noise rock"],
+                        "label": <str>,
+                        "popularity": 0,
+                        "album_group": "compilation",
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str>
+                          }
+                        ]
+                      },
+                      "artists": [
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "genres": ["Prog rock", "Grunge"],
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": 0,
+                          "type": "artist",
+                          "uri": <str>
+                        }
+                      ],
+                      "available_markets": [<str>],
+                      "disc_number": 0,
+                      "duration_ms": 0,
+                      "explicit": False,
+                      "external_ids": {
+                        "isrc": <str>,
+                        "ean": <str>,
+                        "upc": <str>
+                      },
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "is_playable": False,
+                      "linked_from": {
+                      },
+                      "restrictions": {
+                        "reason": <str>
+                      },
+                      "name": <str>,
+                      "popularity": 0,
+                      "preview_url": <str>,
+                      "track_number": 0,
+                      "type": "track",
+                      "uri": <str>,
+                      "is_local": false
+                    }
+                  ]
         """
 
         return self._get_json(
@@ -4010,6 +8286,7 @@ class WebAPISession(_Session):
         saved in the current Spotify user's 'Your Music' library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-read` scope.
 
@@ -4030,6 +8307,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -4046,8 +8324,133 @@ class WebAPISession(_Session):
         Returns
         -------
         tracks : `dict`
-            A dictionary containing the Spotify catalog information for
-            a user's saved tracks and the number of results returned.
+            A dictionary containing Spotify catalog information for a
+            user's saved tracks and the number of results returned.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "offset": 0,
+                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "total": 4,
+                    "items": [
+                      {
+                        "added_at": <str>,
+                        "track": {
+                          "album": {
+                            "album_type": "compilation",
+                            "total_tracks": 9,
+                            "available_markets": ["CA", "BR", "IT"],
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                            "images": [
+                              {
+                                "url": <str>,
+                                "height": 300,
+                                "width": 300
+                              }
+                            ],
+                            "name": <str>,
+                            "release_date": "1981-12",
+                            "release_date_precision": "year",
+                            "restrictions": {
+                              "reason": "market"
+                            },
+                            "type": "album",
+                            "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                            "copyrights": [
+                              {
+                                "text": <str>,
+                                "type": <str>
+                              }
+                            ],
+                            "external_ids": {
+                              "isrc": <str>,
+                              "ean": <str>,
+                              "upc": <str>
+                            },
+                            "genres": ["Egg punk", "Noise rock"],
+                            "label": <str>,
+                            "popularity": 0,
+                            "album_group": "compilation",
+                            "artists": [
+                              {
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "id": <str>,
+                                "name": <str>,
+                                "type": "artist",
+                                "uri": <str>
+                              }
+                            ]
+                          },
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "followers": {
+                                "href": <str>,
+                                "total": 0
+                              },
+                              "genres": ["Prog rock", "Grunge"],
+                              "href": <str>,
+                              "id": <str>,
+                              "images": [
+                                {
+                                  "url": <str>,
+                                  "height": 300,
+                                  "width": 300
+                                }
+                              ],
+                              "name": <str>,
+                              "popularity": 0,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "available_markets": [<str>],
+                          "disc_number": 0,
+                          "duration_ms": 0,
+                          "explicit": False,
+                          "external_ids": {
+                            "isrc": <str>,
+                            "ean": <str>,
+                            "upc": <str>
+                          },
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "is_playable": False,
+                          "linked_from": {
+                          },
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "name": <str>,
+                          "popularity": 0,
+                          "preview_url": <str>,
+                          "track_number": 0,
+                          "type": "track",
+                          "uri": <str>,
+                          "is_local": false
+                        }
+                      }
+                    ]
+                  }
         """
 
         self._check_scope("get_saved_tracks", "user-library-read")
@@ -4066,6 +8469,7 @@ class WebAPISession(_Session):
         current user's 'Your Music' library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-modify` scope.
 
@@ -4098,6 +8502,7 @@ class WebAPISession(_Session):
         from the current user's 'Your Music' library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-modify` scope.
 
@@ -4131,6 +8536,7 @@ class WebAPISession(_Session):
         Music' library.
         
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-library-read` scope.
 
@@ -4149,6 +8555,8 @@ class WebAPISession(_Session):
         contains : `list`
             Array of booleans specifying whether the tracks are found in
             the user's 'Liked Songs'.
+
+            **Example**: :code:`[False, True]`.
         """
 
         self._check_scope("check_saved_tracks", "user-library-read")
@@ -4176,7 +8584,33 @@ class WebAPISession(_Session):
         Returns
         -------
         audio_features : `dict`
-            The track's audio features in JSON format.
+            The track's audio features.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "acousticness": 0.00242,
+                    "analysis_url": <str>,
+                    "danceability": 0.585,
+                    "duration_ms": 237040,
+                    "energy": 0.842,
+                    "id": "2takcwOaAZWiXQijPHIx7B",
+                    "instrumentalness": 0.00686,
+                    "key": 9,
+                    "liveness": 0.0866,
+                    "loudness": -5.883,
+                    "mode": 0,
+                    "speechiness": 0.0556,
+                    "tempo": 118.211,
+                    "time_signature": 4,
+                    "track_href": "https://api.spotify.com/v1/tracks/2takcwOaAZWiXQijPHIx7B",
+                    "type": "audio_features",
+                    "uri": "spotify:track:2takcwOaAZWiXQijPHIx7B",
+                    "valence": 0.428
+                  }
         """
 
         return self._get_json(f"{self.API_URL}/audio-features/{id}")
@@ -4203,7 +8637,35 @@ class WebAPISession(_Session):
         Returns
         -------
         audio_features : `dict` or `list`
-            A list of audio features for multiple tracks in JSON format.
+            A list containing audio features for multiple tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "acousticness": 0.00242,
+                      "analysis_url": <str>,
+                      "danceability": 0.585,
+                      "duration_ms": 237040,
+                      "energy": 0.842,
+                      "id": "2takcwOaAZWiXQijPHIx7B",
+                      "instrumentalness": 0.00686,
+                      "key": 9,
+                      "liveness": 0.0866,
+                      "loudness": -5.883,
+                      "mode": 0,
+                      "speechiness": 0.0556,
+                      "tempo": 118.211,
+                      "time_signature": 4,
+                      "track_href": "https://api.spotify.com/v1/tracks/2takcwOaAZWiXQijPHIx7B",
+                      "type": "audio_features",
+                      "uri": "spotify:track:2takcwOaAZWiXQijPHIx7B",
+                      "valence": 0.428
+                    }
+                  ]
         """
 
         return self._get_json(
@@ -4231,7 +8693,102 @@ class WebAPISession(_Session):
         Returns
         -------
         audio_analysis : `dict`
-            The track's audio analysis in JSON format.
+            The track's audio analysis.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "meta": {
+                      "analyzer_version": "4.0.0",
+                      "platform": "Linux",
+                      "detailed_status": "OK",
+                      "status_code": 0,
+                      "timestamp": 1495193577,
+                      "analysis_time": 6.93906,
+                      "input_process": "libvorbisfile L+R 44100->22050"
+                    },
+                    "track": {
+                      "num_samples": 4585515,
+                      "duration": 207.95985,
+                      "sample_md5": <str>,
+                      "offset_seconds": 0,
+                      "window_seconds": 0,
+                      "analysis_sample_rate": 22050,
+                      "analysis_channels": 1,
+                      "end_of_fade_in": 0,
+                      "start_of_fade_out": 201.13705,
+                      "loudness": -5.883,
+                      "tempo": 118.211,
+                      "tempo_confidence": 0.73,
+                      "time_signature": 4,
+                      "time_signature_confidence": 0.994,
+                      "key": 9,
+                      "key_confidence": 0.408,
+                      "mode": 0,
+                      "mode_confidence": 0.485,
+                      "codestring": <str>,
+                      "code_version": 3.15,
+                      "echoprintstring": <str>,
+                      "echoprint_version": 4.15,
+                      "synchstring": <str>,
+                      "synch_version": 1,
+                      "rhythmstring": <str>,
+                      "rhythm_version": 1
+                    },
+                    "bars": [
+                      {
+                        "start": 0.49567,
+                        "duration": 2.18749,
+                        "confidence": 0.925
+                      }
+                    ],
+                    "beats": [
+                      {
+                        "start": 0.49567,
+                        "duration": 2.18749,
+                        "confidence": 0.925
+                      }
+                    ],
+                    "sections": [
+                      {
+                        "start": 0,
+                        "duration": 6.97092,
+                        "confidence": 1,
+                        "loudness": -14.938,
+                        "tempo": 113.178,
+                        "tempo_confidence": 0.647,
+                        "key": 9,
+                        "key_confidence": 0.297,
+                        "mode": -1,
+                        "mode_confidence": 0.471,
+                        "time_signature": 4,
+                        "time_signature_confidence": 1
+                      }
+                    ],
+                    "segments": [
+                      {
+                        "start": 0.70154,
+                        "duration": 0.19891,
+                        "confidence": 0.435,
+                        "loudness_start": -23.053,
+                        "loudness_max": -14.25,
+                        "loudness_max_time": 0.07305,
+                        "loudness_end": 0,
+                        "pitches": [0.212, 0.141, 0.294],
+                        "timbre": [42.115, 64.373, -0.233]
+                      }
+                    ],
+                    "tatums": [
+                      {
+                        "start": 0.49567,
+                        "duration": 2.18749,
+                        "confidence": 0.925
+                      }
+                    ]
+                  }
         """
 
         return self._get_json(f"{self.API_URL}/audio-analysis/{id}")
@@ -4304,6 +8861,7 @@ class WebAPISession(_Session):
             account will take priority over this parameter.
 
             .. note::
+
                If neither market or user country are provided, the 
                content is considered unavailable for the client.
             
@@ -4318,8 +8876,134 @@ class WebAPISession(_Session):
         Returns
         -------
         tracks : `dict`
-            A dictionary containing the Spotify catalog information for
-            the recommended tracks.
+            A dictionary containing Spotify catalog information for the
+            recommended tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "seeds": [
+                      {
+                        "afterFilteringSize": 0,
+                        "afterRelinkingSize": 0,
+                        "href": <str>,
+                        "id": <str>,
+                        "initialPoolSize": 0,
+                        "type": <str>
+                      }
+                    ],
+                    "tracks": [
+                      {
+                        "album": {
+                          "album_type": "compilation",
+                          "total_tracks": 9,
+                          "available_markets": ["CA", "BR", "IT"],
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "release_date": "1981-12",
+                          "release_date_precision": "year",
+                          "restrictions": {
+                            "reason": "market"
+                          },
+                          "type": "album",
+                          "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                          "copyrights": [
+                            {
+                              "text": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "external_ids": {
+                            "isrc": <str>,
+                            "ean": <str>,
+                            "upc": <str>
+                          },
+                          "genres": ["Egg punk", "Noise rock"],
+                          "label": <str>,
+                          "popularity": 0,
+                          "album_group": "compilation",
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ]
+                        },
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "followers": {
+                              "href": <str>,
+                              "total": 0
+                            },
+                            "genres": ["Prog rock", "Grunge"],
+                            "href": <str>,
+                            "id": <str>,
+                            "images": [
+                              {
+                                "url": <str>,
+                                "height": 300,
+                                "width": 300
+                              }
+                            ],
+                            "name": <str>,
+                            "popularity": 0,
+                            "type": "artist",
+                            "uri": <str>
+                          }
+                        ],
+                        "available_markets": [<str>],
+                        "disc_number": 0,
+                        "duration_ms": 0,
+                        "explicit": False,
+                        "external_ids": {
+                          "isrc": <str>,
+                          "ean": <str>,
+                          "upc": <str>
+                        },
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "is_playable": False,
+                        "linked_from": {
+                        },
+                        "restrictions": {
+                          "reason": <str>
+                        },
+                        "name": <str>,
+                        "popularity": 0,
+                        "preview_url": <str>,
+                        "track_number": 0,
+                        "type": "track",
+                        "uri": <str>,
+                        "is_local": false
+                      }
+                    ]
+                  }
         """
 
         return self._get_json(
@@ -4352,6 +9036,7 @@ class WebAPISession(_Session):
         username).
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-read-private` scope.
         
@@ -4359,6 +9044,40 @@ class WebAPISession(_Session):
         -------
         user : `dict`
             A dictionary containing the current user's information.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "country": <str>,
+                    "display_name": <str>,
+                    "email": <str>,
+                    "explicit_content": {
+                      "filter_enabled": False,
+                      "filter_locked": false
+                    },
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "followers": {
+                      "href": <str>,
+                      "total": 0
+                    },
+                    "href": <str>,
+                    "id": <str>,
+                    "images": [
+                      {
+                        "url": <str>,
+                        "height": 300,
+                        "width": 300
+                      }
+                    ],
+                    "product": <str>,
+                    "type": <str>,
+                    "uri": <str>
+                  }
         """
 
         self._check_scope("get_current_user_profile", "user-read-private")
@@ -4376,6 +9095,7 @@ class WebAPISession(_Session):
         artists or tracks based on calculated affinity.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-top-read` scope.
 
@@ -4417,8 +9137,47 @@ class WebAPISession(_Session):
         Returns
         -------
         items : `dict`
-            A dictionary containing the Spotify catalog information for
-            a user's top items and the number of results returned.
+            A dictionary containing Spotify catalog information for a
+            user's top items and the number of results returned.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "limit": 20,
+                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "offset": 0,
+                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
+                    "total": 4,
+                    "items": [
+                      {
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "followers": {
+                          "href": <str>,
+                          "total": 0
+                        },
+                        "genres": ["Prog rock", "Grunge"],
+                        "href": <str>,
+                        "id": <str>,
+                        "images": [
+                          {
+                            "url": <str>,
+                            "height": 300,
+                            "width": 300
+                          }
+                        ],
+                        "name": <str>,
+                        "popularity": 0,
+                        "type": "artist",
+                        "uri": <str>
+                      }
+                    ]
+                  }
         """
 
         self._check_scope("get_user_top_items", "user-top-read")
@@ -4447,6 +9206,33 @@ class WebAPISession(_Session):
         -------
         user : `dict`
             A dictionary containing the user's information.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "display_name": <str>,
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "followers": {
+                      "href": <str>,
+                      "total": 0
+                    },
+                    "href": <str>,
+                    "id": <str>,
+                    "images": [
+                      {
+                        "url": <str>,
+                        "height": 300,
+                        "width": 300
+                      }
+                    ],
+                    "type": "user",
+                    "uri": <str>
+                  }
         """
         
         return self._get_json(f"{self.API_URL}/users/{user_id}")
@@ -4459,6 +9245,7 @@ class WebAPISession(_Session):
         Add the current user as a follower of a playlist.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`playlist-modify-private` scope.
 
@@ -4484,6 +9271,7 @@ class WebAPISession(_Session):
         playlist.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`playlist-modify-private` scope.
 
@@ -4509,6 +9297,7 @@ class WebAPISession(_Session):
         Get the current user's followed artists.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-follow-read` scope.
         
@@ -4529,9 +9318,49 @@ class WebAPISession(_Session):
         Returns
         -------
         artists : `dict`
-            A dictionary containing the Spotify catalog information for
-            a user's followed artists and the number of results
-            returned.
+            A dictionary containing Spotify catalog information for a
+            user's followed artists and the number of results returned.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                      "href": <str>,
+                      "limit": 0,
+                      "next": <str>,
+                      "cursors": {
+                        "after": <str>,
+                        "before": <str>
+                      },
+                      "total": 0,
+                      "items": [
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": 0
+                          },
+                          "genres": ["Prog rock", "Grunge"],
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": 300,
+                              "width": 300
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": 0,
+                          "type": "artist",
+                          "uri": <str>
+                        }
+                      ]
+                    }
         """
 
         self._check_scope("get_followed_artists", "user-follow-read")
@@ -4550,6 +9379,7 @@ class WebAPISession(_Session):
         one or more artists or other Spotify users.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-follow-modify` scope.
         
@@ -4587,6 +9417,7 @@ class WebAPISession(_Session):
         as a follower of one or more artists or other Spotify users.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-follow-modify` scope.
         
@@ -4626,6 +9457,7 @@ class WebAPISession(_Session):
         users.
 
         .. admonition:: Authorization scope
+           :class: tip
         
            Requires the :code:`user-follow-read` scope.
 
@@ -4649,6 +9481,8 @@ class WebAPISession(_Session):
         contains : `list`
             Array of booleans specifying whether the user follows the
             specified artists or Spotify users.
+
+            **Example**: :code:`[False, True]`.
         """
 
         self._check_scope("check_followed_people", "user-follow-read")
@@ -4689,6 +9523,8 @@ class WebAPISession(_Session):
         follows : `list`
             Array of booleans specifying whether the users follow the
             playlist.
+
+            **Example**: :code:`[False, True]`.
         """
 
         return self._get_json(
