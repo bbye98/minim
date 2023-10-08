@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="WebAPISession" href="minim.spotify.WebAPISession.html" /><link rel="prev" title="spotify" href="minim.spotify.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Market" href="minim.spotify.Market.html" /><link rel="prev" title="Lyrics" href="minim.spotify.Lyrics.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 5.3.0 and Furo 2023.05.20 -->
         <title>LyricsAPISession - minim documentation</title>
@@ -191,7 +191,20 @@
 </ul>
 </li>
 <li class="toctree-l2 current has-children"><a class="reference internal" href="minim.spotify.html">spotify</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Album.html">Album</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Artist.html">Artist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Audiobook.html">Audiobook</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Category.html">Category</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Chapter.html">Chapter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Episode.html">Episode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Lyrics.html">Lyrics</a></li>
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">LyricsAPISession</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Market.html">Market</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Player.html">Player</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Playlist.html">Playlist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Show.html">Show</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Track.html">Track</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.User.html">User</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPISession.html">WebAPISession</a></li>
 </ul>
 </li>
@@ -244,19 +257,28 @@
 <h1>LyricsAPISession<a class="headerlink" href="#lyricsapisession" title="Permalink to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="minim.spotify.LyricsAPISession">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minim.spotify.</span></span><span class="sig-name descname"><span class="pre">LyricsAPISession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_dc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.11)"><span class="pre">datetime</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minim/spotify.html#LyricsAPISession"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.LyricsAPISession" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minim.spotify.</span></span><span class="sig-name descname"><span class="pre">LyricsAPISession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_dc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><span class="pre">datetime</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minim/spotify.html#LyricsAPISession"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.LyricsAPISession" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_Session</span></code></p>
 <p>A Spotify Lyrics API session.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>sp_dc</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Spotify Web Player <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie.</p>
+<dt><strong>sp_dc</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Spotify Web Player <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie. If neither <cite>sp_dc</cite> nor
+<cite>access_token</cite> is specified, the <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie must be
+stored in the environment variable <code class="code docutils literal notranslate"><span class="pre">SPOTIFY_SP_DC</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Even if <cite>access_token</cite> is specified, it is recommended that
+<cite>sp_dc</cite> be provided since it is used to request new access
+tokens when the old ones expire.</p>
+</div>
 </dd>
-<dt><strong>access_token</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Access token. If provided, the token exchange is bypassed.</p>
+<dt><strong>access_token</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Access token.</p>
 </dd>
-<dt><strong>expiry</strong><span class="classifier"><cite>datetime.datetime</cite>, keyword-only, optional</span></dt><dd><p>Expiry time of <cite>access_token</cite>. If provided, the user will be
-reauthenticated using the default authorization flow (if
-possible) when <cite>access_token</cite> expires.</p>
+<dt><strong>expiry</strong><span class="classifier"><cite>datetime.datetime</cite> or <cite>str</cite>, keyword-only, optional</span></dt><dd><p>Expiry timestamp for <cite>access_token</cite> in the ISO 8601 format
+<code class="code docutils literal notranslate"><span class="pre">%Y-%m-%dT%H:%M:%SZ</span></code>. If provided, the user will be
+reauthenticated when <cite>access_token</cite> expires if <cite>sp_dc</cite> was
+specified.</p>
 </dd>
 </dl>
 </dd>
@@ -283,7 +305,7 @@ possible) when <cite>access_token</cite> expires.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.spotify.LyricsAPISession.get_lyrics">
-<span class="sig-name descname"><span class="pre">get_lyrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/spotify.html#LyricsAPISession.get_lyrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.LyricsAPISession.get_lyrics" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_lyrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/spotify.html#LyricsAPISession.get_lyrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.LyricsAPISession.get_lyrics" title="Permalink to this definition">#</a></dt>
 <dd><p>Get lyrics for a Spotify track.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -681,23 +703,23 @@ possible) when <cite>access_token</cite> expires.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="minim.spotify.WebAPISession.html">
+          <a class="next-page" href="minim.spotify.Market.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">WebAPISession</div>
+                <div class="title">Market</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="minim.spotify.html">
+          <a class="prev-page" href="minim.spotify.Lyrics.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">spotify</div>
+                <div class="title">Lyrics</div>
                 
               </div>
             </a>

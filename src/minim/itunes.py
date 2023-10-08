@@ -1,6 +1,6 @@
 """
-:mod:`minim.itunes` -- iTunes Search API
-========================================
+iTunes Search API
+=================
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
 This module contains a complete Python implementation of the iTunes

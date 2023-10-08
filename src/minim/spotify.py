@@ -1,14 +1,16 @@
 """
-Spotify Web and Lyrics APIs
-===========================
+Spotify APIs
+============
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
-This module contains a complete Python implementation of the Spotify Web
-API and a minimal implementation of the Spotify Lyrics API.
+This module contains a complete implementation of the Spotify Web API 
+and a minimal implementation of the Spotify Lyrics API.
 
+Spotify Web API
+---------------
 The public Spotify Web API allows for the retrieval of information about
 artists, media (albums, tracks, etc.), and users (playlists, profiles, 
-etc.) and music playback control.
+etc.), and music playback control.
 
 .. important::
 
@@ -44,6 +46,8 @@ accompanying expiry time and refresh token) can be provided to the
    Spotify app <https://developer.spotify.com/documentation/general/
    guides/authorization/app-settings/>`_.
 
+Spotify Lyrics API
+------------------
 The private Spotify Lyrics API, which is powered by Musixmatch, provides
 line- or word-synced (if available) lyrics for Spotify tracks. As the
 Spotify Lyrics API is not public, there is no available documentation
@@ -75,13 +79,13 @@ import webbrowser
 try:
     from flask import Flask, request
     FOUND_FLASK = True
-except ModuleNotFoundError:
+except ModuleNotFoundError: # pragma: no cover
     FOUND_FLASK = False
 
 try:
     from playwright.sync_api import sync_playwright
     FOUND_PLAYWRIGHT = True
-except ModuleNotFoundError:
+except ModuleNotFoundError: # pragma: no cover
     FOUND_PLAYWRIGHT = False
 
 TEMP_DIR = tempfile.gettempdir()
@@ -157,15 +161,24 @@ class LyricsAPISession(_Session):
     Parameters
     ----------
     sp_dc : `str`, keyword-only, optional
-        Spotify Web Player :code:`sp_dc` cookie.
+        Spotify Web Player :code:`sp_dc` cookie. If neither `sp_dc` nor
+        `access_token` is specified, the :code:`sp_dc` cookie must be 
+        stored in the environment variable :code:`SPOTIFY_SP_DC`.
+
+        .. note::
+
+           Even if `access_token` is specified, it is recommended that
+           `sp_dc` be provided since it is used to request new access
+           tokens when the old ones expire.
 
     access_token : `str`, keyword-only, optional
-        Access token. If provided, the token exchange is bypassed.
+        Access token.
 
-    expiry : `datetime.datetime`, keyword-only, optional
-        Expiry time of `access_token`. If provided, the user will be
-        reauthenticated using the default authorization flow (if
-        possible) when `access_token` expires.
+    expiry : `datetime.datetime` or `str`, keyword-only, optional
+        Expiry timestamp for `access_token` in the ISO 8601 format 
+        :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be
+        reauthenticated when `access_token` expires if `sp_dc` was
+        specified.
 
     Attributes
     ----------
@@ -184,7 +197,7 @@ class LyricsAPISession(_Session):
 
     def __init__(
             self, *, sp_dc: str = None, access_token: str = None,
-            expiry: datetime.datetime = None) -> None:
+            expiry: Union[datetime.datetime, str] = None) -> None:
 
         """
         Create a Spotify Lyrics API session.
@@ -193,7 +206,7 @@ class LyricsAPISession(_Session):
         super().__init__()
         self.session.headers.update({"App-Platform": "WebPlayer"})
 
-        self.sp_dc = os.environ.get("SPOTIFY_SP_DC") if sp_dc is None else sp_dc
+        self.sp_dc = sp_dc or os.environ.get("SPOTIFY_SP_DC")
         if access_token is None:
             self._get_access_token()
         else:
@@ -894,7 +907,7 @@ class WebAPISession(_Session):
 
         try:
             self._me = self.get_current_user_profile()
-        except:
+        except RuntimeError:
             pass
 
     def __repr__(self):
@@ -1017,7 +1030,7 @@ class WebAPISession(_Session):
                     try:
                         page.wait_for_url(f"{self.REDIRECT_URI}*", 
                                           wait_until="networkidle")
-                    except:
+                    except RuntimeError:
                         pass
                     context.close()
                     browser.close()
@@ -2589,7 +2602,7 @@ class WebAPISession(_Session):
                           ],
                           "is_playable": False,
                           "languages": ["fr", "en"],
-                          "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                          "name": <str>,
                           "release_date": "1981-12-15",
                           "release_date_precision": "day",
                           "resume_point": {
@@ -2733,7 +2746,7 @@ class WebAPISession(_Session):
                           ],
                           "is_playable": False,
                           "languages": ["fr", "en"],
-                          "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                          "name": <str>,
                           "release_date": "1981-12-15",
                           "release_date_precision": "day",
                           "resume_point": {
@@ -2849,7 +2862,7 @@ class WebAPISession(_Session):
                         ],
                         "is_playable": False,
                         "languages": ["fr", "en"],
-                        "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                        "name": <str>,
                         "release_date": "1981-12-15",
                         "release_date_precision": "day",
                         "resume_point": {
@@ -3298,7 +3311,7 @@ class WebAPISession(_Session):
                     ],
                     "is_playable": False,
                     "languages": ["fr", "en"],
-                    "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                    "name": <str>,
                     "release_date": "1981-12-15",
                     "release_date_precision": "day",
                     "resume_point": {
@@ -3430,7 +3443,7 @@ class WebAPISession(_Session):
                       ],
                       "is_playable": False,
                       "languages": ["fr", "en"],
-                      "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                      "name": <str>,
                       "release_date": "1981-12-15",
                       "release_date_precision": "day",
                       "resume_point": {
@@ -3556,7 +3569,7 @@ class WebAPISession(_Session):
                     "is_playable": False,
                     "language": "en",
                     "languages": ["fr", "en"],
-                    "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                    "name": <str>,
                     "release_date": "1981-12-15",
                     "release_date_precision": "day",
                     "resume_point": {
@@ -3674,7 +3687,7 @@ class WebAPISession(_Session):
                         "is_playable": False,
                         "language": "en",
                         "languages": ["fr", "en"],
-                        "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                        "name": <str>,
                         "release_date": "1981-12-15",
                         "release_date_precision": "day",
                         "resume_point": {
@@ -3815,7 +3828,7 @@ class WebAPISession(_Session):
                           "is_playable": False,
                           "language": "en",
                           "languages": ["fr", "en"],
-                          "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                          "name": <str>,
                           "release_date": "1981-12-15",
                           "release_date_precision": "day",
                           "resume_point": {
@@ -7352,7 +7365,7 @@ class WebAPISession(_Session):
                           "is_playable": False,
                           "language": "en",
                           "languages": ["fr", "en"],
-                          "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                          "name": <str>,
                           "release_date": "1981-12-15",
                           "release_date_precision": "day",
                           "resume_point": {
@@ -7534,7 +7547,7 @@ class WebAPISession(_Session):
                           "is_playable": False,
                           "language": "en",
                           "languages": ["fr", "en"],
-                          "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                          "name": <str>,
                           "release_date": "1981-12-15",
                           "release_date_precision": "day",
                           "resume_point": {
@@ -7728,7 +7741,7 @@ class WebAPISession(_Session):
                         "is_playable": False,
                         "language": "en",
                         "languages": ["fr", "en"],
-                        "name": "Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators",
+                        "name": <str>,
                         "release_date": "1981-12-15",
                         "release_date_precision": "day",
                         "resume_point": {
@@ -8794,9 +8807,9 @@ class WebAPISession(_Session):
         return self._get_json(f"{self.API_URL}/audio-analysis/{id}")
 
     def get_recommendations(
-            self, seed_artists: Union[str, list[str]],
-            seed_genres: Union[str, list[str]],
-            seed_tracks: Union[str, list[str]], *, limit: int = None,
+            self, seed_artists: Union[str, list[str]] = None,
+            seed_genres: Union[str, list[str]] = None,
+            seed_tracks: Union[str, list[str]] = None, *, limit: int = None,
             market: str = None, **kwargs) -> list[dict[str, Any]]:
         
         """
@@ -8812,7 +8825,7 @@ class WebAPISession(_Session):
 
         Parameters
         ----------
-        seed_artists : `str`
+        seed_artists : `str`, optional
             A comma separated list of Spotify IDs for seed artists. 
             
             **Maximum**: Up to 5 seed values may be provided in any
@@ -8821,7 +8834,7 @@ class WebAPISession(_Session):
 
             **Example**: :code:`"4NHQUGzhtTLFvgF5SZesLK"`.
 
-        seed_genres : `str`
+        seed_genres : `str`, optional
             A comma separated list of any genres in the set of available
             genre seeds.
 
@@ -8831,7 +8844,7 @@ class WebAPISession(_Session):
 
             **Example**: :code:`"classical,country"`.
 
-        seed_tracks : `str`
+        seed_tracks : `str`, optional
             A comma separated list of Spotify IDs for a seed track. 
             
             **Maximum**: Up to 5 seed values may be provided in any
@@ -9531,3 +9544,42 @@ class WebAPISession(_Session):
             f"{self.API_URL}/playlists/{playlist_id}/followers/contains",
             params={"ids": ids if isinstance(ids, str) else ",".join(ids)}
         )
+    
+class Album:
+    pass
+
+class Artist:
+    pass
+
+class Audiobook:
+    pass
+
+class Category:
+    pass
+
+class Chapter:
+    pass
+
+class Episode:
+    pass
+
+class Lyrics:
+    pass
+
+class Market:
+    pass
+
+class Player:
+    pass
+
+class Playlist:
+    pass
+
+class Show:
+    pass
+
+class Track:
+    pass
+
+class User:
+    pass

@@ -190,7 +190,20 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Album.html">Album</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Artist.html">Artist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Audiobook.html">Audiobook</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Category.html">Category</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Chapter.html">Chapter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Episode.html">Episode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Lyrics.html">Lyrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.LyricsAPISession.html">LyricsAPISession</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Market.html">Market</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Player.html">Player</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Playlist.html">Playlist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Show.html">Show</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Track.html">Track</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.User.html">User</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.WebAPISession.html">WebAPISession</a></li>
 </ul>
 </li>
@@ -240,16 +253,18 @@
         <article role="main">
           <h1>Source code for minim.spotify</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Spotify Web and Lyrics APIs</span>
-<span class="sd">===========================</span>
+<span class="sd">Spotify APIs</span>
+<span class="sd">============</span>
 <span class="sd">.. moduleauthor:: Benjamin Ye &lt;GitHub: @bbye98&gt;</span>
 
-<span class="sd">This module contains a complete Python implementation of the Spotify Web</span>
-<span class="sd">API and a minimal implementation of the Spotify Lyrics API.</span>
+<span class="sd">This module contains a complete implementation of the Spotify Web API </span>
+<span class="sd">and a minimal implementation of the Spotify Lyrics API.</span>
 
+<span class="sd">Spotify Web API</span>
+<span class="sd">---------------</span>
 <span class="sd">The public Spotify Web API allows for the retrieval of information about</span>
 <span class="sd">artists, media (albums, tracks, etc.), and users (playlists, profiles, </span>
-<span class="sd">etc.) and music playback control.</span>
+<span class="sd">etc.), and music playback control.</span>
 
 <span class="sd">.. important::</span>
 
@@ -285,6 +300,8 @@
 <span class="sd">   Spotify app &lt;https://developer.spotify.com/documentation/general/</span>
 <span class="sd">   guides/authorization/app-settings/&gt;`_.</span>
 
+<span class="sd">Spotify Lyrics API</span>
+<span class="sd">------------------</span>
 <span class="sd">The private Spotify Lyrics API, which is powered by Musixmatch, provides</span>
 <span class="sd">line- or word-synced (if available) lyrics for Spotify tracks. As the</span>
 <span class="sd">Spotify Lyrics API is not public, there is no available documentation</span>
@@ -316,13 +333,13 @@
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span>
     <span class="n">FOUND_FLASK</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
     <span class="n">FOUND_FLASK</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">playwright.sync_api</span> <span class="kn">import</span> <span class="n">sync_playwright</span>
     <span class="n">FOUND_PLAYWRIGHT</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
     <span class="n">FOUND_PLAYWRIGHT</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="n">TEMP_DIR</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">()</span>
@@ -398,15 +415,24 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    sp_dc : `str`, keyword-only, optional</span>
-<span class="sd">        Spotify Web Player :code:`sp_dc` cookie.</span>
+<span class="sd">        Spotify Web Player :code:`sp_dc` cookie. If neither `sp_dc` nor</span>
+<span class="sd">        `access_token` is specified, the :code:`sp_dc` cookie must be </span>
+<span class="sd">        stored in the environment variable :code:`SPOTIFY_SP_DC`.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">           Even if `access_token` is specified, it is recommended that</span>
+<span class="sd">           `sp_dc` be provided since it is used to request new access</span>
+<span class="sd">           tokens when the old ones expire.</span>
 
 <span class="sd">    access_token : `str`, keyword-only, optional</span>
-<span class="sd">        Access token. If provided, the token exchange is bypassed.</span>
+<span class="sd">        Access token.</span>
 
-<span class="sd">    expiry : `datetime.datetime`, keyword-only, optional</span>
-<span class="sd">        Expiry time of `access_token`. If provided, the user will be</span>
-<span class="sd">        reauthenticated using the default authorization flow (if</span>
-<span class="sd">        possible) when `access_token` expires.</span>
+<span class="sd">    expiry : `datetime.datetime` or `str`, keyword-only, optional</span>
+<span class="sd">        Expiry timestamp for `access_token` in the ISO 8601 format </span>
+<span class="sd">        :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be</span>
+<span class="sd">        reauthenticated when `access_token` expires if `sp_dc` was</span>
+<span class="sd">        specified.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -425,7 +451,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">sp_dc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">expiry</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">expiry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a Spotify Lyrics API session.</span>
@@ -434,7 +460,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;App-Platform&quot;</span><span class="p">:</span> <span class="s2">&quot;WebPlayer&quot;</span><span class="p">})</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">sp_dc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SPOTIFY_SP_DC&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">sp_dc</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">sp_dc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sp_dc</span> <span class="o">=</span> <span class="n">sp_dc</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SPOTIFY_SP_DC&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_access_token</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1135,7 +1161,7 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_user_profile</span><span class="p">()</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
             <span class="k">pass</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1258,7 +1284,7 @@
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">page</span><span class="o">.</span><span class="n">wait_for_url</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">REDIRECT_URI</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">,</span> 
                                           <span class="n">wait_until</span><span class="o">=</span><span class="s2">&quot;networkidle&quot;</span><span class="p">)</span>
-                    <span class="k">except</span><span class="p">:</span>
+                    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
                         <span class="k">pass</span>
                     <span class="n">context</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                     <span class="n">browser</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -2830,7 +2856,7 @@
 <span class="sd">                          ],</span>
 <span class="sd">                          &quot;is_playable&quot;: False,</span>
 <span class="sd">                          &quot;languages&quot;: [&quot;fr&quot;, &quot;en&quot;],</span>
-<span class="sd">                          &quot;name&quot;: &quot;Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators&quot;,</span>
+<span class="sd">                          &quot;name&quot;: &lt;str&gt;,</span>
 <span class="sd">                          &quot;release_date&quot;: &quot;1981-12-15&quot;,</span>
 <span class="sd">                          &quot;release_date_precision&quot;: &quot;day&quot;,</span>
 <span class="sd">                          &quot;resume_point&quot;: {</span>
@@ -2974,7 +3000,7 @@
 <span class="sd">                          ],</span>
 <span class="sd">                          &quot;is_playable&quot;: False,</span>
 <span class="sd">                          &quot;languages&quot;: [&quot;fr&quot;, &quot;en&quot;],</span>
-<span class="sd">                          &quot;name&quot;: &quot;Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators&quot;,</span>
+<span class="sd">                          &quot;name&quot;: &lt;str&gt;,</span>
 <span class="sd">                          &quot;release_date&quot;: &quot;1981-12-15&quot;,</span>
 <span class="sd">                          &quot;release_date_precision&quot;: &quot;day&quot;,</span>
 <span class="sd">                          &quot;resume_point&quot;: {</span>
@@ -3090,7 +3116,7 @@
 <span class="sd">                        ],</span>
 <span class="sd">                        &quot;is_playable&quot;: False,</span>
 <span class="sd">                        &quot;languages&quot;: [&quot;fr&quot;, &quot;en&quot;],</span>
-<span class="sd">                        &quot;name&quot;: &quot;Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators&quot;,</span>
+<span class="sd">                        &quot;name&quot;: &lt;str&gt;,</span>
 <span class="sd">                        &quot;release_date&quot;: &quot;1981-12-15&quot;,</span>
 <span class="sd">                        &quot;release_date_precision&quot;: &quot;day&quot;,</span>
 <span class="sd">                        &quot;resume_point&quot;: {</span>
@@ -3539,7 +3565,7 @@
 <span class="sd">                    ],</span>
 <span class="sd">                    &quot;is_playable&quot;: False,</span>
 <span class="sd">                    &quot;languages&quot;: [&quot;fr&quot;, &quot;en&quot;],</span>
-<span class="sd">                    &quot;name&quot;: &quot;Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators&quot;,</span>
+<span class="sd">                    &quot;name&quot;: &lt;str&gt;,</span>
 <span class="sd">                    &quot;release_date&quot;: &quot;1981-12-15&quot;,</span>
 <span class="sd">                    &quot;release_date_precision&quot;: &quot;day&quot;,</span>
 <span class="sd">                    &quot;resume_point&quot;: {</span>
@@ -3671,7 +3697,7 @@
 <span class="sd">                      ],</span>
 <span class="sd">                      &quot;is_playable&quot;: False,</span>
 <span class="sd">                      &quot;languages&quot;: [&quot;fr&quot;, &quot;en&quot;],</span>
-<span class="sd">                      &quot;name&quot;: &quot;Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators&quot;,</span>
+<span class="sd">                      &quot;name&quot;: &lt;str&gt;,</span>
 <span class="sd">                      &quot;release_date&quot;: &quot;1981-12-15&quot;,</span>
 <span class="sd">                      &quot;release_date_precision&quot;: &quot;day&quot;,</span>
 <span class="sd">                      &quot;resume_point&quot;: {</span>
@@ -3797,7 +3823,7 @@
 <span class="sd">                    &quot;is_playable&quot;: False,</span>
 <span class="sd">                    &quot;language&quot;: &quot;en&quot;,</span>
 <span class="sd">                    &quot;languages&quot;: [&quot;fr&quot;, &quot;en&quot;],</span>
-<span class="sd">                    &quot;name&quot;: &quot;Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators&quot;,</span>
+<span class="sd">                    &quot;name&quot;: &lt;str&gt;,</span>
 <span class="sd">                    &quot;release_date&quot;: &quot;1981-12-15&quot;,</span>
 <span class="sd">                    &quot;release_date_precision&quot;: &quot;day&quot;,</span>
 <span class="sd">                    &quot;resume_point&quot;: {</span>
@@ -3915,7 +3941,7 @@
 <span class="sd">                        &quot;is_playable&quot;: False,</span>
 <span class="sd">                        &quot;language&quot;: &quot;en&quot;,</span>
 <span class="sd">                        &quot;languages&quot;: [&quot;fr&quot;, &quot;en&quot;],</span>
-<span class="sd">                        &quot;name&quot;: &quot;Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators&quot;,</span>
+<span class="sd">                        &quot;name&quot;: &lt;str&gt;,</span>
 <span class="sd">                        &quot;release_date&quot;: &quot;1981-12-15&quot;,</span>
 <span class="sd">                        &quot;release_date_precision&quot;: &quot;day&quot;,</span>
 <span class="sd">                        &quot;resume_point&quot;: {</span>
@@ -4056,7 +4082,7 @@
 <span class="sd">                          &quot;is_playable&quot;: False,</span>
 <span class="sd">                          &quot;language&quot;: &quot;en&quot;,</span>
 <span class="sd">                          &quot;languages&quot;: [&quot;fr&quot;, &quot;en&quot;],</span>
-<span class="sd">                          &quot;name&quot;: &quot;Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators&quot;,</span>
+<span class="sd">                          &quot;name&quot;: &lt;str&gt;,</span>
 <span class="sd">                          &quot;release_date&quot;: &quot;1981-12-15&quot;,</span>
 <span class="sd">                          &quot;release_date_precision&quot;: &quot;day&quot;,</span>
 <span class="sd">                          &quot;resume_point&quot;: {</span>
@@ -7593,7 +7619,7 @@
 <span class="sd">                          &quot;is_playable&quot;: False,</span>
 <span class="sd">                          &quot;language&quot;: &quot;en&quot;,</span>
 <span class="sd">                          &quot;languages&quot;: [&quot;fr&quot;, &quot;en&quot;],</span>
-<span class="sd">                          &quot;name&quot;: &quot;Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators&quot;,</span>
+<span class="sd">                          &quot;name&quot;: &lt;str&gt;,</span>
 <span class="sd">                          &quot;release_date&quot;: &quot;1981-12-15&quot;,</span>
 <span class="sd">                          &quot;release_date_precision&quot;: &quot;day&quot;,</span>
 <span class="sd">                          &quot;resume_point&quot;: {</span>
@@ -7775,7 +7801,7 @@
 <span class="sd">                          &quot;is_playable&quot;: False,</span>
 <span class="sd">                          &quot;language&quot;: &quot;en&quot;,</span>
 <span class="sd">                          &quot;languages&quot;: [&quot;fr&quot;, &quot;en&quot;],</span>
-<span class="sd">                          &quot;name&quot;: &quot;Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators&quot;,</span>
+<span class="sd">                          &quot;name&quot;: &lt;str&gt;,</span>
 <span class="sd">                          &quot;release_date&quot;: &quot;1981-12-15&quot;,</span>
 <span class="sd">                          &quot;release_date_precision&quot;: &quot;day&quot;,</span>
 <span class="sd">                          &quot;resume_point&quot;: {</span>
@@ -7969,7 +7995,7 @@
 <span class="sd">                        &quot;is_playable&quot;: False,</span>
 <span class="sd">                        &quot;language&quot;: &quot;en&quot;,</span>
 <span class="sd">                        &quot;languages&quot;: [&quot;fr&quot;, &quot;en&quot;],</span>
-<span class="sd">                        &quot;name&quot;: &quot;Starting Your Own Podcast: Tips, Tricks, and Advice From Anchor Creators&quot;,</span>
+<span class="sd">                        &quot;name&quot;: &lt;str&gt;,</span>
 <span class="sd">                        &quot;release_date&quot;: &quot;1981-12-15&quot;,</span>
 <span class="sd">                        &quot;release_date_precision&quot;: &quot;day&quot;,</span>
 <span class="sd">                        &quot;resume_point&quot;: {</span>
@@ -9035,9 +9061,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/audio-analysis/</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WebAPISession.get_recommendations"><a class="viewcode-back" href="../../api/minim.spotify.WebAPISession.html#minim.spotify.WebAPISession.get_recommendations">[docs]</a>    <span class="k">def</span> <span class="nf">get_recommendations</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">seed_artists</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
-            <span class="n">seed_genres</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
-            <span class="n">seed_tracks</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">seed_artists</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">seed_genres</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">seed_tracks</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">market</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">        </span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -9053,7 +9079,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        seed_artists : `str`</span>
+<span class="sd">        seed_artists : `str`, optional</span>
 <span class="sd">            A comma separated list of Spotify IDs for seed artists. </span>
 <span class="sd">            </span>
 <span class="sd">            **Maximum**: Up to 5 seed values may be provided in any</span>
@@ -9062,7 +9088,7 @@
 
 <span class="sd">            **Example**: :code:`&quot;4NHQUGzhtTLFvgF5SZesLK&quot;`.</span>
 
-<span class="sd">        seed_genres : `str`</span>
+<span class="sd">        seed_genres : `str`, optional</span>
 <span class="sd">            A comma separated list of any genres in the set of available</span>
 <span class="sd">            genre seeds.</span>
 
@@ -9072,7 +9098,7 @@
 
 <span class="sd">            **Example**: :code:`&quot;classical,country&quot;`.</span>
 
-<span class="sd">        seed_tracks : `str`</span>
+<span class="sd">        seed_tracks : `str`, optional</span>
 <span class="sd">            A comma separated list of Spotify IDs for a seed track. </span>
 <span class="sd">            </span>
 <span class="sd">            **Maximum**: Up to 5 seed values may be provided in any</span>
@@ -9772,6 +9798,45 @@
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/playlists/</span><span class="si">{</span><span class="n">playlist_id</span><span class="si">}</span><span class="s2">/followers/contains&quot;</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="n">ids</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ids</span><span class="p">)}</span>
         <span class="p">)</span></div></div>
+    
+<div class="viewcode-block" id="Album"><a class="viewcode-back" href="../../api/minim.spotify.Album.html#minim.spotify.Album">[docs]</a><span class="k">class</span> <span class="nc">Album</span><span class="p">:</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Artist"><a class="viewcode-back" href="../../api/minim.spotify.Artist.html#minim.spotify.Artist">[docs]</a><span class="k">class</span> <span class="nc">Artist</span><span class="p">:</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Audiobook"><a class="viewcode-back" href="../../api/minim.spotify.Audiobook.html#minim.spotify.Audiobook">[docs]</a><span class="k">class</span> <span class="nc">Audiobook</span><span class="p">:</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Category"><a class="viewcode-back" href="../../api/minim.spotify.Category.html#minim.spotify.Category">[docs]</a><span class="k">class</span> <span class="nc">Category</span><span class="p">:</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Chapter"><a class="viewcode-back" href="../../api/minim.spotify.Chapter.html#minim.spotify.Chapter">[docs]</a><span class="k">class</span> <span class="nc">Chapter</span><span class="p">:</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Episode"><a class="viewcode-back" href="../../api/minim.spotify.Episode.html#minim.spotify.Episode">[docs]</a><span class="k">class</span> <span class="nc">Episode</span><span class="p">:</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Lyrics"><a class="viewcode-back" href="../../api/minim.spotify.Lyrics.html#minim.spotify.Lyrics">[docs]</a><span class="k">class</span> <span class="nc">Lyrics</span><span class="p">:</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Market"><a class="viewcode-back" href="../../api/minim.spotify.Market.html#minim.spotify.Market">[docs]</a><span class="k">class</span> <span class="nc">Market</span><span class="p">:</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Player"><a class="viewcode-back" href="../../api/minim.spotify.Player.html#minim.spotify.Player">[docs]</a><span class="k">class</span> <span class="nc">Player</span><span class="p">:</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Playlist"><a class="viewcode-back" href="../../api/minim.spotify.Playlist.html#minim.spotify.Playlist">[docs]</a><span class="k">class</span> <span class="nc">Playlist</span><span class="p">:</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Show"><a class="viewcode-back" href="../../api/minim.spotify.Show.html#minim.spotify.Show">[docs]</a><span class="k">class</span> <span class="nc">Show</span><span class="p">:</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Track"><a class="viewcode-back" href="../../api/minim.spotify.Track.html#minim.spotify.Track">[docs]</a><span class="k">class</span> <span class="nc">Track</span><span class="p">:</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="User"><a class="viewcode-back" href="../../api/minim.spotify.User.html#minim.spotify.User">[docs]</a><span class="k">class</span> <span class="nc">User</span><span class="p">:</span>
+    <span class="k">pass</span></div>
 </pre></div>
         </article>
       </div>

@@ -1,6 +1,6 @@
 """
-:mod:`minim.tidal` -- TIDAL API
-===============================
+TIDAL API
+=========
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
 This module contains a minimal Python implementation of the TIDAL API,
@@ -82,8 +82,8 @@ class Session:
 
            **Valid values**:
            
-           * :code:`authorization_code` for the authorization code flow.
-           * :code:`device_code` for the device_code flow.
+           * :code:`"authorization_code"` for the authorization code flow.
+           * :code:`"device_code"` for the device code flow.
     
     scopes : `str` or `list`, keyword-only, optional
         Authorization scopes to request user access for in the

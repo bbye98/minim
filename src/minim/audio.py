@@ -1,6 +1,6 @@
 """
-:mod:`minim.audio` -- Audio file objects
-========================================
+Audio file objects
+==================
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
 This module provides convenient Python objects to keep track of audio

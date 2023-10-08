@@ -1,6 +1,0 @@
-minim.spotify.TEMP\_DIR
-=======================
-
-.. currentmodule:: minim.spotify
-
-.. autodata:: TEMP_DIR

@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -189,7 +190,20 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Album.html">Album</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Artist.html">Artist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Audiobook.html">Audiobook</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Category.html">Category</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Chapter.html">Chapter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Episode.html">Episode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Lyrics.html">Lyrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.LyricsAPISession.html">LyricsAPISession</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Market.html">Market</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Player.html">Player</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Playlist.html">Playlist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Show.html">Show</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Track.html">Track</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.User.html">User</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.WebAPISession.html">WebAPISession</a></li>
 </ul>
 </li>
@@ -239,8 +253,8 @@
         <article role="main">
           <h1>Source code for minim.tidal</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">:mod:`minim.tidal` -- TIDAL API</span>
-<span class="sd">===============================</span>
+<span class="sd">TIDAL API</span>
+<span class="sd">=========</span>
 <span class="sd">.. moduleauthor:: Benjamin Ye &lt;GitHub: @bbye98&gt;</span>
 
 <span class="sd">This module contains a minimal Python implementation of the TIDAL API,</span>
@@ -322,8 +336,8 @@
 
 <span class="sd">           **Valid values**:</span>
 <span class="sd">           </span>
-<span class="sd">           * :code:`authorization_code` for the authorization code flow.</span>
-<span class="sd">           * :code:`device_code` for the device_code flow.</span>
+<span class="sd">           * :code:`&quot;authorization_code&quot;` for the authorization code flow.</span>
+<span class="sd">           * :code:`&quot;device_code&quot;` for the device code flow.</span>
 <span class="sd">    </span>
 <span class="sd">    scopes : `str` or `list`, keyword-only, optional</span>
 <span class="sd">        Authorization scopes to request user access for in the</span>
@@ -4249,5 +4263,10 @@
     <script src="../../_static/scripts/furo.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
+    <script>let toggleHintShow = '';</script>
+    <script>let toggleHintHide = '';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     </body>
 </html>

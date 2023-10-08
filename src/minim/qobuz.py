@@ -1,6 +1,6 @@
 """
-:mod:`minim.qobuz` -- Qobuz API
-===============================
+Qobuz API
+=========
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
 This module contains a minimal Python implementation of the Qobuz API,
@@ -51,12 +51,20 @@ class Session:
         in the operating system's environment variables, it can be 
         provided here.
 
+    app_id : `str`, keyword-only, optional
+        Qobuz app ID. If not provided, it will be retrieved 
+        automatically.
+    
+    app_secret : `str`, keyword-only, optional
+        Qobuz app secret. If not provided, it will be retrieved 
+        automatically.
+
     auth_token : `str`, keyword-only, optional
         User authentication token. If it is not stored as 
         :code:`QOBUZ_USER_AUTH_TOKEN` in the operating system's 
         environment variables, it can be provided here.
 
-    authenticate : `bool`, keyword-only, default: :code:`False`
+    authenticate : `bool`, keyword-only, default: :code:`True`
         Determines whether user authentication is attempted.
 
     user_agent : `str`, keyword-only, optional
@@ -76,15 +84,19 @@ class Session:
 
     def __init__(
             self, *, email: str = None, password: str = None, 
-            auth_token: str = None, authenticate: bool = True,
-            user_agent: str = None):
+            app_id: str = None, app_secret: str = None, auth_token: str = None,
+            authenticate: bool = True, user_agent: str = None):
         
         self.session = requests.Session()
         if user_agent:
             self.session.headers.update({"User-Agent": user_agent})
 
-        self._get_app_id_and_secret()
-        self.login(email, password, auth_token=auth_token, 
+        if app_secret is None:
+            self._get_app_id_and_secret()
+        else:
+            self.session.headers.update({"X-App-Id": app_id})
+            self._app_secret = app_secret
+        self.login(email, password, auth_token=auth_token,
                    authenticate=authenticate)
 
     def __repr__(self) -> None:
@@ -105,7 +117,7 @@ class Session:
             return (f"Qobuz API: {self._me['display_name']} "
                     f"[ID: {self._me['id']}, email: {self._me['email']}, "
                     f"subscription: {self._me['credential']['description']}]")
-        return f"Qobuz API: not logged in"
+        return "Qobuz API: not logged in"
     
     def _get_app_id_and_secret(self) -> None:
 
@@ -113,7 +125,7 @@ class Session:
         Get the Qobuz app ID and secret.
         """
 
-        js = re.search('/resources/.*/bundle.js', 
+        js = re.search("/resources/.*/bundle.js", 
                        self.session.get(f"{self.WEB_URL}/login").text).group(0)
         bundle = self.session.get(f"{self.WEB_URL}{js}").text
 
@@ -209,7 +221,7 @@ class Session:
             :code:`QOBUZ_USER_AUTH_TOKEN` in the operating system's 
             environment variables, it can be provided here.
 
-        authenticate : `bool`, keyword-only, default: :code:`False`
+        authenticate : `bool`, keyword-only, default: :code:`True`
             Determines whether user authentication is attempted.
         """
 
@@ -218,6 +230,8 @@ class Session:
             auth_token = os.environ.get("QOBUZ_USER_AUTH_TOKEN")
             email = os.environ.get("QOBUZ_EMAIL")
             password = os.environ.get("QOBUZ_PASSWORD")
+            if auth_token is None and (email is None or password is None):
+                authenticate = False
 
         if not authenticate:
             self._me = None
@@ -250,7 +264,7 @@ class Session:
         Returns
         -------
         album : `dict`
-            Qobuz catalog information for the album in JSON format.
+            Qobuz catalog information for the album.
         """
 
         return self._get_json(f"{self.API_URL}/album/get",
@@ -290,7 +304,7 @@ class Session:
         Returns
         -------
         albums : `dict`
-            Qobuz catalog information for the albums in JSON format.
+            Qobuz catalog information for the albums.
         """
 
         ALBUM_FEATURE_TYPES = {
@@ -347,7 +361,7 @@ class Session:
         Returns
         -------
         artist : `dict`
-            Qobuz catalog information for the artist in JSON format.
+            Qobuz catalog information for the artist.
         """
 
         return self._get_json(
@@ -393,7 +407,7 @@ class Session:
         Returns
         -------
         label : `dict`
-            Qobuz catalog information for the record label in JSON format.
+            Qobuz catalog information for the record label.
         """
 
         return self._get_json(
@@ -438,7 +452,7 @@ class Session:
         Returns
         -------
         playlist : `dict`
-            Qobuz catalog information for the playlist in JSON format.
+            Qobuz catalog information for the playlist.
         """
 
         return self._get_json(
@@ -478,7 +492,7 @@ class Session:
         Returns
         -------
         playlists : `dict`
-            Qobuz catalog information for the playlists in JSON format.
+            Qobuz catalog information for the playlists.
         """
 
         PLAYLIST_FEATURE_TYPES = {"editor-picks", "last-created"}
@@ -833,7 +847,7 @@ class Session:
         Returns
         -------
         track : `dict`
-            Qobuz catalog information for the track in JSON format.
+            Qobuz catalog information for the track.
         """
 
         return self._get_json(f"{self.API_URL}/track/get",
@@ -1049,13 +1063,12 @@ class Session:
             Search query.
 
         type : `str`, keyword-only, optional
-            Specific media type to search for.
+            Category to search in. If specified, only matching releases 
+            and tracks will be returned.
 
-            **Valid values**: :code:`"artist"` (:code:`"MainArtist"`), 
-            :code:`"composer"` (:code:`"Composer"`), 
-            :code:`"performer"` (:code:`"Performer"`), 
-            :code:`"track"` (:code:`"ReleaseName"`), and 
-            :code:`"label"` (:code:`"Label"`).
+            **Valid values**: :code:`"MainArtist"`, :code:`"Composer"`, 
+            :code:`"Performer"`, :code:`"ReleaseName"`, and 
+            :code:`"Label"`.
 
         hi_res : `bool`, keyword-only, :code:`False`
             High-resolution audio only.
@@ -1076,16 +1089,11 @@ class Session:
         Returns
         -------
         results : `dict`
-            The search results in JSON format.
+            The search results.
         """
-        
-        TYPES_FILTERS = {"artist": "MainArtist", "composer": "Composer",
-                         "performer": "Performer", "track": "ReleaseName",
-                         "label": "Label"}
-        
-        if type in TYPES_FILTERS.keys():
-            type = TYPES_FILTERS[type]
-        elif type and type not in TYPES_FILTERS.values():
+
+        if type and type not in {"MainArtist", "Composer", "Performer", 
+                                 "ReleaseName", "Label"}:
             raise ValueError("Invalid search type.")
 
         if strict:
@@ -1093,9 +1101,9 @@ class Session:
         if type:
             query += f" #By{type}"
         if hi_res:
-            query += f" #HiRes"
+            query += " #HiRes"
         if new_release:
-            query += f" #NewRelease"
+            query += " #NewRelease"
 
         return self._get_json(f"{self.API_URL}/catalog/search",
                               params={"query": query, "limit": limit, 
@@ -1628,7 +1636,7 @@ class Album:
         Qobuz album ID.
 
     json : `dict`, keyword-only, optional
-        Qobuz catalog information for the album in JSON format 
+        Qobuz catalog information for the album 
         retrieved using :meth:`Session.get_album`.
 
     session : `minim.qobuz.Session`, keyword-only, optional
@@ -1792,7 +1800,7 @@ class Album:
         Parameters
         ----------
         json : `dict`, keyword-only, optional
-            Qobuz catalog information for the album in JSON format 
+            Qobuz catalog information for the album 
             retrieved using :meth:`Session.get_album`.
         """
 
@@ -2032,7 +2040,7 @@ class Artist:
         **Default**: :code:`0`.
 
     json : `dict`, keyword-only, optional
-        Qobuz catalog information for the artist in JSON format 
+        Qobuz catalog information for the artist 
         retrieved using :meth:`Session.get_artist`.
 
     session : `minim.qobuz.Session`, keyword-only, optional
@@ -2129,7 +2137,7 @@ class Artist:
         Parameters
         ----------
         json : `dict`, keyword-only, optional
-            Qobuz catalog information for the artist in JSON format 
+            Qobuz catalog information for the artist 
             retrieved using :meth:`Session.get_artist`.
         """
 
@@ -2349,7 +2357,7 @@ class Label:
         **Default**: :code:`0`.
 
     json : `dict`, keyword-only, optional
-        Qobuz catalog information for the label in JSON format 
+        Qobuz catalog information for the label 
         retrieved using :meth:`Session.get_label`.
 
     session : `minim.qobuz.Session`, keyword-only, optional
@@ -2413,7 +2421,7 @@ class Label:
         Parameters
         ----------
         json : `dict`, keyword-only, optional
-            Qobuz catalog information for the label in JSON format 
+            Qobuz catalog information for the label 
             retrieved using :meth:`Session.get_label`.
         """
 
@@ -2477,7 +2485,7 @@ class Track:
         Qobuz track ID.
 
     json : `dict`, keyword-only, optional
-        Qobuz catalog information for the track in JSON format 
+        Qobuz catalog information for the track 
         retrieved using :meth:`Session.get_track`.
 
     session : `minim.qobuz.Session`, keyword-only, optional
@@ -2609,7 +2617,7 @@ class Track:
         Parameters
         ----------
         json : `dict`, keyword-only, optional
-            Qobuz catalog information for the track in JSON format 
+            Qobuz catalog information for the track 
             retrieved using :meth:`Session.get_track`.
         """
 
@@ -2792,7 +2800,7 @@ class Playlist:
         pass to :meth:`Session.create_playlist`.
 
     json : `dict`, keyword-only, optional
-        Qobuz catalog information for the playlist in JSON format 
+        Qobuz catalog information for the playlist 
         retrieved using :meth:`Session.get_track`.
 
     session : `minim.qobuz.Session`, keyword-only, optional
@@ -2929,8 +2937,8 @@ class Playlist:
         Parameters
         ----------
         json : `dict`, keyword-only, optional
-            Qobuz catalog information for the playlist in JSON format 
-            retrieved using :meth:`Session.get_track`.
+            Qobuz catalog information for the playlist 
+            retrieved using :meth:`Session.get_playlist`.
         """
 
         if self._json is not json:
@@ -3400,7 +3408,7 @@ class User:
             return (f"Qobuz user: {self.display_name} [ID: {self.id}, "
                     f"email: {self.email}, "
                     f"subscription: {self.subscription['description']}]")
-        return f"Qobuz user: not logged in"
+        return "Qobuz user: not logged in"
     
     def _set(self, json: dict[str, Any]) -> None:
 
@@ -3410,8 +3418,8 @@ class User:
         Parameters
         ----------
         json : `dict`, keyword-only, optional
-            Qobuz catalog information for the playlist in JSON format 
-            retrieved using :meth:`Session.get_track`.
+            Qobuz catalog information for the user
+            retrieved using :meth:`Session.get_me`.
         """
 
         if json:
@@ -3563,7 +3571,7 @@ class User:
         Returns
         -------
         artist : `dict`
-            Qobuz catalog information for the artist in JSON format.
+            Qobuz catalog information for the artist.
         """
 
         return Artist(
@@ -3690,7 +3698,7 @@ class User:
         Returns
         -------
         playlists : `dict`
-            Qobuz catalog information for the playlists in JSON format.
+            Qobuz catalog information for the playlists.
         """
 
         return [Playlist(p["id"], json=p, session=self._session) 
@@ -4161,13 +4169,12 @@ class User:
             Search query.
 
         type : `str`, keyword-only, optional
-            Specific media type to search for.
+            Category to search in. If specified, only matching releases 
+            and tracks will be returned.
 
-            **Valid values**: :code:`"artist"` (:code:`"MainArtist"`), 
-            :code:`"composer"` (:code:`"Composer"`), 
-            :code:`"performer"` (:code:`"Performer"`), 
-            :code:`"track"` (:code:`"ReleaseName"`), and 
-            :code:`"label"` (:code:`"Label"`).
+            **Valid values**: :code:`"MainArtist"`, :code:`"Composer"`, 
+            :code:`"Performer"`, :code:`"ReleaseName"`, and 
+            :code:`"Label"`.
 
         hi_res : `bool`, keyword-only, :code:`False`
             High-resolution audio only.
