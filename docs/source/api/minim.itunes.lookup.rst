@@ -1,5 +1,5 @@
-minim.itunes.lookup
-===================
+lookup
+======
 
 .. currentmodule:: minim.itunes
 

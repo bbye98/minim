@@ -175,8 +175,8 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.itunes.html">itunes</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of itunes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.lookup.html">minim.itunes.lookup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.search.html">minim.itunes.search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.lookup.html">lookup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.search.html">search</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.qobuz.html">qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of qobuz</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -196,6 +196,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Category.html">Category</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Chapter.html">Chapter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Episode.html">Episode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Lyrics.html">Lyrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.LyricsAPISession.html">LyricsAPISession</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Market.html">Market</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Player.html">Player</a></li>
@@ -211,8 +212,8 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratio.html">minim.utility.levenshtein_ratio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.multivalue_formatter.html">minim.utility.multivalue_formatter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratio.html">levenshtein_ratio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.multivalue_formatter.html">multivalue_formatter</a></li>
 </ul>
 </li>
 </ul>
@@ -535,13 +536,15 @@
 <span class="sd">        type : `str`, default: :code:`&quot;new-releases&quot;`</span>
 <span class="sd">            Feature type.</span>
 
-<span class="sd">            **Valid values**: :code:`&quot;album-of-the-week&quot;`, </span>
-<span class="sd">            :code:`&quot;best-sellers&quot;`, :code:`&quot;editor-picks&quot;`,</span>
-<span class="sd">            :code:`&quot;ideal-discography&quot;`, :code:`&quot;most-featured&quot;`, </span>
-<span class="sd">            :code:`&quot;most-streamed&quot;`, :code:`&quot;new-releases&quot;`, </span>
-<span class="sd">            :code:`&quot;new-releases-full&quot;`, :code:`&quot;press-awards&quot;`,</span>
-<span class="sd">            :code:`&quot;re-release-of-the-week&quot;`, :code:`&quot;recent-releases&quot;`,</span>
-<span class="sd">            and :code:`&quot;qobuzissims&quot;`.</span>
+<span class="sd">            **Valid values**: :code:`&quot;best-sellers&quot;`, </span>
+<span class="sd">            :code:`&quot;editor-picks&quot;`, :code:`&quot;ideal-discography&quot;`,</span>
+<span class="sd">            :code:`&quot;most-featured&quot;`, :code:`&quot;most-streamed&quot;`, </span>
+<span class="sd">            :code:`&quot;new-releases&quot;`, :code:`&quot;new-releases-full&quot;`,</span>
+<span class="sd">            :code:`&quot;press-awards&quot;`, :code:`&quot;recent-releases&quot;`, </span>
+<span class="sd">            :code:`&quot;qobuzissims&quot;`, :code:`&quot;harmonia-mundi&quot;`,</span>
+<span class="sd">            :code:`&quot;universal-classic&quot;`, :code:`&quot;universal-jazz&quot;`,</span>
+<span class="sd">            :code:`&quot;universal-jeunesse&quot;`, and </span>
+<span class="sd">            :code:`&quot;universal-chanson&quot;`.</span>
 
 <span class="sd">        limit : `int`, keyword-only, optional</span>
 <span class="sd">            The maximum number of albums to return.</span>
@@ -561,10 +564,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">ALBUM_FEATURE_TYPES</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;album-of-the-week&quot;</span><span class="p">,</span> <span class="s2">&quot;best-sellers&quot;</span><span class="p">,</span> <span class="s2">&quot;editor-picks&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ideal-discography&quot;</span><span class="p">,</span> <span class="s2">&quot;most-featured&quot;</span><span class="p">,</span> <span class="s2">&quot;most-streamed&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;new-releases&quot;</span><span class="p">,</span> <span class="s2">&quot;new-releases-full&quot;</span><span class="p">,</span> <span class="s2">&quot;press-awards&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;re-release-of-the-week&quot;</span><span class="p">,</span> <span class="s2">&quot;recent-releases&quot;</span><span class="p">,</span> <span class="s2">&quot;qobuzissims&quot;</span>
+            <span class="s2">&quot;best-sellers&quot;</span><span class="p">,</span> <span class="s2">&quot;editor-picks&quot;</span><span class="p">,</span> <span class="s2">&quot;ideal-discography&quot;</span><span class="p">,</span> 
+            <span class="s2">&quot;most-featured&quot;</span><span class="p">,</span> <span class="s2">&quot;most-streamed&quot;</span><span class="p">,</span> <span class="s2">&quot;new-releases&quot;</span><span class="p">,</span> 
+            <span class="s2">&quot;new-releases-full&quot;</span><span class="p">,</span> <span class="s2">&quot;press-awards&quot;</span><span class="p">,</span> <span class="s2">&quot;recent-releases&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qobuzissims&quot;</span><span class="p">,</span> <span class="s2">&quot;harmonia-mundi&quot;</span><span class="p">,</span> <span class="s2">&quot;universal-classic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;universal-jazz&quot;</span><span class="p">,</span> <span class="s2">&quot;universal-jeunesse&quot;</span><span class="p">,</span> <span class="s2">&quot;universal-chanson&quot;</span>
         <span class="p">}</span>
 
         <span class="k">if</span> <span class="nb">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALBUM_FEATURE_TYPES</span><span class="p">:</span>
@@ -1318,6 +1322,10 @@
 <span class="sd">        type : `str`, keyword-only, optional</span>
 <span class="sd">            Category to search in. If specified, only matching releases </span>
 <span class="sd">            and tracks will be returned.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">               `type` is case-sensitive; all values must be in Pascal</span>
+<span class="sd">               case.</span>
 
 <span class="sd">            **Valid values**: :code:`&quot;MainArtist&quot;`, :code:`&quot;Composer&quot;`, </span>
 <span class="sd">            :code:`&quot;Performer&quot;`, :code:`&quot;ReleaseName&quot;`, and </span>
@@ -3756,13 +3764,15 @@
 <span class="sd">        type : `str`, default: :code:`&quot;new-releases&quot;`</span>
 <span class="sd">            Feature type.</span>
 
-<span class="sd">            **Valid values**: :code:`&quot;album-of-the-week&quot;`, </span>
-<span class="sd">            :code:`&quot;best-sellers&quot;`, :code:`&quot;editor-picks&quot;`,</span>
-<span class="sd">            :code:`&quot;ideal-discography&quot;`, :code:`&quot;most-featured&quot;`, </span>
-<span class="sd">            :code:`&quot;most-streamed&quot;`, :code:`&quot;new-releases&quot;`, </span>
-<span class="sd">            :code:`&quot;new-releases-full&quot;`, :code:`&quot;press-awards&quot;`,</span>
-<span class="sd">            :code:`&quot;re-release-of-the-week&quot;`, :code:`&quot;recent-releases&quot;`,</span>
-<span class="sd">            and :code:`&quot;qobuzissims&quot;`.</span>
+<span class="sd">            **Valid values**: :code:`&quot;best-sellers&quot;`, </span>
+<span class="sd">            :code:`&quot;editor-picks&quot;`, :code:`&quot;ideal-discography&quot;`,</span>
+<span class="sd">            :code:`&quot;most-featured&quot;`, :code:`&quot;most-streamed&quot;`, </span>
+<span class="sd">            :code:`&quot;new-releases&quot;`, :code:`&quot;new-releases-full&quot;`,</span>
+<span class="sd">            :code:`&quot;press-awards&quot;`, :code:`&quot;recent-releases&quot;`, </span>
+<span class="sd">            :code:`&quot;qobuzissims&quot;`, :code:`&quot;harmonia-mundi&quot;`,</span>
+<span class="sd">            :code:`&quot;universal-classic&quot;`, :code:`&quot;universal-jazz&quot;`,</span>
+<span class="sd">            :code:`&quot;universal-jeunesse&quot;`, and </span>
+<span class="sd">            :code:`&quot;universal-chanson&quot;`.</span>
 
 <span class="sd">        limit : `int`, keyword-only, optional</span>
 <span class="sd">            The maximum number of albums to return.</span>
@@ -4424,6 +4434,10 @@
 <span class="sd">        type : `str`, keyword-only, optional</span>
 <span class="sd">            Category to search in. If specified, only matching releases </span>
 <span class="sd">            and tracks will be returned.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">               `type` is case-sensitive; all values must be in Pascal</span>
+<span class="sd">               case.</span>
 
 <span class="sd">            **Valid values**: :code:`&quot;MainArtist&quot;`, :code:`&quot;Composer&quot;`, </span>
 <span class="sd">            :code:`&quot;Performer&quot;`, :code:`&quot;ReleaseName&quot;`, and </span>

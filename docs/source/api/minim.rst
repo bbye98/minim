@@ -23,7 +23,7 @@
 
 .. autosummary::
    :toctree:
-   :template: module.rst
+   :template: autosummary/module.rst
    :recursive:
 
    minim.audio

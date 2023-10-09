@@ -1,4 +1,4 @@
-﻿spotify
+spotify
 =======
 
 .. automodule:: minim.spotify
@@ -17,7 +17,7 @@
 
    .. autosummary::
       :toctree:
-      :template: class.rst
+      :template: autosummary/class.rst
       :nosignatures:
    
       Album

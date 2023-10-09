@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="minim.utility.multivalue_formatter" href="minim.utility.multivalue_formatter.html" /><link rel="prev" title="utility" href="minim.utility.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="multivalue_formatter" href="minim.utility.multivalue_formatter.html" /><link rel="prev" title="utility" href="minim.utility.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 5.3.0 and Furo 2023.05.20 -->
-        <title>minim.utility.levenshtein_ratio - minim documentation</title>
+        <title>levenshtein_ratio - minim documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -176,8 +176,8 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.itunes.html">itunes</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of itunes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.itunes.lookup.html">minim.itunes.lookup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.itunes.search.html">minim.itunes.search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.itunes.lookup.html">lookup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.itunes.search.html">search</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.qobuz.html">qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of qobuz</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -213,8 +213,8 @@
 </ul>
 </li>
 <li class="toctree-l2 current has-children"><a class="reference internal" href="minim.utility.html">utility</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">minim.utility.levenshtein_ratio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.utility.multivalue_formatter.html">minim.utility.multivalue_formatter</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">levenshtein_ratio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.utility.multivalue_formatter.html">multivalue_formatter</a></li>
 </ul>
 </li>
 </ul>
@@ -253,8 +253,8 @@
           </label>
         </div>
         <article role="main">
-          <section id="minim-utility-levenshtein-ratio">
-<h1>minim.utility.levenshtein_ratio<a class="headerlink" href="#minim-utility-levenshtein-ratio" title="Permalink to this heading">#</a></h1>
+          <section id="levenshtein-ratio">
+<h1>levenshtein_ratio<a class="headerlink" href="#levenshtein-ratio" title="Permalink to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="minim.utility.levenshtein_ratio">
 <span class="sig-prename descclassname"><span class="pre">minim.utility.</span></span><span class="sig-name descname"><span class="pre">levenshtein_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.12)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/minim/utility.html#levenshtein_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.utility.levenshtein_ratio" title="Permalink to this definition">#</a></dt>
@@ -290,7 +290,7 @@ string(s) with respect to a reference string.</p>
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">minim.utility.multivalue_formatter</div>
+                <div class="title">multivalue_formatter</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -335,7 +335,7 @@ string(s) with respect to a reference string.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">minim.utility.levenshtein_ratio</a><ul>
+<li><a class="reference internal" href="#">levenshtein_ratio</a><ul>
 <li><a class="reference internal" href="#minim.utility.levenshtein_ratio"><code class="docutils literal notranslate"><span class="pre">levenshtein_ratio()</span></code></a></li>
 </ul>
 </li>

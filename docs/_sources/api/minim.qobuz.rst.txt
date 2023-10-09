@@ -17,7 +17,7 @@ qobuz
 
    .. autosummary::
       :toctree:
-      :template: class.rst
+      :template: autosummary/class.rst
       :nosignatures:
    
       Album

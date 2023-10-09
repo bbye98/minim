@@ -1,6 +1,6 @@
 .. autosummary::
    :recursive:
-   :template: module.rst
+   :template: autosummary/module.rst
    :toctree: api
 
    minim

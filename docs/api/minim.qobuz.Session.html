@@ -176,8 +176,8 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.itunes.html">itunes</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of itunes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.itunes.lookup.html">minim.itunes.lookup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.itunes.search.html">minim.itunes.search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.itunes.lookup.html">lookup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.itunes.search.html">search</a></li>
 </ul>
 </li>
 <li class="toctree-l2 current has-children"><a class="reference internal" href="minim.qobuz.html">qobuz</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of qobuz</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -197,6 +197,7 @@
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Category.html">Category</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Chapter.html">Chapter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Episode.html">Episode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Lyrics.html">Lyrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsAPISession.html">LyricsAPISession</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Market.html">Market</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Player.html">Player</a></li>
@@ -212,8 +213,8 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.utility.levenshtein_ratio.html">minim.utility.levenshtein_ratio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.utility.multivalue_formatter.html">minim.utility.multivalue_formatter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.utility.levenshtein_ratio.html">levenshtein_ratio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.utility.multivalue_formatter.html">multivalue_formatter</a></li>
 </ul>
 </li>
 </ul>
@@ -690,13 +691,15 @@ to get the next page of tracks.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>type</strong><span class="classifier"><cite>str</cite>, default: <code class="code docutils literal notranslate"><span class="pre">&quot;new-releases&quot;</span></code></span></dt><dd><p>Feature type.</p>
-<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;album-of-the-week&quot;</span></code>,
-<code class="code docutils literal notranslate"><span class="pre">&quot;best-sellers&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;editor-picks&quot;</span></code>,
-<code class="code docutils literal notranslate"><span class="pre">&quot;ideal-discography&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;most-featured&quot;</span></code>,
-<code class="code docutils literal notranslate"><span class="pre">&quot;most-streamed&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;new-releases&quot;</span></code>,
-<code class="code docutils literal notranslate"><span class="pre">&quot;new-releases-full&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;press-awards&quot;</span></code>,
-<code class="code docutils literal notranslate"><span class="pre">&quot;re-release-of-the-week&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;recent-releases&quot;</span></code>,
-and <code class="code docutils literal notranslate"><span class="pre">&quot;qobuzissims&quot;</span></code>.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;best-sellers&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;editor-picks&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;ideal-discography&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;most-featured&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;most-streamed&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;new-releases&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;new-releases-full&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;press-awards&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;recent-releases&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;qobuzissims&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;harmonia-mundi&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;universal-classic&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;universal-jazz&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;universal-jeunesse&quot;</span></code>, and
+<code class="code docutils literal notranslate"><span class="pre">&quot;universal-chanson&quot;</span></code>.</p>
 </dd>
 <dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The maximum number of albums to return.</p>
 <p><strong>Default</strong>: <code class="code docutils literal notranslate"><span class="pre">50</span></code>.</p>
@@ -1146,6 +1149,11 @@ environment variables, it can be provided here.</p>
 </dd>
 <dt><strong>type</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Category to search in. If specified, only matching releases
 and tracks will be returned.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><cite>type</cite> is case-sensitive; all values must be in Pascal
+case.</p>
+</div>
 <p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;MainArtist&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;Composer&quot;</span></code>,
 <code class="code docutils literal notranslate"><span class="pre">&quot;Performer&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;ReleaseName&quot;</span></code>, and
 <code class="code docutils literal notranslate"><span class="pre">&quot;Label&quot;</span></code>.</p>

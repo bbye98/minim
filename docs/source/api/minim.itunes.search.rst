@@ -1,5 +1,5 @@
-minim.itunes.search
-===================
+search
+======
 
 .. currentmodule:: minim.itunes
 

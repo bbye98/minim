@@ -1,5 +1,5 @@
-minim.utility.levenshtein\_ratio
-================================
+levenshtein\_ratio
+==================
 
 .. currentmodule:: minim.utility
 

@@ -282,13 +282,15 @@ class Session:
         type : `str`, default: :code:`"new-releases"`
             Feature type.
 
-            **Valid values**: :code:`"album-of-the-week"`, 
-            :code:`"best-sellers"`, :code:`"editor-picks"`,
-            :code:`"ideal-discography"`, :code:`"most-featured"`, 
-            :code:`"most-streamed"`, :code:`"new-releases"`, 
-            :code:`"new-releases-full"`, :code:`"press-awards"`,
-            :code:`"re-release-of-the-week"`, :code:`"recent-releases"`,
-            and :code:`"qobuzissims"`.
+            **Valid values**: :code:`"best-sellers"`, 
+            :code:`"editor-picks"`, :code:`"ideal-discography"`,
+            :code:`"most-featured"`, :code:`"most-streamed"`, 
+            :code:`"new-releases"`, :code:`"new-releases-full"`,
+            :code:`"press-awards"`, :code:`"recent-releases"`, 
+            :code:`"qobuzissims"`, :code:`"harmonia-mundi"`,
+            :code:`"universal-classic"`, :code:`"universal-jazz"`,
+            :code:`"universal-jeunesse"`, and 
+            :code:`"universal-chanson"`.
 
         limit : `int`, keyword-only, optional
             The maximum number of albums to return.
@@ -308,10 +310,11 @@ class Session:
         """
 
         ALBUM_FEATURE_TYPES = {
-            "album-of-the-week", "best-sellers", "editor-picks",
-            "ideal-discography", "most-featured", "most-streamed",
-            "new-releases", "new-releases-full", "press-awards",
-            "re-release-of-the-week", "recent-releases", "qobuzissims"
+            "best-sellers", "editor-picks", "ideal-discography", 
+            "most-featured", "most-streamed", "new-releases", 
+            "new-releases-full", "press-awards", "recent-releases",
+            "qobuzissims", "harmonia-mundi", "universal-classic",
+            "universal-jazz", "universal-jeunesse", "universal-chanson"
         }
 
         if type not in ALBUM_FEATURE_TYPES:
@@ -1065,6 +1068,10 @@ class Session:
         type : `str`, keyword-only, optional
             Category to search in. If specified, only matching releases 
             and tracks will be returned.
+
+            .. note::
+               `type` is case-sensitive; all values must be in Pascal
+               case.
 
             **Valid values**: :code:`"MainArtist"`, :code:`"Composer"`, 
             :code:`"Performer"`, :code:`"ReleaseName"`, and 
@@ -3503,13 +3510,15 @@ class User:
         type : `str`, default: :code:`"new-releases"`
             Feature type.
 
-            **Valid values**: :code:`"album-of-the-week"`, 
-            :code:`"best-sellers"`, :code:`"editor-picks"`,
-            :code:`"ideal-discography"`, :code:`"most-featured"`, 
-            :code:`"most-streamed"`, :code:`"new-releases"`, 
-            :code:`"new-releases-full"`, :code:`"press-awards"`,
-            :code:`"re-release-of-the-week"`, :code:`"recent-releases"`,
-            and :code:`"qobuzissims"`.
+            **Valid values**: :code:`"best-sellers"`, 
+            :code:`"editor-picks"`, :code:`"ideal-discography"`,
+            :code:`"most-featured"`, :code:`"most-streamed"`, 
+            :code:`"new-releases"`, :code:`"new-releases-full"`,
+            :code:`"press-awards"`, :code:`"recent-releases"`, 
+            :code:`"qobuzissims"`, :code:`"harmonia-mundi"`,
+            :code:`"universal-classic"`, :code:`"universal-jazz"`,
+            :code:`"universal-jeunesse"`, and 
+            :code:`"universal-chanson"`.
 
         limit : `int`, keyword-only, optional
             The maximum number of albums to return.
@@ -4171,6 +4180,10 @@ class User:
         type : `str`, keyword-only, optional
             Category to search in. If specified, only matching releases 
             and tracks will be returned.
+
+            .. note::
+               `type` is case-sensitive; all values must be in Pascal
+               case.
 
             **Valid values**: :code:`"MainArtist"`, :code:`"Composer"`, 
             :code:`"Performer"`, :code:`"ReleaseName"`, and 

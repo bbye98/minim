@@ -1,5 +1,5 @@
-minim.utility.multivalue\_formatter
-===================================
+multivalue\_formatter
+=====================
 
 .. currentmodule:: minim.utility
 
