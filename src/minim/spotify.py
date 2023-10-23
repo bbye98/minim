@@ -249,7 +249,10 @@ class LyricsService:
                 }
         
         self.session.headers.update({"Authorization": f"Bearer {access_token}"})
-        self._expiry = expiry
+        self._expiry = (
+            datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ") 
+            if isinstance(expiry, str) else expiry
+        )
 
     def get_lyrics(self, id: str) -> dict[str, Any]:
 
@@ -805,12 +808,23 @@ class WebAPI:
                       "refresh_token": self._refresh_token},
                 headers={"Authorization": f"Basic {client_b64}"}
             ).json()
+
             self.session.headers.update(
                 {"Authorization": f"{r['token_type']} {r['access_token']}"}
             )
+            self._refresh_token = r["refresh_token"]
             self._expiry = (datetime.datetime.now()
                             + datetime.timedelta(0, r["expires_in"]))
             self._scopes = r["scope"]
+
+            if self._save:
+                config["minim.spotify.WebAPI"] = {
+                    "refresh_token": self._refresh_token,
+                    "expiry": (datetime.datetime.now()
+                                 + datetime.timedelta(0, r["expires_in"])
+                                ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                }
+
         else:
             self.set_access_token()
 
@@ -934,6 +948,7 @@ class WebAPI:
                 expiry = (datetime.datetime.now()
                           + datetime.timedelta(0, r["expires_in"]))
                 
+                self._save = save
                 if save:
                     config["minim.spotify.WebAPI"] = {
                         "flow": self._flow if self._flow else "",
