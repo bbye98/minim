@@ -197,15 +197,14 @@
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Category.html">Category</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Chapter.html">Chapter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Episode.html">Episode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Lyrics.html">Lyrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsAPISession.html">LyricsAPISession</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsService.html">LyricsService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Market.html">Market</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Player.html">Player</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Playlist.html">Playlist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Show.html">Show</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Track.html">Track</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.User.html">User</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPISession.html">WebAPISession</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPI.html">WebAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.tidal.html">tidal</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of tidal</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -257,57 +256,9 @@
 <span id="spotify"></span><h1>spotify<a class="headerlink" href="#module-minim.spotify" title="Permalink to this heading">#</a></h1>
 <section id="spotify-apis">
 <h2>Spotify APIs<a class="headerlink" href="#spotify-apis" title="Permalink to this heading">#</a></h2>
-<p>This module contains a complete implementation of the Spotify Web API
-and a minimal implementation of the Spotify Lyrics API.</p>
-<section id="spotify-web-api">
-<h3>Spotify Web API<a class="headerlink" href="#spotify-web-api" title="Permalink to this heading">#</a></h3>
-<p>The public Spotify Web API allows for the retrieval of information about
-artists, media (albums, tracks, etc.), and users (playlists, profiles,
-etc.), and music playback control.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<ul class="simple">
-<li><p>Spotify content may not be downloaded.</p></li>
-<li><p>Keep visual content in its original form.</p></li>
-<li><p>Ensure content attribution.</p></li>
-</ul>
-</div>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p>For more information, see the <a class="reference external" href="https://developer.spotify.com/documentation/web-api/reference/#/">Spotify Web API Reference</a>.</p>
-</div>
-<p>Using the Spotify Web API requires OAuth 2.0 authentication. Valid
-client credentials—a client ID and a client secret—must either be
-provided explicitly to the <a class="reference internal" href="minim.spotify.WebAPISession.html#minim.spotify.WebAPISession" title="minim.spotify.WebAPISession"><code class="xref py py-class docutils literal notranslate"><span class="pre">WebAPISession</span></code></a> constructor or be
-stored in the operating system’s environment variables as
-<code class="code docutils literal notranslate"><span class="pre">SPOTIFY_CLIENT_ID</span></code> and <code class="code docutils literal notranslate"><span class="pre">SPOTIFY_CLIENT_SECRET</span></code>,
-respectively. Alternatively, an access token (and optionally, its
-accompanying expiry time and refresh token) can be provided to the
-<a class="reference internal" href="minim.spotify.WebAPISession.html#minim.spotify.WebAPISession" title="minim.spotify.WebAPISession"><code class="xref py py-class docutils literal notranslate"><span class="pre">WebAPISession</span></code></a> constructor to bypass the authorization flow.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This module supports the <a class="reference external" href="https://developer.spotify.com/documentation/general/guides/authorization/code-flow/">authorization code</a> and <a class="reference external" href="https://developer.spotify.com/documentation/general/guides/authorization/client-credentials/">client credentials</a> flows.</p>
-</div>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p>To get client credentials, see the <a class="reference external" href="https://developer.spotify.com/documentation/general/guides/authorization/app-settings/">guide on how to create a new
-Spotify app</a>.</p>
-</div>
-</section>
-<section id="spotify-lyrics-api">
-<h3>Spotify Lyrics API<a class="headerlink" href="#spotify-lyrics-api" title="Permalink to this heading">#</a></h3>
-<p>The private Spotify Lyrics API, which is powered by Musixmatch, provides
-line- or word-synced (if available) lyrics for Spotify tracks. As the
-Spotify Lyrics API is not public, there is no available documentation
-for it, and its endpoints have been determined by watching HTTP network
-traffic.</p>
-<p>Using the Spotify Lyrics API requires the <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie, which
-must either be provided explicitly to the <a class="reference internal" href="minim.spotify.LyricsAPISession.html#minim.spotify.LyricsAPISession" title="minim.spotify.LyricsAPISession"><code class="xref py py-class docutils literal notranslate"><span class="pre">LyricsAPISession</span></code></a>
-constructor or be stored in the operating system’s environment variables
-as <code class="code docutils literal notranslate"><span class="pre">SPOTIFY_SP_DC</span></code>. Alternatively, an access token can be provided
-to the <a class="reference internal" href="minim.spotify.LyricsAPISession.html#minim.spotify.LyricsAPISession" title="minim.spotify.LyricsAPISession"><code class="xref py py-class docutils literal notranslate"><span class="pre">LyricsAPISession</span></code></a> constructor to bypass the token
-exchange.</p>
-</section>
+<p>This module contains a complete implementation of all Spotify Web API
+endpoints and a minimal implementation to use the Spotify Lyrics
+service.</p>
 </section>
 <p class="rubric">Classes</p>
 <div class="table-wrapper autosummary longtable docutils container">
@@ -331,32 +282,29 @@ exchange.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="minim.spotify.Episode.html#minim.spotify.Episode" title="minim.spotify.Episode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Episode</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="minim.spotify.Lyrics.html#minim.spotify.Lyrics" title="minim.spotify.Lyrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Lyrics</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="minim.spotify.LyricsService.html#minim.spotify.LyricsService" title="minim.spotify.LyricsService"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LyricsService</span></code></a></p></td>
+<td><p>Spotify Lyrics service object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="minim.spotify.Market.html#minim.spotify.Market" title="minim.spotify.Market"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Market</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="minim.spotify.LyricsAPISession.html#minim.spotify.LyricsAPISession" title="minim.spotify.LyricsAPISession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LyricsAPISession</span></code></a></p></td>
-<td><p>A Spotify Lyrics API session.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="minim.spotify.Market.html#minim.spotify.Market" title="minim.spotify.Market"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Market</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="minim.spotify.Player.html#minim.spotify.Player" title="minim.spotify.Player"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Player</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="minim.spotify.Player.html#minim.spotify.Player" title="minim.spotify.Player"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Player</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="minim.spotify.Playlist.html#minim.spotify.Playlist" title="minim.spotify.Playlist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Playlist</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="minim.spotify.Playlist.html#minim.spotify.Playlist" title="minim.spotify.Playlist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Playlist</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="minim.spotify.Show.html#minim.spotify.Show" title="minim.spotify.Show"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Show</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="minim.spotify.Show.html#minim.spotify.Show" title="minim.spotify.Show"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Show</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="minim.spotify.Track.html#minim.spotify.Track" title="minim.spotify.Track"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Track</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="minim.spotify.Track.html#minim.spotify.Track" title="minim.spotify.Track"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Track</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="minim.spotify.User.html#minim.spotify.User" title="minim.spotify.User"><code class="xref py py-obj docutils literal notranslate"><span class="pre">User</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="minim.spotify.User.html#minim.spotify.User" title="minim.spotify.User"><code class="xref py py-obj docutils literal notranslate"><span class="pre">User</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="minim.spotify.WebAPISession.html#minim.spotify.WebAPISession" title="minim.spotify.WebAPISession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WebAPISession</span></code></a></p></td>
-<td><p>A Spotify Web API session.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="minim.spotify.WebAPI.html#minim.spotify.WebAPI" title="minim.spotify.WebAPI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WebAPI</span></code></a></p></td>
+<td><p>Spotify Web API object.</p></td>
 </tr>
 </tbody>
 </table>
@@ -419,11 +367,7 @@ exchange.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">spotify</a><ul>
-<li><a class="reference internal" href="#spotify-apis">Spotify APIs</a><ul>
-<li><a class="reference internal" href="#spotify-web-api">Spotify Web API</a></li>
-<li><a class="reference internal" href="#spotify-lyrics-api">Spotify Lyrics API</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#spotify-apis">Spotify APIs</a></li>
 </ul>
 </li>
 </ul>

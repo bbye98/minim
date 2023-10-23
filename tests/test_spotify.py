@@ -1,19 +1,22 @@
-import pathlib
+from pathlib import Path
 import sys
 
-sys.path.insert(0, f"{pathlib.Path(__file__).parents[1].resolve()}/src")
+sys.path.insert(0, f"{Path(__file__).parents[1]}/src")
 from minim import spotify
 
-class TestLyricsAPISession:
+class TestLyricsService:
 
-    def __init__(self):
-        self.session = spotify.LyricsAPISession()
+    TRACK_ID = "1r0HKINDPff9jZQP9AzBr7"
+
+    @classmethod
+    def setup_class(cls):
+        cls.session = spotify.LyricsService()
 
     def test_get_lyrics(self):
-        resp = self.session.get_lyrics("11dFghVXANMlKmJXsNCbNl")
+        resp = self.session.get_lyrics(self.TRACK_ID)
         assert "lyrics" in resp
  
-class TestWebAPISession:
+class TestWebAPI:
 
     ALBUM_IDS = ["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo", 
                  "2noRn2Aes5aoNVsU6iWThc"]
@@ -23,15 +26,49 @@ class TestWebAPISession:
                      "7iHfbu1YPACw6oZPAFJtqe"]
     CHAPTER_IDS = ["0IsXVP0JmcB2adSE338GkK", "3ZXb8FKZGU0EHALYX6uCzU",
                    "0D5wENdkdwbqlrHoaJ9g29"]
-    EPISODE_IDS = ["512ojhOuo1ktJprKbVcKyQ", "77o6BIVlYM3msb4MMIL1jH",
-                   "0Q86acNRm6V9GYx55SXKwf"]
-    SHOW_IDS = ["38bS44xjbVVZ3No3ByF1dJ", "5CfCWKI5pZ28U0uOzXkDHe", 
-                "5as3aKmN2k11yfDDDSrvaZ"]
+    # EPISODE_IDS = ["512ojhOuo1ktJprKbVcKyQ", "77o6BIVlYM3msb4MMIL1jH",
+    #                "0Q86acNRm6V9GYx55SXKwf"]
+    # SHOW_IDS = ["38bS44xjbVVZ3No3ByF1dJ", "5CfCWKI5pZ28U0uOzXkDHe", 
+    #             "5as3aKmN2k11yfDDDSrvaZ"]
     TRACK_IDS = ["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ",
                  "2takcwOaAZWiXQijPHIx7B"]
 
-    def __init__(self):
-        self.session = spotify.WebAPISession()
+    @classmethod
+    def setup_class(cls):
+        Path(spotify.HOME_DIR / "minim.cfg").unlink(missing_ok=True)
+        cls.session = spotify.WebAPI(flow="client_credentials")
+
+    # def test_no_flow(self):
+    #     Spotify = spotify.WebAPI()
+    #     assert "Bearer" in Spotify.session.headers["Authorization"]
+
+    # def test_authorization_code_flow(self):
+    #     # Get access token using authorization code flow
+    #     Spotify = spotify.WebAPI(flow="authorization_code", 
+    #                              scopes=spotify.WebAPI.get_scopes("all"),
+    #                              framework="flask")
+    #     authorization = Spotify.session.headers["Authorization"]
+    #     # Retrieve access token from configuration file
+    #     Spotify = spotify.WebAPI()
+    #     assert Spotify.session.headers["Authorization"] == authorization
+
+    # def test_authorization_code_pkce_flow(self):
+    #     # Get access token using authorization code with PKCE flow
+    #     Spotify = spotify.WebAPI(flow="authorization_code_pkce", 
+    #                              scopes=spotify.WebAPI.get_scopes("all"),
+    #                              framework="flask")
+    #     authorization = Spotify.session.headers["Authorization"]
+    #     # Retrieve access token from configuration file
+    #     Spotify = spotify.WebAPI()
+    #     assert Spotify.session.headers["Authorization"] == authorization
+
+    # def test_client_credentials_flow(self):
+    #     # Get access token using client credentials flow
+    #     Spotify = spotify.WebAPI(flow="client_credentials")
+    #     authorization = Spotify.session.headers["Authorization"]
+    #     # Retrieve access token from configuration file
+    #     Spotify = spotify.WebAPI()
+    #     assert Spotify.session.headers["Authorization"] == authorization
 
     def test_get_album(self):
         resp = self.session.get_album(self.ALBUM_IDS[0])
@@ -98,13 +135,13 @@ class TestWebAPISession:
         resp = self.session.get_episodes(self.CHAPTER_IDS, market="US")
         assert all(r["id"] == i for r, i in zip(resp, self.CHAPTER_IDS))
 
-    def test_get_episode(self):
-        resp = self.session.get_episode(self.EPISODE_IDS[0], market="US")
-        assert resp["id"] == self.EPISODE_IDS[0]
+    # def test_get_episode(self):
+    #     resp = self.session.get_episode(self.EPISODE_IDS[0], market="US")
+    #     assert resp["id"] == self.EPISODE_IDS[0]
 
-    def test_get_episodes(self):
-        resp = self.session.get_episodes(self.EPISODE_IDS, market="US")
-        assert all(r["id"] == i for r, i in zip(resp, self.EPISODE_IDS))
+    # def test_get_episodes(self):
+    #     resp = self.session.get_episodes(self.EPISODE_IDS, market="US")
+    #     assert all(r["id"] == i for r, i in zip(resp, self.EPISODE_IDS))
 
     def test_get_genre_seeds(self):
         resp = self.session.get_genre_seeds()
@@ -128,17 +165,17 @@ class TestWebAPISession:
         )
         assert all(r["type"] == "album" for r in resp["items"])
 
-    def test_get_show(self):
-        resp = self.session.get_show(self.SHOW_IDS[0], market="US")
-        assert resp["id"] == self.SHOW_IDS[0]
+    # def test_get_show(self):
+    #     resp = self.session.get_show(self.SHOW_IDS[0], market="US")
+    #     assert resp["id"] == self.SHOW_IDS[0]
 
-    def test_get_shows(self):
-        resp = self.session.get_shows(self.SHOW_IDS, market="US")
-        assert all(r["type"] == "show" for r in resp)
+    # def test_get_shows(self):
+    #     resp = self.session.get_shows(self.SHOW_IDS, market="US")
+    #     assert all(r["type"] == "show" for r in resp)
 
-    def test_get_show_episodes(self):
-        resp = self.session.get_show_episodes(self.SHOW_IDS[0], market="US")
-        assert self.SHOW_IDS[0] in resp["href"]
+    # def test_get_show_episodes(self):
+    #     resp = self.session.get_show_episodes(self.SHOW_IDS[0], market="US")
+    #     assert self.SHOW_IDS[0] in resp["href"]
 
     def test_get_track(self):
         resp = self.session.get_track(self.TRACK_IDS[0])

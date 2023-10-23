@@ -26,15 +26,14 @@ spotify
       Category
       Chapter
       Episode
-      Lyrics
-      LyricsAPISession
+      LyricsService
       Market
       Player
       Playlist
       Show
       Track
       User
-      WebAPISession
+      WebAPI
    
    
 

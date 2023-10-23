@@ -3,74 +3,21 @@ Spotify APIs
 ============
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
-This module contains a complete implementation of the Spotify Web API 
-and a minimal implementation of the Spotify Lyrics API.
-
-Spotify Web API
----------------
-The public Spotify Web API allows for the retrieval of information about
-artists, media (albums, tracks, etc.), and users (playlists, profiles, 
-etc.), and music playback control.
-
-.. important::
-
-   * Spotify content may not be downloaded.
-   * Keep visual content in its original form.
-   * Ensure content attribution.
-
-.. seealso::
-
-   For more information, see the `Spotify Web API Reference
-   <https://developer.spotify.com/documentation/web-api/reference/#/>`_.
-
-Using the Spotify Web API requires OAuth 2.0 authentication. Valid
-client credentials—a client ID and a client secret—must either be 
-provided explicitly to the :class:`WebAPISession` constructor or be 
-stored in the operating system's environment variables as 
-:code:`SPOTIFY_CLIENT_ID` and :code:`SPOTIFY_CLIENT_SECRET`,
-respectively. Alternatively, an access token (and optionally, its
-accompanying expiry time and refresh token) can be provided to the
-:class:`WebAPISession` constructor to bypass the authorization flow.
-
-.. note::
-
-   This module supports the `authorization code 
-   <https://developer.spotify.com/documentation/general/guides/
-   authorization/code-flow/>`_ and `client credentials 
-   <https://developer.spotify.com/documentation/general/guides/
-   authorization/client-credentials/>`_ flows.
-
-.. seealso::
-
-   To get client credentials, see the `guide on how to create a new
-   Spotify app <https://developer.spotify.com/documentation/general/
-   guides/authorization/app-settings/>`_.
-
-Spotify Lyrics API
-------------------
-The private Spotify Lyrics API, which is powered by Musixmatch, provides
-line- or word-synced (if available) lyrics for Spotify tracks. As the
-Spotify Lyrics API is not public, there is no available documentation
-for it, and its endpoints have been determined by watching HTTP network
-traffic.
-
-Using the Spotify Lyrics API requires the :code:`sp_dc` cookie, which
-must either be provided explicitly to the :class:`LyricsAPISession` 
-constructor or be stored in the operating system's environment variables
-as :code:`SPOTIFY_SP_DC`. Alternatively, an access token can be provided
-to the :class:`LyricsAPISession` constructor to bypass the token 
-exchange.
+This module contains a complete implementation of all Spotify Web API 
+endpoints and a minimal implementation to use the Spotify Lyrics 
+service.
 """
 
-from abc import abstractmethod
 import base64
 import datetime
+import hashlib
+import json
+import logging
 import multiprocessing
 import os
-import pickle
 import re
 import requests
-import tempfile
+import secrets
 import time
 from typing import Any, Union
 import urllib
@@ -78,54 +25,102 @@ import webbrowser
 
 try:
     from flask import Flask, request
-    FOUND_FLASK = True
+    FOUND = {"flask": True}
 except ModuleNotFoundError: # pragma: no cover
-    FOUND_FLASK = False
+    FOUND = {"flask": False}
 
 try:
     from playwright.sync_api import sync_playwright
-    FOUND_PLAYWRIGHT = True
+    FOUND["playwright"] = True
 except ModuleNotFoundError: # pragma: no cover
-    FOUND_PLAYWRIGHT = False
+    FOUND["playwright"] = False
 
-TEMP_DIR = tempfile.gettempdir()
+from . import Path, HOME_DIR, TEMP_DIR, config
 
-def _file_exists(
-        event: multiprocessing.Event, filename: Union[str, bytes, os.PathLike]
-    ) -> None:
+class LyricsService:
 
     """
-    Check if a file exists.
+    Spotify Lyrics service object.
+
+    The Spotify Lyrics service, which is powered by Musixmatch (or 
+    PetitLyrics in Japan), provides line- or word-synced lyrics for 
+    Spotify tracks when available. The Spotify Lyrics interface is not
+    publicly documented, so its endpoints have been determined by 
+    watching HTTP network traffic.
+
+    Requests to the Spotify Web API endpoints must be accompanied by a
+    valid access token in the header. An access token can be obtained
+    using the Spotify Web Player :code:`sp_dc` cookie, which must either
+    be provided to this class's constructor as a keyword argument or be
+    stored as :code:`SPOTIFY_SP_DC` in the operating system's 
+    environment variables.
+
+    If an existing access token is available, it and its expiry time can
+    be provided to this class's constructor as keyword arguments to
+    bypass the access token exchange process. It is recommended that all
+    other authentication-related keyword arguments be specified so that 
+    a new access token can be obtained when the existing one expires.
+
+    Minim also stores and manages access tokens and their properties. 
+    When an access token is acquired, it is automatically saved to the
+    Minim configuration file to be loaded on the next instantiation of 
+    this class. This behavior can be disabled if there are any security
+    concerns, like if the computer being used is a shared device.
 
     Parameters
     ----------
-    event : `multiprocessing.Event`
-        Function that indicates whether the file has been created or
-        found.
+    sp_dc : `str`, optional
+        Spotify Web Player :code:`sp_dc` cookie. If it is not stored
+        as :code:`SPOTIFY_SP_DC` in the operating system's environment
+        variables or found in the Minim configuration file, it must be
+        provided here.
 
-    filename : `str`, `bytes`, or `os.PathLike`
-        Filename.
+    access_token : `str`, keyword-only, optional
+        Access token. If provided or found in the Minim configuration
+        file, the authentication process is bypassed. In the former
+        case, all other relevant keyword arguments should be specified
+        to automatically refresh the access token when it expires.
+
+    expiry : `datetime.datetime` or `str`, keyword-only, optional
+        Expiry time of `access_token` in the ISO 8601 format
+        :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be 
+        reauthenticated using `refresh_token` (if available) or the
+        specified authorization flow (if possible) when `access_token`
+        expires.
+
+    save : `bool`, keyword-only, default: :code:`True`
+        Determines whether newly obtained access tokens and their
+        associated properties are stored to the Minim configuration 
+        file.
     """
-    
-    while True:
-        if os.path.isfile(filename):
-            event.set()
-            break
-        time.sleep(0.1)
 
-class _Session:
+    LYRICS_URL = "https://spclient.wg.spotify.com/color-lyrics/v2"
+    TOKEN_URL = "https://open.spotify.com/get_access_token"
 
-    """
-    An abstract Spotify API session.
-    """
-
-    def __init__(self):
+    def __init__(
+            self, *, sp_dc: str = None, access_token: str = None,
+            expiry: Union[datetime.datetime, str] = None, save: bool = True
+        ) -> None:
 
         """
-        Create an abstract Spotify API session.
+        Create a Spotify Lyrics service object.
         """
         
         self.session = requests.Session()
+        self.session.headers.update({"App-Platform": "WebPlayer"})
+
+        if access_token is None \
+                and config.has_section("minim.spotify.LyricsService"):
+            sp_dc = config.get("minim.spotify.LyricsService", "sp_dc", 
+                               fallback=sp_dc)
+            access_token = config.get("minim.spotify.LyricsService", 
+                                      "access_token")
+            expiry = config.get("minim.spotify.LyricsService", "expiry",
+                                fallback=expiry)
+
+        self.set_sp_dc(sp_dc)
+        self.set_access_token(access_token=access_token, expiry=expiry, 
+                              save=save)
 
     def _get_json(self, url: str, **kwargs) -> dict:
 
@@ -149,95 +144,9 @@ class _Session:
 
         return self._request("get", url, **kwargs).json()
 
-    @abstractmethod
-    def _request(self):
-        pass
-
-class LyricsAPISession(_Session):
-
-    """
-    A Spotify Lyrics API session.
-
-    Parameters
-    ----------
-    sp_dc : `str`, keyword-only, optional
-        Spotify Web Player :code:`sp_dc` cookie. If neither `sp_dc` nor
-        `access_token` is specified, the :code:`sp_dc` cookie must be 
-        stored in the environment variable :code:`SPOTIFY_SP_DC`.
-
-        .. note::
-
-           Even if `access_token` is specified, it is recommended that
-           `sp_dc` be provided since it is used to request new access
-           tokens when the old ones expire.
-
-    access_token : `str`, keyword-only, optional
-        Access token.
-
-    expiry : `datetime.datetime` or `str`, keyword-only, optional
-        Expiry timestamp for `access_token` in the ISO 8601 format 
-        :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be
-        reauthenticated when `access_token` expires if `sp_dc` was
-        specified.
-
-    Attributes
-    ----------
-    API_URL : `str`
-        URL for the Spotify Lyrics API.
-
-    TOKEN_URL : `str`
-        URL for access token requests.
-
-    session : `requests.Session`
-        A session object with persisting headers.
-    """
-
-    API_URL = "https://spclient.wg.spotify.com/color-lyrics/v2/track"
-    TOKEN_URL = "https://open.spotify.com/get_access_token"
-
-    def __init__(
-            self, *, sp_dc: str = None, access_token: str = None,
-            expiry: Union[datetime.datetime, str] = None) -> None:
-
-        """
-        Create a Spotify Lyrics API session.
-        """
-        
-        super().__init__()
-        self.session.headers.update({"App-Platform": "WebPlayer"})
-
-        self.sp_dc = sp_dc or os.environ.get("SPOTIFY_SP_DC")
-        if access_token is None:
-            self._get_access_token()
-        else:
-            self.session.headers.update(
-                {"Authorization": f"Bearer {access_token}"}
-            )
-            self._expiry = expiry
-
-    def _get_access_token(self) -> None:
-
-        """
-        Get Spotify Lyrics API access token.
-        """
-
-        resp = requests.get(
-            self.TOKEN_URL,
-            headers={"cookie": f"sp_dc={self.sp_dc}"},
-            params={"reason": "transport", "productType": "web_player"}
-        ).json()
-
-        if resp["isAnonymous"]:
-            raise ValueError("Invalid 'sp_dc' cookie.")
-        
-        self.session.headers.update(
-            {"Authorization": f"Bearer {resp['accessToken']}"}
-        )
-        self._expiry = datetime.datetime.fromtimestamp(
-            resp["accessTokenExpirationTimestampMs"] / 1000
-        )
-    
-    def _request(self, method: str, url: str, **kwargs) -> requests.Response:
+    def _request(
+            self, method: str, url: str, retry: bool = True, **kwargs
+        ) -> requests.Response:
 
         """
         Construct and send a request, but with status code checking.
@@ -250,6 +159,10 @@ class LyricsAPISession(_Session):
         url : `str`
             URL for the request.
 
+        retry : `bool`
+            Specifies whether to retry the request if the response has
+            a non-2xx status code.
+            
         **kwargs
             Keyword arguments passed to :meth:`requests.request`.
 
@@ -260,18 +173,83 @@ class LyricsAPISession(_Session):
         """
 
         if self._expiry is not None and datetime.datetime.now() > self._expiry:
-            self._get_access_token()
+            self.set_access_token()
 
-        resp = self.session.request(method, url, **kwargs)
-        if resp.status_code != 200:
-            emsg = f"{resp.status_code} {resp.reason}"
-            if resp.status_code == 401:
-                print(emsg)
-                self._get_access_token()
-                return self._request(method, url, **kwargs)
+        r = self.session.request(method, url, **kwargs)
+        if r.status_code != 200:
+            emsg = f"{r.status_code} {r.reason}"
+            if r.status_code == 401 and retry:
+                logging.warning(emsg)
+                self.set_access_token()
+                return self._request(method, url, False, **kwargs)
             else:
                 raise RuntimeError(emsg)
-        return resp
+        return r
+
+    def set_sp_dc(self, sp_dc: str = None) -> None:
+
+        """
+        Set the Spotify Web Player :code:`sp_dc` cookie.
+
+        Parameters
+        ----------
+        sp_dc : `str`, optional
+            Spotify Web Player :code:`sp_dc` cookie.
+        """
+
+        self._sp_dc = sp_dc or os.environ.get("SPOTIFY_SP_DC")
+
+    def set_access_token(
+            self, access_token: str = None, 
+            expiry: Union[datetime.datetime, str] = None, save: bool = True
+        ) -> None:
+
+        """
+        Set the Spotify Lyrics service access token.
+
+        Parameters
+        ----------
+        access_token : `str`, optional
+            Access token. If not provided, an access token is obtained
+            from the Spotify Web Player using the :code:`sp_dc` cookie.
+
+        expiry : `str` or `datetime.datetime`, keyword-only, optional
+            Access token expiry timestamp in the ISO 8601 format
+            :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be
+            reauthenticated (if `sp_dc` is found or provided) when the
+            `access_token` expires.
+
+        save : `bool`, keyword-only, default: :code:`True`
+            Determines whether to save the newly obtained access tokens 
+            and their associated properties to the Minim configuration 
+            file.
+        """
+
+        if access_token is None:
+            if not self._sp_dc:
+                raise ValueError("Missing 'sp_dc' cookie.")
+            
+            r = self.session.get(
+                self.TOKEN_URL,
+                headers={"cookie": f"sp_dc={self._sp_dc}"},
+                params={"reason": "transport", "productType": "web_player"}
+            ).json()
+            if r["isAnonymous"]:
+                raise ValueError("Invalid 'sp_dc' cookie.")
+            access_token = r["accessToken"]
+            expiry = datetime.datetime.fromtimestamp(
+                r["accessTokenExpirationTimestampMs"] / 1000
+            )
+
+            if save:
+                config["minim.spotify.LyricsService"] = {
+                    "sp_dc": self._sp_dc,
+                    "access_token": access_token,
+                    "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
+                }
+        
+        self.session.headers.update({"Authorization": f"Bearer {access_token}"})
+        self._expiry = expiry
 
     def get_lyrics(self, id: str) -> dict[str, Any]:
 
@@ -297,754 +275,479 @@ class LyricsAPISession(_Session):
 
                   {
                     "lyrics": {
-                      "syncType": "LINE_SYNCED",
+                      "syncType": <str>,
                       "lines": [
                         {
-                          "startTimeMs": "5850",
-                          "words": "I had a dream, or was it real?",
+                          "startTimeMs": <str>,
+                          "words": <str>,
                           "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "7830",
-                          "words": "We crossed the line and it was on",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "10180",
-                          "words": "(We crossed the line, it was on this time)",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "14140",
-                          "words": "I've been denying how I feel",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "16290",
-                          "words": "You've been denying what you want",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "18520",
-                          "words": "(You want from me, talk to me baby)",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "22540",
-                          "words": "I want some satisfaction, take me to the stars",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "25880",
-                          "words": "Just like ah-ah-ah, ah-ah-ah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "30750",
-                          "words": "I wanna cut through the clouds, break the ceiling",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "34940",
-                          "words": "I wanna dance on the roof, you and me alone",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "39130",
-                          "words": "I wanna cut to the feeling, oh, yeah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "43280",
-                          "words": "I wanna cut to the feeling, oh, yeah (woo)",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "47450",
-                          "words": "I wanna play where you play with the angels",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "51650",
-                          "words": "I wanna wake up with you all in tangles, oh",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "55770",
-                          "words": "I wanna cut to the feeling, oh, yeah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "59920",
-                          "words": "I wanna cut to the feeling, oh, yeah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "65680",
-                          "words": "\u266a",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "68220",
-                          "words": "Cancel your reservations",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "70210",
-                          "words": "No more hesitations, this is on",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "72740",
-                          "words": "(Can't make it stop, give me all you got)",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "76960",
-                          "words": "I want it all or nothing",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "78520",
-                          "words": "No more in-between, now give your",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "80530",
-                          "words": "(Everything to me, let's get real baby)",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "85130",
-                          "words": "A chemical reaction, take me in your arms",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "88210",
-                          "words": "And make me ah-ah-ah, ah-ah-ah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "93570",
-                          "words": "I wanna cut through the clouds, break the ceiling",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "97620",
-                          "words": "I wanna dance on the roof, you and me alone",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "101730",
-                          "words": "I wanna cut to the feeling, oh, yeah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "105830",
-                          "words": "I wanna cut to the feeling, oh, yeah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "110080",
-                          "words": "I wanna play where you play with the angels",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "114250",
-                          "words": "I wanna wake up with you all in tangles, oh",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "118590",
-                          "words": "I wanna cut to the feeling, oh, yeah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "122640",
-                          "words": "I wanna cut to the feeling, oh, yeah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "127190",
-                          "words": "(Hey, woo)",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "130570",
-                          "words": "Take me to emotion (hey), I want to go all the way (all the way)",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "134880",
-                          "words": "Show me devotion and take me all the way",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "138980",
-                          "words": "Take me to emotion, I want to go all the way",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "143200",
-                          "words": "Show me devotion and take me all the way",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "146730",
-                          "words": "(Take me) all the way",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "147970",
-                          "words": "(Take me) all the way",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "149060",
-                          "words": "Take me all the way",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "151770",
-                          "words": "I wanna cut through the clouds, break the ceiling",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "156110",
-                          "words": "I wanna dance on the roof, you and me alone",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "160140",
-                          "words": "I wanna cut to the feeling (oh-oh), oh, yeah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "164320",
-                          "words": "I wanna cut to the feeling (yeah, yeah, yeah, yeah), oh, yeah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "168470",
-                          "words": "I wanna play where you play with the angels",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "172610",
-                          "words": "I wanna wake up with you all in tangles, oh",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "176950",
-                          "words": "I wanna cut to the feeling, oh, yeah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "181080",
-                          "words": "I wanna cut to the feeling, oh, yeah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "185130",
-                          "words": "I wanna cut through the clouds",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "187290",
-                          "words": "Mmm, cut to the feeling",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "189450",
-                          "words": "I wanna dance on the roof, oh-oh-oh, yeah",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "193660",
-                          "words": "I wanna cut to the feeling",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "195610",
-                          "words": "I wanna cut to the feeling",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "197780",
-                          "words": "I wanna cut to the feeling",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "199770",
-                          "words": "I wanna cut to the feeling",
-                          "syllables": [],
-                          "endTimeMs": "0"
-                        },
-                        {
-                          "startTimeMs": "201270",
-                          "words": "",
-                          "syllables": [],
-                          "endTimeMs": "0"
+                          "endTimeMs": <str>
                         }
                       ],
-                      "provider": "MusixMatch",
-                      "providerLyricsId": "72545348",
-                      "providerDisplayName": "Musixmatch",
-                      "syncLyricsUri": "",
-                      "isDenseTypeface": False,
+                      "provider": <str>,
+                      "providerLyricsId": <str>,
+                      "providerDisplayName": <str>,
+                      "syncLyricsUri": <str>,
+                      "isDenseTypeface": <bool>,
                       "alternatives": [],
-                      "language": "en",
-                      "isRtlLanguage": False,
-                      "fullscreenAction": "FULLSCREEN_LYRICS",
-                      "showUpsell": false
+                      "language": <str>,
+                      "isRtlLanguage": <bool>,
+                      "fullscreenAction": <str>,
+                      "showUpsell": <bool>
                     },
                     "colors": {
-                      "background": -11567485,
-                      "text": -16777216,
-                      "highlightText": -1
+                      "background": <int>,
+                      "text": <int>,
+                      "highlightText": <int>
                     },
-                    "hasVocalRemoval": false
+                    "hasVocalRemoval": <bool>
                   }
         """
 
-        return self._get_json(f"{self.API_URL}/{id}",
+        return self._get_json(f"{self.LYRICS_URL}/track/{id}",
                               params={"format": "json",
                                       "market": "from_token"})
 
-class WebAPISession(_Session):
+class WebAPI:
 
     """
-    A Spotify Web API session.
+    Spotify Web API object.
+
+    The Spotify Web API allows for the retrieval of information about 
+    people (artists and users), media (albums, audiobooks, shows, and 
+    tracks), groups (categories, chapters, episodes, genres, markets, 
+    and playlists), and music playback control.
+
+    .. important::
+
+       * Spotify content may not be downloaded.
+       * Keep visual content in its original form.
+       * Ensure content attribution.
+
+    .. seealso::
+
+       For more information, see the `Spotify Web API Reference
+       <https://developer.spotify.com/documentation/web-api>`_.
+
+    Requests to the Spotify Web API endpoints must be accompanied by a
+    valid access token in the header. An access token can be obtained
+    with or without user authentication. While authentication is not 
+    necessary to search for and retrieve data from public content, it
+    is required to access personal content and control playback. 
+    
+    Minim can obtain client-only access tokens via the `client 
+    credentials <https://developer.spotify.com/documentation/general
+    /guides/authorization/client-credentials/>`_ flow and user access
+    tokens via the `authorization code <https://developer.spotify.com
+    /documentation/web-api/tutorials/code-flow>`_ and `authorization 
+    code with proof key for code exchange (PKCE) 
+    <https://developer.spotify.com/documentation/web-api/tutorials/
+    code-pkce-flow>`_ flows. These OAuth 2.0 authorization flows 
+    require valid client credentials (client ID and client secret) to
+    either be provided to this class's constructor as keyword arguments
+    or be stored as :code:`SPOTIFY_CLIENT_ID` and
+    :code:`SPOTIFY_CLIENT_SECRET` in the operating system's environment
+    variables. 
+    
+    .. seealso::
+
+       To get client credentials, see the `guide on how to create a new
+       Spotify app <https://developer.spotify.com/documentation/general/
+       guides/authorization/app-settings/>`_. To take advantage of 
+       Minim's automatic authorization code retrieval functionality for
+       the authorization code (with PCKE) flow, the redirect URI should 
+       be in the form :code:`http://localhost:{port}/callback`, where 
+       :code:`{port}` is an open port on :code:`localhost`.
+    
+    Alternatively, a client-only access token can be acquired without
+    using an authorization flow (without client credentials) through the
+    Spotify Web Player, but this approach is not recommended and should
+    only be used as a last resort since it is not officially supported
+    and can be deprecated by Spotify at any time.
+
+    If an existing access token is available, it and its accompanying
+    information (token type, refresh token, and expiry time) can be
+    provided to this class's constructor as keyword arguments to bypass
+    the access token retrieval process. It is recommended that all other
+    authentication-related keyword arguments be specified so that a new
+    access token can be obtained when the existing one expires.
+
+    .. tip::
+
+       The authorization flow and access token can be changed or updated
+       at any time using :meth:`set_authorization_flow` and 
+       :meth:`set_access_token`, respectively.
+
+    Minim also stores and manages access tokens and their properties. 
+    When any of the authorization flows above are used to acquire an 
+    access token, it is automatically saved to the Minim configuration 
+    file to be loaded on the next instantiation of this class. This 
+    behavior can be disabled if there are any security concerns, like if 
+    the computer being used is a shared device.
 
     Parameters
     ----------
     client_id : `str`, keyword-only, optional
-        Client ID. If it is not stored as :code:`SPOTIFY_CLIENT_ID` in
-        the operating system's environment variables, it must be
+        Client ID. Required for the authorization code and client 
+        credentials flows. If it is not stored as 
+        :code:`SPOTIFY_CLIENT_ID` in the operating system's environment
+        variables or found in the Minim configuration file, it must be
         provided here.
-    
+
     client_secret : `str`, keyword-only, optional
-        Client secret key. If it is not stored as
+        Client secret. Required for the authorization code and client
+        credentials flows. If it is not stored as
         :code:`SPOTIFY_CLIENT_SECRET` in the operating system's
-        environment variables, it must be provided here.
+        environment variables or found in the Minim configuration file,
+        it must be provided here.
 
-    flow : `str`, keyword-only, default: :code:`client_credentials`
-        Authorization flow.
+    flow : `str`, keyword-only, optional
+        Authorization flow. If not specified or found in the Minim
+        configuration file, no authentication is performed.
+
+        .. tip::
+
+           If an access token is available in the Minim configuration 
+           file but should be overwritten, specify an authorization flow
+           that is different from the one used to obtain the previous 
+           access token.
 
         .. container::
 
            **Valid values**:
            
-           * :code:`"authorization_code"` for the authorization code flow.
-           * :code:`"client_credentials"` for the client credentials flow.
+           * :code:`"authorization_code"` for the authorization code 
+             flow.
+           * :code:`"authorization_code_pkce` for the authorization code
+             with proof key for code exchange (PKCE) flow.
+           * :code:`"client_credentials"` for the client credentials 
+             flow.
+           * :code:`None` for a Spotify Web Player access token.
     
-    browser : `bool`, keyword-only, default: :code:`True`
-        Determines whether a web browser is automatically opened and the
-        authorization code is automatically retrieved for the
-        authorization code flow. If :code:`False`, users will have to
-        manually open the generated URL and provide the full callback
-        URI via the terminal.
-
-        .. note::
-
-           Either Flask or Playwright must be installed if
-           :code:`browser=True`. The `backend` keyword argument can
-           be used to specify which backend is used for authorization
-           code retrieval.
-
-    backend : `str`, keyword-only, default: :code:`"flask"`
-        Backend used for authorization code retrieval when 
-        :code:`browser=True`.
-
+    framework : `str` or `bool`, keyword-only, optional
+        Determines which web framework to use for the authorization code
+        flow. 
+        
         .. container::
 
            **Valid values**:
-           
-           * :code:`flask` for the Flask web application framework.
-           * :code:`playwright` for the Playwright library by Microsoft.
 
-    scope : `str` or `list`, keyword-only, optional
+           * :code:`"flask"` for the Flask framework.
+           * :code:`"playwright"` for the Playwright framework by 
+             Microsoft.
+           * :code:`True` to automatically select an available 
+             framework.
+           * :code:`False` or :code:`None` to complete the 
+             authentication process headlessly. The user will have to
+             manually open the authorization URL and provide the full
+             callback URI via the terminal.
+
+    port : `int` or `str`, keyword-only, default: :code:`8888`
+        Port on :code:`localhost` to use for the authorization code
+        flow with the Flask framework. Only used if `redirect_uri` is
+        not specified.
+
+    redirect_uri : `str`, keyword-only, optional
+        Redirect URI for the authorization code flow. If not on
+        :code:`localhost`, the automatic authorization code retrieval
+        functionality is not available.
+             
+    scopes : `str` or `list`, keyword-only, optional
         Authorization scopes to request user access for in the
-        authorization code flow.
-    
+        authorization code flow. 
+        
+        .. seealso::
+
+           See :meth:`get_scopes` for the complete list of scopes.
+
     access_token : `str`, keyword-only, optional
-        Access token. If provided, the authorization flow is completely
-        bypassed.
+        Access token. If provided or found in the Minim configuration
+        file, the authentication process is bypassed. In the former
+        case, all other relevant keyword arguments should be specified
+        to automatically refresh the access token when it expires.
+
+    token_type : `str`, keyword-only, default: :code:`"Bearer"`
+        Type of `access_token`. Must be specified if `access_token` is
+        provided as a keyword argument.
     
     refresh_token : `str`, keyword-only, optional
-        Refresh token accompanying `access_token`. If not provided, the
-        user will be reauthenticated using the default authorization
-        flow when `access_token` expires.
-        
-    expiry : `datetime.datetime`, keyword-only, optional
-        Expiry time of `access_token`. If provided, the user will be
+        Refresh token accompanying `access_token`. If not provided,
+        the user will be reauthenticated using the specified 
+        authorization flow when `access_token` expires.
+
+    expiry : `datetime.datetime` or `str`, keyword-only, optional
+        Expiry time of `access_token` in the ISO 8601 format
+        :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be 
         reauthenticated using `refresh_token` (if available) or the
-        default authorization flow (if possible) when `access_token`
+        specified authorization flow (if possible) when `access_token`
         expires.
 
-    Attributes
-    ----------
-    API_URL : `str`
-        URL for the Spotify Web API.
-
-    AUTH_URL : `str`
-        URL for authorization code requests.
-        
-    TOKEN_URL : `str`
-        URL for access token requests.
-
-    REDIRECT_URL : `str`
-        Redirect URL for the authorization code flow.
-
-    session : `requests.Session`
-        A session object with persisting headers.
+    save : `bool`, keyword-only, default: :code:`True`
+        Determines whether newly obtained access tokens and their
+        associated properties are stored to the Minim configuration 
+        file.
     """
-
-    _OAUTH_FLOWS = {"authorization_code", "client_credentials"}
-    _SCOPES = {
-        "images": ["ugc-image-upload"],
-        "connect": ["user-read-playback-state", "user-modify-playback-state",
-                    "user-read-currently-playing"],
-        "playback": ["app-remote-control streaming"],
-        "playlists": ["playlist-read-private", "playlist-read-collaborative",
-                      "playlist-modify-private", "playlist-modify-public"],
-        "follow": ["user-follow-modify", "user-follow-read"],
-        "history": ["user-read-playback-position", "user-top-read",
-                    "user-read-recently-played"],
-        "library": ["user-library-modify", "user-library-read"],
-        "users": ["user-read-email", "user-read-private"]
-    }
 
     API_URL = "https://api.spotify.com/v1"
     AUTH_URL = "https://accounts.spotify.com/authorize"
     TOKEN_URL = "https://accounts.spotify.com/api/token"
-    REDIRECT_URI = "http://localhost:8888/callback"
+    WEB_PLAYER_TOKEN_URL = "https://open.spotify.com/get_access_token"
 
     @classmethod
     def get_scopes(self, categories: Union[str, list[str]]) -> str:
 
         """
-        Get authorization scopes for the desired categories.
+        Get Spotify Web API and Open Access authorization scopes for
+        the specified categories.
 
         Parameters
         ----------
         categories : `str` or `list`
-            Authorization scope categories.
+            Categories of authorization scopes to get.
 
             .. container::
 
                **Valid values**:
 
-               * :code:`"images"`: Scopes related to images.
+               * :code:`"images"` for scopes related to custom images,
+                 such as :code:`ugc-image-upload`.
+               * :code:`"spotify_connect"` for scopes related to Spotify
+                 Connect, such as
 
-                 * :code:`ugc-image-upload`
+                 * :code:`user-read-playback-state`,
+                 * :code:`user-modify-playback-state`, and
+                 * :code:`user-read-currently-playing`.
 
-               * :code:`"connect"`: Scopes related to Spotify Connect.
+               * :code:`"playback"` for scopes related to playback 
+                 control, such as :code:`app-remote-control` and
+                 :code:`streaming`.
+               * :code:`"playlists"` for scopes related to playlists,
+                 such as
 
-                 * :code:`user-read-playback-state`
-                 * :code:`user-modify-playback-state`
-                 * :code:`user-read-currently-playing`
+                 * :code:`playlist-read-private`,
+                 * :code:`playlist-read-collaborative`,
+                 * :code:`playlist-modify-private`, and
+                 * :code:`playlist-modify-public`.
 
-               * :code:`"playback"`: Scopes related to playback.
+               * :code:`"follow` for scopes related to followed artists
+                 and users, such as :code:`user-follow-modify` and
+                 :code:`user-follow-read`.
+               * :code:`"listening_history"` for scopes related to 
+                 playback history, such as
 
-                 * :code:`app-remote-control`
-                 * :code:`streaming`
+                 * :code:`user-read-playback-position`,
+                 * :code:`user-top-read`, and
+                 * :code:`user-read-recently-played`.
 
-               * :code:`"playlists"`: Scopes related to modifying and reading 
-                 playlists.
+               * :code:`"library"` for scopes related to saved content,
+                 such as :code:`user-library-modify` and 
+                 :code:`user-library-read`.
+               * :code:`"users"` for scopes related to user information,
+                 such as :code:`user-read-email` and 
+                 :code:`user-read-private`.
+               * :code:`"all"` for all scopes above.
+               * A substring to match in the possible scopes, such as
 
-                 * :code:`playlist-read-private`
-                 * :code:`playlist-read-collaborative`
-                 * :code:`playlist-modify-private`
-                 * :code:`playlist-modify-public`
-
-               * :code:`"follow`: Scopes related to following artists and other
-                 users.
-
-                 * :code:`user-follow-modify`
-                 * :code:`user-follow-read`
-
-               * :code:`"history"`: Scopes related to a user's listening 
-                 history.
-
-                 * :code:`user-read-playback-position`
-                 * :code:`user-top-read`
-                 * :code:`user-read-recently-played`
-
-               * :code:`"library"`: Scopes related to modifying and reading
-                 a user's library.
-
-                 * :code:`user-library-modify`
-                 * :code:`user-library-read`
-
-               * :code:`"users"`: Scopes related to accessing a user's 
-                 information.
-
-                 * :code:`user-read-email`
-                 * :code:`user-read-private`
-
-               * :code:`"all"`: All scopes above.
-               * :code:`"read"`: All scopes above that grant read access.
-               * :code:`"modify"`: All scopes above that grant modify access.
+                 * :code:`"read"` for all scopes above that grant read 
+                   access, i.e., scopes with :code:`"read"` in the name,
+                 * :code:`"modify"` for all scopes above that grant 
+                   modify access, i.e., scopes with :code:`"modify"` in
+                   the name, or
+                 * :code:`"user"` for all scopes above that grant access
+                   to all user-related information, i.e., scopes with
+                   :code:`"user"` in the name.
 
             .. seealso::
+
                For the endpoints that the scopes allow access to, see the
                `Authorization Scopes page of the Spotify Web API Reference
                <https://developer.spotify.com/documentation/general/guides/
                authorization/scopes/>`_.
         """
-        
+
+        SCOPES = {
+            "images": ["ugc-image-upload"],
+            "spotify_connect": ["user-read-playback-state", 
+                                "user-modify-playback-state", 
+                                "user-read-currently-playing"],
+            "playback": ["app-remote-control streaming"],
+            "playlists": ["playlist-read-private", 
+                          "playlist-read-collaborative",
+                          "playlist-modify-private",
+                          "playlist-modify-public"],
+            "follow": ["user-follow-modify", "user-follow-read"],
+            "listening_history": ["user-read-playback-position", 
+                                  "user-top-read", 
+                                  "user-read-recently-played"],
+            "library": ["user-library-modify", "user-library-read"],
+            "users": ["user-read-email", "user-read-private"]
+        }
+
         if isinstance(categories, str):
+            if categories in SCOPES.keys():
+                return SCOPES[categories]
             if categories == "all":
-                return " ".join(s for c in self._SCOPES.values() for s in c)
-            if categories == "read":
-                return " ".join(s for c in self._SCOPES.values() for s in c
-                                if "read" in s)
-            if categories == "modify":
-                return " ".join(s for c in self._SCOPES.values() for s in c
-                                if "modify" in s)
-            return self._SCOPES[categories]
+                return " ".join(s for scopes in SCOPES.values() 
+                                for s in scopes)
+            return " ".join(s for scopes in SCOPES.values()
+                            for s in scopes if categories in s)
         
-        return " ".join(s for c in (self.get_scopes[c] for c in categories)
-                        for s in c)
+        return " ".join(s 
+                        for scopes in (self.get_scopes[c] for c in categories)
+                        for s in scopes)
 
     def __init__(
             self, *, client_id: str = None, client_secret: str = None,
-            flow: str = "client_credentials", browser: bool = True, 
-            backend: str = "flask", scopes: Union[str, list[str]] = None, 
-            access_token: str = None, refresh_token: str = None, 
-            expiry: datetime.datetime = None):
-
+            flow: str = None, framework: Union[bool, str] = None,
+            port: Union[int, str] = 8888, redirect_uri: str = None,
+            scopes: Union[str, list[str]] = "",
+            access_token: str = None, token_type: str = "Bearer",
+            refresh_token: str = None, 
+            expiry: Union[datetime.datetime, str] = None, save: bool = True
+        ) -> None:
+        
         """
-        Create a Spotify Web API session.
+        Create a Spotify Web API object.
         """
 
-        super().__init__()
+        self.session = requests.Session()
 
-        if flow not in self._OAUTH_FLOWS:
-            raise ValueError("Invalid OAuth 2.0 authorization flow.")
-        self._flow = flow
+        if access_token is None and config.has_section("minim.spotify.WebAPI"):
+            _flow = config.get("minim.spotify.WebAPI", "flow", 
+                                fallback=None)
+            if flow == _flow or not flow and _flow:
+                flow = _flow
+                access_token = config.get("minim.spotify.WebAPI", 
+                                          "access_token")
+                token_type = config.get("minim.spotify.WebAPI", 
+                                        "token_type")
+                refresh_token = config.get("minim.spotify.WebAPI", 
+                                           "refresh_token", 
+                                           fallback=refresh_token)
+                expiry = config.get("minim.spotify.WebAPI", "expiry", 
+                                    fallback=expiry)
+                client_id = config.get("minim.spotify.WebAPI", "client_id",
+                                       fallback=client_id)
+                client_secret = config.get("minim.spotify.WebAPI", 
+                                           "client_secret", 
+                                           fallback=client_secret)
+                port = config.get("minim.spotify.WebAPI", "port", 
+                                  fallback=port)
+                redirect_uri = config.get("minim.spotify.WebAPI", 
+                                          "redirect_uri", 
+                                          fallback=redirect_uri)
+                scopes = config.get("minim.spotify.WebAPI", "scopes", 
+                                    fallback=scopes)
 
-        if access_token is None:
-            self._client_id = os.environ.get("SPOTIFY_CLIENT_ID") \
-                              if client_id is None else client_id
-            self._client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET") \
-                                  if client_secret is None else client_secret
-            self._browser = browser
-            self._backend = backend
-            if flow == "authorization_code" and self._browser:
-                if (self._backend == "flask" and not FOUND_FLASK) or \
-                        (self._backend == "playwright" and not FOUND_PLAYWRIGHT):
-                    print(f"The {self._backend.capitalize()} library "
-                          "was not found, so the automatic "
-                          "authorization code retrieval is not "
-                          "available.")
-                    self._browser = False
-            self._scopes = " ".join(scopes) if isinstance(scopes, list) \
-                           else scopes
-            self._get_access_token()
-        else:
-            self.session.headers.update(
-                {"Authorization": f"Bearer {access_token}"}
-            )
-            self._refresh_token = refresh_token
-            self._expiry = expiry
+        self.set_authorization_flow(
+            flow, client_id=client_id, client_secret=client_secret, 
+            framework=framework, port=port, redirect_uri=redirect_uri, 
+            scopes=scopes
+        )
+        self.set_access_token(access_token, token_type=token_type,
+                              refresh_token=refresh_token, expiry=expiry, 
+                              save=save)
 
-        try:
+        if self._flow in {"authorization_code", "authorization_code_pkce"}:
             self._me = self.get_current_user_profile()
-        except RuntimeError:
-            pass
 
-    def __repr__(self):
+    def _check_scope(self, endpoint: str, scope: str) -> None:
 
         """
-        Set the string representation of the Spotify Web API session
-        object.
+        Check if the user has granted the appropriate authorization
+        scope for the desired endpoint.
+
+        Parameters
+        ----------
+        endpoint : `str`
+            Spotify Web API endpoint.
+
+        scope : `str`
+            Required scope for `endpoint`.
         """
 
-        if hasattr(self, "_me"):
-            return (f"Spotify Web API: user {self._me['display_name']} "
-                    f"(ID: {self._me['id']}, email: {self._me['email']})")
+        if not hasattr(self, "_scopes") or scope not in self._scopes:
+            emsg = (f"minim.spotify.WebAPI.{endpoint}() requires the "
+                    f"'{scope}' authorization scope.")
+            raise RuntimeError(emsg)
+
+    def _get_authorization_code(self, challenge: str = None) -> str:
+
+        """
+        Get an authorization code to be exchanged for an access token in
+        the authorization code flow.
+
+        Parameters
+        ----------
+        challenge : `str`, optional
+            Code challenge for the authorization code with PKCE flow.
         
-        return f"<minim.spotify.WebAPISession object at 0x{id(self):x}>"
-
-    def _get_access_token(self) -> None:
-
-        """
-        Get an access token via a supported OAuth 2.0 authentication 
-        flow.
-        """
-
-        if self._client_id is None or self._client_secret is None:
-            raise ValueError("Spotify Web API client credentials not "
-                             "provided.")
-        
-        if self._flow == "authorization_code":
-            auth_code = self._get_authorization_code()
-            self._client64 = base64.b64encode(
-                f"{self._client_id}:{self._client_secret}".encode("ascii")
-            ).decode("ascii")
-
-            resp = requests.post(
-                self.TOKEN_URL,
-                data={"code": auth_code, "grant_type": "authorization_code",
-                      "redirect_uri": self.REDIRECT_URI},
-                headers={"Authorization": f"Basic {self._client64}"}
-            ).json()
-
-            self.session.headers.update(
-                {"Authorization": f"{resp['token_type']} {resp['access_token']}"}
-            )
-            self._refresh_token = resp["refresh_token"]
-            self._expiry = datetime.datetime.now() \
-                           + datetime.timedelta(0, resp["expires_in"])
-            
-        elif self._flow == "client_credentials":
-            resp = requests.post(
-                self.TOKEN_URL,
-                data={"client_id": self._client_id,
-                      "client_secret": self._client_secret,
-                      "grant_type": "client_credentials"}
-            ).json()
-
-            self.session.headers.update(
-                {"Authorization": f"{resp['token_type']} {resp['access_token']}"}
-            )
-            self._refresh_token = None
-            self._expiry = datetime.datetime.now() \
-                            + datetime.timedelta(0, resp["expires_in"])
-
-    def _get_authorization_code(self) -> str:
-
-        """
-        Get an authorization code to be exchanged for an access token.
-
         Returns
         -------
         auth_code : `str`
             Authorization code.
         """
 
-        params = {"client_id": os.environ.get("SPOTIFY_CLIENT_ID"),
-                  "response_type": "code",
-                  "redirect_uri": self.REDIRECT_URI}
+        params = {
+            "client_id": self._client_id,
+            "redirect_uri": self._redirect_uri,
+            "response_type": "code",
+            "state": secrets.token_urlsafe()
+        }
         if self._scopes:
             params["scope"] = self._scopes
-
+        if challenge is not None:
+            params["code_challenge_method"] = "S256"
+            params["code_challenge"] = challenge
         auth_url = f"{self.AUTH_URL}?{urllib.parse.urlencode(params)}"
 
-        if self._browser:
-            if self._backend == "flask":
-                webbrowser.open(auth_url)
+        if self._web_framework == "flask":
+            app = Flask(__name__)
+            json_file = TEMP_DIR / "minim_spotify.json"
 
-                app = Flask(__name__)
-                pickle_file = f"{TEMP_DIR}/spotify.pickle"
-                @app.route("/callback", methods=["GET"])
-                def _callback() -> str:
-                    with open(pickle_file, "wb") as f:
-                        pickle.dump(request.args, f)
-                    if "error" in request.args:
-                        return "Access denied. You may close this page now."
-                    return "Access granted. You may close this page now."
+            @app.route("/callback", methods=["GET"])
+            def _callback() -> str:
+                if "error" in request.args:
+                    return "Access denied. You may close this page now."
+                with open(json_file, "w") as f:
+                    json.dump(request.args, f)
+                return "Access granted. You may close this page now."
 
-                event = multiprocessing.Event()
-                server = multiprocessing.Process(target=app.run, 
-                                                 args=("0.0.0.0", 8888))
-                server.start()
-                check = multiprocessing.Process(target=_file_exists, 
-                                                args=(event, pickle_file))
-                check.start()
-                while True:
-                    if event.is_set():
-                        check.terminate()
-                        server.terminate()
-                        break
-                    time.sleep(0.1)
+            server = multiprocessing.Process(target=app.run, 
+                                             args=("0.0.0.0", self._port))
+            server.start()
+            webbrowser.open(auth_url)
+            while not Path(json_file).is_file():
+                time.sleep(0.1)
+            server.terminate()
 
-                with open(pickle_file, "rb") as f:
-                    queries = pickle.load(f)
-                os.remove(pickle_file)
+            with open(json_file, "rb") as f:
+                queries = json.load(f)
+            os.remove(json_file)
+        
+        elif self._web_framework == "playwright":
+            har_file = TEMP_DIR / "minim_spotify.har"
             
-            elif self._backend == "playwright":
-                har_file = f"{TEMP_DIR}/spotify.har"
-                with sync_playwright() as playwright:
-                    browser = playwright.chromium.launch(headless=False)
-                    context = browser.new_context(record_har_path=har_file)
-                    page = context.new_page()
-                    page.goto(auth_url, timeout=0)
-                    try:
-                        page.wait_for_url(f"{self.REDIRECT_URI}*", 
-                                          wait_until="networkidle")
-                    except RuntimeError:
-                        pass
-                    context.close()
-                    browser.close()
+            with sync_playwright() as playwright:
+                browser = playwright.chromium.launch(headless=False)
+                context = browser.new_context(record_har_path=har_file)
+                page = context.new_page()
+                page.goto(auth_url, timeout=0)
+                page.wait_for_url(f"{self._redirect_uri}*", 
+                                  wait_until="networkidle")
+                context.close()
+                browser.close()
 
-                with open(har_file, "r") as f:
-                    har = f.read()
-                os.remove(har_file)
+            with open(har_file, "r") as f:
                 queries = dict(
                     urllib.parse.parse_qsl(
                         urllib.parse.urlparse(
-                            re.search(f'{self.REDIRECT_URI}\?(.*?)"', har).group(0)
+                            re.search(f'{self._redirect_uri}\?(.*?)"', 
+                                      f.read()).group(0)
                         ).query
                     )
                 )
+            os.remove(har_file)
 
         else:
             print("To grant Minim access to Spotify data and features, "
@@ -1053,14 +756,38 @@ class WebAPISession(_Session):
             uri = input("After authorizing Minim to access Spotify on "
                         "your behalf, copy and paste the URI in the "
                         "address bar of your web browser beginning "
-                        f"with '{self.REDIRECT_URI}' below.\n\nURI: ")
+                        f"with '{self._redirect_uri}' below.\n\nURI: ")
             queries = dict(
                 urllib.parse.parse_qsl(urllib.parse.urlparse(uri).query)
             )
 
         if "error" in queries:
             raise RuntimeError(f"Authorization failed. Error: {queries['error']}")
+        if params["state"] != queries["state"]:
+            raise RuntimeError("Authorization failed due to state mismatch.")
         return queries["code"]
+
+    def _get_json(self, url: str, **kwargs) -> dict:
+
+        """
+        Send a GET request and return the JSON-encoded content of the 
+        response.
+
+        Parameters
+        ----------
+        url : `str`
+            URL for the GET request.
+        
+        **kwargs
+            Keyword arguments to pass to :meth:`requests.request`.
+
+        Returns
+        -------
+        resp : `dict`
+            JSON-encoded content of the response.
+        """
+
+        return self._request("get", url, **kwargs).json()
     
     def _refresh_access_token(self) -> None:
 
@@ -1068,22 +795,28 @@ class WebAPISession(_Session):
         Refresh the expired excess token.
         """
 
-        if self._refresh_token is None:
-            self._get_access_token()
-        else:
-            resp = requests.post(
+        if self._refresh_token:
+            client_b64 = base64.b64encode(
+                f"{self._client_id}:{self._client_secret}".encode("ascii")
+            ).decode("ascii")
+            r = self.session.post(
                 self.TOKEN_URL,
                 data={"grant_type": "refresh_token",
                       "refresh_token": self._refresh_token},
-                headers={"Authorization": f"Basic {self._client64}"}
+                headers={"Authorization": f"Basic {client_b64}"}
             ).json()
             self.session.headers.update(
-                {"Authorization": f"{resp['token_type']} {resp['access_token']}"}
+                {"Authorization": f"{r['token_type']} {r['access_token']}"}
             )
-            self._expiry = datetime.datetime.now() \
-                          + datetime.timedelta(0, resp["expires_in"])
-    
-    def _request(self, method: str, url: str, **kwargs) -> requests.Response:
+            self._expiry = (datetime.datetime.now()
+                            + datetime.timedelta(0, r["expires_in"]))
+            self._scopes = r["scope"]
+        else:
+            self.set_access_token()
+
+    def _request(
+            self, method: str, url: str, retry: bool = True, **kwargs
+        ) -> requests.Response:
 
         """
         Construct and send a request, but with status code checking.
@@ -1095,6 +828,10 @@ class WebAPISession(_Session):
 
         url : `str`
             URL for the request.
+
+        retry : `bool`
+            Specifies whether to retry the request if the response has
+            a non-2xx status code.
 
         **kwargs
             Keyword arguments passed to :meth:`requests.request`.
@@ -1108,37 +845,239 @@ class WebAPISession(_Session):
         if self._expiry is not None and datetime.datetime.now() > self._expiry:
             self._refresh_access_token()
 
-        resp = self.session.request(method, url, **kwargs)
-        if resp.status_code not in range(200, 299):
-            error = resp.json()["error"]
+        r = self.session.request(method, url, **kwargs)
+        if r.status_code not in range(200, 299):
+            error = r.json()["error"]
             emsg = f"{error['status']} {error['message']}"
-            if resp.status_code == 401:
-                print(emsg)
-                self._get_access_token()
-                return self._request(method, url, **kwargs)
+            if r.status_code == 401 and retry:
+                logging.warning(emsg)
+                self._refresh_access_token()
+                return self._request(method, url, False, **kwargs)
             else:
                 raise RuntimeError(emsg)
-        return resp
+        return r
 
-    def _check_scope(self, method: str, scope: str) -> None:
+    def set_access_token(
+            self, access_token: str = None, *, token_type: str = "Bearer",
+            refresh_token: str = None, 
+            expiry: Union[str, datetime.datetime] = None, save: bool = True
+        ) -> None:
 
         """
-        Check if the user has granted the appropriate authorization
-        scope for the desired method call.
+        Set the Spotify Web API access token.
 
         Parameters
         ----------
-        method : `str`
-            Spotify Web API method/endpoint.
+        access_token : `str`, optional
+            Access token. If not provided, an access token is obtained
+            using an OAuth 2.0 authorization flow or from the Spotify
+            Web Player.
 
-        scope : `str`
-            Required scope for `method`.
+        token_type : `str`, keyword-only, default: :code:`"Bearer"`
+            Type of `access_token`. Must be specified if `access_token` 
+            is provided as a keyword argument.
+
+        refresh_token : `str`, keyword-only, optional
+            Refresh token accompanying `access_token`.
+
+        expiry : `str` or `datetime.datetime`, keyword-only, optional
+            Access token expiry timestamp in the ISO 8601 format
+            :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be
+            reauthenticated using the refresh token (if available) or 
+            the default authorization flow (if possible) when 
+            `access_token` expires.
+
+        save : `bool`, keyword-only, default: :code:`True`
+            Determines whether to save the newly obtained access tokens
+            and their associated properties to the Minim configuration 
+            file.
         """
 
-        if self._scopes is None or scope not in self._scopes:
-            emsg = (f"spotify.WebAPISession.{method}() requires the "
-                    f"'{scope}' authorization scope.")
-            raise RuntimeError(emsg)
+        if access_token is None:
+            if self._flow:
+                if not self._client_id or not self._client_secret:
+                    emsg = "Spotify Web API client credentials not provided."
+                    raise ValueError(emsg)
+            
+                if "authorization_code" in self._flow:
+                    client_b64 = base64.urlsafe_b64encode(
+                        f"{self._client_id}:{self._client_secret}".encode("utf-8")
+                    ).decode("utf-8")
+                    data={"grant_type": "authorization_code",
+                          "redirect_uri": self._redirect_uri}
+                    if self._flow == "authorization_code_pkce":
+                        data["client_id"] = self._client_id
+                        data["code_verifier"] = secrets.token_urlsafe(96)
+                        data["code"] = self._get_authorization_code(
+                            base64.urlsafe_b64encode(
+                                hashlib.sha256(
+                                    data["code_verifier"].encode("utf-8")
+                                ).digest()
+                            ).decode("utf-8").replace("=", "")
+                        )
+                    else:
+                        data["code"] = self._get_authorization_code()
+                    r = self.session.post(
+                        self.TOKEN_URL, data=data,
+                        headers={"Authorization": f"Basic {client_b64}"}
+                    ).json()
+                    refresh_token = r["refresh_token"]
+                elif self._flow == "client_credentials":
+                    r = self.session.post(
+                        self.TOKEN_URL,
+                        data={"client_id": self._client_id,
+                              "client_secret": self._client_secret,
+                              "grant_type": "client_credentials"}
+                    ).json()
+                access_token = r["access_token"]
+                token_type = r["token_type"]
+                expiry = (datetime.datetime.now()
+                          + datetime.timedelta(0, r["expires_in"]))
+                
+                if save:
+                    config["minim.spotify.WebAPI"] = {
+                        "flow": self._flow if self._flow else "",
+                        "client_id": self._client_id,
+                        "client_secret": self._client_secret,
+                        "access_token": access_token,
+                        "token_type": token_type,
+                        "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
+                    }
+                    if refresh_token:
+                        config["minim.spotify.WebAPI"]["refresh_token"] \
+                            = refresh_token
+                    for attr in ("redirect_uri", "scopes"):
+                        if hasattr(self, f"_{attr}"):
+                            config["minim.spotify.WebAPI"][attr] \
+                                = getattr(self, f"_{attr}") or ""
+                    with open(HOME_DIR / "minim.cfg", "w") as f:
+                        config.write(f)
+
+            else:
+                r = self.session.get(self.WEB_PLAYER_TOKEN_URL).json()
+                self._client_id = r["clientId"]
+                access_token = r["accessToken"]
+                token_type = "Bearer"
+                expiry = datetime.datetime.fromtimestamp(
+                    r["accessTokenExpirationTimestampMs"] / 1000
+                )
+                
+        self.session.headers.update(
+            {"Authorization": f"{token_type} {access_token}"}
+        )
+        self._refresh_token = refresh_token
+        self._expiry = (
+            datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ") 
+            if isinstance(expiry, str) else expiry
+        )
+
+    def set_authorization_flow(
+            self, flow: str = None, *, client_id: str = None, 
+            client_secret: str = None, framework: Union[bool, str] = None,
+            port: Union[int, str] = 8888, redirect_uri: str = None, 
+            scopes: Union[str, list[str]] = None) -> None:
+        
+        """
+        Set the OAuth 2.0 authorization flow.
+
+        Parameters
+        ----------
+        flow : `str`, default: :code:`None`
+            Authorization flow.
+
+            .. container::
+
+               **Valid values**:
+           
+               * :code:`"authorization_code"` for the authorization code 
+                 flow.
+               * :code:`"authorization_code_pkce"` for the authorization
+                 code with proof key for code exchange (PKCE) flow.
+               * :code:`"client_credentials"` for the client credentials 
+                 flow.
+               * :code:`None` for a Spotify Web Player access token.
+            
+        client_id : `str`, keyword-only, optional
+            Client ID. Required for all authorization flows.
+
+        client_secret : `str`, keyword-only, optional
+            Client secret. Required for all authorization flows.
+
+        port : `int` or `str`, keyword-only, default: :code:`8888`
+            Port on :code:`localhost` to use for the authorization code
+            flow with the Flask framework.
+
+        redirect_uri : `str`, keyword-only, optional
+            Redirect URI for the authorization code flow. If not 
+            specified, an open port on :code:`localhost` will be used.
+
+        scopes : `str` or `list`, keyword-only, optional
+            Authorization scopes to request access to in the 
+            authorization code flow.
+
+        framework : `bool` or `str`, keyword-only, optional
+            Web framework used to automatically complete the 
+            authorization code flow.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`True` to automatically determine which web
+                 framework to use.
+               * :code:`"flask"` for the Flask framework.
+               * :code:`"playwright"` for the Playwright framework.
+               * :code:`False` or :code:`None` to manually open the
+                 authorization URL in a web browser and provide the
+                 full callback URI via the terminal.
+        """
+        
+        self._flow = flow
+        if self._flow:
+            if self._flow not in {"authorization_code", 
+                                  "authorization_code_pkce",
+                                  "client_credentials"}:
+                raise ValueError("Invalid OAuth 2.0 authorization flow.")
+
+            self._client_id = client_id or os.environ.get("SPOTIFY_CLIENT_ID")
+            self._client_secret = (client_secret
+                                   or os.environ.get("SPOTIFY_CLIENT_SECRET"))
+            if "authorization_code" in self._flow:
+                self._scopes = " ".join(scopes) if isinstance(scopes, list) \
+                               else scopes
+
+                if redirect_uri:
+                    self._redirect_uri = redirect_uri
+                    if "localhost" in redirect_uri:
+                        self._port = re.search(
+                            r"http://localhost:(\d+)/callback", 
+                            self._redirect_uri
+                        ).group(1)
+                    elif framework:
+                        wmsg = ("The redirect URI is not on localhost, "
+                                "so automatic authorization code "
+                                "retrieval is not available.")
+                        logging.warning(wmsg)
+                        framework = None
+                else:
+                    self._port = port
+                    self._redirect_uri = f"http://localhost:{port}/callback"
+
+                if framework is True:
+                    self._web_framework = next(
+                        (wb for wb, f in FOUND.items() if f), None
+                    )
+                elif framework:
+                    self._web_framework = (framework if FOUND[framework]
+                                           else None)
+                else:
+                    self._web_framework = None
+                if self._web_framework is None and framework:
+                    logging.warning(
+                        f"The {framework.capitalize()} library was "
+                        "not found, so the automatic authorization "
+                        "code retrieval functionality is not available."
+                    )
 
     ### ALBUMS ################################################################
 
@@ -1181,29 +1120,29 @@ class WebAPISession(_Session):
                .. code::
 
                   {
-                    "album_type": "compilation",
-                    "total_tracks": 9,
-                    "available_markets": ["CA", "BR", "IT"],
+                    "album_type": <str>,
+                    "total_tracks": <int>,
+                    "available_markets": [<str>],
                     "external_urls": {
                       "spotify": <str>
                     },
                     "href": <str>,
-                    "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                    "id": <str>,
                     "images": [
                       {
                         "url": <str>,
-                        "height": 300,
-                        "width": 300
+                        "height": <int>,
+                        "width": <int>
                       }
                     ],
                     "name": <str>,
-                    "release_date": "1981-12",
-                    "release_date_precision": "year",
+                    "release_date": <str>,
+                    "release_date_precision": <str>,
                     "restrictions": {
-                      "reason": "market"
+                      "reason": <str>
                     },
                     "type": "album",
-                    "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                    "uri": <str>,
                     "copyrights": [
                       {
                         "text": <str>,
@@ -1215,9 +1154,9 @@ class WebAPISession(_Session):
                       "ean": <str>,
                       "upc": <str>
                     },
-                    "genres": ["Egg punk", "Noise rock"],
+                    "genres": [<str>],
                     "label": <str>,
-                    "popularity": 0,
+                    "popularity": <int>,
                     "artists": [
                       {
                         "external_urls": {
@@ -1225,31 +1164,31 @@ class WebAPISession(_Session):
                         },
                         "followers": {
                           "href": <str>,
-                          "total": 0
+                          "total": <int>
                         },
-                        "genres": ["Prog rock", "Grunge"],
+                        "genres": [<str>],
                         "href": <str>,
                         "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "name": <str>,
-                        "popularity": 0,
+                        "popularity": <int>,
                         "type": "artist",
                         "uri": <str>
                       }
                     ],
                     "tracks": {
                       "href": <str>,
-                      "limit": 20,
+                      "limit": <int>,
                       "next": <str>,
-                      "offset": 0,
+                      "offset": <int>,
                       "previous": <str>,
-                      "total": 4,
+                      "total": <int>,
                       "items": [
                         {
                           "artists": [
@@ -1265,15 +1204,15 @@ class WebAPISession(_Session):
                             }
                           ],
                           "available_markets": [<str>],
-                          "disc_number": 0,
-                          "duration_ms": 0,
-                          "explicit": False,
+                          "disc_number": <int>,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
                           "external_urls": {
                             "spotify": <str>
                           },
                           "href": <str>,
                           "id": <str>,
-                          "is_playable": False,
+                          "is_playable": <bool>
                           "linked_from": {
                             "external_urls": {
                               "spotify": <str>
@@ -1288,10 +1227,10 @@ class WebAPISession(_Session):
                           },
                           "name": <str>,
                           "preview_url": <str>,
-                          "track_number": 0,
+                          "track_number": <int>,
                           "type": <str>,
                           "uri": <str>,
-                          "is_local": false
+                          "is_local": <bool>
                         }
                       ]
                     }
@@ -1350,29 +1289,29 @@ class WebAPISession(_Session):
                     {
                       "albums": [
                         {
-                          "album_type": "compilation",
-                          "total_tracks": 9,
-                          "available_markets": ["CA", "BR", "IT"],
+                          "album_type": <str>,
+                          "total_tracks": <int>,
+                          "available_markets": [<str>],
                           "external_urls": {
                             "spotify": <str>
                           },
                           "href": <str>,
-                          "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                          "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
-                          "release_date": "1981-12",
-                          "release_date_precision": "year",
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
                           "restrictions": {
-                            "reason": "market"
+                            "reason": <str>
                           },
                           "type": "album",
-                          "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                          "uri": <str>,
                           "copyrights": [
                             {
                               "text": <str>,
@@ -1384,9 +1323,9 @@ class WebAPISession(_Session):
                             "ean": <str>,
                             "upc": <str>
                           },
-                          "genres": ["Egg punk", "Noise rock"],
+                          "genres": [<str>],
                           "label": <str>,
-                          "popularity": 0,
+                          "popularity": <int>,
                           "artists": [
                             {
                               "external_urls": {
@@ -1394,31 +1333,31 @@ class WebAPISession(_Session):
                               },
                               "followers": {
                                 "href": <str>,
-                                "total": 0
+                                "total": <int>
                               },
-                              "genres": ["Prog rock", "Grunge"],
+                              "genres": [<str>],
                               "href": <str>,
                               "id": <str>,
                               "images": [
                                 {
                                   "url": <str>,
-                                  "height": 300,
-                                  "width": 300
+                                  "height": <int>,
+                                  "width": <int>
                                 }
                               ],
                               "name": <str>,
-                              "popularity": 0,
+                              "popularity": <int>,
                               "type": "artist",
                               "uri": <str>
                             }
                           ],
                           "tracks": {
                             "href": <str>,
-                            "limit": 20,
+                            "limit": <int>,
                             "next": <str>,
-                            "offset": 0,
+                            "offset": <int>,
                             "previous": <str>,
-                            "total": 4,
+                            "total": <int>,
                             "items": [
                               {
                                 "artists": [
@@ -1434,15 +1373,15 @@ class WebAPISession(_Session):
                                   }
                                 ],
                                 "available_markets": [<str>],
-                                "disc_number": 0,
-                                "duration_ms": 0,
-                                "explicit": False,
+                                "disc_number": <int>,
+                                "duration_ms": <int>,
+                                "explicit": <bool>,
                                 "external_urls": {
                                   "spotify": <str>
                                 },
                                 "href": <str>,
                                 "id": <str>,
-                                "is_playable": False,
+                                "is_playable": <bool>
                                 "linked_from": {
                                   "external_urls": {
                                     "spotify": <str>
@@ -1457,10 +1396,10 @@ class WebAPISession(_Session):
                                 },
                                 "name": <str>,
                                 "preview_url": <str>,
-                                "track_number": 0,
+                                "track_number": <int>,
                                 "type": <str>,
                                 "uri": <str>,
-                                "is_local": false
+                                "is_local": <bool>
                               }
                             ]
                           }
@@ -1536,11 +1475,11 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
+                    "limit": <int>,
                     "next": <str>,
-                    "offset": 0,
+                    "offset": <int>,
                     "previous": <str>,
-                    "total": 4,
+                    "total": <int>,
                     "items": [
                       {
                         "artists": [
@@ -1556,15 +1495,15 @@ class WebAPISession(_Session):
                           }
                         ],
                         "available_markets": [<str>],
-                        "disc_number": 0,
-                        "duration_ms": 0,
-                        "explicit": False,
+                        "disc_number": <int>,
+                        "duration_ms": <int>,
+                        "explicit": <bool>,
                         "external_urls": {
                           "spotify": <str>
                         },
                         "href": <str>,
                         "id": <str>,
-                        "is_playable": False,
+                        "is_playable": <bool>
                         "linked_from": {
                           "external_urls": {
                             "spotify": <str>
@@ -1579,10 +1518,10 @@ class WebAPISession(_Session):
                         },
                         "name": <str>,
                         "preview_url": <str>,
-                        "track_number": 0,
+                        "track_number": <int>,
                         "type": <str>,
                         "uri": <str>,
-                        "is_local": false
+                        "is_local": <bool>
                       }
                     ]
                   }
@@ -1653,38 +1592,38 @@ class WebAPISession(_Session):
                   [
                     {
                       "href": <str>,
-                      "limit": 20,
+                      "limit": <int>,
                       "next": <str>,
-                      "offset": 0,
+                      "offset": <int>,
                       "previous": <str>,
-                      "total": 4,
+                      "total": <int>,
                       "items": [
                         {
                           "added_at": <str>,
                           "album": {
-                            "album_type": "compilation",
-                            "total_tracks": 9,
-                            "available_markets": ["CA", "BR", "IT"],
+                            "album_type": <str>,
+                            "total_tracks": <int>,
+                            "available_markets": [<str>],
                             "external_urls": {
                               "spotify": <str>
                             },
                             "href": <str>,
-                            "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                            "id": <str>,
                             "images": [
                               {
                                 "url": <str>,
-                                "height": 300,
-                                "width": 300
+                                "height": <int>,
+                                "width": <int>
                               }
                             ],
                             "name": <str>,
-                            "release_date": "1981-12",
-                            "release_date_precision": "year",
+                            "release_date": <str>,
+                            "release_date_precision": <str>,
                             "restrictions": {
-                              "reason": "market"
+                              "reason": <str>
                             },
                             "type": "album",
-                            "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                            "uri": <str>,
                             "copyrights": [
                               {
                                 "text": <str>,
@@ -1696,9 +1635,9 @@ class WebAPISession(_Session):
                               "ean": <str>,
                               "upc": <str>
                             },
-                            "genres": ["Egg punk", "Noise rock"],
+                            "genres": [<str>],
                             "label": <str>,
-                            "popularity": 0,
+                            "popularity": <int>,
                             "artists": [
                               {
                                 "external_urls": {
@@ -1706,31 +1645,31 @@ class WebAPISession(_Session):
                                 },
                                 "followers": {
                                   "href": <str>,
-                                  "total": 0
+                                  "total": <int>
                                 },
-                                "genres": ["Prog rock", "Grunge"],
+                                "genres": [<str>],
                                 "href": <str>,
                                 "id": <str>,
                                 "images": [
                                   {
                                     "url": <str>,
-                                    "height": 300,
-                                    "width": 300
+                                    "height": <int>,
+                                    "width": <int>
                                   }
                                 ],
                                 "name": <str>,
-                                "popularity": 0,
+                                "popularity": <int>,
                                 "type": "artist",
                                 "uri": <str>
                               }
                             ],
                             "tracks": {
                               "href": <str>,
-                              "limit": 20,
+                              "limit": <int>,
                               "next": <str>,
-                              "offset": 0,
+                              "offset": <int>,
                               "previous": <str>,
-                              "total": 4,
+                              "total": <int>,
                               "items": [
                                 {
                                   "artists": [
@@ -1746,15 +1685,15 @@ class WebAPISession(_Session):
                                     }
                                   ],
                                   "available_markets": [<str>],
-                                  "disc_number": 0,
-                                  "duration_ms": 0,
-                                  "explicit": False,
+                                  "disc_number": <int>,
+                                  "duration_ms": <int>,
+                                  "explicit": <bool>,
                                   "external_urls": {
                                     "spotify": <str>
                                   },
                                   "href": <str>,
                                   "id": <str>,
-                                  "is_playable": False,
+                                  "is_playable": <bool>
                                   "linked_from": {
                                     "external_urls": {
                                       "spotify": <str>
@@ -1769,10 +1708,10 @@ class WebAPISession(_Session):
                                   },
                                   "name": <str>,
                                   "preview_url": <str>,
-                                  "track_number": 0,
+                                  "track_number": <int>,
                                   "type": <str>,
                                   "uri": <str>,
-                                  "is_local": false
+                                  "is_local": <bool>
                                 }
                               ]
                             }
@@ -1942,36 +1881,36 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
+                    "limit": <int>,
                     "next": <str>,
-                    "offset": 0,
+                    "offset": <int>,
                     "previous": <str>,
-                    "total": 4,
+                    "total": <int>,
                     "items": [
                       {
-                        "album_type": "compilation",
-                        "total_tracks": 9,
-                        "available_markets": ["CA", "BR", "IT"],
+                        "album_type": <str>,
+                        "total_tracks": <int>,
+                        "available_markets": [<str>],
                         "external_urls": {
                           "spotify": <str>
                         },
                         "href": <str>,
-                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "name": <str>,
-                        "release_date": "1981-12",
-                        "release_date_precision": "year",
+                        "release_date": <str>,
+                        "release_date_precision": <str>,
                         "restrictions": {
-                          "reason": "market"
+                          "reason": <str>
                         },
                         "type": "album",
-                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "uri": <str>,
                         "copyrights": [
                           {
                             "text": <str>,
@@ -1983,10 +1922,10 @@ class WebAPISession(_Session):
                           "ean": <str>,
                           "upc": <str>
                         },
-                        "genres": ["Egg punk", "Noise rock"],
+                        "genres": [<str>],
                         "label": <str>,
-                        "popularity": 0,
-                        "album_group": "compilation",
+                        "popularity": <int>,
+                        "album_group": <str>,
                         "artists": [
                           {
                             "external_urls": {
@@ -2042,20 +1981,20 @@ class WebAPISession(_Session):
                     },
                     "followers": {
                       "href": <str>,
-                      "total": 0
+                      "total": <int>
                     },
-                    "genres": ["Prog rock", "Grunge"],
+                    "genres": [<str>],
                     "href": <str>,
                     "id": <str>,
                     "images": [
                       {
                         "url": <str>,
-                        "height": 300,
-                        "width": 300
+                        "height": <int>,
+                        "width": <int>
                       }
                     ],
                     "name": <str>,
-                    "popularity": 0,
+                    "popularity": <int>,
                     "type": "artist",
                     "uri": <str>
                   }
@@ -2101,20 +2040,20 @@ class WebAPISession(_Session):
                       },
                       "followers": {
                         "href": <str>,
-                        "total": 0
+                        "total": <int>
                       },
-                      "genres": ["Prog rock", "Grunge"],
+                      "genres": [<str>],
                       "href": <str>,
                       "id": <str>,
                       "images": [
                         {
                           "url": <str>,
-                          "height": 300,
-                          "width": 300
+                          "height": <int>,
+                          "width": <int>
                         }
                       ],
                       "name": <str>,
-                      "popularity": 0,
+                      "popularity": <int>,
                       "type": "artist",
                       "uri": <str>
                     }
@@ -2206,36 +2145,36 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
+                    "limit": <int>,
                     "next": <str>,
-                    "offset": 0,
+                    "offset": <int>,
                     "previous": <str>,
-                    "total": 4,
+                    "total": <int>,
                     "items": [
                       {
-                        "album_type": "compilation",
-                        "total_tracks": 9,
-                        "available_markets": ["CA", "BR", "IT"],
+                        "album_type": <str>,
+                        "total_tracks": <int>,
+                        "available_markets": [<str>],
                         "external_urls": {
                           "spotify": <str>
                         },
                         "href": <str>,
-                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "name": <str>,
-                        "release_date": "1981-12",
-                        "release_date_precision": "year",
+                        "release_date": <str>,
+                        "release_date_precision": <str>,
                         "restrictions": {
-                          "reason": "market"
+                          "reason": <str>
                         },
                         "type": "album",
-                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "uri": <str>,
                         "copyrights": [
                           {
                             "text": <str>,
@@ -2247,10 +2186,10 @@ class WebAPISession(_Session):
                           "ean": <str>,
                           "upc": <str>
                         },
-                        "genres": ["Egg punk", "Noise rock"],
+                        "genres": [<str>],
                         "label": <str>,
-                        "popularity": 0,
-                        "album_group": "compilation",
+                        "popularity": <int>,
+                        "album_group": <str>,
                         "artists": [
                           {
                             "external_urls": {
@@ -2318,29 +2257,29 @@ class WebAPISession(_Session):
                   [
                     {
                       "album": {
-                        "album_type": "compilation",
-                        "total_tracks": 9,
-                        "available_markets": ["CA", "BR", "IT"],
+                        "album_type": <str>,
+                        "total_tracks": <int>,
+                        "available_markets": [<str>],
                         "external_urls": {
                           "spotify": <str>
                         },
                         "href": <str>,
-                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "name": <str>,
-                        "release_date": "1981-12",
-                        "release_date_precision": "year",
+                        "release_date": <str>,
+                        "release_date_precision": <str>,
                         "restrictions": {
-                          "reason": "market"
+                          "reason": <str>
                         },
                         "type": "album",
-                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "uri": <str>,
                         "copyrights": [
                           {
                             "text": <str>,
@@ -2352,10 +2291,10 @@ class WebAPISession(_Session):
                           "ean": <str>,
                           "upc": <str>
                         },
-                        "genres": ["Egg punk", "Noise rock"],
+                        "genres": [<str>],
                         "label": <str>,
-                        "popularity": 0,
-                        "album_group": "compilation",
+                        "popularity": <int>,
+                        "album_group": <str>,
                         "artists": [
                           {
                             "external_urls": {
@@ -2376,28 +2315,28 @@ class WebAPISession(_Session):
                           },
                           "followers": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
-                          "genres": ["Prog rock", "Grunge"],
+                          "genres": [<str>],
                           "href": <str>,
                           "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
-                          "popularity": 0,
+                          "popularity": <int>,
                           "type": "artist",
                           "uri": <str>
                         }
                       ],
                       "available_markets": [<str>],
-                      "disc_number": 0,
-                      "duration_ms": 0,
-                      "explicit": False,
+                      "disc_number": <int>,
+                      "duration_ms": <int>,
+                      "explicit": <bool>,
                       "external_ids": {
                         "isrc": <str>,
                         "ean": <str>,
@@ -2408,19 +2347,19 @@ class WebAPISession(_Session):
                       },
                       "href": <str>,
                       "id": <str>,
-                      "is_playable": False,
+                      "is_playable": <bool>,
                       "linked_from": {
                       },
                       "restrictions": {
                         "reason": <str>
                       },
                       "name": <str>,
-                      "popularity": 0,
+                      "popularity": <int>,
                       "preview_url": <str>,
-                      "track_number": 0,
+                      "track_number": <int>,
                       "type": "track",
                       "uri": <str>,
-                      "is_local": false
+                      "is_local": <bool>
                     }
                   ]
         """
@@ -2463,20 +2402,20 @@ class WebAPISession(_Session):
                       },
                       "followers": {
                         "href": <str>,
-                        "total": 0
+                        "total": <int>
                       },
-                      "genres": ["Prog rock", "Grunge"],
+                      "genres": [<str>],
                       "href": <str>,
                       "id": <str>,
                       "images": [
                         {
                           "url": <str>,
-                          "height": 300,
-                          "width": 300
+                          "height": <int>,
+                          "width": <int>
                         }
                       ],
                       "name": <str>,
-                      "popularity": 0,
+                      "popularity": <int>,
                       "type": "artist",
                       "uri": <str>
                     }
@@ -2546,8 +2485,8 @@ class WebAPISession(_Session):
                     ],
                     "description": <str>,
                     "html_description": <str>,
-                    "edition": "Unabridged",
-                    "explicit": False,
+                    "edition": <str>,
+                    "explicit": <bool>,
                     "external_urls": {
                       "spotify": <str>
                     },
@@ -2556,8 +2495,8 @@ class WebAPISession(_Session):
                     "images": [
                       {
                         "url": <str>,
-                        "height": 300,
-                        "width": 300
+                        "height": <int>,
+                        "width": <int>
                       }
                     ],
                     "languages": [<str>],
@@ -2571,46 +2510,46 @@ class WebAPISession(_Session):
                     "publisher": <str>,
                     "type": "audiobook",
                     "uri": <str>,
-                    "total_chapters": 0,
+                    "total_chapters": <int>,
                     "chapters": {
                       "href": <str>,
-                      "limit": 20,
+                      "limit": <int>,
                       "next": <str>,
-                      "offset": 0,
+                      "offset": <int>,
                       "previous": <str>,
-                      "total": 4,
+                      "total": <int>,
                       "items": [
                         {
                           "audio_preview_url": <str>,
                           "available_markets": [<str>],
-                          "chapter_number": 1,
+                          "chapter_number": <int>,
                           "description": <str>,
                           "html_description": <str>,
-                          "duration_ms": 1686230,
-                          "explicit": False,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
                           "external_urls": {
                             "spotify": <str>
                           },
                           "href": <str>,
-                          "id": "5Xt5DXGzch68nYYamXrNxZ",
+                          "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
-                          "is_playable": False,
-                          "languages": ["fr", "en"],
+                          "is_playable": <bool>
+                          "languages": [<str>],
                           "name": <str>,
-                          "release_date": "1981-12-15",
-                          "release_date_precision": "day",
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
                           "resume_point": {
-                            "fully_played": False,
-                            "resume_position_ms": 0
+                            "fully_played": <bool>,
+                            "resume_position_ms": <int>
                           },
                           "type": "episode",
-                          "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                          "uri": <str>,
                           "restrictions": {
                             "reason": <str>
                           }
@@ -2690,8 +2629,8 @@ class WebAPISession(_Session):
                     ],
                     "description": <str>,
                     "html_description": <str>,
-                    "edition": "Unabridged",
-                    "explicit": False,
+                    "edition": <str>,
+                    "explicit": <bool>,
                     "external_urls": {
                       "spotify": <str>
                     },
@@ -2700,8 +2639,8 @@ class WebAPISession(_Session):
                     "images": [
                       {
                         "url": <str>,
-                        "height": 300,
-                        "width": 300
+                        "height": <int>,
+                        "width": <int>
                       }
                     ],
                     "languages": [<str>],
@@ -2715,46 +2654,46 @@ class WebAPISession(_Session):
                     "publisher": <str>,
                     "type": "audiobook",
                     "uri": <str>,
-                    "total_chapters": 0,
+                    "total_chapters": <int>,
                     "chapters": {
                       "href": <str>,
-                      "limit": 20,
+                      "limit": <int>,
                       "next": <str>,
-                      "offset": 0,
+                      "offset": <int>,
                       "previous": <str>,
-                      "total": 4,
+                      "total": <int>,
                       "items": [
                         {
                           "audio_preview_url": <str>,
                           "available_markets": [<str>],
-                          "chapter_number": 1,
+                          "chapter_number": <int>,
                           "description": <str>,
                           "html_description": <str>,
-                          "duration_ms": 1686230,
-                          "explicit": False,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
                           "external_urls": {
                             "spotify": <str>
                           },
                           "href": <str>,
-                          "id": "5Xt5DXGzch68nYYamXrNxZ",
+                          "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
-                          "is_playable": False,
-                          "languages": ["fr", "en"],
+                          "is_playable": <bool>
+                          "languages": [<str>],
                           "name": <str>,
-                          "release_date": "1981-12-15",
-                          "release_date_precision": "day",
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
                           "resume_point": {
-                            "fully_played": False,
-                            "resume_position_ms": 0
+                            "fully_played": <bool>,
+                            "resume_position_ms": <int>
                           },
                           "type": "episode",
-                          "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                          "uri": <str>,
                           "restrictions": {
                             "reason": <str>
                           }
@@ -2834,43 +2773,43 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
+                    "limit": <int>,
                     "next": <str>,
-                    "offset": 0,
+                    "offset": <int>,
                     "previous": <str>,
-                    "total": 4,
+                    "total": <int>,
                     "items": [
                       {
                         "audio_preview_url": <str>,
                         "available_markets": [<str>],
-                        "chapter_number": 1,
+                        "chapter_number": <int>,
                         "description": <str>,
                         "html_description": <str>,
-                        "duration_ms": 1686230,
-                        "explicit": False,
+                        "duration_ms": <int>,
+                        "explicit": <bool>,
                         "external_urls": {
                           "spotify": <str>
                         },
                         "href": <str>,
-                        "id": "5Xt5DXGzch68nYYamXrNxZ",
+                        "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
-                        "is_playable": False,
-                        "languages": ["fr", "en"],
+                        "is_playable": <bool>
+                        "languages": [<str>],
                         "name": <str>,
-                        "release_date": "1981-12-15",
-                        "release_date_precision": "day",
+                        "release_date": <str>,
+                        "release_date_precision": <str>,
                         "resume_point": {
-                          "fully_played": False,
-                          "resume_position_ms": 0
+                          "fully_played": <bool>,
+                          "resume_position_ms": <int>
                         },
                         "type": "episode",
-                        "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                        "uri": <str>,
                         "restrictions": {
                           "reason": <str>
                         }
@@ -2927,11 +2866,11 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
+                    "limit": <int>,
                     "next": <str>,
-                    "offset": 0,
+                    "offset": <int>,
                     "previous": <str>,
-                    "total": 4,
+                    "total": <int>,
                     "items": [
                       {
                         "authors": [
@@ -2948,8 +2887,8 @@ class WebAPISession(_Session):
                         ],
                         "description": <str>,
                         "html_description": <str>,
-                        "edition": "Unabridged",
-                        "explicit": False,
+                        "edition": <str>,
+                        "explicit": <bool>,
                         "external_urls": {
                           "spotify": <str>
                         },
@@ -2958,8 +2897,8 @@ class WebAPISession(_Session):
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "languages": [<str>],
@@ -2973,7 +2912,7 @@ class WebAPISession(_Session):
                         "publisher": <str>,
                         "type": "audiobook",
                         "uri": <str>,
-                        "total_chapters": 0
+                        "total_chapters": <int>
                       }
                     ]
                   }
@@ -3144,12 +3083,12 @@ class WebAPISession(_Session):
                     "icons": [
                       {
                         "url": <str>,
-                        "height": 300,
-                        "width": 300
+                        "height": <int>,
+                        "width": <int>
                       }
                     ],
-                    "id": "equal",
-                    "name": "EQUAL"
+                    "id": <str>,
+                    "name": <str>
                   }
         """
         
@@ -3222,20 +3161,20 @@ class WebAPISession(_Session):
                           "href": <str>,
                           "icons": [
                             {
-                              "height": 275,
+                              "height": <int>,
                               "url": <str>,
-                              "width": 275
+                              "width": <int>
                             }
                           ],
-                          "id": "toplists",
-                          "name": "Top Lists"
+                          "id": <str>,
+                          "name": <str>
                         }
                       ],
-                    "limit": 1,
-                    "next": "https://api.spotify.com/v1/browse/categories?offset=1&limit=1",
-                    "offset": 0,
-                    "previous": "https://api.spotify.com/v1/browse/categories?offset=1&limit=1",
-                    "total": 4
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>
                   }
         """
         
@@ -3292,34 +3231,34 @@ class WebAPISession(_Session):
                   {
                     "audio_preview_url": <str>,
                     "available_markets": [<str>],
-                    "chapter_number": 1,
+                    "chapter_number": <int>,
                     "description": <str>,
                     "html_description": <str>,
-                    "duration_ms": 1686230,
-                    "explicit": False,
+                    "duration_ms": <int>,
+                    "explicit": <bool>,
                     "external_urls": {
                       "spotify": <str>
                     },
                     "href": <str>,
-                    "id": "5Xt5DXGzch68nYYamXrNxZ",
+                    "id": <str>,
                     "images": [
                       {
                         "url": <str>,
-                        "height": 300,
-                        "width": 300
+                        "height": <int>,
+                        "width": <int>
                       }
                     ],
-                    "is_playable": False,
-                    "languages": ["fr", "en"],
+                    "is_playable": <bool>
+                    "languages": [<str>],
                     "name": <str>,
-                    "release_date": "1981-12-15",
-                    "release_date_precision": "day",
+                    "release_date": <str>,
+                    "release_date_precision": <str>,
                     "resume_point": {
-                      "fully_played": False,
-                      "resume_position_ms": 0
+                      "fully_played": <bool>,
+                      "resume_position_ms": <int>
                     },
                     "type": "episode",
-                    "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                    "uri": <str>,
                     "restrictions": {
                       "reason": <str>
                     },
@@ -3338,8 +3277,8 @@ class WebAPISession(_Session):
                       ],
                       "description": <str>,
                       "html_description": <str>,
-                      "edition": "Unabridged",
-                      "explicit": False,
+                      "edition": <str>,
+                      "explicit": <bool>,
                       "external_urls": {
                         "spotify": <str>
                       },
@@ -3348,8 +3287,8 @@ class WebAPISession(_Session):
                       "images": [
                         {
                           "url": <str>,
-                          "height": 300,
-                          "width": 300
+                          "height": <int>,
+                          "width": <int>
                         }
                       ],
                       "languages": [<str>],
@@ -3363,7 +3302,7 @@ class WebAPISession(_Session):
                       "publisher": <str>,
                       "type": "audiobook",
                       "uri": <str>,
-                      "total_chapters": 0
+                      "total_chapters": <int>
                     }
                   }
         """
@@ -3424,34 +3363,34 @@ class WebAPISession(_Session):
                     {
                       "audio_preview_url": <str>,
                       "available_markets": [<str>],
-                      "chapter_number": 1,
+                      "chapter_number": <int>,
                       "description": <str>,
                       "html_description": <str>,
-                      "duration_ms": 1686230,
-                      "explicit": False,
+                      "duration_ms": <int>,
+                      "explicit": <bool>,
                       "external_urls": {
                         "spotify": <str>
                       },
                       "href": <str>,
-                      "id": "5Xt5DXGzch68nYYamXrNxZ",
+                      "id": <str>,
                       "images": [
                         {
                           "url": <str>,
-                          "height": 300,
-                          "width": 300
+                          "height": <int>,
+                          "width": <int>
                         }
                       ],
-                      "is_playable": False,
-                      "languages": ["fr", "en"],
+                      "is_playable": <bool>
+                      "languages": [<str>],
                       "name": <str>,
-                      "release_date": "1981-12-15",
-                      "release_date_precision": "day",
+                      "release_date": <str>,
+                      "release_date_precision": <str>,
                       "resume_point": {
-                        "fully_played": False,
-                        "resume_position_ms": 0
+                        "fully_played": <bool>,
+                        "resume_position_ms": <int>
                       },
                       "type": "episode",
-                      "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                      "uri": <str>,
                       "restrictions": {
                         "reason": <str>
                       },
@@ -3470,8 +3409,8 @@ class WebAPISession(_Session):
                         ],
                         "description": <str>,
                         "html_description": <str>,
-                        "edition": "Unabridged",
-                        "explicit": False,
+                        "edition": <str>,
+                        "explicit": <bool>,
                         "external_urls": {
                           "spotify": <str>
                         },
@@ -3480,8 +3419,8 @@ class WebAPISession(_Session):
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "languages": [<str>],
@@ -3495,7 +3434,7 @@ class WebAPISession(_Session):
                         "publisher": <str>,
                         "type": "audiobook",
                         "uri": <str>,
-                        "total_chapters": 0
+                        "total_chapters": <int>
                       }
                     }
                   ]
@@ -3551,33 +3490,33 @@ class WebAPISession(_Session):
                     "audio_preview_url": <str>,
                     "description": <str>,
                     "html_description": <str>,
-                    "duration_ms": 1686230,
-                    "explicit": False,
+                    "duration_ms": <int>,
+                    "explicit": <bool>,
                     "external_urls": {
                       "spotify": <str>
                     },
                     "href": <str>,
-                    "id": "5Xt5DXGzch68nYYamXrNxZ",
+                    "id": <str>,
                     "images": [
                       {
                         "url": <str>,
-                        "height": 300,
-                        "width": 300
+                        "height": <int>,
+                        "width": <int>
                       }
                     ],
-                    "is_externally_hosted": False,
-                    "is_playable": False,
-                    "language": "en",
-                    "languages": ["fr", "en"],
+                    "is_externally_hosted": <bool>,
+                    "is_playable": <bool>
+                    "language": <str>,
+                    "languages": [<str>],
                     "name": <str>,
-                    "release_date": "1981-12-15",
-                    "release_date_precision": "day",
+                    "release_date": <str>,
+                    "release_date_precision": <str>,
                     "resume_point": {
-                      "fully_played": False,
-                      "resume_position_ms": 0
+                      "fully_played": <bool>,
+                      "resume_position_ms": <int>
                     },
                     "type": "episode",
-                    "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                    "uri": <str>,
                     "restrictions": {
                       "reason": <str>
                     },
@@ -3591,7 +3530,7 @@ class WebAPISession(_Session):
                       ],
                       "description": <str>,
                       "html_description": <str>,
-                      "explicit": False,
+                      "explicit": <bool>,
                       "external_urls": {
                         "spotify": <str>
                       },
@@ -3600,18 +3539,18 @@ class WebAPISession(_Session):
                       "images": [
                         {
                           "url": <str>,
-                          "height": 300,
-                          "width": 300
+                          "height": <int>,
+                          "width": <int>
                         }
                       ],
-                      "is_externally_hosted": False,
+                      "is_externally_hosted": <bool>,
                       "languages": [<str>],
                       "media_type": <str>,
                       "name": <str>,
                       "publisher": <str>,
                       "type": "show",
                       "uri": <str>,
-                      "total_episodes": 0
+                      "total_episodes": <int>
                     }
                   }
         """
@@ -3669,33 +3608,33 @@ class WebAPISession(_Session):
                         "audio_preview_url": <str>,
                         "description": <str>,
                         "html_description": <str>,
-                        "duration_ms": 1686230,
-                        "explicit": False,
+                        "duration_ms": <int>,
+                        "explicit": <bool>,
                         "external_urls": {
                           "spotify": <str>
                         },
                         "href": <str>,
-                        "id": "5Xt5DXGzch68nYYamXrNxZ",
+                        "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
-                        "is_externally_hosted": False,
-                        "is_playable": False,
-                        "language": "en",
-                        "languages": ["fr", "en"],
+                        "is_externally_hosted": <bool>,
+                        "is_playable": <bool>
+                        "language": <str>,
+                        "languages": [<str>],
                         "name": <str>,
-                        "release_date": "1981-12-15",
-                        "release_date_precision": "day",
+                        "release_date": <str>,
+                        "release_date_precision": <str>,
                         "resume_point": {
-                          "fully_played": False,
-                          "resume_position_ms": 0
+                          "fully_played": <bool>,
+                          "resume_position_ms": <int>
                         },
                         "type": "episode",
-                        "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                        "uri": <str>,
                         "restrictions": {
                           "reason": <str>
                         },
@@ -3709,7 +3648,7 @@ class WebAPISession(_Session):
                           ],
                           "description": <str>,
                           "html_description": <str>,
-                          "explicit": False,
+                          "explicit": <bool>,
                           "external_urls": {
                             "spotify": <str>
                           },
@@ -3718,18 +3657,18 @@ class WebAPISession(_Session):
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
-                          "is_externally_hosted": False,
+                          "is_externally_hosted": <bool>,
                           "languages": [<str>],
                           "media_type": <str>,
                           "name": <str>,
                           "publisher": <str>,
                           "type": "show",
                           "uri": <str>,
-                          "total_episodes": 0
+                          "total_episodes": <int>
                         }
                       }
                     ]
@@ -3798,11 +3737,11 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
-                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "offset": 0,
-                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "total": 4,
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>,
                     "items": [
                       {
                         "added_at": <str>,
@@ -3810,33 +3749,33 @@ class WebAPISession(_Session):
                           "audio_preview_url": <str>,
                           "description": <str>,
                           "html_description": <str>,
-                          "duration_ms": 1686230,
-                          "explicit": False,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
                           "external_urls": {
                             "spotify": <str>
                           },
                           "href": <str>,
-                          "id": "5Xt5DXGzch68nYYamXrNxZ",
+                          "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
-                          "is_externally_hosted": False,
-                          "is_playable": False,
-                          "language": "en",
-                          "languages": ["fr", "en"],
+                          "is_externally_hosted": <bool>,
+                          "is_playable": <bool>
+                          "language": <str>,
+                          "languages": [<str>],
                           "name": <str>,
-                          "release_date": "1981-12-15",
-                          "release_date_precision": "day",
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
                           "resume_point": {
-                            "fully_played": False,
-                            "resume_position_ms": 0
+                            "fully_played": <bool>,
+                            "resume_position_ms": <int>
                           },
                           "type": "episode",
-                          "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                          "uri": <str>,
                           "restrictions": {
                             "reason": <str>
                           },
@@ -3850,7 +3789,7 @@ class WebAPISession(_Session):
                             ],
                             "description": <str>,
                             "html_description": <str>,
-                            "explicit": False,
+                            "explicit": <bool>,
                             "external_urls": {
                               "spotify": <str>
                             },
@@ -3859,18 +3798,18 @@ class WebAPISession(_Session):
                             "images": [
                               {
                                 "url": <str>,
-                                "height": 300,
-                                "width": 300
+                                "height": <int>,
+                                "width": <int>
                               }
                             ],
-                            "is_externally_hosted": False,
+                            "is_externally_hosted": <bool>,
                             "languages": [<str>],
                             "media_type": <str>,
                             "name": <str>,
                             "publisher": <str>,
                             "type": "show",
                             "uri": <str>,
-                            "total_episodes": 0
+                            "total_episodes": <int>
                           }
                         }
                       }
@@ -4001,21 +3940,21 @@ class WebAPISession(_Session):
         <https://developer.spotify.com/documentation/web-api/reference/
         get-recommendation-genres>`_: Retrieve a list of
         available genres seed parameter values for use in
-        :meth:`WebAPISession.get_recommendations`.
+        :meth:`get_recommendations`.
 
         Returns
         -------
         genres : `list`
             Array of genres.
 
-            **Example**: :code:`["alternative", "samba"]`.
+            **Example**: :code:`["acoustic", "afrobeat", ...]`.
         """
         
         return self._get_json(
             f"{self.API_URL}/recommendations/available-genre-seeds"
         )["genres"]
 
-    ### MARKETS ##############################################################
+    ### MARKETS ###############################################################
 
     def get_markets(self) -> list[str]:
 
@@ -4094,15 +4033,15 @@ class WebAPISession(_Session):
                   {
                     "device": {
                       "id": <str>,
-                      "is_active": False,
-                      "is_private_session": False,
-                      "is_restricted": False,
-                      "name": "Kitchen speaker",
-                      "type": "computer",
-                      "volume_percent": 59
+                      "is_active": <bool>,
+                      "is_private_session": <bool>,
+                      "is_restricted": <bool>,
+                      "name": <str>,
+                      "type": <str>,
+                      "volume_percent": <int>
                     },
                     "repeat_state": <str>,
-                    "shuffle_state": False,
+                    "shuffle_state": <bool>,
                     "context": {
                       "type": <str>,
                       "href": <str>,
@@ -4111,34 +4050,34 @@ class WebAPISession(_Session):
                       },
                       "uri": <str>
                     },
-                    "timestamp": 0,
-                    "progress_ms": 0,
-                    "is_playing": False,
+                    "timestamp": <int>,
+                    "progress_ms": <int>,
+                    "is_playing": <bool>,
                     "item": {
                       "album": {
-                        "album_type": "compilation",
-                        "total_tracks": 9,
-                        "available_markets": ["CA", "BR", "IT"],
+                        "album_type": <str>,
+                        "total_tracks": <int>,
+                        "available_markets": [<str>],
                         "external_urls": {
                           "spotify": <str>
                         },
                         "href": <str>,
-                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "name": <str>,
-                        "release_date": "1981-12",
-                        "release_date_precision": "year",
+                        "release_date": <str>,
+                        "release_date_precision": <str>,
                         "restrictions": {
-                          "reason": "market"
+                          "reason": <str>
                         },
                         "type": "album",
-                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "uri": <str>,
                         "copyrights": [
                           {
                             "text": <str>,
@@ -4150,10 +4089,10 @@ class WebAPISession(_Session):
                           "ean": <str>,
                           "upc": <str>
                         },
-                        "genres": ["Egg punk", "Noise rock"],
+                        "genres": [<str>],
                         "label": <str>,
-                        "popularity": 0,
-                        "album_group": "compilation",
+                        "popularity": <int>,
+                        "album_group": <str>,
                         "artists": [
                           {
                             "external_urls": {
@@ -4174,28 +4113,28 @@ class WebAPISession(_Session):
                           },
                           "followers": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
-                          "genres": ["Prog rock", "Grunge"],
+                          "genres": [<str>],
                           "href": <str>,
                           "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
-                          "popularity": 0,
+                          "popularity": <int>,
                           "type": "artist",
                           "uri": <str>
                         }
                       ],
                       "available_markets": [<str>],
-                      "disc_number": 0,
-                      "duration_ms": 0,
-                      "explicit": False,
+                      "disc_number": <int>,
+                      "duration_ms": <int>,
+                      "explicit": <bool>,
                       "external_ids": {
                         "isrc": <str>,
                         "ean": <str>,
@@ -4206,32 +4145,32 @@ class WebAPISession(_Session):
                       },
                       "href": <str>,
                       "id": <str>,
-                      "is_playable": False,
+                      "is_playable": <bool>
                       "linked_from": {
                       },
                       "restrictions": {
                         "reason": <str>
                       },
                       "name": <str>,
-                      "popularity": 0,
+                      "popularity": <int>,
                       "preview_url": <str>,
-                      "track_number": 0,
+                      "track_number": <int>,
                       "type": "track",
                       "uri": <str>,
-                      "is_local": false
+                      "is_local": <bool>
                     },
                     "currently_playing_type": <str>,
                     "actions": {
-                      "interrupting_playback": False,
-                      "pausing": False,
-                      "resuming": False,
-                      "seeking": False,
-                      "skipping_next": False,
-                      "skipping_prev": False,
-                      "toggling_repeat_context": False,
-                      "toggling_shuffle": False,
-                      "toggling_repeat_track": False,
-                      "transferring_playback": false
+                      "interrupting_playback": <bool>,
+                      "pausing": <bool>,
+                      "resuming": <bool>,
+                      "seeking": <bool>,
+                      "skipping_next": <bool>,
+                      "skipping_prev": <bool>,
+                      "toggling_repeat_context": <bool>,
+                      "toggling_shuffle": <bool>,
+                      "toggling_repeat_track": <bool>,
+                      "transferring_playback": <bool>
                     }
                   }
         """
@@ -4312,12 +4251,12 @@ class WebAPISession(_Session):
                       "devices": [
                         {
                           "id": <str>,
-                          "is_active": False,
-                          "is_private_session": False,
-                          "is_restricted": False,
-                          "name": "Kitchen speaker",
-                          "type": "computer",
-                          "volume_percent": 59
+                          "is_active": <bool>,
+                          "is_private_session": <bool>,
+                          "is_restricted": <bool>,
+                          "name": <str>,
+                          "type": <str>,
+                          "volume_percent": <int>
                         }
                       ]
                     }
@@ -4384,15 +4323,15 @@ class WebAPISession(_Session):
                   {
                     "device": {
                       "id": <str>,
-                      "is_active": False,
-                      "is_private_session": False,
-                      "is_restricted": False,
-                      "name": "Kitchen speaker",
-                      "type": "computer",
-                      "volume_percent": 59
+                      "is_active": <bool>,
+                      "is_private_session": <bool>,
+                      "is_restricted": <bool>,
+                      "name": <str>,
+                      "type": <str>,
+                      "volume_percent": <int>
                     },
                     "repeat_state": <str>,
-                    "shuffle_state": False,
+                    "shuffle_state": <bool>,
                     "context": {
                       "type": <str>,
                       "href": <str>,
@@ -4401,34 +4340,34 @@ class WebAPISession(_Session):
                       },
                       "uri": <str>
                     },
-                    "timestamp": 0,
-                    "progress_ms": 0,
-                    "is_playing": False,
+                    "timestamp": <int>,
+                    "progress_ms": <int>,
+                    "is_playing": <bool>,
                     "item": {
                       "album": {
-                        "album_type": "compilation",
-                        "total_tracks": 9,
-                        "available_markets": ["CA", "BR", "IT"],
+                        "album_type": <str>,
+                        "total_tracks": <int>,
+                        "available_markets": [<str>],
                         "external_urls": {
                           "spotify": <str>
                         },
                         "href": <str>,
-                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "name": <str>,
-                        "release_date": "1981-12",
-                        "release_date_precision": "year",
+                        "release_date": <str>,
+                        "release_date_precision": <str>,
                         "restrictions": {
-                          "reason": "market"
+                          "reason": <str>
                         },
                         "type": "album",
-                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "uri": <str>,
                         "copyrights": [
                           {
                             "text": <str>,
@@ -4440,10 +4379,10 @@ class WebAPISession(_Session):
                           "ean": <str>,
                           "upc": <str>
                         },
-                        "genres": ["Egg punk", "Noise rock"],
+                        "genres": [<str>],
                         "label": <str>,
-                        "popularity": 0,
-                        "album_group": "compilation",
+                        "popularity": <int>,
+                        "album_group": <str>,
                         "artists": [
                           {
                             "external_urls": {
@@ -4464,28 +4403,28 @@ class WebAPISession(_Session):
                           },
                           "followers": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
-                          "genres": ["Prog rock", "Grunge"],
+                          "genres": [<str>],
                           "href": <str>,
                           "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
-                          "popularity": 0,
+                          "popularity": <int>,
                           "type": "artist",
                           "uri": <str>
                         }
                       ],
                       "available_markets": [<str>],
-                      "disc_number": 0,
-                      "duration_ms": 0,
-                      "explicit": False,
+                      "disc_number": <int>,
+                      "duration_ms": <int>,
+                      "explicit": <bool>,
                       "external_ids": {
                         "isrc": <str>,
                         "ean": <str>,
@@ -4496,32 +4435,32 @@ class WebAPISession(_Session):
                       },
                       "href": <str>,
                       "id": <str>,
-                      "is_playable": False,
+                      "is_playable": <bool>
                       "linked_from": {
                       },
                       "restrictions": {
                         "reason": <str>
                       },
                       "name": <str>,
-                      "popularity": 0,
+                      "popularity": <int>,
                       "preview_url": <str>,
-                      "track_number": 0,
+                      "track_number": <int>,
                       "type": "track",
                       "uri": <str>,
-                      "is_local": false
+                      "is_local": <bool>
                     },
                     "currently_playing_type": <str>,
                     "actions": {
-                      "interrupting_playback": False,
-                      "pausing": False,
-                      "resuming": False,
-                      "seeking": False,
-                      "skipping_next": False,
-                      "skipping_prev": False,
-                      "toggling_repeat_context": False,
-                      "toggling_shuffle": False,
-                      "toggling_repeat_track": False,
-                      "transferring_playback": false
+                      "interrupting_playback": <bool>,
+                      "pausing": <bool>,
+                      "resuming": <bool>,
+                      "seeking": <bool>,
+                      "skipping_next": <bool>,
+                      "skipping_prev": <bool>,
+                      "toggling_repeat_context": <bool>,
+                      "toggling_shuffle": <bool>,
+                      "toggling_repeat_track": <bool>,
+                      "transferring_playback": <bool>
                     }
                   }
         """
@@ -4588,7 +4527,7 @@ class WebAPISession(_Session):
             
                * :code:`{"position": 5}` to start playback at the sixth
                  item of the collection specified in `context_uri`.
-               * :code:`{"uri": "spotify:track:1301WleyT98MSxVHPZCA6M"}`
+               * :code:`{"uri": <str>}`
                  to start playback at the item designated by the URI.
 
         position_ms : `int`, keyword-only, optional
@@ -4901,40 +4840,40 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 0,
+                    "limit": <int>,
                     "next": <str>,
                     "cursors": {
                       "after": <str>,
                       "before": <str>
                     },
-                    "total": 0,
+                    "total": <int>,
                     "items": [
                       {
                         "track": {
                           "album": {
-                            "album_type": "compilation",
-                            "total_tracks": 9,
-                            "available_markets": ["CA", "BR", "IT"],
+                            "album_type": <str>,
+                            "total_tracks": <int>,
+                            "available_markets": [<str>],
                             "external_urls": {
                               "spotify": <str>
                             },
                             "href": <str>,
-                            "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                            "id": <str>,
                             "images": [
                               {
                                 "url": <str>,
-                                "height": 300,
-                                "width": 300
+                                "height": <int>,
+                                "width": <int>
                               }
                             ],
                             "name": <str>,
-                            "release_date": "1981-12",
-                            "release_date_precision": "year",
+                            "release_date": <str>,
+                            "release_date_precision": <str>,
                             "restrictions": {
-                              "reason": "market"
+                              "reason": <str>
                             },
                             "type": "album",
-                            "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                            "uri": <str>,
                             "copyrights": [
                               {
                                 "text": <str>,
@@ -4946,10 +4885,10 @@ class WebAPISession(_Session):
                               "ean": <str>,
                               "upc": <str>
                             },
-                            "genres": ["Egg punk", "Noise rock"],
+                            "genres": [<str>],
                             "label": <str>,
-                            "popularity": 0,
-                            "album_group": "compilation",
+                            "popularity": <int>,
+                            "album_group": <str>,
                             "artists": [
                               {
                                 "external_urls": {
@@ -4970,28 +4909,28 @@ class WebAPISession(_Session):
                               },
                               "followers": {
                                 "href": <str>,
-                                "total": 0
+                                "total": <int>
                               },
-                              "genres": ["Prog rock", "Grunge"],
+                              "genres": [<str>],
                               "href": <str>,
                               "id": <str>,
                               "images": [
                                 {
                                   "url": <str>,
-                                  "height": 300,
-                                  "width": 300
+                                  "height": <int>,
+                                  "width": <int>
                                 }
                               ],
                               "name": <str>,
-                              "popularity": 0,
+                              "popularity": <int>,
                               "type": "artist",
                               "uri": <str>
                             }
                           ],
                           "available_markets": [<str>],
-                          "disc_number": 0,
-                          "duration_ms": 0,
-                          "explicit": False,
+                          "disc_number": <int>,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
                           "external_ids": {
                             "isrc": <str>,
                             "ean": <str>,
@@ -5002,19 +4941,19 @@ class WebAPISession(_Session):
                           },
                           "href": <str>,
                           "id": <str>,
-                          "is_playable": False,
+                          "is_playable": <bool>
                           "linked_from": {
                           },
                           "restrictions": {
                             "reason": <str>
                           },
                           "name": <str>,
-                          "popularity": 0,
+                          "popularity": <int>,
                           "preview_url": <str>,
-                          "track_number": 0,
+                          "track_number": <int>,
                           "type": "track",
                           "uri": <str>,
-                          "is_local": false
+                          "is_local": <bool>
                         },
                         "played_at": <str>,
                         "context": {
@@ -5063,29 +5002,29 @@ class WebAPISession(_Session):
                   {
                     "currently_playing": {
                       "album": {
-                        "album_type": "compilation",
-                        "total_tracks": 9,
-                        "available_markets": ["CA", "BR", "IT"],
+                        "album_type": <str>,
+                        "total_tracks": <int>,
+                        "available_markets": [<str>],
                         "external_urls": {
                           "spotify": <str>
                         },
                         "href": <str>,
-                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "name": <str>,
-                        "release_date": "1981-12",
-                        "release_date_precision": "year",
+                        "release_date": <str>,
+                        "release_date_precision": <str>,
                         "restrictions": {
-                          "reason": "market"
+                          "reason": <str>
                         },
                         "type": "album",
-                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "uri": <str>,
                         "copyrights": [
                           {
                             "text": <str>,
@@ -5097,10 +5036,10 @@ class WebAPISession(_Session):
                           "ean": <str>,
                           "upc": <str>
                         },
-                        "genres": ["Egg punk", "Noise rock"],
+                        "genres": [<str>],
                         "label": <str>,
-                        "popularity": 0,
-                        "album_group": "compilation",
+                        "popularity": <int>,
+                        "album_group": <str>,
                         "artists": [
                           {
                             "external_urls": {
@@ -5121,28 +5060,28 @@ class WebAPISession(_Session):
                           },
                           "followers": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
-                          "genres": ["Prog rock", "Grunge"],
+                          "genres": [<str>],
                           "href": <str>,
                           "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
-                          "popularity": 0,
+                          "popularity": <int>,
                           "type": "artist",
                           "uri": <str>
                         }
                       ],
                       "available_markets": [<str>],
-                      "disc_number": 0,
-                      "duration_ms": 0,
-                      "explicit": False,
+                      "disc_number": <int>,
+                      "duration_ms": <int>,
+                      "explicit": <bool>,
                       "external_ids": {
                         "isrc": <str>,
                         "ean": <str>,
@@ -5153,46 +5092,46 @@ class WebAPISession(_Session):
                       },
                       "href": <str>,
                       "id": <str>,
-                      "is_playable": False,
+                      "is_playable": <bool>
                       "linked_from": {
                       },
                       "restrictions": {
                         "reason": <str>
                       },
                       "name": <str>,
-                      "popularity": 0,
+                      "popularity": <int>,
                       "preview_url": <str>,
-                      "track_number": 0,
+                      "track_number": <int>,
                       "type": "track",
                       "uri": <str>,
-                      "is_local": false
+                      "is_local": <bool>
                     },
                     "queue": [
                       {
                         "album": {
-                          "album_type": "compilation",
-                          "total_tracks": 9,
-                          "available_markets": ["CA", "BR", "IT"],
+                          "album_type": <str>,
+                          "total_tracks": <int>,
+                          "available_markets": [<str>],
                           "external_urls": {
                             "spotify": <str>
                           },
                           "href": <str>,
-                          "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                          "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
-                          "release_date": "1981-12",
-                          "release_date_precision": "year",
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
                           "restrictions": {
-                            "reason": "market"
+                            "reason": <str>
                           },
                           "type": "album",
-                          "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                          "uri": <str>,
                           "copyrights": [
                             {
                               "text": <str>,
@@ -5204,10 +5143,10 @@ class WebAPISession(_Session):
                             "ean": <str>,
                             "upc": <str>
                           },
-                          "genres": ["Egg punk", "Noise rock"],
+                          "genres": [<str>],
                           "label": <str>,
-                          "popularity": 0,
-                          "album_group": "compilation",
+                          "popularity": <int>,
+                          "album_group": <str>,
                           "artists": [
                             {
                               "external_urls": {
@@ -5228,28 +5167,28 @@ class WebAPISession(_Session):
                             },
                             "followers": {
                               "href": <str>,
-                              "total": 0
+                              "total": <int>
                             },
-                            "genres": ["Prog rock", "Grunge"],
+                            "genres": [<str>],
                             "href": <str>,
                             "id": <str>,
                             "images": [
                               {
                                 "url": <str>,
-                                "height": 300,
-                                "width": 300
+                                "height": <int>,
+                                "width": <int>
                               }
                             ],
                             "name": <str>,
-                            "popularity": 0,
+                            "popularity": <int>,
                             "type": "artist",
                             "uri": <str>
                           }
                         ],
                         "available_markets": [<str>],
-                        "disc_number": 0,
-                        "duration_ms": 0,
-                        "explicit": False,
+                        "disc_number": <int>,
+                        "duration_ms": <int>,
+                        "explicit": <bool>,
                         "external_ids": {
                           "isrc": <str>,
                           "ean": <str>,
@@ -5260,19 +5199,19 @@ class WebAPISession(_Session):
                         },
                         "href": <str>,
                         "id": <str>,
-                        "is_playable": False,
+                        "is_playable": <bool>
                         "linked_from": {
                         },
                         "restrictions": {
                           "reason": <str>
                         },
                         "name": <str>,
-                        "popularity": 0,
+                        "popularity": <int>,
                         "preview_url": <str>,
-                        "track_number": 0,
+                        "track_number": <int>,
                         "type": "track",
                         "uri": <str>,
-                        "is_local": false
+                        "is_local": <bool>
                       }
                     ]
                   }
@@ -5392,22 +5331,22 @@ class WebAPISession(_Session):
                .. code::
 
                   {
-                    "collaborative": False,
+                    "collaborative": <bool>,
                     "description": <str>,
                     "external_urls": {
                       "spotify": <str>
                     },
                     "followers": {
                       "href": <str>,
-                      "total": 0
+                      "total": <int>
                     },
                     "href": <str>,
                     "id": <str>,
                     "images": [
                       {
                         "url": <str>,
-                        "height": 300,
-                        "width": 300
+                        "height": <int>,
+                        "width": <int>
                       }
                     ],
                     "name": <str>,
@@ -5417,7 +5356,7 @@ class WebAPISession(_Session):
                       },
                       "followers": {
                         "href": <str>,
-                        "total": 0
+                        "total": <int>
                       },
                       "href": <str>,
                       "id": <str>,
@@ -5425,15 +5364,15 @@ class WebAPISession(_Session):
                       "uri": <str>,
                       "display_name": <str>
                     },
-                    "public": False,
+                    "public": <bool>,
                     "snapshot_id": <str>,
                     "tracks": {
                       "href": <str>,
-                      "limit": 20,
-                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "offset": 0,
-                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "total": 4,
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>,
                       "items": [
                         {
                           "added_at": <str>,
@@ -5443,39 +5382,39 @@ class WebAPISession(_Session):
                             },
                             "followers": {
                               "href": <str>,
-                              "total": 0
+                              "total": <int>
                             },
                             "href": <str>,
                             "id": <str>,
                             "type": "user",
                             "uri": <str>
                           },
-                          "is_local": False,
+                          "is_local": <bool>,
                           "track": {
                             "album": {
-                              "album_type": "compilation",
-                              "total_tracks": 9,
-                              "available_markets": ["CA", "BR", "IT"],
+                              "album_type": <str>,
+                              "total_tracks": <int>,
+                              "available_markets": [<str>],
                               "external_urls": {
                                 "spotify": <str>
                               },
                               "href": <str>,
-                              "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                              "id": <str>,
                               "images": [
                                 {
                                   "url": <str>,
-                                  "height": 300,
-                                  "width": 300
+                                  "height": <int>,
+                                  "width": <int>
                                 }
                               ],
                               "name": <str>,
-                              "release_date": "1981-12",
-                              "release_date_precision": "year",
+                              "release_date": <str>,
+                              "release_date_precision": <str>,
                               "restrictions": {
-                                "reason": "market"
+                                "reason": <str>
                               },
                               "type": "album",
-                              "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                              "uri": <str>,
                               "copyrights": [
                                 {
                                   "text": <str>,
@@ -5487,10 +5426,10 @@ class WebAPISession(_Session):
                                 "ean": <str>,
                                 "upc": <str>
                               },
-                              "genres": ["Egg punk", "Noise rock"],
+                              "genres": [<str>],
                               "label": <str>,
-                              "popularity": 0,
-                              "album_group": "compilation",
+                              "popularity": <int>,
+                              "album_group": <str>,
                               "artists": [
                                 {
                                   "external_urls": {
@@ -5511,28 +5450,28 @@ class WebAPISession(_Session):
                                 },
                                 "followers": {
                                   "href": <str>,
-                                  "total": 0
+                                  "total": <int>
                                 },
-                                "genres": ["Prog rock", "Grunge"],
+                                "genres": [<str>],
                                 "href": <str>,
                                 "id": <str>,
                                 "images": [
                                   {
                                     "url": <str>,
-                                    "height": 300,
-                                    "width": 300
+                                    "height": <int>,
+                                    "width": <int>
                                   }
                                 ],
                                 "name": <str>,
-                                "popularity": 0,
+                                "popularity": <int>,
                                 "type": "artist",
                                 "uri": <str>
                               }
                             ],
                             "available_markets": [<str>],
-                            "disc_number": 0,
-                            "duration_ms": 0,
-                            "explicit": False,
+                            "disc_number": <int>,
+                            "duration_ms": <int>,
+                            "explicit": <bool>,
                             "external_ids": {
                               "isrc": <str>,
                               "ean": <str>,
@@ -5543,19 +5482,19 @@ class WebAPISession(_Session):
                             },
                             "href": <str>,
                             "id": <str>,
-                            "is_playable": False,
+                            "is_playable": <bool>
                             "linked_from": {
                             },
                             "restrictions": {
                               "reason": <str>
                             },
                             "name": <str>,
-                            "popularity": 0,
+                            "popularity": <int>,
                             "preview_url": <str>,
-                            "track_number": 0,
+                            "track_number": <int>,
                             "type": "track",
                             "uri": <str>,
-                            "is_local": false
+                            "is_local": <bool>
                           }
                         }
                       ]
@@ -5741,11 +5680,11 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
-                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "offset": 0,
-                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "total": 4,
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>,
                     "items": [
                       {
                         "added_at": <str>,
@@ -5755,39 +5694,39 @@ class WebAPISession(_Session):
                           },
                           "followers": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
                           "href": <str>,
                           "id": <str>,
                           "type": "user",
                           "uri": <str>
                         },
-                        "is_local": False,
+                        "is_local": <bool>,
                         "track": {
                           "album": {
-                            "album_type": "compilation",
-                            "total_tracks": 9,
-                            "available_markets": ["CA", "BR", "IT"],
+                            "album_type": <str>,
+                            "total_tracks": <int>,
+                            "available_markets": [<str>],
                             "external_urls": {
                               "spotify": <str>
                             },
                             "href": <str>,
-                            "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                            "id": <str>,
                             "images": [
                               {
                                 "url": <str>,
-                                "height": 300,
-                                "width": 300
+                                "height": <int>,
+                                "width": <int>
                               }
                             ],
                             "name": <str>,
-                            "release_date": "1981-12",
-                            "release_date_precision": "year",
+                            "release_date": <str>,
+                            "release_date_precision": <str>,
                             "restrictions": {
-                              "reason": "market"
+                              "reason": <str>
                             },
                             "type": "album",
-                            "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                            "uri": <str>,
                             "copyrights": [
                               {
                                 "text": <str>,
@@ -5799,10 +5738,10 @@ class WebAPISession(_Session):
                               "ean": <str>,
                               "upc": <str>
                             },
-                            "genres": ["Egg punk", "Noise rock"],
+                            "genres": [<str>],
                             "label": <str>,
-                            "popularity": 0,
-                            "album_group": "compilation",
+                            "popularity": <int>,
+                            "album_group": <str>,
                             "artists": [
                               {
                                 "external_urls": {
@@ -5823,28 +5762,28 @@ class WebAPISession(_Session):
                               },
                               "followers": {
                                 "href": <str>,
-                                "total": 0
+                                "total": <int>
                               },
-                              "genres": ["Prog rock", "Grunge"],
+                              "genres": [<str>],
                               "href": <str>,
                               "id": <str>,
                               "images": [
                                 {
                                   "url": <str>,
-                                  "height": 300,
-                                  "width": 300
+                                  "height": <int>,
+                                  "width": <int>
                                 }
                               ],
                               "name": <str>,
-                              "popularity": 0,
+                              "popularity": <int>,
                               "type": "artist",
                               "uri": <str>
                             }
                           ],
                           "available_markets": [<str>],
-                          "disc_number": 0,
-                          "duration_ms": 0,
-                          "explicit": False,
+                          "disc_number": <int>,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
                           "external_ids": {
                             "isrc": <str>,
                             "ean": <str>,
@@ -5855,19 +5794,19 @@ class WebAPISession(_Session):
                           },
                           "href": <str>,
                           "id": <str>,
-                          "is_playable": False,
+                          "is_playable": <bool>
                           "linked_from": {
                           },
                           "restrictions": {
                             "reason": <str>
                           },
                           "name": <str>,
-                          "popularity": 0,
+                          "popularity": <int>,
                           "preview_url": <str>,
-                          "track_number": 0,
+                          "track_number": <int>,
                           "type": "track",
                           "uri": <str>,
-                          "is_local": false
+                          "is_local": <bool>
                         }
                       }
                     ]
@@ -6197,14 +6136,14 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
-                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "offset": 0,
-                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "total": 4,
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>,
                     "items": [
                       {
-                        "collaborative": False,
+                        "collaborative": <bool>,
                         "description": <str>,
                         "external_urls": {
                           "spotify": <str>
@@ -6214,8 +6153,8 @@ class WebAPISession(_Session):
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "name": <str>,
@@ -6225,7 +6164,7 @@ class WebAPISession(_Session):
                           },
                           "followers": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
                           "href": <str>,
                           "id": <str>,
@@ -6233,11 +6172,11 @@ class WebAPISession(_Session):
                           "uri": <str>,
                           "display_name": <str>
                         },
-                        "public": False,
+                        "public": <bool>,
                         "snapshot_id": <str>,
                         "tracks": {
                           "href": <str>,
-                          "total": 0
+                          "total": <int>
                         },
                         "type": <str>,
                         "uri": <str>
@@ -6303,14 +6242,14 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
-                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "offset": 0,
-                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "total": 4,
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>,
                     "items": [
                       {
-                        "collaborative": False,
+                        "collaborative": <bool>,
                         "description": <str>,
                         "external_urls": {
                           "spotify": <str>
@@ -6320,8 +6259,8 @@ class WebAPISession(_Session):
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "name": <str>,
@@ -6331,7 +6270,7 @@ class WebAPISession(_Session):
                           },
                           "followers": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
                           "href": <str>,
                           "id": <str>,
@@ -6339,11 +6278,11 @@ class WebAPISession(_Session):
                           "uri": <str>,
                           "display_name": <str>
                         },
-                        "public": False,
+                        "public": <bool>,
                         "snapshot_id": <str>,
                         "tracks": {
                           "href": <str>,
-                          "total": 0
+                          "total": <int>
                         },
                         "type": <str>,
                         "uri": <str>
@@ -6425,22 +6364,22 @@ class WebAPISession(_Session):
                .. code::
 
                   {
-                    "collaborative": False,
+                    "collaborative": <bool>,
                     "description": <str>,
                     "external_urls": {
                       "spotify": <str>
                     },
                     "followers": {
                       "href": <str>,
-                      "total": 0
+                      "total": <int>
                     },
                     "href": <str>,
                     "id": <str>,
                     "images": [
                       {
                         "url": <str>,
-                        "height": 300,
-                        "width": 300
+                        "height": <int>,
+                        "width": <int>
                       }
                     ],
                     "name": <str>,
@@ -6450,7 +6389,7 @@ class WebAPISession(_Session):
                       },
                       "followers": {
                         "href": <str>,
-                        "total": 0
+                        "total": <int>
                       },
                       "href": <str>,
                       "id": <str>,
@@ -6458,15 +6397,15 @@ class WebAPISession(_Session):
                       "uri": <str>,
                       "display_name": <str>
                     },
-                    "public": False,
+                    "public": <bool>,
                     "snapshot_id": <str>,
                     "tracks": {
                       "href": <str>,
-                      "limit": 20,
-                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "offset": 0,
-                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "total": 4,
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>,
                       "items": [
                         {
                           "added_at": <str>,
@@ -6476,39 +6415,39 @@ class WebAPISession(_Session):
                             },
                             "followers": {
                               "href": <str>,
-                              "total": 0
+                              "total": <int>
                             },
                             "href": <str>,
                             "id": <str>,
                             "type": "user",
                             "uri": <str>
                           },
-                          "is_local": False,
+                          "is_local": <bool>,
                           "track": {
                             "album": {
-                              "album_type": "compilation",
-                              "total_tracks": 9,
-                              "available_markets": ["CA", "BR", "IT"],
+                              "album_type": <str>,
+                              "total_tracks": <int>,
+                              "available_markets": [<str>],
                               "external_urls": {
                                 "spotify": <str>
                               },
                               "href": <str>,
-                              "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                              "id": <str>,
                               "images": [
                                 {
                                   "url": <str>,
-                                  "height": 300,
-                                  "width": 300
+                                  "height": <int>,
+                                  "width": <int>
                                 }
                               ],
                               "name": <str>,
-                              "release_date": "1981-12",
-                              "release_date_precision": "year",
+                              "release_date": <str>,
+                              "release_date_precision": <str>,
                               "restrictions": {
-                                "reason": "market"
+                                "reason": <str>
                               },
                               "type": "album",
-                              "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                              "uri": <str>,
                               "copyrights": [
                                 {
                                   "text": <str>,
@@ -6520,10 +6459,10 @@ class WebAPISession(_Session):
                                 "ean": <str>,
                                 "upc": <str>
                               },
-                              "genres": ["Egg punk", "Noise rock"],
+                              "genres": [<str>],
                               "label": <str>,
-                              "popularity": 0,
-                              "album_group": "compilation",
+                              "popularity": <int>,
+                              "album_group": <str>,
                               "artists": [
                                 {
                                   "external_urls": {
@@ -6544,28 +6483,28 @@ class WebAPISession(_Session):
                                 },
                                 "followers": {
                                   "href": <str>,
-                                  "total": 0
+                                  "total": <int>
                                 },
-                                "genres": ["Prog rock", "Grunge"],
+                                "genres": [<str>],
                                 "href": <str>,
                                 "id": <str>,
                                 "images": [
                                   {
                                     "url": <str>,
-                                    "height": 300,
-                                    "width": 300
+                                    "height": <int>,
+                                    "width": <int>
                                   }
                                 ],
                                 "name": <str>,
-                                "popularity": 0,
+                                "popularity": <int>,
                                 "type": "artist",
                                 "uri": <str>
                               }
                             ],
                             "available_markets": [<str>],
-                            "disc_number": 0,
-                            "duration_ms": 0,
-                            "explicit": False,
+                            "disc_number": <int>,
+                            "duration_ms": <int>,
+                            "explicit": <bool>,
                             "external_ids": {
                               "isrc": <str>,
                               "ean": <str>,
@@ -6576,19 +6515,19 @@ class WebAPISession(_Session):
                             },
                             "href": <str>,
                             "id": <str>,
-                            "is_playable": False,
+                            "is_playable": <bool>
                             "linked_from": {
                             },
                             "restrictions": {
                               "reason": <str>
                             },
                             "name": <str>,
-                            "popularity": 0,
+                            "popularity": <int>,
                             "preview_url": <str>,
-                            "track_number": 0,
+                            "track_number": <int>,
                             "type": "track",
                             "uri": <str>,
-                            "is_local": false
+                            "is_local": <bool>
                           }
                         }
                       ]
@@ -6689,14 +6628,14 @@ class WebAPISession(_Session):
                     "message": <str>,
                     "playlists": {
                       "href": <str>,
-                      "limit": 20,
-                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "offset": 0,
-                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "total": 4,
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>,
                       "items": [
                         {
-                          "collaborative": False,
+                          "collaborative": <bool>,
                           "description": <str>,
                           "external_urls": {
                             "spotify": <str>
@@ -6706,8 +6645,8 @@ class WebAPISession(_Session):
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
@@ -6717,7 +6656,7 @@ class WebAPISession(_Session):
                             },
                             "followers": {
                               "href": <str>,
-                              "total": 0
+                              "total": <int>
                             },
                             "href": <str>,
                             "id": <str>,
@@ -6725,11 +6664,11 @@ class WebAPISession(_Session):
                             "uri": <str>,
                             "display_name": <str>
                           },
-                          "public": False,
+                          "public": <bool>,
                           "snapshot_id": <str>,
                           "tracks": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
                           "type": <str>,
                           "uri": <str>
@@ -6798,14 +6737,14 @@ class WebAPISession(_Session):
                     "message": <str>,
                     "playlists": {
                       "href": <str>,
-                      "limit": 20,
-                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "offset": 0,
-                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "total": 4,
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>,
                       "items": [
                         {
-                          "collaborative": False,
+                          "collaborative": <bool>,
                           "description": <str>,
                           "external_urls": {
                             "spotify": <str>
@@ -6815,8 +6754,8 @@ class WebAPISession(_Session):
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
@@ -6826,7 +6765,7 @@ class WebAPISession(_Session):
                             },
                             "followers": {
                               "href": <str>,
-                              "total": 0
+                              "total": <int>
                             },
                             "href": <str>,
                             "id": <str>,
@@ -6834,11 +6773,11 @@ class WebAPISession(_Session):
                             "uri": <str>,
                             "display_name": <str>
                           },
-                          "public": False,
+                          "public": <bool>,
                           "snapshot_id": <str>,
                           "tracks": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
                           "type": <str>,
                           "uri": <str>
@@ -6881,8 +6820,8 @@ class WebAPISession(_Session):
 
                   {
                     "url": <str>,
-                    "height": 300,
-                    "width": 300
+                    "height": <int>,
+                    "width": <int>
                   }
         """
 
@@ -7035,37 +6974,37 @@ class WebAPISession(_Session):
                   {
                     "tracks": {
                       "href": <str>,
-                      "limit": 20,
-                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "offset": 0,
-                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "total": 4,
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>,
                       "items": [
                         {
                           "album": {
-                            "album_type": "compilation",
-                            "total_tracks": 9,
-                            "available_markets": ["CA", "BR", "IT"],
+                            "album_type": <str>,
+                            "total_tracks": <int>,
+                            "available_markets": [<str>],
                             "external_urls": {
                               "spotify": <str>
                             },
                             "href": <str>,
-                            "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                            "id": <str>,
                             "images": [
                               {
                                 "url": <str>,
-                                "height": 300,
-                                "width": 300
+                                "height": <int>,
+                                "width": <int>
                               }
                             ],
                             "name": <str>,
-                            "release_date": "1981-12",
-                            "release_date_precision": "year",
+                            "release_date": <str>,
+                            "release_date_precision": <str>,
                             "restrictions": {
-                              "reason": "market"
+                              "reason": <str>
                             },
                             "type": "album",
-                            "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                            "uri": <str>,
                             "copyrights": [
                               {
                                 "text": <str>,
@@ -7077,10 +7016,10 @@ class WebAPISession(_Session):
                               "ean": <str>,
                               "upc": <str>
                             },
-                            "genres": ["Egg punk", "Noise rock"],
+                            "genres": [<str>],
                             "label": <str>,
-                            "popularity": 0,
-                            "album_group": "compilation",
+                            "popularity": <int>,
+                            "album_group": <str>,
                             "artists": [
                               {
                                 "external_urls": {
@@ -7101,28 +7040,28 @@ class WebAPISession(_Session):
                               },
                               "followers": {
                                 "href": <str>,
-                                "total": 0
+                                "total": <int>
                               },
-                              "genres": ["Prog rock", "Grunge"],
+                              "genres": [<str>],
                               "href": <str>,
                               "id": <str>,
                               "images": [
                                 {
                                   "url": <str>,
-                                  "height": 300,
-                                  "width": 300
+                                  "height": <int>,
+                                  "width": <int>
                                 }
                               ],
                               "name": <str>,
-                              "popularity": 0,
+                              "popularity": <int>,
                               "type": "artist",
                               "uri": <str>
                             }
                           ],
                           "available_markets": [<str>],
-                          "disc_number": 0,
-                          "duration_ms": 0,
-                          "explicit": False,
+                          "disc_number": <int>,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
                           "external_ids": {
                             "isrc": <str>,
                             "ean": <str>,
@@ -7133,29 +7072,29 @@ class WebAPISession(_Session):
                           },
                           "href": <str>,
                           "id": <str>,
-                          "is_playable": False,
+                          "is_playable": <bool>
                           "linked_from": {
                           },
                           "restrictions": {
                             "reason": <str>
                           },
                           "name": <str>,
-                          "popularity": 0,
+                          "popularity": <int>,
                           "preview_url": <str>,
-                          "track_number": 0,
+                          "track_number": <int>,
                           "type": "track",
                           "uri": <str>,
-                          "is_local": false
+                          "is_local": <bool>
                         }
                       ]
                     },
                     "artists": {
                       "href": <str>,
-                      "limit": 20,
-                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "offset": 0,
-                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "total": 4,
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>,
                       "items": [
                         {
                           "external_urls": {
@@ -7163,20 +7102,20 @@ class WebAPISession(_Session):
                           },
                           "followers": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
-                          "genres": ["Prog rock", "Grunge"],
+                          "genres": [<str>],
                           "href": <str>,
                           "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
-                          "popularity": 0,
+                          "popularity": <int>,
                           "type": "artist",
                           "uri": <str>
                         }
@@ -7184,36 +7123,36 @@ class WebAPISession(_Session):
                     },
                     "albums": {
                       "href": <str>,
-                      "limit": 20,
-                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "offset": 0,
-                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "total": 4,
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>,
                       "items": [
                         {
-                          "album_type": "compilation",
-                          "total_tracks": 9,
-                          "available_markets": ["CA", "BR", "IT"],
+                          "album_type": <str>,
+                          "total_tracks": <int>,
+                          "available_markets": [<str>],
                           "external_urls": {
                             "spotify": <str>
                           },
                           "href": <str>,
-                          "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                          "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
-                          "release_date": "1981-12",
-                          "release_date_precision": "year",
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
                           "restrictions": {
-                            "reason": "market"
+                            "reason": <str>
                           },
                           "type": "album",
-                          "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                          "uri": <str>,
                           "copyrights": [
                             {
                               "text": <str>,
@@ -7225,10 +7164,10 @@ class WebAPISession(_Session):
                             "ean": <str>,
                             "upc": <str>
                           },
-                          "genres": ["Egg punk", "Noise rock"],
+                          "genres": [<str>],
                           "label": <str>,
-                          "popularity": 0,
-                          "album_group": "compilation",
+                          "popularity": <int>,
+                          "album_group": <str>,
                           "artists": [
                             {
                               "external_urls": {
@@ -7246,14 +7185,14 @@ class WebAPISession(_Session):
                     },
                     "playlists": {
                       "href": <str>,
-                      "limit": 20,
-                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "offset": 0,
-                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "total": 4,
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>,
                       "items": [
                         {
-                          "collaborative": False,
+                          "collaborative": <bool>,
                           "description": <str>,
                           "external_urls": {
                             "spotify": <str>
@@ -7263,8 +7202,8 @@ class WebAPISession(_Session):
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
@@ -7274,7 +7213,7 @@ class WebAPISession(_Session):
                             },
                             "followers": {
                               "href": <str>,
-                              "total": 0
+                              "total": <int>
                             },
                             "href": <str>,
                             "id": <str>,
@@ -7282,11 +7221,11 @@ class WebAPISession(_Session):
                             "uri": <str>,
                             "display_name": <str>
                           },
-                          "public": False,
+                          "public": <bool>,
                           "snapshot_id": <str>,
                           "tracks": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
                           "type": <str>,
                           "uri": <str>
@@ -7295,11 +7234,11 @@ class WebAPISession(_Session):
                     },
                     "shows": {
                       "href": <str>,
-                      "limit": 20,
-                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "offset": 0,
-                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "total": 4,
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>,
                       "items": [
                         {
                           "available_markets": [<str>],
@@ -7311,7 +7250,7 @@ class WebAPISession(_Session):
                           ],
                           "description": <str>,
                           "html_description": <str>,
-                          "explicit": False,
+                          "explicit": <bool>,
                           "external_urls": {
                             "spotify": <str>
                           },
@@ -7320,60 +7259,60 @@ class WebAPISession(_Session):
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
-                          "is_externally_hosted": False,
+                          "is_externally_hosted": <bool>,
                           "languages": [<str>],
                           "media_type": <str>,
                           "name": <str>,
                           "publisher": <str>,
                           "type": "show",
                           "uri": <str>,
-                          "total_episodes": 0
+                          "total_episodes": <int>
                         }
                       ]
                     },
                     "episodes": {
                       "href": <str>,
-                      "limit": 20,
-                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "offset": 0,
-                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "total": 4,
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>,
                       "items": [
                         {
                           "audio_preview_url": <str>,
                           "description": <str>,
                           "html_description": <str>,
-                          "duration_ms": 1686230,
-                          "explicit": False,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
                           "external_urls": {
                             "spotify": <str>
                           },
                           "href": <str>,
-                          "id": "5Xt5DXGzch68nYYamXrNxZ",
+                          "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
-                          "is_externally_hosted": False,
-                          "is_playable": False,
-                          "language": "en",
-                          "languages": ["fr", "en"],
+                          "is_externally_hosted": <bool>,
+                          "is_playable": <bool>
+                          "language": <str>,
+                          "languages": [<str>],
                           "name": <str>,
-                          "release_date": "1981-12-15",
-                          "release_date_precision": "day",
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
                           "resume_point": {
-                            "fully_played": False,
-                            "resume_position_ms": 0
+                            "fully_played": <bool>,
+                            "resume_position_ms": <int>
                           },
                           "type": "episode",
-                          "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                          "uri": <str>,
                           "restrictions": {
                             "reason": <str>
                           }
@@ -7382,11 +7321,11 @@ class WebAPISession(_Session):
                     },
                     "audiobooks": {
                       "href": <str>,
-                      "limit": 20,
-                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "offset": 0,
-                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "total": 4,
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>,
                       "items": [
                         {
                           "authors": [
@@ -7403,8 +7342,8 @@ class WebAPISession(_Session):
                           ],
                           "description": <str>,
                           "html_description": <str>,
-                          "edition": "Unabridged",
-                          "explicit": False,
+                          "edition": <str>,
+                          "explicit": <bool>,
                           "external_urls": {
                             "spotify": <str>
                           },
@@ -7413,8 +7352,8 @@ class WebAPISession(_Session):
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "languages": [<str>],
@@ -7428,7 +7367,7 @@ class WebAPISession(_Session):
                           "publisher": <str>,
                           "type": "audiobook",
                           "uri": <str>,
-                          "total_chapters": 0
+                          "total_chapters": <int>
                         }
                       ]
                     }
@@ -7496,7 +7435,7 @@ class WebAPISession(_Session):
                     ],
                     "description": <str>,
                     "html_description": <str>,
-                    "explicit": False,
+                    "explicit": <bool>,
                     "external_urls": {
                       "spotify": <str>
                     },
@@ -7505,57 +7444,57 @@ class WebAPISession(_Session):
                     "images": [
                       {
                         "url": <str>,
-                        "height": 300,
-                        "width": 300
+                        "height": <int>,
+                        "width": <int>
                       }
                     ],
-                    "is_externally_hosted": False,
+                    "is_externally_hosted": <bool>,
                     "languages": [<str>],
                     "media_type": <str>,
                     "name": <str>,
                     "publisher": <str>,
                     "type": "show",
                     "uri": <str>,
-                    "total_episodes": 0,
+                    "total_episodes": <int>,
                     "episodes": {
                       "href": <str>,
-                      "limit": 20,
-                      "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "offset": 0,
-                      "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                      "total": 4,
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>,
                       "items": [
                         {
                           "audio_preview_url": <str>,
                           "description": <str>,
                           "html_description": <str>,
-                          "duration_ms": 1686230,
-                          "explicit": False,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
                           "external_urls": {
                             "spotify": <str>
                           },
                           "href": <str>,
-                          "id": "5Xt5DXGzch68nYYamXrNxZ",
+                          "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
-                          "is_externally_hosted": False,
-                          "is_playable": False,
-                          "language": "en",
-                          "languages": ["fr", "en"],
+                          "is_externally_hosted": <bool>,
+                          "is_playable": <bool>
+                          "language": <str>,
+                          "languages": [<str>],
                           "name": <str>,
-                          "release_date": "1981-12-15",
-                          "release_date_precision": "day",
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
                           "resume_point": {
-                            "fully_played": False,
-                            "resume_position_ms": 0
+                            "fully_played": <bool>,
+                            "resume_position_ms": <int>
                           },
                           "type": "episode",
-                          "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                          "uri": <str>,
                           "restrictions": {
                             "reason": <str>
                           }
@@ -7624,7 +7563,7 @@ class WebAPISession(_Session):
                       ],
                       "description": <str>,
                       "html_description": <str>,
-                      "explicit": False,
+                      "explicit": <bool>,
                       "external_urls": {
                         "spotify": <str>
                       },
@@ -7633,18 +7572,18 @@ class WebAPISession(_Session):
                       "images": [
                         {
                           "url": <str>,
-                          "height": 300,
-                          "width": 300
+                          "height": <int>,
+                          "width": <int>
                         }
                       ],
-                      "is_externally_hosted": False,
+                      "is_externally_hosted": <bool>,
                       "languages": [<str>],
                       "media_type": <str>,
                       "name": <str>,
                       "publisher": <str>,
                       "type": "show",
                       "uri": <str>,
-                      "total_episodes": 0
+                      "total_episodes": <int>
                     }
                   ]
         """
@@ -7713,43 +7652,43 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
-                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "offset": 0,
-                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "total": 4,
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>,
                     "items": [
                       {
                         "audio_preview_url": <str>,
                         "description": <str>,
                         "html_description": <str>,
-                        "duration_ms": 1686230,
-                        "explicit": False,
+                        "duration_ms": <int>,
+                        "explicit": <bool>,
                         "external_urls": {
                           "spotify": <str>
                         },
                         "href": <str>,
-                        "id": "5Xt5DXGzch68nYYamXrNxZ",
+                        "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
-                        "is_externally_hosted": False,
-                        "is_playable": False,
-                        "language": "en",
-                        "languages": ["fr", "en"],
+                        "is_externally_hosted": <bool>,
+                        "is_playable": <bool>
+                        "language": <str>,
+                        "languages": [<str>],
                         "name": <str>,
-                        "release_date": "1981-12-15",
-                        "release_date_precision": "day",
+                        "release_date": <str>,
+                        "release_date_precision": <str>,
                         "resume_point": {
-                          "fully_played": False,
-                          "resume_position_ms": 0
+                          "fully_played": <bool>,
+                          "resume_position_ms": <int>
                         },
                         "type": "episode",
-                        "uri": "spotify:episode:0zLhl3WsOCQHbe1BPTiHgr",
+                        "uri": <str>,
                         "restrictions": {
                           "reason": <str>
                         }
@@ -7808,11 +7747,11 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
-                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "offset": 0,
-                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "total": 4,
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>,
                     "items": [
                       {
                         "added_at": <str>,
@@ -7828,7 +7767,7 @@ class WebAPISession(_Session):
                           ],
                           "description": <str>,
                           "html_description": <str>,
-                          "explicit": False,
+                          "explicit": <bool>,
                           "external_urls": {
                             "spotify": <str>
                           },
@@ -7837,11 +7776,11 @@ class WebAPISession(_Session):
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
-                          "is_externally_hosted": False,
+                          "is_externally_hosted": <bool>,
                           "languages": [
                             <str>
                           ],
@@ -7850,7 +7789,7 @@ class WebAPISession(_Session):
                           "publisher": <str>,
                           "type": "show",
                           "uri": <str>,
-                          "total_episodes": 0
+                          "total_episodes": <int>
                         }
                       }
                     ]
@@ -8018,29 +7957,29 @@ class WebAPISession(_Session):
 
                   {
                     "album": {
-                      "album_type": "compilation",
-                      "total_tracks": 9,
-                      "available_markets": ["CA", "BR", "IT"],
+                      "album_type": <str>,
+                      "total_tracks": <int>,
+                      "available_markets": [<str>],
                       "external_urls": {
                         "spotify": <str>
                       },
                       "href": <str>,
-                      "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                      "id": <str>,
                       "images": [
                         {
                           "url": <str>,
-                          "height": 300,
-                          "width": 300
+                          "height": <int>,
+                          "width": <int>
                         }
                       ],
                       "name": <str>,
-                      "release_date": "1981-12",
-                      "release_date_precision": "year",
+                      "release_date": <str>,
+                      "release_date_precision": <str>,
                       "restrictions": {
-                        "reason": "market"
+                        "reason": <str>
                       },
                       "type": "album",
-                      "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                      "uri": <str>,
                       "copyrights": [
                         {
                           "text": <str>,
@@ -8052,10 +7991,10 @@ class WebAPISession(_Session):
                         "ean": <str>,
                         "upc": <str>
                       },
-                      "genres": ["Egg punk", "Noise rock"],
+                      "genres": [<str>],
                       "label": <str>,
-                      "popularity": 0,
-                      "album_group": "compilation",
+                      "popularity": <int>,
+                      "album_group": <str>,
                       "artists": [
                         {
                           "external_urls": {
@@ -8076,28 +8015,28 @@ class WebAPISession(_Session):
                         },
                         "followers": {
                           "href": <str>,
-                          "total": 0
+                          "total": <int>
                         },
-                        "genres": ["Prog rock", "Grunge"],
+                        "genres": [<str>],
                         "href": <str>,
                         "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "name": <str>,
-                        "popularity": 0,
+                        "popularity": <int>,
                         "type": "artist",
                         "uri": <str>
                       }
                     ],
                     "available_markets": [<str>],
-                    "disc_number": 0,
-                    "duration_ms": 0,
-                    "explicit": False,
+                    "disc_number": <int>,
+                    "duration_ms": <int>,
+                    "explicit": <bool>,
                     "external_ids": {
                       "isrc": <str>,
                       "ean": <str>,
@@ -8108,19 +8047,19 @@ class WebAPISession(_Session):
                     },
                     "href": <str>,
                     "id": <str>,
-                    "is_playable": False,
+                    "is_playable": <bool>
                     "linked_from": {
                     },
                     "restrictions": {
                       "reason": <str>
                     },
                     "name": <str>,
-                    "popularity": 0,
+                    "popularity": <int>,
                     "preview_url": <str>,
-                    "track_number": 0,
+                    "track_number": <int>,
                     "type": "track",
                     "uri": <str>,
-                    "is_local": false
+                    "is_local": <bool>
                   }
         """
 
@@ -8175,29 +8114,29 @@ class WebAPISession(_Session):
                   [
                     {
                       "album": {
-                        "album_type": "compilation",
-                        "total_tracks": 9,
-                        "available_markets": ["CA", "BR", "IT"],
+                        "album_type": <str>,
+                        "total_tracks": <int>,
+                        "available_markets": [<str>],
                         "external_urls": {
                           "spotify": <str>
                         },
                         "href": <str>,
-                        "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                        "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "name": <str>,
-                        "release_date": "1981-12",
-                        "release_date_precision": "year",
+                        "release_date": <str>,
+                        "release_date_precision": <str>,
                         "restrictions": {
-                          "reason": "market"
+                          "reason": <str>
                         },
                         "type": "album",
-                        "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                        "uri": <str>,
                         "copyrights": [
                           {
                             "text": <str>,
@@ -8209,10 +8148,10 @@ class WebAPISession(_Session):
                           "ean": <str>,
                           "upc": <str>
                         },
-                        "genres": ["Egg punk", "Noise rock"],
+                        "genres": [<str>],
                         "label": <str>,
-                        "popularity": 0,
-                        "album_group": "compilation",
+                        "popularity": <int>,
+                        "album_group": <str>,
                         "artists": [
                           {
                             "external_urls": {
@@ -8233,28 +8172,28 @@ class WebAPISession(_Session):
                           },
                           "followers": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
-                          "genres": ["Prog rock", "Grunge"],
+                          "genres": [<str>],
                           "href": <str>,
                           "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
-                          "popularity": 0,
+                          "popularity": <int>,
                           "type": "artist",
                           "uri": <str>
                         }
                       ],
                       "available_markets": [<str>],
-                      "disc_number": 0,
-                      "duration_ms": 0,
-                      "explicit": False,
+                      "disc_number": <int>,
+                      "duration_ms": <int>,
+                      "explicit": <bool>,
                       "external_ids": {
                         "isrc": <str>,
                         "ean": <str>,
@@ -8265,19 +8204,19 @@ class WebAPISession(_Session):
                       },
                       "href": <str>,
                       "id": <str>,
-                      "is_playable": False,
+                      "is_playable": <bool>
                       "linked_from": {
                       },
                       "restrictions": {
                         "reason": <str>
                       },
                       "name": <str>,
-                      "popularity": 0,
+                      "popularity": <int>,
                       "preview_url": <str>,
-                      "track_number": 0,
+                      "track_number": <int>,
                       "type": "track",
                       "uri": <str>,
-                      "is_local": false
+                      "is_local": <bool>
                     }
                   ]
         """
@@ -8347,39 +8286,39 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
-                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "offset": 0,
-                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "total": 4,
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>,
                     "items": [
                       {
                         "added_at": <str>,
                         "track": {
                           "album": {
-                            "album_type": "compilation",
-                            "total_tracks": 9,
-                            "available_markets": ["CA", "BR", "IT"],
+                            "album_type": <str>,
+                            "total_tracks": <int>,
+                            "available_markets": [<str>],
                             "external_urls": {
                               "spotify": <str>
                             },
                             "href": <str>,
-                            "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                            "id": <str>,
                             "images": [
                               {
                                 "url": <str>,
-                                "height": 300,
-                                "width": 300
+                                "height": <int>,
+                                "width": <int>
                               }
                             ],
                             "name": <str>,
-                            "release_date": "1981-12",
-                            "release_date_precision": "year",
+                            "release_date": <str>,
+                            "release_date_precision": <str>,
                             "restrictions": {
-                              "reason": "market"
+                              "reason": <str>
                             },
                             "type": "album",
-                            "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                            "uri": <str>,
                             "copyrights": [
                               {
                                 "text": <str>,
@@ -8391,10 +8330,10 @@ class WebAPISession(_Session):
                               "ean": <str>,
                               "upc": <str>
                             },
-                            "genres": ["Egg punk", "Noise rock"],
+                            "genres": [<str>],
                             "label": <str>,
-                            "popularity": 0,
-                            "album_group": "compilation",
+                            "popularity": <int>,
+                            "album_group": <str>,
                             "artists": [
                               {
                                 "external_urls": {
@@ -8415,28 +8354,28 @@ class WebAPISession(_Session):
                               },
                               "followers": {
                                 "href": <str>,
-                                "total": 0
+                                "total": <int>
                               },
-                              "genres": ["Prog rock", "Grunge"],
+                              "genres": [<str>],
                               "href": <str>,
                               "id": <str>,
                               "images": [
                                 {
                                   "url": <str>,
-                                  "height": 300,
-                                  "width": 300
+                                  "height": <int>,
+                                  "width": <int>
                                 }
                               ],
                               "name": <str>,
-                              "popularity": 0,
+                              "popularity": <int>,
                               "type": "artist",
                               "uri": <str>
                             }
                           ],
                           "available_markets": [<str>],
-                          "disc_number": 0,
-                          "duration_ms": 0,
-                          "explicit": False,
+                          "disc_number": <int>,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
                           "external_ids": {
                             "isrc": <str>,
                             "ean": <str>,
@@ -8447,19 +8386,19 @@ class WebAPISession(_Session):
                           },
                           "href": <str>,
                           "id": <str>,
-                          "is_playable": False,
+                          "is_playable": <bool>
                           "linked_from": {
                           },
                           "restrictions": {
                             "reason": <str>
                           },
                           "name": <str>,
-                          "popularity": 0,
+                          "popularity": <int>,
                           "preview_url": <str>,
-                          "track_number": 0,
+                          "track_number": <int>,
                           "type": "track",
                           "uri": <str>,
-                          "is_local": false
+                          "is_local": <bool>
                         }
                       }
                     ]
@@ -8605,24 +8544,24 @@ class WebAPISession(_Session):
                .. code::
 
                   {
-                    "acousticness": 0.00242,
+                    "acousticness": <float>,
                     "analysis_url": <str>,
-                    "danceability": 0.585,
-                    "duration_ms": 237040,
-                    "energy": 0.842,
-                    "id": "2takcwOaAZWiXQijPHIx7B",
-                    "instrumentalness": 0.00686,
-                    "key": 9,
-                    "liveness": 0.0866,
-                    "loudness": -5.883,
-                    "mode": 0,
-                    "speechiness": 0.0556,
-                    "tempo": 118.211,
-                    "time_signature": 4,
-                    "track_href": "https://api.spotify.com/v1/tracks/2takcwOaAZWiXQijPHIx7B",
+                    "danceability": <float>,
+                    "duration_ms": <int>,
+                    "energy": <float>,
+                    "id": <str>,
+                    "instrumentalness": <float>,
+                    "key": <int>,
+                    "liveness": <float>,
+                    "loudness": <float>,
+                    "mode": <int>,
+                    "speechiness": <float>,
+                    "tempo": <float>,
+                    "time_signature": <int>,
+                    "track_href": <str>,
                     "type": "audio_features",
-                    "uri": "spotify:track:2takcwOaAZWiXQijPHIx7B",
-                    "valence": 0.428
+                    "uri": <str>,
+                    "valence": <float>,
                   }
         """
 
@@ -8659,24 +8598,24 @@ class WebAPISession(_Session):
 
                   [
                     {
-                      "acousticness": 0.00242,
+                      "acousticness": <float>,
                       "analysis_url": <str>,
-                      "danceability": 0.585,
-                      "duration_ms": 237040,
-                      "energy": 0.842,
-                      "id": "2takcwOaAZWiXQijPHIx7B",
-                      "instrumentalness": 0.00686,
-                      "key": 9,
-                      "liveness": 0.0866,
-                      "loudness": -5.883,
-                      "mode": 0,
-                      "speechiness": 0.0556,
-                      "tempo": 118.211,
-                      "time_signature": 4,
-                      "track_href": "https://api.spotify.com/v1/tracks/2takcwOaAZWiXQijPHIx7B",
+                      "danceability": <float>,
+                      "duration_ms": <int>,
+                      "energy": <float>,
+                      "id": <str>,
+                      "instrumentalness": <float>,
+                      "key": <int>,
+                      "liveness": <float>,
+                      "loudness": <float>,
+                      "mode": <int>,
+                      "speechiness": <float>,
+                      "tempo": <float>,
+                      "time_signature": <int>,
+                      "track_href": <str>,
                       "type": "audio_features",
-                      "uri": "spotify:track:2takcwOaAZWiXQijPHIx7B",
-                      "valence": 0.428
+                      "uri": <str>,
+                      "valence": <float>,
                     }
                   ]
         """
@@ -8715,90 +8654,90 @@ class WebAPISession(_Session):
 
                   {
                     "meta": {
-                      "analyzer_version": "4.0.0",
-                      "platform": "Linux",
-                      "detailed_status": "OK",
-                      "status_code": 0,
-                      "timestamp": 1495193577,
-                      "analysis_time": 6.93906,
-                      "input_process": "libvorbisfile L+R 44100->22050"
+                      "analyzer_version": <str>,
+                      "platform": <str>,
+                      "detailed_status": <str>,
+                      "status_code": <int>,
+                      "timestamp": <int>,
+                      "analysis_time": <float>,
+                      "input_process": <str>
                     },
                     "track": {
-                      "num_samples": 4585515,
-                      "duration": 207.95985,
+                      "num_samples": <int>,
+                      "duration": <float>,
                       "sample_md5": <str>,
-                      "offset_seconds": 0,
-                      "window_seconds": 0,
-                      "analysis_sample_rate": 22050,
-                      "analysis_channels": 1,
-                      "end_of_fade_in": 0,
-                      "start_of_fade_out": 201.13705,
-                      "loudness": -5.883,
-                      "tempo": 118.211,
-                      "tempo_confidence": 0.73,
-                      "time_signature": 4,
-                      "time_signature_confidence": 0.994,
-                      "key": 9,
-                      "key_confidence": 0.408,
-                      "mode": 0,
-                      "mode_confidence": 0.485,
+                      "offset_seconds": <int>,
+                      "window_seconds": <int>,
+                      "analysis_sample_rate": <int>,
+                      "analysis_channels": <int>,
+                      "end_of_fade_in": <int>,
+                      "start_of_fade_out": <float>,
+                      "loudness": <float>,
+                      "tempo": <float>,
+                      "tempo_confidence": <float>,
+                      "time_signature": <int>,
+                      "time_signature_confidence": <float>,
+                      "key": <int>,
+                      "key_confidence": <float>,
+                      "mode": <int>,
+                      "mode_confidence": <float>,
                       "codestring": <str>,
-                      "code_version": 3.15,
+                      "code_version": <float>,
                       "echoprintstring": <str>,
-                      "echoprint_version": 4.15,
+                      "echoprint_version": <float>,
                       "synchstring": <str>,
-                      "synch_version": 1,
+                      "synch_version": <int>,
                       "rhythmstring": <str>,
-                      "rhythm_version": 1
+                      "rhythm_version": <int>
                     },
                     "bars": [
                       {
-                        "start": 0.49567,
-                        "duration": 2.18749,
-                        "confidence": 0.925
+                        "start": <float>,
+                        "duration": <float>,
+                        "confidence": <float>
                       }
                     ],
                     "beats": [
                       {
-                        "start": 0.49567,
-                        "duration": 2.18749,
-                        "confidence": 0.925
+                        "start": <float>,
+                        "duration": <float>,
+                        "confidence": <float>
                       }
                     ],
                     "sections": [
                       {
-                        "start": 0,
-                        "duration": 6.97092,
-                        "confidence": 1,
-                        "loudness": -14.938,
-                        "tempo": 113.178,
-                        "tempo_confidence": 0.647,
-                        "key": 9,
-                        "key_confidence": 0.297,
-                        "mode": -1,
-                        "mode_confidence": 0.471,
-                        "time_signature": 4,
-                        "time_signature_confidence": 1
+                        "start": <float>,
+                        "duration": <float>,
+                        "confidence": <float>,
+                        "loudness": <float>,
+                        "tempo": <float>,
+                        "tempo_confidence": <float>,
+                        "key": <int>,
+                        "key_confidence": <float>,
+                        "mode": <int>,
+                        "mode_confidence": <float>,
+                        "time_signature": <int>,
+                        "time_signature_confidence": <float>
                       }
                     ],
                     "segments": [
                       {
-                        "start": 0.70154,
-                        "duration": 0.19891,
-                        "confidence": 0.435,
-                        "loudness_start": -23.053,
-                        "loudness_max": -14.25,
-                        "loudness_max_time": 0.07305,
-                        "loudness_end": 0,
-                        "pitches": [0.212, 0.141, 0.294],
-                        "timbre": [42.115, 64.373, -0.233]
+                        "start": <float>,
+                        "duration": <float>,
+                        "confidence": <float>,
+                        "loudness_start": <float>,
+                        "loudness_max": <float>,
+                        "loudness_max_time": <float>,
+                        "loudness_end": <int>,
+                        "pitches": [<float>],
+                        "timbre": [<float>]
                       }
                     ],
                     "tatums": [
                       {
-                        "start": 0.49567,
-                        "duration": 2.18749,
-                        "confidence": 0.925
+                        "start": <float>,
+                        "duration": <float>,
+                        "confidence": <float>
                       }
                     ]
                   }
@@ -8900,40 +8839,40 @@ class WebAPISession(_Session):
                   {
                     "seeds": [
                       {
-                        "afterFilteringSize": 0,
-                        "afterRelinkingSize": 0,
+                        "afterFilteringSize": <int>,
+                        "afterRelinkingSize": <int>,
                         "href": <str>,
                         "id": <str>,
-                        "initialPoolSize": 0,
+                        "initialPoolSize": <int>,
                         "type": <str>
                       }
                     ],
                     "tracks": [
                       {
                         "album": {
-                          "album_type": "compilation",
-                          "total_tracks": 9,
-                          "available_markets": ["CA", "BR", "IT"],
+                          "album_type": <str>,
+                          "total_tracks": <int>,
+                          "available_markets": [<str>],
                           "external_urls": {
                             "spotify": <str>
                           },
                           "href": <str>,
-                          "id": "2up3OPMp9Tb4dAKM2erWXQ",
+                          "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
-                          "release_date": "1981-12",
-                          "release_date_precision": "year",
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
                           "restrictions": {
-                            "reason": "market"
+                            "reason": <str>
                           },
                           "type": "album",
-                          "uri": "spotify:album:2up3OPMp9Tb4dAKM2erWXQ",
+                          "uri": <str>,
                           "copyrights": [
                             {
                               "text": <str>,
@@ -8945,10 +8884,10 @@ class WebAPISession(_Session):
                             "ean": <str>,
                             "upc": <str>
                           },
-                          "genres": ["Egg punk", "Noise rock"],
+                          "genres": [<str>],
                           "label": <str>,
-                          "popularity": 0,
-                          "album_group": "compilation",
+                          "popularity": <int>,
+                          "album_group": <str>,
                           "artists": [
                             {
                               "external_urls": {
@@ -8969,28 +8908,28 @@ class WebAPISession(_Session):
                             },
                             "followers": {
                               "href": <str>,
-                              "total": 0
+                              "total": <int>
                             },
-                            "genres": ["Prog rock", "Grunge"],
+                            "genres": [<str>],
                             "href": <str>,
                             "id": <str>,
                             "images": [
                               {
                                 "url": <str>,
-                                "height": 300,
-                                "width": 300
+                                "height": <int>,
+                                "width": <int>
                               }
                             ],
                             "name": <str>,
-                            "popularity": 0,
+                            "popularity": <int>,
                             "type": "artist",
                             "uri": <str>
                           }
                         ],
                         "available_markets": [<str>],
-                        "disc_number": 0,
-                        "duration_ms": 0,
-                        "explicit": False,
+                        "disc_number": <int>,
+                        "duration_ms": <int>,
+                        "explicit": <bool>,
                         "external_ids": {
                           "isrc": <str>,
                           "ean": <str>,
@@ -9001,19 +8940,19 @@ class WebAPISession(_Session):
                         },
                         "href": <str>,
                         "id": <str>,
-                        "is_playable": False,
+                        "is_playable": <bool>
                         "linked_from": {
                         },
                         "restrictions": {
                           "reason": <str>
                         },
                         "name": <str>,
-                        "popularity": 0,
+                        "popularity": <int>,
                         "preview_url": <str>,
-                        "track_number": 0,
+                        "track_number": <int>,
                         "type": "track",
                         "uri": <str>,
-                        "is_local": false
+                        "is_local": <bool>
                       }
                     ]
                   }
@@ -9068,23 +9007,23 @@ class WebAPISession(_Session):
                     "display_name": <str>,
                     "email": <str>,
                     "explicit_content": {
-                      "filter_enabled": False,
-                      "filter_locked": false
+                      "filter_enabled": <bool>,
+                      "filter_locked": <bool>
                     },
                     "external_urls": {
                       "spotify": <str>
                     },
                     "followers": {
                       "href": <str>,
-                      "total": 0
+                      "total": <int>
                     },
                     "href": <str>,
                     "id": <str>,
                     "images": [
                       {
                         "url": <str>,
-                        "height": 300,
-                        "width": 300
+                        "height": <int>,
+                        "width": <int>
                       }
                     ],
                     "product": <str>,
@@ -9160,11 +9099,11 @@ class WebAPISession(_Session):
 
                   {
                     "href": <str>,
-                    "limit": 20,
-                    "next": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "offset": 0,
-                    "previous": "https://api.spotify.com/v1/me/shows?offset=1&limit=1",
-                    "total": 4,
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>,
                     "items": [
                       {
                         "external_urls": {
@@ -9172,21 +9111,21 @@ class WebAPISession(_Session):
                         },
                         "followers": {
                           "href": <str>,
-                          "total": 0
+                          "total": <int>
                         },
-                        "genres": ["Prog rock", "Grunge"],
+                        "genres": [<str>],
                         "href": <str>,
                         "id": <str>,
                         "images": [
                           {
                             "url": <str>,
-                            "height": 300,
-                            "width": 300
+                            "height": <int>,
+                            "width": <int>
                           }
                         ],
                         "name": <str>,
-                        "popularity": 0,
-                        "type": "artist",
+                        "popularity": <int>,
+                        "type": <str>,
                         "uri": <str>
                       }
                     ]
@@ -9232,15 +9171,15 @@ class WebAPISession(_Session):
                     },
                     "followers": {
                       "href": <str>,
-                      "total": 0
+                      "total": <int>
                     },
                     "href": <str>,
                     "id": <str>,
                     "images": [
                       {
                         "url": <str>,
-                        "height": 300,
-                        "width": 300
+                        "height": <int>,
+                        "width": <int>
                       }
                     ],
                     "type": "user",
@@ -9341,13 +9280,13 @@ class WebAPISession(_Session):
 
                   {
                       "href": <str>,
-                      "limit": 0,
+                      "limit": <int>,
                       "next": <str>,
                       "cursors": {
                         "after": <str>,
                         "before": <str>
                       },
-                      "total": 0,
+                      "total": <int>,
                       "items": [
                         {
                           "external_urls": {
@@ -9355,20 +9294,20 @@ class WebAPISession(_Session):
                           },
                           "followers": {
                             "href": <str>,
-                            "total": 0
+                            "total": <int>
                           },
-                          "genres": ["Prog rock", "Grunge"],
+                          "genres": [<str>],
                           "href": <str>,
                           "id": <str>,
                           "images": [
                             {
                               "url": <str>,
-                              "height": 300,
-                              "width": 300
+                              "height": <int>,
+                              "width": <int>
                             }
                           ],
                           "name": <str>,
-                          "popularity": 0,
+                          "popularity": <int>,
                           "type": "artist",
                           "uri": <str>
                         }
@@ -9561,9 +9500,6 @@ class Chapter:
     pass
 
 class Episode:
-    pass
-
-class Lyrics:
     pass
 
 class Market:

@@ -197,15 +197,14 @@
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Category.html">Category</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Chapter.html">Chapter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Episode.html">Episode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.spotify.Lyrics.html">Lyrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsAPISession.html">LyricsAPISession</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsService.html">LyricsService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Market.html">Market</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Player.html">Player</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Playlist.html">Playlist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Show.html">Show</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.Track.html">Track</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.User.html">User</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPISession.html">WebAPISession</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPI.html">WebAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.tidal.html">tidal</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of tidal</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -534,16 +533,16 @@ API via <a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz
 <dd class="field-odd"><dl>
 <dt><strong>data</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Information about the track in JSON format obtained using
 the Spotify Web API via
-<a class="reference internal" href="minim.spotify.WebAPISession.html#minim.spotify.WebAPISession.get_track" title="minim.spotify.WebAPISession.get_track"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.spotify.WebAPISession.get_track()</span></code></a>.</p>
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.spotify.WebAPISession.get_track()</span></code>.</p>
 </dd>
 <dt><strong>audio_features</strong><span class="classifier"><cite>dict</cite>, keyword-only, optional</span></dt><dd><p>Information about the track’s audio features obtained using
 the Spotify Web API via
-<a class="reference internal" href="minim.spotify.WebAPISession.html#minim.spotify.WebAPISession.get_track_audio_features" title="minim.spotify.WebAPISession.get_track_audio_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.spotify.WebAPISession.get_track_audio_features()</span></code></a>.
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.spotify.WebAPISession.get_track_audio_features()</span></code>.
 If not provided, tempo information is unavailable.</p>
 </dd>
 <dt><strong>lyrics</strong><span class="classifier"><cite>str</cite> or <cite>dict</cite>, keyword-only</span></dt><dd><p>Information about the track’s formatted or time-synced
 lyrics obtained using the Spotify Lyrics API via
-<a class="reference internal" href="minim.spotify.LyricsAPISession.html#minim.spotify.LyricsAPISession.get_lyrics" title="minim.spotify.LyricsAPISession.get_lyrics"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.spotify.LyricsAPISession.get_lyrics()</span></code></a>. If not
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.spotify.LyricsAPISession.get_lyrics()</span></code>. If not
 provided, lyrics are unavailable.</p>
 </dd>
 <dt><strong>overwrite</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Determines whether existing metadata should be overwritten.</p>
