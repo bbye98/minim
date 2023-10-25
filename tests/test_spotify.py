@@ -1,8 +1,12 @@
+import configparser
 from pathlib import Path
 import sys
 
 sys.path.insert(0, f"{Path(__file__).parents[1]}/src")
 from minim import spotify
+
+config = configparser.ConfigParser()
+config.read(Path.home() / "minim.cfg")
 
 class TestLyricsService:
 
@@ -35,40 +39,18 @@ class TestWebAPI:
 
     @classmethod
     def setup_class(cls):
-        Path(spotify.HOME_DIR / "minim.cfg").unlink(missing_ok=True)
-        cls.session = spotify.WebAPI(flow="client_credentials")
+        config.remove_section("minim.spotify.WebAPI")
+        cls.session = spotify.WebAPI()
 
-    # def test_no_flow(self):
-    #     Spotify = spotify.WebAPI()
-    #     assert "Bearer" in Spotify.session.headers["Authorization"]
+    def test_web_player_flow(self):
+        Spotify = spotify.WebAPI(overwrite=True)
+        assert "Bearer" in Spotify.session.headers["Authorization"]
 
-    # def test_authorization_code_flow(self):
-    #     # Get access token using authorization code flow
-    #     Spotify = spotify.WebAPI(flow="authorization_code", 
-    #                              scopes=spotify.WebAPI.get_scopes("all"),
-    #                              framework="flask")
-    #     authorization = Spotify.session.headers["Authorization"]
-    #     # Retrieve access token from configuration file
-    #     Spotify = spotify.WebAPI()
-    #     assert Spotify.session.headers["Authorization"] == authorization
-
-    # def test_authorization_code_pkce_flow(self):
-    #     # Get access token using authorization code with PKCE flow
-    #     Spotify = spotify.WebAPI(flow="authorization_code_pkce", 
-    #                              scopes=spotify.WebAPI.get_scopes("all"),
-    #                              framework="flask")
-    #     authorization = Spotify.session.headers["Authorization"]
-    #     # Retrieve access token from configuration file
-    #     Spotify = spotify.WebAPI()
-    #     assert Spotify.session.headers["Authorization"] == authorization
-
-    # def test_client_credentials_flow(self):
-    #     # Get access token using client credentials flow
-    #     Spotify = spotify.WebAPI(flow="client_credentials")
-    #     authorization = Spotify.session.headers["Authorization"]
-    #     # Retrieve access token from configuration file
-    #     Spotify = spotify.WebAPI()
-    #     assert Spotify.session.headers["Authorization"] == authorization
+    def test_client_credentials_flow(self):
+        Spotify = spotify.WebAPI(flow="client_credentials", overwrite=True)
+        authorization = Spotify.session.headers["Authorization"]
+        Spotify = spotify.WebAPI()
+        assert authorization == Spotify.session.headers["Authorization"]
 
     def test_get_album(self):
         resp = self.session.get_album(self.ALBUM_IDS[0])

@@ -34,8 +34,8 @@ try:
     FOUND["playwright"] = True
 except ModuleNotFoundError: # pragma: no cover
     FOUND["playwright"] = False
-
-from . import Path, HOME_DIR, TEMP_DIR, config
+ 
+from . import HOME_DIR, TEMP_DIR, config
 
 class LyricsService:
 
@@ -111,12 +111,10 @@ class LyricsService:
 
         if access_token is None \
                 and config.has_section("minim.spotify.LyricsService"):
-            sp_dc = config.get("minim.spotify.LyricsService", "sp_dc", 
-                               fallback=sp_dc)
+            sp_dc = config.get("minim.spotify.LyricsService", "sp_dc")
             access_token = config.get("minim.spotify.LyricsService", 
                                       "access_token")
-            expiry = config.get("minim.spotify.LyricsService", "expiry",
-                                fallback=expiry)
+            expiry = config.get("minim.spotify.LyricsService", "expiry")
 
         self.set_sp_dc(sp_dc)
         self.set_access_token(access_token=access_token, expiry=expiry, 
@@ -248,7 +246,9 @@ class LyricsService:
                     "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
                 }
         
-        self.session.headers.update({"Authorization": f"Bearer {access_token}"})
+        self.session.headers.update(
+            {"Authorization": f"Bearer {access_token}"}
+        )
         self._expiry = (
             datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ") 
             if isinstance(expiry, str) else expiry
@@ -362,11 +362,15 @@ class WebAPI:
        be in the form :code:`http://localhost:{port}/callback`, where 
        :code:`{port}` is an open port on :code:`localhost`.
     
-    Alternatively, a client-only access token can be acquired without
-    using an authorization flow (without client credentials) through the
-    Spotify Web Player, but this approach is not recommended and should
-    only be used as a last resort since it is not officially supported
-    and can be deprecated by Spotify at any time.
+    Alternatively, a access token can be acquired without client 
+    credentials through the Spotify Web Player, but this approach is not
+    recommended and should only be used as a last resort since it is not
+    officially supported and can be deprecated by Spotify at any time.
+    The access token is client-only unless a Spotify Web Player
+    :code:`sp_dc` cookie is either provided to this class's constructor
+    as a keyword argument or be stored as :code:`SPOTIFY_SP_DC` in the
+    operating system's environment variables, in which case a user 
+    access token with all authorization scopes is granted instead.
 
     If an existing access token is available, it and its accompanying
     information (token type, refresh token, and expiry time) can be
@@ -405,8 +409,7 @@ class WebAPI:
         it must be provided here.
 
     flow : `str`, keyword-only, optional
-        Authorization flow. If not specified or found in the Minim
-        configuration file, no authentication is performed.
+        Authorization flow.
 
         .. tip::
 
@@ -421,11 +424,12 @@ class WebAPI:
            
            * :code:`"authorization_code"` for the authorization code 
              flow.
-           * :code:`"authorization_code_pkce` for the authorization code
-             with proof key for code exchange (PKCE) flow.
+           * :code:`"authorization_code_pkce"` for the authorization 
+             code with proof key for code exchange (PKCE) flow.
            * :code:`"client_credentials"` for the client credentials 
              flow.
-           * :code:`None` for a Spotify Web Player access token.
+           * :code:`"web_player"` for a Spotify Web Player access 
+             token.
     
     framework : `str` or `bool`, keyword-only, optional
         Determines which web framework to use for the authorization code
@@ -463,6 +467,14 @@ class WebAPI:
 
            See :meth:`get_scopes` for the complete list of scopes.
 
+    sp_dc : `str`, keyword-only, optional
+        Spotify Web Player :code:`sp_dc` cookie to send with the access
+        token request. If provided here, stored as :code:`SPOTIFY_SP_DC` 
+        in the operating system's environment variables, or found in the
+        Minim configuration file, a user access token with all 
+        authorization scopes is obtained instead of a client-only access
+        token.
+           
     access_token : `str`, keyword-only, optional
         Access token. If provided or found in the Minim configuration
         file, the authentication process is bypassed. In the former
@@ -485,12 +497,18 @@ class WebAPI:
         specified authorization flow (if possible) when `access_token`
         expires.
 
+    overwrite : `bool`, keyword-only, default: :code:`False`
+        Determines whether to overwrite an existing access token in the
+        Minim configuration file.
+
     save : `bool`, keyword-only, default: :code:`True`
         Determines whether newly obtained access tokens and their
         associated properties are stored to the Minim configuration 
         file.
     """
 
+    _FLOWS = ["authorization_code_pkce", "authorization_code", 
+              "client_credentials", "web_player"]
     API_URL = "https://api.spotify.com/v1"
     AUTH_URL = "https://accounts.spotify.com/authorize"
     TOKEN_URL = "https://accounts.spotify.com/api/token"
@@ -601,13 +619,13 @@ class WebAPI:
 
     def __init__(
             self, *, client_id: str = None, client_secret: str = None,
-            flow: str = None, framework: Union[bool, str] = None,
+            flow: str = "web_player", framework: Union[bool, str] = None,
             port: Union[int, str] = 8888, redirect_uri: str = None,
-            scopes: Union[str, list[str]] = "",
+            scopes: Union[str, list[str]] = "", sp_dc: str = None,
             access_token: str = None, token_type: str = "Bearer",
             refresh_token: str = None, 
-            expiry: Union[datetime.datetime, str] = None, save: bool = True
-        ) -> None:
+            expiry: Union[datetime.datetime, str] = None, 
+            overwrite: bool = False, save: bool = True) -> None:
         
         """
         Create a Spotify Web API object.
@@ -615,44 +633,30 @@ class WebAPI:
 
         self.session = requests.Session()
 
-        if access_token is None and config.has_section("minim.spotify.WebAPI"):
-            _flow = config.get("minim.spotify.WebAPI", "flow", 
+        if (access_token is None and config.has_section("minim.spotify.WebAPI") 
+                and not overwrite):
+            flow = config.get("minim.spotify.WebAPI", "flow")
+            access_token = config.get("minim.spotify.WebAPI", "access_token")
+            token_type = config.get("minim.spotify.WebAPI", "token_type")
+            refresh_token = config.get("minim.spotify.WebAPI", "refresh_token",
+                                       fallback=None)
+            expiry = config.get("minim.spotify.WebAPI", "expiry", 
                                 fallback=None)
-            if flow == _flow or not flow and _flow:
-                flow = _flow
-                access_token = config.get("minim.spotify.WebAPI", 
-                                          "access_token")
-                token_type = config.get("minim.spotify.WebAPI", 
-                                        "token_type")
-                refresh_token = config.get("minim.spotify.WebAPI", 
-                                           "refresh_token", 
-                                           fallback=refresh_token)
-                expiry = config.get("minim.spotify.WebAPI", "expiry", 
-                                    fallback=expiry)
-                client_id = config.get("minim.spotify.WebAPI", "client_id",
-                                       fallback=client_id)
-                client_secret = config.get("minim.spotify.WebAPI", 
-                                           "client_secret", 
-                                           fallback=client_secret)
-                port = config.get("minim.spotify.WebAPI", "port", 
-                                  fallback=port)
-                redirect_uri = config.get("minim.spotify.WebAPI", 
-                                          "redirect_uri", 
-                                          fallback=redirect_uri)
-                scopes = config.get("minim.spotify.WebAPI", "scopes", 
-                                    fallback=scopes)
+            client_id = config.get("minim.spotify.WebAPI", "client_id")
+            client_secret = config.get("minim.spotify.WebAPI", "client_secret", 
+                                       fallback=None)
+            redirect_uri = config.get("minim.spotify.WebAPI", "redirect_uri", 
+                                      fallback=None)
+            scopes = config.get("minim.spotify.WebAPI", "scopes")
+            sp_dc = config.get("minim.spotify.WebAPI", "sp_dc", fallback=None)
 
         self.set_authorization_flow(
             flow, client_id=client_id, client_secret=client_secret, 
             framework=framework, port=port, redirect_uri=redirect_uri, 
-            scopes=scopes
+            scopes=scopes, sp_dc=sp_dc, save=save
         )
         self.set_access_token(access_token, token_type=token_type,
-                              refresh_token=refresh_token, expiry=expiry, 
-                              save=save)
-
-        if self._flow in {"authorization_code", "authorization_code_pkce"}:
-            self._me = self.get_current_user_profile()
+                              refresh_token=refresh_token, expiry=expiry)
 
     def _check_scope(self, endpoint: str, scope: str) -> None:
 
@@ -720,13 +724,13 @@ class WebAPI:
                                              args=("0.0.0.0", self._port))
             server.start()
             webbrowser.open(auth_url)
-            while not Path(json_file).is_file():
+            while not json_file.is_file():
                 time.sleep(0.1)
             server.terminate()
 
             with open(json_file, "rb") as f:
                 queries = json.load(f)
-            os.remove(json_file)
+            json_file.unlink()
         
         elif self._web_framework == "playwright":
             har_file = TEMP_DIR / "minim_spotify.har"
@@ -750,7 +754,7 @@ class WebAPI:
                         ).query
                     )
                 )
-            os.remove(har_file)
+            har_file.unlink()
 
         else:
             print("To grant Minim access to Spotify data and features, "
@@ -819,10 +823,12 @@ class WebAPI:
 
             if self._save:
                 config["minim.spotify.WebAPI"] = {
+                    "access_token": r["access_token"],
                     "refresh_token": self._refresh_token,
                     "expiry": (datetime.datetime.now()
                                  + datetime.timedelta(0, r["expires_in"])
                                 ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "scopes": self._scopes
                 }
 
         else:
@@ -874,8 +880,7 @@ class WebAPI:
     def set_access_token(
             self, access_token: str = None, *, token_type: str = "Bearer",
             refresh_token: str = None, 
-            expiry: Union[str, datetime.datetime] = None, save: bool = True
-        ) -> None:
+            expiry: Union[str, datetime.datetime] = None) -> None:
 
         """
         Set the Spotify Web API access token.
@@ -900,15 +905,25 @@ class WebAPI:
             reauthenticated using the refresh token (if available) or 
             the default authorization flow (if possible) when 
             `access_token` expires.
-
-        save : `bool`, keyword-only, default: :code:`True`
-            Determines whether to save the newly obtained access tokens
-            and their associated properties to the Minim configuration 
-            file.
         """
 
+        self.session.headers = {}
         if access_token is None:
-            if self._flow:
+            if self._flow == "web_player":
+                headers = ({"cookie": f"sp_dc={self._sp_dc}"} if self._sp_dc 
+                           else {})
+                r = self.session.get(self.WEB_PLAYER_TOKEN_URL, 
+                                     headers=headers).json()
+                self._client_id = r["clientId"]
+                access_token = r["accessToken"]
+                token_type = "Bearer"
+                expiry = datetime.datetime.fromtimestamp(
+                    r["accessTokenExpirationTimestampMs"] / 1000
+                )
+                if self._sp_dc and r["isAnonymous"]:
+                    logging.warning("Invalid 'sp_dc' cookie, so a "
+                                    "client-only access token was granted.")
+            else:
                 if not self._client_id or not self._client_secret:
                     emsg = "Spotify Web API client credentials not provided."
                     raise ValueError(emsg)
@@ -947,35 +962,25 @@ class WebAPI:
                 token_type = r["token_type"]
                 expiry = (datetime.datetime.now()
                           + datetime.timedelta(0, r["expires_in"]))
-                
-                self._save = save
-                if save:
-                    config["minim.spotify.WebAPI"] = {
-                        "flow": self._flow if self._flow else "",
-                        "client_id": self._client_id,
-                        "client_secret": self._client_secret,
-                        "access_token": access_token,
-                        "token_type": token_type,
-                        "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
-                    }
-                    if refresh_token:
-                        config["minim.spotify.WebAPI"]["refresh_token"] \
-                            = refresh_token
-                    for attr in ("redirect_uri", "scopes"):
-                        if hasattr(self, f"_{attr}"):
-                            config["minim.spotify.WebAPI"][attr] \
-                                = getattr(self, f"_{attr}") or ""
-                    with open(HOME_DIR / "minim.cfg", "w") as f:
-                        config.write(f)
 
-            else:
-                r = self.session.get(self.WEB_PLAYER_TOKEN_URL).json()
-                self._client_id = r["clientId"]
-                access_token = r["accessToken"]
-                token_type = "Bearer"
-                expiry = datetime.datetime.fromtimestamp(
-                    r["accessTokenExpirationTimestampMs"] / 1000
-                )
+            if self._save:
+                config["minim.spotify.WebAPI"] = {
+                    "flow": self._flow,
+                    "client_id": self._client_id,
+                    "access_token": access_token,
+                    "token_type": token_type,
+                    "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "scopes": self._scopes
+                }
+                if refresh_token:
+                    config["minim.spotify.WebAPI"]["refresh_token"] \
+                        = refresh_token
+                for attr in ("client_secret", "redirect_uri", "sp_dc"):
+                    if hasattr(self, f"_{attr}"):
+                        config["minim.spotify.WebAPI"][attr] \
+                            = getattr(self, f"_{attr}")
+                with open(HOME_DIR / "minim.cfg", "w") as f:
+                    config.write(f)
                 
         self.session.headers.update(
             {"Authorization": f"{token_type} {access_token}"}
@@ -987,17 +992,18 @@ class WebAPI:
         )
 
     def set_authorization_flow(
-            self, flow: str = None, *, client_id: str = None, 
+            self, flow: str, *, client_id: str = None, 
             client_secret: str = None, framework: Union[bool, str] = None,
             port: Union[int, str] = 8888, redirect_uri: str = None, 
-            scopes: Union[str, list[str]] = None) -> None:
+            scopes: Union[str, list[str]] = "", sp_dc: str = None, 
+            save: bool = True) -> None:
         
         """
         Set the OAuth 2.0 authorization flow.
 
         Parameters
         ----------
-        flow : `str`, default: :code:`None`
+        flow : `str`
             Authorization flow.
 
             .. container::
@@ -1010,25 +1016,14 @@ class WebAPI:
                  code with proof key for code exchange (PKCE) flow.
                * :code:`"client_credentials"` for the client credentials 
                  flow.
-               * :code:`None` for a Spotify Web Player access token.
+               * :code:`"web_player"` for a Spotify Web Player access 
+                 token.
             
         client_id : `str`, keyword-only, optional
             Client ID. Required for all authorization flows.
 
         client_secret : `str`, keyword-only, optional
             Client secret. Required for all authorization flows.
-
-        port : `int` or `str`, keyword-only, default: :code:`8888`
-            Port on :code:`localhost` to use for the authorization code
-            flow with the Flask framework.
-
-        redirect_uri : `str`, keyword-only, optional
-            Redirect URI for the authorization code flow. If not 
-            specified, an open port on :code:`localhost` will be used.
-
-        scopes : `str` or `list`, keyword-only, optional
-            Authorization scopes to request access to in the 
-            authorization code flow.
 
         framework : `bool` or `str`, keyword-only, optional
             Web framework used to automatically complete the 
@@ -1045,29 +1040,49 @@ class WebAPI:
                * :code:`False` or :code:`None` to manually open the
                  authorization URL in a web browser and provide the
                  full callback URI via the terminal.
+            
+        port : `int` or `str`, keyword-only, default: :code:`8888`
+            Port on :code:`localhost` to use for the authorization code
+            flow with the Flask framework.
+
+        redirect_uri : `str`, keyword-only, optional
+            Redirect URI for the authorization code flow. If not 
+            specified, an open port on :code:`localhost` will be used.
+
+        scopes : `str` or `list`, keyword-only, optional
+            Authorization scopes to request access to in the 
+            authorization code flow.
+
+        sp_dc : `str`, keyword-only, optional
+            Spotify Web Player :code:`sp_dc` cookie.
+
+        save : `bool`, keyword-only, default: :code:`True`
+            Determines whether to save the newly obtained access tokens
+            and their associated properties to the Minim configuration 
+            file.
         """
         
-        self._flow = flow
-        if self._flow:
-            if self._flow not in {"authorization_code", 
-                                  "authorization_code_pkce",
-                                  "client_credentials"}:
-                raise ValueError("Invalid OAuth 2.0 authorization flow.")
+        if flow not in self._FLOWS:
+            raise ValueError("Invalid authorization flow.")
 
+        self._flow = flow
+        self._save = save
+        if flow == "web_player":
+            self._sp_dc = sp_dc or os.environ.get("SPOTIFY_SP_DC")
+            self._scopes = self.get_scopes("all") if self._sp_dc else ""
+        else:
             self._client_id = client_id or os.environ.get("SPOTIFY_CLIENT_ID")
             self._client_secret = (client_secret
                                    or os.environ.get("SPOTIFY_CLIENT_SECRET"))
-            if "authorization_code" in self._flow:
+            if "authorization_code" in flow:
                 self._scopes = " ".join(scopes) if isinstance(scopes, list) \
                                else scopes
 
                 if redirect_uri:
                     self._redirect_uri = redirect_uri
                     if "localhost" in redirect_uri:
-                        self._port = re.search(
-                            r"http://localhost:(\d+)/callback", 
-                            self._redirect_uri
-                        ).group(1)
+                        self._port = re.search("localhost:(\d+)", 
+                                               redirect_uri).group(1)
                     elif framework:
                         wmsg = ("The redirect URI is not on localhost, "
                                 "so automatic authorization code "
@@ -1089,10 +1104,13 @@ class WebAPI:
                     self._web_framework = None
                 if self._web_framework is None and framework:
                     logging.warning(
-                        f"The {framework.capitalize()} library was "
-                        "not found, so the automatic authorization "
-                        "code retrieval functionality is not available."
+                        "The specified web framework was not found, so "
+                        "the automatic authorization code retrieval "
+                        "functionality is not available."
                     )
+
+            elif flow == "client_credentials":
+                self._scopes = ""
 
     ### ALBUMS ################################################################
 
@@ -9498,39 +9516,3 @@ class WebAPI:
             f"{self.API_URL}/playlists/{playlist_id}/followers/contains",
             params={"ids": ids if isinstance(ids, str) else ",".join(ids)}
         )
-    
-class Album:
-    pass
-
-class Artist:
-    pass
-
-class Audiobook:
-    pass
-
-class Category:
-    pass
-
-class Chapter:
-    pass
-
-class Episode:
-    pass
-
-class Market:
-    pass
-
-class Player:
-    pass
-
-class Playlist:
-    pass
-
-class Show:
-    pass
-
-class Track:
-    pass
-
-class User:
-    pass

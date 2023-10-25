@@ -35,6 +35,7 @@ exclude_patterns = ["_build"]
 templates_path = ["_templates"]
 toc_object_entries_show_parents = "hide"
 
+autodoc_member_order = "bysource"
 autosummary_generate = True
 intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),

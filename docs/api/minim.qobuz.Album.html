@@ -385,13 +385,15 @@ the album.</p>
 </table>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="minim.qobuz.Album.favorite">
-<span class="sig-name descname"><span class="pre">favorite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Album.favorite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Album.favorite" title="Permalink to this definition">#</a></dt>
-<dd><p>Favorite the album.</p>
-<div class="admonition-user-authentication admonition">
-<p class="admonition-title">User authentication</p>
-<p>Requires user authentication.</p>
-</div>
+<dt class="sig sig-object py" id="minim.qobuz.Album.refresh">
+<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Album.refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Album.refresh" title="Permalink to this definition">#</a></dt>
+<dd><p>Refresh or update the album’s information.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Album.get_tracks">
+<span class="sig-name descname"><span class="pre">get_tracks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Album.get_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Album.get_tracks" title="Permalink to this definition">#</a></dt>
+<dd><p>Get tracks in the album.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -469,15 +471,13 @@ populated.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="minim.qobuz.Album.get_tracks">
-<span class="sig-name descname"><span class="pre">get_tracks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Album.get_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Album.get_tracks" title="Permalink to this definition">#</a></dt>
-<dd><p>Get tracks in the album.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="minim.qobuz.Album.refresh">
-<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Album.refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Album.refresh" title="Permalink to this definition">#</a></dt>
-<dd><p>Refresh or update the album’s information.</p>
+<dt class="sig sig-object py" id="minim.qobuz.Album.favorite">
+<span class="sig-name descname"><span class="pre">favorite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Album.favorite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Album.favorite" title="Permalink to this definition">#</a></dt>
+<dd><p>Favorite the album.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -551,11 +551,11 @@ populated.</p>
             <ul>
 <li><a class="reference internal" href="#">Album</a><ul>
 <li><a class="reference internal" href="#minim.qobuz.Album"><code class="docutils literal notranslate"><span class="pre">Album</span></code></a><ul>
-<li><a class="reference internal" href="#minim.qobuz.Album.favorite"><code class="docutils literal notranslate"><span class="pre">favorite()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Album.refresh"><code class="docutils literal notranslate"><span class="pre">refresh()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Album.get_tracks"><code class="docutils literal notranslate"><span class="pre">get_tracks()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Album.get_file_urls"><code class="docutils literal notranslate"><span class="pre">get_file_urls()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Album.get_streams"><code class="docutils literal notranslate"><span class="pre">get_streams()</span></code></a></li>
-<li><a class="reference internal" href="#minim.qobuz.Album.get_tracks"><code class="docutils literal notranslate"><span class="pre">get_tracks()</span></code></a></li>
-<li><a class="reference internal" href="#minim.qobuz.Album.refresh"><code class="docutils literal notranslate"><span class="pre">refresh()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Album.favorite"><code class="docutils literal notranslate"><span class="pre">favorite()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Album.unfavorite"><code class="docutils literal notranslate"><span class="pre">unfavorite()</span></code></a></li>
 </ul>
 </li>

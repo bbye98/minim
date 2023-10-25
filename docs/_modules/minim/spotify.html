@@ -190,19 +190,7 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Album.html">Album</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Artist.html">Artist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Audiobook.html">Audiobook</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Category.html">Category</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Chapter.html">Chapter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Episode.html">Episode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.LyricsService.html">LyricsService</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Market.html">Market</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Player.html">Player</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Playlist.html">Playlist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Show.html">Show</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.Track.html">Track</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.User.html">User</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.WebAPI.html">WebAPI</a></li>
 </ul>
 </li>
@@ -287,8 +275,8 @@
     <span class="n">FOUND</span><span class="p">[</span><span class="s2">&quot;playwright&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
     <span class="n">FOUND</span><span class="p">[</span><span class="s2">&quot;playwright&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">HOME_DIR</span><span class="p">,</span> <span class="n">TEMP_DIR</span><span class="p">,</span> <span class="n">config</span>
+ 
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">HOME_DIR</span><span class="p">,</span> <span class="n">TEMP_DIR</span><span class="p">,</span> <span class="n">config</span>
 
 <div class="viewcode-block" id="LyricsService"><a class="viewcode-back" href="../../api/minim.spotify.LyricsService.html#minim.spotify.LyricsService">[docs]</a><span class="k">class</span> <span class="nc">LyricsService</span><span class="p">:</span>
 
@@ -364,12 +352,10 @@
 
         <span class="k">if</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span> \
                 <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;minim.spotify.LyricsService&quot;</span><span class="p">):</span>
-            <span class="n">sp_dc</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.LyricsService&quot;</span><span class="p">,</span> <span class="s2">&quot;sp_dc&quot;</span><span class="p">,</span> 
-                               <span class="n">fallback</span><span class="o">=</span><span class="n">sp_dc</span><span class="p">)</span>
+            <span class="n">sp_dc</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.LyricsService&quot;</span><span class="p">,</span> <span class="s2">&quot;sp_dc&quot;</span><span class="p">)</span>
             <span class="n">access_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.LyricsService&quot;</span><span class="p">,</span> 
                                       <span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
-            <span class="n">expiry</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.LyricsService&quot;</span><span class="p">,</span> <span class="s2">&quot;expiry&quot;</span><span class="p">,</span>
-                                <span class="n">fallback</span><span class="o">=</span><span class="n">expiry</span><span class="p">)</span>
+            <span class="n">expiry</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.LyricsService&quot;</span><span class="p">,</span> <span class="s2">&quot;expiry&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_sp_dc</span><span class="p">(</span><span class="n">sp_dc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">(</span><span class="n">access_token</span><span class="o">=</span><span class="n">access_token</span><span class="p">,</span> <span class="n">expiry</span><span class="o">=</span><span class="n">expiry</span><span class="p">,</span> 
@@ -501,8 +487,13 @@
                     <span class="s2">&quot;expiry&quot;</span><span class="p">:</span> <span class="n">expiry</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">)</span>
                 <span class="p">}</span>
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_expiry</span> <span class="o">=</span> <span class="n">expiry</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expiry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">expiry</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">)</span> 
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expiry</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">expiry</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="LyricsService.get_lyrics"><a class="viewcode-back" href="../../api/minim.spotify.LyricsService.html#minim.spotify.LyricsService.get_lyrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
@@ -612,11 +603,15 @@
 <span class="sd">       be in the form :code:`http://localhost:{port}/callback`, where </span>
 <span class="sd">       :code:`{port}` is an open port on :code:`localhost`.</span>
 <span class="sd">    </span>
-<span class="sd">    Alternatively, a client-only access token can be acquired without</span>
-<span class="sd">    using an authorization flow (without client credentials) through the</span>
-<span class="sd">    Spotify Web Player, but this approach is not recommended and should</span>
-<span class="sd">    only be used as a last resort since it is not officially supported</span>
-<span class="sd">    and can be deprecated by Spotify at any time.</span>
+<span class="sd">    Alternatively, a access token can be acquired without client </span>
+<span class="sd">    credentials through the Spotify Web Player, but this approach is not</span>
+<span class="sd">    recommended and should only be used as a last resort since it is not</span>
+<span class="sd">    officially supported and can be deprecated by Spotify at any time.</span>
+<span class="sd">    The access token is client-only unless a Spotify Web Player</span>
+<span class="sd">    :code:`sp_dc` cookie is either provided to this class&#39;s constructor</span>
+<span class="sd">    as a keyword argument or be stored as :code:`SPOTIFY_SP_DC` in the</span>
+<span class="sd">    operating system&#39;s environment variables, in which case a user </span>
+<span class="sd">    access token with all authorization scopes is granted instead.</span>
 
 <span class="sd">    If an existing access token is available, it and its accompanying</span>
 <span class="sd">    information (token type, refresh token, and expiry time) can be</span>
@@ -655,8 +650,7 @@
 <span class="sd">        it must be provided here.</span>
 
 <span class="sd">    flow : `str`, keyword-only, optional</span>
-<span class="sd">        Authorization flow. If not specified or found in the Minim</span>
-<span class="sd">        configuration file, no authentication is performed.</span>
+<span class="sd">        Authorization flow.</span>
 
 <span class="sd">        .. tip::</span>
 
@@ -671,11 +665,12 @@
 <span class="sd">           </span>
 <span class="sd">           * :code:`&quot;authorization_code&quot;` for the authorization code </span>
 <span class="sd">             flow.</span>
-<span class="sd">           * :code:`&quot;authorization_code_pkce` for the authorization code</span>
-<span class="sd">             with proof key for code exchange (PKCE) flow.</span>
+<span class="sd">           * :code:`&quot;authorization_code_pkce&quot;` for the authorization </span>
+<span class="sd">             code with proof key for code exchange (PKCE) flow.</span>
 <span class="sd">           * :code:`&quot;client_credentials&quot;` for the client credentials </span>
 <span class="sd">             flow.</span>
-<span class="sd">           * :code:`None` for a Spotify Web Player access token.</span>
+<span class="sd">           * :code:`&quot;web_player&quot;` for a Spotify Web Player access </span>
+<span class="sd">             token.</span>
 <span class="sd">    </span>
 <span class="sd">    framework : `str` or `bool`, keyword-only, optional</span>
 <span class="sd">        Determines which web framework to use for the authorization code</span>
@@ -713,6 +708,14 @@
 
 <span class="sd">           See :meth:`get_scopes` for the complete list of scopes.</span>
 
+<span class="sd">    sp_dc : `str`, keyword-only, optional</span>
+<span class="sd">        Spotify Web Player :code:`sp_dc` cookie to send with the access</span>
+<span class="sd">        token request. If provided here, stored as :code:`SPOTIFY_SP_DC` </span>
+<span class="sd">        in the operating system&#39;s environment variables, or found in the</span>
+<span class="sd">        Minim configuration file, a user access token with all </span>
+<span class="sd">        authorization scopes is obtained instead of a client-only access</span>
+<span class="sd">        token.</span>
+<span class="sd">           </span>
 <span class="sd">    access_token : `str`, keyword-only, optional</span>
 <span class="sd">        Access token. If provided or found in the Minim configuration</span>
 <span class="sd">        file, the authentication process is bypassed. In the former</span>
@@ -735,12 +738,18 @@
 <span class="sd">        specified authorization flow (if possible) when `access_token`</span>
 <span class="sd">        expires.</span>
 
+<span class="sd">    overwrite : `bool`, keyword-only, default: :code:`False`</span>
+<span class="sd">        Determines whether to overwrite an existing access token in the</span>
+<span class="sd">        Minim configuration file.</span>
+
 <span class="sd">    save : `bool`, keyword-only, default: :code:`True`</span>
 <span class="sd">        Determines whether newly obtained access tokens and their</span>
 <span class="sd">        associated properties are stored to the Minim configuration </span>
 <span class="sd">        file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">_FLOWS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;authorization_code_pkce&quot;</span><span class="p">,</span> <span class="s2">&quot;authorization_code&quot;</span><span class="p">,</span> 
+              <span class="s2">&quot;client_credentials&quot;</span><span class="p">,</span> <span class="s2">&quot;web_player&quot;</span><span class="p">]</span>
     <span class="n">API_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.spotify.com/v1&quot;</span>
     <span class="n">AUTH_URL</span> <span class="o">=</span> <span class="s2">&quot;https://accounts.spotify.com/authorize&quot;</span>
     <span class="n">TOKEN_URL</span> <span class="o">=</span> <span class="s2">&quot;https://accounts.spotify.com/api/token&quot;</span>
@@ -851,13 +860,13 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">flow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">flow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;web_player&quot;</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">port</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8888</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">scopes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">scopes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sp_dc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">token_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Bearer&quot;</span><span class="p">,</span>
             <span class="n">refresh_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-            <span class="n">expiry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">expiry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+            <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a Spotify Web API object.</span>
@@ -865,44 +874,30 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">):</span>
-            <span class="n">_flow</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;flow&quot;</span><span class="p">,</span> 
+        <span class="k">if</span> <span class="p">(</span><span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">)</span> 
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">):</span>
+            <span class="n">flow</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;flow&quot;</span><span class="p">)</span>
+            <span class="n">access_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
+            <span class="n">token_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;token_type&quot;</span><span class="p">)</span>
+            <span class="n">refresh_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;refresh_token&quot;</span><span class="p">,</span>
+                                       <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">expiry</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;expiry&quot;</span><span class="p">,</span> 
                                 <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">flow</span> <span class="o">==</span> <span class="n">_flow</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">flow</span> <span class="ow">and</span> <span class="n">_flow</span><span class="p">:</span>
-                <span class="n">flow</span> <span class="o">=</span> <span class="n">_flow</span>
-                <span class="n">access_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> 
-                                          <span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
-                <span class="n">token_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> 
-                                        <span class="s2">&quot;token_type&quot;</span><span class="p">)</span>
-                <span class="n">refresh_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> 
-                                           <span class="s2">&quot;refresh_token&quot;</span><span class="p">,</span> 
-                                           <span class="n">fallback</span><span class="o">=</span><span class="n">refresh_token</span><span class="p">)</span>
-                <span class="n">expiry</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;expiry&quot;</span><span class="p">,</span> 
-                                    <span class="n">fallback</span><span class="o">=</span><span class="n">expiry</span><span class="p">)</span>
-                <span class="n">client_id</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;client_id&quot;</span><span class="p">,</span>
-                                       <span class="n">fallback</span><span class="o">=</span><span class="n">client_id</span><span class="p">)</span>
-                <span class="n">client_secret</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> 
-                                           <span class="s2">&quot;client_secret&quot;</span><span class="p">,</span> 
-                                           <span class="n">fallback</span><span class="o">=</span><span class="n">client_secret</span><span class="p">)</span>
-                <span class="n">port</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;port&quot;</span><span class="p">,</span> 
-                                  <span class="n">fallback</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
-                <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> 
-                                          <span class="s2">&quot;redirect_uri&quot;</span><span class="p">,</span> 
-                                          <span class="n">fallback</span><span class="o">=</span><span class="n">redirect_uri</span><span class="p">)</span>
-                <span class="n">scopes</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;scopes&quot;</span><span class="p">,</span> 
-                                    <span class="n">fallback</span><span class="o">=</span><span class="n">scopes</span><span class="p">)</span>
+            <span class="n">client_id</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;client_id&quot;</span><span class="p">)</span>
+            <span class="n">client_secret</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;client_secret&quot;</span><span class="p">,</span> 
+                                       <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;redirect_uri&quot;</span><span class="p">,</span> 
+                                      <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">scopes</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;scopes&quot;</span><span class="p">)</span>
+            <span class="n">sp_dc</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;sp_dc&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_authorization_flow</span><span class="p">(</span>
             <span class="n">flow</span><span class="p">,</span> <span class="n">client_id</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span> 
             <span class="n">framework</span><span class="o">=</span><span class="n">framework</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="o">=</span><span class="n">redirect_uri</span><span class="p">,</span> 
-            <span class="n">scopes</span><span class="o">=</span><span class="n">scopes</span>
+            <span class="n">scopes</span><span class="o">=</span><span class="n">scopes</span><span class="p">,</span> <span class="n">sp_dc</span><span class="o">=</span><span class="n">sp_dc</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">token_type</span><span class="o">=</span><span class="n">token_type</span><span class="p">,</span>
-                              <span class="n">refresh_token</span><span class="o">=</span><span class="n">refresh_token</span><span class="p">,</span> <span class="n">expiry</span><span class="o">=</span><span class="n">expiry</span><span class="p">,</span> 
-                              <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;authorization_code&quot;</span><span class="p">,</span> <span class="s2">&quot;authorization_code_pkce&quot;</span><span class="p">}:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_user_profile</span><span class="p">()</span>
+                              <span class="n">refresh_token</span><span class="o">=</span><span class="n">refresh_token</span><span class="p">,</span> <span class="n">expiry</span><span class="o">=</span><span class="n">expiry</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_scope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scope</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -970,13 +965,13 @@
                                              <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">))</span>
             <span class="n">server</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
             <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">auth_url</span><span class="p">)</span>
-            <span class="k">while</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">json_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
 
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">queries</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+            <span class="n">json_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
         
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_web_framework</span> <span class="o">==</span> <span class="s2">&quot;playwright&quot;</span><span class="p">:</span>
             <span class="n">har_file</span> <span class="o">=</span> <span class="n">TEMP_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim_spotify.har&quot;</span>
@@ -1000,7 +995,7 @@
                         <span class="p">)</span><span class="o">.</span><span class="n">query</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">har_file</span><span class="p">)</span>
+            <span class="n">har_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;To grant Minim access to Spotify data and features, &quot;</span>
@@ -1058,12 +1053,25 @@
                       <span class="s2">&quot;refresh_token&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_token</span><span class="p">},</span>
                 <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Basic </span><span class="si">{</span><span class="n">client_b64</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
             <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;token_type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;access_token&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
             <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_token</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_expiry</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
                             <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;expires_in&quot;</span><span class="p">]))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;scope&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">:</span>
+                <span class="n">config</span><span class="p">[</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;access_token&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;refresh_token&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_token</span><span class="p">,</span>
+                    <span class="s2">&quot;expiry&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+                                 <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;expires_in&quot;</span><span class="p">])</span>
+                                <span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;scopes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span>
+                <span class="p">}</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">()</span>
 
@@ -1113,8 +1121,7 @@
 <div class="viewcode-block" id="WebAPI.set_access_token"><a class="viewcode-back" href="../../api/minim.spotify.WebAPI.html#minim.spotify.WebAPI.set_access_token">[docs]</a>    <span class="k">def</span> <span class="nf">set_access_token</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">token_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Bearer&quot;</span><span class="p">,</span>
             <span class="n">refresh_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-            <span class="n">expiry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">expiry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the Spotify Web API access token.</span>
@@ -1139,15 +1146,25 @@
 <span class="sd">            reauthenticated using the refresh token (if available) or </span>
 <span class="sd">            the default authorization flow (if possible) when </span>
 <span class="sd">            `access_token` expires.</span>
-
-<span class="sd">        save : `bool`, keyword-only, default: :code:`True`</span>
-<span class="sd">            Determines whether to save the newly obtained access tokens</span>
-<span class="sd">            and their associated properties to the Minim configuration </span>
-<span class="sd">            file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;web_player&quot;</span><span class="p">:</span>
+                <span class="n">headers</span> <span class="o">=</span> <span class="p">({</span><span class="s2">&quot;cookie&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;sp_dc=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span> 
+                           <span class="k">else</span> <span class="p">{})</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WEB_PLAYER_TOKEN_URL</span><span class="p">,</span> 
+                                     <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;clientId&quot;</span><span class="p">]</span>
+                <span class="n">access_token</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;accessToken&quot;</span><span class="p">]</span>
+                <span class="n">token_type</span> <span class="o">=</span> <span class="s2">&quot;Bearer&quot;</span>
+                <span class="n">expiry</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span>
+                    <span class="n">r</span><span class="p">[</span><span class="s2">&quot;accessTokenExpirationTimestampMs&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">1000</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span> <span class="ow">and</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;isAnonymous&quot;</span><span class="p">]:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid &#39;sp_dc&#39; cookie, so a &quot;</span>
+                                    <span class="s2">&quot;client-only access token was granted.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="p">:</span>
                     <span class="n">emsg</span> <span class="o">=</span> <span class="s2">&quot;Spotify Web API client credentials not provided.&quot;</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
@@ -1186,34 +1203,25 @@
                 <span class="n">token_type</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;token_type&quot;</span><span class="p">]</span>
                 <span class="n">expiry</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
                           <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;expires_in&quot;</span><span class="p">]))</span>
-                
-                <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
-                    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                        <span class="s2">&quot;flow&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="p">,</span>
-                        <span class="s2">&quot;client_secret&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="p">,</span>
-                        <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
-                        <span class="s2">&quot;token_type&quot;</span><span class="p">:</span> <span class="n">token_type</span><span class="p">,</span>
-                        <span class="s2">&quot;expiry&quot;</span><span class="p">:</span> <span class="n">expiry</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">)</span>
-                    <span class="p">}</span>
-                    <span class="k">if</span> <span class="n">refresh_token</span><span class="p">:</span>
-                        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">][</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">]</span> \
-                            <span class="o">=</span> <span class="n">refresh_token</span>
-                    <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;redirect_uri&quot;</span><span class="p">,</span> <span class="s2">&quot;scopes&quot;</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
-                            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">][</span><span class="n">attr</span><span class="p">]</span> \
-                                <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">HOME_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                        <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WEB_PLAYER_TOKEN_URL</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;clientId&quot;</span><span class="p">]</span>
-                <span class="n">access_token</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;accessToken&quot;</span><span class="p">]</span>
-                <span class="n">token_type</span> <span class="o">=</span> <span class="s2">&quot;Bearer&quot;</span>
-                <span class="n">expiry</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span>
-                    <span class="n">r</span><span class="p">[</span><span class="s2">&quot;accessTokenExpirationTimestampMs&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">1000</span>
-                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">:</span>
+                <span class="n">config</span><span class="p">[</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;flow&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span><span class="p">,</span>
+                    <span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="p">,</span>
+                    <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
+                    <span class="s2">&quot;token_type&quot;</span><span class="p">:</span> <span class="n">token_type</span><span class="p">,</span>
+                    <span class="s2">&quot;expiry&quot;</span><span class="p">:</span> <span class="n">expiry</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;scopes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="n">refresh_token</span><span class="p">:</span>
+                    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">][</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">]</span> \
+                        <span class="o">=</span> <span class="n">refresh_token</span>
+                <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;client_secret&quot;</span><span class="p">,</span> <span class="s2">&quot;redirect_uri&quot;</span><span class="p">,</span> <span class="s2">&quot;sp_dc&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
+                        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">][</span><span class="n">attr</span><span class="p">]</span> \
+                            <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">HOME_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
                 
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">token_type</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
@@ -1225,17 +1233,18 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="WebAPI.set_authorization_flow"><a class="viewcode-back" href="../../api/minim.spotify.WebAPI.html#minim.spotify.WebAPI.set_authorization_flow">[docs]</a>    <span class="k">def</span> <span class="nf">set_authorization_flow</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
             <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">port</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8888</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-            <span class="n">scopes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">scopes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sp_dc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+            <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the OAuth 2.0 authorization flow.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        flow : `str`, default: :code:`None`</span>
+<span class="sd">        flow : `str`</span>
 <span class="sd">            Authorization flow.</span>
 
 <span class="sd">            .. container::</span>
@@ -1248,25 +1257,14 @@
 <span class="sd">                 code with proof key for code exchange (PKCE) flow.</span>
 <span class="sd">               * :code:`&quot;client_credentials&quot;` for the client credentials </span>
 <span class="sd">                 flow.</span>
-<span class="sd">               * :code:`None` for a Spotify Web Player access token.</span>
+<span class="sd">               * :code:`&quot;web_player&quot;` for a Spotify Web Player access </span>
+<span class="sd">                 token.</span>
 <span class="sd">            </span>
 <span class="sd">        client_id : `str`, keyword-only, optional</span>
 <span class="sd">            Client ID. Required for all authorization flows.</span>
 
 <span class="sd">        client_secret : `str`, keyword-only, optional</span>
 <span class="sd">            Client secret. Required for all authorization flows.</span>
-
-<span class="sd">        port : `int` or `str`, keyword-only, default: :code:`8888`</span>
-<span class="sd">            Port on :code:`localhost` to use for the authorization code</span>
-<span class="sd">            flow with the Flask framework.</span>
-
-<span class="sd">        redirect_uri : `str`, keyword-only, optional</span>
-<span class="sd">            Redirect URI for the authorization code flow. If not </span>
-<span class="sd">            specified, an open port on :code:`localhost` will be used.</span>
-
-<span class="sd">        scopes : `str` or `list`, keyword-only, optional</span>
-<span class="sd">            Authorization scopes to request access to in the </span>
-<span class="sd">            authorization code flow.</span>
 
 <span class="sd">        framework : `bool` or `str`, keyword-only, optional</span>
 <span class="sd">            Web framework used to automatically complete the </span>
@@ -1283,29 +1281,49 @@
 <span class="sd">               * :code:`False` or :code:`None` to manually open the</span>
 <span class="sd">                 authorization URL in a web browser and provide the</span>
 <span class="sd">                 full callback URI via the terminal.</span>
+<span class="sd">            </span>
+<span class="sd">        port : `int` or `str`, keyword-only, default: :code:`8888`</span>
+<span class="sd">            Port on :code:`localhost` to use for the authorization code</span>
+<span class="sd">            flow with the Flask framework.</span>
+
+<span class="sd">        redirect_uri : `str`, keyword-only, optional</span>
+<span class="sd">            Redirect URI for the authorization code flow. If not </span>
+<span class="sd">            specified, an open port on :code:`localhost` will be used.</span>
+
+<span class="sd">        scopes : `str` or `list`, keyword-only, optional</span>
+<span class="sd">            Authorization scopes to request access to in the </span>
+<span class="sd">            authorization code flow.</span>
+
+<span class="sd">        sp_dc : `str`, keyword-only, optional</span>
+<span class="sd">            Spotify Web Player :code:`sp_dc` cookie.</span>
+
+<span class="sd">        save : `bool`, keyword-only, default: :code:`True`</span>
+<span class="sd">            Determines whether to save the newly obtained access tokens</span>
+<span class="sd">            and their associated properties to the Minim configuration </span>
+<span class="sd">            file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">=</span> <span class="n">flow</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;authorization_code&quot;</span><span class="p">,</span> 
-                                  <span class="s2">&quot;authorization_code_pkce&quot;</span><span class="p">,</span>
-                                  <span class="s2">&quot;client_credentials&quot;</span><span class="p">}:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid OAuth 2.0 authorization flow.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flow</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FLOWS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid authorization flow.&quot;</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">=</span> <span class="n">flow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save</span> <span class="o">=</span> <span class="n">save</span>
+        <span class="k">if</span> <span class="n">flow</span> <span class="o">==</span> <span class="s2">&quot;web_player&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span> <span class="o">=</span> <span class="n">sp_dc</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SPOTIFY_SP_DC&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_scopes</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span> <span class="o">=</span> <span class="n">client_id</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SPOTIFY_CLIENT_ID&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span> <span class="o">=</span> <span class="p">(</span><span class="n">client_secret</span>
                                    <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SPOTIFY_CLIENT_SECRET&quot;</span><span class="p">))</span>
-            <span class="k">if</span> <span class="s2">&quot;authorization_code&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;authorization_code&quot;</span> <span class="ow">in</span> <span class="n">flow</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">scopes</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scopes</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> \
                                <span class="k">else</span> <span class="n">scopes</span>
 
                 <span class="k">if</span> <span class="n">redirect_uri</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span> <span class="o">=</span> <span class="n">redirect_uri</span>
                     <span class="k">if</span> <span class="s2">&quot;localhost&quot;</span> <span class="ow">in</span> <span class="n">redirect_uri</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-                            <span class="sa">r</span><span class="s2">&quot;http://localhost:(\d+)/callback&quot;</span><span class="p">,</span> 
-                            <span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span>
-                        <span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;localhost:(\d+)&quot;</span><span class="p">,</span> 
+                                               <span class="n">redirect_uri</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">framework</span><span class="p">:</span>
                         <span class="n">wmsg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The redirect URI is not on localhost, &quot;</span>
                                 <span class="s2">&quot;so automatic authorization code &quot;</span>
@@ -1327,10 +1345,13 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_web_framework</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_web_framework</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">framework</span><span class="p">:</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">framework</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> library was &quot;</span>
-                        <span class="s2">&quot;not found, so the automatic authorization &quot;</span>
-                        <span class="s2">&quot;code retrieval functionality is not available.&quot;</span>
-                    <span class="p">)</span></div>
+                        <span class="s2">&quot;The specified web framework was not found, so &quot;</span>
+                        <span class="s2">&quot;the automatic authorization code retrieval &quot;</span>
+                        <span class="s2">&quot;functionality is not available.&quot;</span>
+                    <span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">flow</span> <span class="o">==</span> <span class="s2">&quot;client_credentials&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span></div>
 
     <span class="c1">### ALBUMS ################################################################</span>
 
@@ -9736,42 +9757,6 @@
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/playlists/</span><span class="si">{</span><span class="n">playlist_id</span><span class="si">}</span><span class="s2">/followers/contains&quot;</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="n">ids</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ids</span><span class="p">)}</span>
         <span class="p">)</span></div></div>
-    
-<div class="viewcode-block" id="Album"><a class="viewcode-back" href="../../api/minim.spotify.Album.html#minim.spotify.Album">[docs]</a><span class="k">class</span> <span class="nc">Album</span><span class="p">:</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="Artist"><a class="viewcode-back" href="../../api/minim.spotify.Artist.html#minim.spotify.Artist">[docs]</a><span class="k">class</span> <span class="nc">Artist</span><span class="p">:</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="Audiobook"><a class="viewcode-back" href="../../api/minim.spotify.Audiobook.html#minim.spotify.Audiobook">[docs]</a><span class="k">class</span> <span class="nc">Audiobook</span><span class="p">:</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="Category"><a class="viewcode-back" href="../../api/minim.spotify.Category.html#minim.spotify.Category">[docs]</a><span class="k">class</span> <span class="nc">Category</span><span class="p">:</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="Chapter"><a class="viewcode-back" href="../../api/minim.spotify.Chapter.html#minim.spotify.Chapter">[docs]</a><span class="k">class</span> <span class="nc">Chapter</span><span class="p">:</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="Episode"><a class="viewcode-back" href="../../api/minim.spotify.Episode.html#minim.spotify.Episode">[docs]</a><span class="k">class</span> <span class="nc">Episode</span><span class="p">:</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="Market"><a class="viewcode-back" href="../../api/minim.spotify.Market.html#minim.spotify.Market">[docs]</a><span class="k">class</span> <span class="nc">Market</span><span class="p">:</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="Player"><a class="viewcode-back" href="../../api/minim.spotify.Player.html#minim.spotify.Player">[docs]</a><span class="k">class</span> <span class="nc">Player</span><span class="p">:</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="Playlist"><a class="viewcode-back" href="../../api/minim.spotify.Playlist.html#minim.spotify.Playlist">[docs]</a><span class="k">class</span> <span class="nc">Playlist</span><span class="p">:</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="Show"><a class="viewcode-back" href="../../api/minim.spotify.Show.html#minim.spotify.Show">[docs]</a><span class="k">class</span> <span class="nc">Show</span><span class="p">:</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="Track"><a class="viewcode-back" href="../../api/minim.spotify.Track.html#minim.spotify.Track">[docs]</a><span class="k">class</span> <span class="nc">Track</span><span class="p">:</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="User"><a class="viewcode-back" href="../../api/minim.spotify.User.html#minim.spotify.User">[docs]</a><span class="k">class</span> <span class="nc">User</span><span class="p">:</span>
-    <span class="k">pass</span></div>
 </pre></div>
         </article>
       </div>

@@ -1,4 +1,4 @@
-spotify
+﻿spotify
 =======
 
 .. automodule:: minim.spotify
@@ -20,19 +20,7 @@ spotify
       :template: autosummary/class.rst
       :nosignatures:
    
-      Album
-      Artist
-      Audiobook
-      Category
-      Chapter
-      Episode
       LyricsService
-      Market
-      Player
-      Playlist
-      Show
-      Track
-      User
       WebAPI
    
    

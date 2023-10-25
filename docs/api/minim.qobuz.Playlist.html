@@ -350,6 +350,12 @@ to create a collage from.</p>
 </table>
 </div>
 <dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Playlist.refresh">
+<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Playlist.refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Playlist.refresh" title="Permalink to this definition">#</a></dt>
+<dd><p>Refresh or update the playlist’s information.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="minim.qobuz.Playlist.add_tracks">
 <span class="sig-name descname"><span class="pre">add_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="minim.qobuz.Track.html#minim.qobuz.Track" title="minim.qobuz.Track"><span class="pre">Track</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="minim.qobuz.Track.html#minim.qobuz.Track" title="minim.qobuz.Track"><span class="pre">minim.qobuz.Track</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Playlist.add_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Playlist.add_tracks" title="Permalink to this definition">#</a></dt>
 <dd><p>Add tracks to the playlist.</p>
@@ -371,13 +377,33 @@ playlist.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="minim.qobuz.Playlist.delete">
-<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Playlist.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Playlist.delete" title="Permalink to this definition">#</a></dt>
-<dd><p>Delete the current playlist.</p>
+<dt class="sig sig-object py" id="minim.qobuz.Playlist.move_tracks">
+<span class="sig-name descname"><span class="pre">move_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playlist_tracks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="minim.qobuz.Track.html#minim.qobuz.Track" title="minim.qobuz.Track"><span class="pre">Track</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="minim.qobuz.Track.html#minim.qobuz.Track" title="minim.qobuz.Track"><span class="pre">minim.qobuz.Track</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insert_before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Playlist.move_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Playlist.move_tracks" title="Permalink to this definition">#</a></dt>
+<dd><p>Move tracks in the playlist.</p>
 <div class="admonition-user-authentication admonition">
 <p class="admonition-title">User authentication</p>
 <p>Requires user authentication.</p>
 </div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>playlist_tracks</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, <cite>qobuz.Track</cite>, or <cite>list</cite></span></dt><dd><p>Qobuz playlist track ID(s) or object(s).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Playlist track IDs are not the same as track IDs.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <cite>qobuz.Track</cite> objects are passed in, they cannot have
+originated from another <cite>qobuz.Playlist</cite> object.</p>
+</div>
+</dd>
+<dt><strong>insert_before</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>Position to which to move the tracks specified in
+<cite>track_ids</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -405,16 +431,6 @@ originated from another <cite>qobuz.Playlist</cite> object.</p>
 </dl>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="minim.qobuz.Playlist.favorite">
-<span class="sig-name descname"><span class="pre">favorite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Playlist.favorite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Playlist.favorite" title="Permalink to this definition">#</a></dt>
-<dd><p>Favorite (or subscribe to) the playlist.</p>
-<div class="admonition-user-authentication admonition">
-<p class="admonition-title">User authentication</p>
-<p>Requires user authentication.</p>
-</div>
 </dd></dl>
 
 <dl class="py method">
@@ -492,39 +508,13 @@ populated.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="minim.qobuz.Playlist.move_tracks">
-<span class="sig-name descname"><span class="pre">move_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playlist_tracks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="minim.qobuz.Track.html#minim.qobuz.Track" title="minim.qobuz.Track"><span class="pre">Track</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="minim.qobuz.Track.html#minim.qobuz.Track" title="minim.qobuz.Track"><span class="pre">minim.qobuz.Track</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insert_before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Playlist.move_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Playlist.move_tracks" title="Permalink to this definition">#</a></dt>
-<dd><p>Move tracks in the playlist.</p>
+<dt class="sig sig-object py" id="minim.qobuz.Playlist.favorite">
+<span class="sig-name descname"><span class="pre">favorite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Playlist.favorite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Playlist.favorite" title="Permalink to this definition">#</a></dt>
+<dd><p>Favorite (or subscribe to) the playlist.</p>
 <div class="admonition-user-authentication admonition">
 <p class="admonition-title">User authentication</p>
 <p>Requires user authentication.</p>
 </div>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>playlist_tracks</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, <cite>qobuz.Track</cite>, or <cite>list</cite></span></dt><dd><p>Qobuz playlist track ID(s) or object(s).</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Playlist track IDs are not the same as track IDs.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If <cite>qobuz.Track</cite> objects are passed in, they cannot have
-originated from another <cite>qobuz.Playlist</cite> object.</p>
-</div>
-</dd>
-<dt><strong>insert_before</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>Position to which to move the tracks specified in
-<cite>track_ids</cite>.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="minim.qobuz.Playlist.refresh">
-<span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Playlist.refresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Playlist.refresh" title="Permalink to this definition">#</a></dt>
-<dd><p>Refresh or update the playlist’s information.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -560,6 +550,16 @@ private (<code class="code docutils literal notranslate"><span class="pre">False
 </dl>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.qobuz.Playlist.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/qobuz.html#Playlist.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Playlist.delete" title="Permalink to this definition">#</a></dt>
+<dd><p>Delete the current playlist.</p>
+<div class="admonition-user-authentication admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication.</p>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -623,16 +623,16 @@ private (<code class="code docutils literal notranslate"><span class="pre">False
             <ul>
 <li><a class="reference internal" href="#">Playlist</a><ul>
 <li><a class="reference internal" href="#minim.qobuz.Playlist"><code class="docutils literal notranslate"><span class="pre">Playlist</span></code></a><ul>
+<li><a class="reference internal" href="#minim.qobuz.Playlist.refresh"><code class="docutils literal notranslate"><span class="pre">refresh()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Playlist.add_tracks"><code class="docutils literal notranslate"><span class="pre">add_tracks()</span></code></a></li>
-<li><a class="reference internal" href="#minim.qobuz.Playlist.delete"><code class="docutils literal notranslate"><span class="pre">delete()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Playlist.move_tracks"><code class="docutils literal notranslate"><span class="pre">move_tracks()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Playlist.delete_tracks"><code class="docutils literal notranslate"><span class="pre">delete_tracks()</span></code></a></li>
-<li><a class="reference internal" href="#minim.qobuz.Playlist.favorite"><code class="docutils literal notranslate"><span class="pre">favorite()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Playlist.get_file_urls"><code class="docutils literal notranslate"><span class="pre">get_file_urls()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Playlist.get_streams"><code class="docutils literal notranslate"><span class="pre">get_streams()</span></code></a></li>
-<li><a class="reference internal" href="#minim.qobuz.Playlist.move_tracks"><code class="docutils literal notranslate"><span class="pre">move_tracks()</span></code></a></li>
-<li><a class="reference internal" href="#minim.qobuz.Playlist.refresh"><code class="docutils literal notranslate"><span class="pre">refresh()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Playlist.favorite"><code class="docutils literal notranslate"><span class="pre">favorite()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Playlist.unfavorite"><code class="docutils literal notranslate"><span class="pre">unfavorite()</span></code></a></li>
 <li><a class="reference internal" href="#minim.qobuz.Playlist.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+<li><a class="reference internal" href="#minim.qobuz.Playlist.delete"><code class="docutils literal notranslate"><span class="pre">delete()</span></code></a></li>
 </ul>
 </li>
 </ul>
