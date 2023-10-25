@@ -56,7 +56,7 @@ from . import audio, utility
 
 TEMP_DIR = tempfile.gettempdir()
 
-class Session:
+class API:
 
     """
     A TIDAL API session.

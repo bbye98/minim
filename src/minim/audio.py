@@ -4,10 +4,10 @@ Audio file objects
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
 This module provides convenient Python objects to keep track of audio
-file handles and information.
+file handles and metadata, and convert between different audio formats.
 """
 
-from base64 import b64encode, b64decode
+import base64
 from datetime import datetime
 import os
 import re
@@ -320,7 +320,7 @@ class _VorbisComment:
             self.artwork = self._file.pictures[0].data
             self._artwork_format = self._file.pictures[0].mime.split("/")[1]
         elif "metadata_block_picture" in self._tags:
-            self.artwork = b64decode(
+            self.artwork = base64.b64decode(
                 self._tags["metadata_block_picture"][0].encode()
             )
             for img_fmt, file_sig in IMAGE_FILE_SIGS.items():
@@ -359,7 +359,7 @@ class _VorbisComment:
             try:
                 self._file.add_picture(artwork)
             except:
-                self._tags["metadata_block_picture"] = b64encode(
+                self._tags["metadata_block_picture"] = base64.b64encode(
                     artwork.write()
                 ).decode()
 

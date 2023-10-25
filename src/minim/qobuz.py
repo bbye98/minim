@@ -34,7 +34,7 @@ import requests
 
 from . import audio, utility, warnings
 
-class Session:
+class _API:
 
     """
     A Qobuz API session.

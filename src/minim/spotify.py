@@ -803,9 +803,9 @@ class WebAPI:
         """
 
         if self._refresh_token:
-            client_b64 = base64.b64encode(
-                f"{self._client_id}:{self._client_secret}".encode("ascii")
-            ).decode("ascii")
+            client_b64 = base64.urlsafe_b64encode(
+                f"{self._client_id}:{self._client_secret}".encode()
+            ).decode()
             r = self.session.post(
                 self.TOKEN_URL,
                 data={"grant_type": "refresh_token",
@@ -930,8 +930,8 @@ class WebAPI:
             
                 if "authorization_code" in self._flow:
                     client_b64 = base64.urlsafe_b64encode(
-                        f"{self._client_id}:{self._client_secret}".encode("utf-8")
-                    ).decode("utf-8")
+                        f"{self._client_id}:{self._client_secret}".encode()
+                    ).decode()
                     data={"grant_type": "authorization_code",
                           "redirect_uri": self._redirect_uri}
                     if self._flow == "authorization_code_pkce":
@@ -940,9 +940,9 @@ class WebAPI:
                         data["code"] = self._get_authorization_code(
                             base64.urlsafe_b64encode(
                                 hashlib.sha256(
-                                    data["code_verifier"].encode("utf-8")
+                                    data["code_verifier"].encode()
                                 ).digest()
-                            ).decode("utf-8").replace("=", "")
+                            ).decode().replace("=", "")
                         )
                     else:
                         data["code"] = self._get_authorization_code()

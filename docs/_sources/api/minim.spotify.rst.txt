@@ -1,4 +1,4 @@
-﻿spotify
+spotify
 =======
 
 .. automodule:: minim.spotify
