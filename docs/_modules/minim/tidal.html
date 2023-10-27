@@ -151,6 +151,7 @@
     <img class="sidebar-logo" src="../../_static/icon.svg" alt="Logo"/>
   </div>
   
+  <span class="sidebar-brand-text">minim  documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -304,12 +305,12 @@
 <span class="sd">       TIDAL application &lt;https://developer.tidal.com/documentation</span>
 <span class="sd">       /dashboard/dashboard-client-credentials&gt;`_.</span>
 
-<span class="sd">    If an existing access token is available, it and its accompanying</span>
-<span class="sd">    information (token type and expiry time) can be provided to this </span>
-<span class="sd">    class&#39;s constructor as keyword arguments to bypass the access token</span>
-<span class="sd">    retrieval process. It is recommended that all other </span>
-<span class="sd">    authentication-related keyword arguments be specified so that a new</span>
-<span class="sd">    access token can be obtained when the existing one expires.</span>
+<span class="sd">    If an existing access token is available, it and its expiry time can</span>
+<span class="sd">    be provided to this class&#39;s constructor as keyword arguments to </span>
+<span class="sd">    bypass the access token retrieval process. It is recommended that</span>
+<span class="sd">    all other authentication-related keyword arguments be specified so </span>
+<span class="sd">    that a new access token can be obtained when the existing one </span>
+<span class="sd">    expires.</span>
 
 <span class="sd">    .. tip::</span>
 
@@ -332,7 +333,6 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">flow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;client_credentials&quot;</span><span class="p">,</span> <span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-            <span class="n">token_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Bearer&quot;</span><span class="p">,</span> 
             <span class="n">expiry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
             <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -345,15 +345,13 @@
                 <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">):</span>
             <span class="n">flow</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;flow&quot;</span><span class="p">)</span>
             <span class="n">access_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
-            <span class="n">token_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;token_type&quot;</span><span class="p">)</span>
             <span class="n">expiry</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;expiry&quot;</span><span class="p">)</span>
             <span class="n">client_id</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;client_id&quot;</span><span class="p">)</span>
             <span class="n">client_secret</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;client_secret&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_authorization_flow</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">client_id</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span> 
                                     <span class="n">client_secret</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">token_type</span><span class="o">=</span><span class="n">token_type</span><span class="p">,</span> 
-                              <span class="n">expiry</span><span class="o">=</span><span class="n">expiry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">expiry</span><span class="o">=</span><span class="n">expiry</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 
@@ -410,7 +408,7 @@
         <span class="k">return</span> <span class="n">r</span>
 
 <div class="viewcode-block" id="API.set_access_token"><a class="viewcode-back" href="../../api/minim.tidal.API.html#minim.tidal.API.set_access_token">[docs]</a>    <span class="k">def</span> <span class="nf">set_access_token</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">token_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Bearer&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> 
             <span class="n">expiry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -421,10 +419,6 @@
 <span class="sd">        access_token : `str`, optional</span>
 <span class="sd">            Access token. If not provided, an access token is obtained</span>
 <span class="sd">            using an OAuth 2.0 authorization flow.</span>
-
-<span class="sd">        token_type : `str`, keyword-only, default: :code:`&quot;Bearer&quot;`</span>
-<span class="sd">            Type of `access_token`. Must be specified if `access_token` </span>
-<span class="sd">            is provided as a keyword argument.</span>
 
 <span class="sd">        expiry : `str` or `datetime.datetime`, keyword-only, optional</span>
 <span class="sd">            Access token expiry timestamp in the ISO 8601 format</span>
@@ -450,7 +444,6 @@
                     <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Basic </span><span class="si">{</span><span class="n">client_b64</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
                 <span class="n">access_token</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;access_token&quot;</span><span class="p">]</span>
-                <span class="n">token_type</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;token_type&quot;</span><span class="p">]</span>
                 <span class="n">expiry</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
                           <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;expires_in&quot;</span><span class="p">]))</span>
                 
@@ -460,14 +453,13 @@
                     <span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="p">,</span>
                     <span class="s2">&quot;client_secret&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="p">,</span>
                     <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
-                    <span class="s2">&quot;token_type&quot;</span><span class="p">:</span> <span class="n">token_type</span><span class="p">,</span>
                     <span class="s2">&quot;expiry&quot;</span><span class="p">:</span> <span class="n">expiry</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">)</span>
                 <span class="p">}</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">HOME_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">token_type</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+            <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_expiry</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">expiry</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">)</span> 

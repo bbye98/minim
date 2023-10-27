@@ -62,12 +62,12 @@ class API:
        TIDAL application <https://developer.tidal.com/documentation
        /dashboard/dashboard-client-credentials>`_.
 
-    If an existing access token is available, it and its accompanying
-    information (token type and expiry time) can be provided to this 
-    class's constructor as keyword arguments to bypass the access token
-    retrieval process. It is recommended that all other 
-    authentication-related keyword arguments be specified so that a new
-    access token can be obtained when the existing one expires.
+    If an existing access token is available, it and its expiry time can
+    be provided to this class's constructor as keyword arguments to 
+    bypass the access token retrieval process. It is recommended that
+    all other authentication-related keyword arguments be specified so 
+    that a new access token can be obtained when the existing one 
+    expires.
 
     .. tip::
 
@@ -90,7 +90,6 @@ class API:
     def __init__(
             self, *, client_id: str = None, client_secret: str = None,
             flow: str = "client_credentials", access_token: str = None, 
-            token_type: str = "Bearer", 
             expiry: Union[datetime.datetime, str] = None, 
             overwrite: bool = False, save: bool = True) -> None:
 
@@ -103,15 +102,13 @@ class API:
                 and not overwrite):
             flow = config.get(self._NAME, "flow")
             access_token = config.get(self._NAME, "access_token")
-            token_type = config.get(self._NAME, "token_type")
             expiry = config.get(self._NAME, "expiry")
             client_id = config.get(self._NAME, "client_id")
             client_secret = config.get(self._NAME, "client_secret")
 
         self.set_authorization_flow(flow, client_id=client_id, 
                                     client_secret=client_secret, save=save)
-        self.set_access_token(access_token, token_type=token_type, 
-                              expiry=expiry)
+        self.set_access_token(access_token, expiry=expiry)
 
     def _get_json(self, url: str, **kwargs) -> dict:
 
@@ -168,7 +165,7 @@ class API:
         return r
 
     def set_access_token(
-            self, access_token: str = None, *, token_type: str = "Bearer",
+            self, access_token: str = None, *, 
             expiry: Union[str, datetime.datetime] = None) -> None:
         
         """
@@ -179,10 +176,6 @@ class API:
         access_token : `str`, optional
             Access token. If not provided, an access token is obtained
             using an OAuth 2.0 authorization flow.
-
-        token_type : `str`, keyword-only, default: :code:`"Bearer"`
-            Type of `access_token`. Must be specified if `access_token` 
-            is provided as a keyword argument.
 
         expiry : `str` or `datetime.datetime`, keyword-only, optional
             Access token expiry timestamp in the ISO 8601 format
@@ -208,7 +201,6 @@ class API:
                     headers={"Authorization": f"Basic {client_b64}"}
                 ).json()
                 access_token = r["access_token"]
-                token_type = r["token_type"]
                 expiry = (datetime.datetime.now()
                           + datetime.timedelta(0, r["expires_in"]))
                 
@@ -218,14 +210,13 @@ class API:
                     "client_id": self._client_id,
                     "client_secret": self._client_secret,
                     "access_token": access_token,
-                    "token_type": token_type,
                     "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
                 }
                 with open(HOME_DIR / "minim.cfg", "w") as f:
                     config.write(f)
 
         self.session.headers.update(
-            {"Authorization": f"{token_type} {access_token}"}
+            {"Authorization": f"Bearer {access_token}"}
         )
         self._expiry = (
             datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ") 

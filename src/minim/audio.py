@@ -9,6 +9,7 @@ file handles and metadata, and convert between different audio formats.
 
 import base64
 from datetime import datetime
+import logging
 import os
 import re
 import subprocess
@@ -17,7 +18,7 @@ import urllib
 
 from mutagen import id3, flac, mp3, mp4, oggopus, oggvorbis, wave
 
-from . import utility, warnings
+from . import utility
 
 _ = subprocess.run(["ffmpeg", "-version"], capture_output=True)
 FOUND_FFMPEG = _.returncode == 0
@@ -25,7 +26,7 @@ if not FOUND_FFMPEG:
     wmsg = ("FFmpeg was not found, so certain features in minim.audio "
             "are unavailable. To install FFmpeg, visit "
             "https://ffmpeg.org/download.html.")
-    warnings.warn(wmsg)
+    logging.warning(wmsg)
 FFMPEG_AAC_CODEC = \
     "libfdk_aac" if FOUND_FFMPEG and b"--enable-libfdk-aac" in _.stdout \
     else "aac"
@@ -673,7 +674,7 @@ class Audio:
                     f"audio in a {container.upper()} container. "
                     "Re-encoding may lead to quality degradation from "
                     "generation loss.")
-            warnings.warn(wmsg, RuntimeWarning)
+            logging.warning(wmsg)
 
         ext = f".{acls._EXTENSIONS[0]}"
         if filename is None:
@@ -773,7 +774,7 @@ class Audio:
                     self.artwork = r.read()
         if self.compilation is None or overwrite:
             self.compilation = self.album_artist == "Various Artists"
-        if self.date is None or overwrite:
+        if "releaseDate" in data and (self.date is None or overwrite):
             self.date = data["releaseDate"]
         if self.disc_number is None or overwrite:
             self.disc_number = data["discNumber"]

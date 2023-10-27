@@ -55,6 +55,3 @@ html_logo = "../../assets/icon.svg"
 html_show_sourcelink = False
 html_static_path = ["_static"]
 html_theme = "furo"
-html_theme_options = {
-    "sidebar_hide_name": True,
-}

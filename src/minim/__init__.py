@@ -1,9 +1,6 @@
 import configparser
 from pathlib import Path
 import tempfile
-import warnings
-
-warnings.formatwarning = lambda message, *args, **kwargs: f"Warning: {message}"
 
 HOME_DIR = Path.home()
 TEMP_DIR = Path(tempfile.gettempdir())

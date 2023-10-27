@@ -393,9 +393,9 @@ class WebAPI:
     access token with all authorization scopes is granted instead.
 
     If an existing access token is available, it and its accompanying
-    information (token type, refresh token, and expiry time) can be
-    provided to this class's constructor as keyword arguments to bypass
-    the access token retrieval process. It is recommended that all other
+    information (refresh token and expiry time) can be provided to this
+    class's constructor as keyword arguments to bypass the access token
+    retrieval process. It is recommended that all other
     authentication-related keyword arguments be specified so that a new
     access token can be obtained when the existing one expires.
 
@@ -430,13 +430,6 @@ class WebAPI:
 
     flow : `str`, keyword-only, optional
         Authorization flow.
-
-        .. tip::
-
-           If an access token is available in the Minim configuration 
-           file but should be overwritten, specify an authorization flow
-           that is different from the one used to obtain the previous 
-           access token.
 
         .. container::
 
@@ -500,10 +493,6 @@ class WebAPI:
         file, the authentication process is bypassed. In the former
         case, all other relevant keyword arguments should be specified
         to automatically refresh the access token when it expires.
-
-    token_type : `str`, keyword-only, default: :code:`"Bearer"`
-        Type of `access_token`. Must be specified if `access_token` is
-        provided as a keyword argument.
     
     refresh_token : `str`, keyword-only, optional
         Refresh token accompanying `access_token`. If not provided,
@@ -585,7 +574,7 @@ class WebAPI:
                  * :code:`playlist-modify-private`, and
                  * :code:`playlist-modify-public`.
 
-               * :code:`"follow` for scopes related to followed artists
+               * :code:`"follow"` for scopes related to followed artists
                  and users, such as :code:`user-follow-modify` and
                  :code:`user-follow-read`.
                * :code:`"listening_history"` for scopes related to 
@@ -605,20 +594,20 @@ class WebAPI:
                * A substring to match in the possible scopes, such as
 
                  * :code:`"read"` for all scopes above that grant read 
-                   access, i.e., scopes with :code:`"read"` in the name,
+                   access, i.e., scopes with :code:`read` in the name,
                  * :code:`"modify"` for all scopes above that grant 
-                   modify access, i.e., scopes with :code:`"modify"` in
+                   modify access, i.e., scopes with :code:`modify` in
                    the name, or
                  * :code:`"user"` for all scopes above that grant access
                    to all user-related information, i.e., scopes with
-                   :code:`"user"` in the name.
+                   :code:`user` in the name.
 
             .. seealso::
 
                For the endpoints that the scopes allow access to, see the
-               `Authorization Scopes page of the Spotify Web API Reference
-               <https://developer.spotify.com/documentation/general/guides/
-               authorization/scopes/>`_.
+               `Scopes page of the Spotify Web API Reference
+               <https://developer.spotify.com/documentation/web-api
+               /concepts/scopes>`_.
         """
 
         SCOPES = {
@@ -657,8 +646,7 @@ class WebAPI:
             flow: str = "web_player", framework: Union[bool, str] = None,
             port: Union[int, str] = 8888, redirect_uri: str = None,
             scopes: Union[str, list[str]] = "", sp_dc: str = None,
-            access_token: str = None, token_type: str = "Bearer",
-            refresh_token: str = None, 
+            access_token: str = None, refresh_token: str = None, 
             expiry: Union[datetime.datetime, str] = None, 
             overwrite: bool = False, save: bool = True) -> None:
         
@@ -672,7 +660,6 @@ class WebAPI:
                 and not overwrite):
             flow = config.get(self._NAME, "flow")
             access_token = config.get(self._NAME, "access_token")
-            token_type = config.get(self._NAME, "token_type")
             refresh_token = config.get(self._NAME, "refresh_token", 
                                        fallback=None)
             expiry = config.get(self._NAME, "expiry", fallback=None)
@@ -689,8 +676,8 @@ class WebAPI:
             framework=framework, port=port, redirect_uri=redirect_uri, 
             scopes=scopes, sp_dc=sp_dc, save=save
         )
-        self.set_access_token(access_token, token_type=token_type,
-                              refresh_token=refresh_token, expiry=expiry)
+        self.set_access_token(access_token, refresh_token=refresh_token, 
+                              expiry=expiry)
 
     def _check_scope(self, endpoint: str, scope: str) -> None:
 
@@ -848,7 +835,7 @@ class WebAPI:
             ).json()
 
             self.session.headers.update(
-                {"Authorization": f"{r['token_type']} {r['access_token']}"}
+                {"Authorization": f"Bearer {r['access_token']}"}
             )
             self._refresh_token = r["refresh_token"]
             self._expiry = (datetime.datetime.now()
@@ -858,7 +845,6 @@ class WebAPI:
             if self._save:
                 config[self._NAME].update({
                     "access_token": r["access_token"],
-                    "token_type": r["token_type"],
                     "refresh_token": self._refresh_token,
                     "expiry": (
                         datetime.datetime.now() 
@@ -916,8 +902,7 @@ class WebAPI:
         return r
 
     def set_access_token(
-            self, access_token: str = None, *, token_type: str = "Bearer",
-            refresh_token: str = None, 
+            self, access_token: str = None, *, refresh_token: str = None, 
             expiry: Union[str, datetime.datetime] = None) -> None:
 
         """
@@ -929,10 +914,6 @@ class WebAPI:
             Access token. If not provided, an access token is obtained
             using an OAuth 2.0 authorization flow or from the Spotify
             Web Player.
-
-        token_type : `str`, keyword-only, default: :code:`"Bearer"`
-            Type of `access_token`. Must be specified if `access_token` 
-            is provided as a keyword argument.
 
         refresh_token : `str`, keyword-only, optional
             Refresh token accompanying `access_token`.
@@ -956,7 +937,6 @@ class WebAPI:
                                  headers=headers).json()
                 self._client_id = r["clientId"]
                 access_token = r["accessToken"]
-                token_type = "Bearer"
                 expiry = datetime.datetime.fromtimestamp(
                     r["accessTokenExpirationTimestampMs"] / 1000
                 )
@@ -999,7 +979,6 @@ class WebAPI:
                               "grant_type": "client_credentials"}
                     ).json()
                 access_token = r["access_token"]
-                token_type = r["token_type"]
                 expiry = (datetime.datetime.now()
                           + datetime.timedelta(0, r["expires_in"]))
 
@@ -1008,7 +987,6 @@ class WebAPI:
                     "flow": self._flow,
                     "client_id": self._client_id,
                     "access_token": access_token,
-                    "token_type": token_type,
                     "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "scopes": self._scopes
                 }
@@ -1023,7 +1001,7 @@ class WebAPI:
                     config.write(f)
                 
         self.session.headers.update(
-            {"Authorization": f"{token_type} {access_token}"}
+            {"Authorization": f"Bearer {access_token}"}
         )
         self._refresh_token = refresh_token
         self._expiry = (
@@ -1612,7 +1590,7 @@ class WebAPI:
         current Spotify user's 'Your Music' library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-read` scope.
 
@@ -1805,7 +1783,7 @@ class WebAPI:
         current user's 'Your Music' library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-modify` scope.
 
@@ -1838,7 +1816,7 @@ class WebAPI:
         from the current user's 'Your Music' library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-modify` scope.
         
@@ -1872,7 +1850,7 @@ class WebAPI:
         Music' library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-read` scope.
 
@@ -2902,7 +2880,7 @@ class WebAPI:
         albums saved in the current Spotify user's audiobooks library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-read` scope.
 
@@ -3001,7 +2979,7 @@ class WebAPI:
         audiobooks to current Spotify user's library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-modify` scope.
 
@@ -3033,7 +3011,7 @@ class WebAPI:
         audiobooks from current Spotify user's library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-modify` scope.
 
@@ -3066,7 +3044,7 @@ class WebAPI:
         library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-read` scope.
 
@@ -3760,7 +3738,7 @@ class WebAPI:
         episodes saved in the current Spotify user's library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-read` scope.
 
@@ -3902,7 +3880,7 @@ class WebAPI:
         the current user's library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-modify` scope.
 
@@ -3935,7 +3913,7 @@ class WebAPI:
         episodes from the current user's library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-modify` scope.
 
@@ -3969,7 +3947,7 @@ class WebAPI:
         Episodes' library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-read` scope.
 
@@ -4057,7 +4035,7 @@ class WebAPI:
         track or episode, progress, and active device.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-read-playback-state` scope.
 
@@ -4261,7 +4239,7 @@ class WebAPI:
         start playing.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4301,7 +4279,7 @@ class WebAPI:
         available devices.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-read-playback-state` scope.
 
@@ -4347,7 +4325,7 @@ class WebAPI:
         currently being played on the user's Spotify account.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-read-currently-playing` scope.
 
@@ -4553,7 +4531,7 @@ class WebAPI:
         device.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4630,7 +4608,7 @@ class WebAPI:
         playback on the user's account.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4658,7 +4636,7 @@ class WebAPI:
         user's queue.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4686,7 +4664,7 @@ class WebAPI:
         track in the user's queue.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4715,7 +4693,7 @@ class WebAPI:
         given position in the user's currently playing track.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4754,7 +4732,7 @@ class WebAPI:
         and off.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4794,7 +4772,7 @@ class WebAPI:
         current playback device.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4832,7 +4810,7 @@ class WebAPI:
         for user's playback.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4870,7 +4848,7 @@ class WebAPI:
            Currently doesn't support podcast episodes.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-read-recently-played` scope.
 
@@ -5053,7 +5031,7 @@ class WebAPI:
         objects that make up the user's queue.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-read-playback-state` scope.
 
@@ -5299,7 +5277,7 @@ class WebAPI:
         playback queue.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -5598,7 +5576,7 @@ class WebAPI:
         the playlist.)
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`playlist-modify-public` or the 
            :code:`playlist-modify-private` scope.
@@ -5664,7 +5642,7 @@ class WebAPI:
         playlist owned by a Spotify user.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`playlist-modify-private` scope.
         
@@ -5910,7 +5888,7 @@ class WebAPI:
         a user's playlist.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`playlist-modify-public` or the 
            :code:`playlist-modify-private` scope.
@@ -6003,7 +5981,7 @@ class WebAPI:
            operations can't be applied together in a single request.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`playlist-modify-public` or the 
            :code:`playlist-modify-private` scope.
@@ -6116,7 +6094,7 @@ class WebAPI:
         user's playlist.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`playlist-modify-public` or the 
            :code:`playlist-modify-private` scope.
@@ -6172,7 +6150,7 @@ class WebAPI:
         playlists owned or followed by the current Spotify user.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`playlist-read-private` and the
            :code:`playlist-read-collaborative` scopes.
@@ -6273,7 +6251,7 @@ class WebAPI:
         or followed by a Spotify user.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`playlist-read-private` and the
            :code:`playlist-read-collaborative` scopes.
@@ -6378,7 +6356,7 @@ class WebAPI:
         you add tracks.)
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`playlist-modify-public` or the
            :code:`playlist-modify-private` scope.
@@ -6905,7 +6883,7 @@ class WebAPI:
         represent a specific playlist.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`ugc-image-upload` and the
            :code:`playlist-modify-public` or 
@@ -7782,7 +7760,7 @@ class WebAPI:
         to limit the number of shows returned.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-read` scope.
 
@@ -7879,7 +7857,7 @@ class WebAPI:
         current Spotify user's library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-modify` scope.
 
@@ -7910,7 +7888,7 @@ class WebAPI:
         current Spotify user's library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-modify` scope.
 
@@ -7954,7 +7932,7 @@ class WebAPI:
         shows is already saved in the current Spotify user's library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-read` scope.
 
@@ -8307,7 +8285,7 @@ class WebAPI:
         saved in the current Spotify user's 'Your Music' library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-read` scope.
 
@@ -8490,7 +8468,7 @@ class WebAPI:
         current user's 'Your Music' library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-modify` scope.
 
@@ -8523,7 +8501,7 @@ class WebAPI:
         from the current user's 'Your Music' library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-modify` scope.
 
@@ -8557,7 +8535,7 @@ class WebAPI:
         Music' library.
         
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-library-read` scope.
 
@@ -9057,7 +9035,7 @@ class WebAPI:
         username).
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-read-private` scope.
         
@@ -9116,7 +9094,7 @@ class WebAPI:
         artists or tracks based on calculated affinity.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-top-read` scope.
 
@@ -9266,7 +9244,7 @@ class WebAPI:
         Add the current user as a follower of a playlist.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`playlist-modify-private` scope.
 
@@ -9292,7 +9270,7 @@ class WebAPI:
         playlist.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`playlist-modify-private` scope.
 
@@ -9318,7 +9296,7 @@ class WebAPI:
         Get the current user's followed artists.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-follow-read` scope.
         
@@ -9400,7 +9378,7 @@ class WebAPI:
         one or more artists or other Spotify users.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-follow-modify` scope.
         
@@ -9438,7 +9416,7 @@ class WebAPI:
         as a follower of one or more artists or other Spotify users.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-follow-modify` scope.
         
@@ -9478,7 +9456,7 @@ class WebAPI:
         users.
 
         .. admonition:: Authorization scope
-           :class: tip
+           :class: note
         
            Requires the :code:`user-follow-read` scope.
 

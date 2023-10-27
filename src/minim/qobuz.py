@@ -9,6 +9,7 @@ This module contains a minim implementation of the private Qobuz API.
 import base64
 import datetime
 import hashlib
+import logging
 import os
 import re
 import subprocess
@@ -17,7 +18,7 @@ from typing import Any, Union
 
 import requests
 
-from . import audio, utility, warnings
+from . import audio, utility
 
 class PrivateAPI:
 
@@ -925,7 +926,7 @@ class PrivateAPI:
             wmsg = ("No user authentication or Qobuz streaming plan "
                     "detected. The URL will lead to a 30-second preview "
                     "of the track.")
-            warnings.warn(wmsg)
+            logging.warning(wmsg)
 
         timestamp = time.time()
         return self._get_json(
@@ -1908,7 +1909,7 @@ class Album:
         """
 
         if self.tracks is not None:
-            warnings.warn(f"Information for {len(self.tracks)} track(s) "
+            logging.warning(f"Information for {len(self.tracks)} track(s) "
                           "already exists and will be overwritten.")
 
         self.tracks = [Track(t["id"], data=t, session=self._session) for t in 
@@ -2235,7 +2236,7 @@ class Artist:
         """
 
         if self.albums is not None:
-            warnings.warn(f"Information for {len(self.albums)} album(s) "
+            logging.warning(f"Information for {len(self.albums)} album(s) "
                           "already exists and will be overwritten.")
 
         if last_release:
@@ -2277,7 +2278,7 @@ class Artist:
         """
 
         if self.playlists is not None:
-            warnings.warn(f"Information for {len(self.playlists)} playlist(s) "
+            logging.warning(f"Information for {len(self.playlists)} playlist(s) "
                           "already exists and will be overwritten.")
 
         self.playlists = [
@@ -2313,7 +2314,7 @@ class Artist:
         """
 
         if self.tracks is not None:
-            warnings.warn(f"Information for {len(self.tracks)} track(s) "
+            logging.warning(f"Information for {len(self.tracks)} track(s) "
                           "already exists and will be overwritten.")
 
         extras = "tracks"
@@ -2489,7 +2490,7 @@ class Label:
         """
 
         if self.albums is not None:
-            warnings.warn(f"Information for {len(self.albums)} album(s) "
+            logging.warning(f"Information for {len(self.albums)} album(s) "
                           "already exists and will be overwritten.")
 
         self.albums = [
