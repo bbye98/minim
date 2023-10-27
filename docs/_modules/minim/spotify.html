@@ -184,18 +184,19 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Artist.html">Artist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Label.html">Label</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Playlist.html">Playlist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Track.html">Track</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.User.html">User</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.LyricsService.html">LyricsService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.PrivateLyricsService.html">PrivateLyricsService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.WebAPI.html">WebAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.tidal.html">tidal</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of tidal</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.API.html">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.PrivateAPI.html">PrivateAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -240,12 +241,12 @@
         <article role="main">
           <h1>Source code for minim.spotify</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Spotify APIs</span>
-<span class="sd">============</span>
+<span class="sd">Spotify</span>
+<span class="sd">=======</span>
 <span class="sd">.. moduleauthor:: Benjamin Ye &lt;GitHub: @bbye98&gt;</span>
 
 <span class="sd">This module contains a complete implementation of all Spotify Web API </span>
-<span class="sd">endpoints and a minimal implementation to use the Spotify Lyrics </span>
+<span class="sd">endpoints and a minimal implementation to use the private Spotify Lyrics</span>
 <span class="sd">service.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -257,12 +258,13 @@
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">secrets</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span> <span class="nn">urllib</span>
 <span class="kn">import</span> <span class="nn">webbrowser</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span>
@@ -278,7 +280,7 @@
  
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">HOME_DIR</span><span class="p">,</span> <span class="n">TEMP_DIR</span><span class="p">,</span> <span class="n">config</span>
 
-<div class="viewcode-block" id="LyricsService"><a class="viewcode-back" href="../../api/minim.spotify.LyricsService.html#minim.spotify.LyricsService">[docs]</a><span class="k">class</span> <span class="nc">LyricsService</span><span class="p">:</span>
+<div class="viewcode-block" id="PrivateLyricsService"><a class="viewcode-back" href="../../api/minim.spotify.PrivateLyricsService.html#minim.spotify.PrivateLyricsService">[docs]</a><span class="k">class</span> <span class="nc">PrivateLyricsService</span><span class="p">:</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Spotify Lyrics service object.</span>
@@ -289,7 +291,14 @@
 <span class="sd">    publicly documented, so its endpoints have been determined by </span>
 <span class="sd">    watching HTTP network traffic.</span>
 
-<span class="sd">    Requests to the Spotify Web API endpoints must be accompanied by a</span>
+<span class="sd">    .. warning::</span>
+
+<span class="sd">       As the Spotify Lyrics service is not designed to be publicly</span>
+<span class="sd">       accessible, this class can be disabled or removed at any time to</span>
+<span class="sd">       ensure compliance with the `Spotify Developer Terms of Service</span>
+<span class="sd">       &lt;https://developer.spotify.com/terms&gt;`_.</span>
+
+<span class="sd">    Requests to the Spotify Lyrics endpoints must be accompanied by a</span>
 <span class="sd">    valid access token in the header. An access token can be obtained</span>
 <span class="sd">    using the Spotify Web Player :code:`sp_dc` cookie, which must either</span>
 <span class="sd">    be provided to this class&#39;s constructor as a keyword argument or be</span>
@@ -302,6 +311,12 @@
 <span class="sd">    other authentication-related keyword arguments be specified so that </span>
 <span class="sd">    a new access token can be obtained when the existing one expires.</span>
 
+<span class="sd">    .. tip::</span>
+
+<span class="sd">       The :code:`sp_dc` cookie and access token can be changed or </span>
+<span class="sd">       updated at any time using :meth:`set_sp_dc` and </span>
+<span class="sd">       :meth:`set_access_token`, respectively.</span>
+<span class="sd">    </span>
 <span class="sd">    Minim also stores and manages access tokens and their properties. </span>
 <span class="sd">    When an access token is acquired, it is automatically saved to the</span>
 <span class="sd">    Minim configuration file to be loaded on the next instantiation of </span>
@@ -333,8 +348,17 @@
 <span class="sd">        Determines whether newly obtained access tokens and their</span>
 <span class="sd">        associated properties are stored to the Minim configuration </span>
 <span class="sd">        file.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    LYRICS_URL : `str`</span>
+<span class="sd">        Base URL for the Spotify Lyrics service.</span>
+
+<span class="sd">    TOKEN_URL : `str`</span>
+<span class="sd">        URL for the Spotify Web Player access token endpoint.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">_NAME</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">LYRICS_URL</span> <span class="o">=</span> <span class="s2">&quot;https://spclient.wg.spotify.com/color-lyrics/v2&quot;</span>
     <span class="n">TOKEN_URL</span> <span class="o">=</span> <span class="s2">&quot;https://open.spotify.com/get_access_token&quot;</span>
 
@@ -350,16 +374,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;App-Platform&quot;</span><span class="p">:</span> <span class="s2">&quot;WebPlayer&quot;</span><span class="p">})</span>
 
-        <span class="k">if</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span> \
-                <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;minim.spotify.LyricsService&quot;</span><span class="p">):</span>
-            <span class="n">sp_dc</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.LyricsService&quot;</span><span class="p">,</span> <span class="s2">&quot;sp_dc&quot;</span><span class="p">)</span>
-            <span class="n">access_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.LyricsService&quot;</span><span class="p">,</span> 
-                                      <span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
-            <span class="n">expiry</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.LyricsService&quot;</span><span class="p">,</span> <span class="s2">&quot;expiry&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">):</span>
+            <span class="n">sp_dc</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;sp_dc&quot;</span><span class="p">)</span>
+            <span class="n">access_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
+            <span class="n">expiry</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;expiry&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_sp_dc</span><span class="p">(</span><span class="n">sp_dc</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">(</span><span class="n">access_token</span><span class="o">=</span><span class="n">access_token</span><span class="p">,</span> <span class="n">expiry</span><span class="o">=</span><span class="n">expiry</span><span class="p">,</span> 
-                              <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_sp_dc</span><span class="p">(</span><span class="n">sp_dc</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">(</span><span class="n">access_token</span><span class="o">=</span><span class="n">access_token</span><span class="p">,</span> <span class="n">expiry</span><span class="o">=</span><span class="n">expiry</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 
@@ -425,7 +446,7 @@
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">r</span>
 
-<div class="viewcode-block" id="LyricsService.set_sp_dc"><a class="viewcode-back" href="../../api/minim.spotify.LyricsService.html#minim.spotify.LyricsService.set_sp_dc">[docs]</a>    <span class="k">def</span> <span class="nf">set_sp_dc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp_dc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="PrivateLyricsService.set_sp_dc"><a class="viewcode-back" href="../../api/minim.spotify.PrivateLyricsService.html#minim.spotify.PrivateLyricsService.set_sp_dc">[docs]</a>    <span class="k">def</span> <span class="nf">set_sp_dc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp_dc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the Spotify Web Player :code:`sp_dc` cookie.</span>
@@ -434,14 +455,19 @@
 <span class="sd">        ----------</span>
 <span class="sd">        sp_dc : `str`, optional</span>
 <span class="sd">            Spotify Web Player :code:`sp_dc` cookie.</span>
+
+<span class="sd">        save : `bool`, keyword-only, default: :code:`True`</span>
+<span class="sd">            Determines whether to save the newly obtained access tokens </span>
+<span class="sd">            and their associated properties to the Minim configuration </span>
+<span class="sd">            file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span> <span class="o">=</span> <span class="n">sp_dc</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SPOTIFY_SP_DC&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span> <span class="o">=</span> <span class="n">sp_dc</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SPOTIFY_SP_DC&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save</span> <span class="o">=</span> <span class="n">save</span></div>
 
-<div class="viewcode-block" id="LyricsService.set_access_token"><a class="viewcode-back" href="../../api/minim.spotify.LyricsService.html#minim.spotify.LyricsService.set_access_token">[docs]</a>    <span class="k">def</span> <span class="nf">set_access_token</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateLyricsService.set_access_token"><a class="viewcode-back" href="../../api/minim.spotify.PrivateLyricsService.html#minim.spotify.PrivateLyricsService.set_access_token">[docs]</a>    <span class="k">def</span> <span class="nf">set_access_token</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-            <span class="n">expiry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">expiry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the Spotify Lyrics service access token.</span>
@@ -457,18 +483,13 @@
 <span class="sd">            :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be</span>
 <span class="sd">            reauthenticated (if `sp_dc` is found or provided) when the</span>
 <span class="sd">            `access_token` expires.</span>
-
-<span class="sd">        save : `bool`, keyword-only, default: :code:`True`</span>
-<span class="sd">            Determines whether to save the newly obtained access tokens </span>
-<span class="sd">            and their associated properties to the Minim configuration </span>
-<span class="sd">            file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing &#39;sp_dc&#39; cookie.&quot;</span><span class="p">)</span>
             
-            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">TOKEN_URL</span><span class="p">,</span>
                 <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cookie&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;sp_dc=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span>
                 <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;reason&quot;</span><span class="p">:</span> <span class="s2">&quot;transport&quot;</span><span class="p">,</span> <span class="s2">&quot;productType&quot;</span><span class="p">:</span> <span class="s2">&quot;web_player&quot;</span><span class="p">}</span>
@@ -480,7 +501,7 @@
                 <span class="n">r</span><span class="p">[</span><span class="s2">&quot;accessTokenExpirationTimestampMs&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">1000</span>
             <span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">:</span>
                 <span class="n">config</span><span class="p">[</span><span class="s2">&quot;minim.spotify.LyricsService&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="s2">&quot;sp_dc&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span><span class="p">,</span>
                     <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
@@ -495,7 +516,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expiry</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">expiry</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="LyricsService.get_lyrics"><a class="viewcode-back" href="../../api/minim.spotify.LyricsService.html#minim.spotify.LyricsService.get_lyrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="PrivateLyricsService.get_lyrics"><a class="viewcode-back" href="../../api/minim.spotify.PrivateLyricsService.html#minim.spotify.PrivateLyricsService.get_lyrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get lyrics for a Spotify track.</span>
@@ -557,10 +578,10 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Spotify Web API object.</span>
 
-<span class="sd">    The Spotify Web API allows for the retrieval of information about </span>
-<span class="sd">    people (artists and users), media (albums, audiobooks, shows, and </span>
-<span class="sd">    tracks), groups (categories, chapters, episodes, genres, markets, </span>
-<span class="sd">    and playlists), and music playback control.</span>
+<span class="sd">    The Spotify Web API enables the creation of applications that can</span>
+<span class="sd">    interact with Spotify&#39;s streaming service, such as retrieving </span>
+<span class="sd">    content metadata, getting recommendations, creating and managing</span>
+<span class="sd">    playlists, or controlling playback.</span>
 
 <span class="sd">    .. important::</span>
 
@@ -596,12 +617,12 @@
 <span class="sd">    .. seealso::</span>
 
 <span class="sd">       To get client credentials, see the `guide on how to create a new</span>
-<span class="sd">       Spotify app &lt;https://developer.spotify.com/documentation/general/</span>
-<span class="sd">       guides/authorization/app-settings/&gt;`_. To take advantage of </span>
-<span class="sd">       Minim&#39;s automatic authorization code retrieval functionality for</span>
-<span class="sd">       the authorization code (with PCKE) flow, the redirect URI should </span>
-<span class="sd">       be in the form :code:`http://localhost:{port}/callback`, where </span>
-<span class="sd">       :code:`{port}` is an open port on :code:`localhost`.</span>
+<span class="sd">       Spotify application &lt;https://developer.spotify.com/documentation</span>
+<span class="sd">       /general/guides/authorization/app-settings/&gt;`_. To take advantage</span>
+<span class="sd">       of Minim&#39;s automatic authorization code retrieval functionality </span>
+<span class="sd">       for the authorization code (with PCKE) flow, the redirect URI </span>
+<span class="sd">       should be in the form :code:`http://localhost:{port}/callback`, </span>
+<span class="sd">       where :code:`{port}` is an open port on :code:`localhost`.</span>
 <span class="sd">    </span>
 <span class="sd">    Alternatively, a access token can be acquired without client </span>
 <span class="sd">    credentials through the Spotify Web Player, but this approach is not</span>
@@ -746,10 +767,25 @@
 <span class="sd">        Determines whether newly obtained access tokens and their</span>
 <span class="sd">        associated properties are stored to the Minim configuration </span>
 <span class="sd">        file.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    API_URL : `str`</span>
+<span class="sd">        Base URL for the Spotify Web API.</span>
+
+<span class="sd">    AUTH_URL : `str`</span>
+<span class="sd">        URL for the Spotify Web API authorization endpoint.</span>
+
+<span class="sd">    TOKEN_URL : `str`</span>
+<span class="sd">        URL for the Spotify Web API access token endpoint.</span>
+
+<span class="sd">    WEB_PLAYER_TOKEN_URL : `str`</span>
+<span class="sd">        URL for the Spotify Web Player access token endpoint.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_FLOWS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;authorization_code_pkce&quot;</span><span class="p">,</span> <span class="s2">&quot;authorization_code&quot;</span><span class="p">,</span> 
               <span class="s2">&quot;client_credentials&quot;</span><span class="p">,</span> <span class="s2">&quot;web_player&quot;</span><span class="p">]</span>
+    <span class="n">_NAME</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">API_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.spotify.com/v1&quot;</span>
     <span class="n">AUTH_URL</span> <span class="o">=</span> <span class="s2">&quot;https://accounts.spotify.com/authorize&quot;</span>
     <span class="n">TOKEN_URL</span> <span class="o">=</span> <span class="s2">&quot;https://accounts.spotify.com/api/token&quot;</span>
@@ -874,22 +910,21 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">)</span> 
+        <span class="k">if</span> <span class="p">(</span><span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">)</span> 
                 <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">):</span>
-            <span class="n">flow</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;flow&quot;</span><span class="p">)</span>
-            <span class="n">access_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
-            <span class="n">token_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;token_type&quot;</span><span class="p">)</span>
-            <span class="n">refresh_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;refresh_token&quot;</span><span class="p">,</span>
+            <span class="n">flow</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;flow&quot;</span><span class="p">)</span>
+            <span class="n">access_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
+            <span class="n">token_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;token_type&quot;</span><span class="p">)</span>
+            <span class="n">refresh_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;refresh_token&quot;</span><span class="p">,</span> 
                                        <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-            <span class="n">expiry</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;expiry&quot;</span><span class="p">,</span> 
-                                <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-            <span class="n">client_id</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;client_id&quot;</span><span class="p">)</span>
-            <span class="n">client_secret</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;client_secret&quot;</span><span class="p">,</span> 
+            <span class="n">expiry</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;expiry&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">client_id</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;client_id&quot;</span><span class="p">)</span>
+            <span class="n">client_secret</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;client_secret&quot;</span><span class="p">,</span> 
                                        <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-            <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;redirect_uri&quot;</span><span class="p">,</span> 
+            <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;redirect_uri&quot;</span><span class="p">,</span> 
                                       <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-            <span class="n">scopes</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;scopes&quot;</span><span class="p">)</span>
-            <span class="n">sp_dc</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">,</span> <span class="s2">&quot;sp_dc&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">scopes</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;scopes&quot;</span><span class="p">)</span>
+            <span class="n">sp_dc</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;sp_dc&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_authorization_flow</span><span class="p">(</span>
             <span class="n">flow</span><span class="p">,</span> <span class="n">client_id</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span> 
@@ -1044,10 +1079,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_token</span><span class="p">:</span>
-            <span class="n">client_b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+            <span class="n">client_b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">TOKEN_URL</span><span class="p">,</span>
                 <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;grant_type&quot;</span><span class="p">:</span> <span class="s2">&quot;refresh_token&quot;</span><span class="p">,</span>
                       <span class="s2">&quot;refresh_token&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_token</span><span class="p">},</span>
@@ -1063,14 +1098,18 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;scope&quot;</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">:</span>
-                <span class="n">config</span><span class="p">[</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                     <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;access_token&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;token_type&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;token_type&quot;</span><span class="p">],</span>
                     <span class="s2">&quot;refresh_token&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_token</span><span class="p">,</span>
-                    <span class="s2">&quot;expiry&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-                                 <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;expires_in&quot;</span><span class="p">])</span>
-                                <span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;expiry&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> 
+                        <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;expires_in&quot;</span><span class="p">])</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">),</span>
                     <span class="s2">&quot;scopes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span>
-                <span class="p">}</span>
+                <span class="p">})</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">HOME_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">()</span>
@@ -1148,13 +1187,15 @@
 <span class="sd">            `access_token` expires.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="s2">&quot;Authorization&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span>
+
         <span class="k">if</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;web_player&quot;</span><span class="p">:</span>
                 <span class="n">headers</span> <span class="o">=</span> <span class="p">({</span><span class="s2">&quot;cookie&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;sp_dc=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span> 
                            <span class="k">else</span> <span class="p">{})</span>
-                <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WEB_PLAYER_TOKEN_URL</span><span class="p">,</span> 
-                                     <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WEB_PLAYER_TOKEN_URL</span><span class="p">,</span> 
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;clientId&quot;</span><span class="p">]</span>
                 <span class="n">access_token</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;accessToken&quot;</span><span class="p">]</span>
                 <span class="n">token_type</span> <span class="o">=</span> <span class="s2">&quot;Bearer&quot;</span>
@@ -1171,8 +1212,8 @@
             
                 <span class="k">if</span> <span class="s2">&quot;authorization_code&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span><span class="p">:</span>
                     <span class="n">client_b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-                    <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
                     <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;grant_type&quot;</span><span class="p">:</span> <span class="s2">&quot;authorization_code&quot;</span><span class="p">,</span>
                           <span class="s2">&quot;redirect_uri&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span><span class="p">}</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;authorization_code_pkce&quot;</span><span class="p">:</span>
@@ -1181,19 +1222,19 @@
                         <span class="n">data</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_authorization_code</span><span class="p">(</span>
                             <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span>
                                 <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span>
-                                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;code_verifier&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+                                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;code_verifier&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
                                 <span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
-                            <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                         <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">data</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_authorization_code</span><span class="p">()</span>
-                    <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">TOKEN_URL</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
                         <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Basic </span><span class="si">{</span><span class="n">client_b64</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
                     <span class="n">refresh_token</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">]</span>
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;client_credentials&quot;</span><span class="p">:</span>
-                    <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">TOKEN_URL</span><span class="p">,</span>
                         <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="p">,</span>
                               <span class="s2">&quot;client_secret&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="p">,</span>
@@ -1205,7 +1246,7 @@
                           <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;expires_in&quot;</span><span class="p">]))</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">:</span>
-                <span class="n">config</span><span class="p">[</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="s2">&quot;flow&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span><span class="p">,</span>
                     <span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="p">,</span>
                     <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
@@ -1214,11 +1255,11 @@
                     <span class="s2">&quot;scopes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span>
                 <span class="p">}</span>
                 <span class="k">if</span> <span class="n">refresh_token</span><span class="p">:</span>
-                    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">][</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">]</span> \
+                    <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">][</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">]</span> \
                         <span class="o">=</span> <span class="n">refresh_token</span>
                 <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;client_secret&quot;</span><span class="p">,</span> <span class="s2">&quot;redirect_uri&quot;</span><span class="p">,</span> <span class="s2">&quot;sp_dc&quot;</span><span class="p">):</span>
                     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
-                        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;minim.spotify.WebAPI&quot;</span><span class="p">][</span><span class="n">attr</span><span class="p">]</span> \
+                        <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">][</span><span class="n">attr</span><span class="p">]</span> \
                             <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">HOME_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -1240,7 +1281,7 @@
             <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the OAuth 2.0 authorization flow.</span>
+<span class="sd">        Set the authorization flow.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1561,14 +1602,53 @@
 <span class="sd">               </span>
 <span class="sd">                  [</span>
 <span class="sd">                    {</span>
-<span class="sd">                      &quot;albums&quot;: [</span>
+<span class="sd">                      &quot;album_type&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;total_tracks&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;available_markets&quot;: [&lt;str&gt;],</span>
+<span class="sd">                      &quot;external_urls&quot;: {</span>
+<span class="sd">                        &quot;spotify&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                      &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;images&quot;: [</span>
 <span class="sd">                        {</span>
-<span class="sd">                          &quot;album_type&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;total_tracks&quot;: &lt;int&gt;,</span>
-<span class="sd">                          &quot;available_markets&quot;: [&lt;str&gt;],</span>
+<span class="sd">                          &quot;url&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;height&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;width&quot;: &lt;int&gt;</span>
+<span class="sd">                        }</span>
+<span class="sd">                      ],</span>
+<span class="sd">                      &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;release_date&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;release_date_precision&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;restrictions&quot;: {</span>
+<span class="sd">                        &quot;reason&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                      &quot;type&quot;: &quot;album&quot;,</span>
+<span class="sd">                      &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;copyrights&quot;: [</span>
+<span class="sd">                        {</span>
+<span class="sd">                          &quot;text&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;type&quot;: &lt;str&gt;</span>
+<span class="sd">                        }</span>
+<span class="sd">                      ],</span>
+<span class="sd">                      &quot;external_ids&quot;: {</span>
+<span class="sd">                        &quot;isrc&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;ean&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;upc&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                      &quot;genres&quot;: [&lt;str&gt;],</span>
+<span class="sd">                      &quot;label&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;popularity&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;artists&quot;: [</span>
+<span class="sd">                        {</span>
 <span class="sd">                          &quot;external_urls&quot;: {</span>
 <span class="sd">                            &quot;spotify&quot;: &lt;str&gt;</span>
 <span class="sd">                          },</span>
+<span class="sd">                          &quot;followers&quot;: {</span>
+<span class="sd">                            &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;total&quot;: &lt;int&gt;</span>
+<span class="sd">                          },</span>
+<span class="sd">                          &quot;genres&quot;: [&lt;str&gt;],</span>
 <span class="sd">                          &quot;href&quot;: &lt;str&gt;,</span>
 <span class="sd">                          &quot;id&quot;: &lt;str&gt;,</span>
 <span class="sd">                          &quot;images&quot;: [</span>
@@ -1579,106 +1659,63 @@
 <span class="sd">                            }</span>
 <span class="sd">                          ],</span>
 <span class="sd">                          &quot;name&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;release_date&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;release_date_precision&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;restrictions&quot;: {</span>
-<span class="sd">                            &quot;reason&quot;: &lt;str&gt;</span>
-<span class="sd">                          },</span>
-<span class="sd">                          &quot;type&quot;: &quot;album&quot;,</span>
-<span class="sd">                          &quot;uri&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;copyrights&quot;: [</span>
-<span class="sd">                            {</span>
-<span class="sd">                              &quot;text&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;type&quot;: &lt;str&gt;</span>
-<span class="sd">                            }</span>
-<span class="sd">                          ],</span>
-<span class="sd">                          &quot;external_ids&quot;: {</span>
-<span class="sd">                            &quot;isrc&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;ean&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;upc&quot;: &lt;str&gt;</span>
-<span class="sd">                          },</span>
-<span class="sd">                          &quot;genres&quot;: [&lt;str&gt;],</span>
-<span class="sd">                          &quot;label&quot;: &lt;str&gt;,</span>
 <span class="sd">                          &quot;popularity&quot;: &lt;int&gt;,</span>
-<span class="sd">                          &quot;artists&quot;: [</span>
-<span class="sd">                            {</span>
-<span class="sd">                              &quot;external_urls&quot;: {</span>
-<span class="sd">                                &quot;spotify&quot;: &lt;str&gt;</span>
-<span class="sd">                              },</span>
-<span class="sd">                              &quot;followers&quot;: {</span>
-<span class="sd">                                &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                                &quot;total&quot;: &lt;int&gt;</span>
-<span class="sd">                              },</span>
-<span class="sd">                              &quot;genres&quot;: [&lt;str&gt;],</span>
-<span class="sd">                              &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;id&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;images&quot;: [</span>
-<span class="sd">                                {</span>
-<span class="sd">                                  &quot;url&quot;: &lt;str&gt;,</span>
-<span class="sd">                                  &quot;height&quot;: &lt;int&gt;,</span>
-<span class="sd">                                  &quot;width&quot;: &lt;int&gt;</span>
-<span class="sd">                                }</span>
-<span class="sd">                              ],</span>
-<span class="sd">                              &quot;name&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;popularity&quot;: &lt;int&gt;,</span>
-<span class="sd">                              &quot;type&quot;: &quot;artist&quot;,</span>
-<span class="sd">                              &quot;uri&quot;: &lt;str&gt;</span>
-<span class="sd">                            }</span>
-<span class="sd">                          ],</span>
-<span class="sd">                          &quot;tracks&quot;: {</span>
-<span class="sd">                            &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;limit&quot;: &lt;int&gt;,</span>
-<span class="sd">                            &quot;next&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;offset&quot;: &lt;int&gt;,</span>
-<span class="sd">                            &quot;previous&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;total&quot;: &lt;int&gt;,</span>
-<span class="sd">                            &quot;items&quot;: [</span>
+<span class="sd">                          &quot;type&quot;: &quot;artist&quot;,</span>
+<span class="sd">                          &quot;uri&quot;: &lt;str&gt;</span>
+<span class="sd">                        }</span>
+<span class="sd">                      ],</span>
+<span class="sd">                      &quot;tracks&quot;: {</span>
+<span class="sd">                        &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;limit&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;next&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;offset&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;previous&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;total&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;items&quot;: [</span>
+<span class="sd">                          {</span>
+<span class="sd">                            &quot;artists&quot;: [</span>
 <span class="sd">                              {</span>
-<span class="sd">                                &quot;artists&quot;: [</span>
-<span class="sd">                                  {</span>
-<span class="sd">                                    &quot;external_urls&quot;: {</span>
-<span class="sd">                                      &quot;spotify&quot;: &lt;str&gt;</span>
-<span class="sd">                                    },</span>
-<span class="sd">                                    &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                                    &quot;id&quot;: &lt;str&gt;,</span>
-<span class="sd">                                    &quot;name&quot;: &lt;str&gt;,</span>
-<span class="sd">                                    &quot;type&quot;: &quot;artist&quot;,</span>
-<span class="sd">                                    &quot;uri&quot;: &lt;str&gt;</span>
-<span class="sd">                                  }</span>
-<span class="sd">                                ],</span>
-<span class="sd">                                &quot;available_markets&quot;: [&lt;str&gt;],</span>
-<span class="sd">                                &quot;disc_number&quot;: &lt;int&gt;,</span>
-<span class="sd">                                &quot;duration_ms&quot;: &lt;int&gt;,</span>
-<span class="sd">                                &quot;explicit&quot;: &lt;bool&gt;,</span>
 <span class="sd">                                &quot;external_urls&quot;: {</span>
 <span class="sd">                                  &quot;spotify&quot;: &lt;str&gt;</span>
 <span class="sd">                                },</span>
 <span class="sd">                                &quot;href&quot;: &lt;str&gt;,</span>
 <span class="sd">                                &quot;id&quot;: &lt;str&gt;,</span>
-<span class="sd">                                &quot;is_playable&quot;: &lt;bool&gt;</span>
-<span class="sd">                                &quot;linked_from&quot;: {</span>
-<span class="sd">                                  &quot;external_urls&quot;: {</span>
-<span class="sd">                                    &quot;spotify&quot;: &lt;str&gt;</span>
-<span class="sd">                                  },</span>
-<span class="sd">                                  &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                                  &quot;id&quot;: &lt;str&gt;,</span>
-<span class="sd">                                  &quot;type&quot;: &lt;str&gt;,</span>
-<span class="sd">                                  &quot;uri&quot;: &lt;str&gt;</span>
-<span class="sd">                                },</span>
-<span class="sd">                                &quot;restrictions&quot;: {</span>
-<span class="sd">                                  &quot;reason&quot;: &lt;str&gt;</span>
-<span class="sd">                                },</span>
 <span class="sd">                                &quot;name&quot;: &lt;str&gt;,</span>
-<span class="sd">                                &quot;preview_url&quot;: &lt;str&gt;,</span>
-<span class="sd">                                &quot;track_number&quot;: &lt;int&gt;,</span>
-<span class="sd">                                &quot;type&quot;: &lt;str&gt;,</span>
-<span class="sd">                                &quot;uri&quot;: &lt;str&gt;,</span>
-<span class="sd">                                &quot;is_local&quot;: &lt;bool&gt;</span>
+<span class="sd">                                &quot;type&quot;: &quot;artist&quot;,</span>
+<span class="sd">                                &quot;uri&quot;: &lt;str&gt;</span>
 <span class="sd">                              }</span>
-<span class="sd">                            ]</span>
+<span class="sd">                            ],</span>
+<span class="sd">                            &quot;available_markets&quot;: [&lt;str&gt;],</span>
+<span class="sd">                            &quot;disc_number&quot;: &lt;int&gt;,</span>
+<span class="sd">                            &quot;duration_ms&quot;: &lt;int&gt;,</span>
+<span class="sd">                            &quot;explicit&quot;: &lt;bool&gt;,</span>
+<span class="sd">                            &quot;external_urls&quot;: {</span>
+<span class="sd">                              &quot;spotify&quot;: &lt;str&gt;</span>
+<span class="sd">                            },</span>
+<span class="sd">                            &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;is_playable&quot;: &lt;bool&gt;</span>
+<span class="sd">                            &quot;linked_from&quot;: {</span>
+<span class="sd">                              &quot;external_urls&quot;: {</span>
+<span class="sd">                                &quot;spotify&quot;: &lt;str&gt;</span>
+<span class="sd">                              },</span>
+<span class="sd">                              &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;type&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;uri&quot;: &lt;str&gt;</span>
+<span class="sd">                            },</span>
+<span class="sd">                            &quot;restrictions&quot;: {</span>
+<span class="sd">                              &quot;reason&quot;: &lt;str&gt;</span>
+<span class="sd">                            },</span>
+<span class="sd">                            &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;preview_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;track_number&quot;: &lt;int&gt;,</span>
+<span class="sd">                            &quot;type&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;is_local&quot;: &lt;bool&gt;</span>
 <span class="sd">                          }</span>
-<span class="sd">                        }</span>
-<span class="sd">                      ]</span>
+<span class="sd">                        ]</span>
+<span class="sd">                      }</span>
 <span class="sd">                    }</span>
 <span class="sd">                  ]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1863,137 +1900,135 @@
 
 <span class="sd">               .. code::</span>
 
-<span class="sd">                  [</span>
-<span class="sd">                    {</span>
-<span class="sd">                      &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                      &quot;limit&quot;: &lt;int&gt;,</span>
-<span class="sd">                      &quot;next&quot;: &lt;str&gt;,</span>
-<span class="sd">                      &quot;offset&quot;: &lt;int&gt;,</span>
-<span class="sd">                      &quot;previous&quot;: &lt;str&gt;,</span>
-<span class="sd">                      &quot;total&quot;: &lt;int&gt;,</span>
-<span class="sd">                      &quot;items&quot;: [</span>
-<span class="sd">                        {</span>
-<span class="sd">                          &quot;added_at&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;album&quot;: {</span>
-<span class="sd">                            &quot;album_type&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;total_tracks&quot;: &lt;int&gt;,</span>
-<span class="sd">                            &quot;available_markets&quot;: [&lt;str&gt;],</span>
-<span class="sd">                            &quot;external_urls&quot;: {</span>
-<span class="sd">                              &quot;spotify&quot;: &lt;str&gt;</span>
-<span class="sd">                            },</span>
-<span class="sd">                            &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;id&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;images&quot;: [</span>
-<span class="sd">                              {</span>
-<span class="sd">                                &quot;url&quot;: &lt;str&gt;,</span>
-<span class="sd">                                &quot;height&quot;: &lt;int&gt;,</span>
-<span class="sd">                                &quot;width&quot;: &lt;int&gt;</span>
-<span class="sd">                              }</span>
-<span class="sd">                            ],</span>
-<span class="sd">                            &quot;name&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;release_date&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;release_date_precision&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;restrictions&quot;: {</span>
-<span class="sd">                              &quot;reason&quot;: &lt;str&gt;</span>
-<span class="sd">                            },</span>
-<span class="sd">                            &quot;type&quot;: &quot;album&quot;,</span>
-<span class="sd">                            &quot;uri&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;copyrights&quot;: [</span>
-<span class="sd">                              {</span>
-<span class="sd">                                &quot;text&quot;: &lt;str&gt;,</span>
-<span class="sd">                                &quot;type&quot;: &lt;str&gt;</span>
-<span class="sd">                              }</span>
-<span class="sd">                            ],</span>
-<span class="sd">                            &quot;external_ids&quot;: {</span>
-<span class="sd">                              &quot;isrc&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;ean&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;upc&quot;: &lt;str&gt;</span>
-<span class="sd">                            },</span>
-<span class="sd">                            &quot;genres&quot;: [&lt;str&gt;],</span>
-<span class="sd">                            &quot;label&quot;: &lt;str&gt;,</span>
-<span class="sd">                            &quot;popularity&quot;: &lt;int&gt;,</span>
-<span class="sd">                            &quot;artists&quot;: [</span>
-<span class="sd">                              {</span>
-<span class="sd">                                &quot;external_urls&quot;: {</span>
-<span class="sd">                                  &quot;spotify&quot;: &lt;str&gt;</span>
-<span class="sd">                                },</span>
-<span class="sd">                                &quot;followers&quot;: {</span>
-<span class="sd">                                  &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                                  &quot;total&quot;: &lt;int&gt;</span>
-<span class="sd">                                },</span>
-<span class="sd">                                &quot;genres&quot;: [&lt;str&gt;],</span>
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;limit&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;next&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;offset&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;previous&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;total&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;items&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;added_at&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;album&quot;: {</span>
+<span class="sd">                          &quot;album_type&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;total_tracks&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;available_markets&quot;: [&lt;str&gt;],</span>
+<span class="sd">                          &quot;external_urls&quot;: {</span>
+<span class="sd">                            &quot;spotify&quot;: &lt;str&gt;</span>
+<span class="sd">                          },</span>
+<span class="sd">                          &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;images&quot;: [</span>
+<span class="sd">                            {</span>
+<span class="sd">                              &quot;url&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;height&quot;: &lt;int&gt;,</span>
+<span class="sd">                              &quot;width&quot;: &lt;int&gt;</span>
+<span class="sd">                            }</span>
+<span class="sd">                          ],</span>
+<span class="sd">                          &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;release_date&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;release_date_precision&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;restrictions&quot;: {</span>
+<span class="sd">                            &quot;reason&quot;: &lt;str&gt;</span>
+<span class="sd">                          },</span>
+<span class="sd">                          &quot;type&quot;: &quot;album&quot;,</span>
+<span class="sd">                          &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;copyrights&quot;: [</span>
+<span class="sd">                            {</span>
+<span class="sd">                              &quot;text&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;type&quot;: &lt;str&gt;</span>
+<span class="sd">                            }</span>
+<span class="sd">                          ],</span>
+<span class="sd">                          &quot;external_ids&quot;: {</span>
+<span class="sd">                            &quot;isrc&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;ean&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;upc&quot;: &lt;str&gt;</span>
+<span class="sd">                          },</span>
+<span class="sd">                          &quot;genres&quot;: [&lt;str&gt;],</span>
+<span class="sd">                          &quot;label&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;popularity&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;artists&quot;: [</span>
+<span class="sd">                            {</span>
+<span class="sd">                              &quot;external_urls&quot;: {</span>
+<span class="sd">                                &quot;spotify&quot;: &lt;str&gt;</span>
+<span class="sd">                              },</span>
+<span class="sd">                              &quot;followers&quot;: {</span>
 <span class="sd">                                &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                                &quot;id&quot;: &lt;str&gt;,</span>
-<span class="sd">                                &quot;images&quot;: [</span>
-<span class="sd">                                  {</span>
-<span class="sd">                                    &quot;url&quot;: &lt;str&gt;,</span>
-<span class="sd">                                    &quot;height&quot;: &lt;int&gt;,</span>
-<span class="sd">                                    &quot;width&quot;: &lt;int&gt;</span>
-<span class="sd">                                  }</span>
-<span class="sd">                                ],</span>
-<span class="sd">                                &quot;name&quot;: &lt;str&gt;,</span>
-<span class="sd">                                &quot;popularity&quot;: &lt;int&gt;,</span>
-<span class="sd">                                &quot;type&quot;: &quot;artist&quot;,</span>
-<span class="sd">                                &quot;uri&quot;: &lt;str&gt;</span>
-<span class="sd">                              }</span>
-<span class="sd">                            ],</span>
-<span class="sd">                            &quot;tracks&quot;: {</span>
+<span class="sd">                                &quot;total&quot;: &lt;int&gt;</span>
+<span class="sd">                              },</span>
+<span class="sd">                              &quot;genres&quot;: [&lt;str&gt;],</span>
 <span class="sd">                              &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;limit&quot;: &lt;int&gt;,</span>
-<span class="sd">                              &quot;next&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;offset&quot;: &lt;int&gt;,</span>
-<span class="sd">                              &quot;previous&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;total&quot;: &lt;int&gt;,</span>
-<span class="sd">                              &quot;items&quot;: [</span>
+<span class="sd">                              &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;images&quot;: [</span>
 <span class="sd">                                {</span>
-<span class="sd">                                  &quot;artists&quot;: [</span>
-<span class="sd">                                    {</span>
-<span class="sd">                                      &quot;external_urls&quot;: {</span>
-<span class="sd">                                        &quot;spotify&quot;: &lt;str&gt;</span>
-<span class="sd">                                      },</span>
-<span class="sd">                                      &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                                      &quot;id&quot;: &lt;str&gt;,</span>
-<span class="sd">                                      &quot;name&quot;: &lt;str&gt;,</span>
-<span class="sd">                                      &quot;type&quot;: &quot;artist&quot;,</span>
-<span class="sd">                                      &quot;uri&quot;: &lt;str&gt;</span>
-<span class="sd">                                    }</span>
-<span class="sd">                                  ],</span>
-<span class="sd">                                  &quot;available_markets&quot;: [&lt;str&gt;],</span>
-<span class="sd">                                  &quot;disc_number&quot;: &lt;int&gt;,</span>
-<span class="sd">                                  &quot;duration_ms&quot;: &lt;int&gt;,</span>
-<span class="sd">                                  &quot;explicit&quot;: &lt;bool&gt;,</span>
-<span class="sd">                                  &quot;external_urls&quot;: {</span>
-<span class="sd">                                    &quot;spotify&quot;: &lt;str&gt;</span>
-<span class="sd">                                  },</span>
-<span class="sd">                                  &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                                  &quot;id&quot;: &lt;str&gt;,</span>
-<span class="sd">                                  &quot;is_playable&quot;: &lt;bool&gt;</span>
-<span class="sd">                                  &quot;linked_from&quot;: {</span>
+<span class="sd">                                  &quot;url&quot;: &lt;str&gt;,</span>
+<span class="sd">                                  &quot;height&quot;: &lt;int&gt;,</span>
+<span class="sd">                                  &quot;width&quot;: &lt;int&gt;</span>
+<span class="sd">                                }</span>
+<span class="sd">                              ],</span>
+<span class="sd">                              &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;popularity&quot;: &lt;int&gt;,</span>
+<span class="sd">                              &quot;type&quot;: &quot;artist&quot;,</span>
+<span class="sd">                              &quot;uri&quot;: &lt;str&gt;</span>
+<span class="sd">                            }</span>
+<span class="sd">                          ],</span>
+<span class="sd">                          &quot;tracks&quot;: {</span>
+<span class="sd">                            &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;limit&quot;: &lt;int&gt;,</span>
+<span class="sd">                            &quot;next&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;offset&quot;: &lt;int&gt;,</span>
+<span class="sd">                            &quot;previous&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;total&quot;: &lt;int&gt;,</span>
+<span class="sd">                            &quot;items&quot;: [</span>
+<span class="sd">                              {</span>
+<span class="sd">                                &quot;artists&quot;: [</span>
+<span class="sd">                                  {</span>
 <span class="sd">                                    &quot;external_urls&quot;: {</span>
 <span class="sd">                                      &quot;spotify&quot;: &lt;str&gt;</span>
 <span class="sd">                                    },</span>
 <span class="sd">                                    &quot;href&quot;: &lt;str&gt;,</span>
 <span class="sd">                                    &quot;id&quot;: &lt;str&gt;,</span>
-<span class="sd">                                    &quot;type&quot;: &lt;str&gt;,</span>
+<span class="sd">                                    &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                                    &quot;type&quot;: &quot;artist&quot;,</span>
 <span class="sd">                                    &quot;uri&quot;: &lt;str&gt;</span>
+<span class="sd">                                  }</span>
+<span class="sd">                                ],</span>
+<span class="sd">                                &quot;available_markets&quot;: [&lt;str&gt;],</span>
+<span class="sd">                                &quot;disc_number&quot;: &lt;int&gt;,</span>
+<span class="sd">                                &quot;duration_ms&quot;: &lt;int&gt;,</span>
+<span class="sd">                                &quot;explicit&quot;: &lt;bool&gt;,</span>
+<span class="sd">                                &quot;external_urls&quot;: {</span>
+<span class="sd">                                  &quot;spotify&quot;: &lt;str&gt;</span>
+<span class="sd">                                },</span>
+<span class="sd">                                &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                                &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                                &quot;is_playable&quot;: &lt;bool&gt;</span>
+<span class="sd">                                &quot;linked_from&quot;: {</span>
+<span class="sd">                                  &quot;external_urls&quot;: {</span>
+<span class="sd">                                    &quot;spotify&quot;: &lt;str&gt;</span>
 <span class="sd">                                  },</span>
-<span class="sd">                                  &quot;restrictions&quot;: {</span>
-<span class="sd">                                    &quot;reason&quot;: &lt;str&gt;</span>
-<span class="sd">                                  },</span>
-<span class="sd">                                  &quot;name&quot;: &lt;str&gt;,</span>
-<span class="sd">                                  &quot;preview_url&quot;: &lt;str&gt;,</span>
-<span class="sd">                                  &quot;track_number&quot;: &lt;int&gt;,</span>
+<span class="sd">                                  &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                                  &quot;id&quot;: &lt;str&gt;,</span>
 <span class="sd">                                  &quot;type&quot;: &lt;str&gt;,</span>
-<span class="sd">                                  &quot;uri&quot;: &lt;str&gt;,</span>
-<span class="sd">                                  &quot;is_local&quot;: &lt;bool&gt;</span>
-<span class="sd">                                }</span>
-<span class="sd">                              ]</span>
-<span class="sd">                            }</span>
+<span class="sd">                                  &quot;uri&quot;: &lt;str&gt;</span>
+<span class="sd">                                },</span>
+<span class="sd">                                &quot;restrictions&quot;: {</span>
+<span class="sd">                                  &quot;reason&quot;: &lt;str&gt;</span>
+<span class="sd">                                },</span>
+<span class="sd">                                &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                                &quot;preview_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                                &quot;track_number&quot;: &lt;int&gt;,</span>
+<span class="sd">                                &quot;type&quot;: &lt;str&gt;,</span>
+<span class="sd">                                &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                                &quot;is_local&quot;: &lt;bool&gt;</span>
+<span class="sd">                              }</span>
+<span class="sd">                            ]</span>
 <span class="sd">                          }</span>
 <span class="sd">                        }</span>
-<span class="sd">                      ]</span>
-<span class="sd">                    }</span>
-<span class="sd">                  ]</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ]</span>
+<span class="sd">                  }</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_scope</span><span class="p">(</span><span class="s2">&quot;get_saved_albums&quot;</span><span class="p">,</span> <span class="s2">&quot;user-library-read&quot;</span><span class="p">)</span>
@@ -2888,93 +2923,95 @@
 
 <span class="sd">               .. code::</span>
 
-<span class="sd">                  {</span>
-<span class="sd">                    &quot;authors&quot;: [</span>
-<span class="sd">                      {</span>
-<span class="sd">                        &quot;name&quot;: &lt;str&gt;</span>
-<span class="sd">                      }</span>
-<span class="sd">                    ],</span>
-<span class="sd">                    &quot;available_markets&quot;: [&lt;str&gt;],</span>
-<span class="sd">                    &quot;copyrights&quot;: [</span>
-<span class="sd">                      {</span>
-<span class="sd">                        &quot;text&quot;: &lt;str&gt;,</span>
-<span class="sd">                        &quot;type&quot;: &lt;str&gt;</span>
-<span class="sd">                      }</span>
-<span class="sd">                    ],</span>
-<span class="sd">                    &quot;description&quot;: &lt;str&gt;,</span>
-<span class="sd">                    &quot;html_description&quot;: &lt;str&gt;,</span>
-<span class="sd">                    &quot;edition&quot;: &lt;str&gt;,</span>
-<span class="sd">                    &quot;explicit&quot;: &lt;bool&gt;,</span>
-<span class="sd">                    &quot;external_urls&quot;: {</span>
-<span class="sd">                      &quot;spotify&quot;: &lt;str&gt;</span>
-<span class="sd">                    },</span>
-<span class="sd">                    &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                    &quot;id&quot;: &lt;str&gt;,</span>
-<span class="sd">                    &quot;images&quot;: [</span>
-<span class="sd">                      {</span>
-<span class="sd">                        &quot;url&quot;: &lt;str&gt;,</span>
-<span class="sd">                        &quot;height&quot;: &lt;int&gt;,</span>
-<span class="sd">                        &quot;width&quot;: &lt;int&gt;</span>
-<span class="sd">                      }</span>
-<span class="sd">                    ],</span>
-<span class="sd">                    &quot;languages&quot;: [&lt;str&gt;],</span>
-<span class="sd">                    &quot;media_type&quot;: &lt;str&gt;,</span>
-<span class="sd">                    &quot;name&quot;: &lt;str&gt;,</span>
-<span class="sd">                    &quot;narrators&quot;: [</span>
-<span class="sd">                      {</span>
-<span class="sd">                        &quot;name&quot;: &lt;str&gt;</span>
-<span class="sd">                      }</span>
-<span class="sd">                    ],</span>
-<span class="sd">                    &quot;publisher&quot;: &lt;str&gt;,</span>
-<span class="sd">                    &quot;type&quot;: &quot;audiobook&quot;,</span>
-<span class="sd">                    &quot;uri&quot;: &lt;str&gt;,</span>
-<span class="sd">                    &quot;total_chapters&quot;: &lt;int&gt;,</span>
-<span class="sd">                    &quot;chapters&quot;: {</span>
-<span class="sd">                      &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                      &quot;limit&quot;: &lt;int&gt;,</span>
-<span class="sd">                      &quot;next&quot;: &lt;str&gt;,</span>
-<span class="sd">                      &quot;offset&quot;: &lt;int&gt;,</span>
-<span class="sd">                      &quot;previous&quot;: &lt;str&gt;,</span>
-<span class="sd">                      &quot;total&quot;: &lt;int&gt;,</span>
-<span class="sd">                      &quot;items&quot;: [</span>
+<span class="sd">                  [</span>
+<span class="sd">                    {</span>
+<span class="sd">                      &quot;authors&quot;: [</span>
 <span class="sd">                        {</span>
-<span class="sd">                          &quot;audio_preview_url&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;available_markets&quot;: [&lt;str&gt;],</span>
-<span class="sd">                          &quot;chapter_number&quot;: &lt;int&gt;,</span>
-<span class="sd">                          &quot;description&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;html_description&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;duration_ms&quot;: &lt;int&gt;,</span>
-<span class="sd">                          &quot;explicit&quot;: &lt;bool&gt;,</span>
-<span class="sd">                          &quot;external_urls&quot;: {</span>
-<span class="sd">                            &quot;spotify&quot;: &lt;str&gt;</span>
-<span class="sd">                          },</span>
-<span class="sd">                          &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;id&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;images&quot;: [</span>
-<span class="sd">                            {</span>
-<span class="sd">                              &quot;url&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;height&quot;: &lt;int&gt;,</span>
-<span class="sd">                              &quot;width&quot;: &lt;int&gt;</span>
-<span class="sd">                            }</span>
-<span class="sd">                          ],</span>
-<span class="sd">                          &quot;is_playable&quot;: &lt;bool&gt;</span>
-<span class="sd">                          &quot;languages&quot;: [&lt;str&gt;],</span>
-<span class="sd">                          &quot;name&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;release_date&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;release_date_precision&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;resume_point&quot;: {</span>
-<span class="sd">                            &quot;fully_played&quot;: &lt;bool&gt;,</span>
-<span class="sd">                            &quot;resume_position_ms&quot;: &lt;int&gt;</span>
-<span class="sd">                          },</span>
-<span class="sd">                          &quot;type&quot;: &quot;episode&quot;,</span>
-<span class="sd">                          &quot;uri&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;restrictions&quot;: {</span>
-<span class="sd">                            &quot;reason&quot;: &lt;str&gt;</span>
-<span class="sd">                          }</span>
+<span class="sd">                          &quot;name&quot;: &lt;str&gt;</span>
 <span class="sd">                        }</span>
-<span class="sd">                      ]</span>
+<span class="sd">                      ],</span>
+<span class="sd">                      &quot;available_markets&quot;: [&lt;str&gt;],</span>
+<span class="sd">                      &quot;copyrights&quot;: [</span>
+<span class="sd">                        {</span>
+<span class="sd">                          &quot;text&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;type&quot;: &lt;str&gt;</span>
+<span class="sd">                        }</span>
+<span class="sd">                      ],</span>
+<span class="sd">                      &quot;description&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;html_description&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;edition&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;explicit&quot;: &lt;bool&gt;,</span>
+<span class="sd">                      &quot;external_urls&quot;: {</span>
+<span class="sd">                        &quot;spotify&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                      &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;images&quot;: [</span>
+<span class="sd">                        {</span>
+<span class="sd">                          &quot;url&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;height&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;width&quot;: &lt;int&gt;</span>
+<span class="sd">                        }</span>
+<span class="sd">                      ],</span>
+<span class="sd">                      &quot;languages&quot;: [&lt;str&gt;],</span>
+<span class="sd">                      &quot;media_type&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;narrators&quot;: [</span>
+<span class="sd">                        {</span>
+<span class="sd">                          &quot;name&quot;: &lt;str&gt;</span>
+<span class="sd">                        }</span>
+<span class="sd">                      ],</span>
+<span class="sd">                      &quot;publisher&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;type&quot;: &quot;audiobook&quot;,</span>
+<span class="sd">                      &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;total_chapters&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;chapters&quot;: {</span>
+<span class="sd">                        &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;limit&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;next&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;offset&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;previous&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;total&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;items&quot;: [</span>
+<span class="sd">                          {</span>
+<span class="sd">                            &quot;audio_preview_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;available_markets&quot;: [&lt;str&gt;],</span>
+<span class="sd">                            &quot;chapter_number&quot;: &lt;int&gt;,</span>
+<span class="sd">                            &quot;description&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;html_description&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;duration_ms&quot;: &lt;int&gt;,</span>
+<span class="sd">                            &quot;explicit&quot;: &lt;bool&gt;,</span>
+<span class="sd">                            &quot;external_urls&quot;: {</span>
+<span class="sd">                              &quot;spotify&quot;: &lt;str&gt;</span>
+<span class="sd">                            },</span>
+<span class="sd">                            &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;images&quot;: [</span>
+<span class="sd">                              {</span>
+<span class="sd">                                &quot;url&quot;: &lt;str&gt;,</span>
+<span class="sd">                                &quot;height&quot;: &lt;int&gt;,</span>
+<span class="sd">                                &quot;width&quot;: &lt;int&gt;</span>
+<span class="sd">                              }</span>
+<span class="sd">                            ],</span>
+<span class="sd">                            &quot;is_playable&quot;: &lt;bool&gt;</span>
+<span class="sd">                            &quot;languages&quot;: [&lt;str&gt;],</span>
+<span class="sd">                            &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;release_date&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;release_date_precision&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;resume_point&quot;: {</span>
+<span class="sd">                              &quot;fully_played&quot;: &lt;bool&gt;,</span>
+<span class="sd">                              &quot;resume_position_ms&quot;: &lt;int&gt;</span>
+<span class="sd">                            },</span>
+<span class="sd">                            &quot;type&quot;: &quot;episode&quot;,</span>
+<span class="sd">                            &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;restrictions&quot;: {</span>
+<span class="sd">                              &quot;reason&quot;: &lt;str&gt;</span>
+<span class="sd">                            }</span>
+<span class="sd">                          }</span>
+<span class="sd">                        ]</span>
+<span class="sd">                      }</span>
 <span class="sd">                    }</span>
-<span class="sd">                  }</span>
+<span class="sd">                  ]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
@@ -3878,11 +3915,50 @@
 <span class="sd">               .. code::</span>
 
 <span class="sd">                  [</span>
-<span class="sd">                      {</span>
-<span class="sd">                        &quot;audio_preview_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    {</span>
+<span class="sd">                      &quot;audio_preview_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;description&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;html_description&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;duration_ms&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;explicit&quot;: &lt;bool&gt;,</span>
+<span class="sd">                      &quot;external_urls&quot;: {</span>
+<span class="sd">                        &quot;spotify&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                      &quot;href&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;images&quot;: [</span>
+<span class="sd">                        {</span>
+<span class="sd">                          &quot;url&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;height&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;width&quot;: &lt;int&gt;</span>
+<span class="sd">                        }</span>
+<span class="sd">                      ],</span>
+<span class="sd">                      &quot;is_externally_hosted&quot;: &lt;bool&gt;,</span>
+<span class="sd">                      &quot;is_playable&quot;: &lt;bool&gt;</span>
+<span class="sd">                      &quot;language&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;languages&quot;: [&lt;str&gt;],</span>
+<span class="sd">                      &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;release_date&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;release_date_precision&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;resume_point&quot;: {</span>
+<span class="sd">                        &quot;fully_played&quot;: &lt;bool&gt;,</span>
+<span class="sd">                        &quot;resume_position_ms&quot;: &lt;int&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                      &quot;type&quot;: &quot;episode&quot;,</span>
+<span class="sd">                      &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;restrictions&quot;: {</span>
+<span class="sd">                        &quot;reason&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                      &quot;show&quot;: {</span>
+<span class="sd">                        &quot;available_markets&quot;: [&lt;str&gt;],</span>
+<span class="sd">                        &quot;copyrights&quot;: [</span>
+<span class="sd">                          {</span>
+<span class="sd">                            &quot;text&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;type&quot;: &lt;str&gt;</span>
+<span class="sd">                          }</span>
+<span class="sd">                        ],</span>
 <span class="sd">                        &quot;description&quot;: &lt;str&gt;,</span>
 <span class="sd">                        &quot;html_description&quot;: &lt;str&gt;,</span>
-<span class="sd">                        &quot;duration_ms&quot;: &lt;int&gt;,</span>
 <span class="sd">                        &quot;explicit&quot;: &lt;bool&gt;,</span>
 <span class="sd">                        &quot;external_urls&quot;: {</span>
 <span class="sd">                          &quot;spotify&quot;: &lt;str&gt;</span>
@@ -3897,55 +3973,16 @@
 <span class="sd">                          }</span>
 <span class="sd">                        ],</span>
 <span class="sd">                        &quot;is_externally_hosted&quot;: &lt;bool&gt;,</span>
-<span class="sd">                        &quot;is_playable&quot;: &lt;bool&gt;</span>
-<span class="sd">                        &quot;language&quot;: &lt;str&gt;,</span>
 <span class="sd">                        &quot;languages&quot;: [&lt;str&gt;],</span>
+<span class="sd">                        &quot;media_type&quot;: &lt;str&gt;,</span>
 <span class="sd">                        &quot;name&quot;: &lt;str&gt;,</span>
-<span class="sd">                        &quot;release_date&quot;: &lt;str&gt;,</span>
-<span class="sd">                        &quot;release_date_precision&quot;: &lt;str&gt;,</span>
-<span class="sd">                        &quot;resume_point&quot;: {</span>
-<span class="sd">                          &quot;fully_played&quot;: &lt;bool&gt;,</span>
-<span class="sd">                          &quot;resume_position_ms&quot;: &lt;int&gt;</span>
-<span class="sd">                        },</span>
-<span class="sd">                        &quot;type&quot;: &quot;episode&quot;,</span>
+<span class="sd">                        &quot;publisher&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;type&quot;: &quot;show&quot;,</span>
 <span class="sd">                        &quot;uri&quot;: &lt;str&gt;,</span>
-<span class="sd">                        &quot;restrictions&quot;: {</span>
-<span class="sd">                          &quot;reason&quot;: &lt;str&gt;</span>
-<span class="sd">                        },</span>
-<span class="sd">                        &quot;show&quot;: {</span>
-<span class="sd">                          &quot;available_markets&quot;: [&lt;str&gt;],</span>
-<span class="sd">                          &quot;copyrights&quot;: [</span>
-<span class="sd">                            {</span>
-<span class="sd">                              &quot;text&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;type&quot;: &lt;str&gt;</span>
-<span class="sd">                            }</span>
-<span class="sd">                          ],</span>
-<span class="sd">                          &quot;description&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;html_description&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;explicit&quot;: &lt;bool&gt;,</span>
-<span class="sd">                          &quot;external_urls&quot;: {</span>
-<span class="sd">                            &quot;spotify&quot;: &lt;str&gt;</span>
-<span class="sd">                          },</span>
-<span class="sd">                          &quot;href&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;id&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;images&quot;: [</span>
-<span class="sd">                            {</span>
-<span class="sd">                              &quot;url&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;height&quot;: &lt;int&gt;,</span>
-<span class="sd">                              &quot;width&quot;: &lt;int&gt;</span>
-<span class="sd">                            }</span>
-<span class="sd">                          ],</span>
-<span class="sd">                          &quot;is_externally_hosted&quot;: &lt;bool&gt;,</span>
-<span class="sd">                          &quot;languages&quot;: [&lt;str&gt;],</span>
-<span class="sd">                          &quot;media_type&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;name&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;publisher&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;type&quot;: &quot;show&quot;,</span>
-<span class="sd">                          &quot;uri&quot;: &lt;str&gt;,</span>
-<span class="sd">                          &quot;total_episodes&quot;: &lt;int&gt;</span>
-<span class="sd">                        }</span>
+<span class="sd">                        &quot;total_episodes&quot;: &lt;int&gt;</span>
 <span class="sd">                      }</span>
-<span class="sd">                    ]</span>
+<span class="sd">                    }</span>
+<span class="sd">                  ]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>

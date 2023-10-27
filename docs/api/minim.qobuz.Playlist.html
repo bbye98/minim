@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Session" href="minim.qobuz.Session.html" /><link rel="prev" title="Label" href="minim.qobuz.Label.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="PrivateAPI" href="minim.qobuz.PrivateAPI.html" /><link rel="prev" title="Label" href="minim.qobuz.Label.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 5.3.0 and Furo 2023.05.20 -->
         <title>Playlist - minim documentation</title>
@@ -185,18 +185,19 @@
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Artist.html">Artist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Label.html">Label</a></li>
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Playlist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Track.html">Track</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.User.html">User</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsService.html">LyricsService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.PrivateLyricsService.html">PrivateLyricsService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPI.html">WebAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.tidal.html">tidal</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of tidal</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.tidal.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.tidal.API.html">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.tidal.PrivateAPI.html">PrivateAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -244,21 +245,25 @@
 <h1>Playlist<a class="headerlink" href="#playlist" title="Permalink to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="minim.qobuz.Playlist">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minim.qobuz.</span></span><span class="sig-name descname"><span class="pre">Playlist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_or_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session" title="minim.qobuz.Session"><span class="pre">Session</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minim/qobuz.html#Playlist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Playlist" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minim.qobuz.</span></span><span class="sig-name descname"><span class="pre">Playlist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_or_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI" title="minim.qobuz.PrivateAPI"><span class="pre">PrivateAPI</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minim/qobuz.html#Playlist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.Playlist" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A Qobuz playlist.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>This class is pending removal.</p>
+</div>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>id_or_params</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>dict</cite></span></dt><dd><p>Either a Qobuz playlist ID or parameters for a new playlist to
-pass to <a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session.create_playlist" title="minim.qobuz.Session.create_playlist"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Session.create_playlist()</span></code></a>.</p>
+pass to <a class="reference internal" href="minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.create_playlist" title="minim.qobuz.PrivateAPI.create_playlist"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PrivateAPI.create_playlist()</span></code></a>.</p>
 </dd>
 <dt><strong>json</strong><span class="classifier"><cite>dict</cite>, keyword-only, optional</span></dt><dd><p>Qobuz catalog information for the playlist
-retrieved using <a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session.get_track" title="minim.qobuz.Session.get_track"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Session.get_track()</span></code></a>.</p>
+retrieved using <a class="reference internal" href="minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_track" title="minim.qobuz.PrivateAPI.get_track"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PrivateAPI.get_track()</span></code></a>.</p>
 </dd>
-<dt><strong>session</strong><span class="classifier"><cite>minim.qobuz.Session</cite>, keyword-only, optional</span></dt><dd><p>Qobuz API session.</p>
+<dt><strong>session</strong><span class="classifier"><cite>minim.qobuz.PrivateAPI</cite>, keyword-only, optional</span></dt><dd><p>Qobuz API session.</p>
 </dd>
-<dt><strong>**kwargs</strong></dt><dd><p>Keyword arguments to pass to the <a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session" title="minim.qobuz.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a> constructor
+<dt><strong>**kwargs</strong></dt><dd><p>Keyword arguments to pass to the <a class="reference internal" href="minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI" title="minim.qobuz.PrivateAPI"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrivateAPI</span></code></a> constructor
 if <code class="code docutils literal notranslate"><span class="pre">session=None</span></code>.</p>
 </dd>
 </dl>
@@ -559,12 +564,12 @@ private (<code class="code docutils literal notranslate"><span class="pre">False
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="minim.qobuz.Session.html">
+          <a class="next-page" href="minim.qobuz.PrivateAPI.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Session</div>
+                <div class="title">PrivateAPI</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

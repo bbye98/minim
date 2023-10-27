@@ -185,18 +185,19 @@
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Artist.html">Artist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Label.html">Label</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Playlist.html">Playlist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Track.html">Track</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.User.html">User</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsService.html">LyricsService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.PrivateLyricsService.html">PrivateLyricsService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPI.html">WebAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.tidal.html">tidal</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of tidal</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.tidal.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.tidal.API.html">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.tidal.PrivateAPI.html">PrivateAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -242,22 +243,9 @@
         <article role="main">
           <section id="module-minim.qobuz">
 <span id="qobuz"></span><h1>qobuz<a class="headerlink" href="#module-minim.qobuz" title="Permalink to this heading">#</a></h1>
-<section id="qobuz-api">
-<h2>Qobuz API<a class="headerlink" href="#qobuz-api" title="Permalink to this heading">#</a></h2>
-<p>This module contains a minimal Python implementation of the Qobuz API,
-which allows songs, collections (albums, playlists), and performers to
-be queried, and information about them to be retrieved. As the Qobuz API
-is not public, there is no available official documentation for it. Its
-endpoints have been determined by watching HTTP network traffic.</p>
-<p>Without authentication, the Qobuz API can be used to query for and
-retrieve information about media and performers.</p>
-<p>By logging into Qobuz, the Qobuz API allows access to user information
-and media streaming (with an active Qobuz streaming plan). Valid user
-credentials (email address and password) or an user authorization token
-must either be provided explicitly to the <a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session" title="minim.qobuz.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a> constructor
-or be stored in the operating system’s environment variables as
-<code class="code docutils literal notranslate"><span class="pre">QOBUZ_EMAIL</span></code>, <code class="code docutils literal notranslate"><span class="pre">QOBUZ_PASSWORD</span></code>, and
-<code class="code docutils literal notranslate"><span class="pre">QOBUZ_USER_AUTH_TOKEN</span></code>, respectively.</p>
+<section id="id1">
+<h2>Qobuz<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<p>This module contains a minim implementation of the private Qobuz API.</p>
 </section>
 <p class="rubric">Classes</p>
 <div class="table-wrapper autosummary longtable docutils container">
@@ -275,8 +263,8 @@ or be stored in the operating system’s environment variables as
 <tr class="row-even"><td><p><a class="reference internal" href="minim.qobuz.Playlist.html#minim.qobuz.Playlist" title="minim.qobuz.Playlist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Playlist</span></code></a></p></td>
 <td><p>A Qobuz playlist.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session" title="minim.qobuz.Session"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Session</span></code></a></p></td>
-<td><p>A Qobuz API session.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI" title="minim.qobuz.PrivateAPI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrivateAPI</span></code></a></p></td>
+<td><p>A Qobuz private API object.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="minim.qobuz.Track.html#minim.qobuz.Track" title="minim.qobuz.Track"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Track</span></code></a></p></td>
 <td><p>A Qobuz track.</p></td>
@@ -345,7 +333,7 @@ or be stored in the operating system’s environment variables as
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">qobuz</a><ul>
-<li><a class="reference internal" href="#qobuz-api">Qobuz API</a></li>
+<li><a class="reference internal" href="#id1">Qobuz</a></li>
 </ul>
 </li>
 </ul>

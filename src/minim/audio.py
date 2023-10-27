@@ -802,6 +802,10 @@ class Audio:
         """
         Populate tags using data retrieved from the Spotify APIs.
 
+        .. attention::
+
+           This method is pending a major refactor.
+
         Parameters
         ----------
         data : `dict`
@@ -867,32 +871,36 @@ class Audio:
         """
         Populate tags using data retrieved from the TIDAL API.
 
+        .. attention::
+
+           This method is pending a major refactor. 
+
         Parameters
         ----------
         data : `dict`
             Information about the track in JSON format obtained using
-            the TIDAL API via :meth:`minim.tidal.Session.get_track`.
+            the TIDAL API via :meth:`minim.tidal.PrivateAPI.get_track`.
 
         album_data : `dict`, keyword-only, optional
             Information about the track's album in JSON format obtained
             using the TIDAL API via 
-            :meth:`minim.tidal.Session.get_album`. If not provided, 
+            :meth:`minim.tidal.PrivateAPI.get_album`. If not provided, 
             album artist, copyright, and disc and track numbering 
             information is unavailable.
         
         composer : `str` or `list`, keyword-only, optional
             Information about the track's composers obtained using the
             TIDAL API via 
-            :meth:`minim.tidal.Session.get_track_composers`. If not 
+            :meth:`minim.tidal.PrivateAPI.get_track_composers`. If not 
             provided, songwriting credits are unavailable.
 
         artwork : `str`, keyword-only, optional
             TIDAL URL of the track cover art obtained using the TIDAL
-            API via :meth:`minim.tidal.Session.get_image`.
+            API via :meth:`minim.tidal.PrivateAPI.get_image`.
 
         lyrics : `str` or `dict`, keyword-only, optional
             The track's lyrics obtained using the TIDAL API via
-            :meth:`minim.tidal.Session.get_track_lyrics`.
+            :meth:`minim.tidal.PrivateAPI.get_track_lyrics`.
 
         comment : `str`, keyword-only, optional
             Comment or description.
@@ -947,35 +955,39 @@ class Audio:
         """
         Populate tags using data retrieved from the Qobuz API.
 
+        .. attention::
+
+           This method is pending a major refactor.
+
         Parameters
         ----------
         data : `dict`
             Information about the track in JSON format obtained using
-            the Qobuz API via :meth:`minim.qobuz.Session.get_track`.
+            the Qobuz API via :meth:`minim.qobuz.PrivateAPI.get_track`.
 
         main_artist : `str` or `list`, keyword-only, optional
             Information about the track's main artists obtained using 
-            the Qobuz API via :meth:`minim.qobuz.Session.get_track` 
-            and/or :meth:`minim.qobuz.Session.get_track_credits`. If not 
+            the Qobuz API via :meth:`minim.qobuz.PrivateAPI.get_track` 
+            and/or :meth:`minim.qobuz.PrivateAPI.get_track_credits`. If not 
             provided, only information about the primary artist will be
             available.
 
         feat_artist : `str` or `list`, keyword-only, optional
             Information about the track's featured artists obtained 
-            using the Qobuz API via :meth:`minim.qobuz.Session.get_track` 
-            and/or :meth:`minim.qobuz.Session.get_track_credits`. If not 
+            using the Qobuz API via :meth:`minim.qobuz.PrivateAPI.get_track` 
+            and/or :meth:`minim.qobuz.PrivateAPI.get_track_credits`. If not 
             provided, the featured artists will not be listed in the 
             track's title.
 
         composer : `str` or `list`, keyword-only, optional
             Information about the track's composers obtained using the
-            Qobuz API via :meth:`minim.qobuz.Session.get_track` and/or 
-            :meth:`minim.qobuz.Session.get_track_credits`. If not 
+            Qobuz API via :meth:`minim.qobuz.PrivateAPI.get_track` and/or 
+            :meth:`minim.qobuz.PrivateAPI.get_track_credits`. If not 
             provided, songwriting credits are unavailable.
 
         artwork : `str`, keyword-only, optional
             Qobuz URL of the track cover art obtained using the Qobuz
-            API via :meth:`minim.qobuz.Session.get_track`.
+            API via :meth:`minim.qobuz.PrivateAPI.get_track`.
 
         comment : `str`, keyword-only, optional
             Comment or description.

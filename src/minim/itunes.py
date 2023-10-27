@@ -1,10 +1,10 @@
 """
-iTunes Search API
-=================
+iTunes
+======
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
-This module contains a complete Python implementation of the iTunes
-Search API, which allows media (albums, movies, tracks, etc.) and people
+This module contains a complete implementation of all iTunes Search API
+endpoints, which allow media (albums, movies, tracks, etc.) and people
 (actors, artists, etc.) to be queried and information about them to be
 retrieved. 
 

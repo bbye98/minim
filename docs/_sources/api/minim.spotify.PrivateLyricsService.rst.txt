@@ -1,9 +1,9 @@
-LyricsService
-=============
+PrivateLyricsService
+====================
 
 .. currentmodule:: minim.spotify
 
-.. autoclass:: LyricsService
+.. autoclass:: PrivateLyricsService
    :members:
    :show-inheritance:
    :inherited-members:
@@ -16,8 +16,8 @@ LyricsService
    .. autosummary::
       :nosignatures:
    
-      ~LyricsService.get_lyrics
-      ~LyricsService.set_access_token
-      ~LyricsService.set_sp_dc
+      ~PrivateLyricsService.get_lyrics
+      ~PrivateLyricsService.set_access_token
+      ~PrivateLyricsService.set_sp_dc
    
    

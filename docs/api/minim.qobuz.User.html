@@ -185,18 +185,19 @@
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Artist.html">Artist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Label.html">Label</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Playlist.html">Playlist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Track.html">Track</a></li>
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">User</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.spotify.LyricsService.html">LyricsService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.spotify.PrivateLyricsService.html">PrivateLyricsService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPI.html">WebAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.tidal.html">tidal</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of tidal</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.tidal.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.tidal.API.html">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.tidal.PrivateAPI.html">PrivateAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -244,15 +245,19 @@
 <h1>User<a class="headerlink" href="#user" title="Permalink to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="minim.qobuz.User">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minim.qobuz.</span></span><span class="sig-name descname"><span class="pre">User</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session" title="minim.qobuz.Session"><span class="pre">Session</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minim/qobuz.html#User"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.User" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minim.qobuz.</span></span><span class="sig-name descname"><span class="pre">User</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI" title="minim.qobuz.PrivateAPI"><span class="pre">PrivateAPI</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minim/qobuz.html#User"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.qobuz.User" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A Qobuz user.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>This class is pending removal.</p>
+</div>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>session</strong><span class="classifier"><cite>minim.qobuz.Session</cite>, keyword-only, optional</span></dt><dd><p>Qobuz API session.</p>
+<dt><strong>session</strong><span class="classifier"><cite>minim.qobuz.PrivateAPI</cite>, keyword-only, optional</span></dt><dd><p>Qobuz API session.</p>
 </dd>
-<dt><strong>**kwargs</strong></dt><dd><p>Keyword arguments to pass to the <a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session" title="minim.qobuz.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a> constructor
+<dt><strong>**kwargs</strong></dt><dd><p>Keyword arguments to pass to the <a class="reference internal" href="minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI" title="minim.qobuz.PrivateAPI"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrivateAPI</span></code></a> constructor
 if <code class="code docutils literal notranslate"><span class="pre">session=None</span></code>.</p>
 </dd>
 </dl>
@@ -907,7 +912,7 @@ API endpoint.</p>
 <dt><strong>track</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>minim.qobuz.Track</cite></span></dt><dd><p>Qobuz track ID or object.</p>
 </dd>
 <dt><strong>performers</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>An unformatted string containing the track credits obtained
-from calling <a class="reference internal" href="minim.qobuz.Session.html#minim.qobuz.Session.get_track" title="minim.qobuz.Session.get_track"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Session.get_track()</span></code></a>.</p>
+from calling <a class="reference internal" href="minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_track" title="minim.qobuz.PrivateAPI.get_track"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PrivateAPI.get_track()</span></code></a>.</p>
 </dd>
 <dt><strong>roles</strong><span class="classifier"><cite>list</cite>, keyword-only, optional</span></dt><dd><p>Role filter. The special <code class="code docutils literal notranslate"><span class="pre">&quot;Composers&quot;</span></code> filter will
 combine the <code class="code docutils literal notranslate"><span class="pre">&quot;Composer&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;ComposerLyricist&quot;</span></code>,

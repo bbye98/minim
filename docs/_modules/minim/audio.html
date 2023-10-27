@@ -184,18 +184,19 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Artist.html">Artist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Label.html">Label</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Playlist.html">Playlist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Track.html">Track</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.User.html">User</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.LyricsService.html">LyricsService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.PrivateLyricsService.html">PrivateLyricsService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.WebAPI.html">WebAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.tidal.html">tidal</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of tidal</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.API.html">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.PrivateAPI.html">PrivateAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -245,10 +246,10 @@
 <span class="sd">.. moduleauthor:: Benjamin Ye &lt;GitHub: @bbye98&gt;</span>
 
 <span class="sd">This module provides convenient Python objects to keep track of audio</span>
-<span class="sd">file handles and information.</span>
+<span class="sd">file handles and metadata, and convert between different audio formats.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">base64</span> <span class="kn">import</span> <span class="n">b64encode</span><span class="p">,</span> <span class="n">b64decode</span>
+<span class="kn">import</span> <span class="nn">base64</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -561,7 +562,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">pictures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_artwork_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">pictures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mime</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">elif</span> <span class="s2">&quot;metadata_block_picture&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="o">=</span> <span class="n">b64decode</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">[</span><span class="s2">&quot;metadata_block_picture&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">img_fmt</span><span class="p">,</span> <span class="n">file_sig</span> <span class="ow">in</span> <span class="n">IMAGE_FILE_SIGS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -600,7 +601,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">add_picture</span><span class="p">(</span><span class="n">artwork</span><span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">[</span><span class="s2">&quot;metadata_block_picture&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">b64encode</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">[</span><span class="s2">&quot;metadata_block_picture&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span>
                     <span class="n">artwork</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
 
@@ -1043,6 +1044,10 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Populate tags using data retrieved from the Spotify APIs.</span>
 
+<span class="sd">        .. attention::</span>
+
+<span class="sd">           This method is pending a major refactor.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        data : `dict`</span>
@@ -1108,32 +1113,36 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Populate tags using data retrieved from the TIDAL API.</span>
 
+<span class="sd">        .. attention::</span>
+
+<span class="sd">           This method is pending a major refactor. </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        data : `dict`</span>
 <span class="sd">            Information about the track in JSON format obtained using</span>
-<span class="sd">            the TIDAL API via :meth:`minim.tidal.Session.get_track`.</span>
+<span class="sd">            the TIDAL API via :meth:`minim.tidal.PrivateAPI.get_track`.</span>
 
 <span class="sd">        album_data : `dict`, keyword-only, optional</span>
 <span class="sd">            Information about the track&#39;s album in JSON format obtained</span>
 <span class="sd">            using the TIDAL API via </span>
-<span class="sd">            :meth:`minim.tidal.Session.get_album`. If not provided, </span>
+<span class="sd">            :meth:`minim.tidal.PrivateAPI.get_album`. If not provided, </span>
 <span class="sd">            album artist, copyright, and disc and track numbering </span>
 <span class="sd">            information is unavailable.</span>
 <span class="sd">        </span>
 <span class="sd">        composer : `str` or `list`, keyword-only, optional</span>
 <span class="sd">            Information about the track&#39;s composers obtained using the</span>
 <span class="sd">            TIDAL API via </span>
-<span class="sd">            :meth:`minim.tidal.Session.get_track_composers`. If not </span>
+<span class="sd">            :meth:`minim.tidal.PrivateAPI.get_track_composers`. If not </span>
 <span class="sd">            provided, songwriting credits are unavailable.</span>
 
 <span class="sd">        artwork : `str`, keyword-only, optional</span>
 <span class="sd">            TIDAL URL of the track cover art obtained using the TIDAL</span>
-<span class="sd">            API via :meth:`minim.tidal.Session.get_image`.</span>
+<span class="sd">            API via :meth:`minim.tidal.PrivateAPI.get_image`.</span>
 
 <span class="sd">        lyrics : `str` or `dict`, keyword-only, optional</span>
 <span class="sd">            The track&#39;s lyrics obtained using the TIDAL API via</span>
-<span class="sd">            :meth:`minim.tidal.Session.get_track_lyrics`.</span>
+<span class="sd">            :meth:`minim.tidal.PrivateAPI.get_track_lyrics`.</span>
 
 <span class="sd">        comment : `str`, keyword-only, optional</span>
 <span class="sd">            Comment or description.</span>
@@ -1188,35 +1197,39 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Populate tags using data retrieved from the Qobuz API.</span>
 
+<span class="sd">        .. attention::</span>
+
+<span class="sd">           This method is pending a major refactor.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        data : `dict`</span>
 <span class="sd">            Information about the track in JSON format obtained using</span>
-<span class="sd">            the Qobuz API via :meth:`minim.qobuz.Session.get_track`.</span>
+<span class="sd">            the Qobuz API via :meth:`minim.qobuz.PrivateAPI.get_track`.</span>
 
 <span class="sd">        main_artist : `str` or `list`, keyword-only, optional</span>
 <span class="sd">            Information about the track&#39;s main artists obtained using </span>
-<span class="sd">            the Qobuz API via :meth:`minim.qobuz.Session.get_track` </span>
-<span class="sd">            and/or :meth:`minim.qobuz.Session.get_track_credits`. If not </span>
+<span class="sd">            the Qobuz API via :meth:`minim.qobuz.PrivateAPI.get_track` </span>
+<span class="sd">            and/or :meth:`minim.qobuz.PrivateAPI.get_track_credits`. If not </span>
 <span class="sd">            provided, only information about the primary artist will be</span>
 <span class="sd">            available.</span>
 
 <span class="sd">        feat_artist : `str` or `list`, keyword-only, optional</span>
 <span class="sd">            Information about the track&#39;s featured artists obtained </span>
-<span class="sd">            using the Qobuz API via :meth:`minim.qobuz.Session.get_track` </span>
-<span class="sd">            and/or :meth:`minim.qobuz.Session.get_track_credits`. If not </span>
+<span class="sd">            using the Qobuz API via :meth:`minim.qobuz.PrivateAPI.get_track` </span>
+<span class="sd">            and/or :meth:`minim.qobuz.PrivateAPI.get_track_credits`. If not </span>
 <span class="sd">            provided, the featured artists will not be listed in the </span>
 <span class="sd">            track&#39;s title.</span>
 
 <span class="sd">        composer : `str` or `list`, keyword-only, optional</span>
 <span class="sd">            Information about the track&#39;s composers obtained using the</span>
-<span class="sd">            Qobuz API via :meth:`minim.qobuz.Session.get_track` and/or </span>
-<span class="sd">            :meth:`minim.qobuz.Session.get_track_credits`. If not </span>
+<span class="sd">            Qobuz API via :meth:`minim.qobuz.PrivateAPI.get_track` and/or </span>
+<span class="sd">            :meth:`minim.qobuz.PrivateAPI.get_track_credits`. If not </span>
 <span class="sd">            provided, songwriting credits are unavailable.</span>
 
 <span class="sd">        artwork : `str`, keyword-only, optional</span>
 <span class="sd">            Qobuz URL of the track cover art obtained using the Qobuz</span>
-<span class="sd">            API via :meth:`minim.qobuz.Session.get_track`.</span>
+<span class="sd">            API via :meth:`minim.qobuz.PrivateAPI.get_track`.</span>
 
 <span class="sd">        comment : `str`, keyword-only, optional</span>
 <span class="sd">            Comment or description.</span>

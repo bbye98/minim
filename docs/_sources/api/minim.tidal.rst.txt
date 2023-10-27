@@ -20,7 +20,8 @@ tidal
       :template: autosummary/class.rst
       :nosignatures:
    
-      Session
+      API
+      PrivateAPI
    
    
 

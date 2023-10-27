@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="WebAPI" href="minim.spotify.WebAPI.html" /><link rel="prev" title="spotify" href="minim.spotify.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 5.3.0 and Furo 2023.05.20 -->
-        <title>LyricsService - minim documentation</title>
+        <title>PrivateLyricsService - minim documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -185,18 +185,19 @@
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Artist.html">Artist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Label.html">Label</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Playlist.html">Playlist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Track.html">Track</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.User.html">User</a></li>
 </ul>
 </li>
 <li class="toctree-l2 current has-children"><a class="reference internal" href="minim.spotify.html">spotify</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">LyricsService</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">PrivateLyricsService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.spotify.WebAPI.html">WebAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.tidal.html">tidal</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of tidal</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.tidal.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.tidal.API.html">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.tidal.PrivateAPI.html">PrivateAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -240,11 +241,11 @@
           </label>
         </div>
         <article role="main">
-          <section id="lyricsservice">
-<h1>LyricsService<a class="headerlink" href="#lyricsservice" title="Permalink to this heading">#</a></h1>
+          <section id="privatelyricsservice">
+<h1>PrivateLyricsService<a class="headerlink" href="#privatelyricsservice" title="Permalink to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="minim.spotify.LyricsService">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minim.spotify.</span></span><span class="sig-name descname"><span class="pre">LyricsService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_dc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><span class="pre">datetime</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minim/spotify.html#LyricsService"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.LyricsService" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="minim.spotify.PrivateLyricsService">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minim.spotify.</span></span><span class="sig-name descname"><span class="pre">PrivateLyricsService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_dc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><span class="pre">datetime</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minim/spotify.html#PrivateLyricsService"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.PrivateLyricsService" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Spotify Lyrics service object.</p>
 <p>The Spotify Lyrics service, which is powered by Musixmatch (or
@@ -252,7 +253,13 @@ PetitLyrics in Japan), provides line- or word-synced lyrics for
 Spotify tracks when available. The Spotify Lyrics interface is not
 publicly documented, so its endpoints have been determined by
 watching HTTP network traffic.</p>
-<p>Requests to the Spotify Web API endpoints must be accompanied by a
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>As the Spotify Lyrics service is not designed to be publicly
+accessible, this class can be disabled or removed at any time to
+ensure compliance with the <a class="reference external" href="https://developer.spotify.com/terms">Spotify Developer Terms of Service</a>.</p>
+</div>
+<p>Requests to the Spotify Lyrics endpoints must be accompanied by a
 valid access token in the header. An access token can be obtained
 using the Spotify Web Player <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie, which must either
 be provided to this class’s constructor as a keyword argument or be
@@ -263,6 +270,12 @@ be provided to this class’s constructor as keyword arguments to
 bypass the access token exchange process. It is recommended that all
 other authentication-related keyword arguments be specified so that
 a new access token can be obtained when the existing one expires.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie and access token can be changed or
+updated at any time using <a class="reference internal" href="#minim.spotify.PrivateLyricsService.set_sp_dc" title="minim.spotify.PrivateLyricsService.set_sp_dc"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_sp_dc()</span></code></a> and
+<a class="reference internal" href="#minim.spotify.PrivateLyricsService.set_access_token" title="minim.spotify.PrivateLyricsService.set_access_token"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_access_token()</span></code></a>, respectively.</p>
+</div>
 <p>Minim also stores and manages access tokens and their properties.
 When an access token is acquired, it is automatically saved to the
 Minim configuration file to be loaded on the next instantiation of
@@ -293,31 +306,43 @@ file.</p>
 </dd>
 </dl>
 </dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>LYRICS_URL</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>Base URL for the Spotify Lyrics service.</p>
+</dd>
+<dt><strong>TOKEN_URL</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>URL for the Spotify Web Player access token endpoint.</p>
+</dd>
+</dl>
+</dd>
 </dl>
 <p class="rubric">Methods</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.spotify.LyricsService.get_lyrics" title="minim.spotify.LyricsService.get_lyrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lyrics</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.spotify.PrivateLyricsService.get_lyrics" title="minim.spotify.PrivateLyricsService.get_lyrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lyrics</span></code></a></p></td>
 <td><p>Get lyrics for a Spotify track.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.spotify.LyricsService.set_access_token" title="minim.spotify.LyricsService.set_access_token"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_access_token</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.spotify.PrivateLyricsService.set_access_token" title="minim.spotify.PrivateLyricsService.set_access_token"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_access_token</span></code></a></p></td>
 <td><p>Set the Spotify Lyrics service access token.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.spotify.LyricsService.set_sp_dc" title="minim.spotify.LyricsService.set_sp_dc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_sp_dc</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.spotify.PrivateLyricsService.set_sp_dc" title="minim.spotify.PrivateLyricsService.set_sp_dc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_sp_dc</span></code></a></p></td>
 <td><p>Set the Spotify Web Player <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="minim.spotify.LyricsService.set_sp_dc">
-<span class="sig-name descname"><span class="pre">set_sp_dc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp_dc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/spotify.html#LyricsService.set_sp_dc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.LyricsService.set_sp_dc" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="minim.spotify.PrivateLyricsService.set_sp_dc">
+<span class="sig-name descname"><span class="pre">set_sp_dc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp_dc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/spotify.html#PrivateLyricsService.set_sp_dc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.PrivateLyricsService.set_sp_dc" title="Permalink to this definition">#</a></dt>
 <dd><p>Set the Spotify Web Player <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>sp_dc</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>Spotify Web Player <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie.</p>
+</dd>
+<dt><strong>save</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Determines whether to save the newly obtained access tokens
+and their associated properties to the Minim configuration
+file.</p>
 </dd>
 </dl>
 </dd>
@@ -325,8 +350,8 @@ file.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="minim.spotify.LyricsService.set_access_token">
-<span class="sig-name descname"><span class="pre">set_access_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><span class="pre">datetime</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/spotify.html#LyricsService.set_access_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.LyricsService.set_access_token" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="minim.spotify.PrivateLyricsService.set_access_token">
+<span class="sig-name descname"><span class="pre">set_access_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><span class="pre">datetime</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/spotify.html#PrivateLyricsService.set_access_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.PrivateLyricsService.set_access_token" title="Permalink to this definition">#</a></dt>
 <dd><p>Set the Spotify Lyrics service access token.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -339,18 +364,14 @@ from the Spotify Web Player using the <code class="code docutils literal notrans
 reauthenticated (if <cite>sp_dc</cite> is found or provided) when the
 <cite>access_token</cite> expires.</p>
 </dd>
-<dt><strong>save</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Determines whether to save the newly obtained access tokens
-and their associated properties to the Minim configuration
-file.</p>
-</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="minim.spotify.LyricsService.get_lyrics">
-<span class="sig-name descname"><span class="pre">get_lyrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/spotify.html#LyricsService.get_lyrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.LyricsService.get_lyrics" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="minim.spotify.PrivateLyricsService.get_lyrics">
+<span class="sig-name descname"><span class="pre">get_lyrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/spotify.html#PrivateLyricsService.get_lyrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.PrivateLyricsService.get_lyrics" title="Permalink to this definition">#</a></dt>
 <dd><p>Get lyrics for a Spotify track.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -462,11 +483,11 @@ file.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">LyricsService</a><ul>
-<li><a class="reference internal" href="#minim.spotify.LyricsService"><code class="docutils literal notranslate"><span class="pre">LyricsService</span></code></a><ul>
-<li><a class="reference internal" href="#minim.spotify.LyricsService.set_sp_dc"><code class="docutils literal notranslate"><span class="pre">set_sp_dc()</span></code></a></li>
-<li><a class="reference internal" href="#minim.spotify.LyricsService.set_access_token"><code class="docutils literal notranslate"><span class="pre">set_access_token()</span></code></a></li>
-<li><a class="reference internal" href="#minim.spotify.LyricsService.get_lyrics"><code class="docutils literal notranslate"><span class="pre">get_lyrics()</span></code></a></li>
+<li><a class="reference internal" href="#">PrivateLyricsService</a><ul>
+<li><a class="reference internal" href="#minim.spotify.PrivateLyricsService"><code class="docutils literal notranslate"><span class="pre">PrivateLyricsService</span></code></a><ul>
+<li><a class="reference internal" href="#minim.spotify.PrivateLyricsService.set_sp_dc"><code class="docutils literal notranslate"><span class="pre">set_sp_dc()</span></code></a></li>
+<li><a class="reference internal" href="#minim.spotify.PrivateLyricsService.set_access_token"><code class="docutils literal notranslate"><span class="pre">set_access_token()</span></code></a></li>
+<li><a class="reference internal" href="#minim.spotify.PrivateLyricsService.get_lyrics"><code class="docutils literal notranslate"><span class="pre">get_lyrics()</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -20,7 +20,7 @@ spotify
       :template: autosummary/class.rst
       :nosignatures:
    
-      LyricsService
+      PrivateLyricsService
       WebAPI
    
    

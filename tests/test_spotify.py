@@ -1,24 +1,20 @@
-import configparser
 from pathlib import Path
 import sys
 
 sys.path.insert(0, f"{Path(__file__).parents[1]}/src")
 from minim import spotify
 
-config = configparser.ConfigParser()
-config.read(Path.home() / "minim.cfg")
+class TestPrivateLyricsService:
 
-class TestLyricsService:
-
-    TRACK_ID = "1r0HKINDPff9jZQP9AzBr7"
+    TRACK_ID = "0VjIjW4GlUZAMYd2vXMi3b"
 
     @classmethod
     def setup_class(cls):
-        cls.session = spotify.LyricsService()
+        cls.obj = spotify.PrivateLyricsService()
 
     def test_get_lyrics(self):
-        resp = self.session.get_lyrics(self.TRACK_ID)
-        assert "lyrics" in resp
+        r = self.obj.get_lyrics(self.TRACK_ID)
+        assert "lyrics" in r
  
 class TestWebAPI:
 
@@ -39,150 +35,140 @@ class TestWebAPI:
 
     @classmethod
     def setup_class(cls):
-        config.remove_section("minim.spotify.WebAPI")
-        cls.session = spotify.WebAPI()
-
-    def test_web_player_flow(self):
-        Spotify = spotify.WebAPI(overwrite=True)
-        assert "Bearer" in Spotify.session.headers["Authorization"]
-
-    def test_client_credentials_flow(self):
-        Spotify = spotify.WebAPI(flow="client_credentials", overwrite=True)
-        authorization = Spotify.session.headers["Authorization"]
-        Spotify = spotify.WebAPI()
-        assert authorization == Spotify.session.headers["Authorization"]
+        cls.obj = spotify.WebAPI()
 
     def test_get_album(self):
-        resp = self.session.get_album(self.ALBUM_IDS[0])
-        assert resp["id"] == self.ALBUM_IDS[0]
+        album = self.obj.get_album(self.ALBUM_IDS[0])
+        assert album["id"] == self.ALBUM_IDS[0]
 
     def test_get_albums(self):
-        resp = self.session.get_albums(self.ALBUM_IDS)
-        assert all(r["id"] == i for r, i in zip(resp, self.ALBUM_IDS))
+        albums = self.obj.get_albums(self.ALBUM_IDS)
+        assert all(a["id"] == i for a, i in zip(albums, self.ALBUM_IDS))
 
     def test_get_album_tracks(self):
-        resp = self.session.get_album_tracks(self.ALBUM_IDS[0])
-        assert self.ALBUM_IDS[0] in resp["href"]
+        tracks = self.obj.get_album_tracks(self.ALBUM_IDS[0])
+        assert self.ALBUM_IDS[0] in tracks["href"]
 
     def test_get_new_albums(self):
-        resp = self.session.get_new_albums()
-        assert all(r["type"] == "album" for r in resp["items"])
+        albums = self.obj.get_new_albums()
+        assert all(a["type"] == "album" for a in albums["items"])
 
     def test_get_artist(self):
-        resp = self.session.get_artist(self.ARTIST_IDS[0])
-        assert resp["id"] == self.ARTIST_IDS[0]
+        artist = self.obj.get_artist(self.ARTIST_IDS[0])
+        assert artist["id"] == self.ARTIST_IDS[0]
 
     def test_get_artists(self):
-        resp = self.session.get_artists(self.ARTIST_IDS)
-        assert all(r["id"] == i for r, i in zip(resp, self.ARTIST_IDS))
+        artists = self.obj.get_artists(self.ARTIST_IDS)
+        assert all(a["id"] == i for a, i in zip(artists, self.ARTIST_IDS))
 
     def test_get_artist_albums(self):
-        resp = self.session.get_artist_albums(self.ARTIST_IDS[0])
-        assert self.ARTIST_IDS[0] in resp["href"]
+        albums = self.obj.get_artist_albums(self.ARTIST_IDS[0])
+        assert self.ARTIST_IDS[0] in albums["href"]
 
     def test_get_artist_top_tracks(self):
-        resp = self.session.get_artist_top_tracks(self.ARTIST_IDS[0])
-        assert all(self.ARTIST_IDS[0] in (a["id"] for a in r["artists"])
-                   for r in resp)
+        tracks = self.obj.get_artist_top_tracks(self.ARTIST_IDS[0])
+        assert all(self.ARTIST_IDS[0] in (a["id"] for a in t["artists"])
+                   for t in tracks)
         
     def test_get_related_artists(self):
-        resp = self.session.get_related_artists(self.ARTIST_IDS[0])
-        assert all(r["type"] == "artist" for r in resp)
+        artists = self.obj.get_related_artists(self.ARTIST_IDS[0])
+        assert all(a["type"] == "artist" for a in artists)
 
     def test_get_audiobook(self):
-        resp = self.session.get_audiobook(self.AUDIOBOOK_IDS[0])
-        assert resp["id"] == self.AUDIOBOOK_IDS[0]
+        audiobook = self.obj.get_audiobook(self.AUDIOBOOK_IDS[0])
+        assert audiobook["id"] == self.AUDIOBOOK_IDS[0]
 
     def test_get_audiobooks(self):
-        resp = self.session.get_audiobooks(self.AUDIOBOOK_IDS)
-        assert all(r["id"] == i for r, i in zip(resp, self.AUDIOBOOK_IDS))
+        audiobooks = self.obj.get_audiobooks(self.AUDIOBOOK_IDS)
+        assert all(a["id"] == i 
+                   for a, i in zip(audiobooks, self.AUDIOBOOK_IDS))
 
     def test_get_audiobook_chapters(self):
-        resp = self.session.get_audiobook_chapters(self.AUDIOBOOK_IDS[0])
-        assert self.AUDIOBOOK_IDS[0] in resp["href"]
+        chapters = self.obj.get_audiobook_chapters(self.AUDIOBOOK_IDS[0])
+        assert self.AUDIOBOOK_IDS[0] in chapters["href"]
 
     def test_get_category(self):
-        resp = self.session.get_category("dinner")
-        assert resp["id"] == "0JQ5DAqbMKFRY5ok2pxXJ0"
+        category = self.obj.get_category("dinner")
+        assert category["id"] == "0JQ5DAqbMKFRY5ok2pxXJ0"
 
     def test_get_categories(self):
-        resp = self.session.get_categories()
-        assert "browse/categories" in resp["href"]
+        categories = self.obj.get_categories()
+        assert "browse/categories" in categories["href"]
 
     def test_get_chapter(self):
-        resp = self.session.get_chapter(self.CHAPTER_IDS[0], market="US")
-        assert resp["id"] == self.CHAPTER_IDS[0]
+        chapter = self.obj.get_chapter(self.CHAPTER_IDS[0], market="US")
+        assert chapter["id"] == self.CHAPTER_IDS[0]
 
     def test_get_chapters(self):
-        resp = self.session.get_episodes(self.CHAPTER_IDS, market="US")
-        assert all(r["id"] == i for r, i in zip(resp, self.CHAPTER_IDS))
+        chapters = self.obj.get_episodes(self.CHAPTER_IDS, market="US")
+        assert all(c["id"] == i for c, i in zip(chapters, self.CHAPTER_IDS))
 
     # def test_get_episode(self):
-    #     resp = self.session.get_episode(self.EPISODE_IDS[0], market="US")
-    #     assert resp["id"] == self.EPISODE_IDS[0]
+    #     episode = self.obj.get_episode(self.EPISODE_IDS[0], market="US")
+    #     assert episode["id"] == self.EPISODE_IDS[0]
 
     # def test_get_episodes(self):
-    #     resp = self.session.get_episodes(self.EPISODE_IDS, market="US")
-    #     assert all(r["id"] == i for r, i in zip(resp, self.EPISODE_IDS))
+    #     episodes = self.obj.get_episodes(self.EPISODE_IDS, market="US")
+    #     assert all(e["id"] == i for e, i in zip(episodes, self.EPISODE_IDS))
 
     def test_get_genre_seeds(self):
-        resp = self.session.get_genre_seeds()
-        assert isinstance(resp, list)
+        seeds = self.obj.get_genre_seeds()
+        assert isinstance(seeds, list)
 
     def test_get_markets(self):
-        resp = self.session.get_genre_seeds()
-        assert isinstance(resp, list)
+        markets = self.obj.get_markets()
+        assert isinstance(markets, list)
 
     def test_get_playlist(self):
-        resp = self.session.get_playlist("3cEYpjA9oz9GiPac4AsH4n")
-        assert resp["id"] == "3cEYpjA9oz9GiPac4AsH4n"
+        playlist = self.obj.get_playlist("3cEYpjA9oz9GiPac4AsH4n")
+        assert playlist["id"] == "3cEYpjA9oz9GiPac4AsH4n"
 
     def test_get_playlist_cover_image(self):
-        resp = self.session.get_playlist_cover_image("3cEYpjA9oz9GiPac4AsH4n")
-        assert isinstance(resp, dict)
+        image = self.obj.get_playlist_cover_image("3cEYpjA9oz9GiPac4AsH4n")
+        assert isinstance(image, dict)
 
     def test_search(self):
-        resp = self.session.search(
+        results = self.obj.search(
             "remaster%20track:Doxy%20artist:Miles%20Davis", "album"
         )
-        assert all(r["type"] == "album" for r in resp["items"])
+        assert all(r["type"] == "album" for r in results["items"])
 
     # def test_get_show(self):
-    #     resp = self.session.get_show(self.SHOW_IDS[0], market="US")
-    #     assert resp["id"] == self.SHOW_IDS[0]
+    #     show = self.obj.get_show(self.SHOW_IDS[0], market="US")
+    #     assert show["id"] == self.SHOW_IDS[0]
 
     # def test_get_shows(self):
-    #     resp = self.session.get_shows(self.SHOW_IDS, market="US")
-    #     assert all(r["type"] == "show" for r in resp)
+    #     shows = self.obj.get_shows(self.SHOW_IDS, market="US")
+    #     assert all(s["type"] == "show" for s in shows)
 
     # def test_get_show_episodes(self):
-    #     resp = self.session.get_show_episodes(self.SHOW_IDS[0], market="US")
-    #     assert self.SHOW_IDS[0] in resp["href"]
+    #     episodes = self.obj.get_show_episodes(self.SHOW_IDS[0], market="US")
+    #     assert self.SHOW_IDS[0] in episodes["href"]
 
     def test_get_track(self):
-        resp = self.session.get_track(self.TRACK_IDS[0])
-        assert resp["id"] == self.TRACK_IDS[0]
+        track = self.obj.get_track(self.TRACK_IDS[0])
+        assert track["id"] == self.TRACK_IDS[0]
 
     def test_get_tracks(self):
-        resp = self.session.get_tracks(self.TRACK_IDS)
-        assert all(r["id"] == i for r, i in zip(resp, self.TRACK_IDS))
+        tracks = self.obj.get_tracks(self.TRACK_IDS)
+        assert all(t["id"] == i for t, i in zip(tracks, self.TRACK_IDS))
 
     def test_get_track_audio_features(self):
-        resp = self.session.get_track_audio_features(self.TRACK_IDS[0])
-        assert resp["id"] == self.TRACK_IDS[0] \
-               and resp["type"] == "audio_features"
+        features = self.obj.get_track_audio_features(self.TRACK_IDS[0])
+        assert (features["id"] == self.TRACK_IDS[0]
+                and features["type"] == "audio_features")
         
     def test_get_tracks_audio_features(self):
-        resp = self.session.get_tracks_audio_features(self.TRACK_IDS)
-        assert all(r["id"] == i and r["type"] == "audio_features" 
-                   for r, i in zip(resp, self.TRACK_IDS))
+        features = self.obj.get_tracks_audio_features(self.TRACK_IDS)
+        assert all(f["id"] == i and f["type"] == "audio_features" 
+                   for f, i in zip(features, self.TRACK_IDS))
         
     def test_get_track_audio_analysis(self):
-        resp = self.session.get_track_audio_analysis(self.TRACK_IDS[0])
-        assert "meta" in resp
+        analysis = self.obj.get_track_audio_analysis(self.TRACK_IDS[0])
+        assert "meta" in analysis
 
     def test_get_recommendations(self):
-        resp = self.session.get_recommendations("4NHQUGzhtTLFvgF5SZesLK",
-                                                "classical", 
-                                                "0c6xIDDpzE81m2q797ordA")
-        assert "seeds" in resp and "tracks" in resp
+        recommendations = self.obj.get_recommendations(
+            "4NHQUGzhtTLFvgF5SZesLK", "classical", "0c6xIDDpzE81m2q797ordA"
+        )
+        assert "seeds" in recommendations and "tracks" in recommendations

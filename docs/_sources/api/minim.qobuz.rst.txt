@@ -24,7 +24,7 @@ qobuz
       Artist
       Label
       Playlist
-      Session
+      PrivateAPI
       Track
       User
    

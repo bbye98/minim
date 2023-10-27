@@ -1,10 +1,10 @@
 """
-Spotify APIs
-============
+Spotify
+=======
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
 This module contains a complete implementation of all Spotify Web API 
-endpoints and a minimal implementation to use the Spotify Lyrics 
+endpoints and a minimal implementation to use the private Spotify Lyrics
 service.
 """
 
@@ -16,12 +16,13 @@ import logging
 import multiprocessing
 import os
 import re
-import requests
 import secrets
 import time
 from typing import Any, Union
 import urllib
 import webbrowser
+
+import requests
 
 try:
     from flask import Flask, request
@@ -37,7 +38,7 @@ except ModuleNotFoundError: # pragma: no cover
  
 from . import HOME_DIR, TEMP_DIR, config
 
-class LyricsService:
+class PrivateLyricsService:
 
     """
     Spotify Lyrics service object.
@@ -48,7 +49,14 @@ class LyricsService:
     publicly documented, so its endpoints have been determined by 
     watching HTTP network traffic.
 
-    Requests to the Spotify Web API endpoints must be accompanied by a
+    .. warning::
+
+       As the Spotify Lyrics service is not designed to be publicly
+       accessible, this class can be disabled or removed at any time to
+       ensure compliance with the `Spotify Developer Terms of Service
+       <https://developer.spotify.com/terms>`_.
+
+    Requests to the Spotify Lyrics endpoints must be accompanied by a
     valid access token in the header. An access token can be obtained
     using the Spotify Web Player :code:`sp_dc` cookie, which must either
     be provided to this class's constructor as a keyword argument or be
@@ -61,6 +69,12 @@ class LyricsService:
     other authentication-related keyword arguments be specified so that 
     a new access token can be obtained when the existing one expires.
 
+    .. tip::
+
+       The :code:`sp_dc` cookie and access token can be changed or 
+       updated at any time using :meth:`set_sp_dc` and 
+       :meth:`set_access_token`, respectively.
+    
     Minim also stores and manages access tokens and their properties. 
     When an access token is acquired, it is automatically saved to the
     Minim configuration file to be loaded on the next instantiation of 
@@ -92,8 +106,17 @@ class LyricsService:
         Determines whether newly obtained access tokens and their
         associated properties are stored to the Minim configuration 
         file.
+
+    Attributes
+    ----------
+    LYRICS_URL : `str`
+        Base URL for the Spotify Lyrics service.
+
+    TOKEN_URL : `str`
+        URL for the Spotify Web Player access token endpoint.
     """
 
+    _NAME = f"{__module__}.{__qualname__}"
     LYRICS_URL = "https://spclient.wg.spotify.com/color-lyrics/v2"
     TOKEN_URL = "https://open.spotify.com/get_access_token"
 
@@ -109,16 +132,13 @@ class LyricsService:
         self.session = requests.Session()
         self.session.headers.update({"App-Platform": "WebPlayer"})
 
-        if access_token is None \
-                and config.has_section("minim.spotify.LyricsService"):
-            sp_dc = config.get("minim.spotify.LyricsService", "sp_dc")
-            access_token = config.get("minim.spotify.LyricsService", 
-                                      "access_token")
-            expiry = config.get("minim.spotify.LyricsService", "expiry")
+        if access_token is None and config.has_section(self._NAME):
+            sp_dc = config.get(self._NAME, "sp_dc")
+            access_token = config.get(self._NAME, "access_token")
+            expiry = config.get(self._NAME, "expiry")
 
-        self.set_sp_dc(sp_dc)
-        self.set_access_token(access_token=access_token, expiry=expiry, 
-                              save=save)
+        self.set_sp_dc(sp_dc, save=save)
+        self.set_access_token(access_token=access_token, expiry=expiry)
 
     def _get_json(self, url: str, **kwargs) -> dict:
 
@@ -184,7 +204,7 @@ class LyricsService:
                 raise RuntimeError(emsg)
         return r
 
-    def set_sp_dc(self, sp_dc: str = None) -> None:
+    def set_sp_dc(self, sp_dc: str = None, *, save: bool = True) -> None:
 
         """
         Set the Spotify Web Player :code:`sp_dc` cookie.
@@ -193,14 +213,19 @@ class LyricsService:
         ----------
         sp_dc : `str`, optional
             Spotify Web Player :code:`sp_dc` cookie.
+
+        save : `bool`, keyword-only, default: :code:`True`
+            Determines whether to save the newly obtained access tokens 
+            and their associated properties to the Minim configuration 
+            file.
         """
 
         self._sp_dc = sp_dc or os.environ.get("SPOTIFY_SP_DC")
+        self._save = save
 
     def set_access_token(
             self, access_token: str = None, 
-            expiry: Union[datetime.datetime, str] = None, save: bool = True
-        ) -> None:
+            expiry: Union[datetime.datetime, str] = None) -> None:
 
         """
         Set the Spotify Lyrics service access token.
@@ -216,18 +241,13 @@ class LyricsService:
             :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be
             reauthenticated (if `sp_dc` is found or provided) when the
             `access_token` expires.
-
-        save : `bool`, keyword-only, default: :code:`True`
-            Determines whether to save the newly obtained access tokens 
-            and their associated properties to the Minim configuration 
-            file.
         """
 
         if access_token is None:
             if not self._sp_dc:
                 raise ValueError("Missing 'sp_dc' cookie.")
             
-            r = self.session.get(
+            r = requests.get(
                 self.TOKEN_URL,
                 headers={"cookie": f"sp_dc={self._sp_dc}"},
                 params={"reason": "transport", "productType": "web_player"}
@@ -239,7 +259,7 @@ class LyricsService:
                 r["accessTokenExpirationTimestampMs"] / 1000
             )
 
-            if save:
+            if self._save:
                 config["minim.spotify.LyricsService"] = {
                     "sp_dc": self._sp_dc,
                     "access_token": access_token,
@@ -316,10 +336,10 @@ class WebAPI:
     """
     Spotify Web API object.
 
-    The Spotify Web API allows for the retrieval of information about 
-    people (artists and users), media (albums, audiobooks, shows, and 
-    tracks), groups (categories, chapters, episodes, genres, markets, 
-    and playlists), and music playback control.
+    The Spotify Web API enables the creation of applications that can
+    interact with Spotify's streaming service, such as retrieving 
+    content metadata, getting recommendations, creating and managing
+    playlists, or controlling playback.
 
     .. important::
 
@@ -355,12 +375,12 @@ class WebAPI:
     .. seealso::
 
        To get client credentials, see the `guide on how to create a new
-       Spotify app <https://developer.spotify.com/documentation/general/
-       guides/authorization/app-settings/>`_. To take advantage of 
-       Minim's automatic authorization code retrieval functionality for
-       the authorization code (with PCKE) flow, the redirect URI should 
-       be in the form :code:`http://localhost:{port}/callback`, where 
-       :code:`{port}` is an open port on :code:`localhost`.
+       Spotify application <https://developer.spotify.com/documentation
+       /general/guides/authorization/app-settings/>`_. To take advantage
+       of Minim's automatic authorization code retrieval functionality 
+       for the authorization code (with PCKE) flow, the redirect URI 
+       should be in the form :code:`http://localhost:{port}/callback`, 
+       where :code:`{port}` is an open port on :code:`localhost`.
     
     Alternatively, a access token can be acquired without client 
     credentials through the Spotify Web Player, but this approach is not
@@ -505,10 +525,25 @@ class WebAPI:
         Determines whether newly obtained access tokens and their
         associated properties are stored to the Minim configuration 
         file.
+
+    Attributes
+    ----------
+    API_URL : `str`
+        Base URL for the Spotify Web API.
+
+    AUTH_URL : `str`
+        URL for the Spotify Web API authorization endpoint.
+
+    TOKEN_URL : `str`
+        URL for the Spotify Web API access token endpoint.
+
+    WEB_PLAYER_TOKEN_URL : `str`
+        URL for the Spotify Web Player access token endpoint.
     """
 
     _FLOWS = ["authorization_code_pkce", "authorization_code", 
               "client_credentials", "web_player"]
+    _NAME = f"{__module__}.{__qualname__}"
     API_URL = "https://api.spotify.com/v1"
     AUTH_URL = "https://accounts.spotify.com/authorize"
     TOKEN_URL = "https://accounts.spotify.com/api/token"
@@ -633,22 +668,21 @@ class WebAPI:
 
         self.session = requests.Session()
 
-        if (access_token is None and config.has_section("minim.spotify.WebAPI") 
+        if (access_token is None and config.has_section(self._NAME) 
                 and not overwrite):
-            flow = config.get("minim.spotify.WebAPI", "flow")
-            access_token = config.get("minim.spotify.WebAPI", "access_token")
-            token_type = config.get("minim.spotify.WebAPI", "token_type")
-            refresh_token = config.get("minim.spotify.WebAPI", "refresh_token",
+            flow = config.get(self._NAME, "flow")
+            access_token = config.get(self._NAME, "access_token")
+            token_type = config.get(self._NAME, "token_type")
+            refresh_token = config.get(self._NAME, "refresh_token", 
                                        fallback=None)
-            expiry = config.get("minim.spotify.WebAPI", "expiry", 
-                                fallback=None)
-            client_id = config.get("minim.spotify.WebAPI", "client_id")
-            client_secret = config.get("minim.spotify.WebAPI", "client_secret", 
+            expiry = config.get(self._NAME, "expiry", fallback=None)
+            client_id = config.get(self._NAME, "client_id")
+            client_secret = config.get(self._NAME, "client_secret", 
                                        fallback=None)
-            redirect_uri = config.get("minim.spotify.WebAPI", "redirect_uri", 
+            redirect_uri = config.get(self._NAME, "redirect_uri", 
                                       fallback=None)
-            scopes = config.get("minim.spotify.WebAPI", "scopes")
-            sp_dc = config.get("minim.spotify.WebAPI", "sp_dc", fallback=None)
+            scopes = config.get(self._NAME, "scopes")
+            sp_dc = config.get(self._NAME, "sp_dc", fallback=None)
 
         self.set_authorization_flow(
             flow, client_id=client_id, client_secret=client_secret, 
@@ -806,7 +840,7 @@ class WebAPI:
             client_b64 = base64.urlsafe_b64encode(
                 f"{self._client_id}:{self._client_secret}".encode()
             ).decode()
-            r = self.session.post(
+            r = requests.post(
                 self.TOKEN_URL,
                 data={"grant_type": "refresh_token",
                       "refresh_token": self._refresh_token},
@@ -822,14 +856,18 @@ class WebAPI:
             self._scopes = r["scope"]
 
             if self._save:
-                config["minim.spotify.WebAPI"] = {
+                config[self._NAME].update({
                     "access_token": r["access_token"],
+                    "token_type": r["token_type"],
                     "refresh_token": self._refresh_token,
-                    "expiry": (datetime.datetime.now()
-                                 + datetime.timedelta(0, r["expires_in"])
-                                ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "expiry": (
+                        datetime.datetime.now() 
+                        + datetime.timedelta(0, r["expires_in"])
+                    ).strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "scopes": self._scopes
-                }
+                })
+                with open(HOME_DIR / "minim.cfg", "w") as f:
+                    config.write(f)
 
         else:
             self.set_access_token()
@@ -907,13 +945,15 @@ class WebAPI:
             `access_token` expires.
         """
 
-        self.session.headers = {}
+        if "Authorization" in self.session.headers:
+            del self.session.headers["Authorization"]
+
         if access_token is None:
             if self._flow == "web_player":
                 headers = ({"cookie": f"sp_dc={self._sp_dc}"} if self._sp_dc 
                            else {})
-                r = self.session.get(self.WEB_PLAYER_TOKEN_URL, 
-                                     headers=headers).json()
+                r = requests.get(self.WEB_PLAYER_TOKEN_URL, 
+                                 headers=headers).json()
                 self._client_id = r["clientId"]
                 access_token = r["accessToken"]
                 token_type = "Bearer"
@@ -946,13 +986,13 @@ class WebAPI:
                         )
                     else:
                         data["code"] = self._get_authorization_code()
-                    r = self.session.post(
+                    r = requests.post(
                         self.TOKEN_URL, data=data,
                         headers={"Authorization": f"Basic {client_b64}"}
                     ).json()
                     refresh_token = r["refresh_token"]
                 elif self._flow == "client_credentials":
-                    r = self.session.post(
+                    r = requests.post(
                         self.TOKEN_URL,
                         data={"client_id": self._client_id,
                               "client_secret": self._client_secret,
@@ -964,7 +1004,7 @@ class WebAPI:
                           + datetime.timedelta(0, r["expires_in"]))
 
             if self._save:
-                config["minim.spotify.WebAPI"] = {
+                config[self._NAME] = {
                     "flow": self._flow,
                     "client_id": self._client_id,
                     "access_token": access_token,
@@ -973,11 +1013,11 @@ class WebAPI:
                     "scopes": self._scopes
                 }
                 if refresh_token:
-                    config["minim.spotify.WebAPI"]["refresh_token"] \
+                    config[self._NAME]["refresh_token"] \
                         = refresh_token
                 for attr in ("client_secret", "redirect_uri", "sp_dc"):
                     if hasattr(self, f"_{attr}"):
-                        config["minim.spotify.WebAPI"][attr] \
+                        config[self._NAME][attr] \
                             = getattr(self, f"_{attr}")
                 with open(HOME_DIR / "minim.cfg", "w") as f:
                     config.write(f)
@@ -999,7 +1039,7 @@ class WebAPI:
             save: bool = True) -> None:
         
         """
-        Set the OAuth 2.0 authorization flow.
+        Set the authorization flow.
 
         Parameters
         ----------
@@ -1320,14 +1360,53 @@ class WebAPI:
                
                   [
                     {
-                      "albums": [
+                      "album_type": <str>,
+                      "total_tracks": <int>,
+                      "available_markets": [<str>],
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "images": [
                         {
-                          "album_type": <str>,
-                          "total_tracks": <int>,
-                          "available_markets": [<str>],
+                          "url": <str>,
+                          "height": <int>,
+                          "width": <int>
+                        }
+                      ],
+                      "name": <str>,
+                      "release_date": <str>,
+                      "release_date_precision": <str>,
+                      "restrictions": {
+                        "reason": <str>
+                      },
+                      "type": "album",
+                      "uri": <str>,
+                      "copyrights": [
+                        {
+                          "text": <str>,
+                          "type": <str>
+                        }
+                      ],
+                      "external_ids": {
+                        "isrc": <str>,
+                        "ean": <str>,
+                        "upc": <str>
+                      },
+                      "genres": [<str>],
+                      "label": <str>,
+                      "popularity": <int>,
+                      "artists": [
+                        {
                           "external_urls": {
                             "spotify": <str>
                           },
+                          "followers": {
+                            "href": <str>,
+                            "total": <int>
+                          },
+                          "genres": [<str>],
                           "href": <str>,
                           "id": <str>,
                           "images": [
@@ -1338,106 +1417,63 @@ class WebAPI:
                             }
                           ],
                           "name": <str>,
-                          "release_date": <str>,
-                          "release_date_precision": <str>,
-                          "restrictions": {
-                            "reason": <str>
-                          },
-                          "type": "album",
-                          "uri": <str>,
-                          "copyrights": [
-                            {
-                              "text": <str>,
-                              "type": <str>
-                            }
-                          ],
-                          "external_ids": {
-                            "isrc": <str>,
-                            "ean": <str>,
-                            "upc": <str>
-                          },
-                          "genres": [<str>],
-                          "label": <str>,
                           "popularity": <int>,
-                          "artists": [
-                            {
-                              "external_urls": {
-                                "spotify": <str>
-                              },
-                              "followers": {
-                                "href": <str>,
-                                "total": <int>
-                              },
-                              "genres": [<str>],
-                              "href": <str>,
-                              "id": <str>,
-                              "images": [
-                                {
-                                  "url": <str>,
-                                  "height": <int>,
-                                  "width": <int>
-                                }
-                              ],
-                              "name": <str>,
-                              "popularity": <int>,
-                              "type": "artist",
-                              "uri": <str>
-                            }
-                          ],
-                          "tracks": {
-                            "href": <str>,
-                            "limit": <int>,
-                            "next": <str>,
-                            "offset": <int>,
-                            "previous": <str>,
-                            "total": <int>,
-                            "items": [
+                          "type": "artist",
+                          "uri": <str>
+                        }
+                      ],
+                      "tracks": {
+                        "href": <str>,
+                        "limit": <int>,
+                        "next": <str>,
+                        "offset": <int>,
+                        "previous": <str>,
+                        "total": <int>,
+                        "items": [
+                          {
+                            "artists": [
                               {
-                                "artists": [
-                                  {
-                                    "external_urls": {
-                                      "spotify": <str>
-                                    },
-                                    "href": <str>,
-                                    "id": <str>,
-                                    "name": <str>,
-                                    "type": "artist",
-                                    "uri": <str>
-                                  }
-                                ],
-                                "available_markets": [<str>],
-                                "disc_number": <int>,
-                                "duration_ms": <int>,
-                                "explicit": <bool>,
                                 "external_urls": {
                                   "spotify": <str>
                                 },
                                 "href": <str>,
                                 "id": <str>,
-                                "is_playable": <bool>
-                                "linked_from": {
-                                  "external_urls": {
-                                    "spotify": <str>
-                                  },
-                                  "href": <str>,
-                                  "id": <str>,
-                                  "type": <str>,
-                                  "uri": <str>
-                                },
-                                "restrictions": {
-                                  "reason": <str>
-                                },
                                 "name": <str>,
-                                "preview_url": <str>,
-                                "track_number": <int>,
-                                "type": <str>,
-                                "uri": <str>,
-                                "is_local": <bool>
+                                "type": "artist",
+                                "uri": <str>
                               }
-                            ]
+                            ],
+                            "available_markets": [<str>],
+                            "disc_number": <int>,
+                            "duration_ms": <int>,
+                            "explicit": <bool>,
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "is_playable": <bool>
+                            "linked_from": {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "type": <str>,
+                              "uri": <str>
+                            },
+                            "restrictions": {
+                              "reason": <str>
+                            },
+                            "name": <str>,
+                            "preview_url": <str>,
+                            "track_number": <int>,
+                            "type": <str>,
+                            "uri": <str>,
+                            "is_local": <bool>
                           }
-                        }
-                      ]
+                        ]
+                      }
                     }
                   ]
         """
@@ -1622,137 +1658,135 @@ class WebAPI:
 
                .. code::
 
-                  [
-                    {
-                      "href": <str>,
-                      "limit": <int>,
-                      "next": <str>,
-                      "offset": <int>,
-                      "previous": <str>,
-                      "total": <int>,
-                      "items": [
-                        {
-                          "added_at": <str>,
-                          "album": {
-                            "album_type": <str>,
-                            "total_tracks": <int>,
-                            "available_markets": [<str>],
-                            "external_urls": {
-                              "spotify": <str>
-                            },
-                            "href": <str>,
-                            "id": <str>,
-                            "images": [
-                              {
-                                "url": <str>,
-                                "height": <int>,
-                                "width": <int>
-                              }
-                            ],
-                            "name": <str>,
-                            "release_date": <str>,
-                            "release_date_precision": <str>,
-                            "restrictions": {
-                              "reason": <str>
-                            },
-                            "type": "album",
-                            "uri": <str>,
-                            "copyrights": [
-                              {
-                                "text": <str>,
-                                "type": <str>
-                              }
-                            ],
-                            "external_ids": {
-                              "isrc": <str>,
-                              "ean": <str>,
-                              "upc": <str>
-                            },
-                            "genres": [<str>],
-                            "label": <str>,
-                            "popularity": <int>,
-                            "artists": [
-                              {
-                                "external_urls": {
-                                  "spotify": <str>
-                                },
-                                "followers": {
-                                  "href": <str>,
-                                  "total": <int>
-                                },
-                                "genres": [<str>],
+                  {
+                    "href": <str>,
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>,
+                    "items": [
+                      {
+                        "added_at": <str>,
+                        "album": {
+                          "album_type": <str>,
+                          "total_tracks": <int>,
+                          "available_markets": [<str>],
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": <int>,
+                              "width": <int>
+                            }
+                          ],
+                          "name": <str>,
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "type": "album",
+                          "uri": <str>,
+                          "copyrights": [
+                            {
+                              "text": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "external_ids": {
+                            "isrc": <str>,
+                            "ean": <str>,
+                            "upc": <str>
+                          },
+                          "genres": [<str>],
+                          "label": <str>,
+                          "popularity": <int>,
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "followers": {
                                 "href": <str>,
-                                "id": <str>,
-                                "images": [
-                                  {
-                                    "url": <str>,
-                                    "height": <int>,
-                                    "width": <int>
-                                  }
-                                ],
-                                "name": <str>,
-                                "popularity": <int>,
-                                "type": "artist",
-                                "uri": <str>
-                              }
-                            ],
-                            "tracks": {
+                                "total": <int>
+                              },
+                              "genres": [<str>],
                               "href": <str>,
-                              "limit": <int>,
-                              "next": <str>,
-                              "offset": <int>,
-                              "previous": <str>,
-                              "total": <int>,
-                              "items": [
+                              "id": <str>,
+                              "images": [
                                 {
-                                  "artists": [
-                                    {
-                                      "external_urls": {
-                                        "spotify": <str>
-                                      },
-                                      "href": <str>,
-                                      "id": <str>,
-                                      "name": <str>,
-                                      "type": "artist",
-                                      "uri": <str>
-                                    }
-                                  ],
-                                  "available_markets": [<str>],
-                                  "disc_number": <int>,
-                                  "duration_ms": <int>,
-                                  "explicit": <bool>,
-                                  "external_urls": {
-                                    "spotify": <str>
-                                  },
-                                  "href": <str>,
-                                  "id": <str>,
-                                  "is_playable": <bool>
-                                  "linked_from": {
+                                  "url": <str>,
+                                  "height": <int>,
+                                  "width": <int>
+                                }
+                              ],
+                              "name": <str>,
+                              "popularity": <int>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "tracks": {
+                            "href": <str>,
+                            "limit": <int>,
+                            "next": <str>,
+                            "offset": <int>,
+                            "previous": <str>,
+                            "total": <int>,
+                            "items": [
+                              {
+                                "artists": [
+                                  {
                                     "external_urls": {
                                       "spotify": <str>
                                     },
                                     "href": <str>,
                                     "id": <str>,
-                                    "type": <str>,
+                                    "name": <str>,
+                                    "type": "artist",
                                     "uri": <str>
+                                  }
+                                ],
+                                "available_markets": [<str>],
+                                "disc_number": <int>,
+                                "duration_ms": <int>,
+                                "explicit": <bool>,
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "id": <str>,
+                                "is_playable": <bool>
+                                "linked_from": {
+                                  "external_urls": {
+                                    "spotify": <str>
                                   },
-                                  "restrictions": {
-                                    "reason": <str>
-                                  },
-                                  "name": <str>,
-                                  "preview_url": <str>,
-                                  "track_number": <int>,
+                                  "href": <str>,
+                                  "id": <str>,
                                   "type": <str>,
-                                  "uri": <str>,
-                                  "is_local": <bool>
-                                }
-                              ]
-                            }
+                                  "uri": <str>
+                                },
+                                "restrictions": {
+                                  "reason": <str>
+                                },
+                                "name": <str>,
+                                "preview_url": <str>,
+                                "track_number": <int>,
+                                "type": <str>,
+                                "uri": <str>,
+                                "is_local": <bool>
+                              }
+                            ]
                           }
                         }
-                      ]
-                    }
-                  ]
+                      }
+                    ]
+                  }
         """
 
         self._check_scope("get_saved_albums", "user-library-read")
@@ -2647,93 +2681,95 @@ class WebAPI:
 
                .. code::
 
-                  {
-                    "authors": [
-                      {
-                        "name": <str>
-                      }
-                    ],
-                    "available_markets": [<str>],
-                    "copyrights": [
-                      {
-                        "text": <str>,
-                        "type": <str>
-                      }
-                    ],
-                    "description": <str>,
-                    "html_description": <str>,
-                    "edition": <str>,
-                    "explicit": <bool>,
-                    "external_urls": {
-                      "spotify": <str>
-                    },
-                    "href": <str>,
-                    "id": <str>,
-                    "images": [
-                      {
-                        "url": <str>,
-                        "height": <int>,
-                        "width": <int>
-                      }
-                    ],
-                    "languages": [<str>],
-                    "media_type": <str>,
-                    "name": <str>,
-                    "narrators": [
-                      {
-                        "name": <str>
-                      }
-                    ],
-                    "publisher": <str>,
-                    "type": "audiobook",
-                    "uri": <str>,
-                    "total_chapters": <int>,
-                    "chapters": {
-                      "href": <str>,
-                      "limit": <int>,
-                      "next": <str>,
-                      "offset": <int>,
-                      "previous": <str>,
-                      "total": <int>,
-                      "items": [
+                  [
+                    {
+                      "authors": [
                         {
-                          "audio_preview_url": <str>,
-                          "available_markets": [<str>],
-                          "chapter_number": <int>,
-                          "description": <str>,
-                          "html_description": <str>,
-                          "duration_ms": <int>,
-                          "explicit": <bool>,
-                          "external_urls": {
-                            "spotify": <str>
-                          },
-                          "href": <str>,
-                          "id": <str>,
-                          "images": [
-                            {
-                              "url": <str>,
-                              "height": <int>,
-                              "width": <int>
-                            }
-                          ],
-                          "is_playable": <bool>
-                          "languages": [<str>],
-                          "name": <str>,
-                          "release_date": <str>,
-                          "release_date_precision": <str>,
-                          "resume_point": {
-                            "fully_played": <bool>,
-                            "resume_position_ms": <int>
-                          },
-                          "type": "episode",
-                          "uri": <str>,
-                          "restrictions": {
-                            "reason": <str>
-                          }
+                          "name": <str>
                         }
-                      ]
+                      ],
+                      "available_markets": [<str>],
+                      "copyrights": [
+                        {
+                          "text": <str>,
+                          "type": <str>
+                        }
+                      ],
+                      "description": <str>,
+                      "html_description": <str>,
+                      "edition": <str>,
+                      "explicit": <bool>,
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "images": [
+                        {
+                          "url": <str>,
+                          "height": <int>,
+                          "width": <int>
+                        }
+                      ],
+                      "languages": [<str>],
+                      "media_type": <str>,
+                      "name": <str>,
+                      "narrators": [
+                        {
+                          "name": <str>
+                        }
+                      ],
+                      "publisher": <str>,
+                      "type": "audiobook",
+                      "uri": <str>,
+                      "total_chapters": <int>,
+                      "chapters": {
+                        "href": <str>,
+                        "limit": <int>,
+                        "next": <str>,
+                        "offset": <int>,
+                        "previous": <str>,
+                        "total": <int>,
+                        "items": [
+                          {
+                            "audio_preview_url": <str>,
+                            "available_markets": [<str>],
+                            "chapter_number": <int>,
+                            "description": <str>,
+                            "html_description": <str>,
+                            "duration_ms": <int>,
+                            "explicit": <bool>,
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "images": [
+                              {
+                                "url": <str>,
+                                "height": <int>,
+                                "width": <int>
+                              }
+                            ],
+                            "is_playable": <bool>
+                            "languages": [<str>],
+                            "name": <str>,
+                            "release_date": <str>,
+                            "release_date_precision": <str>,
+                            "resume_point": {
+                              "fully_played": <bool>,
+                              "resume_position_ms": <int>
+                            },
+                            "type": "episode",
+                            "uri": <str>,
+                            "restrictions": {
+                              "reason": <str>
+                            }
+                          }
+                        ]
+                      }
                     }
-                  }
+                  ]
         """
 
         return self._get_json(
@@ -3637,11 +3673,50 @@ class WebAPI:
                .. code::
 
                   [
-                      {
-                        "audio_preview_url": <str>,
+                    {
+                      "audio_preview_url": <str>,
+                      "description": <str>,
+                      "html_description": <str>,
+                      "duration_ms": <int>,
+                      "explicit": <bool>,
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "images": [
+                        {
+                          "url": <str>,
+                          "height": <int>,
+                          "width": <int>
+                        }
+                      ],
+                      "is_externally_hosted": <bool>,
+                      "is_playable": <bool>
+                      "language": <str>,
+                      "languages": [<str>],
+                      "name": <str>,
+                      "release_date": <str>,
+                      "release_date_precision": <str>,
+                      "resume_point": {
+                        "fully_played": <bool>,
+                        "resume_position_ms": <int>
+                      },
+                      "type": "episode",
+                      "uri": <str>,
+                      "restrictions": {
+                        "reason": <str>
+                      },
+                      "show": {
+                        "available_markets": [<str>],
+                        "copyrights": [
+                          {
+                            "text": <str>,
+                            "type": <str>
+                          }
+                        ],
                         "description": <str>,
                         "html_description": <str>,
-                        "duration_ms": <int>,
                         "explicit": <bool>,
                         "external_urls": {
                           "spotify": <str>
@@ -3656,55 +3731,16 @@ class WebAPI:
                           }
                         ],
                         "is_externally_hosted": <bool>,
-                        "is_playable": <bool>
-                        "language": <str>,
                         "languages": [<str>],
+                        "media_type": <str>,
                         "name": <str>,
-                        "release_date": <str>,
-                        "release_date_precision": <str>,
-                        "resume_point": {
-                          "fully_played": <bool>,
-                          "resume_position_ms": <int>
-                        },
-                        "type": "episode",
+                        "publisher": <str>,
+                        "type": "show",
                         "uri": <str>,
-                        "restrictions": {
-                          "reason": <str>
-                        },
-                        "show": {
-                          "available_markets": [<str>],
-                          "copyrights": [
-                            {
-                              "text": <str>,
-                              "type": <str>
-                            }
-                          ],
-                          "description": <str>,
-                          "html_description": <str>,
-                          "explicit": <bool>,
-                          "external_urls": {
-                            "spotify": <str>
-                          },
-                          "href": <str>,
-                          "id": <str>,
-                          "images": [
-                            {
-                              "url": <str>,
-                              "height": <int>,
-                              "width": <int>
-                            }
-                          ],
-                          "is_externally_hosted": <bool>,
-                          "languages": [<str>],
-                          "media_type": <str>,
-                          "name": <str>,
-                          "publisher": <str>,
-                          "type": "show",
-                          "uri": <str>,
-                          "total_episodes": <int>
-                        }
+                        "total_episodes": <int>
                       }
-                    ]
+                    }
+                  ]
         """
 
         return self._get_json(

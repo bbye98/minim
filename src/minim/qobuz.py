@@ -1,24 +1,9 @@
 """
-Qobuz API
-=========
+Qobuz
+=====
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
-This module contains a minimal Python implementation of the Qobuz API,
-which allows songs, collections (albums, playlists), and performers to
-be queried, and information about them to be retrieved. As the Qobuz API
-is not public, there is no available official documentation for it. Its
-endpoints have been determined by watching HTTP network traffic.
-
-Without authentication, the Qobuz API can be used to query for and
-retrieve information about media and performers.
-
-By logging into Qobuz, the Qobuz API allows access to user information
-and media streaming (with an active Qobuz streaming plan). Valid user
-credentials (email address and password) or an user authorization token
-must either be provided explicitly to the :class:`Session` constructor
-or be stored in the operating system's environment variables as 
-:code:`QOBUZ_EMAIL`, :code:`QOBUZ_PASSWORD`, and 
-:code:`QOBUZ_USER_AUTH_TOKEN`, respectively.
+This module contains a minim implementation of the private Qobuz API.
 """
 
 import base64
@@ -34,10 +19,31 @@ import requests
 
 from . import audio, utility, warnings
 
-class _API:
+class PrivateAPI:
 
     """
-    A Qobuz API session.
+    A Qobuz private API object.
+
+    .. attention::
+
+       This class is pending a major refactor.
+
+    This class contains a minimal Python implementation of the Qobuz API,
+    which allows songs, collections (albums, playlists), and performers to
+    be queried, and information about them to be retrieved. As the Qobuz API
+    is not public, there is no available official documentation for it. Its
+    endpoints have been determined by watching HTTP network traffic.
+
+    Without authentication, the Qobuz API can be used to query for and
+    retrieve information about media and performers.
+
+    By logging into Qobuz, the Qobuz API allows access to user information
+    and media streaming (with an active Qobuz streaming plan). Valid user
+    credentials (email address and password) or an user authorization token
+    must either be provided explicitly to the :class:`PrivateAPI` constructor
+    or be stored in the operating system's environment variables as 
+    :code:`QOBUZ_EMAIL`, :code:`QOBUZ_PASSWORD`, and 
+    :code:`QOBUZ_USER_AUTH_TOKEN`, respectively.
 
     Parameters
     ----------
@@ -105,7 +111,7 @@ class _API:
         Set the unique string representation of the Qobuz API object.
         """
 
-        return f"minim.qobuz.Session() # {self.__str__()}"
+        return f"minim.qobuz.PrivateAPI() # {self.__str__()}"
 
     def __str__(self) -> None:
 
@@ -545,7 +551,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.create_playlist() "
+            raise RuntimeError("qobuz.PrivateAPI.create_playlist() "
                                "requires user authentication.")
 
         data = {"name": name, "is_public": str(public).lower(), 
@@ -595,7 +601,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.update_playlist() "
+            raise RuntimeError("qobuz.PrivateAPI.update_playlist() "
                                "requires user authentication.")
 
         data = {"playlist_id": playlist_id}
@@ -627,7 +633,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.delete_playlist() "
+            raise RuntimeError("qobuz.PrivateAPI.delete_playlist() "
                                "requires user authentication.")
         
         self._request("post", f"{self.API_URL}/playlist/delete", 
@@ -655,7 +661,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.update_playlist_position() "
+            raise RuntimeError("qobuz.PrivateAPI.update_playlist_position() "
                                "requires user authentication.")
 
         self._request("post", 
@@ -693,7 +699,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.add_playlist_track() "
+            raise RuntimeError("qobuz.PrivateAPI.add_playlist_track() "
                                "requires user authentication.")
         
         if isinstance(track_ids, list):
@@ -736,7 +742,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.move_playlist_track() "
+            raise RuntimeError("qobuz.PrivateAPI.move_playlist_track() "
                                "requires user authentication.")
 
         if isinstance(playlist_track_ids, list):
@@ -779,7 +785,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.delete_playlist_track() "
+            raise RuntimeError("qobuz.PrivateAPI.delete_playlist_track() "
                                "requires user authentication.")
 
         if isinstance(playlist_track_ids, list):
@@ -807,7 +813,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.favorite_playlist() "
+            raise RuntimeError("qobuz.PrivateAPI.favorite_playlist() "
                                "requires user authentication.")
         
         self._request("post", f"{self.API_URL}/playlist/subscribe", 
@@ -829,7 +835,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.unfavorite_playlist() "
+            raise RuntimeError("qobuz.PrivateAPI.unfavorite_playlist() "
                                "requires user authentication.")
         
         self._request("post", f"{self.API_URL}/playlist/unsubscribe", 
@@ -1429,7 +1435,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.get_user_favorites() "
+            raise RuntimeError("qobuz.PrivateAPI.get_user_favorites() "
                                "requires user authentication.")
 
         TYPES = {"albums", "artists", "tracks"}
@@ -1481,7 +1487,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.get_user_playlists() "
+            raise RuntimeError("qobuz.PrivateAPI.get_user_playlists() "
                                "requires user authentication.")
         
         return self._get_json(
@@ -1525,7 +1531,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.get_user_purchases() "
+            raise RuntimeError("qobuz.PrivateAPI.get_user_purchases() "
                                "requires user authentication.")
         
         TYPES = {"albums", "tracks"}
@@ -1566,7 +1572,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.favorite() "
+            raise RuntimeError("qobuz.PrivateAPI.favorite() "
                                "requires user authentication.")
 
         data = {}
@@ -1613,7 +1619,7 @@ class _API:
         """
 
         if self._me is None:
-            raise RuntimeError("qobuz.Session.unfavorite() "
+            raise RuntimeError("qobuz.PrivateAPI.unfavorite() "
                                "requires user authentication.")
 
         data = {}
@@ -1637,6 +1643,10 @@ class Album:
     """
     A Qobuz album.
 
+    .. attention::
+
+       This class is pending removal.
+
     Parameters
     ----------
     album_id : `str`
@@ -1644,13 +1654,13 @@ class Album:
 
     json : `dict`, keyword-only, optional
         Qobuz catalog information for the album 
-        retrieved using :meth:`Session.get_album`.
+        retrieved using :meth:`PrivateAPI.get_album`.
 
-    session : `minim.qobuz.Session`, keyword-only, optional
+    session : `minim.qobuz.PrivateAPI`, keyword-only, optional
         Qobuz API session.
 
     **kwargs
-        Keyword arguments to pass to the :class:`Session` constructor
+        Keyword arguments to pass to the :class:`PrivateAPI` constructor
         if :code:`session=None`.
 
     Attributes
@@ -1773,9 +1783,9 @@ class Album:
 
     def __init__(
             self, album_id: str, *, json: dict[str, Any] = None, 
-            session: Session = None, **kwargs):
+            session: PrivateAPI = None, **kwargs):
 
-        self._session = session if session else Session(**kwargs)
+        self._session = session if session else PrivateAPI(**kwargs)
         self.id = album_id
         self._json = self._session.get_album(self.id) if json is None else json
         self._set(self._json)
@@ -1808,7 +1818,7 @@ class Album:
         ----------
         json : `dict`, keyword-only, optional
             Qobuz catalog information for the album 
-            retrieved using :meth:`Session.get_album`.
+            retrieved using :meth:`PrivateAPI.get_album`.
         """
 
         if self._json is not json:
@@ -2021,6 +2031,10 @@ class Artist:
     """
     A Qobuz artist.
 
+    .. attention::
+
+       This class is pending removal.
+
     Parameters
     ----------
     artist_id : `str`
@@ -2048,13 +2062,13 @@ class Artist:
 
     json : `dict`, keyword-only, optional
         Qobuz catalog information for the artist 
-        retrieved using :meth:`Session.get_artist`.
+        retrieved using :meth:`PrivateAPI.get_artist`.
 
-    session : `minim.qobuz.Session`, keyword-only, optional
+    session : `minim.qobuz.PrivateAPI`, keyword-only, optional
         Qobuz API session.
 
     **kwargs
-        Keyword arguments to pass to the :class:`Session` constructor
+        Keyword arguments to pass to the :class:`PrivateAPI` constructor
         if :code:`session=None`.
 
     Attributes
@@ -2109,9 +2123,9 @@ class Artist:
     def __init__(
             self, artist_id: str, *, extras: Union[str, list[str]] = None,
             limit: int = None, offset: int = None, json: dict[str, Any] = None,
-            session: Session = None, **kwargs):
+            session: PrivateAPI = None, **kwargs):
         
-        self._session = session if session else Session(**kwargs)
+        self._session = session if session else PrivateAPI(**kwargs)
         self.id = artist_id
         self._json = self._session.get_artist(self.id, extras=extras, 
                                               limit=limit, offset=offset) \
@@ -2145,7 +2159,7 @@ class Artist:
         ----------
         json : `dict`, keyword-only, optional
             Qobuz catalog information for the artist 
-            retrieved using :meth:`Session.get_artist`.
+            retrieved using :meth:`PrivateAPI.get_artist`.
         """
 
         if self._json is not json:
@@ -2341,6 +2355,10 @@ class Label:
     """
     A Qobuz record label.
 
+    .. attention::
+
+       This class is pending removal.
+
     Parameters
     ----------
     label_id : `str`
@@ -2365,13 +2383,13 @@ class Label:
 
     json : `dict`, keyword-only, optional
         Qobuz catalog information for the label 
-        retrieved using :meth:`Session.get_label`.
+        retrieved using :meth:`PrivateAPI.get_label`.
 
-    session : `minim.qobuz.Session`, keyword-only, optional
+    session : `minim.qobuz.PrivateAPI`, keyword-only, optional
         Qobuz API session.
 
     **kwargs
-        Keyword arguments to pass to the :class:`Session` constructor
+        Keyword arguments to pass to the :class:`PrivateAPI` constructor
         if :code:`session=None`.
 
     Attributes
@@ -2393,9 +2411,9 @@ class Label:
     def __init__(
             self, label_id: str, *, albums: bool = False,
             limit: int = None, offset: int = None, json: dict[str, Any] = None,
-            session: Session = None, **kwargs):
+            session: PrivateAPI = None, **kwargs):
         
-        self._session = session if session else Session(**kwargs)
+        self._session = session if session else PrivateAPI(**kwargs)
         self.id = label_id
         self._json = self._session.get_label(self.id, albums=albums, 
                                              limit=limit, offset=offset) \
@@ -2429,7 +2447,7 @@ class Label:
         ----------
         json : `dict`, keyword-only, optional
             Qobuz catalog information for the label 
-            retrieved using :meth:`Session.get_label`.
+            retrieved using :meth:`PrivateAPI.get_label`.
         """
 
         if self._json is not json:
@@ -2486,6 +2504,10 @@ class Track:
     """
     A Qobuz track.
 
+    .. attention::
+
+       This class is pending removal.
+
     Parameters
     ----------
     track_id : `str`
@@ -2493,13 +2515,13 @@ class Track:
 
     json : `dict`, keyword-only, optional
         Qobuz catalog information for the track 
-        retrieved using :meth:`Session.get_track`.
+        retrieved using :meth:`PrivateAPI.get_track`.
 
-    session : `minim.qobuz.Session`, keyword-only, optional
+    session : `minim.qobuz.PrivateAPI`, keyword-only, optional
         Qobuz API session.
 
     **kwargs
-        Keyword arguments to pass to the :class:`Session` constructor
+        Keyword arguments to pass to the :class:`PrivateAPI` constructor
         if :code:`session=None`.
 
     Attributes
@@ -2589,9 +2611,9 @@ class Track:
 
     def __init__(
             self, track_id: str, *, json: dict[str, Any] = None, 
-            session: Session = None, **kwargs):
+            session: PrivateAPI = None, **kwargs):
         
-        self._session = session if session else Session(**kwargs)
+        self._session = session if session else PrivateAPI(**kwargs)
         self.id = track_id
         self._json = self._session.get_track(self.id) if json is None else json
         self._set(self._json)
@@ -2625,7 +2647,7 @@ class Track:
         ----------
         json : `dict`, keyword-only, optional
             Qobuz catalog information for the track 
-            retrieved using :meth:`Session.get_track`.
+            retrieved using :meth:`PrivateAPI.get_track`.
         """
 
         if self._json is not json:
@@ -2800,21 +2822,25 @@ class Playlist:
     """
     A Qobuz playlist.
 
+    .. attention::
+
+       This class is pending removal.
+
     Parameters
     ----------
     id_or_params : `int`, `str`, or `dict`
         Either a Qobuz playlist ID or parameters for a new playlist to
-        pass to :meth:`Session.create_playlist`.
+        pass to :meth:`PrivateAPI.create_playlist`.
 
     json : `dict`, keyword-only, optional
         Qobuz catalog information for the playlist 
-        retrieved using :meth:`Session.get_track`.
+        retrieved using :meth:`PrivateAPI.get_track`.
 
-    session : `minim.qobuz.Session`, keyword-only, optional
+    session : `minim.qobuz.PrivateAPI`, keyword-only, optional
         Qobuz API session.
 
     **kwargs
-        Keyword arguments to pass to the :class:`Session` constructor
+        Keyword arguments to pass to the :class:`PrivateAPI` constructor
         if :code:`session=None`.
 
     Attributes
@@ -2869,9 +2895,9 @@ class Playlist:
 
     def __init__(
             self, id_or_params: Union[int, str, dict[str, Any]], *, 
-            json: dict[str, Any] = None, session: Session = None, **kwargs):
+            json: dict[str, Any] = None, session: PrivateAPI = None, **kwargs):
         
-        self._session = session if session else Session(**kwargs)
+        self._session = session if session else PrivateAPI(**kwargs)
         if isinstance(id_or_params, (int, str)):
             self.id = id_or_params
             self._json = self._session.get_playlist(self.id) \
@@ -2945,7 +2971,7 @@ class Playlist:
         ----------
         json : `dict`, keyword-only, optional
             Qobuz catalog information for the playlist 
-            retrieved using :meth:`Session.get_playlist`.
+            retrieved using :meth:`PrivateAPI.get_playlist`.
         """
 
         if self._json is not json:
@@ -3278,13 +3304,17 @@ class User:
     """
     A Qobuz user.
 
+    .. attention::
+
+       This class is pending removal.
+
     Parameters
     ----------
-    session : `minim.qobuz.Session`, keyword-only, optional
+    session : `minim.qobuz.PrivateAPI`, keyword-only, optional
         Qobuz API session.
 
     **kwargs
-        Keyword arguments to pass to the :class:`Session` constructor
+        Keyword arguments to pass to the :class:`PrivateAPI` constructor
         if :code:`session=None`.
 
     Attributes
@@ -3389,9 +3419,9 @@ class User:
         Geographical zone.
     """
 
-    def __init__(self, session: Session = None, **kwargs):
+    def __init__(self, session: PrivateAPI = None, **kwargs):
         
-        self._session = session if session else Session(**kwargs)
+        self._session = session if session else PrivateAPI(**kwargs)
         self._json = self._session._me if self._session._me else {}
         self._set(self._json)
 
@@ -3426,7 +3456,7 @@ class User:
         ----------
         json : `dict`, keyword-only, optional
             Qobuz catalog information for the user
-            retrieved using :meth:`Session.get_me`.
+            retrieved using :meth:`PrivateAPI.get_me`.
         """
 
         if json:
@@ -4097,7 +4127,7 @@ class User:
 
         performers : `str`, keyword-only, optional
             An unformatted string containing the track credits obtained
-            from calling :meth:`Session.get_track`.
+            from calling :meth:`PrivateAPI.get_track`.
 
         roles : `list`, keyword-only, optional
             Role filter. The special :code:`"Composers"` filter will 

@@ -1,30 +1,11 @@
 """
-TIDAL API
-=========
+TIDAL
+=====
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
-This module contains a minimal Python implementation of the TIDAL API,
-which allows media (tracks, videos), collections (albums, playlists),
-and performers to be queried, and information about them to be 
-retrieved. As the TIDAL API is not public, there is no available
-official documentation for it. Its endpoints have been determined by 
-watching HTTP network traffic.
-
-Without authentication, the TIDAL API can be used to query for and
-retrieve information about media and performers.
-
-With OAuth 2.0 authentication, the TIDAL API allows access to user
-information and media streaming. Valid client credentials—a client ID
-and a client secret—must either be provided explicitly to the 
-:class:`Session` constructor or be stored in the operating system's 
-environment variables as :code:`TIDAL_CLIENT_ID` and 
-:code:`TIDAL_CLIENT_SECRET`, respectively. Alternatively, an access
-token (and optionally, its accompanying expiry time and refresh token) 
-can be provided to the :class:`Session` constructor to bypass the 
-authorization flow.
-
-.. note::
-   This module supports the authorization code and device code flows.
+This module contains a complete implementation of all TIDAL API
+1.0.0 endpoints and a minim implementation of the more robust but 
+private TIDAL API.
 """
 
 import base64
@@ -35,7 +16,6 @@ import os
 import re
 import secrets
 import subprocess
-import tempfile
 import time
 from typing import Any, Union
 import urllib
@@ -52,14 +32,1448 @@ try:
 except:
     FOUND_PLAYWRIGHT = False
 
-from . import audio, utility
-
-TEMP_DIR = tempfile.gettempdir()
+from . import audio, utility, HOME_DIR, TEMP_DIR, config
 
 class API:
+    
+    """
+    TIDAL API object.
+
+    The TIDAL API exposes TIDAL functionality and data, making it 
+    possible to build applications that can search for and retrieve
+    metadata from the TIDAL catalog.
+
+    .. seealso::
+
+       For more information, see the `TIDAL API Reference
+       <https://developer.tidal.com/apiref>`_.
+
+    Requests to the TIDAL API endpoints must be accompanied by a valid
+    access token in the header. Minim can obtain client-only access 
+    tokens via the client credentials flow, which requires valid client
+    credentials (client ID and client secret) to either be provided to
+    this class's constructor as keyword arguments or be stored as 
+    :code:`TIDAL_CLIENT_ID` and :code:`TIDAL_CLIENT_SECRET` in the 
+    operating system's environment variables. 
+
+    .. seealso::
+
+       To get client credentials, see the `guide on how to register a new
+       TIDAL application <https://developer.tidal.com/documentation
+       /dashboard/dashboard-client-credentials>`_.
+
+    If an existing access token is available, it and its accompanying
+    information (token type and expiry time) can be provided to this 
+    class's constructor as keyword arguments to bypass the access token
+    retrieval process. It is recommended that all other 
+    authentication-related keyword arguments be specified so that a new
+    access token can be obtained when the existing one expires.
+
+    .. tip::
+
+       The authorization flow and access token can be changed or updated
+       at any time using :meth:`set_authorization_flow` and 
+       :meth:`set_access_token`, respectively.
+
+    Minim also stores and manages access tokens and their properties. 
+    When an access token is acquired, it is automatically saved to the 
+    Minim configuration file to be loaded on the next instantiation of
+    this class. This behavior can be disabled if there are any security
+    concerns, like if the computer being used is a shared device.
+    """
+
+    _FLOWS = ["client_credentials"]
+    _NAME = f"{__module__}.{__qualname__}"
+    API_URL = "https://openapi.tidal.com"
+    TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
+
+    def __init__(
+            self, *, client_id: str = None, client_secret: str = None,
+            flow: str = "client_credentials", access_token: str = None, 
+            token_type: str = "Bearer", 
+            expiry: Union[datetime.datetime, str] = None, 
+            overwrite: bool = False, save: bool = True) -> None:
+
+        self.session = requests.Session()
+        self.session.headers.update(
+            {"Content-Type": f"application/vnd.tidal.v1+json"}
+        )
+
+        if (access_token is None and config.has_section(self._NAME) 
+                and not overwrite):
+            flow = config.get(self._NAME, "flow")
+            access_token = config.get(self._NAME, "access_token")
+            token_type = config.get(self._NAME, "token_type")
+            expiry = config.get(self._NAME, "expiry")
+            client_id = config.get(self._NAME, "client_id")
+            client_secret = config.get(self._NAME, "client_secret")
+
+        self.set_authorization_flow(flow, client_id=client_id, 
+                                    client_secret=client_secret, save=save)
+        self.set_access_token(access_token, token_type=token_type, 
+                              expiry=expiry)
+
+    def _get_json(self, url: str, **kwargs) -> dict:
+
+        """
+        Send a GET request and return the JSON-encoded content of the 
+        response.
+
+        Parameters
+        ----------
+        url : `str`
+            URL for the GET request.
+        
+        **kwargs
+            Keyword arguments to pass to :meth:`requests.request`.
+
+        Returns
+        -------
+        resp : `dict`
+            JSON-encoded content of the response.
+        """
+
+        return self._request("get", url, **kwargs).json()
+
+    def _request(self, method: str, url: str, **kwargs) -> requests.Response:
+
+        """
+        Construct and send a request, but with status code checking.
+
+        Parameters
+        ----------
+        method : `str`
+            Method for the request.
+
+        url : `str`
+            URL for the request.
+
+        **kwargs
+            Keyword arguments passed to :meth:`requests.request`.
+
+        Returns
+        -------
+        resp : `requests.Response`
+            Response to the request.
+        """
+
+        if self._expiry is not None and datetime.datetime.now() > self._expiry:
+            self.set_access_token()
+
+        r = self.session.request(method, url, **kwargs)
+        if r.status_code not in range(200, 299):
+            error = r.json()["errors"][0]
+            emsg = f"{r.status_code} {error['code']}: {error['detail']}"
+            raise RuntimeError(emsg)
+        return r
+
+    def set_access_token(
+            self, access_token: str = None, *, token_type: str = "Bearer",
+            expiry: Union[str, datetime.datetime] = None) -> None:
+        
+        """
+        Set the TIDAL API access token.
+
+        Parameters
+        ----------
+        access_token : `str`, optional
+            Access token. If not provided, an access token is obtained
+            using an OAuth 2.0 authorization flow.
+
+        token_type : `str`, keyword-only, default: :code:`"Bearer"`
+            Type of `access_token`. Must be specified if `access_token` 
+            is provided as a keyword argument.
+
+        expiry : `str` or `datetime.datetime`, keyword-only, optional
+            Access token expiry timestamp in the ISO 8601 format
+            :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be
+            reauthenticated using the default authorization flow (if
+            possible) when `access_token` expires.
+        """
+
+        if "Authorization" in self.session.headers:
+            del self.session.headers["Authorization"]
+
+        if access_token is None:
+            if not self._client_id or not self._client_secret:
+                raise ValueError("TIDAL API client credentials not provided.")
+            
+            if self._flow == "client_credentials":
+                client_b64 = base64.urlsafe_b64encode(
+                    f"{self._client_id}:{self._client_secret}".encode()
+                ).decode()
+                r = requests.post(
+                    self.TOKEN_URL,
+                    data={"grant_type": "client_credentials"},
+                    headers={"Authorization": f"Basic {client_b64}"}
+                ).json()
+                access_token = r["access_token"]
+                token_type = r["token_type"]
+                expiry = (datetime.datetime.now()
+                          + datetime.timedelta(0, r["expires_in"]))
+                
+            if self._save:
+                config[self._NAME] = {
+                    "flow": self._flow,
+                    "client_id": self._client_id,
+                    "client_secret": self._client_secret,
+                    "access_token": access_token,
+                    "token_type": token_type,
+                    "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
+                }
+                with open(HOME_DIR / "minim.cfg", "w") as f:
+                    config.write(f)
+
+        self.session.headers.update(
+            {"Authorization": f"{token_type} {access_token}"}
+        )
+        self._expiry = (
+            datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ") 
+            if isinstance(expiry, str) else expiry
+        )
+
+    def set_authorization_flow(
+            self, flow: str, *, client_id: str = None, 
+            client_secret: str = None, save: bool = True) -> None:
+        
+        """
+        Set the authorization flow.
+
+        Parameters
+        ----------
+        flow : `str`
+            Authorization flow.
+
+            .. container::
+
+               **Valid values**:
+           
+               * :code:`"client_credentials"` for the client credentials 
+                 flow.
+            
+        client_id : `str`, keyword-only, optional
+            Client ID. Required for all authorization flows.
+
+        client_secret : `str`, keyword-only, optional
+            Client secret. Required for all authorization flows.
+
+        save : `bool`, keyword-only, default: :code:`True`
+            Determines whether to save the newly obtained access tokens
+            and their associated properties to the Minim configuration 
+            file.
+        """
+
+        if flow not in self._FLOWS:
+            raise ValueError("Invalid authorization flow.")
+        
+        self._flow = flow
+        self._save = save
+        if flow == "client_credentials":
+            self._client_id = client_id or os.environ.get("TIDAL_CLIENT_ID")
+            self._client_secret = (client_secret
+                                   or os.environ.get("TIDAL_CLIENT_SECRET"))
+
+    ### ALBUM API #############################################################
+
+    def get_album(
+            self, id: Union[int, str], country_code: str) -> dict[str, Any]:
+        
+        """
+        `Album API > Get single album
+        <https://developer.tidal.com/apiref?ref=get-album>`_: Retrieve
+        album details by TIDAL album ID.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL album ID.
+
+            **Example**: :code:`251380836`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        album : `dict`
+            TIDAL catalog information for a single album.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "id": <str>,
+                    "barcodeId": <str>,
+                    "title": <str>,
+                    "artists": [
+                      {
+                        "id": <str>,
+                        "name": <str>,
+                        "picture": [
+                          {
+                            "url": <str>,
+                            "width": <int>,
+                            "height": <int>
+                          }
+                        ],
+                        "main": <bool>
+                      }
+                    ],
+                    "duration": <int>,
+                    "releaseDate": <str>,
+                    "imageCover": [
+                      {
+                        "url": <str>,
+                        "width": <int>,
+                        "height": <int>
+                      }
+                    ],
+                    "videoCover": [
+                      {
+                        "url": <str>,
+                        "width": <int>,
+                        "height": <int>
+                      }
+                    ],
+                    "numberOfVolumes": <int>,
+                    "numberOfTracks": <int>,
+                    "numberOfVideos": <int>,
+                    "type": "ALBUM",
+                    "copyright": <str>,
+                    "mediaMetadata": {
+                      "tags": [<str>]
+                    },
+                    "properties": {
+                      "content": [<str>]
+                    }
+                  }
+        """
+        
+        return self._get_json(f"{self.API_URL}/albums/{id}",
+                              params={"countryCode": country_code})["resource"]
+    
+    def get_albums(
+            self, ids: Union[int, str, list[Union[int, str]]], 
+            country_code: str) -> list[dict[str, Any]]:
+        
+        """
+        `Album API > Get multiple albums
+        <https://developer.tidal.com/apiref?ref=get-albums-by-ids>`_: 
+        Retrieve a list of album details by TIDAL album IDs.
+
+        Parameters
+        ----------
+        ids : `int`, `str`, or `list`
+            TIDAL album ID(s).
+
+            **Examples**: :code:`"251380836,275646830"` or 
+            :code:`[251380836, 275646830]`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        albums : `dict`
+            A dictionary containing TIDAL catalog information for 
+            multiple albums and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "resource": {
+                          "id": <str>,
+                          "barcodeId": <str>,
+                          "title": <str>,
+                          "artists": [
+                            {
+                              "id": <str>,
+                              "name": <str>,
+                              "picture": [
+                                {
+                                  "url": <str>,
+                                  "width": <int>,
+                                  "height": <int>
+                                }
+                              ],
+                              "main": <bool>
+                            }
+                          ],
+                          "duration": <int>,
+                          "releaseDate": <str>,
+                          "imageCover": [
+                            {
+                              "url": <str>,
+                              "width": <int>,
+                              "height": <int>
+                            }
+                          ],
+                          "videoCover": [
+                            {
+                              "url": <str>,
+                              "width": <int>,
+                              "height": <int>
+                            }
+                          ],
+                          "numberOfVolumes": <int>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "type": "ALBUM",
+                          "copyright": <str>,
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "properties": {
+                            "content": [<str>]
+                          }
+                        },
+                        "id": <str>,
+                        "status": 200,
+                        "message": "success"
+                      }
+                    ],
+                    "metadata": {
+                      "requested": <int>,
+                      "success": <int>,
+                      "failure": <int>
+                    }
+                  }
+        """
+
+        return self._get_json(f"{self.API_URL}/albums/byIds",
+                              params={"ids": ids, "countryCode": country_code})
+    
+    def get_album_items(
+            self, album_id: Union[int, str], country_code: str, *,
+            offset: int = None, limit: int = None) -> dict[str, Any]:
+        
+        """
+        `Album API > Get album items
+        <https://developer.tidal.com/apiref?ref=get-album-items>`_: 
+        Retrieve a list of album items (tracks and videos) by TIDAL 
+        album ID.
+
+        Parameters
+        ----------
+        album_id : `int` or `str`
+            TIDAL album ID.
+
+            **Examples**: :code:`251380836`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`. 
+
+        limit : `int`, keyword-only, optional
+            Page size.
+
+            **Example**: :code:`10`.
+
+        Returns
+        -------
+        items : `dict`
+            A dictionary containing TIDAL catalog information for 
+            tracks and videos in the specified album and metadata for
+            the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "resource": {
+                          "artifactType": <str>,
+                          "id": <str>,
+                          "title": str>,
+                          "artists": [
+                            {
+                              "id": <str>,
+                              "name": <str>,
+                              "picture": [
+                                {
+                                  "url": <str>,
+                                  "width": <int>,
+                                  "height": <int>
+                                }
+                              ],
+                              "main": <bool>
+                            }
+                          ],
+                          "album": {
+                            "id": <str>,
+                            "title": <str>,
+                            "imageCover": [
+                              {
+                                "url": <str>,
+                                "width": <int>,
+                                "height": <int>
+                              }
+                            ],
+                            "videoCover": []
+                          },
+                          "duration": <int>,
+                          "trackNumber": <int>,
+                          "volumeNumber": <int>,
+                          "isrc": <str>,
+                          "copyright": <str>,
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "properties": {
+                            "content": [<str>]
+                          }
+                        },
+                        "id": <str>,
+                        "status": 200,
+                        "message": "success"
+                      }
+                    ],
+                    "metadata": {
+                      "total": <int>
+                    }
+                  }
+        """
+        
+        return self._get_json(f"{self.API_URL}/albums/{album_id}/items",
+                              params={"countryCode": country_code,
+                                      "offset": offset, "limit": limit})
+    
+    def get_album_by_barcode_id(
+            self, barcode_id: Union[int, str], country_code: str
+        ) -> dict[str, Any]: 
+
+        """
+        `Album API > Get album by barcode ID 
+        <https://developer.tidal.com
+        /apiref?ref=get-albums-by-barcode-id>`_: Retrieve a list of album
+        details by barcode ID.
+
+        Parameters
+        ----------
+        barcode_id : `int` or `str`
+            Barcode ID in EAN-13 or UPC-A format.
+
+            **Example**: :code:`196589525444`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        album : `dict`
+            TIDAL catalog information for a single album.
+
+            .. admonition:: Sample response
+                :class: dropdown
+
+                .. code::
+
+                  {
+                    "data": [
+                      {
+                        "resource": {
+                          "id": <str>,
+                          "barcodeId": <str>,
+                          "title": <str>,
+                          "artists": [
+                            {
+                              "id": <str>,
+                              "name": <str>,
+                              "picture": [
+                                {
+                                  "url": <str>,
+                                  "width": <int>,
+                                  "height": <int>
+                                }
+                              ],
+                              "main": <bool>
+                            }
+                          ],
+                          "duration": <int>,
+                          "releaseDate": <str>,
+                          "imageCover": [
+                            {
+                              "url": <str>,
+                              "width": <int>,
+                              "height": <int>
+                            }
+                          ],
+                          "videoCover": [
+                            {
+                              "url": <str>,
+                              "width": <int>,
+                              "height": <int>
+                            }
+                          ],
+                          "numberOfVolumes": <int>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "type": "ALBUM",
+                          "copyright": <str>,
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "properties": {
+                            "content": [<str>]
+                          }
+                        },
+                        "id": <str>,
+                        "status": 200,
+                        "message": "success"
+                      }
+                    ],
+                    "metadata": {
+                      "requested": 1,
+                      "success": 1,
+                      "failure": 0
+                    }
+                  }
+            
+        """
+
+        return self._get_json(f"{self.API_URL}/albums/byBarcodeId",
+                              params={"barcodeId": barcode_id,
+                                      "countryCode": country_code})
+
+    ### ARTIST API ############################################################
+
+    def get_artist(
+            self, id: Union[int, str], country_code: str) -> dict[str, Any]:
+        
+        """
+        `Artist API > Get single artist 
+        <https://developer.tidal.com/apiref?ref=get-artist>`_: Retrieve
+        artist details by TIDAL artist ID.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL artist ID.
+
+            **Example**: :code:`1566`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        artist : `dict`
+            TIDAL catalog information for a single artist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "id": <str>,
+                    "name": <str>,
+                    "picture": [
+                      {
+                        "url": <str>,
+                        "width": <int>,
+                        "height": <int>
+                      }
+                    ]
+                  }
+        """
+        
+        return self._get_json(f"{self.API_URL}/artists/{id}",
+                              params={"countryCode": country_code})["resource"]
+
+    def get_artists(
+            self, ids: Union[int, str, list[Union[int, str]]], 
+            country_code: str) -> list[dict[str, Any]]:
+
+        """
+        `Artist API > Get multiple artists 
+        <https://developer.tidal.com/apiref?ref=get-artists-by-ids>`_:
+        Retrieve a list of artist details by TIDAL artist IDs.
+
+        Parameters
+        ----------
+        ids : `int`, `str`, or `list`
+            TIDAL artist ID(s).
+
+            **Examples**: :code:`"1566,7804"`, :code:`[1566, 7804]`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        artists : `dict`
+            A dictionary containing TIDAL catalog information for 
+            multiple artists and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                {
+                  "data": [
+                    {
+                      "resource": {
+                        "id": <str>,
+                        "name": <str>,
+                        "picture": [
+                          {
+                            "url": <str>,
+                            "width": <int>,
+                            "height": <int>
+                          }
+                        ]
+                      },
+                      "id": <str>,
+                      "status": 200,
+                      "message": "success"
+                    }
+                  ],
+                  "metadata": {
+                    "requested": <int>,
+                    "success": <int>,
+                    "failure": <int>
+                  }
+                }
+        """
+
+        return self._get_json(f"{self.API_URL}/artists",
+                              params={"ids": ids, "countryCode": country_code})
+
+    def get_artist_albums(
+            self, artist_id: Union[int, str], country_code: str, *,
+            offset: int = None, limit: int = None) -> dict[str, Any]:
+
+        """
+        `Artist API > Get albums by artist
+        <https://developer.tidal.com/apiref?ref=get-artist-albums>`_: 
+        Retrieve a list of albums by TIDAL artist ID.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`
+            TIDAL artist ID.
+
+            **Example**: :code:`1566`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`.
+
+        limit : `int`, keyword-only, optional
+            Page size.
+
+            **Example**: :code:`10`.
+
+        Returns
+        -------
+        albums : `dict`
+            A dictionary containing TIDAL catalog information for
+            albums by the specified artist and metadata for the 
+            returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "resource": {
+                          "id": <str>,
+                          "barcodeId": <str>,
+                          "title": <str>,
+                          "artists": [
+                            {
+                              "id": <str>,
+                              "name": <str>,
+                              "picture": [
+                                {
+                                  "url": <str>,
+                                  "width": <int>,
+                                  "height": <int>
+                                }
+                              ],
+                              "main": <bool>
+                            }
+                          ],
+                          "duration": <int>,
+                          "releaseDate": <str>,
+                          "imageCover": [
+                            {
+                              "url": <str>,
+                              "width": <int>,
+                              "height": <int>
+                            }
+                          ],
+                          "videoCover": [
+                            {
+                              "url": <str>,
+                              "width": <int>,
+                              "height": <int>
+                            }
+                          ],
+                          "numberOfVolumes": <int>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "type": "ALBUM",
+                          "copyright": <str>,
+                          "mediaMetadata": {
+                            "tags": <str>
+                          },
+                          "properties": {
+                            "content": <str>
+                          }
+                        },
+                        "id": <str>,
+                        "status": 200,
+                        "message": "success"
+                      }
+                    ],
+                    "metadata": {
+                      "total": <int>
+                    }
+                  }
+        """
+
+        return self._get_json(f"{self.API_URL}/artists/{artist_id}/albums",
+                              params={"countryCode": country_code, 
+                                      "offset": offset, "limit": limit})
+
+    ### TRACK API #############################################################
+
+    def get_track(
+            self, id: Union[int, str], country_code: str) -> dict[str, Any]: 
+        
+        """
+        `Track API > Get single track 
+        <https://developer.tidal.com/apiref?ref=get-track>`: Retrieve
+        track details by TIDAL track ID.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL track ID.
+
+            **Example**: :code:`251380837`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        track : `dict`
+            TIDAL catalog information for a single track.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                    {
+                      "artifactType": "track",
+                      "id": <str>,
+                      "title": <str>,
+                      "artists": [
+                        {
+                          "id": <str>,
+                          "name": <str>,
+                          "picture": [
+                            {
+                              "url": <str>,
+                              "width": <int>,
+                              "height": <int>
+                            }
+                          ],
+                          "main": <bool>
+                        }
+                      ],
+                      "album": {
+                        "id": <str>,
+                        "title": <str>,
+                        "imageCover": [
+                          {
+                            "url": <str>,
+                            "width": <int>,
+                            "height": <int>
+                          }
+                        ],
+                        "videoCover": [
+                            {
+                              "url": <str>,
+                              "width": <int>,
+                              "height": <int>
+                            }
+                        ]
+                      },
+                      "duration": <int>,
+                      "trackNumber": <int>,
+                      "volumeNumber": <int>,
+                      "isrc": <int>,
+                      "copyright": <int>,
+                      "mediaMetadata": {
+                        "tags": [<str>]
+                      },
+                      "properties": {
+                        "content": [<str>]
+                      }
+                    }
+        """
+        
+        return self._get_json(f"{self.API_URL}/tracks/{id}",
+                              params={"countryCode": country_code})["resource"]
+
+    def get_tracks(
+            self, ids: Union[int, str, list[Union[int, str]]], 
+            country_code: str) -> list[dict[str, Any]]:
+        
+        """
+        `Album API > Get multiple tracks
+        <https://developer.tidal.com/apiref?ref=get-tracks-by-ids>`_: 
+        Retrieve a list of track details by TIDAL track IDs.
+
+        Parameters
+        ----------
+        ids : `int`, `str`, or `list`
+            TIDAL track ID(s).
+
+            **Examples**: :code:`"251380837,251380838"` or 
+            :code:`[251380837, 251380838]`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        tracks : `dict`
+            A dictionary containing TIDAL catalog information for 
+            multiple tracks and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "resource": {
+                          "artifactType": "track",
+                          "id": <str>,
+                          "title": <str>,
+                          "artists": [
+                            {
+                              "id": <str>,
+                              "name": <str>,
+                              "picture": [
+                                {
+                                  "url": <str>,
+                                  "width": <int>,
+                                  "height": <int>
+                                }
+                              ],
+                              "main": <bool>
+                            }
+                          ],
+                          "album": {
+                            "id": <str>,
+                            "title": <str>, 
+                            "imageCover": [
+                              {
+                                "url": <str>,
+                                "width": <int>,
+                                "height": <int>
+                              }
+                            ],
+                            "videoCover": [
+                                {
+                                  "url": <str>,
+                                  "width": <int>,
+                                  "height": <int>
+                                }
+                            ]
+                          },
+                          "duration": <int>,
+                          "trackNumber": <int>,
+                          "volumeNumber": <int>,
+                          "isrc": <int>,
+                          "copyright": <int>,
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "properties": {
+                            "content": [<str>]
+                          }
+                        },
+                        "id": <str>,
+                        "status": 200,
+                        "message": "success"
+                      }
+                    ],
+                    "metadata": {
+                      "requested": <int>,
+                      "success": <int>,
+                      "failure": <int>
+                    }
+                  }
+        """
+
+        return self._get_json(f"{self.API_URL}/tracks",
+                              params={"ids": ids, "countryCode": country_code})
+    
+    ### VIDEO API #############################################################
+
+    def get_video(
+            self, id: Union[int, str], country_code: str) -> dict[str, Any]:
+        
+        """
+        `Video API > Get single video
+        <https://developer.tidal.com/apiref?ref=get-video>`: Retrieve
+        video details by TIDAL video ID.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL video ID.
+
+            **Example**: :code:`75623239`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        video : `dict`
+            TIDAL catalog information for a single video.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "artifactType": "video",
+                    "id": <str>,
+                    "title": <str>,
+                    "image": [
+                          {
+                            "url": <str>,
+                            "width": <int>,
+                            "height": <int>
+                          }
+                    ],
+                    "releaseDate": <str>,
+                    "artists": [
+                      {
+                        "id": <str>,
+                        "name": <str>,
+                        "picture": [
+                          {
+                            "url": <str>,
+                            "width": <int>,
+                            "height": <int>
+                          }
+                        ],
+                        "main": <bool>
+                      }
+                    ],
+                    "duration": <int>,
+                    "trackNumber": <int>,
+                    "volumeNumber": <int>,
+                    "isrc": <str>,
+                    "properties": {
+                      "content": [<str>]
+                    }
+                  }
+        """
+        
+        return self._get_json(f"{self.API_URL}/videos/{id}",
+                              params={"countryCode": country_code})["resource"]
+
+    def get_videos(
+            self, ids: Union[int, str, list[Union[int, str]]], 
+            country_code: str) -> list[dict[str, Any]]:
+        
+        """
+        `Album API > Get multiple videos
+        <https://developer.tidal.com/apiref?ref=get-videos-by-ids>`_: 
+        Retrieve a list of video details by TIDAL video IDs.
+
+        Parameters
+        ----------
+        ids : `int`, `str`, or `list`
+            TIDAL video ID(s).
+
+            **Examples**: :code:`"59727844,75623239"` or 
+            :code:`[59727844, 75623239]`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        videos : `dict`
+            A dictionary containing TIDAL catalog information for 
+            multiple videos and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "artifactType": "video",
+                        "id": <str>,
+                        "title": <str>,
+                        "image": [
+                              {
+                                "url": <str>,
+                                "width": <int>,
+                                "height": <int>
+                              }
+                        ],
+                        "releaseDate": <str>,
+                        "artists": [
+                          {
+                            "id": <str>,
+                            "name": <str>,
+                            "picture": [
+                              {
+                                "url": <str>,
+                                "width": <int>,
+                                "height": <int>
+                              }
+                            ],
+                            "main": <bool>
+                          }
+                        ],
+                        "duration": <int>,
+                        "trackNumber": <int>,
+                        "volumeNumber": <int>,
+                        "isrc": <str>,
+                        "properties": {
+                          "content": [<str>]
+                        }
+                      }
+                    ],
+                    "metadata": {
+                      "requested": <int>,
+                      "success": <int>,
+                      "failure": <int>
+                    }
+                  }
+        """
+
+        return self._get_json(f"{self.API_URL}/videos",
+                              params={"ids": ids, "countryCode": country_code})
+
+    ### SEARCH API ############################################################
+
+    def search(
+            self, query: str, country_code: str, *, type: str = None, 
+            offset: int = None, limit: int = None, popularity: str = None
+        ) -> dict[str, list[dict[str, Any]]]: 
+
+        """
+        `Search API > Search for catalog items 
+        <https://developer.tidal.com/apiref?ref=search>`_: Search for
+        albums, artists, tracks, and videos.
+
+        Parameters
+        ----------
+        query : `str`
+            Search query.
+
+            **Example**: :code:`"Beyoncé"`.
+
+        country_code: `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        type : `str`, keyword-only, optional
+            Target search type. Searches for all types if not specified.
+
+            **Valid values**: :code:`"ALBUMS"`, :code:`"ARTISTS"`, 
+            :code:`"TRACKS"`, :code:`"VIDEOS"`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`.
+
+        limit : `int`, keyword-only, optional
+            Page size.
+
+            **Example**: :code:`10`.
+
+        popularity : `str`, keyword-only, optional
+            Specify which popularity type to apply for query result.
+            :code:`"WORLDWIDE"` is used if not specified.
+
+            **Valid values**: :code:`"WORLDWIDE"` or :code:`"COUNTRY"`.
+
+        Returns
+        -------
+        results : `dict`
+            A dictionary containing TIDAL catalog information for
+            albums, artists, tracks, and videos matching the search
+            query, and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "albums": [
+                      {
+                        "resource": {
+                          "id": <str>,
+                          "barcodeId": <str>,
+                          "title": <str>,
+                          "artists": [
+                            {
+                              "id": <str>,
+                              "name": <str>,
+                              "picture": [
+                                {
+                                  "url": <str>,
+                                  "width": <int>,
+                                  "height": <int>
+                                }
+                              ],
+                              "main": <bool>
+                            }
+                          ],
+                          "duration": <int>,
+                          "releaseDate": <str>,
+                          "imageCover": [
+                            {
+                              "url": <str>,
+                              "width": <int>,
+                              "height": <int>
+                            }
+                          ],
+                          "videoCover": [
+                            {
+                              "url": <str>,
+                              "width": <int>,
+                              "height": <int>
+                            }
+                          ],
+                          "numberOfVolumes": <int>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "type": "ALBUM",
+                          "copyright": <str>,
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "properties": {
+                            "content": [<str>]
+                          }
+                        },
+                        "id": <str>,
+                        "status": 200,
+                        "message": "success"
+                      }
+                    ],
+                    "artists": [
+                      {
+                        "resource": {
+                          "id": <str>,
+                          "name": <str>,
+                          "picture": [
+                            {
+                              "url": <str>,
+                              "width": <int>,
+                              "height": <int>
+                            }
+                          ]
+                        },
+                        "id": <str>,
+                        "status": 200,
+                        "message": "success"
+                      }
+                    ],
+                    "tracks": [
+                      {
+                        "resource": {
+                          "artifactType": "track",
+                          "id": <str>,
+                          "title": <str>,
+                          "artists": [
+                            {
+                              "id": <str>,
+                              "name": <str>,
+                              "picture": [
+                                {
+                                  "url": <str>,
+                                  "width": <int>,
+                                  "height": <int>
+                                }
+                              ],
+                              "main": <bool>
+                            }
+                          ],
+                          "album": {
+                            "id": <str>,
+                            "title": <str>, 
+                            "imageCover": [
+                              {
+                                "url": <str>,
+                                "width": <int>,
+                                "height": <int>
+                              }
+                            ],
+                            "videoCover": [
+                                {
+                                  "url": <str>,
+                                  "width": <int>,
+                                  "height": <int>
+                                }
+                            ]
+                          },
+                          "duration": <int>,
+                          "trackNumber": <int>,
+                          "volumeNumber": <int>,
+                          "isrc": <int>,
+                          "copyright": <int>,
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "properties": {
+                            "content": [<str>]
+                          }
+                        },
+                        "id": <str>,
+                        "status": 200,
+                        "message": "success"
+                      }
+                    ],
+                    "videos": [
+                      {
+                        "artifactType": "video",
+                        "id": <str>,
+                        "title": <str>,
+                        "image": [
+                              {
+                                "url": <str>,
+                                "width": <int>,
+                                "height": <int>
+                              }
+                        ],
+                        "releaseDate": <str>,
+                        "artists": [
+                          {
+                            "id": <str>,
+                            "name": <str>,
+                            "picture": [
+                              {
+                                "url": <str>,
+                                "width": <int>,
+                                "height": <int>
+                              }
+                            ],
+                            "main": <bool>
+                          }
+                        ],
+                        "duration": <int>,
+                        "trackNumber": <int>,
+                        "volumeNumber": <int>,
+                        "isrc": <str>,
+                        "properties": {
+                          "content": [<str>]
+                        }
+                      }
+                    ]
+                  }
+        """
+
+        return self._get_json(
+            f"{self.API_URL}/search",
+            params={"query": query, "type": type, "offset": offset,
+                    "limit": limit, "countryCode": country_code, 
+                    "popularity": popularity}
+          )
+
+class PrivateAPI:
 
     """
-    A TIDAL API session.
+    A TIDAL private API object.
+
+    .. attention::
+
+       This class is pending a major refactor.
+
+    This class contains a minimal Python implementation of the TIDAL API,
+    which allows media (tracks, videos), collections (albums, playlists),
+    and performers to be queried, and information about them to be 
+    retrieved. As the TIDAL API is not public, there is no available
+    official documentation for it. Its endpoints have been determined by 
+    watching HTTP network traffic.
+
+    Without authentication, the TIDAL API can be used to query for and
+    retrieve information about media and performers.
+
+    With OAuth 2.0 authentication, the TIDAL API allows access to user
+    information and media streaming. Valid client credentials—a client ID
+    and a client secret—must either be provided explicitly to the 
+    :class:`Session` constructor or be stored in the operating system's 
+    environment variables as :code:`TIDAL_CLIENT_ID` and 
+    :code:`TIDAL_CLIENT_SECRET`, respectively. Alternatively, an access
+    token (and optionally, its accompanying expiry time and refresh token) 
+    can be provided to the :class:`Session` constructor to bypass the 
+    authorization flow.
+
+    .. note::
+
+       This class supports the authorization code and device code flows.
 
     Parameters
     ----------

@@ -184,18 +184,19 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Artist.html">Artist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Label.html">Label</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Playlist.html">Playlist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Track.html">Track</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.User.html">User</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.LyricsService.html">LyricsService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.PrivateLyricsService.html">PrivateLyricsService</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.WebAPI.html">WebAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.tidal.html">tidal</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of tidal</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.Session.html">Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.API.html">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.PrivateAPI.html">PrivateAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -240,26 +241,11 @@
         <article role="main">
           <h1>Source code for minim.qobuz</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Qobuz API</span>
-<span class="sd">=========</span>
+<span class="sd">Qobuz</span>
+<span class="sd">=====</span>
 <span class="sd">.. moduleauthor:: Benjamin Ye &lt;GitHub: @bbye98&gt;</span>
 
-<span class="sd">This module contains a minimal Python implementation of the Qobuz API,</span>
-<span class="sd">which allows songs, collections (albums, playlists), and performers to</span>
-<span class="sd">be queried, and information about them to be retrieved. As the Qobuz API</span>
-<span class="sd">is not public, there is no available official documentation for it. Its</span>
-<span class="sd">endpoints have been determined by watching HTTP network traffic.</span>
-
-<span class="sd">Without authentication, the Qobuz API can be used to query for and</span>
-<span class="sd">retrieve information about media and performers.</span>
-
-<span class="sd">By logging into Qobuz, the Qobuz API allows access to user information</span>
-<span class="sd">and media streaming (with an active Qobuz streaming plan). Valid user</span>
-<span class="sd">credentials (email address and password) or an user authorization token</span>
-<span class="sd">must either be provided explicitly to the :class:`Session` constructor</span>
-<span class="sd">or be stored in the operating system&#39;s environment variables as </span>
-<span class="sd">:code:`QOBUZ_EMAIL`, :code:`QOBUZ_PASSWORD`, and </span>
-<span class="sd">:code:`QOBUZ_USER_AUTH_TOKEN`, respectively.</span>
+<span class="sd">This module contains a minim implementation of the private Qobuz API.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">base64</span>
@@ -275,10 +261,31 @@
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">audio</span><span class="p">,</span> <span class="n">utility</span><span class="p">,</span> <span class="n">warnings</span>
 
-<div class="viewcode-block" id="Session"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session">[docs]</a><span class="k">class</span> <span class="nc">Session</span><span class="p">:</span>
+<div class="viewcode-block" id="PrivateAPI"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI">[docs]</a><span class="k">class</span> <span class="nc">PrivateAPI</span><span class="p">:</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A Qobuz API session.</span>
+<span class="sd">    A Qobuz private API object.</span>
+
+<span class="sd">    .. attention::</span>
+
+<span class="sd">       This class is pending a major refactor.</span>
+
+<span class="sd">    This class contains a minimal Python implementation of the Qobuz API,</span>
+<span class="sd">    which allows songs, collections (albums, playlists), and performers to</span>
+<span class="sd">    be queried, and information about them to be retrieved. As the Qobuz API</span>
+<span class="sd">    is not public, there is no available official documentation for it. Its</span>
+<span class="sd">    endpoints have been determined by watching HTTP network traffic.</span>
+
+<span class="sd">    Without authentication, the Qobuz API can be used to query for and</span>
+<span class="sd">    retrieve information about media and performers.</span>
+
+<span class="sd">    By logging into Qobuz, the Qobuz API allows access to user information</span>
+<span class="sd">    and media streaming (with an active Qobuz streaming plan). Valid user</span>
+<span class="sd">    credentials (email address and password) or an user authorization token</span>
+<span class="sd">    must either be provided explicitly to the :class:`PrivateAPI` constructor</span>
+<span class="sd">    or be stored in the operating system&#39;s environment variables as </span>
+<span class="sd">    :code:`QOBUZ_EMAIL`, :code:`QOBUZ_PASSWORD`, and </span>
+<span class="sd">    :code:`QOBUZ_USER_AUTH_TOKEN`, respectively.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -346,7 +353,7 @@
 <span class="sd">        Set the unique string representation of the Qobuz API object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;minim.qobuz.Session() # </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;minim.qobuz.PrivateAPI() # </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -438,7 +445,7 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">error</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">error</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">resp</span>
     
-<div class="viewcode-block" id="Session.login"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.login">[docs]</a>    <span class="k">def</span> <span class="nf">login</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.login"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.login">[docs]</a>    <span class="k">def</span> <span class="nf">login</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">email</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
             <span class="n">auth_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">authenticate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span>
@@ -492,7 +499,7 @@
 
     <span class="c1">### ALBUMS ################################################################</span>
 
-<div class="viewcode-block" id="Session.get_album"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_album">[docs]</a>    <span class="k">def</span> <span class="nf">get_album</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="PrivateAPI.get_album"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_album">[docs]</a>    <span class="k">def</span> <span class="nf">get_album</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">album_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get Qobuz catalog information for an album.</span>
@@ -511,7 +518,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/album/get&quot;</span><span class="p">,</span>
                               <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;album_id&quot;</span><span class="p">:</span> <span class="n">album_id</span><span class="p">})</span></div>
     
-<div class="viewcode-block" id="Session.get_featured_albums"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_featured_albums">[docs]</a>    <span class="k">def</span> <span class="nf">get_featured_albums</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_featured_albums"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_featured_albums">[docs]</a>    <span class="k">def</span> <span class="nf">get_featured_albums</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;new-releases&quot;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
@@ -569,7 +576,7 @@
 
     <span class="c1">### ARTISTS ###############################################################</span>
 
-<div class="viewcode-block" id="Session.get_artist"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_artist">[docs]</a>    <span class="k">def</span> <span class="nf">get_artist</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_artist"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_artist">[docs]</a>    <span class="k">def</span> <span class="nf">get_artist</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">artist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> 
             <span class="n">extras</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -619,7 +626,7 @@
     
     <span class="c1">### RECORD LABELS #########################################################</span>
 
-<div class="viewcode-block" id="Session.get_label"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_label">[docs]</a>    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_label"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_label">[docs]</a>    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">label_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">albums</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
             <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
@@ -664,7 +671,7 @@
 
     <span class="c1">### PLAYLISTS #############################################################</span>
 
-<div class="viewcode-block" id="Session.get_playlist"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_playlist">[docs]</a>    <span class="k">def</span> <span class="nf">get_playlist</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_playlist"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_playlist">[docs]</a>    <span class="k">def</span> <span class="nf">get_playlist</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">tracks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
             <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span>
@@ -707,7 +714,7 @@
                     <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="n">offset</span><span class="p">}</span>
         <span class="p">)</span></div>
     
-<div class="viewcode-block" id="Session.get_featured_playlists"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_featured_playlists">[docs]</a>    <span class="k">def</span> <span class="nf">get_featured_playlists</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_featured_playlists"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_featured_playlists">[docs]</a>    <span class="k">def</span> <span class="nf">get_featured_playlists</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;editor-picks&quot;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span>
@@ -753,7 +760,7 @@
 
     <span class="c1">### USER PLAYLISTS ########################################################</span>
 
-<div class="viewcode-block" id="Session.create_playlist"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.create_playlist">[docs]</a>    <span class="k">def</span> <span class="nf">create_playlist</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.create_playlist"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.create_playlist">[docs]</a>    <span class="k">def</span> <span class="nf">create_playlist</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">public</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
             <span class="n">collaborative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span>
@@ -786,7 +793,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.create_playlist() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.create_playlist() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;is_public&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">public</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> 
@@ -798,7 +805,7 @@
             <span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/playlist/create&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span>
         <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
     
-<div class="viewcode-block" id="Session.update_playlist"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.update_playlist">[docs]</a>    <span class="k">def</span> <span class="nf">update_playlist</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.update_playlist"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.update_playlist">[docs]</a>    <span class="k">def</span> <span class="nf">update_playlist</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">public</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
             <span class="n">collaborative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -836,7 +843,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.update_playlist() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.update_playlist() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;playlist_id&quot;</span><span class="p">:</span> <span class="n">playlist_id</span><span class="p">}</span>
@@ -852,7 +859,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/playlist/update&quot;</span><span class="p">,</span> 
                              <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Session.delete_playlist"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.delete_playlist">[docs]</a>    <span class="k">def</span> <span class="nf">delete_playlist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="PrivateAPI.delete_playlist"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.delete_playlist">[docs]</a>    <span class="k">def</span> <span class="nf">delete_playlist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete a user playlist.</span>
@@ -868,13 +875,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.delete_playlist() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.delete_playlist() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/playlist/delete&quot;</span><span class="p">,</span> 
                       <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;playlist_id&quot;</span><span class="p">:</span> <span class="n">playlist_id</span><span class="p">})</span></div>
 
-<div class="viewcode-block" id="Session.update_playlist_position"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.update_playlist_position">[docs]</a>    <span class="k">def</span> <span class="nf">update_playlist_position</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.update_playlist_position"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.update_playlist_position">[docs]</a>    <span class="k">def</span> <span class="nf">update_playlist_position</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">from_playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> 
             <span class="n">to_playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span>
@@ -896,14 +903,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.update_playlist_position() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.update_playlist_position() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;post&quot;</span><span class="p">,</span> 
                       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/playlist/updatePlaylistsPosition&quot;</span><span class="p">,</span>
                       <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;playlist_ids&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">from_playlist_id</span><span class="p">,</span> <span class="n">to_playlist_id</span><span class="p">]})</span></div>
 
-<div class="viewcode-block" id="Session.add_playlist_tracks"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.add_playlist_tracks">[docs]</a>    <span class="k">def</span> <span class="nf">add_playlist_tracks</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.add_playlist_tracks"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.add_playlist_tracks">[docs]</a>    <span class="k">def</span> <span class="nf">add_playlist_tracks</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> 
             <span class="n">track_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]],</span> <span class="o">*</span><span class="p">,</span>
             <span class="n">duplicate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -934,7 +941,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.add_playlist_track() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.add_playlist_track() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">track_ids</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -946,7 +953,7 @@
                   <span class="s2">&quot;no_duplicate&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="ow">not</span> <span class="n">duplicate</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()}</span>
         <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
     
-<div class="viewcode-block" id="Session.move_playlist_tracks"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.move_playlist_tracks">[docs]</a>    <span class="k">def</span> <span class="nf">move_playlist_tracks</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.move_playlist_tracks"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.move_playlist_tracks">[docs]</a>    <span class="k">def</span> <span class="nf">move_playlist_tracks</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> 
             <span class="n">playlist_track_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]],</span> 
             <span class="n">insert_before</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -977,7 +984,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.move_playlist_track() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.move_playlist_track() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">playlist_track_ids</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -989,7 +996,7 @@
                                    <span class="s2">&quot;playlist_track_ids&quot;</span><span class="p">:</span> <span class="n">playlist_track_ids</span><span class="p">,</span>
                                    <span class="s2">&quot;insert_before&quot;</span><span class="p">:</span> <span class="n">insert_before</span><span class="p">})</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Session.delete_playlist_tracks"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.delete_playlist_tracks">[docs]</a>    <span class="k">def</span> <span class="nf">delete_playlist_tracks</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.delete_playlist_tracks"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.delete_playlist_tracks">[docs]</a>    <span class="k">def</span> <span class="nf">delete_playlist_tracks</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> 
             <span class="n">playlist_track_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -1020,7 +1027,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.delete_playlist_track() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.delete_playlist_track() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">playlist_track_ids</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -1032,7 +1039,7 @@
                   <span class="s2">&quot;playlist_track_ids&quot;</span><span class="p">:</span> <span class="n">playlist_track_ids</span><span class="p">}</span>
         <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
     
-<div class="viewcode-block" id="Session.favorite_playlist"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.favorite_playlist">[docs]</a>    <span class="k">def</span> <span class="nf">favorite_playlist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="PrivateAPI.favorite_playlist"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.favorite_playlist">[docs]</a>    <span class="k">def</span> <span class="nf">favorite_playlist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Favorite (or subscribe to) a playlist.</span>
@@ -1048,13 +1055,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.favorite_playlist() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.favorite_playlist() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/playlist/subscribe&quot;</span><span class="p">,</span> 
                       <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;playlist_id&quot;</span><span class="p">:</span> <span class="n">playlist_id</span><span class="p">})</span></div>
 
-<div class="viewcode-block" id="Session.unfavorite_playlist"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.unfavorite_playlist">[docs]</a>    <span class="k">def</span> <span class="nf">unfavorite_playlist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="PrivateAPI.unfavorite_playlist"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.unfavorite_playlist">[docs]</a>    <span class="k">def</span> <span class="nf">unfavorite_playlist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">playlist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Unfavorite (or unsubscribe from) a playlist.</span>
@@ -1070,7 +1077,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.unfavorite_playlist() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.unfavorite_playlist() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/playlist/unsubscribe&quot;</span><span class="p">,</span> 
@@ -1078,7 +1085,7 @@
 
     <span class="c1">### TRACKS ################################################################</span>
 
-<div class="viewcode-block" id="Session.get_track"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_track">[docs]</a>    <span class="k">def</span> <span class="nf">get_track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">track_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="PrivateAPI.get_track"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_track">[docs]</a>    <span class="k">def</span> <span class="nf">get_track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">track_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get Qobuz catalog information for a track.</span>
@@ -1097,7 +1104,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/track/get&quot;</span><span class="p">,</span>
                               <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;track_id&quot;</span><span class="p">:</span> <span class="n">track_id</span><span class="p">})</span></div>
         
-<div class="viewcode-block" id="Session.get_track_file_url"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_track_file_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_track_file_url</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_track_file_url"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_track_file_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_track_file_url</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">track_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">quality</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="mi">27</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span>
@@ -1178,7 +1185,7 @@
             <span class="p">}</span>
         <span class="p">)</span></div>
     
-<div class="viewcode-block" id="Session.get_track_credits"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_track_credits">[docs]</a>    <span class="k">def</span> <span class="nf">get_track_credits</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_track_credits"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_track_credits">[docs]</a>    <span class="k">def</span> <span class="nf">get_track_credits</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">track_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">performers</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">roles</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
 
@@ -1261,7 +1268,7 @@
         
         <span class="k">return</span> <span class="n">credits</span></div>
     
-<div class="viewcode-block" id="Session.get_curated_tracks"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_curated_tracks">[docs]</a>    <span class="k">def</span> <span class="nf">get_curated_tracks</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_curated_tracks"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_curated_tracks">[docs]</a>    <span class="k">def</span> <span class="nf">get_curated_tracks</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 
@@ -1293,7 +1300,7 @@
 
     <span class="c1">### SEARCH ################################################################</span>
 
-<div class="viewcode-block" id="Session.search"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.search"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">hi_res</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
             <span class="n">new_release</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> 
             <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -1359,7 +1366,7 @@
 
     <span class="c1">### STREAMS ###############################################################</span>
 
-<div class="viewcode-block" id="Session.get_track_stream"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_track_stream">[docs]</a>    <span class="k">def</span> <span class="nf">get_track_stream</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_track_stream"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_track_stream">[docs]</a>    <span class="k">def</span> <span class="nf">get_track_stream</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">track_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">quality</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="mi">27</span><span class="p">,</span>
             <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
             <span class="n">metadata</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
@@ -1495,7 +1502,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">stream</span></div>
 
-<div class="viewcode-block" id="Session.get_collection_streams"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_collection_streams">[docs]</a>    <span class="k">def</span> <span class="nf">get_collection_streams</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_collection_streams"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_collection_streams">[docs]</a>    <span class="k">def</span> <span class="nf">get_collection_streams</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> 
             <span class="n">quality</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="mi">27</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
             <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1615,7 +1622,7 @@
 
     <span class="c1">### USER ##################################################################</span>
 
-<div class="viewcode-block" id="Session.get_me"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_me">[docs]</a>    <span class="k">def</span> <span class="nf">get_me</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="PrivateAPI.get_me"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_me">[docs]</a>    <span class="k">def</span> <span class="nf">get_me</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the user&#39;s information.</span>
@@ -1643,7 +1650,7 @@
             <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;user_auth_token&quot;</span><span class="p">:</span> <span class="n">auth_token</span><span class="p">}</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Session.get_user_favorites"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_user_favorites">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_favorites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<div class="viewcode-block" id="PrivateAPI.get_user_favorites"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_user_favorites">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_favorites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the user&#39;s favorite albums, artists, and tracks.</span>
@@ -1670,7 +1677,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.get_user_favorites() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.get_user_favorites() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
 
         <span class="n">TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;albums&quot;</span><span class="p">,</span> <span class="s2">&quot;artists&quot;</span><span class="p">,</span> <span class="s2">&quot;tracks&quot;</span><span class="p">}</span>
@@ -1692,7 +1699,7 @@
             <span class="p">}</span>
         <span class="p">)</span></div>
     
-<div class="viewcode-block" id="Session.get_user_playlists"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_user_playlists">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_playlists</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_user_playlists"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_user_playlists">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_playlists</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1722,7 +1729,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.get_user_playlists() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.get_user_playlists() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
         
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
@@ -1730,7 +1737,7 @@
             <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span> <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="n">offset</span><span class="p">}</span>
         <span class="p">)[</span><span class="s2">&quot;playlists&quot;</span><span class="p">]</span></div>
     
-<div class="viewcode-block" id="Session.get_user_purchases"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.get_user_purchases">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_purchases</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_user_purchases"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_user_purchases">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_purchases</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;albums&quot;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
             <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
@@ -1766,7 +1773,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.get_user_purchases() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.get_user_purchases() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
         
         <span class="n">TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;albums&quot;</span><span class="p">,</span> <span class="s2">&quot;tracks&quot;</span><span class="p">}</span>
@@ -1779,7 +1786,7 @@
                               <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span> <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span> 
                                       <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="n">offset</span><span class="p">})[</span><span class="nb">type</span><span class="p">]</span></div>
     
-<div class="viewcode-block" id="Session.favorite_items"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.favorite_items">[docs]</a>    <span class="k">def</span> <span class="nf">favorite_items</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.favorite_items"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.favorite_items">[docs]</a>    <span class="k">def</span> <span class="nf">favorite_items</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">album_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
             <span class="n">artist_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">track_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1807,7 +1814,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.favorite() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.favorite() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1826,7 +1833,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/favorite/create&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Session.unfavorite_items"><a class="viewcode-back" href="../../api/minim.qobuz.Session.html#minim.qobuz.Session.unfavorite_items">[docs]</a>    <span class="k">def</span> <span class="nf">unfavorite_items</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.unfavorite_items"><a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.unfavorite_items">[docs]</a>    <span class="k">def</span> <span class="nf">unfavorite_items</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">album_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
             <span class="n">artist_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">track_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1854,7 +1861,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_me</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.Session.unfavorite() &quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;qobuz.PrivateAPI.unfavorite() &quot;</span>
                                <span class="s2">&quot;requires user authentication.&quot;</span><span class="p">)</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1878,6 +1885,10 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Qobuz album.</span>
 
+<span class="sd">    .. attention::</span>
+
+<span class="sd">       This class is pending removal.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    album_id : `str`</span>
@@ -1885,13 +1896,13 @@
 
 <span class="sd">    json : `dict`, keyword-only, optional</span>
 <span class="sd">        Qobuz catalog information for the album </span>
-<span class="sd">        retrieved using :meth:`Session.get_album`.</span>
+<span class="sd">        retrieved using :meth:`PrivateAPI.get_album`.</span>
 
-<span class="sd">    session : `minim.qobuz.Session`, keyword-only, optional</span>
+<span class="sd">    session : `minim.qobuz.PrivateAPI`, keyword-only, optional</span>
 <span class="sd">        Qobuz API session.</span>
 
 <span class="sd">    **kwargs</span>
-<span class="sd">        Keyword arguments to pass to the :class:`Session` constructor</span>
+<span class="sd">        Keyword arguments to pass to the :class:`PrivateAPI` constructor</span>
 <span class="sd">        if :code:`session=None`.</span>
 
 <span class="sd">    Attributes</span>
@@ -2014,9 +2025,9 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">album_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-            <span class="n">session</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">session</span><span class="p">:</span> <span class="n">PrivateAPI</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="n">Session</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="n">PrivateAPI</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">album_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">get_album</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">if</span> <span class="n">json</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">json</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json</span><span class="p">)</span>
@@ -2049,7 +2060,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        json : `dict`, keyword-only, optional</span>
 <span class="sd">            Qobuz catalog information for the album </span>
-<span class="sd">            retrieved using :meth:`Session.get_album`.</span>
+<span class="sd">            retrieved using :meth:`PrivateAPI.get_album`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">json</span><span class="p">:</span>
@@ -2262,6 +2273,10 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Qobuz artist.</span>
 
+<span class="sd">    .. attention::</span>
+
+<span class="sd">       This class is pending removal.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    artist_id : `str`</span>
@@ -2289,13 +2304,13 @@
 
 <span class="sd">    json : `dict`, keyword-only, optional</span>
 <span class="sd">        Qobuz catalog information for the artist </span>
-<span class="sd">        retrieved using :meth:`Session.get_artist`.</span>
+<span class="sd">        retrieved using :meth:`PrivateAPI.get_artist`.</span>
 
-<span class="sd">    session : `minim.qobuz.Session`, keyword-only, optional</span>
+<span class="sd">    session : `minim.qobuz.PrivateAPI`, keyword-only, optional</span>
 <span class="sd">        Qobuz API session.</span>
 
 <span class="sd">    **kwargs</span>
-<span class="sd">        Keyword arguments to pass to the :class:`Session` constructor</span>
+<span class="sd">        Keyword arguments to pass to the :class:`PrivateAPI` constructor</span>
 <span class="sd">        if :code:`session=None`.</span>
 
 <span class="sd">    Attributes</span>
@@ -2350,9 +2365,9 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">artist_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">extras</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">session</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">session</span><span class="p">:</span> <span class="n">PrivateAPI</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="n">Session</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="n">PrivateAPI</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">artist_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">get_artist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">extras</span><span class="o">=</span><span class="n">extras</span><span class="p">,</span> 
                                               <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span> \
@@ -2386,7 +2401,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        json : `dict`, keyword-only, optional</span>
 <span class="sd">            Qobuz catalog information for the artist </span>
-<span class="sd">            retrieved using :meth:`Session.get_artist`.</span>
+<span class="sd">            retrieved using :meth:`PrivateAPI.get_artist`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">json</span><span class="p">:</span>
@@ -2582,6 +2597,10 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Qobuz record label.</span>
 
+<span class="sd">    .. attention::</span>
+
+<span class="sd">       This class is pending removal.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    label_id : `str`</span>
@@ -2606,13 +2625,13 @@
 
 <span class="sd">    json : `dict`, keyword-only, optional</span>
 <span class="sd">        Qobuz catalog information for the label </span>
-<span class="sd">        retrieved using :meth:`Session.get_label`.</span>
+<span class="sd">        retrieved using :meth:`PrivateAPI.get_label`.</span>
 
-<span class="sd">    session : `minim.qobuz.Session`, keyword-only, optional</span>
+<span class="sd">    session : `minim.qobuz.PrivateAPI`, keyword-only, optional</span>
 <span class="sd">        Qobuz API session.</span>
 
 <span class="sd">    **kwargs</span>
-<span class="sd">        Keyword arguments to pass to the :class:`Session` constructor</span>
+<span class="sd">        Keyword arguments to pass to the :class:`PrivateAPI` constructor</span>
 <span class="sd">        if :code:`session=None`.</span>
 
 <span class="sd">    Attributes</span>
@@ -2634,9 +2653,9 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">label_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">albums</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
             <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">session</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">session</span><span class="p">:</span> <span class="n">PrivateAPI</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="n">Session</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="n">PrivateAPI</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">label_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">get_label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">albums</span><span class="o">=</span><span class="n">albums</span><span class="p">,</span> 
                                              <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span> \
@@ -2670,7 +2689,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        json : `dict`, keyword-only, optional</span>
 <span class="sd">            Qobuz catalog information for the label </span>
-<span class="sd">            retrieved using :meth:`Session.get_label`.</span>
+<span class="sd">            retrieved using :meth:`PrivateAPI.get_label`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">json</span><span class="p">:</span>
@@ -2727,6 +2746,10 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Qobuz track.</span>
 
+<span class="sd">    .. attention::</span>
+
+<span class="sd">       This class is pending removal.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    track_id : `str`</span>
@@ -2734,13 +2757,13 @@
 
 <span class="sd">    json : `dict`, keyword-only, optional</span>
 <span class="sd">        Qobuz catalog information for the track </span>
-<span class="sd">        retrieved using :meth:`Session.get_track`.</span>
+<span class="sd">        retrieved using :meth:`PrivateAPI.get_track`.</span>
 
-<span class="sd">    session : `minim.qobuz.Session`, keyword-only, optional</span>
+<span class="sd">    session : `minim.qobuz.PrivateAPI`, keyword-only, optional</span>
 <span class="sd">        Qobuz API session.</span>
 
 <span class="sd">    **kwargs</span>
-<span class="sd">        Keyword arguments to pass to the :class:`Session` constructor</span>
+<span class="sd">        Keyword arguments to pass to the :class:`PrivateAPI` constructor</span>
 <span class="sd">        if :code:`session=None`.</span>
 
 <span class="sd">    Attributes</span>
@@ -2830,9 +2853,9 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">track_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-            <span class="n">session</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">session</span><span class="p">:</span> <span class="n">PrivateAPI</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="n">Session</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="n">PrivateAPI</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">track_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">get_track</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">if</span> <span class="n">json</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">json</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json</span><span class="p">)</span>
@@ -2866,7 +2889,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        json : `dict`, keyword-only, optional</span>
 <span class="sd">            Qobuz catalog information for the track </span>
-<span class="sd">            retrieved using :meth:`Session.get_track`.</span>
+<span class="sd">            retrieved using :meth:`PrivateAPI.get_track`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">json</span><span class="p">:</span>
@@ -3041,21 +3064,25 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Qobuz playlist.</span>
 
+<span class="sd">    .. attention::</span>
+
+<span class="sd">       This class is pending removal.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    id_or_params : `int`, `str`, or `dict`</span>
 <span class="sd">        Either a Qobuz playlist ID or parameters for a new playlist to</span>
-<span class="sd">        pass to :meth:`Session.create_playlist`.</span>
+<span class="sd">        pass to :meth:`PrivateAPI.create_playlist`.</span>
 
 <span class="sd">    json : `dict`, keyword-only, optional</span>
 <span class="sd">        Qobuz catalog information for the playlist </span>
-<span class="sd">        retrieved using :meth:`Session.get_track`.</span>
+<span class="sd">        retrieved using :meth:`PrivateAPI.get_track`.</span>
 
-<span class="sd">    session : `minim.qobuz.Session`, keyword-only, optional</span>
+<span class="sd">    session : `minim.qobuz.PrivateAPI`, keyword-only, optional</span>
 <span class="sd">        Qobuz API session.</span>
 
 <span class="sd">    **kwargs</span>
-<span class="sd">        Keyword arguments to pass to the :class:`Session` constructor</span>
+<span class="sd">        Keyword arguments to pass to the :class:`PrivateAPI` constructor</span>
 <span class="sd">        if :code:`session=None`.</span>
 
 <span class="sd">    Attributes</span>
@@ -3110,9 +3137,9 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">id_or_params</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> 
-            <span class="n">json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">PrivateAPI</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="n">Session</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="n">PrivateAPI</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">id_or_params</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">id_or_params</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">get_playlist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> \
@@ -3186,7 +3213,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        json : `dict`, keyword-only, optional</span>
 <span class="sd">            Qobuz catalog information for the playlist </span>
-<span class="sd">            retrieved using :meth:`Session.get_playlist`.</span>
+<span class="sd">            retrieved using :meth:`PrivateAPI.get_playlist`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">json</span><span class="p">:</span>
@@ -3519,13 +3546,17 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Qobuz user.</span>
 
+<span class="sd">    .. attention::</span>
+
+<span class="sd">       This class is pending removal.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    session : `minim.qobuz.Session`, keyword-only, optional</span>
+<span class="sd">    session : `minim.qobuz.PrivateAPI`, keyword-only, optional</span>
 <span class="sd">        Qobuz API session.</span>
 
 <span class="sd">    **kwargs</span>
-<span class="sd">        Keyword arguments to pass to the :class:`Session` constructor</span>
+<span class="sd">        Keyword arguments to pass to the :class:`PrivateAPI` constructor</span>
 <span class="sd">        if :code:`session=None`.</span>
 
 <span class="sd">    Attributes</span>
@@ -3630,9 +3661,9 @@
 <span class="sd">        Geographical zone.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">PrivateAPI</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="n">Session</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="n">PrivateAPI</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">_me</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">_me</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_json</span><span class="p">)</span>
 
@@ -3667,7 +3698,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        json : `dict`, keyword-only, optional</span>
 <span class="sd">            Qobuz catalog information for the user</span>
-<span class="sd">            retrieved using :meth:`Session.get_me`.</span>
+<span class="sd">            retrieved using :meth:`PrivateAPI.get_me`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">json</span><span class="p">:</span>
@@ -4338,7 +4369,7 @@
 
 <span class="sd">        performers : `str`, keyword-only, optional</span>
 <span class="sd">            An unformatted string containing the track credits obtained</span>
-<span class="sd">            from calling :meth:`Session.get_track`.</span>
+<span class="sd">            from calling :meth:`PrivateAPI.get_track`.</span>
 
 <span class="sd">        roles : `list`, keyword-only, optional</span>
 <span class="sd">            Role filter. The special :code:`&quot;Composers&quot;` filter will </span>
