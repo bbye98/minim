@@ -1,4 +1,4 @@
-WebAPI
+﻿WebAPI
 ======
 
 .. currentmodule:: minim.spotify
@@ -45,8 +45,6 @@ WebAPI
       ~WebAPI.get_category_playlists
       ~WebAPI.get_chapter
       ~WebAPI.get_chapters
-      ~WebAPI.get_current_user_playlists
-      ~WebAPI.get_current_user_profile
       ~WebAPI.get_currently_playing
       ~WebAPI.get_devices
       ~WebAPI.get_episode
@@ -60,6 +58,9 @@ WebAPI
       ~WebAPI.get_playlist
       ~WebAPI.get_playlist_cover_image
       ~WebAPI.get_playlist_items
+      ~WebAPI.get_playlists
+      ~WebAPI.get_profile
+      ~WebAPI.get_queue
       ~WebAPI.get_recently_played
       ~WebAPI.get_recommendations
       ~WebAPI.get_related_artists
@@ -72,6 +73,7 @@ WebAPI
       ~WebAPI.get_show
       ~WebAPI.get_show_episodes
       ~WebAPI.get_shows
+      ~WebAPI.get_top_items
       ~WebAPI.get_track
       ~WebAPI.get_track_audio_analysis
       ~WebAPI.get_track_audio_features
@@ -79,8 +81,6 @@ WebAPI
       ~WebAPI.get_tracks_audio_features
       ~WebAPI.get_user_playlists
       ~WebAPI.get_user_profile
-      ~WebAPI.get_user_queue
-      ~WebAPI.get_user_top_items
       ~WebAPI.pause_playback
       ~WebAPI.remove_playlist_items
       ~WebAPI.remove_saved_albums

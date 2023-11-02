@@ -248,7 +248,7 @@
 <dt class="sig sig-object py" id="minim.spotify.PrivateLyricsService">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minim.spotify.</span></span><span class="sig-name descname"><span class="pre">PrivateLyricsService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp_dc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><span class="pre">datetime</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minim/spotify.html#PrivateLyricsService"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.PrivateLyricsService" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Spotify Lyrics service object.</p>
+<p>Spotify Lyrics service client.</p>
 <p>The Spotify Lyrics service, which is powered by Musixmatch (or
 PetitLyrics in Japan), provides line- or word-synced lyrics for
 Spotify tracks when available. The Spotify Lyrics interface is not
@@ -266,6 +266,11 @@ using the Spotify Web Player <code class="code docutils literal notranslate"><sp
 be provided to this class’s constructor as a keyword argument or be
 stored as <code class="code docutils literal notranslate"><span class="pre">SPOTIFY_SP_DC</span></code> in the operating system’s
 environment variables.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>The <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie can be extracted from the local storage
+of your web browser after you log into Spotify.</p>
+</div>
 <p>If an existing access token is available, it and its expiry time can
 be provided to this class’s constructor as keyword arguments to
 bypass the access token exchange process. It is recommended that all
@@ -290,16 +295,16 @@ as <code class="code docutils literal notranslate"><span class="pre">SPOTIFY_SP_
 variables or found in the Minim configuration file, it must be
 provided here.</p>
 </dd>
-<dt><strong>access_token</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Access token. If provided or found in the Minim configuration
-file, the authentication process is bypassed. In the former
-case, all other relevant keyword arguments should be specified
-to automatically refresh the access token when it expires.</p>
+<dt><strong>access_token</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Access token. If provided here or found in the Minim
+configuration file, the authentication process is bypassed. In
+the former case, all other relevant keyword arguments should be
+specified to automatically refresh the access token when it
+expires.</p>
 </dd>
 <dt><strong>expiry</strong><span class="classifier"><cite>datetime.datetime</cite> or <cite>str</cite>, keyword-only, optional</span></dt><dd><p>Expiry time of <cite>access_token</cite> in the ISO 8601 format
 <code class="code docutils literal notranslate"><span class="pre">%Y-%m-%dT%H:%M:%SZ</span></code>. If provided, the user will be
-reauthenticated using <cite>refresh_token</cite> (if available) or the
-specified authorization flow (if possible) when <cite>access_token</cite>
-expires.</p>
+reauthenticated using the default authorization flow (if
+possible) when <cite>access_token</cite> expires.</p>
 </dd>
 <dt><strong>save</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Determines whether newly obtained access tokens and their
 associated properties are stored to the Minim configuration
@@ -312,6 +317,8 @@ file.</p>
 <dt><strong>LYRICS_URL</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>Base URL for the Spotify Lyrics service.</p>
 </dd>
 <dt><strong>TOKEN_URL</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>URL for the Spotify Web Player access token endpoint.</p>
+</dd>
+<dt><strong>session</strong><span class="classifier"><cite>requests.Session</cite></span></dt><dd><p>Session used to send requests to the Spotify Lyrics service.</p>
 </dd>
 </dl>
 </dd>
@@ -378,7 +385,7 @@ reauthenticated (if <cite>sp_dc</cite> is found or provided) when the
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>id</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>The Spotify ID for the track.</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;11dFghVXANMlKmJXsNCbNl&quot;</span></code>.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;0VjIjW4GlUZAMYd2vXMi3b&quot;</span></code>.</p>
 </dd>
 </dl>
 </dd>

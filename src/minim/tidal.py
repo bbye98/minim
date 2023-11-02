@@ -4,7 +4,7 @@ TIDAL
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
 This module contains a complete implementation of all TIDAL API
-1.0.0 endpoints and a minim implementation of the more robust but 
+1.0.0 endpoints and a minimum implementation of the more robust but 
 private TIDAL API.
 """
 
@@ -12,6 +12,7 @@ import base64
 import datetime
 import hashlib
 import json
+import logging
 import os
 import re
 import secrets
@@ -37,7 +38,7 @@ from . import audio, utility, HOME_DIR, TEMP_DIR, config
 class API:
     
     """
-    TIDAL API object.
+    TIDAL API client.
 
     The TIDAL API exposes TIDAL functionality and data, making it 
     possible to build applications that can search for and retrieve
@@ -80,6 +81,63 @@ class API:
     Minim configuration file to be loaded on the next instantiation of
     this class. This behavior can be disabled if there are any security
     concerns, like if the computer being used is a shared device.
+
+    Parameters
+    ----------
+    client_id : `str`, keyword-only, optional
+        Client ID. Required for the client credentials flow. If it is 
+        not stored as :code:`TIDAL_CLIENT_ID` in the operating system's
+        environment variables or found in the Minim configuration file,
+        it must be provided here.
+
+    client_secret : `str`, keyword-only, optional
+        Client secret. Required for the client credentials flow. If it
+        is not stored as :code:`TIDAL_CLIENT_SECRET` in the operating 
+        system's environment variables or found in the Minim 
+        configuration file, it must be provided here.
+
+    flow : `str`, keyword-only, optional
+        Authorization flow.
+
+        .. container::
+
+           **Valid values**:
+           
+           * :code:`"client_credentials"` for the client credentials 
+             flow.
+
+    access_token : `str`, keyword-only, optional
+        Access token. If provided here or found in the Minim 
+        configuration file, the authentication process is bypassed. In 
+        the former case, all other relevant keyword arguments should be
+        specified to automatically refresh the access token when it 
+        expires.
+
+    expiry : `datetime.datetime` or `str`, keyword-only, optional
+        Expiry time of `access_token` in the ISO 8601 format
+        :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be 
+        reauthenticated using the specified authorization flow (if
+        possible) when `access_token` expires.
+
+    overwrite : `bool`, keyword-only, default: :code:`False`
+        Determines whether to overwrite an existing access token in the
+        Minim configuration file.
+
+    save : `bool`, keyword-only, default: :code:`True`
+        Determines whether newly obtained access tokens and their
+        associated properties are stored to the Minim configuration 
+        file.
+
+    Attributes
+    ----------
+    session : `requests.Session`
+        Session used to send requests to the TIDAL API.
+
+    API_URL : `str`
+        Base URL for the TIDAL API.
+
+    TOKEN_URL : `str`
+        URL for the TIDAL API token endpoint.
     """
 
     _FLOWS = ["client_credentials"]
@@ -92,11 +150,13 @@ class API:
             flow: str = "client_credentials", access_token: str = None, 
             expiry: Union[datetime.datetime, str] = None, 
             overwrite: bool = False, save: bool = True) -> None:
+        
+        """
+        Create a TIDAL API client.
+        """
 
         self.session = requests.Session()
-        self.session.headers.update(
-            {"Content-Type": f"application/vnd.tidal.v1+json"}
-        )
+        self.session.headers["Content-Type"] = "application/vnd.tidal.v1+json"
 
         if (access_token is None and config.has_section(self._NAME) 
                 and not overwrite):
@@ -184,9 +244,6 @@ class API:
             possible) when `access_token` expires.
         """
 
-        if "Authorization" in self.session.headers:
-            del self.session.headers["Authorization"]
-
         if access_token is None:
             if not self._client_id or not self._client_secret:
                 raise ValueError("TIDAL API client credentials not provided.")
@@ -215,9 +272,7 @@ class API:
                 with open(HOME_DIR / "minim.cfg", "w") as f:
                     config.write(f)
 
-        self.session.headers.update(
-            {"Authorization": f"Bearer {access_token}"}
-        )
+        self.session.headers["Authorization"] = f"Bearer {access_token}"
         self._expiry = (
             datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ") 
             if isinstance(expiry, str) else expiry
@@ -255,7 +310,9 @@ class API:
         """
 
         if flow not in self._FLOWS:
-            raise ValueError("Invalid authorization flow.")
+            emsg = (f"Invalid authorization flow ({flow=}). "
+                    f"Valid values: {', '.join(self._FLOWS)}.")
+            raise ValueError(emsg)
         
         self._flow = flow
         self._save = save
@@ -710,7 +767,7 @@ class API:
         ids : `int`, `str`, or `list`
             TIDAL artist ID(s).
 
-            **Examples**: :code:`"1566,7804"`, :code:`[1566, 7804]`.
+            **Examples**: :code:`"1566,7804"` or :code:`[1566, 7804]`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
@@ -1426,58 +1483,100 @@ class API:
                   }
         """
 
+        if type:
+            if type not in \
+                    (TYPES := {"ALBUMS", "ARTISTS", "TRACKS", "VIDEOS"}):
+                emsg = ("Invalid target search type. Valid values: "
+                        f"{', '.join(TYPES)}.")
+                raise ValueError(emsg)
+
         return self._get_json(
             f"{self.API_URL}/search",
-            params={"query": query, "type": type, "offset": offset,
-                    "limit": limit, "countryCode": country_code, 
-                    "popularity": popularity}
-          )
+            params={
+                "query": query,
+                "type": type,
+                "offset": offset,
+                "limit": limit, 
+                "countryCode": country_code, 
+                "popularity": popularity
+            }
+        )
 
 class PrivateAPI:
 
     """
-    A TIDAL private API object.
+    Private TIDAL API client.
 
-    .. attention::
+    The private TIDAL API allows media (tracks, videos), collections 
+    (albums, playlists), and performers to be queried, and information 
+    about them to be retrieved. As there is no available official 
+    documentation for the private TIDAL API, its endpoints have been 
+    determined by watching HTTP network traffic.
 
-       This class is pending a major refactor.
+    .. warning::
 
-    This class contains a minimal Python implementation of the TIDAL API,
-    which allows media (tracks, videos), collections (albums, playlists),
-    and performers to be queried, and information about them to be 
-    retrieved. As the TIDAL API is not public, there is no available
-    official documentation for it. Its endpoints have been determined by 
-    watching HTTP network traffic.
+       As the private TIDAL API is not designed to be publicly 
+       accessible, this class can be disabled or removed at any time to
+       ensure compliance with the `TIDAL Developer Terms of Service
+       <https://developer.tidal.com/documentation/guidelines
+       /guidelines-developer-terms>`_.
 
-    Without authentication, the TIDAL API can be used to query for and
-    retrieve information about media and performers.
+    While authentication is not necessary to search for and retrieve
+    data from public content, it is required to access personal content
+    and control playback. In the latter case, requests to the private
+    TIDAL API endpoints must be accompanied by a valid user access token 
+    in the header.
 
-    With OAuth 2.0 authentication, the TIDAL API allows access to user
-    information and media streaming. Valid client credentials—a client ID
-    and a client secret—must either be provided explicitly to the 
-    :class:`Session` constructor or be stored in the operating system's 
-    environment variables as :code:`TIDAL_CLIENT_ID` and 
-    :code:`TIDAL_CLIENT_SECRET`, respectively. Alternatively, an access
-    token (and optionally, its accompanying expiry time and refresh token) 
-    can be provided to the :class:`Session` constructor to bypass the 
-    authorization flow.
+    Minim can obtain user access tokens via the authorization code with
+    proof key for code exchange (PKCE) and device code flows. These 
+    OAuth 2.0 authorization flows require valid client credentials 
+    (client ID and client secret) to either be provided to this class's
+    constructor as keyword arguments or be stored as 
+    :code:`TIDAL_PRIVATE_CLIENT_ID` and 
+    :code:`TIDAL_PRIVATE_CLIENT_SECRET` in the operating system's 
+    environment variables. 
 
-    .. note::
+    .. hint::
 
-       This class supports the authorization code and device code flows.
+       Client credentials can be extracted from the software you use to
+       access TIDAL, such as the TIDAL Web Player and the Android, iOS,
+       macOS, and Windows applications. Only the TIDAL Web Player and 
+       desktop application client credentials can be used without 
+       authorization.
+
+    If an existing access token is available, it and its accompanying
+    information (refresh token and expiry time) can be provided to this
+    class's constructor as keyword arguments to bypass the access token
+    retrieval process. It is recommended that all other
+    authentication-related keyword arguments be specified so that a new
+    access token can be obtained when the existing one expires.
+
+    .. tip::
+
+       The authorization flow and access token can be changed or updated
+       at any time using :meth:`set_authorization_flow` and 
+       :meth:`set_access_token`, respectively.
+    
+    Minim also stores and manages access tokens and their properties. 
+    When an access token is acquired, it is automatically saved to the 
+    Minim configuration file to be loaded on the next instantiation of
+    this class. This behavior can be disabled if there are any security
+    concerns, like if the computer being used is a shared device.
 
     Parameters
     ----------
     client_id : `str`, keyword-only, optional
-        Client ID. If it is not stored as :code:`TIDAL_CLIENT_ID` in
-        the operating system's environment variables, it must be
-        provided here.
+        Client ID. If it is not stored as 
+        :code:`TIDAL_PRIVATE_CLIENT_ID` in the operating system's 
+        environment variables or found in the Minim configuration file,
+        it must be provided here.
     
     client_secret : `str`, keyword-only, optional
-        Client secret key. If it is not stored as
-        :code:`TIDAL_CLIENT_SECRET` in the operating system's
-        environment variables, it must be provided here if the device
-        code flow will be used for user authentication.
+        Client secret. Required for the authorization code and device 
+        code flows. If it is not stored as 
+        :code:`TIDAL_PRIVATE_CLIENT_SECRET` in the operating system's
+        environment variables or found in the Minim configuration file,
+        it must be provided here.
 
     flow : `str`, keyword-only, optional
         Authorization flow. If not specified, no user authentication
@@ -1487,51 +1586,66 @@ class PrivateAPI:
 
            **Valid values**:
            
-           * :code:`"authorization_code"` for the authorization code flow.
+           * :code:`"authorization_code_pkce"` for the authorization 
+             code with proof key for code exchange (PKCE) flow.
            * :code:`"device_code"` for the device code flow.
     
-    scopes : `str` or `list`, keyword-only, optional
-        Authorization scopes to request user access for in the
-        device code flow.
-
-        **Valid values**: :code:`"r_usr"`, :code:`"w_usr"`, 
-        :code:`"w_sub"`.
-
-        **Default**: :code:`"r_usr w_usr"`.
-
-    browser : `bool`, keyword-only, default: :code:`True`
+    browser : `bool`, keyword-only, default: :code:`False`
         Determines whether a web browser is automatically opened for the
-        authorization code or device code flows. If :code:`False`, users 
-        will have to manually open the specified URL, and for the
-        authorization code flow, provide the full callback URI via the
-        terminal.
-    
-    access_token : `str`, keyword-only, optional
-        Access token. If provided, the authorization flow is completely
-        bypassed.
-    
-    refresh_token : `str`, keyword-only, optional
-        Refresh token accompanying `access_token`. If not specified, the
-        user will be reauthenticated using the default authorization
-        flow when `access_token` expires.
-        
-    expiry : `datetime.datetime`, keyword-only, optional
-        Expiry time of `access_token`. If provided, the user will be
-        reauthenticated using `refresh_token` (if available) or the
-        default authorization flow (if possible) when `access_token`
-        expires.
+        authorization code with PKCE or device code flows. If 
+        :code:`False`, users will have to manually open the 
+        authorization URL, and for the authorization code flow, provide
+        the full callback URI via the terminal. For the authorization 
+        code with PKCE flow, the Playwright framework by Microsoft is
+        used.
+
+    scopes : `str` or `list`, keyword-only, default: :code:`"r_usr"`
+        Authorization scopes to request user access for in the OAuth 2.0
+        flows.
+
+        **Valid values**: :code:`"r_usr"`, :code:`"w_usr"`, and
+        :code:`"w_sub"` (device code flow only).
 
     user_agent : `str`, keyword-only, optional
         User agent information to send in the header of HTTP requests.
         
         .. note::
+        
            If not specified, TIDAL may temporarily block your IP address
            if you are making requests too quickly.
+    
+    access_token : `str`, keyword-only, optional
+        Access token. If provided here or found in the Minim 
+        configuration file, the authentication process is bypassed. In 
+        the former case, all other relevant keyword arguments should be
+        specified to automatically refresh the access token when it 
+        expires.
+    
+    refresh_token : `str`, keyword-only, optional
+        Refresh token accompanying `access_token`. If not provided,
+        the user will be reauthenticated using the specified 
+        authorization flow when `access_token` expires.
+        
+    expiry : `datetime.datetime` or `str`, keyword-only, optional
+        Expiry time of `access_token` in the ISO 8601 format
+        :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be 
+        reauthenticated using `refresh_token` (if available) or the
+        specified authorization flow (if possible) when `access_token`
+        expires.
+
+    overwrite : `bool`, keyword-only, default: :code:`False`
+        Determines whether to overwrite an existing access token in the
+        Minim configuration file.
+
+    save : `bool`, keyword-only, default: :code:`True`
+        Determines whether newly obtained access tokens and their
+        associated properties are stored to the Minim configuration 
+        file.
 
     Attributes
     ----------
     API_URL : `str`
-        URL for the TIDAL API.
+        Base URL for the private TIDAL API.
 
     AUTH_URL : `str`
         URL for device code requests.
@@ -1539,43 +1653,26 @@ class PrivateAPI:
     LOGIN_URL : `str`
         URL for authorization code requests.
 
+    REDIRECT_URL : `str`
+        URL for authorization code callbacks.
+
     RESOURCES_URL : `str`
-        URL for cover art and images.
+        URL for cover art and image requests.
         
     TOKEN_URL : `str`
         URL for access token requests.
 
     WEB_URL : `str`
-        URL for the TIDAL web player.
+        URL for the TIDAL Web Player.
+
+    session : `requests.Session`
+        Session used to send requests to the private TIDAL API.
     """
 
-    _ASSET_PRESENTATIONS = {"FULL", "PREVIEW"}
-    _AUDIO_FORMATS_EXTENSIONS = {
-        "alac": "m4a",
-        "flac": "flac",
-        "m4a": "m4a",
-        "mp3": "mp3",
-        "mpeg": "mp3",
-        "mp4a": "m4a",
-        "mqa": "flac"
-    }
-    _AUDIO_QUALITIES = {"LOW", "HIGH", "LOSSLESS", "HI_RES"}
-    _COLLECTION_TYPES = {"album", "mix", "playlist"}
-    _DEVICE_TYPES = {"BROWSER", "DESKTOP", "PHONE", "TV"}
-    _COMPOSER_ROLES = {"Composer", "Lyricist", "Writer"}
-    _ILLEGAL_CHARACTERS = {ord(c): '_' for c in '<>:"/\|?*'}
-    _IMAGE_SIZES = {
-        "artist": (750, 750),
-        "album": (1280, 1280),
-        "playlist": (1080, 1080),
-        "track": (1280, 1280),
-        "video": (640, 360)
-    }
-    _MASTER_KEY = base64.b64decode('UIlTTEMmmLfGowo/UC60x2H45W6MdGgTRfo/umg4754=')
-    _MEDIA_TYPES = {"artist", "album", "playlist", "track", "userProfile", "video"}
-    _OAUTH_FLOWS = {"authorization_code", "device_code"}
-    _PLAYBACK_MODES = {"STREAM", "OFFLINE"}
-    _VIDEO_QUALITIES = {"AUDIO_ONLY", "LOW", "MEDIUM", "HIGH"}
+    _FLOWS = {"authorization_code_pkce", "device_code"}
+    _MASTER_KEY = (b"P\x89SLC&\x98\xb7\xc6\xa3\n?P.\xb4\xc7a\xf8\xe5n"
+                   b"\x8cth\x13E\xfa?\xbah8\xef\x9e")
+    _NAME = f"{__module__}.{__qualname__}"
 
     API_URL = "https://api.tidal.com"
     AUTH_URL = "https://auth.tidal.com/v1/oauth2"
@@ -1586,163 +1683,95 @@ class PrivateAPI:
 
     def __init__(
             self, *, client_id: str = None, client_secret: str = None,
-            country: str = None, flow: str = None,
-            scopes: Union[str, list[str]] = "r_usr w_usr",
-            browser: bool = True, access_token: str = None,
-            refresh_token: str = None, expiry: datetime.datetime = None,
-            user_agent: str = None):
+            flow: str = None, browser: bool = False, 
+            scopes: Union[str, list[str]] = "r_usr", user_agent: str = None,
+            access_token: str = None, refresh_token: str = None,
+            expiry: datetime.datetime = None, overwrite: bool = False, 
+            save: bool = True) -> None:
         
         """
-        Create a TIDAL API session.
+        Create a private TIDAL API client.
         """
         
         self.session = requests.Session()
         if user_agent:
-            self.session.headers.update({"User-Agent": user_agent})
+            self.session.headers["User-Agent"] = user_agent
 
-        if access_token is not None:
-            self.session.headers.update({"Authorization": f"Bearer {access_token}"})
-            self._client_id = os.environ.get("TIDAL_CLIENT_ID") \
-                              if client_id is None else client_id
-            self._refresh_token = refresh_token
-            self._expiry = expiry
-            self._session = self.get_session()
-            self._me = self.get_me()
-            self._country = country if country else self._me["countryCode"]
-        elif flow is None:
-            self._client_id = os.environ.get("TIDAL_CLIENT_ID") \
-                              if client_id is None else client_id
-            self._expiry = None
-            self._flow = flow
-            self._country = country if country else self.get_country_code()
-            self.session.headers.update({"x-tidal-token": self._client_id})
-        else:
-            if flow and flow not in self._OAUTH_FLOWS:
-                raise ValueError("Invalid OAuth 2.0 authorization flow.")
-            self._flow = flow
-            self._client_id = os.environ.get("TIDAL_CLIENT_ID") \
-                              if client_id is None else client_id
-            self._client_secret = os.environ.get("TIDAL_CLIENT_SECRET") \
-                                  if client_secret is None \
-                                  else client_secret
-            self._scopes = " ".join(scopes) if isinstance(scopes, list) else scopes
-            self._browser = browser
-            self._get_access_token()
-            self._session = self.get_session()
-            if self._flow == "device_code":
-                self._me = self.get_me()
-            self._country = country if country else self._me["countryCode"]
+        if (access_token is None and config.has_section(self._NAME)
+                and not overwrite):
+            flow = config.get(self._NAME, "flow")
+            access_token = config.get(self._NAME, "access_token")
+            refresh_token = config.get(self._NAME, "refresh_token")
+            expiry = config.get(self._NAME, "expiry")
+            client_id = config.get(self._NAME, "client_id")
+            client_secret = config.get(self._NAME, "client_secret")
+            scopes = config.get(self._NAME, "scopes")
 
-    def __repr__(self) -> None:
-
-        """
-        Set the string representation of the TIDAL API object.
-        """
-
-        if hasattr(self, "_session") and hasattr(self, "_me"):
-            return (f"TIDAL API: client {self._session['client']['name']} / "
-                    f"session {self._session['sessionId']} / "
-                    f"user {self._me['nickname']} (ID: {self._me['userId']}, "
-                    f"email: {self._me['email']})")
-        return f"<minim.tidal.Session object at 0x{id(self):x}>"
-
-    def _get_access_token(self) -> None:
-
-        """
-        Get TIDAL API access token.
-        """
-
-        if self._flow == "authorization_code":
-            if self._client_id is None:
-                raise ValueError("TIDAL API client ID not provided.")
-            
-            code_verifier = secrets.token_urlsafe(32)
-            code_challenge = base64.urlsafe_b64encode(
-                hashlib.sha256(code_verifier.encode("ascii")).digest()
-            ).decode("ascii")
-            if code_challenge[-1] == "=":
-                code_challenge = code_challenge[:-1]
-
-            auth_code = self._get_authorization_code(code_challenge)
-
-            resp = requests.post(
-                f"{self.LOGIN_URL}/oauth2/token",
-                json={"client_id": self._client_id,
-                      "code": auth_code,
-                      "code_verifier": code_verifier, 
-                      "grant_type": "authorization_code", 
-                      "redirect_uri": self.REDIRECT_URI, 
-                      "scope": self._scopes}
-            ).json()
-
-            self.session.headers.update(
-                {"Authorization": f"{resp['token_type']} {resp['access_token']}"}
-            )
-            self._refresh_token = resp["refresh_token"]
-            self._expiry = datetime.datetime.now() \
-                           + datetime.timedelta(0, resp["expires_in"])
-            self._me = resp["user"]
-            
-        elif self._flow == "device_code":
-            if self._client_id is None or self._client_secret is None:
-                raise ValueError("TIDAL API client credentials not provided.")
-            
-            data = {"client_id": self._client_id}
-            if self._scopes:
-                data["scope"] = self._scopes
+        self.set_authorization_flow(
+            flow, client_id=client_id, client_secret=client_secret,
+            browser=browser, scopes=scopes, save=save
+        )
+        self.set_access_token(access_token, refresh_token=refresh_token,
+                              expiry=expiry)
         
-            resp = requests.post(f"{self.AUTH_URL}/device_authorization",
-                                 data=data).json()
-            if "error" in resp:
-                emsg = (f"{resp['status']}.{resp['sub_status']} "
-                        f"{resp['error_description']}")
-                raise ValueError(emsg)
-            data["device_code"] = resp["deviceCode"]
-            data["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code"
-            verification_uri = f"http://{resp['verificationUriComplete']}"
+        if self._flow is not None:
+            me = self.get_profile()
+            self._country_code = me["countryCode"]
+            self._user_id = me["userId"]
 
-            if self._browser:
-                webbrowser.open(verification_uri)
-            else:
-                print("To grant Minim access to TIDAL data and features, open the "
-                      f"following link in your web browser:\n\n{verification_uri}\n")
+    def _check_scope(
+            self, endpoint: str, scope: str = None, *, 
+            require_authentication: bool = True) -> None:
 
-            while True:
-                time.sleep(2)
-                resp = requests.post(f"{self.AUTH_URL}/token", data=data,
-                                     auth=(self._client_id, self._client_secret)).json()
-                if "error" not in resp:
-                    break
-                elif resp["error"] != "authorization_pending":
-                    raise RuntimeError(f"{resp['status']}.{resp['sub_status']} "
-                                       f"{resp['error_description']}")
+        """
+        Check if the user has granted the appropriate authorization
+        scope for the desired endpoint.
 
-            self.session.headers.update(
-                {"Authorization": f"{resp['token_type']} {resp['access_token']}"}
-            )
-            self._refresh_token = resp["refresh_token"]
-            self._expiry = datetime.datetime.now() \
-                           + datetime.timedelta(0, resp["expires_in"])
+        Parameters
+        ----------
+        endpoint : `str`
+            Private TIDAL API endpoint.
+
+        scope : `str`, optional
+            Required scope for `endpoint`.
+
+        require_authentication : `bool`, keyword-only, default: :code:`True`
+            Specifies whether the endpoint requires user authentication.
+            Some endpoints can be used without authentication but require 
+            specific scopes when user authentication has been performed.
+        """
+
+        if require_authentication and self._flow is None and scope is None:
+            emsg = (f"{self._NAME}.{endpoint}() requires user "
+                    "authentication.")
+            raise RuntimeError(emsg)
+        elif not require_authentication and self._flow is not None \
+                and scope not in self._scopes:
+            emsg = (f"{self._NAME}.{endpoint}() requires the '{scope}' "
+                    "authorization scope when user authentication has "
+                    "been performed.")
+            raise RuntimeError(emsg)
+        elif require_authentication and scope and scope not in self._scopes:
+            emsg = (f"{self._NAME}.{endpoint}() requires the '{scope}' "
+                    "authorization scope.")
+            raise RuntimeError(emsg)
 
     def _get_authorization_code(self, code_challenge: str) -> str:
 
         """
-        Get an authorization code to be exchanged for an access token 
-        for the TIDAL Web API.
+        Get an authorization code to be exchanged for an access token in
+        the authorization code flow.
 
         Parameters
         ----------
-        code_challenge : `str`
-            Code challenge.
-
+        code_challenge : `str`, optional
+            Code challenge for the authorization code with PKCE flow.
+        
         Returns
         -------
         auth_code : `str`
             Authorization code.
         """
-
-        if self._client_id is None:
-            raise ValueError("TIDAL API client ID not provided.")
 
         params = {
             "client_id": self._client_id,
@@ -1753,12 +1782,11 @@ class PrivateAPI:
         }
         if self._scopes:
             params["scope"] = self._scopes
-
         auth_url = (f"{self.LOGIN_URL}/authorize?"
                     f"{urllib.parse.urlencode(params)}")
 
         if self._browser:
-            har_file = f"{TEMP_DIR}/tidal.har"
+            har_file = TEMP_DIR / "minim_tidal_private.har"
 
             with sync_playwright() as playwright:
                 browser = playwright.firefox.launch(headless=False)
@@ -1770,33 +1798,30 @@ class PrivateAPI:
                 )
                 page = context.new_page()
                 page.goto(auth_url, timeout=0)
-                try:
-                    page.wait_for_url("tidal://login/auth*", 
-                                      wait_until="networkidle")
-                except:
-                    pass
+                page.wait_for_url(f"{self.REDIRECT_URI}*", 
+                                  wait_until="networkidle")
                 context.close()
                 browser.close()
 
             with open(har_file, "r") as f:
-                har = f.read()
-            os.remove(har_file)
-            queries = dict(
-                urllib.parse.parse_qsl(
-                    urllib.parse.urlparse(
-                        re.search(f'{self.REDIRECT_URI}\?(.*?)"', har).group(0)
-                    ).query
+                queries = dict(
+                    urllib.parse.parse_qsl(
+                        urllib.parse.urlparse(
+                            re.search(f'{self.REDIRECT_URI}\?(.*?)"', 
+                                      f.read()).group(0)
+                        ).query
+                    )
                 )
-            )
+            har_file.unlink()
 
         else:
             print("To grant Minim access to TIDAL data and features, "
                   "open the following link in your web browser:\n\n"
                   f"{auth_url}\n")
-            uri = input("After authorizing Minim to access TIDAL "
-                        "on your behalf, provide the redirect URI "
-                        f"beginning with '{self.REDIRECT_URI}' "
-                        "below.\n\nURI: ")
+            uri = input("After authorizing Minim to access TIDAL on "
+                        "your behalf, copy and paste the URI in the "
+                        "address bar of your web browser beginning "
+                        f"with '{self.REDIRECT_URI}' below.\n\nURI: ")
             queries = dict(
                 urllib.parse.parse_qsl(urllib.parse.urlparse(uri).query)
             )
@@ -1805,92 +1830,28 @@ class PrivateAPI:
             raise RuntimeError("Authorization failed.")
         return queries["code"]
 
-    def _refresh_access_token(self) -> None:
-
+    def _get_country_code(self, country_code: str = None) -> str:
+        
         """
-        Refresh the expired excess token.
-        """
-
-        if self._refresh_token is None:
-            self._get_access_token()
-        else:
-            if self._client_id is None:
-                raise ValueError("TIDAL API client ID not provided.")
-            
-            resp = self._request(
-                "post",
-                f"{self.LOGIN_URL}/oauth2/token",
-                json={"client_id": self._client_id, 
-                      "grant_type": "refresh_token",
-                      "refresh_token": self._refresh_token},
-                check_expiry=False
-            ).json()
-
-        self.session.headers.update(
-            {"Authorization": f"{resp['token_type']} {resp['access_token']}"}
-        )
-        self._expiry = datetime.datetime.now() \
-                       + datetime.timedelta(0, resp["expires_in"])
-    
-    def _request(
-            self, method: str, url: str, *, check_expiry: bool = True, **kwargs
-        ) -> requests.Response:
-
-        """
-        Construct and send a request, but with status code checking.
+        Get the ISO 3166-1 alpha-2 country code to use for requests.
 
         Parameters
         ----------
-        method : `str`
-            Method for the request.
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
-        url : `str`
-            URL for the request.
-
-        check_expiry : `bool`, keyword-only, default: :code:`True`
-            Determines whether a check is performed to see if the access
-            token has expired.
-
-        **kwargs
-            Keyword arguments to pass to :meth:`requests.request`.
-
+            **Example**: :code:`"US"`.
+        
         Returns
         -------
-        resp : `requests.Response`
-            Response to the request.
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
         """
 
-        if check_expiry and self._expiry is not None \
-                and datetime.datetime.now() > self._expiry:
-            self._refresh_access_token()
-
-        resp = self.session.request(method, url, **kwargs)
-        status = resp.status_code
-        if resp.status_code in range(200, 209):
-            return resp
-        elif resp.status_code == 404:
-            raise RuntimeError(f"{resp.status_code} {resp.reason}")
-        else: 
-            error = resp.json()
-            substatus = error["subStatus"] if "subStatus" in error \
-                        else error["sub_status"] if "sub_status" in error \
-                        else ""
-            description = error["userMessage"] if "userMessage" in error \
-                          else error["description"] if "description" in error \
-                          else error["error_description"] if "error_description" in error \
-                          else ""
-            
-            emsg = f"{status}"
-            if substatus:
-                emsg += f".{substatus}"
-            emsg += f" {description}"
-
-            if resp.status_code == 401 and substatus == 11003:
-                print(emsg)
-                self._get_access_token()
-                return self.session.request(method, url, **kwargs)
-            else:
-                raise RuntimeError(emsg)
+        return country_code or getattr(self, "_country_code", None) \
+               or self.get_country_code()
 
     def _get_json(self, url: str, **kwargs) -> dict:
 
@@ -1904,7 +1865,7 @@ class PrivateAPI:
             URL for the GET request.
         
         **kwargs
-            Keyword arguments passed to :meth:`requests.request`.
+            Keyword arguments to pass to :meth:`requests.request`.
 
         Returns
         -------
@@ -1914,81 +1875,984 @@ class PrivateAPI:
 
         return self._request("get", url, **kwargs).json()
 
-    ### ARTISTS ###############################################################
+    def _refresh_access_token(self) -> None:
 
-    def get_artist(
-            self, id: Union[int, str], *, country: str = None
+        """
+        Refresh the expired excess token.
+        """
+
+        if self._flow is None or not self._refresh_token \
+                or not self._client_id or not self._client_secret:
+            self.set_access_token()
+        else:  
+            r = requests.post(
+                f"{self.LOGIN_URL}/oauth2/token",
+                data={
+                    "client_id": self._client_id, 
+                    "client_secret": self._client_secret,
+                    "grant_type": "refresh_token",
+                    "refresh_token": self._refresh_token
+                },
+            ).json()
+
+            self.session.headers["Authorization"] = f"Bearer {r['access_token']}"
+            self._expiry = (datetime.datetime.now()
+                            + datetime.timedelta(0, r["expires_in"]))
+            self._scopes = r["scope"]
+            
+            if self._save:
+                config[self._NAME].update({
+                    "access_token": r["access_token"],
+                    "expiry": self._expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "scopes": self._scopes
+                })
+                with open(HOME_DIR / "minim.cfg", "w") as f:
+                    config.write(f)
+
+    def _request(
+            self, method: str, url: str, retry: bool = True, **kwargs
+        ) -> requests.Response:
+
+        """
+        Construct and send a request, but with status code checking.
+
+        Parameters
+        ----------
+        method : `str`
+            Method for the request.
+
+        url : `str`
+            URL for the request.
+
+        retry : `bool`
+            Specifies whether to retry the request if the response has
+            a non-2xx status code.
+
+        **kwargs
+            Keyword arguments passed to :meth:`requests.request`.
+
+        Returns
+        -------
+        resp : `requests.Response`
+            Response to the request.
+        """
+
+        if self._expiry is not None and datetime.datetime.now() > self._expiry:
+            self._refresh_access_token()
+
+        r = self.session.request(method, url, **kwargs)
+        if r.status_code not in range(200, 299):
+            if r.text:
+                error = r.json()
+                substatus = (error["subStatus"] if "subStatus" in error
+                            else error["sub_status"] if "sub_status" in error
+                            else "")
+                description = (error["userMessage"] if "userMessage" in error
+                              else error["description"] if "description" in error
+                              else error["error_description"] if "error_description" in error
+                              else "")
+                emsg = f"{r.status_code}"
+                if substatus:
+                    emsg += f".{substatus}"
+                emsg += f" {description}"
+            else:
+                emsg = f"{r.status_code} {r.reason}"
+            if r.status_code == 401 and substatus == 11003 and retry:
+                logging.warning(emsg)
+                self._refresh_access_token()
+                return self._request(method, url, False, **kwargs)
+            else:
+                raise RuntimeError(emsg)
+        return r 
+
+    def set_access_token(
+            self, access_token: str = None, *, refresh_token: str = None,
+            expiry: Union[str, datetime.datetime] = None) -> None:
+        
+        """
+        Set the private TIDAL API access token.
+
+        Parameters
+        ----------
+        access_token : `str`, optional
+            Access token. If not provided, an access token is obtained
+            using an OAuth 2.0 authorization flow or from the Spotify
+            Web Player.
+
+        refresh_token : `str`, keyword-only, optional
+            Refresh token accompanying `access_token`.
+
+        expiry : `str` or `datetime.datetime`, keyword-only, optional
+            Access token expiry timestamp in the ISO 8601 format
+            :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be
+            reauthenticated using the refresh token (if available) or 
+            the default authorization flow (if possible) when 
+            `access_token` expires.
+        """
+
+        if access_token is None:
+            if self._flow is None:
+                self._expiry = datetime.datetime.max
+                return
+            else:
+                if not self._client_id:
+                    emsg = "Private TIDAL API client ID not provided."
+                    raise ValueError(emsg)
+
+                if self._flow == "authorization_code_pkce":
+                    data = {
+                        "client_id": self._client_id,
+                        "code_verifier": secrets.token_urlsafe(32),
+                        "grant_type": "authorization_code",
+                        "redirect_uri": self.REDIRECT_URI,
+                        "scope": self._scopes
+                    }
+                    data["code"] = self._get_authorization_code(
+                        base64.urlsafe_b64encode(
+                            hashlib.sha256(
+                                data["code_verifier"].encode()
+                            ).digest()
+                        ).decode().rstrip("=")
+                    )
+                    r = requests.post(f"{self.LOGIN_URL}/oauth2/token", 
+                                      json=data).json()
+                elif self._flow == "device_code":
+                    if not self._client_id:
+                        emsg = "Private TIDAL API client secret not provided."
+                        raise ValueError(emsg)
+                    
+                    data = {"client_id": self._client_id}
+                    if self._scopes:
+                        data["scope"] = self._scopes
+                    r = requests.post(f"{self.AUTH_URL}/device_authorization",
+                                      data=data).json()
+                    if "error" in r:
+                        emsg = (f"{r['status']}.{r['sub_status']} "
+                                f"{r['error_description']}")
+                        raise ValueError(emsg)
+                    data["device_code"] = r["deviceCode"]
+                    data["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code"
+
+                    verification_uri = f"http://{r['verificationUriComplete']}"
+                    if self._browser:
+                        webbrowser.open(verification_uri)
+                    else:
+                        print("To grant Minim access to TIDAL data and "
+                              "features, open the following link in "
+                              f"your web browser:\n\n{verification_uri}\n")
+                    while True:
+                        time.sleep(2)
+                        r = requests.post(
+                            f"{self.AUTH_URL}/token", 
+                            auth=(self._client_id, self._client_secret),
+                            data=data
+                        ).json()
+                        if "error" not in r:
+                            break
+                        elif r["error"] != "authorization_pending":
+                            raise RuntimeError(f"{r['status']}.{r['sub_status']} "
+                                               f"{r['error_description']}")
+                access_token = r["access_token"]
+                refresh_token = r["refresh_token"]
+                expiry = (datetime.datetime.now()
+                          + datetime.timedelta(0, r["expires_in"]))
+                
+                if self._save:
+                    config[self._NAME] = {
+                        "flow": self._flow,
+                        "client_id": self._client_id,
+                        "access_token": access_token,
+                        "refresh_token": refresh_token,
+                        "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                        "scopes": self._scopes
+                    }
+                    if hasattr(self, "_client_secret"):
+                        config[self._NAME]["client_secret"] \
+                            = self._client_secret
+                    with open(HOME_DIR / "minim.cfg", "w") as f:
+                        config.write(f)
+                    
+        self.session.headers["Authorization"] = f"Bearer {access_token}"
+        self._refresh_token = refresh_token
+        self._expiry = (
+            datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ") 
+            if isinstance(expiry, str) else expiry
+        )
+
+    def set_authorization_flow(
+            self, flow: str, client_id: str, *, client_secret: str = None,
+            browser: bool = False, scopes: Union[str, list[str]] = "", 
+            save: bool = True) -> None:
+
+        """
+        Set the authorization flow.
+
+        Parameters
+        ----------
+        flow : `str`
+            Authorization flow. If not specified, no user authentication
+            will be performed.
+
+            .. container::
+
+               **Valid values**:
+           
+               * :code:`"authorization_code_pkce"` for the authorization
+                 code with proof key for code exchange (PKCE) flow.
+               * :code:`"client_credentials"` for the client credentials 
+                 flow.
+            
+        client_id : `str`
+            Client ID.
+
+        client_secret : `str`, keyword-only, optional
+            Client secret. Required for all OAuth 2.0 authorization 
+            flows.
+
+        browser : `bool`, keyword-only, default: :code:`False`
+            Determines whether a web browser is automatically opened for
+            the authorization code with PKCE or device code flows. If 
+            :code:`False`, users will have to manually open the 
+            authorization URL, and for the authorization code flow, 
+            provide the full callback URI via the terminal. For the 
+            authorization code with PKCE flow, the Playwright framework
+            by Microsoft is used.
+
+        scopes : `str` or `list`, keyword-only, optional
+            Authorization scopes to request user access for in the OAuth
+            2.0 flows.
+
+            **Valid values**: :code:`"r_usr"`, :code:`"w_usr"`, and
+            :code:`"w_sub"` (device code flow only).
+
+        save : `bool`, keyword-only, default: :code:`True`
+            Determines whether to save the newly obtained access tokens
+            and their associated properties to the Minim configuration 
+            file.
+        """
+
+        if flow and flow not in self._FLOWS:
+            emsg = (f"Invalid authorization flow ({flow=}). "
+                    f"Valid values: {', '.join(self._FLOWS)}.")
+            raise ValueError(emsg)
+        
+        self._flow = flow
+        self._save = save
+        self._client_id = client_id or os.environ.get("TIDAL_PRIVATE_CLIENT_ID")
+        if flow:
+            if "x-tidal-token" in self.session.headers:
+                del self.session.headers["x-tidal-token"]
+
+            self._browser = browser
+            if flow == "authorization_code_pkce" and browser \
+                    and not FOUND_PLAYWRIGHT:
+                self._browser = False
+                logging.warning(
+                    "The Playwright web framework was not found, so "
+                    "the automatic authorization code retrieval "
+                    "functionality is not available."
+                )
+
+            self._client_secret = (client_secret 
+                                   or os.environ.get("TIDAL_PRIVATE_CLIENT_SECRET"))
+            self._scopes = " ".join(scopes) if isinstance(scopes, list) \
+                           else scopes
+        else:
+            self.session.headers["x-tidal-token"] = self._client_id
+            self._scopes = ""
+    
+    ### ALBUMS ################################################################
+
+    def get_album(
+            self, id: Union[int, str], country_code: str = None
         ) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for an artist.
+        Get TIDAL catalog information for a single album.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL album ID.
+
+            **Example**: :code:`251380836`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        album : `dict`
+            TIDAL catalog information for a single album.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "id": <int>,
+                    "title": <str>,
+                    "duration": <int>,
+                    "streamReady": <bool>,
+                    "adSupportedStreamReady": <bool>,
+                    "djReady": <bool>,
+                    "stemReady": <bool>,
+                    "streamStartDate": <str>,
+                    "allowStreaming": <bool>,
+                    "premiumStreamingOnly": <bool>,
+                    "numberOfTracks": <int>,
+                    "numberOfVideos": <int>,
+                    "numberOfVolumes": <int>,
+                    "releaseDate": <str>,
+                    "copyright": <str>,
+                    "type": "ALBUM",
+                    "version": <str>,
+                    "url": <str>,
+                    "cover": <str>,
+                    "vibrantColor": <str>,
+                    "videoCover": <str>,
+                    "explicit": <bool>,
+                    "upc": <str>,
+                    "popularity": <int>,
+                    "audioQuality": <str>,
+                    "audioModes": [<str>],
+                    "mediaMetadata": {
+                      "tags": [<str>]
+                    },
+                    "artist": {
+                      "id": <int>,
+                      "name": <str>,
+                      "type": <str>,
+                      "picture": <str>
+                    },
+                    "artists": [
+                      {
+                        "id": <int>,
+                        "name": <str>,
+                        "type": <str>,
+                        "picture": <str>
+                      }
+                    ]
+                  }
+        """
+
+        self._check_scope("get_album", "r_usr", require_authentication=False)
+
+        return self._get_json(
+            f"{self.API_URL}/v1/albums/{id}",
+            params={"countryCode": self._get_country_code(country_code)}
+        )
+
+    def get_album_items(
+            self, id: Union[int, str], country_code: str = None, *,
+            limit: int = 100, offset: int = None, credits: bool = False
+        ) -> dict[str, Any]:
+
+        """
+        Get TIDAL catalog information for items (tracks and videos) in 
+        an album.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL album ID.
+
+            **Examples**: :code:`251380836`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        limit : `int`, keyword-only, default: :code:`100`
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`. 
+
+        credits : `bool`, keyword-only, default: :code:`False`
+            Determines whether credits for each item is returned.
+            
+        Returns
+        -------
+        items : `dict`
+            A dictionary containing TIDAL catalog information for 
+            tracks and videos in the specified album and metadata for
+            the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "item": {
+                          "id": <int>,
+                          "title": <str>,
+                          "duration": <int>,
+                          "replayGain": <float>,
+                          "peak": <float>,
+                          "allowStreaming": <bool>,
+                          "streamReady": <bool>,
+                          "adSupportedStreamReady": <bool>,
+                          "djReady": <bool>,
+                          "stemReady": <bool>,
+                          "streamStartDate": <str>,
+                          "premiumStreamingOnly": <bool>,
+                          "trackNumber": <int>,
+                          "volumeNumber": >int>,
+                          "version": <str>,
+                          "popularity": <int>,
+                          "copyright": <str>,
+                          "url": <str>,
+                          "isrc": <str>,
+                          "editable": <bool>,
+                          "explicit": <bool>,
+                          "audioQuality": <str>,
+                          "audioModes": [<str>],
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "artist": {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          },
+                          "artists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>,
+                              "picture": <str>
+                            }
+                          ],
+                          "album": {
+                            "id": <int>,
+                            "title": <str>,
+                            "cover": <str>,
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
+                          },
+                          "mixes": {
+                            "TRACK_MIX": <str>
+                          }
+                        },
+                        "type": "track"
+                      }
+                    ]
+                  }
+        """
+
+        self._check_scope("get_album_items", "r_usr", 
+                          require_authentication=False)
+
+        url = f"{self.API_URL}/v1/albums/{id}/items"
+        if credits:
+            url += "/credits"
+        return self._get_json(
+            url,
+            params={
+                "countryCode": self._get_country_code(country_code),
+                "offset": offset, 
+                "limit": limit
+            }
+        )
+
+    def get_album_credits(
+            self, id: Union[int, str], country_code: str = None
+        ) -> dict[str, Any]:
+
+        """
+        Get credits for a single album.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL album ID.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        credits : `dict`
+            A dictionary containing TIDAL catalog information for the
+            album contributors.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "type": <str>,
+                      "contributors": [
+                        {
+                          "name": <str>
+                        },
+                        {
+                          "name": <str>,
+                          "id": <int>
+                        },
+                        {
+                          "name": <str>,
+                          "id": <int>
+                        },
+                        {
+                          "name": <str>
+                        }
+                      ]
+                    }
+                  ]
+        """
+
+        self._check_scope("get_album_credits", "r_usr", 
+                          require_authentication=False)
+
+        return self._get_json(
+            f"{self.API_URL}/v1/albums/{id}/credits",
+            params={"countryCode": self._get_country_code(country_code)}
+        )
+
+    def get_album_review(
+            self, id: Union[int, str], country_code: str = None
+        ) -> dict[str, str]:
+
+        """
+        Get a review of or a synopsis for a single album.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL album ID.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        review : `dict`
+            A dictionary containing a review of or a synopsis for an 
+            album and its source.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "source": <str>,
+                    "lastUpdated": <str>,
+                    "text": <str>,
+                    "summary": <str>
+                  }
+        """
+
+        self._check_scope("get_album_review", "r_usr", 
+                          require_authentication=False)
+        
+        return self._get_json(
+            f"{self.API_URL}/v1/albums/{id}/review",
+            params={"countryCode": self._get_country_code(country_code)}
+        )
+
+    def get_favorite_albums(
+            self, country_code: str = None, *, limit: int = 50,
+            offset: int = None, order: str = "DATE", 
+            order_direction: str = "DESC") -> None:
+        
+        """
+        Get TIDAL catalog information for albums in the current user's
+        collection.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------          
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        limit : `int`, keyword-only, default: :code:`50`
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`. 
+            
+        order : `str`, keyword-only, default: :code:`"DATE"`
+            Sorting order.
+
+            **Valid values**: :code:`"DATE"` and :code:`"NAME"`.
+
+        order_direction : `str`, keyword-only, default: :code:`"DESC"`
+            Sorting order direction.
+
+            **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
+
+        Returns
+        -------
+        albums : `dict`
+            A dictionary containing TIDAL catalog information for albums
+            in the current user's collection and metadata for the 
+            returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "created": <str>,
+                        "item": {
+                          "id": <int>,
+                          "title": <str>,
+                          "duration": <int>,
+                          "streamReady": <bool>,
+                          "adSupportedStreamReady": <bool>,
+                          "djReady": <bool>,
+                          "stemReady": <bool>,
+                          "streamStartDate": <str>,
+                          "allowStreaming": <bool>,
+                          "premiumStreamingOnly": <bool>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "numberOfVolumes": <int>,
+                          "releaseDate": <str>,
+                          "copyright": <str>,
+                          "type": "ALBUM",
+                          "version": <str>,
+                          "url": <str>,
+                          "cover": <str>,
+                          "vibrantColor": <str>,
+                          "videoCover": <str>,
+                          "explicit": <bool>,
+                          "upc": <str>,
+                          "popularity": <int>,
+                          "audioQuality": <str>,
+                          "audioModes": [<str>],
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "artist": {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          },
+                          "artists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>,
+                              "picture": <str>
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+        """
+
+        self._check_scope("get_favorite_albums", "r_usr")
+
+        return self._get_json(
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/albums", 
+            params={
+                "limit": limit, 
+                "offset": offset,
+                "order": order, 
+                "orderDirection": order_direction, 
+                "countryCode": self._get_country_code(country_code)
+            }
+        )
+
+    def favorite_albums(
+            self, album_ids: Union[int, str, list[Union[int, str]]], 
+            country_code: str = None, *, on_artifact_not_found: str = "FAIL"
+        ) -> None:
+
+        """
+        Add albums to the current user's collection.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        album_ids : `int`, `str`, or `list`
+            TIDAL album ID(s).
+
+            **Examples**: :code:`"251380836,275646830"` or 
+            :code:`[251380836, 275646830]`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        on_artifact_not_found : `str`, keyword-only, default: :code:`"FAIL"`
+            Behavior when the item to be added does not exist.
+
+            **Valid values**: :code:`"FAIL"`.
+        """
+
+        self._check_scope("favorite_albums", "r_usr")
+
+        self._request(
+            "post", 
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/albums",
+            params={"countryCode": self._get_country_code(country_code)},
+            data={
+                "albumIds": ",".join(map(str, album_ids)) 
+                            if isinstance(album_ids, list) else album_ids, 
+                "onArtifactNotFound": on_artifact_not_found
+            }
+        )
+
+    def unfavorite_albums(
+            self, album_ids: Union[int, str, list[Union[int, str]]]) -> None:
+
+        """
+        Remove albums from the current user's collection.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        album_ids : `int`, `str`, or `list`
+            TIDAL album ID(s).
+
+            **Examples**: :code:`"251380836,275646830"` or 
+            :code:`[251380836, 275646830]`.
+        """
+
+        self._check_scope("unfavorite_albums", "r_usr")
+        
+        if isinstance(album_ids, list):
+            album_ids = ",".join(map(str, album_ids))
+        self._request("delete", 
+                      f"{self.API_URL}/v1/users/{self._user_id}"
+                      f"/favorites/albums/{album_ids}")
+
+    ### ARTISTS ###############################################################
+
+    def get_artist(
+            self, id: Union[int, str], country_code: str = None
+        ) -> dict[str, Any]:
+
+        """
+        Get TIDAL catalog information for a single artist.
 
         Parameters
         ----------
         id : `int` or `str`
             TIDAL artist ID.
 
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+            **Example**: :code:`1566`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
 
         Returns
         -------
         artist : `dict`
-            TIDAL catalog information for the artist in JSON format.
+            TIDAL catalog information for a single artist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "id": <int>,
+                    "name": <str>,
+                    "artistTypes": [<str>],
+                    "url": <str>,
+                    "picture": <str>,
+                    "popularity": <int>,
+                    "artistRoles": [
+                      {
+                        "categoryId": <int>,
+                        "category": <str>
+                      }
+                    ],
+                    "mixes": {
+                      "ARTIST_MIX": <str>
+                    }
+                  }
         """
+
+        self._check_scope("get_artist", "r_usr", 
+                          require_authentication=False)
         
         return self._get_json(
             f"{self.API_URL}/v1/artists/{id}",
-            params={"countryCode": self._country if country is None 
-                                   else country}
+            params={"countryCode": self._get_country_code(country_code)}
         )
 
     def get_artist_albums(
-            self, id: Union[int, str], *, country: str = None, 
+            self, id: Union[int, str], country_code: str = None, *, 
             limit: int = 100, offset: int = None) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for an artist's albums.
+        Get TIDAL catalog information for albums by an artist.
 
         Parameters
         ----------
         id : `int` or `str`
             TIDAL artist ID.
 
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+            **Example**: :code:`1566`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
 
         limit : `int`, keyword-only, default: :code:`100`
-            The maximum number of results to return.
+            Page size.
+
+            **Example**: :code:`10`.
 
         offset : `int`, keyword-only, optional
-            The index of the first result to return. Use with `limit` to
-            get the next page of results.
+            Pagination offset (in number of items).
 
-            **Default**: :code:`0`.
+            **Example**: :code:`0`. 
 
         Returns
         -------
         albums : `dict`
-            A dictionary containing the artist's albums and the number
-            of results returned.
+            A dictionary containing TIDAL catalog information for
+            albums by the specified artist and metadata for the 
+            returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "id": <int>,
+                        "title": <str>,
+                        "duration": <int>,
+                        "streamReady": <bool>,
+                        "adSupportedStreamReady": <bool>,
+                        "djReady": <bool>,
+                        "stemReady": <bool>,
+                        "streamStartDate": <str>,
+                        "allowStreaming": <bool>,
+                        "premiumStreamingOnly": <bool>,
+                        "numberOfTracks": <int>,
+                        "numberOfVideos": <int>,
+                        "numberOfVolumes": <int>,
+                        "releaseDate": <str>,
+                        "copyright": <str>,
+                        "type": "ALBUM",
+                        "version": <str>,
+                        "url": <str>,
+                        "cover": <str>,
+                        "vibrantColor": <str>,
+                        "videoCover": <str>,
+                        "explicit": <bool>,
+                        "upc": <str>,
+                        "popularity": <int>,
+                        "audioQuality": <str>,
+                        "audioModes": [<str>],
+                        "mediaMetadata": {
+                          "tags": [<str>]
+                        },
+                        "artist": {
+                          "id": <int>,
+                          "name": <str>,
+                          "type": <str>,
+                          "picture": <str>
+                        },
+                        "artists": [
+                          {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          }
+                        ]
+                      }
+                    ]
+                  }
         """
+
+        self._check_scope("get_artist_albums", "r_usr", 
+                          require_authentication=False)
 
         return self._get_json(
             f"{self.API_URL}/v1/artists/{id}/albums",
-            params={"countryCode": self._country if country is None 
-                                   else country,
-                    "limit": limit, "offset": offset}
+            params={
+                "countryCode": self._get_country_code(country_code),
+                "limit": limit, 
+                "offset": offset
+            }
         )
 
     def get_artist_top_tracks(
-            self, id: Union[int, str], *, country: str = None, 
+            self, id: Union[int, str], country_code: str = None, *,
             limit: int = 100, offset: int = None) -> dict[str, Any]:
 
         """
@@ -1999,37 +2863,111 @@ class PrivateAPI:
         id : `int` or `str`
             TIDAL artist ID.
 
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+            **Example**: :code:`1566`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
 
         limit : `int`, keyword-only, default: :code:`100`
-            The maximum number of results to return.
+            Page size.
+
+            **Example**: :code:`10`.
 
         offset : `int`, keyword-only, optional
-            The index of the first result to return. Use with `limit` to
-            get the next page of results.
+            Pagination offset (in number of items).
 
-            **Default**: :code:`0`.
+            **Example**: :code:`0`. 
 
         Returns
         -------
         tracks : `dict`
-            A dictionary containing the artist's top tracks and the
-            number of results returned.
+            A dictionary containing TIDAL catalog information for the
+            artist's top tracks and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "id": <int>,
+                        "title": <str>,
+                        "duration": <int>,
+                        "replayGain": <float>,
+                        "peak": <float>,
+                        "allowStreaming": <bool>,
+                        "streamReady": <bool>,
+                        "adSupportedStreamReady": <bool>,
+                        "djReady": <bool>,
+                        "stemReady": <bool>,
+                        "streamStartDate": <str>,
+                        "premiumStreamingOnly": <bool>,
+                        "trackNumber": <int>,
+                        "volumeNumber": <int>,
+                        "version": <str>,
+                        "popularity": <int>,
+                        "copyright": <str>,
+                        "url": <str>,
+                        "isrc": <str>,
+                        "editable": <bool>,
+                        "explicit": <bool>,
+                        "audioQuality": <str>,
+                        "audioModes": [<str>],
+                        "mediaMetadata": {
+                          "tags": [<str>]
+                        },
+                        "artist": {
+                          "id": <int>,
+                          "name": <str>,
+                          "type": <str>,
+                          "picture": <str>
+                        },
+                        "artists": [
+                          {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          }
+                        ],
+                        "album": {
+                          "id": <int>,
+                          "title": <str>,
+                          "cover": <str>,
+                          "vibrantColor": <str>,
+                          "videoCover": <str>
+                        },
+                        "mixes": {
+                          "TRACK_MIX": <str>
+                        }
+                      }
+                    ]
+                  }
         """
+
+        self._check_scope("get_artist_top_tracks", "r_usr", 
+                          require_authentication=False)
 
         return self._get_json(
             f"{self.API_URL}/v1/artists/{id}/toptracks",
-            params={"countryCode": self._country if country is None 
-                                   else country,
-                    "limit": limit, "offset": offset}
+            params={
+                "countryCode": self._get_country_code(country_code),
+                "limit": limit, 
+                "offset": offset
+            }
         )
 
     def get_artist_videos(
-            self, id: Union[int, str], *, country: str = None, 
+            self, id: Union[int, str], country_code: str = None, *,
             limit: int = 100, offset: int = None) -> dict[str, Any]:
 
         """
@@ -2040,49 +2978,112 @@ class PrivateAPI:
         id : `int` or `str`
             TIDAL artist ID.
 
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+            **Example**: :code:`1566`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
 
         limit : `int`, keyword-only, default: :code:`100`
-            The maximum number of results to return.
+            Page size.
+
+            **Example**: :code:`10`.
 
         offset : `int`, keyword-only, optional
-            The index of the first result to return. Use with `limit` to
-            get the next page of results.
+            Pagination offset (in number of items).
 
-            **Default**: :code:`0`.
+            **Example**: :code:`0`. 
 
         Returns
         -------
         videos : `dict`
-            A dictionary containing the artist's videos and the number
-            of results returned.
+            A dictionary containing TIDAL catalog information for the
+            artist's videos and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "id": <int>,
+                        "title": <str>,
+                        "volumeNumber": <int>,
+                        "trackNumber": <int>,
+                        "releaseDate": <str>,
+                        "imagePath": <str>,
+                        "imageId": <str>,
+                        "vibrantColor": <str>,
+                        "duration": <int>,
+                        "quality": <str>,
+                        "streamReady": <bool>,
+                        "adSupportedStreamReady": <bool>,
+                        "djReady": <bool>,
+                        "stemReady": <bool>,
+                        "streamStartDate": <str>,
+                        "allowStreaming": <bool>,
+                        "explicit": <bool>,
+                        "popularity": <int>,
+                        "type": "Music Video",
+                        "adsUrl": <str>,
+                        "adsPrePaywallOnly": <bool>,
+                        "artist": {
+                          "id": <int>,
+                          "name": <str>,
+                          "type": <str>,
+                          "picture": <str>
+                        },
+                        "artists": [
+                          {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          }
+                        ],
+                        "album": <dict>
+                      }
+                    ]
+                  }
         """
+
+        self._check_scope("get_artist_videos", "r_usr", 
+                          require_authentication=False)
 
         return self._get_json(
             f"{self.API_URL}/v1/artists/{id}/videos",
-            params={"countryCode": self._country if country is None 
-                                   else country,
-                    "limit": limit, "offset": offset}
+            params={
+                "countryCode": self._get_country_code(country_code),
+                "limit": limit, 
+                "offset": offset
+            }
         )
 
     def get_artist_mix(
-            self, id: Union[int, str], *, country: str = None) -> str:
+            self, id: Union[int, str], country_code: str = None) -> str:
 
         """
-        Get the curated mix of tracks related to an artist's works.
+        Get a curated mix of tracks based on an artist's works.
 
         Parameters
         ----------
         id : `int` or `str`
             TIDAL artist ID.
 
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+            **Example**: :code:`1566`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
 
@@ -2090,16 +3091,20 @@ class PrivateAPI:
         -------
         mix_id : `str`
             TIDAL mix ID.
+
+            **Example**: :code:`"000ec0b01da1ddd752ec5dee553d48"`.
         """
+
+        self._check_scope("get_artist_mix", "r_usr", 
+                          require_authentication=False)
 
         return self._get_json(
             f"{self.API_URL}/v1/artists/{id}/mix",
-            params={"countryCode": self._country if country is None 
-                                   else country}
+            params={"countryCode": self._get_country_code(country_code)}
         )["id"]
 
     def get_artist_biography(
-            self, id: Union[int, str], *, country: str = None
+            self, id: Union[int, str], country_code: str = None
         ) -> dict[str, str]:
 
         """
@@ -2110,27 +3115,44 @@ class PrivateAPI:
         id : `int` or `str`
             TIDAL artist ID.
 
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+            **Example**: :code:`1566`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
 
         Returns
         -------
-        bio : `dict`
+        biography : `dict`
             A dictionary containing an artist's biographical information
             and its source.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "source": <str>,
+                    "lastUpdated": <str>,
+                    "text": <str>,
+                    "summary": <str>
+                  }
         """
+
+        self._check_scope("get_artist_biography", "r_usr", 
+                          require_authentication=False)
 
         return self._get_json(
             f"{self.API_URL}/v1/artists/{id}/bio",
-            params={"countryCode": self._country if country is None 
-                                   else country}
+            params={"countryCode": self._get_country_code(country_code)}
         )
 
     def get_artist_links(
-            self, id: Union[int, str], *, country: str = None, 
+            self, id: Union[int, str], country_code: str = None, *,
             limit: int = None, offset: int = None) -> dict[str, Any]:
 
         """
@@ -2141,58 +3163,94 @@ class PrivateAPI:
         id : `int` or `str`
             TIDAL artist ID.
 
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+            **Example**: :code:`1566`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
 
         limit : `int`, keyword-only, optional
-            The maximum number of results to return.
+            Page size.
 
-            **Default**: :code:`10`.
+            **Example**: :code:`10`.
 
         offset : `int`, keyword-only, optional
-            The index of the first result to return. Use with `limit` to
-            get the next page of results.
+            Pagination offset (in number of items).
 
-            **Default**: :code:`0`.
+            **Example**: :code:`0`. 
 
         Returns
         -------
         links : `dict`
-            A dictionary containing the artist's links and the number of
-            results returned.
+            A dictionary containing the artist's links and metadata for
+            the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "url": <str>,
+                        "siteName": <str>
+                      }
+                    ],
+                    "source": <str>
+                  }
         """
+
+        self._check_scope("get_artist_links", "r_usr", 
+                          require_authentication=False)
 
         return self._get_json(
             f"{self.API_URL}/v1/artists/{id}/links",
-            params={"countryCode": self._country if country is None 
-                                   else country,
-                    "limit": limit, "offset": offset}
+            params={
+                "countryCode": self._get_country_code(country_code),
+                "limit": limit, 
+                "offset": offset
+            }
         )
 
     def get_favorite_artists(
-            self, *, limit: int = 50, offset: int = None, order: str = "DATE",
-            order_direction: str = "DESC", country: str = None):
+            self, country_code: str = None, *, limit: int = 50, 
+            offset: int = None, order: str = "DATE", 
+            order_direction: str = "DESC") -> None:
         
         """
-        Get the current user's favorite artists.
+        Get TIDAL catalog information for artists in the current user's
+        collection.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
         limit : `int`, keyword-only, default: :code:`50`
-            The maximum number of results to return.
+            Page size.
+
+            **Example**: :code:`10`.
 
         offset : `int`, keyword-only, optional
-            Index of the first result to return. Use with `limit` to get
-            the next page of search results.
+            Pagination offset (in number of items).
 
-            **Default**: :code:`0`.
+            **Example**: :code:`0`. 
 
         order : `str`, keyword-only, default: :code:`"DATE"`
             Sorting order.
@@ -2204,451 +3262,258 @@ class PrivateAPI:
 
             **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
 
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
         Returns
         -------
         artists : `dict`
-            A dictionary containing the current user's artists and the
-            number of results returned.
+            A dictionary containing TIDAL catalog information for 
+            artists in the current user's collection and metadata for 
+            the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "created": <str>,
+                        "item": {
+                          "id": <int>,
+                          "name": <str>,
+                          "artistTypes": [<str>],
+                          "url": <str>,
+                          "picture": <str>,
+                          "popularity": <int>,
+                          "artistRoles": [
+                            {
+                              "categoryId": <int>,
+                              "category": <str>
+                            }
+                          ],
+                          "mixes": {
+                            "ARTIST_MIX": <str>
+                          }
+                        }
+                      }
+                    ]
+                  }
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_favorite_artists() "
-                               "requires user authentication.")
+        self._check_scope("get_favorite_artists", "r_usr")
 
         return self._get_json(
-            f"{self.API_URL}/v1/users/{self._me['userId']}/favorites/artists", 
-            params={"limit": limit, "offset": offset,
-                    "order": order, "orderDirection": order_direction, 
-                    "countryCode": self._country if country is None
-                                   else country}
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/artists", 
+            params={
+                "countryCode": self._get_country_code(country_code),
+                "limit": limit, 
+                "offset": offset,
+                "order": order, 
+                "orderDirection": order_direction
+            }
         )
 
     def favorite_artists(
-            self, ids: Union[int, str, list[Union[int, str]]], *, 
-            on_not_found: str = "FAIL", country: str = None) -> None:
+            self, artist_ids: Union[int, str, list[Union[int, str]]], 
+            country_code: str = None, *, on_artifact_not_found: str = "FAIL"
+        ) -> None:
 
         """
-        Favorite artists.
+        Add artists to the current user's collection.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
-        ids : `int`, `str`, or `list`
+        artist_ids : `int`, `str`, or `list`
             TIDAL artist ID(s).
 
-        on_not_found : `str`, keyword-only, default: :code:`"FAIL"`
-            Behavior when the item to be added does not exist.
+            **Examples**: :code:`"1566,7804"` or :code:`[1566, 7804]`.
 
-            **Valid value**: :code:`"FAIL"`.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
+
+        on_artifact_not_found : `str`, keyword-only, default: :code:`"FAIL"`
+            Behavior when the item to be added does not exist.
+
+            **Valid values**: :code:`"FAIL"`.
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.favorite_artist() "
-                               "requires user authentication.")
+        self._check_scope("favorite_artists", "r_usr")
 
         self._request(
             "post", 
-            f"{self.API_URL}/v1/users/{self._me['userId']}/favorites/artists",
-            params={"countryCode": self._country if country is None
-                                   else country},
-            data={"artistIds": ids, "onArtifactNotFound": on_not_found}
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/artists",
+            params={"countryCode": self._get_country_code(country_code)},
+            data={
+                "artistIds": ",".join(map(str, artist_ids)) 
+                             if isinstance(artist_ids, list) else artist_ids, 
+                "onArtifactNotFound": on_artifact_not_found
+            }
         )
 
-    def unfavorite_artists(self):
+    def unfavorite_artists(
+            self, artist_ids: Union[int, str, list[Union[int, str]]]) -> None:
 
         """
-        Unfavorite artists.
+        Remove artists from the current user's collection.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
-        ids : `int`, `str`, or `list`
+        artist_ids : `int`, `str`, or `list`
             TIDAL artist ID(s).
+
+            **Examples**: :code:`"1566,7804"` or :code:`[1566, 7804]`.
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.unfavorite_artist() "
-                               "requires user authentication.")
+        self._check_scope("unfavorite_artists", "r_usr")
         
-        if isinstance(ids, list):
-            ids = ",".join(map(str, ids))
-
+        if isinstance(artist_ids, list):
+            artist_ids = ",".join(map(str, artist_ids))
         self._request("delete", 
-                      f"{self.API_URL}/v1/users/{self._me['userId']}"
-                      f"/favorites/artists/{ids}")
+                      f"{self.API_URL}/v1/users/{self._user_id}"
+                      f"/favorites/artists/{artist_ids}")
 
     def get_blocked_artists(
             self, *, limit: int = 50, offset: int = None) -> dict[str, Any]:
 
         """
-        Get artists blocked by the current user.
+        Get TIDAL catalog information for the current user's blocked 
+        artists.
         
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         limit : `int`, keyword-only, default: :code:`50`
-            Maximum number of results to return.
+            Page size.
+
+            **Example**: :code:`10`.
 
         offset : `int`, keyword-only, optional
-            Index of the first result to return. Use with `limit` to get
-            the next page of search results.
+            Pagination offset (in number of items).
 
-            **Default**: :code:`0`.
+            **Example**: :code:`0`. 
 
         Returns
         -------
         artists : `dict`
-            A dictionary containing the artists blocked by the current 
-            user and the number of results.
+            A dictionary containing TIDAL catalog information for the
+            the current user's blocked artists and metadata for the
+            returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "item": {
+                          "id": <int>,
+                          "name": <str>,
+                          "type": <str>,
+                          "artistTypes": [<str>],
+                          "url": <str>,
+                          "picture": <str>,
+                          "popularity": <int>,
+                          "banner": <str>,
+                          "artistRoles": [
+                            {
+                              "categoryId": <int>,
+                              "category": <str>
+                            }
+                          ],
+                          "mixes": {
+                            "ARTIST_MIX": <str>
+                          }
+                        },
+                        "created": <str>,
+                        "type": "ARTIST"
+                      }
+                    ]
+                  }
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_blocked_artists() "
-                               "requires user authentication.")
+        self._check_scope("get_blocked_artists", "r_usr")
 
         return self._get_json(
-            f"{self.API_URL}/v1/users/{self._me['userId']}/blocks/artists",
+            f"{self.API_URL}/v1/users/{self._user_id}/blocks/artists",
             params={"limit": limit, "offset": offset}
         )
 
-    def block_artist(self, id: Union[int, str]) -> None:
+    def block_artist(self, artist_id: Union[int, str]) -> None:
 
         """
-        Block an artist from mixes and the radio.
+        Block a single artist from appearing in mixes and the radio.
         
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`w_usr` scope.
 
         Parameters
         ----------
-        id : `int` or `str`
+        artist_id : `int` or `str`
             TIDAL artist ID.
+
+            **Example**: :code:`1566`.
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.block_artist() "
-                               "requires user authentication.")
+        self._check_scope("block_artist", "r_usr")
 
         self._request(
             "post",
-            f"{self.API_URL}/v1/users/{self._me['userId']}/blocks/artists",
-            data={"artistId": id}
+            f"{self.API_URL}/v1/users/{self._user_id}/blocks/artists",
+            data={"artistId": artist_id}
         )
 
-    def unblock_artist(self, id: Union[int, str]) -> None:
+    def unblock_artist(self, artist_id: Union[int, str]) -> None:
 
         """
-        Unblock an artist from mixes and the radio.
+        Unblock a single artist from appearing in mixes and the radio.
         
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
-        id : `int` or `str`
+        artist_id : `int` or `str`
             TIDAL artist ID.
+
+            **Example**: :code:`1566`.
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.unblock_artist() "
-                               "requires user authentication.")
+        self._check_scope("unblock_artist", "r_usr")
 
         self._request(
             "delete",
-            f"{self.API_URL}/v1/users/{self._me['userId']}/blocks/artists/{id}"
+            f"{self.API_URL}/v1/users/{self._user_id}/blocks/artists/{artist_id}"
         )
-
-    ### ALBUMS ################################################################
-
-    def get_album(
-            self, id: Union[int, str], *, country: str = None
-        ) -> dict[str, Any]:
-
-        """
-        Get TIDAL catalog information for an album.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL album ID.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
-        Returns
-        -------
-        album : `dict`
-            TIDAL catalog information for the album in JSON format.
-        """
-
-        return self._get_json(
-            f"{self.API_URL}/v1/albums/{id}",
-            params={"countryCode": self._country if country is None 
-                                   else country}
-        )
-
-    def get_album_items(
-            self, id: Union[int, str], *, credits: bool = False, 
-            country: str = None, limit: int = 100, offset: int = None
-        ) -> dict[str, Any]:
-
-        """
-        Get TIDAL catalog information for all tracks and videos in an
-        album.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL album ID.
-
-        credits : `bool`, keyword-only, default: :code:`False`
-            Determines whether credits for each item is returned.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
-        limit : `int`, keyword-only, default: :code:`100`
-            The maximum number of results to return.
-
-        offset : `int`, keyword-only, optional
-            The index of the first result to return. Use with `limit` to
-            get the next page of results.
-
-            **Default**: :code:`0`.
-            
-        Returns
-        -------
-        items : `dict`
-            A dictionary containing the items in the album and the
-            number of results returned.
-        """
-
-        url = f"{self.API_URL}/v1/albums/{id}/items"
-        if credits:
-            url += "/credits"
-
-        return self._get_json(
-            url,
-            params={"countryCode": self._country if country is None 
-                                   else country,
-                    "limit": limit, "offset": offset}
-        )
-
-    def get_album_credits(
-            self, id: Union[int, str], *, country: str = None
-        ) -> dict[str, Any]:
-
-        """
-        Get credits for an album.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL album ID.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
-        Returns
-        -------
-        credits : `dict`
-            A dictionary containing the album contributors.
-        """
-
-        return self._get_json(
-            f"{self.API_URL}/v1/albums/{id}/credits",
-            params={"countryCode": self._country if country is None 
-                                   else country}
-        )
-
-    def get_album_review(
-            self, id: Union[int, str], *, country: str = None
-        ) -> dict[str, str]:
-
-        """
-        Get a review of or a synopsis for an album.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL album ID.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
-        Returns
-        -------
-        review : `dict`
-            A dictionary containing a review of or a synopsis for an 
-            album and its source.
-        """
-        
-        return self._get_json(
-            f"{self.API_URL}/v1/albums/{id}/review",
-            params={"countryCode": self._country if country is None 
-                                   else country}
-        )
-
-    def get_favorite_albums(
-            self, *, limit: int = 50, offset: int = None, order: str = "DATE",
-            order_direction: str = "DESC", country: str = None):
-        
-        """
-        Get the current user's favorite albums.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        limit : `int`, keyword-only, default: :code:`50`
-            The maximum number of results to return.
-
-        offset : `int`, keyword-only, optional
-            Index of the first result to return. Use with `limit` to get
-            the next page of search results.
-
-            **Default**: :code:`0`.
-            
-        order : `str`, keyword-only, default: :code:`"DATE"`
-            Sorting order.
-
-            **Valid values**: :code:`"DATE"` and :code:`"NAME"`.
-
-        order_direction : `str`, keyword-only, default: :code:`"DESC"`
-            Sorting order direction.
-
-            **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
-        Returns
-        -------
-        albums : `dict`
-            A dictionary containing the current user's albums and the
-            number of results returned.
-        """
-        
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_favorite_albums() "
-                               "requires user authentication.")
-
-        return self._get_json(
-            f"{self.API_URL}/v1/users/{self._me['userId']}/favorites/albums", 
-            params={"limit": limit, "offset": offset,
-                    "order": order, "orderDirection": order_direction, 
-                    "countryCode": self._country if country is None
-                                   else country}
-        )
-
-    def favorite_albums(
-            self, ids: Union[int, str, list[Union[int, str]]], *, 
-            on_not_found: str = "FAIL", country: str = None) -> None:
-
-        """
-        Favorite albums.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        ids : `int`, `str`, or `list`
-            TIDAL album ID(s).
-
-        on_not_found : `str`, keyword-only, default: :code:`"FAIL"`
-            Behavior when the item to be added does not exist.
-
-            **Valid value**: :code:`"FAIL"`.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.favorite_album() "
-                               "requires user authentication.")
-        
-        if isinstance(ids, list):
-            ids = ",".join(map(str, ids))
-
-        self._request(
-            "post", 
-            f"{self.API_URL}/v1/users/{self._me['userId']}/favorites/albums",
-            params={"countryCode": self._country if country is None
-                                   else country},
-            data={"albumIds": ids, "onArtifactNotFound": on_not_found}
-        )
-
-    def unfavorite_albums(self, ids: Union[int, str, list[Union[int, str]]]):
-
-        """
-        Unfavorite albums.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        ids : `int`, `str`, or `list`
-            TIDAL album ID(s).
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.unfavorite_album() "
-                               "requires user authentication.")
-        
-        if isinstance(ids, list):
-            ids = ",".join(map(str, ids))
-
-        self._request("delete", 
-                      f"{self.API_URL}/v1/users/{self._me['userId']}"
-                      f"/favorites/albums/{ids}")
 
     ### MARKETS ###############################################################
 
@@ -2660,172 +3525,142 @@ class PrivateAPI:
         Returns
         -------
         country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code.
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
         """
 
         return self._get_json(f"{self.API_URL}/v1/country")["countryCode"]
 
-    ### ME ####################################################################
+    ### MIXES #################################################################
 
-    def get_me(self) -> dict[str, Any]:
-
-        """
-        Get the current user's profile information.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-        
-        Returns
-        -------
-        me : `dict`
-            The current user's profile information.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_me() requires user "
-                               "authentication.")
-
-        return self._get_json(f"{self.LOGIN_URL}/oauth2/me")
-
-    def get_session(self) -> dict[str, Any]:
+    def get_mix_items(
+            self, uuid: str, country_code: str = None) -> dict[str, Any]:
 
         """
-        Get information about the current TIDAL API session.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Returns
-        -------
-        session : `dict`
-            Information about the current TIDAL API session.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_session() requires "
-                               "user authentication.")
-        
-        return self._get_json(f"{self.API_URL}/v1/sessions")
-
-    def get_favorite_ids(self) -> dict[str, list[Union[int, str]]]:
-
-        """
-        Get IDs or UUIDs of the current user's favorite albums, artists,
-        playlists, tracks, and videos.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Returns
-        -------
-        ids : `dict`
-            A dictionary containing the IDs or UUIDs of the current
-            user's favorite items.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_favorite_ids() "
-                               "requires user authentication.")
-
-        return self._get_json(
-            f"{self.API_URL}/v1/users/{self._me['userId']}/favorites/ids"
-        )
-
-    ### MISCELLANEOUS #########################################################
-
-    def get_image(
-            self, uuid: str, type: str = None, *, width: int = None, 
-            height: int = None, filename: str = None) -> str:
-
-        """
-        Get cover art or image for a TIDAL object.
+        Get TIDAL catalog information for items (tracks and videos) in 
+        a mix.
 
         Parameters
         ----------
         uuid : `str`
-            Image UUID.
+            TIDAL mix UUID.
 
-        type : `str`
-            TIDAL object type.
+            **Example**: :code:`"000ec0b01da1ddd752ec5dee553d48"`.
 
-        Returns
-        -------
-        url : `str`
-            URL of the cover art or image.
-        """
-        
-        if width is None or height is None:
-            if type and type in self._MEDIA_TYPES:
-                width, height = self._IMAGE_SIZES[type.lower()]
-            else:
-                emsg = ("Either the image dimensions or a valid media "
-                        "type must be specified.")
-                raise ValueError(emsg)
-
-        with self.session.get(f"{self.RESOURCES_URL}/images"
-                              f"/{uuid.replace('-', '/')}"
-                              f"/{width}x{height}.jpg") as r:
-            image = r.content
-            
-        if filename:
-            with open(filename, "wb") as f:
-                f.write(image)
-        else:
-            return image
-
-    ### MIXES #################################################################
-
-    def get_mix_items(self, id: str, *, country: str = None) -> dict[str, Any]:
-
-        """
-        Get TIDAL catalog information for all tracks and videos in a
-        mix.
-
-        Parameters
-        ----------
-        id : `str`
-            TIDAL mix ID.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
 
         Returns
         -------
         items : `dict`
-            A dictionary containing the items in the album and the
-            number of results returned.
+            A dictionary containing TIDAL catalog information for 
+            tracks and videos in the specified mix and metadata for
+            the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "item": {
+                          "id": <int>,
+                          "title": <str>,
+                          "duration": <int>,
+                          "replayGain": <float>,
+                          "peak": <float>,
+                          "allowStreaming": <bool>,
+                          "streamReady": <bool>,
+                          "adSupportedStreamReady": <bool>,
+                          "djReady": <bool>,
+                          "stemReady": <bool>,
+                          "streamStartDate": <str>,
+                          "premiumStreamingOnly": <bool>,
+                          "trackNumber": <int>,
+                          "volumeNumber": >int>,
+                          "version": <str>,
+                          "popularity": <int>,
+                          "copyright": <str>,
+                          "url": <str>,
+                          "isrc": <str>,
+                          "editable": <bool>,
+                          "explicit": <bool>,
+                          "audioQuality": <str>,
+                          "audioModes": [<str>],
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "artist": {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          },
+                          "artists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>,
+                              "picture": <str>
+                            }
+                          ],
+                          "album": {
+                            "id": <int>,
+                            "title": <str>,
+                            "cover": <str>,
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
+                          },
+                          "mixes": {
+                            "TRACK_MIX": <str>
+                          }
+                        },
+                        "type": "track"
+                      }
+                    ]
+                  }
         """
 
+        self._check_scope("get_mix_items", "r_usr", 
+                          require_authentication=False)
+
         return self._get_json(
-            f"{self.API_URL}/v1/mixes/{id}/items",
-            params={"countryCode": self._country if country is None 
-                                   else country})
+            f"{self.API_URL}/v1/mixes/{uuid}/items",
+            params={"countryCode": self._get_country_code(country_code)})
 
     def get_favorite_mixes(
-            self, *, id: bool = False, limit: int = 50, cursor: str = None
+            self, *, ids: bool = False, limit: int = 50, cursor: str = None
         ) -> dict[str, Any]:
 
         """
-        Get the current user's favorite mixes.
+        Get TIDAL catalog information for or IDs of mixes in the current
+        user's collection.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
-        id : `bool`, keyword-only, default: :code:`False`
+        ids : `bool`, keyword-only, default: :code:`False`
             Determine whether TIDAL catalog information about the mixes
             (:code:`False`) or the mix IDs (:code:`True`) are returned.
 
         limit : `int`, keyword-only, default: :code:`50`
-            Maximum number of results to return.
+            Page size.
+
+            **Example**: :code:`10`.
 
         cursor : `str`, keyword-only, optional
             Cursor position of the last item in previous search results.
@@ -2834,68 +3669,142 @@ class PrivateAPI:
         Returns
         -------
         mixes : `dict`
-            A dictionary containing the mixes (or mix IDs) and the 
+            A dictionary containing the TIDAL catalog information for or
+            IDs of the mixes in the current user's collection and the 
             cursor position.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "dateAdded": <str>,
+                        "title": <str>,
+                        "id": <str>,
+                        "mixType": <str>,
+                        "updated": <str>,
+                        "subTitleTextInfo": {
+                          "text": <str>,
+                          "color": <str>
+                        },
+                        "images": {
+                          "SMALL": {
+                            "width": <int>,
+                            "height": <int>,
+                            "url": <str>
+                          },
+                          "MEDIUM": {
+                            "width": <int>,
+                            "height": <int>,
+                            "url": <str>
+                          },
+                          "LARGE": {
+                            "width": <int>,
+                            "height": <int>,
+                            "url": <str>
+                          },
+                        },
+                        "detailImages": {
+                          "SMALL": {
+                            "width": <int>,
+                            "height": <int>,
+                            "url": <str>
+                          },
+                          "MEDIUM": {
+                            "width": <int>,
+                            "height": <int>,
+                            "url": <str>
+                          },
+                          "LARGE": {
+                            "width": <int>,
+                            "height": <int>,
+                            "url": <str>
+                          }
+                        },
+                        "master": <bool>,
+                        "subTitle": <str>,
+                        "titleTextInfo": {
+                          "text": <str>,
+                          "color": <str>
+                        }
+                      }
+                    ],
+                    "cursor": <str>,
+                    "lastModifiedAt": <str>
+                  }
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_favorite_mixes() "
-                               "requires user authentication.")
+        self._check_scope("get_favorite_mixes", "r_usr")
 
         url = f"{self.API_URL}/v2/favorites/mixes"
-        if id:
+        if ids:
             url += "/ids"
-
         return self._get_json(url, params={"limit": limit, "cursor": cursor})
 
     def favorite_mixes(
-            self, uuids: Union[str, list[str]], *, on_not_found: str = "FAIL"
-        ) -> None:
+            self, uuids: Union[str, list[str]], *, 
+            on_artifact_not_found: str = "FAIL") -> None:
 
         """
-        Favorite mixes.
+        Add mixes to the current user's collection.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         uuids : `str` or `list`
             TIDAL mix UUID(s).
 
-        on_not_found : `str`, keyword-only, default: :code:`"FAIL"`
+            **Examples**: :code:`"000ec0b01da1ddd752ec5dee553d48,\
+            000dd748ceabd5508947c6a5d3880a"` or
+            :code:`["000ec0b01da1ddd752ec5dee553d48",
+            "000dd748ceabd5508947c6a5d3880a"]`
+
+        on_artifact_not_found : `str`, keyword-only, default: :code:`"FAIL"`
             Behavior when the item to be added does not exist.
 
-            **Valid value**: :code:`"FAIL"`.
+            **Valid values**: :code:`"FAIL"`.
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.favorite_mixes() "
-                               "requires user authentication.")
+        self._check_scope("favorite_mixes", "r_usr")
 
-        self._request("put", f"{self.API_URL}/v2/favorites/mixes/add",
-                      data={"mixIds": uuids, 
-                            "onArtifactNotFound": on_not_found})
+        self._request(
+            "put", 
+            f"{self.API_URL}/v2/favorites/mixes/add",
+            data={
+                "mixIds": uuids, 
+                "onArtifactNotFound": on_artifact_not_found
+            }
+        )
 
     def unfavorite_mixes(self, uuids: Union[str, list[str]]) -> None:
 
         """
-        Unfavorite mixes.
+        Remove mixes from the current user's collection.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         uuids : `str` or `list`
             TIDAL mix UUID(s).
+
+            **Examples**: :code:`"000ec0b01da1ddd752ec5dee553d48,\
+            000dd748ceabd5508947c6a5d3880a"` or
+            :code:`["000ec0b01da1ddd752ec5dee553d48",
+            "000dd748ceabd5508947c6a5d3880a"]`
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.unfavorite_mixes() "
-                               "requires user authentication.")
+        self._check_scope("unfavorite_mixes", "r_usr")
 
         self._request("put", f"{self.API_URL}/v2/favorites/mixes/remove",
                       data={"mixIds": uuids})
@@ -2903,18 +3812,27 @@ class PrivateAPI:
     ### PAGES #################################################################
 
     def get_album_page(
-            self, id: Union[int, str], *, device: str = "BROWSER",
-            country: str = None) -> dict[str, Any]:
+            self, album_id: Union[int, str], country_code: str = None,
+            *, device_type: str = "BROWSER") -> dict[str, Any]:
     
         """
-        Get an album's TIDAL page.
+        Get the TIDAL page for a single album.
 
         Parameters
         ----------
-        id : `str`
+        album_id : `int` or `str`
             TIDAL album ID.
 
-        device : `str`, keyword-only, default: :code:`"BROWSER"`
+            **Example**: :code:`251380836`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        device_type : `str`, keyword-only, default: :code:`"BROWSER"`
             Device type.
 
             .. container::
@@ -2925,12 +3843,6 @@ class PrivateAPI:
                * :code:`"DESKTOP"` for the desktop TIDAL application.
                * :code:`"PHONE"` for the mobile TIDAL application.
                * :code:`"TV"` for the smart TV TIDAL application.
-            
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
 
         Returns
         -------
@@ -2938,31 +3850,43 @@ class PrivateAPI:
             A dictionary containing the page ID, title, and submodules.
         """
 
-        if device not in self._DEVICE_TYPES:
-            emsg = ("Invalid device type. The supported types are "
-                    f"{', '.join(self._DEVICE_TYPES)}.")
+        if device_type not in \
+                (DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}):
+            emsg = ("Invalid device type. Valid values: "
+                    f"{', '.join(DEVICE_TYPES)}.")
             raise ValueError(emsg)
 
         return self._get_json(
             f"{self.API_URL}/v1/pages/album",
-            params={"albumId": id, 
-                    "deviceType": device,
-                    "countryCode": self._country if country is None 
-                                    else country})
+            params={
+                "albumId": album_id, 
+                "deviceType": device_type,
+                "countryCode": self._get_country_code(country_code)
+            }
+        )
 
     def get_artist_page(
-            self, id: Union[int, str], *, device: str = "BROWSER",
-            country: str = None) -> dict[str, Any]:
+            self, artist_id: Union[int, str], country_code: str = None,
+            *, device_type: str = "BROWSER") -> dict[str, Any]:
     
         """
-        Get an artist's TIDAL page.
+        Get the TIDAL page for a single artist.
 
         Parameters
         ----------
-        id : `str`
+        artist_id : `int` or `str`
             TIDAL artist ID.
 
-        device : `str`, keyword-only, default: :code:`"BROWSER"`
+            **Example**: :code:`1566`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        device_type : `str`, keyword-only, default: :code:`"BROWSER"`
             Device type.
 
             .. container::
@@ -2973,12 +3897,6 @@ class PrivateAPI:
                * :code:`"DESKTOP"` for the desktop TIDAL application.
                * :code:`"PHONE"` for the mobile TIDAL application.
                * :code:`"TV"` for the smart TV TIDAL application.
-            
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
 
         Returns
         -------
@@ -2986,31 +3904,43 @@ class PrivateAPI:
             A dictionary containing the page ID, title, and submodules.
         """
 
-        if device not in self._DEVICE_TYPES:
-            emsg = ("Invalid device type. The supported types are "
-                    f"{', '.join(self._DEVICE_TYPES)}.")
+        if device_type not in \
+                (DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}):
+            emsg = ("Invalid device type. Valid values: "
+                    f"{', '.join(DEVICE_TYPES)}.")
             raise ValueError(emsg)
 
         return self._get_json(
             f"{self.API_URL}/v1/pages/artist",
-            params={"artistID": id, 
-                    "deviceType": device,
-                    "countryCode": self._country if country is None 
-                                    else country})
+            params={
+                "artistID": artist_id, 
+                "deviceType": device_type,
+                "countryCode": self._get_country_code(country_code)
+            }
+        )
     
     def get_mix_page(
-            self, uuid: str, *, device: str = "BROWSER", country: str = None
-        ) -> dict[str, Any]:
+            self, mix_uuid: str, country_code: str = None,
+            *, device_type: str = "BROWSER") -> dict[str, Any]:
     
         """
-        Get a mix's TIDAL page.
+        Get the TIDAL page for a single mix.
 
         Parameters
         ----------
-        uuid : `str`
+        mix_uuid : `str`
             TIDAL mix UUID.
 
-        device : `str`, keyword-only, default: :code:`"BROWSER"`
+            **Example**: :code:`"000ec0b01da1ddd752ec5dee553d48"`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        device_type : `str`, keyword-only, default: :code:`"BROWSER"`
             Device type.
 
             .. container::
@@ -3021,12 +3951,6 @@ class PrivateAPI:
                * :code:`"DESKTOP"` for the desktop TIDAL application.
                * :code:`"PHONE"` for the mobile TIDAL application.
                * :code:`"TV"` for the smart TV TIDAL application.
-            
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
 
         Returns
         -------
@@ -3034,31 +3958,43 @@ class PrivateAPI:
             A dictionary containing the page ID, title, and submodules.
         """
 
-        if device not in self._DEVICE_TYPES:
-            emsg = ("Invalid device type. The supported types are "
-                    f"{', '.join(self._DEVICE_TYPES)}.")
+        if device_type not in \
+                (DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}):
+            emsg = ("Invalid device type. Valid values: "
+                    f"{', '.join(DEVICE_TYPES)}.")
             raise ValueError(emsg)
 
         return self._get_json(
             f"{self.API_URL}/v1/pages/mix",
-            params={"mixId": uuid, 
-                    "deviceType": device,
-                    "countryCode": self._country if country is None 
-                                    else country})
+            params={
+                "mixId": mix_uuid, 
+                "deviceType": device_type,
+                "countryCode": self._get_country_code(country_code)
+            }
+        )
     
     def get_video_page(
-            self, id: Union[int, str], *, device: str = "BROWSER",
-            country: str = None) -> dict[str, Any]:
+            self, video_id: Union[int, str], country_code: str = None,
+            *, device_type: str = "BROWSER") -> dict[str, Any]:
     
         """
-        Get a video's TIDAL page.
+        Get the TIDAL page for a single video.
 
         Parameters
         ----------
-        id : `str`
+        video_id : `int` or `str`
             TIDAL video ID.
 
-        device : `str`, keyword-only, default: :code:`"BROWSER"`
+            **Example**: :code:`75623239`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        device_type : `str`, keyword-only, default: :code:`"BROWSER"`
             Device type.
 
             .. container::
@@ -3069,12 +4005,6 @@ class PrivateAPI:
                * :code:`"DESKTOP"` for the desktop TIDAL application.
                * :code:`"PHONE"` for the mobile TIDAL application.
                * :code:`"TV"` for the smart TV TIDAL application.
-            
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
 
         Returns
         -------
@@ -3082,184 +4012,375 @@ class PrivateAPI:
             A dictionary containing the page ID, title, and submodules.
         """
 
-        if device not in self._DEVICE_TYPES:
-            emsg = ("Invalid device type. The supported types are "
-                    f"{', '.join(self._DEVICE_TYPES)}.")
+        if device_type not in \
+                (DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}):
+            emsg = ("Invalid device type. Valid values: "
+                    f"{', '.join(DEVICE_TYPES)}.")
             raise ValueError(emsg)
 
         return self._get_json(
             f"{self.API_URL}/v1/pages/videos",
-            params={"videoId": id, 
-                    "deviceType": device,
-                    "countryCode": self._country if country is None 
-                                    else country})
+            params={
+                "videoId": video_id, 
+                "deviceType": device_type,
+                "countryCode": self._get_country_code(country_code)
+            }
+        )
 
     ### PLAYLISTS #############################################################
 
     def get_playlist(
-            self, uuid: Union[int, str], *, country: str = None
-        ) -> dict[str, Any]:
+            self, uuid: str, country_code: str = None) -> dict[str, Any]:
         
         """
-        Get TIDAL catalog information for a playlist.
-
+        Get TIDAL catalog information for a single playlist.
+        
         Parameters
         ----------
         uuid : `str`
             TIDAL playlist UUID.
 
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+            **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
 
         Returns
         -------
         playlist : `dict`
-            TIDAL catalog information for the playlist in JSON format.
+            TIDAL catalog information for a single playlist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "uuid": <str>,
+                    "title": <str>,
+                    "numberOfTracks": <int>,
+                    "numberOfVideos": <int>,
+                    "creator": {
+                      "id": <int>
+                    },
+                    "description": <str>,
+                    "duration": <int>,
+                    "lastUpdated": <str>,
+                    "created": <str>,
+                    "type": <str>,
+                    "publicPlaylist": <bool>,
+                    "url": <str>,
+                    "image": <str>,
+                    "popularity": <int>,
+                    "squareImage": <str>,
+                    "promotedArtists": [
+                      {
+                        "id": <int>,
+                        "name": <str>,
+                        "type": <str>,
+                        "picture": <str>,
+                      }
+                    ],
+                    "lastItemAddedAt": <str>
+                  }
         """
+
+        self._check_scope("get_playlist", "r_usr", 
+                          require_authentication=False)
                 
         return self._get_json(
             f"{self.API_URL}/v1/playlists/{uuid}",
-            params={"countryCode": self._country if country is None 
-                                   else country}
+            params={"countryCode": self._get_country_code(country_code)}
         )
 
-    def get_playlist_etag(
-            self, uuid: Union[int, str], *, country: str = None) -> str:
+    def get_playlist_etag(self, uuid: str, country_code: str = None) -> str:
 
         """
-        Get a playlist's ETag.
+        Get the entity tag (ETag) for a single playlist.
 
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
+        .. note::
 
-            **Note**: This method is provided for convenience and is not
-            a TIDAL API endpoint.
+           This method is provided for convenience and is not a private
+           TIDAL API endpoint.
 
         Parameters
         ----------
         uuid : `str`
             TIDAL playlist UUID.
 
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+            **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
 
         Returns
         -------
         etag : `str`
-            ETag for a TIDAL playlist.
+            ETag for a single playlist.
+
+            **Example**: :code:`"1698379219683"`.
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_playlist_etag() "
-                               "requires user authentication.")
+        self._check_scope("get_playlist_etag", "r_usr", 
+                          require_authentication=False)
 
-        resp = self._request(
+        r = self._request(
             "get", 
             f"{self.API_URL}/v1/playlists/{uuid}", 
-            params={"countryCode": self._country if country is None
-                                   else country}
+            params={"countryCode": self._get_country_code(country_code)}
         )
-        return resp.headers["ETag"].replace('"', "")
+        return r.headers["ETag"].replace('"', "")
 
     def get_playlist_items(
-            self, uuid: str, *, country: str = None, limit: int = 100,
+            self, uuid: str, country_code: str = None, *, limit: int = 100,
             offset: int = None) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for all tracks and videos in a
-        playlist.
+        Get TIDAL catalog information for items (tracks and videos) in 
+        a playlist.
 
         Parameters
         ----------
         uuid : `str`
             TIDAL playlist UUID.
 
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+            **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
 
         limit : `int`, keyword-only, default: :code:`100`
-            The maximum number of results to return.
+            Page size.
+
+            **Example**: :code:`10`.
 
         offset : `int`, keyword-only, optional
-            The index of the first result to return. Use with `limit` to
-            get the next page of results.
+            Pagination offset (in number of items).
 
-            **Default**: :code:`0`.
+            **Example**: :code:`0`. 
 
         Returns
         -------
         items : `dict`
-            A dictionary containing the items in the playlist and the
-            number of results returned.
+            A dictionary containing TIDAL catalog information for 
+            tracks and videos in the specified playlist and metadata for
+            the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "item": {
+                          "id": <int>,
+                          "title": <str>,
+                          "duration": <int>,
+                          "replayGain": <float>,
+                          "peak": <float>,
+                          "allowStreaming": <bool>,
+                          "streamReady": <bool>,
+                          "adSupportedStreamReady": <bool>,
+                          "djReady": <bool>,
+                          "stemReady": <bool>,
+                          "streamStartDate": <str>,
+                          "premiumStreamingOnly": <bool>,
+                          "trackNumber": <int>,
+                          "volumeNumber": >int>,
+                          "version": <str>,
+                          "popularity": <int>,
+                          "copyright": <str>,
+                          "url": <str>,
+                          "isrc": <str>,
+                          "editable": <bool>,
+                          "explicit": <bool>,
+                          "audioQuality": <str>,
+                          "audioModes": [<str>],
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "artist": {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          },
+                          "artists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>,
+                              "picture": <str>
+                            }
+                          ],
+                          "album": {
+                            "id": <int>,
+                            "title": <str>,
+                            "cover": <str>,
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
+                          },
+                          "mixes": {
+                            "TRACK_MIX": <str>
+                          }
+                        },
+                        "type": "track"
+                      }
+                    ]
+                  }
         """
+
+        self._check_scope("get_playlist_items", "r_usr", 
+                          require_authentication=False)
 
         return self._get_json(
             f"{self.API_URL}/v1/playlists/{uuid}/items",
-            params={"countryCode": self._country if country is None 
-                                   else country,
-                    "limit": limit, "offset": offset}
+            params={
+                "countryCode": self._get_country_code(country_code),
+                "limit": limit, 
+                "offset": offset
+            }
         )
 
     def get_playlist_recommendations(
-            self, uuid: str, *, country: str = None, limit: int = None,
+            self, uuid: str, country_code: str = None, *, limit: int = None,
             offset: int = None) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for a playlist's recommended 
-        tracks.
+        Get TIDAL catalog information for recommended tracks based on a
+        playlist's items.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         uuid : `str`
             TIDAL playlist UUID.
 
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
+            **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
 
         limit : `int`, keyword-only, optional
-            The maximum number of results to return.
+            Page size.
 
-            **Default**: :code:`10`.
+            **Example**: :code:`10`.
 
         offset : `int`, keyword-only, optional
-            The index of the first result to return. Use with `limit` to
-            get the next page of results.
+            Pagination offset (in number of items).
 
-            **Default**: :code:`0`.
+            **Example**: :code:`0`. 
 
         Returns
         -------
         items : `dict`
-            A dictionary containing the recommended tracks and the
-            number of results returned.
+            A dictionary containing TIDAL catalog information for 
+            recommended tracks and videos and metadata for the returned
+            results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "item": {
+                          "id": <int>,
+                          "title": <str>,
+                          "duration": <int>,
+                          "replayGain": <float>,
+                          "peak": <float>,
+                          "allowStreaming": <bool>,
+                          "streamReady": <bool>,
+                          "adSupportedStreamReady": <bool>,
+                          "djReady": <bool>,
+                          "stemReady": <bool>,
+                          "streamStartDate": <str>,
+                          "premiumStreamingOnly": <bool>,
+                          "trackNumber": <int>,
+                          "volumeNumber": >int>,
+                          "version": <str>,
+                          "popularity": <int>,
+                          "copyright": <str>,
+                          "url": <str>,
+                          "isrc": <str>,
+                          "editable": <bool>,
+                          "explicit": <bool>,
+                          "audioQuality": <str>,
+                          "audioModes": [<str>],
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "artist": {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          },
+                          "artists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>,
+                              "picture": <str>
+                            }
+                          ],
+                          "album": {
+                            "id": <int>,
+                            "title": <str>,
+                            "cover": <str>,
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
+                          },
+                          "mixes": {
+                            "TRACK_MIX": <str>
+                          }
+                        },
+                        "type": "track"
+                      }
+                    ]
+                  }
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_playlist_recommendations() "
-                               "requires user authentication.")
+        self._check_scope("get_playlist_recommendations", "r_usr")
 
         return self._get_json(
             f"{self.API_URL}/v1/playlists/{uuid}/recommendations/items",
-            params={"countryCode": self._country if country is None 
-                                   else country,
-                    "limit": limit, "offset": offset}
+            params={
+                "countryCode": self._get_country_code(country_code),
+                "limit": limit, 
+                "offset": offset
+            }
         )
 
     def favorite_playlists(
@@ -3267,26 +4388,28 @@ class PrivateAPI:
         ) -> None:
         
         """
-        Favorite playlists.
+        Add playlists to the current user's collection.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
-        uuids : `str`
+        uuids : `str` or `list`
             TIDAL playlist UUID(s).
 
+            **Example**: :code:`["36ea71a8-445e-41a4-82ab-6628c581535d",
+            "4261748a-4287-4758-aaab-6d5be3e99e52"]`.
+
         folder_id : `str`, keyword-only, default: :code:`"root"`
-            ID of the folder to move the TIDAL playlist into. To place a
+            ID of the folder to move the playlist into. To place a 
             playlist directly under "My Playlists", use 
             :code:`folder_id="root"`.
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.add_favorite_playlist() "
-                               "requires user authentication.")
+        self._check_scope("favorite_playlists", "r_usr")
         
         self._request(
             "put",
@@ -3297,26 +4420,27 @@ class PrivateAPI:
     def move_playlist(self, uuid: str, folder_id: str) -> None:
 
         """
-        Move a playlist.
+        Move a playlist in the current user's collection.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         uuid : `str`
             TIDAL playlist UUID.
 
+            **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
+
         folder_id : `str`
-            ID of the folder to move the TIDAL playlist into. To place a
+            ID of the folder to move the playlist into. To place a 
             playlist directly under "My Playlists", use 
             :code:`folder_id="root"`.
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.move_playlist() "
-                               "requires user authentication.")
+        self._check_scope("move_playlist", "r_usr")
 
         self._request(
             "put",
@@ -3327,21 +4451,22 @@ class PrivateAPI:
     def unfavorite_playlist(self, uuid: str) -> None:
 
         """
-        Remove a favorite playlist.
+        Remove a playlist from the current user's collection.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         uuid : `str`
             TIDAL playlist UUID.
+
+            **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.unfavorite_playlist() "
-                               "requires user authentication.")
+        self._check_scope("unfavorite_playlist", "r_usr")
 
         self._request(
             "put",
@@ -3352,26 +4477,73 @@ class PrivateAPI:
     def get_user_playlist(self, uuid: str) -> dict[str, Any]:
 
         """
-        Get information about a user playlist.
+        Get TIDAL catalog information for a single user playlist.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         uuid : `str`
-            TIDAL playlist UUID.
+            TIDAL user playlist UUID.
+
+            **Example**: :code:`"e09ab9ce-2e87-41b8-b404-3cd712bf706e"`.
 
         Returns
         -------
         playlist : `dict`
-            Information about the TIDAL playlist.
+            TIDAL catalog information for a single user playlist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "playlist": {
+                      "uuid": <str>,
+                      "type": "USER",
+                      "creator": {
+                        "id": <int>,
+                        "name": <str>,
+                        "picture": <str>,
+                        "type": "USER"
+                      },
+                      "contentBehavior": <str>,
+                      "sharingLevel": <str>,
+                      "status": <str>,
+                      "source": <str>,
+                      "title": <str>,
+                      "description": <str>,
+                      "image": <str>,
+                      "squareImage": <str>,
+                      "url": <str>,
+                      "created": <str>,
+                      "lastUpdated": <str>,
+                      "lastItemAddedAt": <str>,
+                      "duration": <int>,
+                      "numberOfTracks": <int>,
+                      "numberOfVideos": <int>,
+                      "promotedArtists": [],
+                      "trn": <str>,
+                    },
+                    "followInfo": {
+                      "nrOfFollowers": <int>,
+                      "tidalResourceName": <str>,
+                      "followed": <bool>,
+                      "followType": "PLAYLIST"
+                    },
+                    "profile": {
+                      "userId": <int>,
+                      "name": <str>,
+                      "color": [<str>]
+                    }
+                  }
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_user_playlist() "
-                               "requires user authentication.")
+        self._check_scope("get_user_playlist", "r_usr")
 
         return self._get_json(
             f"{self.API_URL}/v2/user-playlists/{uuid}"
@@ -3379,70 +4551,28 @@ class PrivateAPI:
 
     def get_user_playlists(
             self, id: Union[int, str] = None, *, limit: int = 50, 
-            offset: int = None, country: str = None) -> dict[str, Any]:
-
-        """
-        Get a user's playlists.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        id : `str` 
-            TIDAL user ID. If not specified, the current user's ID is
-            used.
-
-        limit : `int`, keyword-only, default: :code:`50`
-            The maximum number of results to return.
-
-        offset : `int`, keyword-only, optional
-            Index of the first result to return. Use with `limit` to get
-            the next page of search results.
-
-            **Default**: :code:`0`.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_user_playlists() "
-                               "requires user authentication.")
-
-        if id is None:
-            id = self._me["userId"]
-
-        return self._get_json(
-            f"{self.API_URL}/v1/users/{id}/playlists",
-            params={"limit": limit, "offset": offset,
-                    "countryCode": self._country if country is None 
-                                   else country}
-        )
-
-    def get_user_public_playlists(
-            self, id: Union[int, str] = None, *, limit: int = 50, 
             cursor: str = None) -> dict[str, Any]:
 
         """
-        Get a user's public playlists.
+        Get TIDAL catalog information for playlists created by a TIDAL
+        user.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         id : `str` 
-            TIDAL user ID. If not specified, the current user's ID is
-            used.
+            TIDAL user ID. If not specified, the ID associated with the
+            user account in the current session is used. Required if 
+            user authentication was not performed.
 
         limit : `int`, keyword-only, default: :code:`50`
-            The maximum number of results to return.
+            Page size.
+
+            **Example**: :code:`10`.
 
         cursor : `str`, keyword-only, optional
             Cursor position of the last item in previous search results.
@@ -3453,30 +4583,165 @@ class PrivateAPI:
         playlists : `dict`
             A dictionary containing the user's playlists and the cursor
             position.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "playlist": {
+                          "uuid": <str>,
+                          "type": "USER",
+                          "creator": {
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": <str>,
+                            "type": "USER"
+                          },
+                          "contentBehavior": <str>,
+                          "sharingLevel": <str>,
+                          "status": <str>,
+                          "source": <str>,
+                          "title": <str>,
+                          "description": <str>,
+                          "image": <str>,
+                          "squareImage": <str>,
+                          "url": <str>,
+                          "created": <str>,
+                          "lastUpdated": <str>,
+                          "lastItemAddedAt": <str>,
+                          "duration": <int>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "promotedArtists": [],
+                          "trn": <str>,
+                        },
+                        "followInfo": {
+                          "nrOfFollowers": <int>,
+                          "tidalResourceName": <str>,
+                          "followed": <bool>,
+                          "followType": "PLAYLIST"
+                        },
+                        "profile": {
+                          "userId": <int>,
+                          "name": <str>,
+                          "color": [<str>]
+                        }
+                      }
+                    ],
+                    "cursor": <str>
+                  }
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_user_public_playlists() "
-                               "requires user authentication.")
+        self._check_scope("get_user_playlists", "r_usr")
 
         if id is None:
-            id = self._me["userId"]
-
+            id = self._user_id
         return self._get_json(f"{self.API_URL}/v2/user-playlists/{id}/public",
                               params={"limit": limit, "cursor": cursor})
 
-    def get_my_playlists(
-            self, folder_uuid: str = None, *, flattened: bool = False,
-            include: str = None, limit: int = 50, order: str = "DATE",
-            order_direction: str = "DESC") -> list[dict[str, Any]]:
+    def get_created_playlists(
+            self, country_code: str = None, *, limit: int = 50, 
+            offset: int = None) -> dict[str, Any]:
 
         """
-        Get the current user's playlist folders and playlists.
+        Get TIDAL catalog information for playlists created by the
+        current user.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
+        Parameters
+        ----------
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        limit : `int`, keyword-only, default: :code:`50`
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`.
+
+        Returns
+        -------
+        playlists : `dict`
+            TIDAL catalog information for a user playlists created by
+            the current user and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "uuid": <str>",
+                        "title": <str>,
+                        "numberOfTracks": <int>,
+                        "numberOfVideos": <int>,
+                        "creator": {
+                          "id": <int>
+                        },
+                        "description": <str>,
+                        "duration": <int>,
+                        "lastUpdated": <str>,
+                        "created": <str>,
+                        "type": "USER",
+                        "publicPlaylist": <bool>,
+                        "url": <str>,
+                        "image": <str>,
+                        "popularity": <int>,
+                        "squareImage": <str>,
+                        "promotedArtists": [],
+                        "lastItemAddedAt": <str>
+                      }
+                    ]
+                  }
+        """
+
+        self._check_scope("get_created_playlists", "r_usr")
+
+        return self._get_json(
+            f"{self.API_URL}/v1/users/{self._user_id}/playlists",
+            params={
+                "countryCode": self._get_country_code(country_code),
+                "limit": limit, 
+                "offset": offset
+            }
+        )
+
+    def get_created_playlist_folders(
+            self, folder_uuid: str = None, *, flattened: bool = False,
+            include_only: str = None, limit: int = 50, order: str = "DATE",
+            order_direction: str = "DESC") -> dict[str, Any]:
+
+        """
+        Get TIDAL catalog information for a playlist folder (and 
+        optionally, playlists and other playlist folders in it) created
+        by the current user.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+        
         Parameters
         ----------
         folder_uuid : `str`, optional
@@ -3487,14 +4752,16 @@ class PrivateAPI:
         flattened : `bool`, keyword-only, default: :code:`False`
             Determines whether the results are flattened into a list.
 
-        include : `str`, keyword-only, optional
+        include_only : `str`, keyword-only, optional
             Type of playlist-related item to return.
 
             **Valid values**: :code:`"FAVORITE_PLAYLIST"`, 
             :code:`"FOLDER"`, and :code:`"PLAYLIST"`.
 
         limit : `int`, keyword-only, default: :code:`50`
-            The maximum number of results to return.
+            Page size.
+
+            **Example**: :code:`10`.
 
         order : `str`, keyword-only, default: :code:`"DATE"`
             Sorting order.
@@ -3512,112 +4779,77 @@ class PrivateAPI:
         items : `dict`
             A dictionary containing playlist-related items and the total
             number of items available.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "lastModifiedAt": <str>,
+                    "items": [
+                      {
+                        "trn": <str>,
+                        "itemType": "FOLDER",
+                        "addedAt": <str>,
+                        "lastModifiedAt": <str>,
+                        "name": <str>,
+                        "parent": <str>,
+                        "data": {
+                          "trn": <str>,
+                          "name": <str>,
+                          "createdAt": <str>,
+                          "lastModifiedAt": <str>,
+                          "totalNumberOfItems": <int>,
+                          "id": <str>,
+                          "itemType": "FOLDER"
+                        }
+                      }
+                    ],
+                    "totalNumberOfItems": <int>,
+                    "cursor": <str>
+                  }
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_my_playlists() "
-                               "requires user authentication.")
+        self._check_scope("get_created_playlist_folder", "r_usr")
         
-        _allowed_includes = {None, "FAVORITE_PLAYLIST", "FOLDER", "PLAYLIST"}
-        if include not in _allowed_includes:
-            emsg = ("Invalid include type. The supported types are "
-                    f"{', '.join(_allowed_includes)}.")
+        if include_only and include_only not in \
+                (ALLOWED_INCLUDES := {"FAVORITE_PLAYLIST", "FOLDER", 
+                                      "PLAYLIST"}):
+            emsg = ("Invalid include type. Valid values: "
+                    f"{', '.join(ALLOWED_INCLUDES)}.")
             raise ValueError(emsg)
 
         url = f"{self.API_URL}/v2/my-collection/playlists/folders"
-        params = {}
-
         if flattened:
-            url += "flattened"
-        else:
-            params["folderId"] = folder_uuid if folder_uuid else "root"
-
+            url += "/flattened"
         return self._get_json(
             url,
-            params={"limit": limit, "includeOnly": include,
-                    "order": order, "orderDirection": order_direction} | params
+            params={
+                "folderId": folder_uuid if folder_uuid else "root",
+                "limit": limit,
+                "includeOnly": include_only,
+                "order": order,
+                "orderDirection": order_direction
+            }
         )
-
-    def update_playlist(
-            self, uuid: str, *, title: str = None, description: str = None
-        ) -> None:
-
-        """
-        Update the title or description of a playlist owned by the
-        current user.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        uuid : `str`
-            TIDAL playlist UUID.
-
-        title : `str`, keyword-only, optional
-            New playlist title.
-
-        description : `str`, keyword-only, optional
-            New playlist description.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.update_playlist() "
-                               "requires user authentication.")
-
-        body = {}
-        if title is None and description is None:
-            raise ValueError("Nothing to update!")
-        if title is not None:
-            body["title"] = title
-        if description is not None:
-            body["description"] = description
-
-        self._request("post", f"{self.API_URL}/v1/playlists/{uuid}", json=body)
-
-    def set_playlist_privacy(self, uuid: str, public: bool) -> None:
-
-        """
-        Set the privacy of a playlist owned by the current user.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        uuid : `str`
-            TIDAL playlist UUID.
-
-        public : `bool`
-            Determines whether the playlist is public (:code:`True`) or
-            private (:code:`False`).
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.set_playlist_privacy() "
-                               "requires user authentication.")
-
-        self._request("put",
-                      f"{self.API_URL}/v2/playlists/{uuid}/"
-                      f"set-{'public' if public else 'private'}")
 
     def create_playlist(
             self, name: str, *, description: str = None, 
             folder_uuid: str = "root", public: bool = None) -> None:
         
         """
-        Create a playlist.
+        Create a user playlist.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         name : `str`
-            TIDAL playlist name.
+            Playlist name.
 
         description : `str`, keyword-only, optional
             Brief playlist description.
@@ -3632,115 +4864,108 @@ class PrivateAPI:
             private (:code:`False`).
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.create_playlist() "
-                               "requires user authentication.")
+        self._check_scope("create_playlist", "r_usr")
 
         self._request(
             "put",
             f"{self.API_URL}/v2/my-collection/playlists/folders/create-playlist",
-            params={"name": name, "description": description, 
-                    "folderId": folder_uuid, "isPublic": public}
+            params={
+                "name": name,
+                "description": description, 
+                "folderId": folder_uuid, 
+                "isPublic": public
+            }
         )
 
-    def delete_playlist(self, uuid: str) -> None:
+    def update_playlist(
+            self, uuid: str, *, title: str = None, description: str = None
+        ) -> None:
 
         """
-        Delete a playlist.
+        Update the title or description of a playlist owned by the
+        current user.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         uuid : `str`
             TIDAL playlist UUID.
+
+            **Example**: :code:`"e09ab9ce-2e87-41b8-b404-3cd712bf706e"`.
+
+        title : `str`, keyword-only, optional
+            New playlist title.
+
+        description : `str`, keyword-only, optional
+            New playlist description.
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.delete_playlist() "
-                               "requires user authentication.")
+        self._check_scope("update_playlist", "r_usr")
 
-        self._request(
-            "put",
-            f"{self.API_URL}/v2/my-collection/playlists/folders/remove",
-            params={"trns": f"trn:playlist:{uuid}"}
-        )
+        if title is None and description is None:
+            logging.warning("No changes were made to the playlist.")
+            return
+        data = {}
+        if title is not None:
+            data["title"] = title
+        if description is not None:
+            data["description"] = description
+        self._request("post", f"{self.API_URL}/v1/playlists/{uuid}", data=data)
 
-    def create_playlist_folder(
-            self, name: str, *, folder_id: str = "root") -> None:
+    def set_playlist_privacy(self, uuid: str, public: bool) -> None:
 
         """
-        Create a user playlist folder.
+        Set the privacy of a playlist owned by the current user.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
-
-        Parameters
-        ----------
-        name : `str`
-            Playlist folder name.
-
-        folder_id : `str`, keyword-only, default: :code:`"root"`
-            ID of the folder in which the new playlist folder should be
-            created in. To create a folder directly under "My 
-            Playlists", use :code:`folder_id="root"`.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.create_playlist_folder() "
-                               "requires user authentication.")
-        
-        self._request(
-            "put",
-            f"{self.API_URL}/v2/my-collection/playlists/folders/create-folder",
-            params={"name": name, "folderId": folder_id}
-        )
-
-    def delete_playlist_folder(self, uuid: str) -> None:
-
-        """
-        Delete a user playlist folder.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         uuid : `str`
-            TIDAL playlist folder UUID.
+            TIDAL playlist UUID.
+
+            **Example**: :code:`"e09ab9ce-2e87-41b8-b404-3cd712bf706e"`.
+
+        public : `bool`
+            Determines whether the playlist is public (:code:`True`) or
+            private (:code:`False`).
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.delete_playlist_folder() "
-                               "requires user authentication.")
-        
+        self._check_scope("set_playlist_privacy", "r_usr")
+
         self._request(
             "put",
-            f"{self.API_URL}/v2/my-collection/playlists/folders/remove",
-            params={"trns": f"trn:folder:{uuid}"}
+            f"{self.API_URL}/v2/playlists/{uuid}/set-"
+            f"{'public' if public else 'private'}"
         )
 
     def add_playlist_items(
             self, uuid: str, 
             items: Union[int, str, list[Union[int, str]]] = None, *, 
             from_playlist_uuid: str = None, on_duplicate: str = "FAIL", 
-            on_not_found: str = "FAIL") -> None:
+            on_artifact_not_found: str = "FAIL") -> None:
         
         """
-        Add items to a user playlist.
+        Add items to a playlist owned by the current user.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         uuid : `str`
             TIDAL playlist UUID.
+
+            **Example**: :code:`"e09ab9ce-2e87-41b8-b404-3cd712bf706e"`.
 
         items : `int`, `str`, or `list`, optional
             Items to add to the playlist. If not specified, 
@@ -3761,28 +4986,29 @@ class PrivateAPI:
             **Valid values**: :code:`"ADD"`, :code:`"SKIP"`, and 
             :code:`"FAIL"`.
 
-        on_not_found : `str`, keyword-only, default: :code:`"FAIL"`
+        on_artifact_not_found : `str`, keyword-only, default: :code:`"FAIL"`
             Behavior when the item to be added does not exist.
 
-            **Valid value**: :code:`"FAIL"`.
+            **Valid values**: :code:`"FAIL"`.
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.add_playlist_items() "
-                               "requires user authentication.")
+        self._check_scope("add_playlist_items", "r_usr")
 
         if items is None and from_playlist_uuid is None:
-            raise ValueError("No items to add to playlist!")
-        elif items:
-            body = {"trackIds": items}
+            logging.warning("No changes were made to the playlist.")
+            return
+        data = {
+            "onArtifactNotFound": on_artifact_not_found, 
+            "onDuplicate": on_duplicate
+        }
+        if items:
+            data |= {"trackIds": items}
         else:
-            body = {"fromPlaylistUuid": from_playlist_uuid}
-
+            data |= {"fromPlaylistUuid": from_playlist_uuid}
         self._request(
             "put",
             f"{self.API_URL}/v1/playlist/{uuid}/items",
-            json=body | {"onArtifactNotFound": on_not_found, 
-                         "onDuplicate": on_duplicate}
+            data=data
         )
 
     def move_playlist_item(
@@ -3790,16 +5016,19 @@ class PrivateAPI:
             to_index: Union[int, str]) -> None:
         
         """
-        Move an item in a user playlist.
+        Move an item in a playlist owned by the current user.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         uuid : `str`
             TIDAL playlist UUID.
+
+            **Example**: :code:`"e09ab9ce-2e87-41b8-b404-3cd712bf706e"`.
 
         from_index : `int` or `str`
             Current item index.
@@ -3808,9 +5037,7 @@ class PrivateAPI:
             Desired item index.
         """
         
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.move_playlist_item() "
-                               "requires user authentication.")
+        self._check_scope("move_playlist_item", "r_usr")
 
         self._request(
             "put",
@@ -3822,24 +5049,25 @@ class PrivateAPI:
             self, uuid: str, index: Union[int, str]) -> None:
         
         """
-        Delete an item from a user playlist.
+        Delete an item from a playlist owned by the current user.
 
-        .. admonition:: OAuth 2.0 authentication
+        .. admonition:: Authorization scope
+           :class: note
         
-           Requires user authentication.
+           Requires the :code:`r_usr` scope.
 
         Parameters
         ----------
         uuid : `str`
             TIDAL playlist UUID.
 
+            **Example**: :code:`"e09ab9ce-2e87-41b8-b404-3cd712bf706e"`.
+
         index : `int` or `str`
             Item index.
         """
 
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.delete_playlist_item() "
-                               "requires user authentication.")
+        self._check_scope("delete_playlist_item", "r_usr")
 
         self._request(
             "delete",
@@ -3847,37 +5075,330 @@ class PrivateAPI:
             headers={"If-None-Match": self.get_playlist_etag(uuid)}
         )
 
+    def delete_playlist(self, uuid: str) -> None:
+
+        """
+        Delete a playlist owned by the current user.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        uuid : `str`
+            TIDAL playlist UUID.
+
+            **Example**: :code:`"e09ab9ce-2e87-41b8-b404-3cd712bf706e"`.
+        """
+
+        self._check_scope("delete_playlist", "r_usr")
+
+        self._request(
+            "put",
+            f"{self.API_URL}/v2/my-collection/playlists/folders/remove",
+            params={"trns": f"trn:playlist:{uuid}"}
+        )
+
+    def create_playlist_folder(
+            self, name: str, *, folder_id: str = "root") -> None:
+
+        """
+        Create a user playlist folder.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        name : `str`
+            Playlist folder name.
+
+        folder_id : `str`, keyword-only, default: :code:`"root"`
+            ID of the folder in which the new playlist folder should be
+            created in. To create a folder directly under "My 
+            Playlists", use :code:`folder_id="root"`.
+        """
+
+        self._check_scope("create_playlist_folder", "r_usr")
+        
+        self._request(
+            "put",
+            f"{self.API_URL}/v2/my-collection/playlists/folders/create-folder",
+            params={"name": name, "folderId": folder_id}
+        )
+
+    def delete_playlist_folder(self, uuid: str) -> None:
+
+        """
+        Delete a playlist folder owned by the current user.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        uuid : `str`
+            TIDAL playlist folder UUID.
+
+            **Example**: :code:`"92b3c1ea-245a-4e5a-a5a4-c215f7a65b9f"`.
+        """
+
+        self._check_scope("delete_playlist_folder", "r_usr")
+        
+        self._request(
+            "put",
+            f"{self.API_URL}/v2/my-collection/playlists/folders/remove",
+            params={"trns": f"trn:folder:{uuid}"}
+        )
+
     ### SEARCH ################################################################
 
     def search(
-            self, query: str, *, type: str, limit: int = None, 
-            offset: int = None, country: str = None) -> dict[str, Any]:
+            self, query: str, country_code: str = None, *, type: str = None, 
+            limit: int = None, offset: int = None) -> dict[str, Any]:
     
         """
-        Search TIDAL for media and performers.
+        Search for albums, artists, tracks, and videos.
 
         Parameters
         ----------
         query : `str`
             Search query.
 
-        type : `str`, keyword-only, optional
-            Specific media type to search for.
+            **Example**: :code:`"Beyoncé"`.
 
-            **Valid values**: :code:`"artist"`, :code:`"album"`, 
-            :code:`"playlist"`, :code:`"track"`, :code:`"userProfile"`,
-            and :code:`"video"`.
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        type : `str`, keyword-only, optional
+            Target search type. Searches for all types if not specified.
+
+            **Valid values**: :code:`"ALBUMS"`, :code:`"ARTISTS"`, 
+            :code:`"TRACKS"`, :code:`"VIDEOS"`.
 
         limit : `int`, keyword-only, optional
-            Maximum number of results to return.
+            Page size.
 
-            **Default**: :code:`10`.
+            **Example**: :code:`10`.
 
         offset : `int`, keyword-only, optional
-            Index of the first result to return. Use with `limit` to get
-            the next page of search results.
+            Pagination offset (in number of items).
 
-            **Default**: :code:`0`.
+            **Example**: :code:`0`.
+
+        Returns
+        -------
+        results : `dict`
+            A dictionary containing TIDAL catalog information for
+            albums, artists, tracks, and videos matching the search
+            query, and metadata for the returned results.
+        """
+
+        self._check_scope("search", "r_usr", require_authentication=False)
+
+        url = f"{self.API_URL}/v1/search"
+        if type:
+            if type not in \
+                    (TYPES := {"artist", "album", "playlist", "track", 
+                               "userProfile", "video"}):
+                emsg = ("Invalid target search type. Valid values: "
+                        f"{', '.join(TYPES)}.")
+                raise ValueError(emsg)
+            url += f"/{type}s"
+
+        return self._get_json(
+            url,
+            params={
+                "query": query,
+                "type": type,
+                "limit": limit, 
+                "offset": offset,
+                "countryCode": self._get_country_code(country_code)
+            }
+        )
+
+    ### TRACKS ################################################################
+
+    def get_track(
+            self, id: Union[int, str], country_code: str = None
+        ) -> dict[str, Any]:
+        
+        """
+        Get TIDAL catalog information for a single track.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL track ID.
+
+            **Example**: :code:`251380837`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        track : `dict`
+            TIDAL catalog information for a single track.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "id": <int>,
+                    "title": <str>,
+                    "duration": <int>,
+                    "replayGain": <float>,
+                    "peak": <float>,
+                    "allowStreaming": <bool>,
+                    "streamReady": <bool>,
+                    "adSupportedStreamReady": <bool>,
+                    "djReady": <bool>,
+                    "stemReady": <bool>,
+                    "streamStartDate": <str>,
+                    "premiumStreamingOnly": <bool>,
+                    "trackNumber": <int>,
+                    "volumeNumber": <int>,
+                    "version": <str>,
+                    "popularity": <int>,
+                    "copyright": <str>,
+                    "url": <str>,
+                    "isrc": <str>,
+                    "editable": <bool>,
+                    "explicit": <bool>,
+                    "audioQuality": <str>,
+                    "audioModes": [<str>],
+                    "mediaMetadata": {
+                      "tags": [<str>]
+                    },
+                    "artist": {
+                      "id": <int>,
+                      "name": <str>,
+                      "type": <str>,
+                      "picture": <str>
+                    },
+                    "artists": [
+                      {
+                        "id": <int>,
+                        "name": <str>,
+                        "type": <str>,
+                        "picture": <str>
+                      }
+                    ],
+                    "album": {
+                      "id": <int>,
+                      "title": <str>,
+                      "cover": <str>,
+                      "vibrantColor": <str>,
+                      "videoCover": <str>
+                    },
+                    "mixes": {
+                      "TRACK_MIX": <str>
+                    }
+                  }
+        """
+
+        self._check_scope("get_track", "r_usr", require_authentication=False)
+
+        return self._get_json(
+            f"{self.API_URL}/v1/tracks/{id}",
+            params={"countryCode": self._get_country_code(country_code)}
+        )
+
+    def get_track_contributors(
+            self, id: Union[int, str], country_code: str = None, *,
+            limit: int = None, offset: int = None) -> dict[str, Any]:
+
+        """
+        Get the contributors to a track and their roles.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL track ID.
+
+            **Example**: :code:`251380837`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        limit : `int`, keyword-only, default: :code:`100`
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`. 
+
+        Returns
+        -------
+        contributors : `dict`
+            A dictionary containing a track's contributors and their 
+            roles, and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "name": <str>,
+                        "role": <str>
+                      }
+                    ]
+                  }
+        """
+
+        self._check_scope("get_track_contributors", "r_usr", 
+                          require_authentication=False)
+
+        return self._get_json(
+            f"{self.API_URL}/v1/tracks/{id}/contributors",
+            params={
+                "countryCode": self._get_country_code(country_code),
+                "limit": limit, 
+                "offset": offset
+            }
+        )
+
+    def get_track_credits(
+            self, id: Union[int, str], country_code: str = None
+        ) -> list[dict[str, Any]]:
+
+        """
+        Get credits for a track.
+        
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL track ID.
 
         country : `str`, keyword-only, optional
             An ISO 3166-1 alpha-2 country code. If not specified, the
@@ -3887,26 +5408,1441 @@ class PrivateAPI:
 
         Returns
         -------
-        results : `dict`
-            The search results in JSON format.
+        credits : `list`
+            A list of roles and their associated contributors.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "type": <str>,
+                      "contributors": [
+                        {
+                          "name": <str>,
+                          "id": <int>
+                        }
+                      ]
+                    }
+                  ]
         """
 
-        url = f"{self.API_URL}/v1/search"
-        if type:
-            if type not in self._MEDIA_TYPES:
-                emsg = ("Invalid media type. The supported types are "
-                        f"{', '.join(self._MEDIA_TYPES)}.")
-                raise ValueError(emsg)
-            url += f"/{type}s"
+        self._check_scope("get_track_credits", "r_usr", 
+                          require_authentication=False)
 
         return self._get_json(
-            url,
-            params={"query": query, "type": type,
-                    "limit": limit, "offset": offset,
-                    "countryCode": self._country if country is None
-                                   else country}
+            f"{self.API_URL}/v1/tracks/{id}/credits",
+            params={"countryCode": self._get_country_code(country_code)}
         )
 
+    def get_track_composers(self, id: Union[int, str]) -> set[str]:
+
+        """
+        Get the composers, lyricists, and/or songwriters of a track.
+
+        .. note::
+
+           This method is provided for convenience and is not a private
+           TIDAL API endpoint.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL track ID.
+
+            **Example**: :code:`251380837`.
+        
+        Returns
+        -------
+        composers : `set`
+            Composers, lyricists, and/or songwriters of the track.
+
+            **Example**: :code:`{'Tommy Wright III', 'Beyoncé', 
+            'Kelman Duran', 'Terius "The-Dream" G...de-Diamant', 
+            'Mike Dean'}`
+        """
+
+        return {c["name"] for c in self.get_track_contributors(id)["items"] 
+                if c["role"] in {"Composer", "Lyricist", "Writer"}}
+
+    def get_track_lyrics(
+            self, id: Union[int, str], country_code: str = None
+        ) -> dict[str, Any]:
+
+        """
+        Get lyrics for a track.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires user authentication.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL track ID.
+
+            **Example**: :code:`251380837`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        lyrics : `dict`
+            A dictionary containing formatted and time-synced lyrics (if
+            available).
+        """
+
+        # TODO: Check authorization scope and add sample response.
+
+        return self._get_json(
+            f"{self.WEB_URL}/v1/tracks/{id}/lyrics",
+            params={"countryCode": self._get_country_code(country_code)}
+        )
+        
+    def get_track_mix(
+            self, id: Union[int, str], country_code: str = None) -> str:
+        
+        """
+        Get the curated mix of tracks based on a track.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL track ID.
+
+            **Example**: :code:`251380837`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        mix_id : `str`
+            TIDAL mix ID.
+
+            **Example**: :code:`"0017159e6a1f34ae3d981792d72ecf"`.
+        """
+
+        self._check_scope("get_track_mix", "r_usr", 
+                          require_authentication=False)
+
+        return self._get_json(
+            f"{self.API_URL}/v1/tracks/{id}/mix",
+            params={"countryCode": self._get_country_code(country_code)}
+        )["id"]
+
+    def get_track_playback_info(
+            self, id: Union[int, str], *, audio_quality: str = "HI_RES", 
+            playback_mode: str = "STREAM", asset_presentation: str = "FULL",
+            streaming_session_id: str = None) -> dict[str, Any]:
+        
+        """
+        Get playback information for a track.
+
+        .. admonition:: OAuth 2.0 authentication
+
+           Requires user authentication for high-quality, offline, or 
+           full audio playback information.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL track ID.
+
+        audio_quality : `str`, keyword-only, default: :code:`"HI-RES"`
+            Audio quality.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user 
+                 authentication or 96 kbps AAC with user authentication.
+               * :code:`"HIGH"` for 320 kbps AAC.
+               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
+                 or FLAC.
+               * :code:`"HI_RES"` for Up to 9216 kbps (24-bit, 96 kHz) 
+                 MQA-encoded FLAC.
+
+        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
+            Playback mode.
+
+            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
+
+        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
+            Asset presentation.
+
+            .. container::
+
+               **Valid values**:
+            
+               * :code:`"FULL"`: Full track.
+               * :code:`"PREVIEW"`: 30-second preview of the track.
+
+        streaming_session_id : `str`, keyword-only, optional
+            Streaming session ID.
+
+        Returns
+        -------
+        info : `dict`
+            Track playback information.
+        """
+
+        # TODO: Wait for active TIDAL subscription to confirm functionality.
+
+        if audio_quality not in \
+                (AUDIO_QUALITIES := {"LOW", "HIGH", "LOSSLESS", "HI_RES"}):
+            emsg = ("Invalid audio quality. The supported qualities "
+                    f"are{', '.join(AUDIO_QUALITIES)}.")
+            raise ValueError(emsg)
+        if playback_mode not in \
+                (PLAYBACK_MODES := {"STREAM", "OFFLINE"}):
+            emsg = ("Invalid playback mode. The supported playback "
+                    f"modes are {', '.join(PLAYBACK_MODES)}.")
+            raise ValueError(emsg)
+        if asset_presentation not in \
+                (ASSET_PRESENTATIONS := {"FULL", "PREVIEW"}):
+            emsg = ("Invalid asset presentation. The supported asset "
+                    "presentations are "
+                    f"{', '.join(ASSET_PRESENTATIONS)}.")
+            raise ValueError(emsg)
+
+        if (audio_quality != "LOW" or playback_mode != "STREAM" 
+            or asset_presentation != "PREVIEW") and self._flow is None:
+            emsg = (f"{self._NAME}.get_track_playback_info() requires "
+                    f"user authentication when {audio_quality=}, "
+                    f"{playback_mode=}, and {asset_presentation=}.")
+            raise RuntimeError(emsg)
+        
+        url = f"{self.API_URL}/v1/tracks/{id}/playbackinfo"
+        url += "postpaywall" if "Authorization" in self.session.headers \
+               else "prepaywall"
+        
+        return self._get_json(
+            url,
+            params={
+                "audioquality": audio_quality,
+                "assetpresentation": asset_presentation,
+                "playbackmode": playback_mode,
+                "streamingsessionid": streaming_session_id
+            }
+        )
+
+    def get_track_recommendations(
+            self, id: Union[int, str], country_code: str = None, *,
+            limit: int = None, offset = None) -> dict[str, Any]:
+
+        """
+        Get TIDAL catalog information for a track's recommended 
+        tracks and videos.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL track ID.
+
+            **Example**: :code:`251380837`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+            
+        limit : `int`, keyword-only, optional
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`. 
+
+        Returns
+        -------
+        recommendations : `dict`
+            A dictionary containing TIDAL catalog information for the
+            recommended tracks and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "id": <int>,
+                        "title": <str>,
+                        "duration": <int>,
+                        "replayGain": <float>,
+                        "peak": <float>,
+                        "allowStreaming": <bool>,
+                        "streamReady": <bool>,
+                        "adSupportedStreamReady": <bool>,
+                        "djReady": <bool>,
+                        "stemReady": <bool>,
+                        "streamStartDate": <str>,
+                        "premiumStreamingOnly": <bool>,
+                        "trackNumber": <int>,
+                        "volumeNumber": <int>,
+                        "version": <str>,
+                        "popularity": <int>,
+                        "copyright": <str>,
+                        "url": <str>,
+                        "isrc": <str>,
+                        "editable": <bool>,
+                        "explicit": <bool>,
+                        "audioQuality": <str>,
+                        "audioModes": [<str>],
+                        "mediaMetadata": {
+                          "tags": [<str>]
+                        },
+                        "artist": {
+                          "id": <int>,
+                          "name": <str>,
+                          "type": <str>,
+                          "picture": <str>
+                        },
+                        "artists": [
+                          {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          }
+                        ],
+                        "album": {
+                          "id": <int>,
+                          "title": <str>,
+                          "cover": <str>,
+                          "vibrantColor": <str>,
+                          "videoCover": <str>
+                        },
+                        "mixes": {
+                          "TRACK_MIX": <str>
+                        }
+                      },
+                      "sources": [
+                        "SUGGESTED_TRACKS"
+                      ]
+                    ]
+                  }
+        """
+
+        self._check_scope("get_track_recommendations", "r_usr", 
+                          require_authentication=False)
+        
+        return self._get_json(
+            f"{self.API_URL}/v1/tracks/{id}/recommendations",
+            params={
+                "limit": limit,
+                "offset": offset,
+                "countryCode": self._get_country_code(country_code)
+            }
+        )
+
+    def get_favorite_tracks(
+            self, country_code: str = None, *, limit: int = 50, 
+            offset: int = None, order: str = "DATE",
+            order_direction: str = "DESC"):
+        
+        """
+        Get TIDAL catalog information for tracks in the current user's
+        collection.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        limit : `int`, keyword-only, default: :code:`50`
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`. 
+            
+        order : `str`, keyword-only, default: :code:`"DATE"`
+            Sorting order.
+
+            **Valid values**: :code:`"DATE"` and :code:`"NAME"`.
+
+        order_direction : `str`, keyword-only, default: :code:`"DESC"`
+            Sorting order direction.
+
+            **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
+
+        Returns
+        -------
+        tracks : `dict`
+            A dictionary containing TIDAL catalog information for tracks
+            in the current user's collection and metadata for the 
+            returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "created": <str>,
+                        "item": {
+                          "id": <int>,
+                          "title": <str>,
+                          "duration": <int>,
+                          "replayGain": <float>,
+                          "peak": <float>,
+                          "allowStreaming": <bool>,
+                          "streamReady": <bool>,
+                          "adSupportedStreamReady": <bool>,
+                          "djReady": <bool>,
+                          "stemReady": <bool>,
+                          "streamStartDate": <str>,
+                          "premiumStreamingOnly": <bool>,
+                          "trackNumber": <int>,
+                          "volumeNumber": <int>,
+                          "version": <str>,
+                          "popularity": <int>,
+                          "copyright": <str>,
+                          "url": <str>,
+                          "isrc": <str>,
+                          "editable": <bool>,
+                          "explicit": <bool>,
+                          "audioQuality": <str>,
+                          "audioModes": [<str>],
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "artist": {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          },
+                          "artists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>,
+                              "picture": <str>
+                            }
+                          ],
+                          "album": {
+                            "id": <int>,
+                            "title": <str>,
+                            "cover": <str>,
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
+                          },
+                          "mixes": {
+                            "TRACK_MIX": <str>
+                          }
+                        }
+                      }
+                    ]
+                  }
+        """
+        
+        self._check_scope("get_favorite_tracks", "r_usr")
+
+        return self._get_json(
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/tracks", 
+            params={
+                "limit": limit, 
+                "offset": offset,
+                "order": order, 
+                "orderDirection": order_direction, 
+                "countryCode": self._get_country_code(country_code)
+            }
+        )
+
+    def favorite_tracks(
+            self, track_ids: Union[int, str, list[Union[int, str]]], 
+            country_code: str = None, *, on_artifact_not_found: str = "FAIL"
+        ) -> None:
+
+        """
+        Add tracks to the current user's collection.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        track_ids : `int`, `str`, or `list`
+            TIDAL track ID(s).
+
+            **Examples**: :code:`"251380837,251380838"` or 
+            :code:`[251380837, 251380838]`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        on_artifact_not_found : `str`, keyword-only, default: :code:`"FAIL"`
+            Behavior when the item to be added does not exist.
+
+            **Valid values**: :code:`"FAIL"`.
+        """
+
+        self._check_scope("favorite_tracks", "r_usr")
+
+        self._request(
+            "post", 
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/tracks",
+            params={"countryCode": self._get_country_code(country_code)},
+            data={
+                "albumIds": ",".join(map(str, track_ids)) 
+                            if isinstance(track_ids, list) else track_ids, 
+                "onArtifactNotFound": on_artifact_not_found
+            }
+        )
+
+    def unfavorite_tracks(
+            self, track_ids: Union[int, str, list[Union[int, str]]]) -> None:
+
+        """
+        Remove tracks from the current user's collection.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        track_ids : `int`, `str`, or `list`
+            TIDAL track ID(s).
+
+            **Examples**: :code:`"251380837,251380838"` or 
+            :code:`[251380837, 251380838]`.
+        """
+
+        self._check_scope("unfavorite_tracks", "r_usr")
+        
+        if isinstance(track_ids, list):
+            track_ids = ",".join(map(str, track_ids))
+        self._request("delete", 
+                      f"{self.API_URL}/v1/users/{self._user_id}"
+                      f"/favorites/tracks/{track_ids}")
+
+    ### USERS #################################################################
+
+    def get_profile(self) -> dict[str, Any]:
+
+        """
+        Get the current user's profile information.
+
+        .. admonition:: User authentication
+           :class: note
+        
+           Requires user authentication via an OAuth 2.0 authorization 
+           flow.
+        
+        Returns
+        -------
+        profile : `dict`
+            A dictionary containing the current user's profile 
+            information.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "userId": <int>,
+                    "email": <str>,
+                    "countryCode": <str>,
+                    "fullName": <str>,
+                    "firstName": <str>,
+                    "lastName": <str>,
+                    "nickname": <str>,
+                    "username": <str>,
+                    "address": <str>,
+                    "city": <str>,
+                    "postalcode": <str>,
+                    "usState": <str>,
+                    "phoneNumber": <int>,
+                    "birthday": <int>,
+                    "channelId": <int>,
+                    "parentId": <int>,
+                    "acceptedEULA": <bool>,
+                    "created": <int>,
+                    "updated": <int>,
+                    "facebookUid": <int>,
+                    "appleUid": <int>,
+                    "googleUid": <int>,
+                    "accountLinkCreated": <bool>,
+                    "emailVerified": <bool>,
+                    "newUser": <bool>
+                  }
+        """
+
+        self._check_scope("get_profile", require_authentication=True)
+
+        return self._get_json(f"{self.LOGIN_URL}/oauth2/me")
+
+    def get_session(self) -> dict[str, Any]:
+
+        """
+        Get information about the current private TIDAL API session.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Returns
+        -------
+        session : `dict`
+            Information about the current private TIDAL API session.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "sessionId": <str>,
+                    "userId": <int>,
+                    "countryCode": <str>,
+                    "channelId": <int>,
+                    "partnerId": <int>,
+                    "client": {
+                      "id": <int>,
+                      "name": <str>,
+                      "authorizedForOffline": <bool>,
+                      "authorizedForOfflineDate": <str>
+                    }
+                  }
+
+        """
+
+        self._check_scope("get_session", "r_usr")
+        
+        return self._get_json(f"{self.API_URL}/v1/sessions")
+
+    def get_favorite_ids(self) -> dict[str, list[str]]:
+
+        """
+        Get TIDAL IDs or UUIDs of the albums, artists, playlists, 
+        tracks, and videos in the current user's collection.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Returns
+        -------
+        ids : `dict`
+            A dictionary containing the IDs or UUIDs of the items in the
+            current user's collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "ARTIST": [<str>],
+                    "ALBUM": [<str>],
+                    "VIDEO": [<str>],
+                    "PLAYLIST": [<str>],
+                    "TRACK": [<str>]
+                  }
+        """
+
+        self._check_scope("get_favorite_ids", "r_usr")
+
+        return self._get_json(
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/ids"
+        )
+
+    def get_user_profile(self, id: Union[int, str]) -> dict[str, Any]:
+
+        """
+        Get a TIDAL user's profile information.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        id : `int` or `str` 
+            TIDAL user ID.
+
+            **Example**: :code:`172311284`.
+
+        Returns
+        -------
+        profile : `dict`
+            A dictionary containing the user's profile information.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "userId": <int>,
+                    "name": <str>,
+                    "color": [<str>],
+                    "picture": <str>,
+                    "numberOfFollowers": <int>,
+                    "numberOfFollows": <int>,
+                    "prompts": [
+                      {
+                        "id": <int>,
+                        "title": <str>,
+                        "description": <str>,
+                        "colors": {
+                          "primary": <str>,
+                          "secondary": <str>,
+                        },
+                        "trn": <str>,
+                        "data": <str>,
+                        "updatedTime": <str>,
+                        "supportedContentType": "TRACK"
+                      }
+                    ],
+                    "profileType": <str>
+                  }
+        """
+
+        self._check_scope("get_user_profile", "r_usr")
+
+        return self._get_json(f"{self.API_URL}/v2/profiles/{id}")
+
+    def get_user_followers(
+            self, id: Union[int, str] = None, *, limit: int = 500, 
+            cursor: str = None) -> dict[str, Any]:
+
+        """
+        Get a TIDAL user's followers.
+        
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        id : `str` 
+            TIDAL user ID. If not specified, the ID associated with the
+            user account in the current session is used.
+        
+            **Example**: :code:`172311284`.
+
+        limit : `int`, keyword-only, default: :code:`500`
+            Page size.
+
+            **Example**: :code:`10`.
+
+        cursor : `str`, keyword-only, optional
+            Cursor position of the last item in previous search results.
+            Use with `limit` to get the next page of search results.
+
+        Returns
+        -------
+        followers : `dict`
+            A dictionary containing the user's followers and the cursor
+            position.
+        """
+
+        # TODO: Figure out 500.999 error and add sample response.
+
+        self._check_scope("get_user_followers", "r_usr")
+
+        if id is None:
+            id = self._user_id
+        return self._get_json(f"{self.API_URL}/v2/profiles/{id}/followers",
+                              params={"limit": limit, "cursor": cursor})
+
+    def get_user_following(
+            self, id: Union[int, str] = None, *, include_only: str = None,
+            limit: int = 500, cursor: str = None):
+
+        """
+        Get the people (artists, users, etc.) a TIDAL user follows.
+        
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        id : `str` 
+            TIDAL user ID. If not specified, the ID associated with the
+            user account in the current session is used.
+        
+            **Example**: :code:`172311284`.
+
+        include_only : `str`, keyword-only, optional
+            Type of people to return.
+
+            **Valid values**: :code:`"ARTIST"` and :code:`"USER"`.
+
+        limit : `int`, keyword-only, default: :code:`500`
+            Page size.
+
+            **Example**: :code:`10`.
+
+        cursor : `str`, keyword-only, optional
+            Cursor position of the last item in previous search results.
+            Use with `limit` to get the next page of search results.
+
+        Returns
+        -------
+        following : `dict`
+            A dictionary containing the people following the user and
+            the cursor position.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "id": <int>,
+                        "name": <str>,
+                        "picture": <str>,
+                        "imFollowing": <bool>,
+                        "trn": <str>,
+                        "followType": <str>
+                      }
+                    ],
+                    "cursor": <str>
+                  }
+        """
+
+        self._check_scope("get_user_following", "r_usr")
+
+        if include_only and include_only not in \
+                (ALLOWED_INCLUDES := {"ARTIST", "USER"}):
+            emsg = ("Invalid include type. Valid values: "
+                    f"{', '.join(ALLOWED_INCLUDES)}.")
+            raise ValueError(emsg)
+
+        if id is None:
+            id = self._user_id
+        return self._get_json(
+            f"{self.API_URL}/v2/profiles/{id}/following",
+            params={
+                "includeOnly": include_only, 
+                "limit": limit, 
+                "cursor": cursor
+            }
+        )
+
+    def follow_user(self, id: Union[int, str]) -> None:
+
+        """
+        Follow a user.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        id : `int` or `str` 
+            TIDAL user ID.
+
+            **Example**: :code:`172311284`.
+        """
+
+        self._check_scope("follow_user", "r_usr")
+
+        self._request("put", f"{self.API_URL}/v2/follow", 
+                      params={"trn": f"trn:user:{id}"})
+
+    def unfollow_user(self, id: Union[int, str]) -> None:
+
+        """
+        Unfollow a user.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        id : `int` or `str` 
+            TIDAL user ID.
+
+            **Example**: :code:`172311284`.
+        """
+
+        self._check_scope("unfollow_user", "r_usr")
+
+        self._request("delete", f"{self.API_URL}/v2/follow", 
+                      params={"trn": f"trn:user:{id}"})
+
+    def get_blocked_users(
+            self, *, limit: int = None, offset: int = None) -> dict[str, Any]:
+
+        """
+        Get users blocked by the current user.
+        
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        limit : `int`, keyword-only, optional
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`.
+
+        Returns
+        -------
+        users : `dict`
+            A dictionary containing the users blocked by the current 
+            user and the number of results.
+        """
+
+        self._check_scope("get_blocked_users", "r_usr")
+        
+        return self._get_json(f"{self.API_URL}/v2/profiles/blocked-profiles",
+                              params={"limit": limit, "offset": offset})
+
+    def block_user(self, id: Union[int, str]) -> None:
+
+        """
+        Block a user.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        id : `int` or `str` 
+            TIDAL user ID.
+
+            **Example**: :code:`172311284`.
+        """
+
+        self._check_scope("block_user", "r_usr")
+
+        self._request("put", f"{self.API_URL}/v2/profiles/block/{id}")
+
+    def unblock_user(self, id: Union[int, str]) -> None:
+
+        """
+        Unblock a user.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        id : `int` or `str` 
+            TIDAL user ID.
+
+            **Example**: :code:`172311284`.
+        """
+
+        self._check_scope("unblock_user", "r_usr")
+
+        self._request("delete", f"{self.API_URL}/v2/profiles/block/{id}")
+
+    ### VIDEOS ################################################################
+
+    def get_video(
+            self, id: Union[int, str], country_code: str = None
+        ) -> dict[str, Any]:
+        
+        """
+        Get TIDAL catalog information for a single video.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL video ID.
+
+            **Example**: :code:`59727844`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        video : `dict`
+            TIDAL catalog information for a single video.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "id": <int>,
+                    "title": <str>,
+                    "volumeNumber": <int>,
+                    "trackNumber": <int>,
+                    "releaseDate": <str>,
+                    "imagePath": <str>,
+                    "imageId": <str>,
+                    "vibrantColor": <str>,
+                    "duration": <int>,
+                    "quality": <str>,
+                    "streamReady": <bool>,
+                    "adSupportedStreamReady": <bool>,
+                    "djReady": <bool>,
+                    "stemReady": <bool>,
+                    "streamStartDate": <str>,
+                    "allowStreaming": <bool>,
+                    "explicit": <bool>,
+                    "popularity": <int>,
+                    "type": <str>,
+                    "adsUrl": <str>,
+                    "adsPrePaywallOnly": <bool>,
+                    "artist": {
+                      "id": <int>,
+                      "name": <str>,
+                      "type": <str>,
+                      "picture": <str>,
+                    },
+                    "artists": [
+                      {
+                        "id": <int>,
+                        "name": <str>,
+                        "type": <str>,
+                        "picture": <str>,
+                      }
+                    ],
+                    "album": <dict>
+                  }
+        """
+
+        self._check_scope("get_video", "r_usr", require_authentication=False)
+                
+        return self._get_json(
+            f"{self.API_URL}/v1/videos/{id}",
+            params={"countryCode": self._get_country_code(country_code)}
+        )
+
+    def get_video_playback_info(
+            self, id: Union[int, str], *, video_quality: str = "HIGH", 
+            playback_mode: str = "STREAM", asset_presentation: str = "FULL",
+            streaming_session_id: str = None) -> dict[str, Any]:
+        
+        """
+        Get playback information for a video.
+
+        .. admonition:: OAuth 2.0 authentication
+
+           Requires user authentication for high-quality, offline, or 
+           full video playback information.
+
+        Parameters
+        ----------
+        id : `int` or `str`
+            TIDAL video ID.
+
+        video_quality : `str`, keyword-only, default: :code:`"HIGH"`
+            Video quality.
+
+            **Valid values**: :code:`"AUDIO_ONLY"`, :code:`"LOW"`,
+            :code:`"MEDIUM"`, and :code:`"HIGH"`.
+
+        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
+            Playback mode.
+
+            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
+
+        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
+            Asset presentation.
+
+            .. container::
+
+               **Valid values**:
+            
+               * :code:`"FULL"`: Full video.
+               * :code:`"PREVIEW"`: 30-second preview of the video.
+
+        streaming_session_id : `str`, keyword-only, optional
+            Streaming session ID.
+
+        Returns
+        -------
+        info : `dict`
+            Video playback information.
+        """
+
+        # TODO: Wait for active TIDAL subscription to confirm functionality.
+
+        ASSET_PRESENTATIONS = {"FULL", "PREVIEW"}
+        PLAYBACK_MODES = {"STREAM", "OFFLINE"}
+        VIDEO_QUALITIES = {"AUDIO_ONLY", "LOW", "MEDIUM", "HIGH"}
+
+        if video_quality not in VIDEO_QUALITIES:
+            emsg = ("Invalid video quality. The supported qualities "
+                    f"are{', '.join(VIDEO_QUALITIES)}.")
+            raise ValueError(emsg)
+        if playback_mode not in PLAYBACK_MODES:
+            emsg = ("Invalid playback mode. The supported playback "
+                    f"modes are {', '.join(PLAYBACK_MODES)}.")
+            raise ValueError(emsg)
+        if asset_presentation not in ASSET_PRESENTATIONS:
+            emsg = ("Invalid asset presentation. The supported asset "
+                    "presentations are "
+                    f"{', '.join(ASSET_PRESENTATIONS)}.")
+            raise ValueError(emsg)
+
+        if (video_quality != "LOW" or playback_mode != "STREAM" 
+            or asset_presentation != "PREVIEW") \
+                and "Authorization" not in self.session.headers:
+            emsg = ("tidal.Session.get_video_playback_info() requires "
+                    f"user authentication when {video_quality=}, "
+                    f"{playback_mode=}, and {asset_presentation=}.")
+            raise RuntimeError(emsg)
+        
+        url = f"{self.API_URL}/v1/videos/{id}/playbackinfo"
+        url += "postpaywall" if "Authorization" in self.session.headers \
+               else "prepaywall"
+        
+        return self._get_json(
+            url,
+            params={
+                "videoquality": video_quality,
+                "assetpresentation": asset_presentation,
+                "playbackmode": playback_mode,
+                "streamingsessionid": streaming_session_id
+            }
+        )
+
+    def get_favorite_videos(
+            self, country_code: str = None, *, limit: int = 50, 
+            offset: int = None, order: str = "DATE",
+            order_direction: str = "DESC"):
+        
+        """
+        Get TIDAL catalog information for videos in the current user's
+        collection.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        limit : `int`, keyword-only, default: :code:`50`
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`. 
+            
+        order : `str`, keyword-only, default: :code:`"DATE"`
+            Sorting order.
+
+            **Valid values**: :code:`"DATE"` and :code:`"NAME"`.
+
+        order_direction : `str`, keyword-only, default: :code:`"DESC"`
+            Sorting order direction.
+
+            **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
+
+        Returns
+        -------
+        videos : `dict`
+            A dictionary containing TIDAL catalog information for videos
+            in the current user's collection and metadata for the 
+            returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "created": <str>,
+                        "item": {
+                          "id": <int>,
+                          "title": <str>,
+                          "volumeNumber": <int>,
+                          "trackNumber": <int>,
+                          "releaseDate": <str>,
+                          "imagePath": <str>,
+                          "imageId": <str>,
+                          "vibrantColor": <str>,
+                          "duration": <int>,
+                          "quality": <str>,
+                          "streamReady": <bool>,
+                          "adSupportedStreamReady": <bool>,
+                          "djReady": <bool>,
+                          "stemReady": <bool>,
+                          "streamStartDate": <str>,
+                          "allowStreaming": <bool>,
+                          "explicit": <bool>,
+                          "popularity": <int>,
+                          "type": <str>,
+                          "adsUrl": <str>,
+                          "adsPrePaywallOnly": <bool>,
+                          "artist": {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          },
+                          "artists": [
+                            {
+                              "id": <int>,
+                              "name": "<str>,
+                              "type": <str>,
+                              "picture": <str>
+                            }
+                          ],
+                          "album": <dict>
+                        }
+                      }
+                    ]
+                  }
+        """
+        
+        self._check_scope("get_favorite_videos", "r_usr")
+
+        return self._get_json(
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/videos", 
+            params={
+                "limit": limit, 
+                "offset": offset,
+                "order": order, 
+                "orderDirection": order_direction, 
+                "countryCode": self._get_country_code(country_code)
+            }
+        )
+
+    def favorite_videos(
+            self, video_ids: Union[int, str, list[Union[int, str]]], 
+            country_code: str = None, *, on_artifact_not_found: str = "FAIL"
+        ) -> None:
+
+        """
+        Add videos to the current user's collection.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        video_ids : `int`, `str`, or `list`
+            TIDAL video ID(s).
+
+            **Examples**: :code:`"59727844,75623239"` or 
+            :code:`[59727844, 75623239]`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        on_artifact_not_found : `str`, keyword-only, default: :code:`"FAIL"`
+            Behavior when the item to be added does not exist.
+
+            **Valid values**: :code:`"FAIL"`.
+        """
+
+        self._check_scope("favorite_videos", "r_usr")
+
+        self._request(
+            "post", 
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/videos",
+            params={"countryCode": self._get_country_code(country_code)},
+            data={
+                "albumIds": ",".join(map(str, video_ids)) 
+                            if isinstance(video_ids, list) else video_ids, 
+                "onArtifactNotFound": on_artifact_not_found
+            }
+        )
+
+    def unfavorite_videos(
+            self, video_ids: Union[int, str, list[Union[int, str]]]) -> None:
+
+        """
+        Remove videos from the current user's collection.
+
+        .. admonition:: Authorization scope
+           :class: note
+        
+           Requires the :code:`r_usr` scope.
+
+        Parameters
+        ----------
+        video_ids : `int`, `str`, or `list`
+            TIDAL video ID(s).
+
+            **Examples**: :code:`"59727844,75623239"` or 
+            :code:`[59727844, 75623239]`.
+        """
+
+        self._check_scope("unfavorite_videos", "r_usr")
+        
+        if isinstance(video_ids, list):
+            video_ids = ",".join(map(str, video_ids))
+        self._request("delete", 
+                      f"{self.API_URL}/v1/users/{self._user_id}"
+                      f"/favorites/videos/{video_ids}")
+        
+    ### MISCELLANEOUS #########################################################
+
+    def get_image(
+            self, uuid: str, type: str = None, *, width: int = None, 
+            height: int = None, filename: str = None) -> bytes:
+
+        """
+        Get cover art or image for a TIDAL item.
+
+        .. note::
+        
+           This method is provided for convenience and is not a TIDAL 
+           API endpoint.
+
+        Parameters
+        ----------
+        uuid : `str`
+            Image UUID.
+
+            **Example**: :code:`"d3c4372b-a652-40e0-bdb1-fc8d032708f6"`.
+
+        type : `str`
+            TIDAL item type.
+
+            **Valid values**: :code:`"artist"`, :code:`"album"`,
+            :code:`"playlist"`, :code:`"track"`, and :code:`"video"`.
+
+        width : `int`, keyword-only, optional
+            Image width.
+
+        height : `int`, keyword-only, optional
+            Image height.
+
+        filename : `str`, keyword-only, optional
+            Filename. If specified, the image is saved to a file with the
+            specified name instead of being returned.
+
+        Returns
+        -------
+        image : `bytes`
+            Image data. If :code:`filename` is specified, :code:`None` is
+            returned and the image is saved to a file instead.
+        """
+
+        # TODO: Figure out default size for user profile images.
+        
+        IMAGE_SIZES = {
+            "artist": (750, 750),
+            "album": (1280, 1280),
+            "playlist": (1080, 1080),
+            "track": (1280, 1280),
+            "userProfile": (),
+            "video": (640, 360)
+        }
+
+        if width is None or height is None:
+            if type and type in IMAGE_SIZES.keys():
+                width, height = IMAGE_SIZES[type.lower()]
+            else:
+                emsg = ("Either the image dimensions or a valid item "
+                        "type must be specified.")
+                raise ValueError(emsg)
+
+        with self.session.get(f"{self.RESOURCES_URL}/images"
+                              f"/{uuid.replace('-', '/')}"
+                              f"/{width}x{height}.jpg") as r:
+            image = r.content
+            
+        if filename:
+            with open(filename, "wb") as f:
+                f.write(image)
+        else:
+            return image
+        
     ### STREAMS ###############################################################
 
     def get_streams(
@@ -3915,7 +6851,7 @@ class PrivateAPI:
             playback_mode: str = "STREAM", asset_presentation: str = "FULL", 
             streaming_session_id: str = None, save: bool = False, 
             path: str = None, folder: bool = False, metadata: bool = True
-        ) -> Union[None, list[bytes]]:
+        ) -> Union[None, list[bytes]]: # TODO
 
         """
         Get audio and video stream data for all tracks and videos in an 
@@ -3927,6 +6863,7 @@ class PrivateAPI:
            full audio and video streams.
 
         .. note::
+
            This method is provided for convenience and is not a TIDAL 
            API endpoint.
 
@@ -4016,9 +6953,13 @@ class PrivateAPI:
             returned and the streams are saved to audio files instead.
         """
 
-        if type not in self._COLLECTION_TYPES:
+        # TODO: Check and refactor.
+
+        COLLECTION_TYPES = {"album", "mix", "playlist"}
+
+        if type not in COLLECTION_TYPES:
             emsg = ("Invalid collection type. The supported types are " 
-                    f"{', '.join(self._COLLECTION_TYPES)}.")
+                    f"{', '.join(COLLECTION_TYPES)}.")
             raise ValueError(emsg)
 
         if type == "album":
@@ -4084,7 +7025,7 @@ class PrivateAPI:
             playback_mode: str = "STREAM", asset_presentation: str = "FULL",
             streaming_session_id: str = None, album_data: dict = None,
             save: bool = False, path: str = None, folder: bool = False, 
-            metadata: bool = True) -> Union[None, bytes]:
+            metadata: bool = True) -> Union[None, bytes]: # TODO
 
         """
         Get a track's audio stream data.
@@ -4159,6 +7100,19 @@ class PrivateAPI:
             instead.
         """
 
+        # TODO: Check and refactor.
+
+        AUDIO_FORMATS_EXTENSIONS = {
+            "alac": "m4a",
+            "flac": "flac",
+            "m4a": "m4a",
+            "mp3": "mp3",
+            "mpeg": "mp3",
+            "mp4a": "m4a",
+            "mqa": "flac"
+        }
+        ILLEGAL_CHARACTERS = {ord(c): '_' for c in '<>:"/\|?*'}
+
         data = self.get_track(id)
         if album_data is None:
             album_data = self.get_album(data["album"]["id"])
@@ -4194,7 +7148,7 @@ class PrivateAPI:
             )[0].getAttribute("codecs")
             if "." in codec:
                 codec = codec[:codec.index(".")]
-            format = self._AUDIO_FORMATS_EXTENSIONS[codec]
+            format = AUDIO_FORMATS_EXTENSIONS[codec]
             segment = manifest.getElementsByTagName("SegmentTemplate")[0]
             stream = bytearray()
             with self.session.get(
@@ -4216,7 +7170,7 @@ class PrivateAPI:
             codec = manifest["codecs"]
             if "." in codec:
                 codec = codec[:codec.index(".")]
-            format = self._AUDIO_FORMATS_EXTENSIONS[codec]
+            format = AUDIO_FORMATS_EXTENSIONS[codec]
             with self.session.get(manifest["urls"][0]) as r:
                 stream = r.content
             if manifest["encryptionType"] != "NONE":
@@ -4232,8 +7186,8 @@ class PrivateAPI:
         
         if save:
             file = (f"{data['trackNumber']:02} "
-                    f"{data['title'].translate(self._ILLEGAL_CHARACTERS)}"
-                    f".{self._AUDIO_FORMATS_EXTENSIONS[format]}")
+                    f"{data['title'].translate(ILLEGAL_CHARACTERS)}"
+                    f".{AUDIO_FORMATS_EXTENSIONS[format]}")
             with open(file, "wb") as f:
                 f.write(stream)
 
@@ -4270,7 +7224,7 @@ class PrivateAPI:
             max_resolution: int = 2160, playback_mode: str = "STREAM", 
             asset_presentation: str = "FULL", streaming_session_id: str = None,
             save: bool = False, path: str = None, folder: bool = False, 
-            metadata: bool = True) -> Union[None, bytes]:
+            metadata: bool = True) -> Union[None, bytes]: # TODO
 
         """
         Get a video's audio and video stream data.
@@ -4335,6 +7289,10 @@ class PrivateAPI:
             instead.
         """
 
+        # TODO: Check and refactor.
+
+        ILLEGAL_CHARACTERS = {ord(c): '_' for c in '<>:"/\|?*'}
+
         data = self.get_video(id)
         artist = utility.multivalue_formatter(
             [a["name"] for a in data["artists"] if a["type"] == "MAIN"],
@@ -4378,7 +7336,7 @@ class PrivateAPI:
 
         if save:
             file = (f"{data['trackNumber']:02} "
-                    f"{data['title'].translate(self._ILLEGAL_CHARACTERS)}.mkv")
+                    f"{data['title'].translate(ILLEGAL_CHARACTERS)}.mkv")
             with open(file, "wb") as f:
                 f.write(stream)
 
@@ -4391,985 +7349,3 @@ class PrivateAPI:
         
         else:
             return stream
-
-    ### TRACKS ################################################################
-
-    def get_track(
-            self, id: Union[int, str], *, country: str = None
-        ) -> dict[str, Any]:
-        
-        """
-        Get TIDAL catalog information for a track.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL track ID.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
-        Returns
-        -------
-        track : `dict`
-            TIDAL catalog information for the track in JSON format.
-        """
-
-        return self._get_json(
-            f"{self.API_URL}/v1/tracks/{id}",
-            params={"countryCode": self._country if country is None 
-                                   else country}
-        )
-
-    def get_track_composers(self, id: Union[int, str]) -> list[str]:
-
-        """
-        Get the composers, lyricists, and/or writers of a track.
-
-        .. note::
-           This method is provided for convenience and is not a TIDAL 
-           API endpoint.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL track ID.
-        
-        Returns
-        -------
-        composers : `list`
-            The composers, lyricists, and/or writers of the track.
-        """
-        
-        lookup = set()
-        return [p["name"] for p in self.get_track_contributors(id)["items"]
-                if p["role"] in self._COMPOSER_ROLES 
-                and p["name"] not in lookup
-                and lookup.add(p["name"]) is None]
-
-    def get_track_contributors(
-            self, id: Union[int, str], *, country: str = None, 
-            limit: int = None, offset: int = None) -> dict[str, Any]:
-
-        """
-        Get the contributors of a track.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL track ID.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
-        limit : `int`, keyword-only, optional
-            The maximum number of results to return.
-
-            **Default**: :code:`10`.
-
-        offset : `int`, keyword-only, optional
-            The index of the first result to return. Use with `limit` to
-            get the next page of results.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        contributors : `dict`
-            A dictionary containing the track's contributors and the
-            number of results returned.
-        """
-
-        return self._get_json(
-            f"{self.API_URL}/v1/tracks/{id}/contributors",
-            params={"countryCode": self._country if country is None 
-                                   else country,
-                    "limit": limit, "offset": offset}
-        )
-
-    def get_track_credits(
-            self, id: Union[int, str], *, country: str = None
-        ) -> Union[dict[str, Any], None]:
-
-        """
-        Get credits for a track.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL track ID.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
-        Returns
-        -------
-        credits : `dict`
-            A dictionary containing the track contributors.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_track_credits() "
-                               "requires user authentication.")
-
-        return self._get_json(
-            f"{self.API_URL}/v1/tracks/{id}/credits",
-            params={"countryCode": self._country if country is None 
-                                   else country}
-        )
-
-    def get_track_lyrics(
-            self, id: Union[int, str], *, country: str = None
-        ) -> Union[dict[str, Any], None]:
-
-        """
-        Get lyrics for a track.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL track ID.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
-        Returns
-        -------
-        lyrics : `dict`
-            A dictionary containing formatted and time-synced lyrics. If
-            no lyrics are available, :code:`None` is returned.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_track_lyrics() "
-                               "requires user authentication.")
-
-        try:
-            return self._get_json(
-                f"{self.WEB_URL}/v1/tracks/{id}/lyrics",
-                params={"countryCode": self._country if country is None 
-                                       else country}
-            )
-        except:
-            return None
-        
-    def get_track_mix(
-            self, id: Union[int, str], *, country: str = None) -> str:
-        
-        """
-        Get the curated mix of tracks related to a track.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL track ID.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
-        **kwargs
-            Additional keyword arguments to pass as parameters in the
-            request URL, like `locale` and `deviceType`.
-
-        Returns
-        -------
-        mix_id : `str`
-            TIDAL mix ID.
-        """
-
-        return self._get_json(
-            f"{self.API_URL}/v1/tracks/{id}/mix",
-            params={"countryCode": self._country if country is None 
-                                   else country}
-        )["id"]
-
-    def get_track_playback_info(
-            self, id: Union[int, str], *, audio_quality: str = "HI_RES", 
-            playback_mode: str = "STREAM", asset_presentation: str = "FULL",
-            streaming_session_id: str = None) -> dict[str, Any]:
-        
-        """
-        Get playback information for a track.
-
-        .. admonition:: OAuth 2.0 authentication
-
-           Requires user authentication for high-quality, offline, or 
-           full audio playback information.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL track ID.
-
-        audio_quality : `str`, keyword-only, default: :code:`"HI-RES"`
-            Audio quality.
-
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user 
-                 authentication or 96 kbps AAC with user authentication.
-               * :code:`"HIGH"` for 320 kbps AAC.
-               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
-                 or FLAC.
-               * :code:`"HI_RES"` for Up to 9216 kbps (24-bit, 96 kHz) 
-                 MQA-encoded FLAC.
-
-        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
-            Playback mode.
-
-            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
-
-        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
-            Asset presentation.
-
-            .. container::
-
-               **Valid values**:
-            
-               * :code:`"FULL"`: Full track.
-               * :code:`"PREVIEW"`: 30-second preview of the track.
-
-        streaming_session_id : `str`, keyword-only, optional
-            Streaming session ID.
-
-        Returns
-        -------
-        info : `dict`
-            Track playback information.
-        """
-
-        if audio_quality not in self._AUDIO_QUALITIES:
-            emsg = ("Invalid audio quality. The supported qualities "
-                    f"are{', '.join(self._AUDIO_QUALITIES)}.")
-            raise ValueError(emsg)
-        if playback_mode not in self._PLAYBACK_MODES:
-            emsg = ("Invalid playback mode. The supported playback "
-                    f"modes are {', '.join(self._PLAYBACK_MODES)}.")
-            raise ValueError(emsg)
-        if asset_presentation not in self._ASSET_PRESENTATIONS:
-            emsg = ("Invalid asset presentation. The supported asset "
-                    "presentations are "
-                    f"{', '.join(self._ASSET_PRESENTATIONS)}.")
-            raise ValueError(emsg)
-
-        if (audio_quality != "LOW" or playback_mode != "STREAM" 
-            or asset_presentation != "PREVIEW") \
-                and "Authorization" not in self.session.headers:
-            emsg = ("tidal.Session.get_track_playback_info() requires "
-                    f"user authentication when {audio_quality=}, "
-                    f"{playback_mode=}, and {asset_presentation=}.")
-            raise RuntimeError(emsg)
-        
-        url = f"{self.API_URL}/v1/tracks/{id}/playbackinfo"
-        url += "postpaywall" if "Authorization" in self.session.headers \
-               else "prepaywall"
-        
-        return self._get_json(
-            url,
-            params={
-                "audioquality": audio_quality,
-                "assetpresentation": asset_presentation,
-                "playbackmode": playback_mode,
-                "streamingsessionid": streaming_session_id
-            }
-        )
-
-    def get_track_recommendations(
-            self, id: Union[int, str], *, country: str = None, 
-            limit: int = None) -> dict[str, Any]:
-
-        """
-        Get TIDAL catalog information for a track's recommended 
-        tracks and videos.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL track ID.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-            
-        limit : `int`, keyword-only, optional
-            The maximum number of results to return.
-
-            **Default**: :code:`10`.
-
-        Returns
-        -------
-        recommendations : `dict`
-            A dictionary containing recommendations based on a track.
-        """
-        
-        return self._get_json(
-            f"{self.API_URL}/v1/tracks/{id}/recommendations",
-            params={"limit": limit,
-                    "countryCode": self._country if country is None 
-                                   else country}
-        )
-
-    def get_favorite_tracks(
-            self, *, limit: int = 50, offset: int = None, order: str = "DATE",
-            order_direction: str = "DESC", country: str = None):
-        
-        """
-        Get the current user's favorite tracks.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        limit : `int`, keyword-only, default: :code:`50`
-            The maximum number of results to return.
-
-        offset : `int`, keyword-only, optional
-            Index of the first result to return. Use with `limit` to get
-            the next page of search results.
-
-            **Default**: :code:`0`.
-            
-        order : `str`, keyword-only, default: :code:`"DATE"`
-            Sorting order.
-
-            **Valid values**: :code:`"DATE"` and :code:`"NAME"`.
-
-        order_direction : `str`, keyword-only, default: :code:`"DESC"`
-            Sorting order direction.
-
-            **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
-        Returns
-        -------
-        tracks : `dict`
-            A dictionary containing the current user's tracks and the
-            number of results returned.
-        """
-        
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_favorite_tracks() "
-                               "requires user authentication.")
-
-        return self._get_json(
-            f"{self.API_URL}/v1/users/{self._me['userId']}/favorites/tracks", 
-            params={"limit": limit, "offset": offset,
-                    "order": order, "orderDirection": order_direction, 
-                    "countryCode": self._country if country is None
-                                   else country}
-        )
-
-    def favorite_tracks(
-            self, ids: Union[int, str, list[Union[int, str]]], *, 
-            on_not_found: str = "FAIL", country: str = None) -> None:
-
-        """
-        Favorite tracks.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        ids : `int`, `str`, or `list`
-            TIDAL track ID(s).
-
-        on_not_found : `str`, keyword-only, default: :code:`"FAIL"`
-            Behavior when the item to be added does not exist.
-
-            **Valid value**: :code:`"FAIL"`.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.favorite_tracks() "
-                               "requires user authentication.")
-
-        self._request(
-            "post", 
-            f"{self.API_URL}/v1/users/{self._me['userId']}/favorites/tracks",
-            params={"countryCode": self._country if country is None
-                                   else country},
-            data={"trackIds": ids, "onArtifactNotFound": on_not_found}
-        )
-
-    def unfavorite_tracks(self, ids: Union[int, str, list[Union[int, str]]]):
-
-        """
-        Unfavorite tracks.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        ids : `int`, `str`, or `list`
-            TIDAL track ID(s).
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.unfavorite_tracks() "
-                               "requires user authentication.")
-        
-        if isinstance(ids, list):
-            ids = ",".join(map(str, ids))
-
-        self._request("delete", 
-                      f"{self.API_URL}/v1/users/{self._me['userId']}"
-                      f"/favorites/tracks/{ids}")
-
-    ### USERS #################################################################
-
-    def get_user(self, id: Union[int, str]) -> dict[str, Any]:
-
-        """
-        Get a user's profile information.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        id : `str` 
-            TIDAL user ID. If not specified, the current user's ID is
-            used.
-
-        Returns
-        -------
-        user : `dict`
-            A dictionary containing the user's profile information.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_user() requires user "
-                               "authentication.")
-
-        if id is None:
-            id = self._me["userId"]
-
-        return self._get_json(f"{self.API_URL}/v2/profiles/{id}")
-
-    def get_user_favorites(self, id: Union[int, str] = None) -> dict[str, Any]:
-
-        """
-        Get a user's favorite albums, artists, playlists, tracks, and
-        videos.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        id : `int` or `str`, optional 
-            TIDAL user ID. If not specified, the current user's ID is
-            used.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_user_favorites() "
-                               "requires user authentication.")
-
-        if id is None:
-            id = self._me["userId"]
-        
-        return self._get_json(f"{self.API_URL}/v1/users/{id}/favorites/ids")
-
-    def get_user_followers(
-            self, id: Union[int, str] = None, *, limit: int = 500, 
-            cursor: str = None) -> dict[str, Any]:
-
-        """
-        Get a user's followers.
-        
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        id : `int` or `str`, optional 
-            TIDAL user ID. If not specified, the current user's ID is
-            used.
-
-        limit : `int`, keyword-only, default: :code:`500`
-            The maximum number of results to return.
-
-        cursor : `str`, keyword-only, optional
-            Cursor position of the last item in previous search results.
-            Use with `limit` to get the next page of search results.
-
-        Returns
-        -------
-        followers : `dict`
-            A dictionary containing the user's followers and the cursor
-            position.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_user_followers() "
-                               "requires user authentication.")
-
-        if id is None:
-            id = self._me["userId"]
-
-        return self._get_json(f"{self.API_URL}/v2/profiles/{id}/followers",
-                              params={"limit": limit, "cursor": cursor})
-
-    def get_user_following(
-            self, id: Union[int, str] = None, *, include: str = None,
-            limit: int = 500, cursor: str = None):
-
-        """
-        Get the people (artists, users, etc.) a user follows.
-        
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        id : `int` or `str`, optional 
-            TIDAL user ID. If not specified, the current user's ID is
-            used.
-
-        include : `str`, keyword-only, optional
-            Type of people to return.
-
-            **Valid values**: :code:`"ARTIST"` and :code:`"USER"`.
-
-        limit : `int`, keyword-only, default: :code:`500`
-            The maximum number of results to return.
-
-        cursor : `str`, keyword-only, optional
-            Cursor position of the last item in previous search results.
-            Use with `limit` to get the next page of search results.
-
-        Returns
-        -------
-        followers : `dict`
-            A dictionary containing the user's followers and the cursor
-            position.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_user_following() "
-                               "requires user authentication.")
-
-        _allowed_includes = {None, "ARTIST", "USER"}
-        if include not in _allowed_includes:
-            emsg = ("Invalid include type. The supported types are "
-                    f"{', '.join(_allowed_includes)}.")
-            raise ValueError(emsg)
-
-        if id is None:
-            id = self._me["userId"]
-
-        return self._get_json(
-            f"{self.API_URL}/v2/profiles/{id}/following",
-            params={"includeOnly": include, "limit": limit, "cursor": cursor}
-        )
-
-    def get_blocked_users(
-            self, *, limit: int = None, offset: int = None) -> dict[str, Any]:
-
-        """
-        Get users blocked by the current user.
-        
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        limit : `int`, keyword-only, optional
-            Maximum number of results to return.
-
-            **Default**: :code:`50`.
-
-        offset : `int`, keyword-only, optional
-            Index of the first result to return. Use with `limit` to get
-            the next page of search results.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        users : `dict`
-            A dictionary containing the users blocked by the current 
-            user and the number of results.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_blocked_users() "
-                               "requires user authentication.")
-        
-        return self._get_json(f"{self.API_URL}/v2/profiles/blocked-profiles",
-                              params={"limit": limit, "offset": offset})
-
-    def follow_user(self, id: Union[int, str]) -> None:
-
-        """
-        Follow a user.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        id : `int` or `str`, optional 
-            TIDAL user ID.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.follow_user() requires "
-                               "user authentication.")
-
-        self._request("put", f"{self.API_URL}/v2/follow", 
-                      params={"trn": f"trn:user:{id}"})
-
-    def unfollow_user(self, id: Union[int, str]) -> None:
-
-        """
-        Unfollow a user.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        id : `int` or `str`, optional 
-            TIDAL user ID.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.unfollow_user() requires "
-                               "user authentication.")
-
-        self._request("delete", f"{self.API_URL}/v2/follow", 
-                      params={"trn": f"trn:user:{id}"})
-
-    def block_user(self, id: Union[int, str]) -> None:
-
-        """
-        Block a user.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        id : `int` or `str`, optional 
-            TIDAL user ID.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.block_user() requires "
-                               "user authentication.")
-
-        self._request("put", f"{self.API_URL}/v2/profiles/block/{id}")
-
-    def unblock_user(self, id: Union[int, str]) -> None:
-
-        """
-        Unblock a user.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        id : `int` or `str`, optional 
-            TIDAL user ID.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.unblock_user() requires "
-                               "user authentication.")
-
-        self._request("delete", f"{self.API_URL}/v2/profiles/block/{id}")
-
-    ### VIDEOS ################################################################
-
-    def get_video(
-            self, id: Union[int, str], *, country: str = None
-        ) -> dict[str, Any]:
-        
-        """
-        Get TIDAL catalog information for a video.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL video ID.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.      
-
-        Returns
-        -------
-        track : `dict`
-            TIDAL catalog information for the video in JSON format.
-        """
-                
-        return self._get_json(
-            f"{self.API_URL}/v1/videos/{id}",
-            params={"countryCode": self._country if country is None 
-                                   else country}
-        )
-
-    def get_video_playback_info(
-            self, id: Union[int, str], *, video_quality: str = "HIGH", 
-            playback_mode: str = "STREAM", asset_presentation: str = "FULL",
-            streaming_session_id: str = None) -> dict[str, Any]:
-        
-        """
-        Get playback information for a video.
-
-        .. admonition:: OAuth 2.0 authentication
-
-           Requires user authentication for high-quality, offline, or 
-           full video playback information.
-
-        Parameters
-        ----------
-        id : `int` or `str`
-            TIDAL video ID.
-
-        video_quality : `str`, keyword-only, default: :code:`"HIGH"`
-            Video quality.
-
-            **Valid values**: :code:`"AUDIO_ONLY"`, :code:`"LOW"`,
-            :code:`"MEDIUM"`, and :code:`"HIGH"`.
-
-        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
-            Playback mode.
-
-            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
-
-        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
-            Asset presentation.
-
-            .. container::
-
-               **Valid values**:
-            
-               * :code:`"FULL"`: Full video.
-               * :code:`"PREVIEW"`: 30-second preview of the video.
-
-        streaming_session_id : `str`, keyword-only, optional
-            Streaming session ID.
-
-        Returns
-        -------
-        info : `dict`
-            Video playback information.
-        """
-
-        if video_quality not in self._VIDEO_QUALITIES:
-            emsg = ("Invalid video quality. The supported qualities "
-                    f"are{', '.join(self._VIDEO_QUALITIES)}.")
-            raise ValueError(emsg)
-        if playback_mode not in self._PLAYBACK_MODES:
-            emsg = ("Invalid playback mode. The supported playback "
-                    f"modes are {', '.join(self._PLAYBACK_MODES)}.")
-            raise ValueError(emsg)
-        if asset_presentation not in self._ASSET_PRESENTATIONS:
-            emsg = ("Invalid asset presentation. The supported asset "
-                    "presentations are "
-                    f"{', '.join(self._ASSET_PRESENTATIONS)}.")
-            raise ValueError(emsg)
-
-        if (video_quality != "LOW" or playback_mode != "STREAM" 
-            or asset_presentation != "PREVIEW") \
-                and "Authorization" not in self.session.headers:
-            emsg = ("tidal.Session.get_video_playback_info() requires "
-                    f"user authentication when {video_quality=}, "
-                    f"{playback_mode=}, and {asset_presentation=}.")
-            raise RuntimeError(emsg)
-        
-        url = f"{self.API_URL}/v1/videos/{id}/playbackinfo"
-        url += "postpaywall" if "Authorization" in self.session.headers \
-               else "prepaywall"
-        
-        return self._get_json(
-            url,
-            params={
-                "videoquality": video_quality,
-                "assetpresentation": asset_presentation,
-                "playbackmode": playback_mode,
-                "streamingsessionid": streaming_session_id
-            }
-        )
-
-    def get_favorite_videos(
-            self, *, limit: int = 50, offset: int = None, order: str = "DATE",
-            order_direction: str = "DESC", country: str = None):
-        
-        """
-        Get the current user's favorite videos.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        limit : `int`, keyword-only, default: :code:`50`
-            The maximum number of results to return.
-
-        offset : `int`, keyword-only, optional
-            Index of the first result to return. Use with `limit` to get
-            the next page of search results.
-
-            **Default**: :code:`0`.
-            
-        order : `str`, keyword-only, default: :code:`"DATE"`
-            Sorting order.
-
-            **Valid values**: :code:`"DATE"` and :code:`"NAME"`.
-
-        order_direction : `str`, keyword-only, default: :code:`"DESC"`
-            Sorting order direction.
-
-            **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-
-        Returns
-        -------
-        videos : `dict`
-            A dictionary containing the current user's videos and the
-            number of results returned.
-        """
-        
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.get_favorite_videos() "
-                               "requires user authentication.")
-
-        return self._get_json(
-            f"{self.API_URL}/v1/users/{self._me['userId']}/favorites/videos", 
-            params={"limit": limit, "offset": offset,
-                    "order": order, "orderDirection": order_direction, 
-                    "countryCode": self._country if country is None
-                                   else country}
-        )
-
-    def favorite_videos(
-            self, ids: Union[int, str, list[Union[int, str]]], *, 
-            on_not_found: str = "FAIL", country: str = None) -> None:
-
-        """
-        Favorite videos.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        ids : `int`, `str`, or `list`
-            TIDAL video ID(s).
-
-        on_not_found : `str`, keyword-only, default: :code:`"FAIL"`
-            Behavior when the item to be added does not exist.
-
-            **Valid value**: :code:`"FAIL"`.
-
-        country : `str`, keyword-only, optional
-            An ISO 3166-1 alpha-2 country code. If not specified, the
-            country associated with the user account will be used.
-
-            **Example**: :code:`"US"`.
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.favorite_videos() "
-                               "requires user authentication.")
-
-        self._request(
-            "post", 
-            f"{self.API_URL}/v1/users/{self._me['userId']}/favorites/videos",
-            params={"countryCode": self._country if country is None
-                                   else country},
-            data={"videoIds": ids, "onArtifactNotFound": on_not_found}
-        )
-
-    def unfavorite_videos(self, ids: Union[int, str, list[Union[int, str]]]):
-
-        """
-        Unfavorite videos.
-
-        .. admonition:: OAuth 2.0 authentication
-        
-           Requires user authentication.
-
-        Parameters
-        ----------
-        ids : `int`, `str`, or `list`
-            TIDAL video ID(s).
-        """
-
-        if "Authorization" not in self.session.headers:
-            raise RuntimeError("tidal.Session.unfavorite_videos() "
-                               "requires user authentication.")
-        
-        if isinstance(ids, list):
-            ids = ",".join(map(str, ids))
-
-        self._request("delete", 
-                      f"{self.API_URL}/v1/users/{self._me['userId']}"
-                      f"/favorites/videos/{ids}")

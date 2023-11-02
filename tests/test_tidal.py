@@ -66,3 +66,35 @@ class TestAPI:
         videos = self.obj.get_videos(self.VIDEO_IDS, "US")
         assert all(v["resource"]["id"] == i 
                    for v, i in zip(videos["data"], self.VIDEO_IDS))
+        
+class TestPrivateAPI:
+
+    ALBUM_IDS = [251380836, 275646830]
+    ARTIST_IDS = [1566, 7804]
+    MIX_IDs = ["000ec0b01da1ddd752ec5dee553d48",
+               "000dd748ceabd5508947c6a5d3880a"]
+    PLAYLIST_UUIDS = ["36ea71a8-445e-41a4-82ab-6628c581535d",
+                      "4261748a-4287-4758-aaab-6d5be3e99e52"]
+    TRACK_IDS = [251380837, 251380838]
+    VIDEO_IDS = [59727844, 75623239]
+
+    @classmethod
+    def setup_class(cls):
+        cls.obj = tidal.PrivateAPI()
+
+    def test_get_album(self):
+        album = self.obj.get_album(self.ALBUM_IDS[0], "US")
+        assert album["id"] == self.ALBUM_IDS[0]
+
+    def test_get_album_items(self):
+        items = self.obj.get_album_items(self.ALBUM_IDS[0], "US")["items"]
+        assert all(i["item"]["album"]["id"] == self.ALBUM_IDS[0] for i in items)
+
+    def test_get_artist(self):
+        artist = self.obj.get_artist(self.ARTIST_IDS[0], "US")
+        assert artist["id"] == self.ARTIST_IDS[0]
+
+    def test_get_artist_albums(self):
+        albums = self.obj.get_artist_albums(self.ARTIST_IDS[0], "US")["items"]
+        assert all(a["artist"]["id"] == self.ARTIST_IDS[0]
+                   for a in albums)

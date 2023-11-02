@@ -960,6 +960,10 @@
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Populate tags using data retrieved from the iTunes Store API.</span>
+<span class="sd">        </span>
+<span class="sd">        .. attention::</span>
+
+<span class="sd">           This method is pending a major refactor. </span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1044,7 +1048,7 @@
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Populate tags using data retrieved from the Spotify APIs.</span>
+<span class="sd">        Populate tags using data retrieved from the Spotify Web API.</span>
 
 <span class="sd">        .. attention::</span>
 
@@ -1055,18 +1059,18 @@
 <span class="sd">        data : `dict`</span>
 <span class="sd">            Information about the track in JSON format obtained using</span>
 <span class="sd">            the Spotify Web API via </span>
-<span class="sd">            :meth:`minim.spotify.WebAPISession.get_track`.</span>
+<span class="sd">            :meth:`minim.spotify.WebAPI.get_track`.</span>
 
 <span class="sd">        audio_features : `dict`, keyword-only, optional</span>
 <span class="sd">            Information about the track&#39;s audio features obtained using</span>
 <span class="sd">            the Spotify Web API via</span>
-<span class="sd">            :meth:`minim.spotify.WebAPISession.get_track_audio_features`.</span>
+<span class="sd">            :meth:`minim.spotify.WebAPI.get_track_audio_features`.</span>
 <span class="sd">            If not provided, tempo information is unavailable.</span>
 
 <span class="sd">        lyrics : `str` or `dict`, keyword-only</span>
 <span class="sd">            Information about the track&#39;s formatted or time-synced</span>
 <span class="sd">            lyrics obtained using the Spotify Lyrics API via </span>
-<span class="sd">            :meth:`minim.spotify.LyricsAPISession.get_lyrics`. If not</span>
+<span class="sd">            :meth:`minim.spotify.PrivateLyricsService.get_lyrics`. If not</span>
 <span class="sd">            provided, lyrics are unavailable.</span>
 
 <span class="sd">        overwrite : `bool`, keyword-only, default: :code:`False`</span>
@@ -1113,7 +1117,7 @@
             <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Populate tags using data retrieved from the TIDAL API.</span>
+<span class="sd">        Populate tags using data retrieved from the private TIDAL API.</span>
 
 <span class="sd">        .. attention::</span>
 

@@ -248,7 +248,7 @@
 <dt class="sig sig-object py" id="minim.tidal.API">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minim.tidal.</span></span><span class="sig-name descname"><span class="pre">API</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_secret</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'client_credentials'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><span class="pre">datetime</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/minim/tidal.html#API"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>TIDAL API object.</p>
+<p>TIDAL API client.</p>
 <p>The TIDAL API exposes TIDAL functionality and data, making it
 possible to build applications that can search for and retrieve
 metadata from the TIDAL catalog.</p>
@@ -285,6 +285,59 @@ When an access token is acquired, it is automatically saved to the
 Minim configuration file to be loaded on the next instantiation of
 this class. This behavior can be disabled if there are any security
 concerns, like if the computer being used is a shared device.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>client_id</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Client ID. Required for the client credentials flow. If it is
+not stored as <code class="code docutils literal notranslate"><span class="pre">TIDAL_CLIENT_ID</span></code> in the operating system’s
+environment variables or found in the Minim configuration file,
+it must be provided here.</p>
+</dd>
+<dt><strong>client_secret</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Client secret. Required for the client credentials flow. If it
+is not stored as <code class="code docutils literal notranslate"><span class="pre">TIDAL_CLIENT_SECRET</span></code> in the operating
+system’s environment variables or found in the Minim
+configuration file, it must be provided here.</p>
+</dd>
+<dt><strong>flow</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Authorization flow.</p>
+<div class="docutils container">
+<p><strong>Valid values</strong>:</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;client_credentials&quot;</span></code> for the client credentials
+flow.</p></li>
+</ul>
+</div>
+</dd>
+<dt><strong>access_token</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Access token. If provided here or found in the Minim
+configuration file, the authentication process is bypassed. In
+the former case, all other relevant keyword arguments should be
+specified to automatically refresh the access token when it
+expires.</p>
+</dd>
+<dt><strong>expiry</strong><span class="classifier"><cite>datetime.datetime</cite> or <cite>str</cite>, keyword-only, optional</span></dt><dd><p>Expiry time of <cite>access_token</cite> in the ISO 8601 format
+<code class="code docutils literal notranslate"><span class="pre">%Y-%m-%dT%H:%M:%SZ</span></code>. If provided, the user will be
+reauthenticated using the specified authorization flow (if
+possible) when <cite>access_token</cite> expires.</p>
+</dd>
+<dt><strong>overwrite</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Determines whether to overwrite an existing access token in the
+Minim configuration file.</p>
+</dd>
+<dt><strong>save</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Determines whether newly obtained access tokens and their
+associated properties are stored to the Minim configuration
+file.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>session</strong><span class="classifier"><cite>requests.Session</cite></span></dt><dd><p>Session used to send requests to the TIDAL API.</p>
+</dd>
+<dt><strong>API_URL</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>Base URL for the TIDAL API.</p>
+</dd>
+<dt><strong>TOKEN_URL</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>URL for the TIDAL API token endpoint.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
@@ -784,7 +837,7 @@ Retrieve a list of artist details by TIDAL artist IDs.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>ids</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite></span></dt><dd><p>TIDAL artist ID(s).</p>
-<p><strong>Examples</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;1566,7804&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">[1566,</span> <span class="pre">7804]</span></code>.</p>
+<p><strong>Examples</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;1566,7804&quot;</span></code> or <code class="code docutils literal notranslate"><span class="pre">[1566,</span> <span class="pre">7804]</span></code>.</p>
 </dd>
 <dt><strong>country_code</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>ISO 3166-1 alpha-2 country code.</p>
 <p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;US&quot;</span></code>.</p>

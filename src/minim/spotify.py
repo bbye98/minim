@@ -41,7 +41,7 @@ from . import HOME_DIR, TEMP_DIR, config
 class PrivateLyricsService:
 
     """
-    Spotify Lyrics service object.
+    Spotify Lyrics service client.
 
     The Spotify Lyrics service, which is powered by Musixmatch (or 
     PetitLyrics in Japan), provides line- or word-synced lyrics for 
@@ -62,6 +62,11 @@ class PrivateLyricsService:
     be provided to this class's constructor as a keyword argument or be
     stored as :code:`SPOTIFY_SP_DC` in the operating system's 
     environment variables.
+
+    .. hint::
+
+       The :code:`sp_dc` cookie can be extracted from the local storage
+       of your web browser after you log into Spotify.
 
     If an existing access token is available, it and its expiry time can
     be provided to this class's constructor as keyword arguments to
@@ -90,17 +95,17 @@ class PrivateLyricsService:
         provided here.
 
     access_token : `str`, keyword-only, optional
-        Access token. If provided or found in the Minim configuration
-        file, the authentication process is bypassed. In the former
-        case, all other relevant keyword arguments should be specified
-        to automatically refresh the access token when it expires.
+        Access token. If provided here or found in the Minim 
+        configuration file, the authentication process is bypassed. In 
+        the former case, all other relevant keyword arguments should be
+        specified to automatically refresh the access token when it 
+        expires.
 
     expiry : `datetime.datetime` or `str`, keyword-only, optional
         Expiry time of `access_token` in the ISO 8601 format
         :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be 
-        reauthenticated using `refresh_token` (if available) or the
-        specified authorization flow (if possible) when `access_token`
-        expires.
+        reauthenticated using the default authorization flow (if 
+        possible) when `access_token` expires.
 
     save : `bool`, keyword-only, default: :code:`True`
         Determines whether newly obtained access tokens and their
@@ -114,9 +119,13 @@ class PrivateLyricsService:
 
     TOKEN_URL : `str`
         URL for the Spotify Web Player access token endpoint.
+
+    session : `requests.Session`
+        Session used to send requests to the Spotify Lyrics service.
     """
 
     _NAME = f"{__module__}.{__qualname__}"
+
     LYRICS_URL = "https://spclient.wg.spotify.com/color-lyrics/v2"
     TOKEN_URL = "https://open.spotify.com/get_access_token"
 
@@ -126,11 +135,11 @@ class PrivateLyricsService:
         ) -> None:
 
         """
-        Create a Spotify Lyrics service object.
+        Create a Spotify Lyrics service client.
         """
         
         self.session = requests.Session()
-        self.session.headers.update({"App-Platform": "WebPlayer"})
+        self.session.headers["App-Platform"] = "WebPlayer"
 
         if access_token is None and config.has_section(self._NAME):
             sp_dc = config.get(self._NAME, "sp_dc")
@@ -245,7 +254,7 @@ class PrivateLyricsService:
 
         if access_token is None:
             if not self._sp_dc:
-                raise ValueError("Missing 'sp_dc' cookie.")
+                raise ValueError("Missing sp_dc cookie.")
             
             r = requests.get(
                 self.TOKEN_URL,
@@ -253,22 +262,22 @@ class PrivateLyricsService:
                 params={"reason": "transport", "productType": "web_player"}
             ).json()
             if r["isAnonymous"]:
-                raise ValueError("Invalid 'sp_dc' cookie.")
+                raise ValueError("Invalid sp_dc cookie.")
             access_token = r["accessToken"]
             expiry = datetime.datetime.fromtimestamp(
                 r["accessTokenExpirationTimestampMs"] / 1000
             )
 
             if self._save:
-                config["minim.spotify.LyricsService"] = {
+                config[self._NAME] = {
                     "sp_dc": self._sp_dc,
                     "access_token": access_token,
                     "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
                 }
+                with open(HOME_DIR / "minim.cfg", "w") as f:
+                    config.write(f)
         
-        self.session.headers.update(
-            {"Authorization": f"Bearer {access_token}"}
-        )
+        self.session.headers["Authorization"] = f"Bearer {access_token}"
         self._expiry = (
             datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ") 
             if isinstance(expiry, str) else expiry
@@ -284,7 +293,7 @@ class PrivateLyricsService:
         id : `str`
             The Spotify ID for the track.
 
-            **Example**: :code:`"11dFghVXANMlKmJXsNCbNl"`.
+            **Example**: :code:`"0VjIjW4GlUZAMYd2vXMi3b"`.
 
         Returns
         -------
@@ -334,7 +343,7 @@ class PrivateLyricsService:
 class WebAPI:
 
     """
-    Spotify Web API object.
+    Spotify Web API client.
 
     The Spotify Web API enables the creation of applications that can
     interact with Spotify's streaming service, such as retrieving 
@@ -489,10 +498,11 @@ class WebAPI:
         token.
            
     access_token : `str`, keyword-only, optional
-        Access token. If provided or found in the Minim configuration
-        file, the authentication process is bypassed. In the former
-        case, all other relevant keyword arguments should be specified
-        to automatically refresh the access token when it expires.
+        Access token. If provided here or found in the Minim 
+        configuration file, the authentication process is bypassed. In 
+        the former case, all other relevant keyword arguments should be
+        specified to automatically refresh the access token when it 
+        expires.
     
     refresh_token : `str`, keyword-only, optional
         Refresh token accompanying `access_token`. If not provided,
@@ -521,18 +531,22 @@ class WebAPI:
         Base URL for the Spotify Web API.
 
     AUTH_URL : `str`
-        URL for the Spotify Web API authorization endpoint.
+        URL for Spotify Web API authorization code requests.
 
     TOKEN_URL : `str`
-        URL for the Spotify Web API access token endpoint.
+        URL for Spotify Web API access token requests.
 
     WEB_PLAYER_TOKEN_URL : `str`
-        URL for the Spotify Web Player access token endpoint.
+        URL for Spotify Web Player access token requests.
+
+    session : `requests.Session`
+        Session used to send requests to the Spotify Web API.
     """
 
     _FLOWS = ["authorization_code_pkce", "authorization_code", 
               "client_credentials", "web_player"]
     _NAME = f"{__module__}.{__qualname__}"
+
     API_URL = "https://api.spotify.com/v1"
     AUTH_URL = "https://accounts.spotify.com/authorize"
     TOKEN_URL = "https://accounts.spotify.com/api/token"
@@ -651,7 +665,7 @@ class WebAPI:
             overwrite: bool = False, save: bool = True) -> None:
         
         """
-        Create a Spotify Web API object.
+        Create a Spotify Web API client.
         """
 
         self.session = requests.Session()
@@ -694,12 +708,12 @@ class WebAPI:
             Required scope for `endpoint`.
         """
 
-        if not hasattr(self, "_scopes") or scope not in self._scopes:
-            emsg = (f"minim.spotify.WebAPI.{endpoint}() requires the "
-                    f"'{scope}' authorization scope.")
+        if scope not in self._scopes:
+            emsg = (f"{self._NAME}.{endpoint}() requires the '{scope}' "
+                    "authorization scope.")
             raise RuntimeError(emsg)
 
-    def _get_authorization_code(self, challenge: str = None) -> str:
+    def _get_authorization_code(self, code_challenge: str = None) -> str:
 
         """
         Get an authorization code to be exchanged for an access token in
@@ -707,7 +721,7 @@ class WebAPI:
 
         Parameters
         ----------
-        challenge : `str`, optional
+        code_challenge : `str`, optional
             Code challenge for the authorization code with PKCE flow.
         
         Returns
@@ -724,9 +738,9 @@ class WebAPI:
         }
         if self._scopes:
             params["scope"] = self._scopes
-        if challenge is not None:
+        if code_challenge is not None:
+            params["code_challenge"] = code_challenge
             params["code_challenge_method"] = "S256"
-            params["code_challenge"] = challenge
         auth_url = f"{self.AUTH_URL}?{urllib.parse.urlencode(params)}"
 
         if self._web_framework == "flask":
@@ -757,7 +771,7 @@ class WebAPI:
             har_file = TEMP_DIR / "minim_spotify.har"
             
             with sync_playwright() as playwright:
-                browser = playwright.chromium.launch(headless=False)
+                browser = playwright.firefox.launch(headless=False)
                 context = browser.new_context(record_har_path=har_file)
                 page = context.new_page()
                 page.goto(auth_url, timeout=0)
@@ -823,20 +837,23 @@ class WebAPI:
         Refresh the expired excess token.
         """
 
-        if self._refresh_token:
+        if self._flow == "web_player" or not self._refresh_token \
+                or not self._client_id or not self._client_secret:
+            self.set_access_token()
+        else:
             client_b64 = base64.urlsafe_b64encode(
                 f"{self._client_id}:{self._client_secret}".encode()
             ).decode()
             r = requests.post(
                 self.TOKEN_URL,
-                data={"grant_type": "refresh_token",
-                      "refresh_token": self._refresh_token},
+                data={
+                    "grant_type": "refresh_token",
+                    "refresh_token": self._refresh_token
+                },
                 headers={"Authorization": f"Basic {client_b64}"}
             ).json()
 
-            self.session.headers.update(
-                {"Authorization": f"Bearer {r['access_token']}"}
-            )
+            self.session.headers["Authorization"] = f"Bearer {r['access_token']}"
             self._refresh_token = r["refresh_token"]
             self._expiry = (datetime.datetime.now()
                             + datetime.timedelta(0, r["expires_in"]))
@@ -846,17 +863,11 @@ class WebAPI:
                 config[self._NAME].update({
                     "access_token": r["access_token"],
                     "refresh_token": self._refresh_token,
-                    "expiry": (
-                        datetime.datetime.now() 
-                        + datetime.timedelta(0, r["expires_in"])
-                    ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "expiry": self._expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "scopes": self._scopes
                 })
                 with open(HOME_DIR / "minim.cfg", "w") as f:
                     config.write(f)
-
-        else:
-            self.set_access_token()
 
     def _request(
             self, method: str, url: str, retry: bool = True, **kwargs
@@ -926,9 +937,6 @@ class WebAPI:
             `access_token` expires.
         """
 
-        if "Authorization" in self.session.headers:
-            del self.session.headers["Authorization"]
-
         if access_token is None:
             if self._flow == "web_player":
                 headers = ({"cookie": f"sp_dc={self._sp_dc}"} if self._sp_dc 
@@ -941,8 +949,8 @@ class WebAPI:
                     r["accessTokenExpirationTimestampMs"] / 1000
                 )
                 if self._sp_dc and r["isAnonymous"]:
-                    logging.warning("Invalid 'sp_dc' cookie, so a "
-                                    "client-only access token was granted.")
+                    logging.warning("The sp_dc cookie is valid, so the "
+                                    "access token granted is client-only.")
             else:
                 if not self._client_id or not self._client_secret:
                     emsg = "Spotify Web API client credentials not provided."
@@ -952,8 +960,10 @@ class WebAPI:
                     client_b64 = base64.urlsafe_b64encode(
                         f"{self._client_id}:{self._client_secret}".encode()
                     ).decode()
-                    data={"grant_type": "authorization_code",
-                          "redirect_uri": self._redirect_uri}
+                    data = {
+                        "grant_type": "authorization_code",
+                        "redirect_uri": self._redirect_uri
+                    }
                     if self._flow == "authorization_code_pkce":
                         data["client_id"] = self._client_id
                         data["code_verifier"] = secrets.token_urlsafe(96)
@@ -974,9 +984,11 @@ class WebAPI:
                 elif self._flow == "client_credentials":
                     r = requests.post(
                         self.TOKEN_URL,
-                        data={"client_id": self._client_id,
-                              "client_secret": self._client_secret,
-                              "grant_type": "client_credentials"}
+                        data={
+                            "client_id": self._client_id,
+                            "client_secret": self._client_secret,
+                            "grant_type": "client_credentials"
+                        }
                     ).json()
                 access_token = r["access_token"]
                 expiry = (datetime.datetime.now()
@@ -1000,9 +1012,7 @@ class WebAPI:
                 with open(HOME_DIR / "minim.cfg", "w") as f:
                     config.write(f)
                 
-        self.session.headers.update(
-            {"Authorization": f"Bearer {access_token}"}
-        )
+        self.session.headers["Authorization"] = f"Bearer {access_token}"
         self._refresh_token = refresh_token
         self._expiry = (
             datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ") 
@@ -1038,10 +1048,11 @@ class WebAPI:
                  token.
             
         client_id : `str`, keyword-only, optional
-            Client ID. Required for all authorization flows.
+            Client ID. Required for all OAuth 2.0 authorization flows.
 
         client_secret : `str`, keyword-only, optional
-            Client secret. Required for all authorization flows.
+            Client secret. Required for all OAuth 2.0 authorization 
+            flows.
 
         framework : `bool` or `str`, keyword-only, optional
             Web framework used to automatically complete the 
@@ -1081,10 +1092,12 @@ class WebAPI:
         """
         
         if flow not in self._FLOWS:
-            raise ValueError("Invalid authorization flow.")
-
+            emsg = (f"Invalid authorization flow ({flow=}). "
+                    f"Valid values: {', '.join(self._FLOWS)}.")
+            raise ValueError(emsg)
         self._flow = flow
         self._save = save
+
         if flow == "web_player":
             self._sp_dc = sp_dc or os.environ.get("SPOTIFY_SP_DC")
             self._scopes = self.get_scopes("all") if self._sp_dc else ""
@@ -5023,7 +5036,7 @@ class WebAPI:
                               params={"limit": limit, "after": after, 
                                       "before": before})
     
-    def get_user_queue(self) -> dict[str, Any]:
+    def get_queue(self) -> dict[str, Any]:
 
         """
         `Player > Get the User's Queue <https://developer.spotify.com/
@@ -6140,7 +6153,7 @@ class WebAPI:
                              f"{self.API_URL}/playlists/{playlist_id}/tracks",
                              json=json).json()["snapshot_id"]
     
-    def get_current_user_playlists(
+    def get_playlists(
             self, *, limit: int = None, offset: int = None) -> dict[str, Any]:
         
         """
@@ -9025,7 +9038,7 @@ class WebAPI:
 
     ### USERS #################################################################
 
-    def get_current_user_profile(self) -> dict[str, Any]:
+    def get_profile(self) -> dict[str, Any]:
 
         """
         `Users > Get Current User's Profile
@@ -9083,7 +9096,7 @@ class WebAPI:
 
         return self._get_json(f"{self.API_URL}/me")
 
-    def get_user_top_items(
+    def get_top_items(
             self, type: str, *, limit: int = None, offset: int = None,
             time_range: str = None) -> dict[str, Any]:
 
@@ -9178,6 +9191,10 @@ class WebAPI:
                     ]
                   }
         """
+
+        if type not in (TYPES := {"artists", "tracks"}):
+            raise ValueError(f"Invalid entity type ({type=}). "
+                             f"Valid values: {', '.join(TYPES)}.")
 
         self._check_scope("get_user_top_items", "user-top-read")
 

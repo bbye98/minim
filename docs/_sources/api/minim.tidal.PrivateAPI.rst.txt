@@ -1,4 +1,4 @@
-PrivateAPI
+﻿PrivateAPI
 ==========
 
 .. currentmodule:: minim.tidal
@@ -47,6 +47,8 @@ PrivateAPI
       ~PrivateAPI.get_blocked_artists
       ~PrivateAPI.get_blocked_users
       ~PrivateAPI.get_country_code
+      ~PrivateAPI.get_created_playlist_folders
+      ~PrivateAPI.get_created_playlists
       ~PrivateAPI.get_favorite_albums
       ~PrivateAPI.get_favorite_artists
       ~PrivateAPI.get_favorite_ids
@@ -54,14 +56,13 @@ PrivateAPI
       ~PrivateAPI.get_favorite_tracks
       ~PrivateAPI.get_favorite_videos
       ~PrivateAPI.get_image
-      ~PrivateAPI.get_me
       ~PrivateAPI.get_mix_items
       ~PrivateAPI.get_mix_page
-      ~PrivateAPI.get_my_playlists
       ~PrivateAPI.get_playlist
       ~PrivateAPI.get_playlist_etag
       ~PrivateAPI.get_playlist_items
       ~PrivateAPI.get_playlist_recommendations
+      ~PrivateAPI.get_profile
       ~PrivateAPI.get_session
       ~PrivateAPI.get_streams
       ~PrivateAPI.get_track
@@ -73,13 +74,11 @@ PrivateAPI
       ~PrivateAPI.get_track_playback_info
       ~PrivateAPI.get_track_recommendations
       ~PrivateAPI.get_track_stream
-      ~PrivateAPI.get_user
-      ~PrivateAPI.get_user_favorites
       ~PrivateAPI.get_user_followers
       ~PrivateAPI.get_user_following
       ~PrivateAPI.get_user_playlist
       ~PrivateAPI.get_user_playlists
-      ~PrivateAPI.get_user_public_playlists
+      ~PrivateAPI.get_user_profile
       ~PrivateAPI.get_video
       ~PrivateAPI.get_video_page
       ~PrivateAPI.get_video_playback_info
@@ -87,6 +86,8 @@ PrivateAPI
       ~PrivateAPI.move_playlist
       ~PrivateAPI.move_playlist_item
       ~PrivateAPI.search
+      ~PrivateAPI.set_access_token
+      ~PrivateAPI.set_authorization_flow
       ~PrivateAPI.set_playlist_privacy
       ~PrivateAPI.unblock_artist
       ~PrivateAPI.unblock_user

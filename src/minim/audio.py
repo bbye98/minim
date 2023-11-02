@@ -717,6 +717,10 @@ class Audio:
 
         """
         Populate tags using data retrieved from the iTunes Store API.
+        
+        .. attention::
+
+           This method is pending a major refactor. 
 
         Parameters
         ----------
@@ -801,7 +805,7 @@ class Audio:
         ) -> None:
 
         """
-        Populate tags using data retrieved from the Spotify APIs.
+        Populate tags using data retrieved from the Spotify Web API.
 
         .. attention::
 
@@ -812,18 +816,18 @@ class Audio:
         data : `dict`
             Information about the track in JSON format obtained using
             the Spotify Web API via 
-            :meth:`minim.spotify.WebAPISession.get_track`.
+            :meth:`minim.spotify.WebAPI.get_track`.
 
         audio_features : `dict`, keyword-only, optional
             Information about the track's audio features obtained using
             the Spotify Web API via
-            :meth:`minim.spotify.WebAPISession.get_track_audio_features`.
+            :meth:`minim.spotify.WebAPI.get_track_audio_features`.
             If not provided, tempo information is unavailable.
 
         lyrics : `str` or `dict`, keyword-only
             Information about the track's formatted or time-synced
             lyrics obtained using the Spotify Lyrics API via 
-            :meth:`minim.spotify.LyricsAPISession.get_lyrics`. If not
+            :meth:`minim.spotify.PrivateLyricsService.get_lyrics`. If not
             provided, lyrics are unavailable.
 
         overwrite : `bool`, keyword-only, default: :code:`False`
@@ -870,7 +874,7 @@ class Audio:
             overwrite: bool = False) -> None:
         
         """
-        Populate tags using data retrieved from the TIDAL API.
+        Populate tags using data retrieved from the private TIDAL API.
 
         .. attention::
 
