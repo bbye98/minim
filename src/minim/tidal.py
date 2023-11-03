@@ -1915,7 +1915,8 @@ class PrivateAPI:
         """
 
         if self._flow is None or not self._refresh_token \
-                or not self._client_id or not self._client_secret:
+                or not self._client_id \
+                or (self._flow == "device_code" and not self._client_secret):
             self.set_access_token()
         else:  
             r = requests.post(
@@ -5668,7 +5669,7 @@ class PrivateAPI:
             params={"countryCode": self._get_country_code(country_code)}
         )
 
-    def get_track_composers(self, track_id: Union[int, str]) -> set[str]:
+    def get_track_composers(self, track_id: Union[int, str]) -> list[str]:
 
         """
         Get the composers, lyricists, and/or songwriters of a track.
@@ -5693,17 +5694,17 @@ class PrivateAPI:
         
         Returns
         -------
-        composers : `set`
+        composers : `list`
             Composers, lyricists, and/or songwriters of the track.
 
-            **Example**: :code:`{'Tommy Wright III', 'Beyoncé', 
+            **Example**: :code:`['Tommy Wright III', 'Beyoncé', 
             'Kelman Duran', 'Terius "The-Dream" G...de-Diamant', 
-            'Mike Dean'}`
+            'Mike Dean']`
         """
 
-        return {c["name"] 
-                for c in self.get_track_contributors(track_id)["items"]
-                if c["role"] in {"Composer", "Lyricist", "Writer"}}
+        return list({c["name"] 
+                     for c in self.get_track_contributors(track_id)["items"]
+                     if c["role"] in {"Composer", "Lyricist", "Writer"}})
 
     def get_track_lyrics(
             self, id: Union[int, str], country_code: str = None
@@ -6140,9 +6141,9 @@ class PrivateAPI:
                 track.set_metadata_using_tidal_private(
                     track_data,
                     album_data=album_data,
-                    composer=self.get_track_composers(id),
+                    composer=self.get_track_composers(track_id),
                     artwork=self.get_image(track_data["album"]["cover"], "album"),
-                    lyrics=self.get_track_lyrics(id), comment=track_data["url"]
+                    lyrics=self.get_track_lyrics(track_id), comment=track_data["url"]
                 )
                 track.write_metadata()
 
