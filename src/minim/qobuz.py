@@ -1245,7 +1245,7 @@ class PrivateAPI:
                     os.rename(tempfile, file)
                     Track = audio.Audio(file)
 
-                Track.from_qobuz(
+                Track.set_metadata_using_qobuz(
                     json, main_artist=credits["main_artist"],
                     feat_artist=credits["featured_artist"],
                     composer=credits["composers"],

@@ -1,4 +1,4 @@
-MP4Audio
+﻿MP4Audio
 ========
 
 .. currentmodule:: minim.audio
@@ -17,10 +17,10 @@ MP4Audio
       :nosignatures:
    
       ~MP4Audio.convert
-      ~MP4Audio.from_itunes
-      ~MP4Audio.from_qobuz
-      ~MP4Audio.from_spotify
-      ~MP4Audio.from_tidal
+      ~MP4Audio.set_metadata_using_itunes
+      ~MP4Audio.set_metadata_using_qobuz
+      ~MP4Audio.set_metadata_using_spotify
+      ~MP4Audio.set_metadata_using_tidal_private
       ~MP4Audio.write_metadata
    
    

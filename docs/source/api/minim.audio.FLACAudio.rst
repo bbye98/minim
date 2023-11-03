@@ -1,4 +1,4 @@
-FLACAudio
+﻿FLACAudio
 =========
 
 .. currentmodule:: minim.audio
@@ -17,10 +17,10 @@ FLACAudio
       :nosignatures:
    
       ~FLACAudio.convert
-      ~FLACAudio.from_itunes
-      ~FLACAudio.from_qobuz
-      ~FLACAudio.from_spotify
-      ~FLACAudio.from_tidal
+      ~FLACAudio.set_metadata_using_itunes
+      ~FLACAudio.set_metadata_using_qobuz
+      ~FLACAudio.set_metadata_using_spotify
+      ~FLACAudio.set_metadata_using_tidal_private
       ~FLACAudio.write_metadata
    
    

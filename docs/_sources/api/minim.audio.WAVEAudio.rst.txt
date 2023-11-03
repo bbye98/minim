@@ -1,4 +1,4 @@
-WAVEAudio
+﻿WAVEAudio
 =========
 
 .. currentmodule:: minim.audio
@@ -17,10 +17,10 @@ WAVEAudio
       :nosignatures:
    
       ~WAVEAudio.convert
-      ~WAVEAudio.from_itunes
-      ~WAVEAudio.from_qobuz
-      ~WAVEAudio.from_spotify
-      ~WAVEAudio.from_tidal
+      ~WAVEAudio.set_metadata_using_itunes
+      ~WAVEAudio.set_metadata_using_qobuz
+      ~WAVEAudio.set_metadata_using_spotify
+      ~WAVEAudio.set_metadata_using_tidal_private
       ~WAVEAudio.write_metadata
    
    

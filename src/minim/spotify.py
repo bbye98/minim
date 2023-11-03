@@ -796,8 +796,7 @@ class WebAPI:
                   "open the following link in your web browser:\n\n"
                   f"{auth_url}\n")
             uri = input("After authorizing Minim to access Spotify on "
-                        "your behalf, copy and paste the URI in the "
-                        "address bar of your web browser beginning "
+                        "your behalf, copy and paste the URI beginning "
                         f"with '{self._redirect_uri}' below.\n\nURI: ")
             queries = dict(
                 urllib.parse.parse_qsl(urllib.parse.urlparse(uri).query)
@@ -1603,7 +1602,7 @@ class WebAPI:
         current Spotify user's 'Your Music' library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-read` scope.
 
@@ -1796,7 +1795,7 @@ class WebAPI:
         current user's 'Your Music' library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-modify` scope.
 
@@ -1829,7 +1828,7 @@ class WebAPI:
         from the current user's 'Your Music' library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-modify` scope.
         
@@ -1863,7 +1862,7 @@ class WebAPI:
         Music' library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-read` scope.
 
@@ -2893,7 +2892,7 @@ class WebAPI:
         albums saved in the current Spotify user's audiobooks library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-read` scope.
 
@@ -2992,7 +2991,7 @@ class WebAPI:
         audiobooks to current Spotify user's library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-modify` scope.
 
@@ -3024,7 +3023,7 @@ class WebAPI:
         audiobooks from current Spotify user's library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-modify` scope.
 
@@ -3057,7 +3056,7 @@ class WebAPI:
         library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-read` scope.
 
@@ -3751,7 +3750,7 @@ class WebAPI:
         episodes saved in the current Spotify user's library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-read` scope.
 
@@ -3893,7 +3892,7 @@ class WebAPI:
         the current user's library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-modify` scope.
 
@@ -3926,7 +3925,7 @@ class WebAPI:
         episodes from the current user's library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-modify` scope.
 
@@ -3960,7 +3959,7 @@ class WebAPI:
         Episodes' library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-read` scope.
 
@@ -4048,7 +4047,7 @@ class WebAPI:
         track or episode, progress, and active device.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-read-playback-state` scope.
 
@@ -4252,7 +4251,7 @@ class WebAPI:
         start playing.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4292,7 +4291,7 @@ class WebAPI:
         available devices.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-read-playback-state` scope.
 
@@ -4338,7 +4337,7 @@ class WebAPI:
         currently being played on the user's Spotify account.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-read-currently-playing` scope.
 
@@ -4544,7 +4543,7 @@ class WebAPI:
         device.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4621,7 +4620,7 @@ class WebAPI:
         playback on the user's account.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4649,7 +4648,7 @@ class WebAPI:
         user's queue.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4677,7 +4676,7 @@ class WebAPI:
         track in the user's queue.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4706,7 +4705,7 @@ class WebAPI:
         given position in the user's currently playing track.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4745,7 +4744,7 @@ class WebAPI:
         and off.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4785,7 +4784,7 @@ class WebAPI:
         current playback device.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4823,7 +4822,7 @@ class WebAPI:
         for user's playback.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -4861,7 +4860,7 @@ class WebAPI:
            Currently doesn't support podcast episodes.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-read-recently-played` scope.
 
@@ -5044,7 +5043,7 @@ class WebAPI:
         objects that make up the user's queue.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-read-playback-state` scope.
 
@@ -5290,7 +5289,7 @@ class WebAPI:
         playback queue.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-modify-playback-state` scope.
 
@@ -5589,7 +5588,7 @@ class WebAPI:
         the playlist.)
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`playlist-modify-public` or the 
            :code:`playlist-modify-private` scope.
@@ -5655,7 +5654,7 @@ class WebAPI:
         playlist owned by a Spotify user.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`playlist-modify-private` scope.
         
@@ -5901,7 +5900,7 @@ class WebAPI:
         a user's playlist.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`playlist-modify-public` or the 
            :code:`playlist-modify-private` scope.
@@ -5994,7 +5993,7 @@ class WebAPI:
            operations can't be applied together in a single request.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`playlist-modify-public` or the 
            :code:`playlist-modify-private` scope.
@@ -6107,7 +6106,7 @@ class WebAPI:
         user's playlist.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`playlist-modify-public` or the 
            :code:`playlist-modify-private` scope.
@@ -6163,7 +6162,7 @@ class WebAPI:
         playlists owned or followed by the current Spotify user.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`playlist-read-private` and the
            :code:`playlist-read-collaborative` scopes.
@@ -6264,7 +6263,7 @@ class WebAPI:
         or followed by a Spotify user.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`playlist-read-private` and the
            :code:`playlist-read-collaborative` scopes.
@@ -6369,7 +6368,7 @@ class WebAPI:
         you add tracks.)
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`playlist-modify-public` or the
            :code:`playlist-modify-private` scope.
@@ -6896,7 +6895,7 @@ class WebAPI:
         represent a specific playlist.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`ugc-image-upload` and the
            :code:`playlist-modify-public` or 
@@ -7773,7 +7772,7 @@ class WebAPI:
         to limit the number of shows returned.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-read` scope.
 
@@ -7870,7 +7869,7 @@ class WebAPI:
         current Spotify user's library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-modify` scope.
 
@@ -7901,7 +7900,7 @@ class WebAPI:
         current Spotify user's library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-modify` scope.
 
@@ -7945,7 +7944,7 @@ class WebAPI:
         shows is already saved in the current Spotify user's library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-read` scope.
 
@@ -8298,7 +8297,7 @@ class WebAPI:
         saved in the current Spotify user's 'Your Music' library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-read` scope.
 
@@ -8481,7 +8480,7 @@ class WebAPI:
         current user's 'Your Music' library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-modify` scope.
 
@@ -8514,7 +8513,7 @@ class WebAPI:
         from the current user's 'Your Music' library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-modify` scope.
 
@@ -8548,7 +8547,7 @@ class WebAPI:
         Music' library.
         
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-library-read` scope.
 
@@ -9048,7 +9047,7 @@ class WebAPI:
         username).
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-read-private` scope.
         
@@ -9107,7 +9106,7 @@ class WebAPI:
         artists or tracks based on calculated affinity.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-top-read` scope.
 
@@ -9261,7 +9260,7 @@ class WebAPI:
         Add the current user as a follower of a playlist.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`playlist-modify-private` scope.
 
@@ -9287,7 +9286,7 @@ class WebAPI:
         playlist.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`playlist-modify-private` scope.
 
@@ -9313,7 +9312,7 @@ class WebAPI:
         Get the current user's followed artists.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-follow-read` scope.
         
@@ -9395,7 +9394,7 @@ class WebAPI:
         one or more artists or other Spotify users.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-follow-modify` scope.
         
@@ -9433,7 +9432,7 @@ class WebAPI:
         as a follower of one or more artists or other Spotify users.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-follow-modify` scope.
         
@@ -9473,7 +9472,7 @@ class WebAPI:
         users.
 
         .. admonition:: Authorization scope
-           :class: note
+           :class: attention
         
            Requires the :code:`user-follow-read` scope.
 

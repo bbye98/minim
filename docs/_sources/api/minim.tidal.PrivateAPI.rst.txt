@@ -46,9 +46,8 @@
       ~PrivateAPI.get_artist_videos
       ~PrivateAPI.get_blocked_artists
       ~PrivateAPI.get_blocked_users
+      ~PrivateAPI.get_collection_streams
       ~PrivateAPI.get_country_code
-      ~PrivateAPI.get_created_playlist_folders
-      ~PrivateAPI.get_created_playlists
       ~PrivateAPI.get_favorite_albums
       ~PrivateAPI.get_favorite_artists
       ~PrivateAPI.get_favorite_ids
@@ -58,13 +57,14 @@
       ~PrivateAPI.get_image
       ~PrivateAPI.get_mix_items
       ~PrivateAPI.get_mix_page
+      ~PrivateAPI.get_personal_playlist_folders
+      ~PrivateAPI.get_personal_playlists
       ~PrivateAPI.get_playlist
       ~PrivateAPI.get_playlist_etag
       ~PrivateAPI.get_playlist_items
       ~PrivateAPI.get_playlist_recommendations
       ~PrivateAPI.get_profile
       ~PrivateAPI.get_session
-      ~PrivateAPI.get_streams
       ~PrivateAPI.get_track
       ~PrivateAPI.get_track_composers
       ~PrivateAPI.get_track_contributors

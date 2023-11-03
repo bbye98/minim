@@ -710,17 +710,13 @@ class Audio:
             if key in self._FIELDS_TYPES
         }
 
-    def from_itunes(
+    def set_metadata_using_itunes(
             self, data: dict, *, album_data: dict = None, 
             artwork_size: Union[int, str] = 1400, artwork_format: str = "jpg",
             overwrite: bool = False) -> None:
 
         """
         Populate tags using data retrieved from the iTunes Store API.
-        
-        .. attention::
-
-           This method is pending a major refactor. 
 
         Parameters
         ----------
@@ -799,17 +795,13 @@ class Audio:
             if self.copyright or overwrite:
                 self.copyright = album_data["copyright"]
 
-    def from_spotify(
+    def set_metadata_using_spotify(
             self, data: dict, *, audio_features: dict[str, Any] = None,
             lyrics: Union[str, dict[str, Any]] = None, overwrite: bool = False
         ) -> None:
 
         """
         Populate tags using data retrieved from the Spotify Web API.
-
-        .. attention::
-
-           This method is pending a major refactor.
 
         Parameters
         ----------
@@ -867,7 +859,7 @@ class Audio:
         if self.track_count is None or overwrite:
             self.track_count = data["album"]["total_tracks"]
 
-    def from_tidal(
+    def set_metadata_using_tidal_private(
             self, data: dict, *, album_data: dict = None,
             composer: Union[str, list[str]] = None, artwork: bytes = None,
             lyrics: dict[str, Any] = None, comment: str = None,
@@ -951,7 +943,7 @@ class Audio:
             if self.track_count is None or overwrite:
                 self.track_count = album_data["numberOfTracks"]
 
-    def from_qobuz(
+    def set_metadata_using_qobuz(
             self, data: dict, main_artist: Union[str, list[str]] = None,
             feat_artist: Union[str, list[str]] = None,
             composer: Union[str, list[str]] = None, artwork: bytes = None,

@@ -1,4 +1,4 @@
-Audio
+﻿Audio
 =====
 
 .. currentmodule:: minim.audio
@@ -17,9 +17,9 @@ Audio
       :nosignatures:
    
       ~Audio.convert
-      ~Audio.from_itunes
-      ~Audio.from_qobuz
-      ~Audio.from_spotify
-      ~Audio.from_tidal
+      ~Audio.set_metadata_using_itunes
+      ~Audio.set_metadata_using_qobuz
+      ~Audio.set_metadata_using_spotify
+      ~Audio.set_metadata_using_tidal_private
    
    

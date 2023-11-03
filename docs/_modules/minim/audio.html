@@ -953,17 +953,13 @@
             <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS_TYPES</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Audio.from_itunes"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.from_itunes">[docs]</a>    <span class="k">def</span> <span class="nf">from_itunes</span><span class="p">(</span>
+<div class="viewcode-block" id="Audio.set_metadata_using_itunes"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_itunes">[docs]</a>    <span class="k">def</span> <span class="nf">set_metadata_using_itunes</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">album_data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
             <span class="n">artwork_size</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1400</span><span class="p">,</span> <span class="n">artwork_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;jpg&quot;</span><span class="p">,</span>
             <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Populate tags using data retrieved from the iTunes Store API.</span>
-<span class="sd">        </span>
-<span class="sd">        .. attention::</span>
-
-<span class="sd">           This method is pending a major refactor. </span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1042,17 +1038,13 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">copyright</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">copyright</span> <span class="o">=</span> <span class="n">album_data</span><span class="p">[</span><span class="s2">&quot;copyright&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Audio.from_spotify"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.from_spotify">[docs]</a>    <span class="k">def</span> <span class="nf">from_spotify</span><span class="p">(</span>
+<div class="viewcode-block" id="Audio.set_metadata_using_spotify"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_spotify">[docs]</a>    <span class="k">def</span> <span class="nf">set_metadata_using_spotify</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">audio_features</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">lyrics</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Populate tags using data retrieved from the Spotify Web API.</span>
-
-<span class="sd">        .. attention::</span>
-
-<span class="sd">           This method is pending a major refactor.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1110,7 +1102,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;total_tracks&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Audio.from_tidal"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.from_tidal">[docs]</a>    <span class="k">def</span> <span class="nf">from_tidal</span><span class="p">(</span>
+<div class="viewcode-block" id="Audio.set_metadata_using_tidal_private"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_tidal_private">[docs]</a>    <span class="k">def</span> <span class="nf">set_metadata_using_tidal_private</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">album_data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">composer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">artwork</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">lyrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1194,7 +1186,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="o">=</span> <span class="n">album_data</span><span class="p">[</span><span class="s2">&quot;numberOfTracks&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Audio.from_qobuz"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.from_qobuz">[docs]</a>    <span class="k">def</span> <span class="nf">from_qobuz</span><span class="p">(</span>
+<div class="viewcode-block" id="Audio.set_metadata_using_qobuz"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_qobuz">[docs]</a>    <span class="k">def</span> <span class="nf">set_metadata_using_qobuz</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">main_artist</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">feat_artist</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">composer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">artwork</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

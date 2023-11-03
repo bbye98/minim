@@ -1488,7 +1488,7 @@
                     <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">tempfile</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
                     <span class="n">Track</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">Audio</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 
-                <span class="n">Track</span><span class="o">.</span><span class="n">from_qobuz</span><span class="p">(</span>
+                <span class="n">Track</span><span class="o">.</span><span class="n">set_metadata_using_qobuz</span><span class="p">(</span>
                     <span class="n">json</span><span class="p">,</span> <span class="n">main_artist</span><span class="o">=</span><span class="n">credits</span><span class="p">[</span><span class="s2">&quot;main_artist&quot;</span><span class="p">],</span>
                     <span class="n">feat_artist</span><span class="o">=</span><span class="n">credits</span><span class="p">[</span><span class="s2">&quot;featured_artist&quot;</span><span class="p">],</span>
                     <span class="n">composer</span><span class="o">=</span><span class="n">credits</span><span class="p">[</span><span class="s2">&quot;composers&quot;</span><span class="p">],</span>

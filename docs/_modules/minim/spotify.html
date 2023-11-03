@@ -1039,8 +1039,7 @@
                   <span class="s2">&quot;open the following link in your web browser:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
                   <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">auth_url</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">uri</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;After authorizing Minim to access Spotify on &quot;</span>
-                        <span class="s2">&quot;your behalf, copy and paste the URI in the &quot;</span>
-                        <span class="s2">&quot;address bar of your web browser beginning &quot;</span>
+                        <span class="s2">&quot;your behalf, copy and paste the URI beginning &quot;</span>
                         <span class="sa">f</span><span class="s2">&quot;with &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span><span class="si">}</span><span class="s2">&#39; below.</span><span class="se">\n\n</span><span class="s2">URI: &quot;</span><span class="p">)</span>
             <span class="n">queries</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
                 <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qsl</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
@@ -1846,7 +1845,7 @@
 <span class="sd">        current Spotify user&#39;s &#39;Your Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -2039,7 +2038,7 @@
 <span class="sd">        current user&#39;s &#39;Your Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -2072,7 +2071,7 @@
 <span class="sd">        from the current user&#39;s &#39;Your Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 <span class="sd">        </span>
@@ -2106,7 +2105,7 @@
 <span class="sd">        Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -3136,7 +3135,7 @@
 <span class="sd">        albums saved in the current Spotify user&#39;s audiobooks library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -3235,7 +3234,7 @@
 <span class="sd">        audiobooks to current Spotify user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -3267,7 +3266,7 @@
 <span class="sd">        audiobooks from current Spotify user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -3300,7 +3299,7 @@
 <span class="sd">        library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -3994,7 +3993,7 @@
 <span class="sd">        episodes saved in the current Spotify user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -4136,7 +4135,7 @@
 <span class="sd">        the current user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -4169,7 +4168,7 @@
 <span class="sd">        episodes from the current user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -4203,7 +4202,7 @@
 <span class="sd">        Episodes&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -4291,7 +4290,7 @@
 <span class="sd">        track or episode, progress, and active device.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-read-playback-state` scope.</span>
 
@@ -4495,7 +4494,7 @@
 <span class="sd">        start playing.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -4535,7 +4534,7 @@
 <span class="sd">        available devices.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-read-playback-state` scope.</span>
 
@@ -4581,7 +4580,7 @@
 <span class="sd">        currently being played on the user&#39;s Spotify account.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-read-currently-playing` scope.</span>
 
@@ -4787,7 +4786,7 @@
 <span class="sd">        device.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -4864,7 +4863,7 @@
 <span class="sd">        playback on the user&#39;s account.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -4892,7 +4891,7 @@
 <span class="sd">        user&#39;s queue.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -4920,7 +4919,7 @@
 <span class="sd">        track in the user&#39;s queue.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -4949,7 +4948,7 @@
 <span class="sd">        given position in the user&#39;s currently playing track.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -4988,7 +4987,7 @@
 <span class="sd">        and off.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -5028,7 +5027,7 @@
 <span class="sd">        current playback device.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -5066,7 +5065,7 @@
 <span class="sd">        for user&#39;s playback.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -5104,7 +5103,7 @@
 <span class="sd">           Currently doesn&#39;t support podcast episodes.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-read-recently-played` scope.</span>
 
@@ -5287,7 +5286,7 @@
 <span class="sd">        objects that make up the user&#39;s queue.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-read-playback-state` scope.</span>
 
@@ -5533,7 +5532,7 @@
 <span class="sd">        playback queue.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -5832,7 +5831,7 @@
 <span class="sd">        the playlist.)</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-public` or the </span>
 <span class="sd">           :code:`playlist-modify-private` scope.</span>
@@ -5898,7 +5897,7 @@
 <span class="sd">        playlist owned by a Spotify user.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-private` scope.</span>
 <span class="sd">        </span>
@@ -6144,7 +6143,7 @@
 <span class="sd">        a user&#39;s playlist.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-public` or the </span>
 <span class="sd">           :code:`playlist-modify-private` scope.</span>
@@ -6237,7 +6236,7 @@
 <span class="sd">           operations can&#39;t be applied together in a single request.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-public` or the </span>
 <span class="sd">           :code:`playlist-modify-private` scope.</span>
@@ -6350,7 +6349,7 @@
 <span class="sd">        user&#39;s playlist.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-public` or the </span>
 <span class="sd">           :code:`playlist-modify-private` scope.</span>
@@ -6406,7 +6405,7 @@
 <span class="sd">        playlists owned or followed by the current Spotify user.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-read-private` and the</span>
 <span class="sd">           :code:`playlist-read-collaborative` scopes.</span>
@@ -6507,7 +6506,7 @@
 <span class="sd">        or followed by a Spotify user.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-read-private` and the</span>
 <span class="sd">           :code:`playlist-read-collaborative` scopes.</span>
@@ -6612,7 +6611,7 @@
 <span class="sd">        you add tracks.)</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-public` or the</span>
 <span class="sd">           :code:`playlist-modify-private` scope.</span>
@@ -7139,7 +7138,7 @@
 <span class="sd">        represent a specific playlist.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`ugc-image-upload` and the</span>
 <span class="sd">           :code:`playlist-modify-public` or </span>
@@ -8016,7 +8015,7 @@
 <span class="sd">        to limit the number of shows returned.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -8113,7 +8112,7 @@
 <span class="sd">        current Spotify user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -8144,7 +8143,7 @@
 <span class="sd">        current Spotify user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -8188,7 +8187,7 @@
 <span class="sd">        shows is already saved in the current Spotify user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -8541,7 +8540,7 @@
 <span class="sd">        saved in the current Spotify user&#39;s &#39;Your Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -8724,7 +8723,7 @@
 <span class="sd">        current user&#39;s &#39;Your Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -8757,7 +8756,7 @@
 <span class="sd">        from the current user&#39;s &#39;Your Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -8791,7 +8790,7 @@
 <span class="sd">        Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -9291,7 +9290,7 @@
 <span class="sd">        username).</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-read-private` scope.</span>
 <span class="sd">        </span>
@@ -9350,7 +9349,7 @@
 <span class="sd">        artists or tracks based on calculated affinity.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-top-read` scope.</span>
 
@@ -9504,7 +9503,7 @@
 <span class="sd">        Add the current user as a follower of a playlist.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-private` scope.</span>
 
@@ -9530,7 +9529,7 @@
 <span class="sd">        playlist.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-private` scope.</span>
 
@@ -9556,7 +9555,7 @@
 <span class="sd">        Get the current user&#39;s followed artists.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-follow-read` scope.</span>
 <span class="sd">        </span>
@@ -9638,7 +9637,7 @@
 <span class="sd">        one or more artists or other Spotify users.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-follow-modify` scope.</span>
 <span class="sd">        </span>
@@ -9676,7 +9675,7 @@
 <span class="sd">        as a follower of one or more artists or other Spotify users.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-follow-modify` scope.</span>
 <span class="sd">        </span>
@@ -9716,7 +9715,7 @@
 <span class="sd">        users.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: note</span>
+<span class="sd">           :class: attention</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-follow-read` scope.</span>
 
