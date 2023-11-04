@@ -26,10 +26,11 @@ class TestWebAPI:
                      "7iHfbu1YPACw6oZPAFJtqe"]
     CHAPTER_IDS = ["0IsXVP0JmcB2adSE338GkK", "3ZXb8FKZGU0EHALYX6uCzU",
                    "0D5wENdkdwbqlrHoaJ9g29"]
-    # EPISODE_IDS = ["512ojhOuo1ktJprKbVcKyQ", "77o6BIVlYM3msb4MMIL1jH",
-    #                "0Q86acNRm6V9GYx55SXKwf"]
-    # SHOW_IDS = ["38bS44xjbVVZ3No3ByF1dJ", "5CfCWKI5pZ28U0uOzXkDHe", 
-    #             "5as3aKmN2k11yfDDDSrvaZ"]
+    EPISODE_IDS = ["6UGk2IXiMig0yFewumiW7D", "4ffPDgch69iJi9lk2fNDmE",
+                   "2rRD6Erz15N54zqKr3AFS7"]
+    PLAYLIST_ID = "3cEYpjA9oz9GiPac4AsH4n"
+    SHOW_IDS = ["03u3CF5jy51WnvG1ry77gA", "3L9tzrt0CthF6hNkxYIeSB",
+                "5GmI4bfR8mP9815Y3oLGHc"]
     TRACK_IDS = ["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ",
                  "2takcwOaAZWiXQijPHIx7B"]
 
@@ -103,13 +104,13 @@ class TestWebAPI:
         chapters = self.obj.get_episodes(self.CHAPTER_IDS, market="US")
         assert all(c["id"] == i for c, i in zip(chapters, self.CHAPTER_IDS))
 
-    # def test_get_episode(self):
-    #     episode = self.obj.get_episode(self.EPISODE_IDS[0], market="US")
-    #     assert episode["id"] == self.EPISODE_IDS[0]
+    def test_get_episode(self):
+        episode = self.obj.get_episode(self.EPISODE_IDS[0], market="US")
+        assert episode["id"] == self.EPISODE_IDS[0]
 
-    # def test_get_episodes(self):
-    #     episodes = self.obj.get_episodes(self.EPISODE_IDS, market="US")
-    #     assert all(e["id"] == i for e, i in zip(episodes, self.EPISODE_IDS))
+    def test_get_episodes(self):
+        episodes = self.obj.get_episodes(self.EPISODE_IDS, market="US")
+        assert all(e["id"] == i for e, i in zip(episodes, self.EPISODE_IDS))
 
     def test_get_genre_seeds(self):
         seeds = self.obj.get_genre_seeds()
@@ -120,11 +121,11 @@ class TestWebAPI:
         assert isinstance(markets, list)
 
     def test_get_playlist(self):
-        playlist = self.obj.get_playlist("3cEYpjA9oz9GiPac4AsH4n")
-        assert playlist["id"] == "3cEYpjA9oz9GiPac4AsH4n"
+        playlist = self.obj.get_playlist(self.PLAYLIST_ID)
+        assert playlist["id"] == self.PLAYLIST_ID
 
     def test_get_playlist_cover_image(self):
-        image = self.obj.get_playlist_cover_image("3cEYpjA9oz9GiPac4AsH4n")
+        image = self.obj.get_playlist_cover_image(self.PLAYLIST_ID)
         assert isinstance(image, dict)
 
     def test_search(self):
@@ -133,17 +134,17 @@ class TestWebAPI:
         )
         assert all(r["type"] == "album" for r in results["items"])
 
-    # def test_get_show(self):
-    #     show = self.obj.get_show(self.SHOW_IDS[0], market="US")
-    #     assert show["id"] == self.SHOW_IDS[0]
+    def test_get_show(self):
+        show = self.obj.get_show(self.SHOW_IDS[0], market="US")
+        assert show["id"] == self.SHOW_IDS[0]
 
-    # def test_get_shows(self):
-    #     shows = self.obj.get_shows(self.SHOW_IDS, market="US")
-    #     assert all(s["type"] == "show" for s in shows)
+    def test_get_shows(self):
+        shows = self.obj.get_shows(self.SHOW_IDS, market="US")
+        assert all(s["type"] == "show" for s in shows)
 
-    # def test_get_show_episodes(self):
-    #     episodes = self.obj.get_show_episodes(self.SHOW_IDS[0], market="US")
-    #     assert self.SHOW_IDS[0] in episodes["href"]
+    def test_get_show_episodes(self):
+        episodes = self.obj.get_show_episodes(self.SHOW_IDS[0], market="US")
+        assert self.SHOW_IDS[0] in episodes["href"]
 
     def test_get_track(self):
         track = self.obj.get_track(self.TRACK_IDS[0])

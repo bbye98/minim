@@ -69,38 +69,128 @@ class TestAPI:
         
 class TestPrivateAPI:
 
-    ALBUM_IDS = [251380836, 275646830]
-    ARTIST_IDS = [1566, 7804]
-    MIX_UUIDs = ["000ec0b01da1ddd752ec5dee553d48",
-                 "000dd748ceabd5508947c6a5d3880a"]
-    PLAYLIST_UUIDS = ["36ea71a8-445e-41a4-82ab-6628c581535d",
-                      "4261748a-4287-4758-aaab-6d5be3e99e52"]
-    TRACK_IDS = [251380837, 251380838]
-    VIDEO_IDS = [59727844, 75623239]
+    ALBUM_ID = 251380836
+    ARTIST_ID = 1566
+    MIX_UUID = "000ec0b01da1ddd752ec5dee553d48"
+    PLAYLIST_UUID = "36ea71a8-445e-41a4-82ab-6628c581535d"
+    PLAYLIST_ETAG = "1698984074453"
+    TRACK_ID = 251380837
+    VIDEO_ID = 59727844
 
     @classmethod
     def setup_class(cls):
         cls.obj = tidal.PrivateAPI()
 
     def test_get_album(self):
-        album = self.obj.get_album(self.ALBUM_IDS[0])
-        assert album["id"] == self.ALBUM_IDS[0]
+        album = self.obj.get_album(self.ALBUM_ID)
+        assert album["id"] == self.ALBUM_ID
 
     def test_get_album_items(self):
-        items = self.obj.get_album_items(self.ALBUM_IDS[0])["items"]
-        assert all(i["item"]["album"]["id"] == self.ALBUM_IDS[0] 
-                   for i in items)
+        assert all(
+            i["item"]["album"]["id"] == self.ALBUM_ID
+            for i in self.obj.get_album_items(self.ALBUM_ID)["items"]
+        )
+
+    def test_get_album_review(self):
+        assert all(k in self.obj.get_album_review(self.ALBUM_ID)
+                   for k in {"source", "lastUpdated", "text", "summary"})
 
     def test_get_artist(self):
-        artist = self.obj.get_artist(self.ARTIST_IDS[0])
-        assert artist["id"] == self.ARTIST_IDS[0]
+        assert self.obj.get_artist(self.ARTIST_ID)["id"] == self.ARTIST_ID
 
     def test_get_artist_albums(self):
-        albums = self.obj.get_artist_albums(self.ARTIST_IDS[0])["items"]
-        assert all(a["artist"]["id"] == self.ARTIST_IDS[0]
-                   for a in albums)
+        assert all(
+            self.ARTIST_ID in (a["id"] for a in c["artists"])
+            for c in self.obj.get_artist_albums(self.ARTIST_ID)["items"]
+        )
         
     def test_get_artist_top_tracks(self):
-        tracks = self.obj.get_artist_top_tracks(self.ARTIST_IDS[0])
-        assert all(self.ARTIST_IDS[0] in (a["id"] for a in t["artists"])
-                   for t in tracks["items"])
+        assert all(
+            self.ARTIST_ID in (a["id"] for a in t["artists"])
+            for t in self.obj.get_artist_top_tracks(self.ARTIST_ID)["items"]
+        )
+        
+    def test_get_artist_videos(self):
+        assert all(
+            self.ARTIST_ID in (a["id"] for a in v["artists"])
+            for v in self.obj.get_artist_videos(self.ARTIST_ID)["items"]
+        )
+
+    def test_get_artist_mix(self):
+        mix_id = self.obj.get_artist_mix(self.ARTIST_ID)
+        assert isinstance(mix_id, str) and len(mix_id) == 30
+
+    def test_get_artist_biography(self):
+        assert all(k in self.obj.get_artist_biography(self.ARTIST_ID) 
+                   for k in {"source", "lastUpdated", "text", "summary"})
+
+    def test_get_artist_links(self):
+        assert all(
+            k in l for l in self.obj.get_artist_links(self.ARTIST_ID)["items"]
+            for k in {"url", "siteName"}
+        )
+
+    def test_get_country_code(self):
+        country_code = self.obj.get_country_code()
+        assert isinstance(country_code, str) and len(country_code) == 2
+        
+    def test_get_mix_items(self):
+        assert all(
+            i["type"] == "track" 
+            for i in self.obj.get_mix_items(self.MIX_UUID)["items"]
+        )
+
+    def test_get_playlist(self):
+        assert (self.obj.get_playlist(self.PLAYLIST_UUID)["uuid"] 
+                == self.PLAYLIST_UUID)
+
+    def test_get_playlist_etag(self):
+        assert (self.obj.get_playlist_etag(self.PLAYLIST_UUID)
+                == self.PLAYLIST_ETAG)
+
+    def test_get_playlist_items(self):
+        assert all(
+            i["type"] == "track" 
+            for i in self.obj.get_playlist_items(self.PLAYLIST_UUID)["items"]
+        )
+
+    def test_get_playlist_recommendations(self):
+        assert all(
+            i["type"] == "track" for i in self.obj
+            .get_playlist_recommendations(self.PLAYLIST_UUID)["items"]
+        )
+
+    def test_search(self):
+        assert self.obj.search("Beyoncé")["topHit"]["type"] == "ARTISTS"
+
+    def test_get_track(self):
+        assert self.obj.get_track(self.TRACK_ID)["id"] == self.TRACK_ID
+
+    def test_get_track_contributors(self):
+        assert all(
+            k in c 
+            for c in self.obj.get_track_contributors(self.TRACK_ID)["items"] 
+            for k in {"name", "role"}
+        )
+
+    def test_get_track_credits(self):
+        assert all(
+            k in c for c in self.obj.get_track_credits(self.TRACK_ID)
+            for k in {"type", "contributors"}
+        )
+
+    def test_get_track_composers(self):
+        assert isinstance(self.obj.get_track_composers(self.TRACK_ID), list)
+
+    def test_get_track_mix(self):
+        mix_id = self.obj.get_track_mix(self.TRACK_ID)
+        assert isinstance(mix_id, str) and len(mix_id) == 30
+
+    def test_get_track_recommendations(self):
+        assert all(
+            "SUGGESTED_TRACKS" in i["sources"] 
+            for i in self.obj.get_track_recommendations(self.TRACK_ID)["items"]
+        )
+
+    def test_get_video(self):
+        assert self.obj.get_video(self.VIDEO_ID)["id"] == self.VIDEO_ID

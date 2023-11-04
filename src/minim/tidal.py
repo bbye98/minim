@@ -947,7 +947,7 @@ class API:
         
         """
         `Track API > Get single track 
-        <https://developer.tidal.com/apiref?ref=get-track>`: Retrieve
+        <https://developer.tidal.com/apiref?ref=get-track>`_: Retrieve
         track details by TIDAL track ID.
 
         Parameters
@@ -1135,7 +1135,7 @@ class API:
         
         """
         `Video API > Get single video
-        <https://developer.tidal.com/apiref?ref=get-video>`: Retrieve
+        <https://developer.tidal.com/apiref?ref=get-video>`_: Retrieve
         video details by TIDAL video ID.
 
         Parameters
@@ -4291,7 +4291,7 @@ class PrivateAPI:
         etag : `str`
             ETag for a single playlist.
 
-            **Example**: :code:`"1698379219683"`.
+            **Example**: :code:`"1698984074453"`.
         """
 
         self._check_scope("get_playlist_etag", "r_usr", flows={"device_code"},
@@ -5414,6 +5414,233 @@ class PrivateAPI:
             A dictionary containing TIDAL catalog information for
             albums, artists, tracks, and videos matching the search
             query, and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "artists": {
+                      "limit": <int>,
+                      "offset": <int>,
+                      "totalNumberOfItems": <int>,
+                      "items": [
+                        {
+                          "id": <int>,
+                          "name": <str>,
+                          "artistTypes": [<str>],
+                          "url": <str>,
+                          "picture": <str>,
+                          "popularity": <int>,
+                          "artistRoles": [
+                            {
+                              "categoryId": <int>,
+                              "category": <str>
+                            }
+                          ],
+                          "mixes": {
+                            "ARTIST_MIX": <str>
+                          }
+                        }
+                      ]
+                    },
+                    "albums": {
+                      "limit": <int>,
+                      "offset": <int>,
+                      "totalNumberOfItems": <int>,
+                      "items": [
+                        {
+                          "id": <int>,
+                          "title": <str>,
+                          "duration": <int>,
+                          "streamReady": <bool>,
+                          "adSupportedStreamReady": <bool>,
+                          "djReady": <bool>,
+                          "stemReady": <bool>,
+                          "streamStartDate": <str>,
+                          "allowStreaming": <bool>,
+                          "premiumStreamingOnly": <bool>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "numberOfVolumes": <int>,
+                          "releaseDate": <str>,
+                          "copyright": <str>,
+                          "type": "ALBUM",
+                          "version": <str>,
+                          "url": <str>,
+                          "cover": <str>,
+                          "vibrantColor": <str>,
+                          "videoCover": <str>,
+                          "explicit": <bool>,
+                          "upc": <str>,
+                          "popularity": <int>,
+                          "audioQuality": <str>,
+                          "audioModes": [<str>],
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "artist": {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          },
+                          "artists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>,
+                              "picture": <str>
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "playlists": {
+                      "limit": <int>,
+                      "offset": <int>,
+                      "totalNumberOfItems": <int>,
+                      "items": [
+                        {
+                          "uuid": <str>,
+                          "title": <str>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "creator": {
+                            "id": <int>
+                          },
+                          "description": <str>,
+                          "duration": <int>,
+                          "lastUpdated": <str>,
+                          "created": <str>,
+                          "type": <str>,
+                          "publicPlaylist": <bool>,
+                          "url": <str>,
+                          "image": <str>,
+                          "popularity": <int>,
+                          "squareImage": <str>,
+                          "promotedArtists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>,
+                              "picture": <str>,
+                            }
+                          ],
+                          "lastItemAddedAt": <str>
+                        }
+                      ]
+                    },
+                    "tracks": {
+                      "limit": <int>,
+                      "offset": <int>,
+                      "totalNumberOfItems": <int>,
+                      "items": [
+                        {
+                          "id": <int>,
+                          "title": <str>,
+                          "duration": <int>,
+                          "replayGain": <float>,
+                          "peak": <float>,
+                          "allowStreaming": <bool>,
+                          "streamReady": <bool>,
+                          "adSupportedStreamReady": <bool>,
+                          "djReady": <bool>,
+                          "stemReady": <bool>,
+                          "streamStartDate": <str>,
+                          "premiumStreamingOnly": <bool>,
+                          "trackNumber": <int>,
+                          "volumeNumber": <int>,
+                          "version": <str>,
+                          "popularity": <int>,
+                          "copyright": <str>,
+                          "url": <str>,
+                          "isrc": <str>,
+                          "editable": <bool>,
+                          "explicit": <bool>,
+                          "audioQuality": <str>,
+                          "audioModes": [<str>],
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "artist": {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          },
+                          "artists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>,
+                              "picture": <str>
+                            }
+                          ],
+                          "album": {
+                            "id": <int>,
+                            "title": <str>,
+                            "cover": <str>,
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
+                          },
+                          "mixes": {
+                            "TRACK_MIX": <str>
+                          }
+                        }
+                      ]
+                    },
+                    "videos": {
+                      "limit": <int>,
+                      "offset": <int>,
+                      "totalNumberOfItems": <int>,
+                      "items": [
+                        {
+                          "id": <int>,
+                          "title": <str>,
+                          "volumeNumber": <int>,
+                          "trackNumber": <int>,
+                          "releaseDate": <str>,
+                          "imagePath": <str>,
+                          "imageId": <str>,
+                          "vibrantColor": <str>,
+                          "duration": <int>,
+                          "quality": <str>,
+                          "streamReady": <bool>,
+                          "adSupportedStreamReady": <bool>,
+                          "djReady": <bool>,
+                          "stemReady": <bool>,
+                          "streamStartDate": <str>,
+                          "allowStreaming": <bool>,
+                          "explicit": <bool>,
+                          "popularity": <int>,
+                          "type": <str>,
+                          "adsUrl": <str>,
+                          "adsPrePaywallOnly": <bool>,
+                          "artist": {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>,
+                          },
+                          "artists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>,
+                              "picture": <str>,
+                            }
+                          ],
+                          "album": <dict>
+                        }
+                      ]
+                    },
+                    "topHit": {
+                      "value": <dict>,
+                      "type": <str>
+                    }
+                  }
         """
 
         self._check_scope("search", "r_usr", flows={"device_code"},
