@@ -151,6 +151,7 @@
     <img class="sidebar-logo" src="../../_static/icon.svg" alt="Logo"/>
   </div>
   
+  <span class="sidebar-brand-text">minim  documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -160,8 +161,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../guides.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/qobuz.html">Using the Qobuz API (<code class="docutils literal notranslate"><span class="pre">minim.qobuz</span></code>)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../guides.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/minim.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -175,18 +175,11 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.itunes.html">itunes</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of itunes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.lookup.html">lookup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.search.html">search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.SearchAPI.html">SearchAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.qobuz.html">qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of qobuz</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Album.html">Album</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Artist.html">Artist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Label.html">Label</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Playlist.html">Playlist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Track.html">Track</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.User.html">User</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -246,355 +239,449 @@
 <span class="sd">.. moduleauthor:: Benjamin Ye &lt;GitHub: @bbye98&gt;</span>
 
 <span class="sd">This module contains a complete implementation of all iTunes Search API</span>
-<span class="sd">endpoints, which allow media (albums, movies, tracks, etc.) and people</span>
-<span class="sd">(actors, artists, etc.) to be queried and information about them to be</span>
-<span class="sd">retrieved. </span>
-
-<span class="sd">.. seealso::</span>
-<span class="sd">   For more information, see the `iTunes Search API </span>
-<span class="sd">   documentation &lt;https://developer.apple.com/library/archive/</span>
-<span class="sd">   documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html&gt;`_.</span>
+<span class="sd">endpoints.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
-<span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="n">API_URL</span> <span class="o">=</span> <span class="s2">&quot;https://itunes.apple.com&quot;</span>
+<span class="kn">import</span> <span class="nn">requests</span>
 
-<div class="viewcode-block" id="search"><a class="viewcode-back" href="../../api/minim.itunes.search.html#minim.itunes.search">[docs]</a><span class="k">def</span> <span class="nf">search</span><span class="p">(</span>
-        <span class="n">term</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">media</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">entity</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">attribute</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">version</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">explicit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="SearchAPI"><a class="viewcode-back" href="../../api/minim.itunes.SearchAPI.html#minim.itunes.SearchAPI">[docs]</a><span class="k">class</span> <span class="nc">SearchAPI</span><span class="p">:</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Search for content using the iTunes Search API.</span>
+<span class="sd">    iTunes Search API client.</span>
 
-<span class="sd">    Parameters</span>
+<span class="sd">    The iTunes Search API allows searching for a variety of content, </span>
+<span class="sd">    including apps, iBooks, movies, podcasts, music, music videos, </span>
+<span class="sd">    audiobooks, and TV shows within the iTunes Store, App Store, </span>
+<span class="sd">    iBooks Store and Mac App Store. It also supports ID-based lookup</span>
+<span class="sd">    requests to create mappings between your content library and the</span>
+<span class="sd">    digital catalog.</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">       For more information, see the `iTunes Search API </span>
+<span class="sd">       documentation &lt;https://developer.apple.com/library/archive/</span>
+<span class="sd">       documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html&gt;`_.</span>
+
+<span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    term : str</span>
-<span class="sd">    	The text string to search for.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">           URL encoding replaces spaces with the plus (:code:`+`) </span>
-<span class="sd">           character, and all characters except letters, numbers, </span>
-<span class="sd">           periods (:code:`.`), dashes (:code:`-`), underscores </span>
-<span class="sd">           (:code:`_`), and asterisks (:code:`*`) are encoded.</span>
-
-<span class="sd">        **Example**: :code:`&quot;jack+johnson&quot;`.</span>
-
-<span class="sd">    country : str, keyword-only, optional</span>
-<span class="sd">        The two-letter country code for the store you want to search.</span>
-<span class="sd">        The search uses the default store front for the specified</span>
-<span class="sd">        country. </span>
-<span class="sd">        </span>
-<span class="sd">        .. seealso::</span>
-<span class="sd">           For a list of ISO country codes, see the</span>
-<span class="sd">           `ISO OBP &lt;https://www.iso.org/obp/ui&gt;`_.</span>
-
-<span class="sd">        **Default**: :code:`&quot;US&quot;`.</span>
-<span class="sd">    </span>
-<span class="sd">    media : str, keyword-only, optional</span>
-<span class="sd">        The media type you want to search for.</span>
-
-<span class="sd">        .. container::</span>
-
-<span class="sd">           **Valid values**: :code:`&quot;movie&quot;`, :code:`&quot;podcast&quot;`, </span>
-<span class="sd">           :code:`&quot;music&quot;`, :code:`&quot;musicVideo&quot;`, :code:`&quot;audioBook&quot;`,</span>
-<span class="sd">           :code:`&quot;shortFilm&quot;`, :code:`&quot;tvShow&quot;`, :code:`&quot;software&quot;`,</span>
-<span class="sd">           and :code:`&quot;ebook&quot;`.</span>
-
-<span class="sd">        **Default**: :code:`&quot;all&quot;`.</span>
-<span class="sd">    </span>
-<span class="sd">    entity : `str` or `Sequence`, keyword-only, optional</span>
-<span class="sd">        The type(s) of results you want returned, relative to the</span>
-<span class="sd">        specified media type in `media`. </span>
-<span class="sd">        </span>
-<span class="sd">        .. seealso::</span>
-<span class="sd">           For a list of available</span>
-<span class="sd">           entities, see the `iTunes Store API Table 2-1</span>
-<span class="sd">           &lt;https://developer.apple.com/library/archive/documentation/</span>
-<span class="sd">           AudioVideo/Conceptual/iTuneSearchAPI/Searching.html#//</span>
-<span class="sd">           apple_ref/doc/uid/TP40017632-CH5-SW2&gt;`_.</span>
-
-<span class="sd">        **Default**: The track entity associated with the specified</span>
-<span class="sd">        media type.</span>
-
-<span class="sd">        **Example**: :code:`&quot;movieArtist&quot;` for a movie media type</span>
-<span class="sd">        search.</span>
-<span class="sd">    </span>
-<span class="sd">    attribute : `str`, keyword-only, optional</span>
-<span class="sd">        The attribute you want to search for in the stores, relative to</span>
-<span class="sd">        the specified media type (`media`). </span>
-<span class="sd">        </span>
-<span class="sd">        .. seealso::</span>
-<span class="sd">           For a list of available</span>
-<span class="sd">           attributes, see the `iTunes Store API Table 2-2</span>
-<span class="sd">           &lt;https://developer.apple.com/library/archive/documentation/</span>
-<span class="sd">           AudioVideo/Conceptual/iTuneSearchAPI/Searching.html#//</span>
-<span class="sd">           apple_ref/doc/uid/TP40017632-CH5-SW3&gt;`_.</span>
-
-<span class="sd">        **Default**: All attributes associated with the specified </span>
-<span class="sd">        media type. </span>
-
-<span class="sd">        **Example**: If you want to search for an artist by name,</span>
-<span class="sd">        specify :code:`entity=&quot;allArtist&quot;` and</span>
-<span class="sd">        :code:`attribute=&quot;allArtistTerm&quot;`. Then, if you search for</span>
-<span class="sd">        :code:`term=&quot;maroon&quot;`, iTunes returns &quot;Maroon 5&quot; in the</span>
-<span class="sd">        search results, instead of all artists who have ever recorded</span>
-<span class="sd">        a song with the word &quot;maroon&quot; in the title.</span>
-
-<span class="sd">    limit : `int` or `str`, keyword-only, optional</span>
-<span class="sd">        The number of search results you want the iTunes Store to</span>
-<span class="sd">        return. </span>
-
-<span class="sd">        **Valid values**: `limit` must be between 1 and 200.</span>
-
-<span class="sd">        **Default**: :code:`50`.</span>
-<span class="sd">    </span>
-<span class="sd">    lang : `str`, keyword-only, optional</span>
-<span class="sd">        The language, English or Japanese, you want to use when</span>
-<span class="sd">        returning search results. Specify the language using the</span>
-<span class="sd">        five-letter codename.</span>
-
-<span class="sd">        .. container::</span>
-
-<span class="sd">           **Valid values**:</span>
-<span class="sd">           </span>
-<span class="sd">           * :code:`&quot;en_us&quot;` for English.</span>
-<span class="sd">           * :code:`&quot;ja_jp&quot;` for Japanese.</span>
-
-<span class="sd">        **Default**: :code:`&quot;en_us&quot;`.</span>
-
-<span class="sd">    version : `int` or `str`, keyword-only, optional</span>
-<span class="sd">        The search result key version you want to receive back from your</span>
-<span class="sd">        search.</span>
-
-<span class="sd">        **Valid values**: :code:`1` and :code:`2`.</span>
-<span class="sd">        </span>
-<span class="sd">        **Default**: :code:`2`.</span>
-
-<span class="sd">    explicit : `bool` or `str`, keyword-only, optional</span>
-<span class="sd">        A flag indicating whether or not you want to include explicit</span>
-<span class="sd">        content in your search results.</span>
-<span class="sd">        </span>
-<span class="sd">        **Default**: :code:`&quot;Yes&quot;`.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    results : `dict`</span>
-<span class="sd">        The search results in JSON format.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    To search for all Jack Johnson audio and video content (movies,</span>
-<span class="sd">    podcasts, music, music videos, audiobooks, short films, and TV</span>
-<span class="sd">    shows),</span>
-
-<span class="sd">    &gt;&gt;&gt; itunes.search(&quot;jack johnson&quot;)</span>
-
-<span class="sd">    To search for all Jack Johnson audio and video content and return</span>
-<span class="sd">    only the first 25 items,</span>
-
-<span class="sd">    &gt;&gt;&gt; itunes.search(&quot;jack johnson&quot;, limit=25)</span>
-
-<span class="sd">    To search for only Jack Johnson music videos,</span>
-
-<span class="sd">    &gt;&gt;&gt; itunes.search(&quot;jack johnson&quot;, entity=&quot;musicVideo&quot;)</span>
-<span class="sd">    </span>
-<span class="sd">    To search for all Jim Jones audio and video content and return only</span>
-<span class="sd">    the results from the Canada iTunes Store,</span>
-
-<span class="sd">    &gt;&gt;&gt; itunes.search(&quot;jack johnson&quot;, country=&quot;ca&quot;)</span>
-
-<span class="sd">    To search for applications titled “Yelp” and return only the results</span>
-<span class="sd">    from the United States iTunes Store,</span>
-
-<span class="sd">    &gt;&gt;&gt; itunes.search(&quot;yelp&quot;, country=&quot;us&quot;, entity=&quot;software&quot;)</span>
+<span class="sd">    API_URL : `str`</span>
+<span class="sd">        Base URL for the iTunes Search API.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">return</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/search&quot;</span><span class="p">,</span>
-        <span class="n">params</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;term&quot;</span><span class="p">:</span> <span class="n">term</span><span class="p">,</span>
-            <span class="s2">&quot;country&quot;</span><span class="p">:</span> <span class="n">country</span><span class="p">,</span>
-            <span class="s2">&quot;media&quot;</span><span class="p">:</span> <span class="n">media</span><span class="p">,</span>
-            <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="n">entity</span> <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
-                      <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">entity</span><span class="p">),</span>
-            <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="n">attribute</span><span class="p">,</span>
-            <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span>
-            <span class="s2">&quot;lang&quot;</span><span class="p">:</span> <span class="n">lang</span><span class="p">,</span>
-            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">version</span><span class="p">,</span>
-            <span class="s2">&quot;explicit&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;No&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">)[</span><span class="n">explicit</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">explicit</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
-                        <span class="k">else</span> <span class="n">explicit</span>
-        <span class="p">}</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+    <span class="n">API_URL</span> <span class="o">=</span> <span class="s2">&quot;https://itunes.apple.com&quot;</span>
 
-<div class="viewcode-block" id="lookup"><a class="viewcode-back" href="../../api/minim.itunes.lookup.html#minim.itunes.lookup">[docs]</a><span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span>
-        <span class="nb">id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
-        <span class="n">amg_artist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">amg_album_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">amg_video_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">bundle_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">upc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">isbn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">entity</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">limit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Search for content based on iTunes IDs, AMG IDs, UPCs/EANs, or</span>
-<span class="sd">    ISBNs. ID-based lookups are faster and contain fewer false-positive</span>
-<span class="sd">    results.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a iTunes Search API client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    id : `int`, `str`, or `Sequence`, optional</span>
-<span class="sd">        The iTunes ID(s) to lookup.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 
-<span class="sd">    amg_artist_id : `int`, `str`, or `Sequence`, keyword-only, optional</span>
-<span class="sd">        The AMG artist ID(s) to lookup.</span>
+    <span class="k">def</span> <span class="nf">_get_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 
-<span class="sd">    amg_album_id : `int`, `str`, or `Sequence`, keyword-only, optional</span>
-<span class="sd">        The AMG album ID(s) to lookup.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a GET request and return the JSON-encoded content of the </span>
+<span class="sd">        response.</span>
 
-<span class="sd">    amg_video_id : `int`, `str`, or `Sequence`, keyword-only, optional</span>
-<span class="sd">        The AMG video ID(s) to lookup.</span>
-
-<span class="sd">    bundle_id : `str` or `Sequence`, keyword-only, optional</span>
-<span class="sd">        The Apple bundle ID(s) to lookup.</span>
-
-<span class="sd">    upc : `int`, `str`, or `Sequence`, keyword-only, optional</span>
-<span class="sd">        The UPC(s) to lookup.</span>
-
-<span class="sd">    isbn : `int`, `str`, or `Sequence`, keyword-only, optional</span>
-<span class="sd">        The 13-digit ISBN(s) to lookup.</span>
-
-<span class="sd">    entity : `str` or `Sequence`, keyword-only, optional</span>
-<span class="sd">        The type(s) of results you want returned. </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        url : `str`</span>
+<span class="sd">            URL for the GET request.</span>
 <span class="sd">        </span>
-<span class="sd">        .. seealso::</span>
-<span class="sd">           For a list of available entities, see the `iTunes Store API </span>
-<span class="sd">           Table 2-1 &lt;https://developer.apple.com/library/archive/</span>
-<span class="sd">           documentation/AudioVideo/Conceptual/iTuneSearchAPI/</span>
-<span class="sd">           Searching.html#//apple_ref/doc/uid/TP40017632-CH5-SW2&gt;`_.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Keyword arguments to pass to :meth:`requests.request`.</span>
 
-<span class="sd">        **Default**: The track entity associated with the specified</span>
-<span class="sd">        media type.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        resp : `dict`</span>
+<span class="sd">            JSON-encoded content of the response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-<span class="sd">    limit : `int` or `str`, keyword-only, optional</span>
-<span class="sd">        The number of search results you want the iTunes Store to</span>
-<span class="sd">        return. </span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_request</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct and send a request, but with status code checking.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        method : `str`</span>
+<span class="sd">            Method for the request.</span>
+
+<span class="sd">        url : `str`</span>
+<span class="sd">            URL for the request.</span>
+
+<span class="sd">        **kwargs</span>
+<span class="sd">            Keyword arguments passed to :meth:`requests.request`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        resp : `requests.Response`</span>
+<span class="sd">            Response to the request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">299</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;errorMessage&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span>
+
+<div class="viewcode-block" id="SearchAPI.search"><a class="viewcode-back" href="../../api/minim.itunes.SearchAPI.html#minim.itunes.SearchAPI.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">media</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">entity</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">attribute</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+            <span class="n">limit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">version</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">explicit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search for content using the iTunes Search API.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        term : str</span>
+<span class="sd">            The text string to search for.</span>
+
+<span class="sd">            .. note::</span>
+
+<span class="sd">               URL encoding replaces spaces with the plus (:code:`+`) </span>
+<span class="sd">               character, and all characters except letters, numbers, </span>
+<span class="sd">               periods (:code:`.`), dashes (:code:`-`), underscores </span>
+<span class="sd">               (:code:`_`), and asterisks (:code:`*`) are encoded.</span>
+
+<span class="sd">            **Example**: :code:`&quot;jack+johnson&quot;`.</span>
+
+<span class="sd">        country : str, keyword-only, optional</span>
+<span class="sd">            The two-letter country code for the store you want to search.</span>
+<span class="sd">            The search uses the default store front for the specified</span>
+<span class="sd">            country. </span>
+<span class="sd">            </span>
+<span class="sd">            .. seealso::</span>
+
+<span class="sd">               For a list of ISO country codes, see the</span>
+<span class="sd">               `ISO OBP &lt;https://www.iso.org/obp/ui&gt;`_.</span>
+
+<span class="sd">            **Default**: :code:`&quot;US&quot;`.</span>
 <span class="sd">        </span>
-<span class="sd">        **Valid values**: `limit` must be between 1 and 200.</span>
+<span class="sd">        media : str, keyword-only, optional</span>
+<span class="sd">            The media type you want to search for.</span>
 
-<span class="sd">        **Default**: :code:`50`.</span>
+<span class="sd">            .. container::</span>
 
-<span class="sd">    sort : `str`, keyword-only, optional</span>
-<span class="sd">        The sort applied to the search results.</span>
+<span class="sd">               **Valid values**: :code:`&quot;movie&quot;`, :code:`&quot;podcast&quot;`, </span>
+<span class="sd">               :code:`&quot;music&quot;`, :code:`&quot;musicVideo&quot;`, :code:`&quot;audioBook&quot;`,</span>
+<span class="sd">               :code:`&quot;shortFilm&quot;`, :code:`&quot;tvShow&quot;`, :code:`&quot;software&quot;`,</span>
+<span class="sd">               and :code:`&quot;ebook&quot;`.</span>
 
-<span class="sd">        **Allowed value**: :code:`&quot;recent&quot;`.</span>
+<span class="sd">            **Default**: :code:`&quot;all&quot;`.</span>
+<span class="sd">        </span>
+<span class="sd">        entity : `str` or `list`, keyword-only, optional</span>
+<span class="sd">            The type(s) of results you want returned, relative to the</span>
+<span class="sd">            specified media type in `media`. </span>
+<span class="sd">            </span>
+<span class="sd">            .. seealso::</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    results : `dict`</span>
-<span class="sd">        The lookup results in JSON format.</span>
+<span class="sd">               For a list of available</span>
+<span class="sd">               entities, see the `iTunes Store API Table 2-1</span>
+<span class="sd">               &lt;https://developer.apple.com/library/archive</span>
+<span class="sd">               /documentation/AudioVideo/Conceptual/iTuneSearchAPI</span>
+<span class="sd">               /Searching.html#//apple_ref/doc/uid</span>
+<span class="sd">               /TP40017632-CH5-SW2&gt;`_.</span>
 
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    Look up Jack Johnson by iTunes artist ID:</span>
+<span class="sd">            **Default**: The track entity associated with the specified</span>
+<span class="sd">            media type.</span>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(909253)</span>
+<span class="sd">            **Example**: :code:`&quot;movieArtist&quot;` for a movie media type</span>
+<span class="sd">            search.</span>
+<span class="sd">        </span>
+<span class="sd">        attribute : `str`, keyword-only, optional</span>
+<span class="sd">            The attribute you want to search for in the stores, relative</span>
+<span class="sd">            to the specified media type (`media`). </span>
+<span class="sd">            </span>
+<span class="sd">            .. seealso::</span>
 
-<span class="sd">    Look up the Yelp application by iTunes ID:</span>
+<span class="sd">               For a list of available</span>
+<span class="sd">               attributes, see the `iTunes Store API Table 2-2</span>
+<span class="sd">               &lt;https://developer.apple.com/library/archive</span>
+<span class="sd">               /documentation/AudioVideo/Conceptual/iTuneSearchAPI</span>
+<span class="sd">               /Searching.html#//apple_ref/doc/uid</span>
+<span class="sd">               /TP40017632-CH5-SW3&gt;`_.</span>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(284910350)</span>
+<span class="sd">            **Default**: All attributes associated with the specified </span>
+<span class="sd">            media type. </span>
 
-<span class="sd">    Look up Jack Johnson by AMG artist ID:</span>
+<span class="sd">            **Example**: If you want to search for an artist by name,</span>
+<span class="sd">            specify :code:`entity=&quot;allArtist&quot;` and</span>
+<span class="sd">            :code:`attribute=&quot;allArtistTerm&quot;`. Then, if you search for</span>
+<span class="sd">            :code:`term=&quot;maroon&quot;`, iTunes returns &quot;Maroon 5&quot; in the</span>
+<span class="sd">            search results, instead of all artists who have ever </span>
+<span class="sd">            recorded a song with the word &quot;maroon&quot; in the title.</span>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(amg_artist_id=468749)</span>
+<span class="sd">        limit : `int` or `str`, keyword-only, optional</span>
+<span class="sd">            The number of search results you want the iTunes Store to</span>
+<span class="sd">            return. </span>
 
-<span class="sd">    Look up multiple artists by their AMG artist IDs:</span>
+<span class="sd">            **Valid values**: `limit` must be between 1 and 200.</span>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(amg_artist_id=[468749, 5723])</span>
+<span class="sd">            **Default**: :code:`50`.</span>
+<span class="sd">        </span>
+<span class="sd">        lang : `str`, keyword-only, optional</span>
+<span class="sd">            The language, English or Japanese, you want to use when</span>
+<span class="sd">            returning search results. Specify the language using the</span>
+<span class="sd">            five-letter codename.</span>
 
-<span class="sd">    Look up all albums for Jack Johnson:</span>
+<span class="sd">            .. container::</span>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(909253, entity=&quot;album&quot;)</span>
+<span class="sd">               **Valid values**:</span>
+<span class="sd">            </span>
+<span class="sd">               * :code:`&quot;en_us&quot;` for English.</span>
+<span class="sd">               * :code:`&quot;ja_jp&quot;` for Japanese.</span>
 
-<span class="sd">    Look up multiple artists by their AMG artist IDs and get each</span>
-<span class="sd">    artist&#39;s top 5 albums:</span>
+<span class="sd">            **Default**: :code:`&quot;en_us&quot;`.</span>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(amg_artist_id=[468749, 5723], entity=&quot;album&quot;,</span>
-<span class="sd">    ...               limit=5)</span>
+<span class="sd">        version : `int` or `str`, keyword-only, optional</span>
+<span class="sd">            The search result key version you want to receive back from</span>
+<span class="sd">            your search.</span>
 
-<span class="sd">    Look up multiple artists by their AMG artist IDs and get each</span>
-<span class="sd">    artist&#39;s 5 most recent songs:</span>
+<span class="sd">            **Valid values**: :code:`1` and :code:`2`.</span>
+<span class="sd">            </span>
+<span class="sd">            **Default**: :code:`2`.</span>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(amg_artist_id=[468749, 5723], entity=&quot;song&quot;,</span>
-<span class="sd">    ...               limit=5, sort=&quot;recent&quot;)</span>
+<span class="sd">        explicit : `bool` or `str`, keyword-only, optional</span>
+<span class="sd">            A flag indicating whether or not you want to include </span>
+<span class="sd">            explicit content in your search results.</span>
+<span class="sd">            </span>
+<span class="sd">            **Default**: :code:`&quot;Yes&quot;`.</span>
 
-<span class="sd">    Look up an album or video by its UPC:</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        results : `dict`</span>
+<span class="sd">            The search results in JSON format.</span>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(upc=720642462928)</span>
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        To search for all Jack Johnson audio and video content (movies,</span>
+<span class="sd">        podcasts, music, music videos, audiobooks, short films, and TV</span>
+<span class="sd">        shows),</span>
 
-<span class="sd">    Look up an album by its UPC, including the tracks on that album:</span>
+<span class="sd">        &gt;&gt;&gt; itunes.search(&quot;jack johnson&quot;)</span>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(upc=720642462928, entity=&quot;song&quot;)</span>
+<span class="sd">        To search for all Jack Johnson audio and video content and </span>
+<span class="sd">        return only the first 25 items,</span>
 
-<span class="sd">    Look up an album by its AMG Album ID:</span>
+<span class="sd">        &gt;&gt;&gt; itunes.search(&quot;jack johnson&quot;, limit=25)</span>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(amg_album_id=[15175, 15176, 15177, 15178, 15183,</span>
-<span class="sd">    ...                             15184, 15187, 15190, 15191, 15195,</span>
-<span class="sd">    ...                             15197, 15198])</span>
+<span class="sd">        To search for only Jack Johnson music videos,</span>
 
-<span class="sd">    Look up a Movie by AMG Video ID:</span>
+<span class="sd">        &gt;&gt;&gt; itunes.search(&quot;jack johnson&quot;, entity=&quot;musicVideo&quot;)</span>
+<span class="sd">        </span>
+<span class="sd">        To search for all Jim Jones audio and video content and return </span>
+<span class="sd">        only the results from the Canada iTunes Store,</span>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(amg_video_id=17120)</span>
+<span class="sd">        &gt;&gt;&gt; itunes.search(&quot;jack johnson&quot;, country=&quot;ca&quot;)</span>
 
-<span class="sd">    Look up a book by its 13-digit ISBN:</span>
+<span class="sd">        To search for applications titled “Yelp” and return only the </span>
+<span class="sd">        results from the United States iTunes Store,</span>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(isbn=9780316069359)</span>
+<span class="sd">        &gt;&gt;&gt; itunes.search(&quot;yelp&quot;, country=&quot;us&quot;, entity=&quot;software&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-<span class="sd">    Look up the Yelp application by iTunes bundle ID:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/search&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;term&quot;</span><span class="p">:</span> <span class="n">term</span><span class="p">,</span>
+                <span class="s2">&quot;country&quot;</span><span class="p">:</span> <span class="n">country</span><span class="p">,</span>
+                <span class="s2">&quot;media&quot;</span><span class="p">:</span> <span class="n">media</span><span class="p">,</span>
+                <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="n">entity</span> <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                          <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">entity</span><span class="p">),</span>
+                <span class="s2">&quot;attribute&quot;</span><span class="p">:</span> <span class="n">attribute</span><span class="p">,</span>
+                <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span>
+                <span class="s2">&quot;lang&quot;</span><span class="p">:</span> <span class="n">lang</span><span class="p">,</span>
+                <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">version</span><span class="p">,</span>
+                <span class="s2">&quot;explicit&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;No&quot;</span><span class="p">,</span> <span class="s2">&quot;Yes&quot;</span><span class="p">)[</span><span class="n">explicit</span><span class="p">]</span> 
+                            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">explicit</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="n">explicit</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
 
-<span class="sd">    &gt;&gt;&gt; itunes.lookup(bundle_id=&quot;com.yelp.yelpiphone&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SearchAPI.lookup"><a class="viewcode-back" href="../../api/minim.itunes.SearchAPI.html#minim.itunes.SearchAPI.lookup">[docs]</a>    <span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+            <span class="n">amg_artist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">amg_album_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">amg_video_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">bundle_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">upc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">isbn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">entity</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">limit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
-    <span class="k">return</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/lookup&quot;</span><span class="p">,</span>
-        <span class="n">params</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">id</span> <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
-                  <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">id</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
-                                <span class="k">else</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">id</span><span class="p">)),</span>
-            <span class="s2">&quot;amgArtistId&quot;</span><span class="p">:</span> <span class="n">amg_artist_id</span> <span class="k">if</span> <span class="n">amg_artist_id</span> <span class="ow">is</span> <span class="kc">None</span>
-                           <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amg_artist_id</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
-                           <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">amg_artist_id</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amg_artist_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
-                                         <span class="k">else</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">amg_artist_id</span><span class="p">)),</span>
-            <span class="s2">&quot;amgAlbumId&quot;</span><span class="p">:</span> <span class="n">amg_album_id</span> <span class="k">if</span> <span class="n">amg_album_id</span> <span class="ow">is</span> <span class="kc">None</span>
-                          <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amg_album_id</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
-                          <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">amg_album_id</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amg_album_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
-                                        <span class="k">else</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">amg_album_id</span><span class="p">)),</span>
-            <span class="s2">&quot;amgVideoId&quot;</span><span class="p">:</span> <span class="n">amg_video_id</span> <span class="k">if</span> <span class="n">amg_video_id</span> <span class="ow">is</span> <span class="kc">None</span>
-                          <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amg_video_id</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
-                          <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">amg_video_id</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amg_video_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
-                                        <span class="k">else</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">amg_video_id</span><span class="p">)),</span>
-            <span class="s2">&quot;bundleId&quot;</span><span class="p">:</span> <span class="n">bundle_id</span> <span class="k">if</span> <span class="n">bundle_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bundle_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
-                        <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bundle_id</span><span class="p">),</span>
-            <span class="s2">&quot;upc&quot;</span><span class="p">:</span> <span class="n">upc</span> <span class="k">if</span> <span class="n">upc</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">upc</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
-                   <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">upc</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">upc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
-                                 <span class="k">else</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">upc</span><span class="p">)),</span>
-            <span class="s2">&quot;isbn&quot;</span><span class="p">:</span> <span class="n">isbn</span> <span class="k">if</span> <span class="n">isbn</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">isbn</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
-                    <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">isbn</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">isbn</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
-                                  <span class="k">else</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">isbn</span><span class="p">)),</span>
-            <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="n">entity</span> <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
-                      <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">entity</span><span class="p">),</span>
-            <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span>
-            <span class="s2">&quot;sort&quot;</span><span class="p">:</span> <span class="n">sort</span>
-        <span class="p">}</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search for content based on iTunes IDs, AMG IDs, UPCs/EANs, or</span>
+<span class="sd">        ISBNs. ID-based lookups are faster and contain fewer </span>
+<span class="sd">        false-positive results.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        id : `int`, `str`, or `list`, optional</span>
+<span class="sd">            The iTunes ID(s) to lookup.</span>
+
+<span class="sd">        amg_artist_id : `int`, `str`, or `list`, keyword-only, optional</span>
+<span class="sd">            The AMG artist ID(s) to lookup.</span>
+
+<span class="sd">        amg_album_id : `int`, `str`, or `list`, keyword-only, optional</span>
+<span class="sd">            The AMG album ID(s) to lookup.</span>
+
+<span class="sd">        amg_video_id : `int`, `str`, or `list`, keyword-only, optional</span>
+<span class="sd">            The AMG video ID(s) to lookup.</span>
+
+<span class="sd">        bundle_id : `str` or `list`, keyword-only, optional</span>
+<span class="sd">            The Apple bundle ID(s) to lookup.</span>
+
+<span class="sd">        upc : `int`, `str`, or `list`, keyword-only, optional</span>
+<span class="sd">            The UPC(s) to lookup.</span>
+
+<span class="sd">        isbn : `int`, `str`, or `list`, keyword-only, optional</span>
+<span class="sd">            The 13-digit ISBN(s) to lookup.</span>
+
+<span class="sd">        entity : `str` or `list`, keyword-only, optional</span>
+<span class="sd">            The type(s) of results you want returned. </span>
+<span class="sd">            </span>
+<span class="sd">            .. seealso::</span>
+
+<span class="sd">               For a list of available entities, see the `iTunes Store</span>
+<span class="sd">               API Table 2-1 &lt;https://developer.apple.com/library</span>
+<span class="sd">               /archive/documentation/AudioVideo/Conceptual</span>
+<span class="sd">               /iTuneSearchAPI/Searching.html#//apple_ref/doc/uid</span>
+<span class="sd">               /TP40017632-CH5-SW2&gt;`_.</span>
+
+<span class="sd">            **Default**: The track entity associated with the specified</span>
+<span class="sd">            media type.</span>
+
+<span class="sd">        limit : `int` or `str`, keyword-only, optional</span>
+<span class="sd">            The number of search results you want the iTunes Store to</span>
+<span class="sd">            return. </span>
+<span class="sd">            </span>
+<span class="sd">            **Valid values**: `limit` must be between 1 and 200.</span>
+
+<span class="sd">            **Default**: :code:`50`.</span>
+
+<span class="sd">        sort : `str`, keyword-only, optional</span>
+<span class="sd">            The sort applied to the search results.</span>
+
+<span class="sd">            **Allowed value**: :code:`&quot;recent&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        results : `dict`</span>
+<span class="sd">            The lookup results in JSON format.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Look up Jack Johnson by iTunes artist ID:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(909253)</span>
+
+<span class="sd">        Look up the Yelp application by iTunes ID:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(284910350)</span>
+
+<span class="sd">        Look up Jack Johnson by AMG artist ID:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(amg_artist_id=468749)</span>
+
+<span class="sd">        Look up multiple artists by their AMG artist IDs:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(amg_artist_id=[468749, 5723])</span>
+
+<span class="sd">        Look up all albums for Jack Johnson:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(909253, entity=&quot;album&quot;)</span>
+
+<span class="sd">        Look up multiple artists by their AMG artist IDs and get each</span>
+<span class="sd">        artist&#39;s top 5 albums:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(amg_artist_id=[468749, 5723], entity=&quot;album&quot;,</span>
+<span class="sd">        ...               limit=5)</span>
+
+<span class="sd">        Look up multiple artists by their AMG artist IDs and get each</span>
+<span class="sd">        artist&#39;s 5 most recent songs:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(amg_artist_id=[468749, 5723], entity=&quot;song&quot;,</span>
+<span class="sd">        ...               limit=5, sort=&quot;recent&quot;)</span>
+
+<span class="sd">        Look up an album or video by its UPC:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(upc=720642462928)</span>
+
+<span class="sd">        Look up an album by its UPC, including the tracks on that album:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(upc=720642462928, entity=&quot;song&quot;)</span>
+
+<span class="sd">        Look up an album by its AMG Album ID:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(amg_album_id=[15175, 15176, 15177, 15178, </span>
+<span class="sd">        ...                             15183, 15184, 15187, 15190, </span>
+<span class="sd">        ...                             15191, 15195, 15197, 15198])</span>
+
+<span class="sd">        Look up a Movie by AMG Video ID:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(amg_video_id=17120)</span>
+
+<span class="sd">        Look up a book by its 13-digit ISBN:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(isbn=9780316069359)</span>
+
+<span class="sd">        Look up the Yelp application by iTunes bundle ID:</span>
+
+<span class="sd">        &gt;&gt;&gt; itunes.lookup(bundle_id=&quot;com.yelp.yelpiphone&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/lookup&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">id</span> <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+                      <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">id</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+                                    <span class="k">else</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">id</span><span class="p">)),</span>
+                <span class="s2">&quot;amgArtistId&quot;</span><span class="p">:</span> 
+                    <span class="n">amg_artist_id</span> <span class="k">if</span> <span class="n">amg_artist_id</span> <span class="ow">is</span> <span class="kc">None</span>
+                                     <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amg_artist_id</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+                    <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="n">amg_artist_id</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amg_artist_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">amg_artist_id</span><span class="p">)</span>
+                    <span class="p">),</span>
+                <span class="s2">&quot;amgAlbumId&quot;</span><span class="p">:</span> 
+                    <span class="n">amg_album_id</span> <span class="k">if</span> <span class="n">amg_album_id</span> <span class="ow">is</span> <span class="kc">None</span>
+                                    <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amg_album_id</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+                    <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="n">amg_album_id</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amg_album_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">amg_album_id</span><span class="p">)</span>
+                    <span class="p">),</span>
+                <span class="s2">&quot;amgVideoId&quot;</span><span class="p">:</span> 
+                    <span class="n">amg_video_id</span> <span class="k">if</span> <span class="n">amg_video_id</span> <span class="ow">is</span> <span class="kc">None</span>
+                                    <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amg_video_id</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+                    <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="n">amg_video_id</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amg_video_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">amg_video_id</span><span class="p">)</span>
+                    <span class="p">),</span>
+                <span class="s2">&quot;bundleId&quot;</span><span class="p">:</span> <span class="n">bundle_id</span> 
+                            <span class="k">if</span> <span class="n">bundle_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bundle_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                            <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bundle_id</span><span class="p">),</span>
+                <span class="s2">&quot;upc&quot;</span><span class="p">:</span> <span class="n">upc</span> <span class="k">if</span> <span class="n">upc</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">upc</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+                       <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">upc</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">upc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+                                     <span class="k">else</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">upc</span><span class="p">)),</span>
+                <span class="s2">&quot;isbn&quot;</span><span class="p">:</span> <span class="n">isbn</span> <span class="k">if</span> <span class="n">isbn</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">isbn</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+                        <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">isbn</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">isbn</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+                                      <span class="k">else</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">isbn</span><span class="p">)),</span>
+                <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="n">entity</span> <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                          <span class="k">else</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">entity</span><span class="p">),</span>
+                <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span>
+                <span class="s2">&quot;sort&quot;</span><span class="p">:</span> <span class="n">sort</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div></div>
 </pre></div>
         </article>
       </div>

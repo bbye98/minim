@@ -1,4 +1,4 @@
-﻿PrivateAPI
+PrivateAPI
 ==========
 
 .. currentmodule:: minim.tidal
@@ -87,7 +87,7 @@
       ~PrivateAPI.move_playlist_item
       ~PrivateAPI.search
       ~PrivateAPI.set_access_token
-      ~PrivateAPI.set_authorization_flow
+      ~PrivateAPI.set_flow
       ~PrivateAPI.set_playlist_privacy
       ~PrivateAPI.unblock_artist
       ~PrivateAPI.unblock_user

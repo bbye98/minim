@@ -1,4 +1,4 @@
-﻿MP3Audio
+MP3Audio
 ========
 
 .. currentmodule:: minim.audio
@@ -20,7 +20,7 @@
       ~MP3Audio.set_metadata_using_itunes
       ~MP3Audio.set_metadata_using_qobuz
       ~MP3Audio.set_metadata_using_spotify
-      ~MP3Audio.set_metadata_using_tidal_private
+      ~MP3Audio.set_metadata_using_tidal
       ~MP3Audio.write_metadata
    
    

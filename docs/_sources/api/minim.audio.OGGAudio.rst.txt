@@ -1,4 +1,4 @@
-﻿OGGAudio
+OGGAudio
 ========
 
 .. currentmodule:: minim.audio
@@ -20,7 +20,7 @@
       ~OGGAudio.set_metadata_using_itunes
       ~OGGAudio.set_metadata_using_qobuz
       ~OGGAudio.set_metadata_using_spotify
-      ~OGGAudio.set_metadata_using_tidal_private
+      ~OGGAudio.set_metadata_using_tidal
       ~OGGAudio.write_metadata
    
    

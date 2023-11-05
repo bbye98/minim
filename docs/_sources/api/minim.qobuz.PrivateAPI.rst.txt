@@ -26,21 +26,22 @@ PrivateAPI
       ~PrivateAPI.get_artist
       ~PrivateAPI.get_collection_streams
       ~PrivateAPI.get_curated_tracks
+      ~PrivateAPI.get_favorites
       ~PrivateAPI.get_featured_albums
       ~PrivateAPI.get_featured_playlists
       ~PrivateAPI.get_label
-      ~PrivateAPI.get_me
       ~PrivateAPI.get_playlist
+      ~PrivateAPI.get_profile
+      ~PrivateAPI.get_purchases
       ~PrivateAPI.get_track
       ~PrivateAPI.get_track_credits
       ~PrivateAPI.get_track_file_url
       ~PrivateAPI.get_track_stream
-      ~PrivateAPI.get_user_favorites
       ~PrivateAPI.get_user_playlists
-      ~PrivateAPI.get_user_purchases
-      ~PrivateAPI.login
       ~PrivateAPI.move_playlist_tracks
       ~PrivateAPI.search
+      ~PrivateAPI.set_auth_token
+      ~PrivateAPI.set_flow
       ~PrivateAPI.unfavorite_items
       ~PrivateAPI.unfavorite_playlist
       ~PrivateAPI.update_playlist

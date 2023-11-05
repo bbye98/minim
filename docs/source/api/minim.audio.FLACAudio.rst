@@ -1,4 +1,4 @@
-﻿FLACAudio
+FLACAudio
 =========
 
 .. currentmodule:: minim.audio
@@ -20,7 +20,7 @@
       ~FLACAudio.set_metadata_using_itunes
       ~FLACAudio.set_metadata_using_qobuz
       ~FLACAudio.set_metadata_using_spotify
-      ~FLACAudio.set_metadata_using_tidal_private
+      ~FLACAudio.set_metadata_using_tidal
       ~FLACAudio.write_metadata
    
    

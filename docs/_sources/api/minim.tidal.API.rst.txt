@@ -29,6 +29,6 @@ API
       ~API.get_videos
       ~API.search
       ~API.set_access_token
-      ~API.set_authorization_flow
+      ~API.set_flow
    
    

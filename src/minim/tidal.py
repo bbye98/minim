@@ -14,6 +14,7 @@ import hashlib
 import json
 import logging
 import os
+import pathlib
 import re
 import secrets
 import subprocess
@@ -73,8 +74,8 @@ class API:
     .. tip::
 
        The authorization flow and access token can be changed or updated
-       at any time using :meth:`set_authorization_flow` and 
-       :meth:`set_access_token`, respectively.
+       at any time using :meth:`set_auflow` and :meth:`set_access_token`, 
+       respectively.
 
     Minim also stores and manages access tokens and their properties. 
     When an access token is acquired, it is automatically saved to the 
@@ -140,7 +141,7 @@ class API:
         URL for the TIDAL API token endpoint.
     """
 
-    _FLOWS = ["client_credentials"]
+    _FLOWS = {"client_credentials"}
     _NAME = f"{__module__}.{__qualname__}"
     API_URL = "https://openapi.tidal.com"
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
@@ -166,8 +167,8 @@ class API:
             client_id = config.get(self._NAME, "client_id")
             client_secret = config.get(self._NAME, "client_secret")
 
-        self.set_authorization_flow(flow, client_id=client_id, 
-                                    client_secret=client_secret, save=save)
+        self.set_flow(flow, client_id=client_id, client_secret=client_secret,
+                      save=save)
         self.set_access_token(access_token, expiry=expiry)
 
     def _get_json(self, url: str, **kwargs) -> dict:
@@ -278,7 +279,7 @@ class API:
             if isinstance(expiry, str) else expiry
         )
 
-    def set_authorization_flow(
+    def set_flow(
             self, flow: str, *, client_id: str = None, 
             client_secret: str = None, save: bool = True) -> None:
         
@@ -316,6 +317,7 @@ class API:
         
         self._flow = flow
         self._save = save
+        
         if flow == "client_credentials":
             self._client_id = client_id or os.environ.get("TIDAL_CLIENT_ID")
             self._client_secret = (client_secret
@@ -1535,7 +1537,7 @@ class PrivateAPI:
     documentation for the private TIDAL API, its endpoints have been 
     determined by watching HTTP network traffic.
 
-    .. warning::
+    .. attention::
 
        As the private TIDAL API is not designed to be publicly 
        accessible, this class can be disabled or removed at any time to
@@ -1545,9 +1547,9 @@ class PrivateAPI:
 
     While authentication is not necessary to search for and retrieve
     data from public content, it is required to access personal content
-    and control playback. In the latter case, requests to the private
-    TIDAL API endpoints must be accompanied by a valid user access token 
-    in the header.
+    and stream media (with an active TIDAL subscription). In the latter
+    case, requests to the private TIDAL API endpoints must be 
+    accompanied by a valid user access token in the header.
 
     Minim can obtain user access tokens via the authorization code with
     proof key for code exchange (PKCE) and device code flows. These 
@@ -1576,8 +1578,8 @@ class PrivateAPI:
     .. tip::
 
        The authorization flow and access token can be changed or updated
-       at any time using :meth:`set_authorization_flow` and 
-       :meth:`set_access_token`, respectively.
+       at any time using :meth:`set_flow` and :meth:`set_access_token`,
+       respectively.
     
     Minim also stores and manages access tokens and their properties. 
     When an access token is acquired, it is automatically saved to the 
@@ -1608,8 +1610,8 @@ class PrivateAPI:
 
            **Valid values**:
            
-           * :code:`"authorization_code_pkce"` for the authorization 
-             code with proof key for code exchange (PKCE) flow.
+           * :code:`"pkce"` for the authorization code with proof key
+             for code exchange (PKCE) flow.
            * :code:`"device_code"` for the device code flow.
     
     browser : `bool`, keyword-only, default: :code:`False`
@@ -1691,7 +1693,7 @@ class PrivateAPI:
         Session used to send requests to the private TIDAL API.
     """
 
-    _FLOWS = {"authorization_code_pkce", "device_code"}
+    _FLOWS = {"pkce", "device_code"}
     _MASTER_KEY = (b"P\x89SLC&\x98\xb7\xc6\xa3\n?P.\xb4\xc7a\xf8\xe5n"
                    b"\x8cth\x13E\xfa?\xbah8\xef\x9e")
     _NAME = f"{__module__}.{__qualname__}"
@@ -1729,10 +1731,8 @@ class PrivateAPI:
             client_secret = config.get(self._NAME, "client_secret")
             scopes = config.get(self._NAME, "scopes")
 
-        self.set_authorization_flow(
-            flow, client_id=client_id, client_secret=client_secret,
-            browser=browser, scopes=scopes, save=save
-        )
+        self.set_flow(flow, client_id=client_id, client_secret=client_secret,
+                      browser=browser, scopes=scopes, save=save)
         self.set_access_token(access_token, refresh_token=refresh_token,
                               expiry=expiry)
         
@@ -1833,7 +1833,7 @@ class PrivateAPI:
                 page = context.new_page()
                 page.goto(auth_url, timeout=0)
                 page.wait_for_url(f"{self.REDIRECT_URI}*", 
-                                  wait_until="networkidle")
+                                  wait_until="commit")
                 context.close()
                 browser.close()
 
@@ -2033,7 +2033,7 @@ class PrivateAPI:
                     emsg = "Private TIDAL API client ID not provided."
                     raise ValueError(emsg)
 
-                if self._flow == "authorization_code_pkce":
+                if self._flow == "pkce":
                     data = {
                         "client_id": self._client_id,
                         "code_verifier": secrets.token_urlsafe(32),
@@ -2113,7 +2113,7 @@ class PrivateAPI:
             if isinstance(expiry, str) else expiry
         )
 
-    def set_authorization_flow(
+    def set_flow(
             self, flow: str, client_id: str, *, client_secret: str = None,
             browser: bool = False, scopes: Union[str, list[str]] = "", 
             save: bool = True) -> None:
@@ -2131,8 +2131,8 @@ class PrivateAPI:
 
                **Valid values**:
            
-               * :code:`"authorization_code_pkce"` for the authorization
-                 code with proof key for code exchange (PKCE) flow.
+               * :code:`"pkce"` for the authorization code with proof 
+                 key for code exchange (PKCE) flow.
                * :code:`"client_credentials"` for the client credentials 
                  flow.
             
@@ -2173,13 +2173,13 @@ class PrivateAPI:
         self._flow = flow
         self._save = save
         self._client_id = client_id or os.environ.get("TIDAL_PRIVATE_CLIENT_ID")
+
         if flow:
             if "x-tidal-token" in self.session.headers:
                 del self.session.headers["x-tidal-token"]
 
             self._browser = browser
-            if flow == "authorization_code_pkce" and browser \
-                    and not FOUND_PLAYWRIGHT:
+            if flow == "pkce" and browser and not FOUND_PLAYWRIGHT:
                 self._browser = False
                 logging.warning(
                     "The Playwright web framework was not found, so "
@@ -2194,7 +2194,7 @@ class PrivateAPI:
         else:
             self.session.headers["x-tidal-token"] = self._client_id
             self._scopes = ""
-    
+
     ### ALBUMS ################################################################
 
     def get_album(
@@ -2202,10 +2202,10 @@ class PrivateAPI:
         ) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for a single album.
+        Get TIDAL catalog information for an album.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -2227,7 +2227,7 @@ class PrivateAPI:
         Returns
         -------
         album : `dict`
-            TIDAL catalog information for a single album.
+            TIDAL catalog information for an album.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -2299,7 +2299,7 @@ class PrivateAPI:
         an album.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -2427,10 +2427,10 @@ class PrivateAPI:
         ) -> dict[str, Any]:
 
         """
-        Get credits for a single album.
+        Get credits for an album.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -2485,10 +2485,10 @@ class PrivateAPI:
         ) -> dict[str, str]:
 
         """
-        Get a review of or a synopsis for a single album.
+        Get a review of or a synopsis for an album.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -2544,7 +2544,7 @@ class PrivateAPI:
         collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -2670,7 +2670,7 @@ class PrivateAPI:
         Add albums to the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -2716,7 +2716,7 @@ class PrivateAPI:
         Remove albums from the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -2745,10 +2745,10 @@ class PrivateAPI:
         ) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for a single artist.
+        Get TIDAL catalog information for an artist.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -2770,7 +2770,7 @@ class PrivateAPI:
         Returns
         -------
         artist : `dict`
-            TIDAL catalog information for a single artist.
+            TIDAL catalog information for an artist.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -2812,7 +2812,7 @@ class PrivateAPI:
         Get TIDAL catalog information for albums by an artist.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -2927,7 +2927,7 @@ class PrivateAPI:
         Get TIDAL catalog information for an artist's top tracks.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -3048,7 +3048,7 @@ class PrivateAPI:
         Get TIDAL catalog information for an artist's videos.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -3154,7 +3154,7 @@ class PrivateAPI:
         Get a curated mix of tracks based on an artist's works.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -3197,7 +3197,7 @@ class PrivateAPI:
         Get an artist's biographical information.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -3251,7 +3251,7 @@ class PrivateAPI:
         Get links to websites associated with an artist.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -3327,7 +3327,7 @@ class PrivateAPI:
         collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -3425,7 +3425,7 @@ class PrivateAPI:
         Add artists to the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -3470,7 +3470,7 @@ class PrivateAPI:
         Remove artists from the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -3499,7 +3499,7 @@ class PrivateAPI:
         artists.
         
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -3571,10 +3571,10 @@ class PrivateAPI:
     def block_artist(self, artist_id: Union[int, str]) -> None:
 
         """
-        Block a single artist from appearing in mixes and the radio.
+        Block an artist from appearing in mixes and the radio.
         
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -3598,10 +3598,10 @@ class PrivateAPI:
     def unblock_artist(self, artist_id: Union[int, str]) -> None:
 
         """
-        Unblock a single artist from appearing in mixes and the radio.
+        Unblock an artist from appearing in mixes and the radio.
         
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -3637,6 +3637,78 @@ class PrivateAPI:
 
         return self._get_json(f"{self.API_URL}/v1/country")["countryCode"]
 
+    ### IMAGES ################################################################
+
+    def get_image(
+            self, uuid: str, type: str = None, *, width: int = None, 
+            height: int = None, filename: str = None) -> bytes:
+
+        """
+        Get cover art or image for a TIDAL item.
+
+        .. note::
+        
+           This method is provided for convenience and is not a private
+           TIDAL API endpoint.
+
+        Parameters
+        ----------
+        uuid : `str`
+            Image UUID.
+
+            **Example**: :code:`"d3c4372b-a652-40e0-bdb1-fc8d032708f6"`.
+
+        type : `str`
+            TIDAL item type.
+
+            **Valid values**: :code:`"artist"`, :code:`"album"`,
+            :code:`"playlist"`, :code:`"track"`, and :code:`"video"`.
+
+        width : `int`, keyword-only, optional
+            Image width.
+
+        height : `int`, keyword-only, optional
+            Image height.
+
+        filename : `str`, keyword-only, optional
+            Filename. If specified, the image is saved to a file with the
+            specified name instead of being returned.
+
+        Returns
+        -------
+        image : `bytes`
+            Image data. If :code:`filename` is specified, :code:`None` is
+            returned and the image is saved to a file instead.
+        """
+       
+        IMAGE_SIZES = {
+            "artist": (750, 750),
+            "album": (1280, 1280),
+            "playlist": (1080, 1080),
+            "track": (1280, 1280),
+            "userProfile": (1080, 1080),
+            "video": (640, 360)
+        }
+
+        if width is None or height is None:
+            if type and type in IMAGE_SIZES.keys():
+                width, height = IMAGE_SIZES[type.lower()]
+            else:
+                emsg = ("Either the image dimensions or a valid item "
+                        "type must be specified.")
+                raise ValueError(emsg)
+
+        with self.session.get(f"{self.RESOURCES_URL}/images"
+                              f"/{uuid.replace('-', '/')}"
+                              f"/{width}x{height}.jpg") as r:
+            image = r.content
+            
+        if filename:
+            with open(filename, "wb") as f:
+                f.write(image)
+        else:
+            return image
+
     ### MIXES #################################################################
 
     def get_mix_items(
@@ -3647,7 +3719,7 @@ class PrivateAPI:
         a mix.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -3758,7 +3830,7 @@ class PrivateAPI:
         current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -3865,7 +3937,7 @@ class PrivateAPI:
         Add mixes to the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -3903,7 +3975,7 @@ class PrivateAPI:
         Remove mixes from the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -3931,10 +4003,10 @@ class PrivateAPI:
             *, device_type: str = "BROWSER") -> dict[str, Any]:
     
         """
-        Get the TIDAL page for a single album.
+        Get the TIDAL page for an album.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -3994,10 +4066,10 @@ class PrivateAPI:
             *, device_type: str = "BROWSER") -> dict[str, Any]:
     
         """
-        Get the TIDAL page for a single artist.
+        Get the TIDAL page for an artist.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -4057,10 +4129,10 @@ class PrivateAPI:
             *, device_type: str = "BROWSER") -> dict[str, Any]:
     
         """
-        Get the TIDAL page for a single mix.
+        Get the TIDAL page for a mix.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -4120,10 +4192,10 @@ class PrivateAPI:
             *, device_type: str = "BROWSER") -> dict[str, Any]:
     
         """
-        Get the TIDAL page for a single video.
+        Get the TIDAL page for a video.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -4185,10 +4257,10 @@ class PrivateAPI:
         ) -> dict[str, Any]:
         
         """
-        Get TIDAL catalog information for a single playlist.
+        Get TIDAL catalog information for a playlist.
         
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -4210,7 +4282,7 @@ class PrivateAPI:
         Returns
         -------
         playlist : `dict`
-            TIDAL catalog information for a single playlist.
+            TIDAL catalog information for a playlist.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -4259,10 +4331,10 @@ class PrivateAPI:
             self, playlist_uuid: str, country_code: str = None) -> str:
 
         """
-        Get the entity tag (ETag) for a single playlist.
+        Get the entity tag (ETag) for a playlist.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -4289,7 +4361,7 @@ class PrivateAPI:
         Returns
         -------
         etag : `str`
-            ETag for a single playlist.
+            ETag for a playlist.
 
             **Example**: :code:`"1698984074453"`.
         """
@@ -4313,7 +4385,7 @@ class PrivateAPI:
         a playlist.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -4439,7 +4511,7 @@ class PrivateAPI:
         playlist's items.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -4565,7 +4637,7 @@ class PrivateAPI:
         Add playlists to the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -4598,7 +4670,7 @@ class PrivateAPI:
         Move a playlist in the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -4633,7 +4705,7 @@ class PrivateAPI:
         Remove a playlist from the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -4658,10 +4730,10 @@ class PrivateAPI:
     def get_user_playlist(self, playlist_uuid: str) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for a single user playlist.
+        Get TIDAL catalog information for a user playlist.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -4676,7 +4748,7 @@ class PrivateAPI:
         Returns
         -------
         playlist : `dict`
-            TIDAL catalog information for a single user playlist.
+            TIDAL catalog information for a user playlist.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -4740,7 +4812,7 @@ class PrivateAPI:
         user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -4836,7 +4908,7 @@ class PrivateAPI:
         current user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -4921,7 +4993,7 @@ class PrivateAPI:
         Create a user playlist.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -4966,7 +5038,7 @@ class PrivateAPI:
         current user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -5006,7 +5078,7 @@ class PrivateAPI:
         Set the privacy of a playlist owned by the current user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -5042,7 +5114,7 @@ class PrivateAPI:
         Add items to a playlist owned by the current user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -5108,7 +5180,7 @@ class PrivateAPI:
         Move an item in a playlist owned by the current user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -5142,7 +5214,7 @@ class PrivateAPI:
         Delete an item from a playlist owned by the current user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -5173,7 +5245,7 @@ class PrivateAPI:
         Delete a playlist owned by the current user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -5205,7 +5277,7 @@ class PrivateAPI:
         by the current user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -5310,7 +5382,7 @@ class PrivateAPI:
         Create a user playlist folder.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -5341,7 +5413,7 @@ class PrivateAPI:
         Delete a playlist folder owned by the current user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -5373,7 +5445,7 @@ class PrivateAPI:
         Search for albums, artists, tracks, and videos.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -5667,6 +5739,542 @@ class PrivateAPI:
             }
         )
 
+    ### STREAMS ###############################################################
+
+    def get_collection_streams(
+            self, collection_id: Union[int, str], type: str, *, 
+            device: str = "BROWSER", audio_quality: str = "HI_RES", 
+            video_quality: str = "HIGH", max_resolution: int = 2160,
+            playback_mode: str = "STREAM", asset_presentation: str = "FULL",
+            streaming_session_id: str = None, save: bool = False, 
+            path: Union[str, pathlib.Path] = None, folder: bool = False, 
+            metadata: bool = True) -> list[Union[bytes, pathlib.Path]]:
+
+        """
+        Get audio and video stream data for items (tracks and videos) in
+        an album, mix, or playlist.
+
+        .. admonition:: User authentication, authorization scope, and 
+                        subscription
+           :class: dropdown warning
+        
+           Requires the :code:`r_usr` authorization scope if the device
+           code flow was used.
+
+           Full track and video playback information and lossless audio
+           is only available with user authentication and an active 
+           TIDAL subscription.
+
+           High-resolution and immersive audio is only available with 
+           the HiFi Plus plan and when the current client credentials
+           are from a supported device.
+
+           .. seealso::
+
+              For more information on audio quality availability, see 
+              the `Download TIDAL <https://offer.tidal.com/download>`_,
+              `TIDAL Pricing <https://tidal.com/pricing>`_, and
+              `Dolby Atmos <https://support.tidal.com/hc/en-us/articles
+              /360004255778-Dolby-Atmos>`_ web pages.
+
+        .. note::
+
+           This method is provided for convenience and is not a private
+           TIDAL API endpoint.
+
+        Parameters
+        ----------
+        collection_id : `int` or `str`
+            TIDAL collection ID or UUID.
+
+        type : `str`
+            Collection type.
+
+            **Valid values**: :code:`"album"`, :code:`"mix"`, and 
+            :code:`"playlist"`.
+
+        device : `str`, keyword-only, default: :code:`"BROWSER"`
+            Device type.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`"BROWSER"` for a web browser.
+               * :code:`"DESKTOP"` for the desktop TIDAL application.
+               * :code:`"PHONE"` for the mobile TIDAL application.
+               * :code:`"TV"` for the smart TV TIDAL application.
+
+        audio_quality : `str`, keyword-only, default: :code:`"HI-RES"`
+            Audio quality.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user 
+                 authentication or 96 kbps AAC with user authentication.
+               * :code:`"HIGH"` for 320 kbps AAC.
+               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
+                 or FLAC.
+               * :code:`"HI_RES"` for Up to 9216 kbps (24-bit, 96 kHz) 
+                 MQA-encoded FLAC.
+
+        video_quality : `str`, keyword-only, default: :code:`"HIGH"`
+            Video quality.
+
+            **Valid values**: :code:`"AUDIO_ONLY"`, :code:`"LOW"`,
+            :code:`"MEDIUM"`, and :code:`"HIGH"`.
+
+        max_resolution : `int`, keyword-only, default: :code:`2160`
+            Maximum video resolution (number of vertical pixels).
+
+        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
+            Playback mode.
+
+            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
+
+        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
+            Asset presentation.
+
+            .. container::
+
+               **Valid values**:
+            
+               * :code:`"FULL"`: Full track or video.
+               * :code:`"PREVIEW"`: 30-second preview of the track or 
+                 video.
+
+        streaming_session_id : `str`, keyword-only, optional
+            Streaming session ID.
+
+        save : `bool`, keyword-only, default: :code:`False`
+            Determines whether the streams are saved to audio and video
+            files.
+
+        path : `str`, keyword-only, optional
+            If :code:`save=True`, path in which the audio and video 
+            files are saved.
+
+        folder : `bool`, keyword-only, default: :code:`False`
+            Determines whether a folder in `path` (or in the current
+            directory if `path` is not specified) is created to hold the
+            audio and video files.
+
+        metadata : `bool`, keyword-only, default: :code:`True`
+            Determines whether the audio and video files' metadata is
+            populated.
+
+        Returns
+        -------
+        streams : `list`
+            Audio and video stream data. If :code:`save=True`, the 
+            stream data is saved to audio and video files and their
+            filenames are returned instead.
+        """
+
+        if type not in (COLLECTION_TYPES := {"album", "mix", "playlist"}):
+            emsg = ("Invalid collection type. Valid values: " 
+                    f"{', '.join(COLLECTION_TYPES)}.")
+            raise ValueError(emsg)
+
+        if type == "album":
+            data = self.get_album(collection_id)
+            artist = utility.multivalue_formatter(
+                [a["name"] for a in data["artists"] if a["type"] == "MAIN"], 
+                False
+            )
+            title = data["title"]
+            items = self.get_album_items(collection_id)["items"]
+        elif type == "mix":
+            data = self.get_mix_page(collection_id, device=device)
+            artist = data["rows"][0]["modules"][0]["mix"]["subTitle"]
+            title = data["rows"][0]["modules"][0]["mix"]["title"]
+            items = self.get_mix_items(collection_id)["items"]
+        elif type == "playlist":
+            data = self.get_playlist(collection_id)
+            artist = utility.multivalue_formatter(
+                [a["name"] for a in data["promotedArtists"] if a["type"] == "MAIN"], 
+                False
+            )
+            title = data["title"]
+            items = self.get_playlist_items(collection_id)["items"]
+
+        if save:
+            if not isinstance(path, pathlib.Path):
+                path = pathlib.Path(path)
+            if folder:
+                path /= f"{artist} - {title}"
+                path.mkdir(exist_ok=True, parents=True)
+
+        streams = []
+        for item in items:
+            if item["type"] == "track":
+                stream = self.get_track_stream(
+                    item["item"]["id"], 
+                    audio_quality=audio_quality, 
+                    playback_mode=playback_mode, 
+                    asset_presentation=asset_presentation,
+                    streaming_session_id=streaming_session_id,
+                    save=save, 
+                    path=path,
+                    metadata=metadata
+                )
+            elif item["type"] == "video":
+                stream = self.get_video_stream(
+                    item["item"]["id"], 
+                    video_quality=video_quality,
+                    max_resolution=max_resolution,
+                    playback_mode=playback_mode, 
+                    asset_presentation=asset_presentation,
+                    streaming_session_id=streaming_session_id,
+                    save=save, 
+                    path=path,
+                    metadata=metadata
+                )
+            streams.append(stream)
+        return streams
+
+    def get_track_stream(
+            self, track_id: Union[int, str], *, audio_quality: str = "HI_RES", 
+            playback_mode: str = "STREAM", asset_presentation: str = "FULL",
+            streaming_session_id: str = None, save: bool = False, 
+            path: Union[str, pathlib.Path] = None, folder: bool = False, 
+            metadata: bool = True) -> Union[bytes, pathlib.Path]:
+
+        """
+        Get the audio stream data for a track.
+
+        .. admonition:: User authentication, authorization scope, and 
+                        subscription
+           :class: dropdown warning
+        
+           Requires the :code:`r_usr` authorization scope if the device
+           code flow was used.
+
+           Full track playback information and lossless audio is only 
+           available with user authentication and an active TIDAL 
+           subscription.
+
+           High-resolution and immersive audio is only available with 
+           the HiFi Plus plan and when the current client credentials
+           are from a supported device.
+
+           .. seealso::
+
+              For more information on audio quality availability, see 
+              the `Download TIDAL <https://offer.tidal.com/download>`_,
+              `TIDAL Pricing <https://tidal.com/pricing>`_, and
+              `Dolby Atmos <https://support.tidal.com/hc/en-us/articles
+              /360004255778-Dolby-Atmos>`_ web pages.
+
+        .. note::
+
+           This method is provided for convenience and is not a private
+           TIDAL API endpoint.
+           
+        Parameters
+        ----------
+        track_id : `int` or `str`
+            TIDAL track ID.
+
+            **Example**: :code:`251380837`.
+
+        audio_quality : `str`, keyword-only, default: :code:`"HI-RES"`
+            Audio quality.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user 
+                 authentication or 96 kbps AAC with user authentication.
+               * :code:`"HIGH"` for 320 kbps AAC.
+               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
+                 or FLAC.
+               * :code:`"HI_RES"` for Up to 9216 kbps (24-bit, 96 kHz) 
+                 MQA-encoded FLAC.
+
+        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
+            Playback mode.
+
+            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
+
+        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
+            Asset presentation.
+
+            .. container::
+
+               **Valid values**:
+            
+               * :code:`"FULL"`: Full track.
+               * :code:`"PREVIEW"`: 30-second preview of the track.
+
+        streaming_session_id : `str`, keyword-only, optional
+            Streaming session ID.
+
+        save : `bool`, keyword-only, default: :code:`False`
+            Determines whether the stream is saved to an audio file.
+
+        path : `str` or `pathlib.Path`, keyword-only, optional
+            If :code:`save=True`, path in which the audio file is saved.
+
+        folder : `bool`, keyword-only, default: :code:`False`
+            Determines whether a folder in `path` (or in the current
+            directory if `path` is not specified) is created to hold the
+            audio file.
+
+        metadata : `bool`, keyword-only, default: :code:`True`
+            Determines whether the audio file's metadata is
+            populated.
+
+        Returns
+        -------
+        stream : `bytes`
+            Audio stream data. If :code:`save=True`, the stream data is 
+            saved to an audio file and its filename is returned instead.
+        """
+
+        AUDIO_FORMATS_EXTENSIONS = {
+            "alac": "m4a",
+            "flac": "flac",
+            "m4a": "m4a",
+            "mp3": "mp3",
+            "mpeg": "mp3",
+            "mp4a": "m4a",
+            "mqa": "flac"
+        }
+
+        manifest = base64.b64decode(
+            self.get_track_playback_info(
+                track_id, 
+                audio_quality=audio_quality, 
+                playback_mode=playback_mode, 
+                asset_presentation=asset_presentation,
+                streaming_session_id=streaming_session_id
+            )["manifest"]
+        )
+
+        if b"urn:mpeg:dash" in manifest:
+            manifest = minidom.parseString(manifest)
+            codec = (manifest.getElementsByTagName("Representation")[0]
+                     .getAttribute("codecs"))
+            if "." in codec:
+                codec = codec[:codec.index(".")]
+            format = AUDIO_FORMATS_EXTENSIONS[codec]
+            segment = manifest.getElementsByTagName("SegmentTemplate")[0]
+            stream = bytearray()
+            with self.session.get(
+                    segment.getAttribute("initialization")
+                ) as r:
+                stream.extend(r.content)
+            for i in range(1, sum(int(tl.getAttribute("r")) 
+                                  if tl.hasAttribute("r") else 1 
+                                  for tl in 
+                                  segment.getElementsByTagName("S")) + 1):
+                with self.session.get(
+                        segment.getAttribute("media").replace(
+                            "$Number$", str(i)
+                        )
+                    ) as r:
+                    stream.extend(r.content)
+        else:
+            manifest = json.loads(manifest)
+            codec = manifest["codecs"]
+            if "." in codec:
+                codec = codec[:codec.index(".")]
+            format = AUDIO_FORMATS_EXTENSIONS[codec]
+            with self.session.get(manifest["urls"][0]) as r:
+                stream = r.content
+            if manifest["encryptionType"] != "NONE":
+                d_key_id = base64.b64decode(manifest['keyId'])
+                d_id = AES.new(self._MASTER_KEY, AES.MODE_CBC,
+                               d_key_id[:16]).decrypt(d_key_id[16:])
+                d_key, d_nonce = d_id[:16], d_id[16:24]
+                stream = AES.new(
+                    d_key, AES.MODE_CTR,
+                    counter=Counter.new(64, prefix=d_nonce, 
+                                        initial_value=0)
+                ).decrypt(stream)
+
+        if save:
+            track_data = self.get_track(track_id)
+            album_data = self.get_album(track_data["album"]["id"])
+            artist = utility.multivalue_formatter(
+                [a["name"] for a in album_data["artists"] 
+                 if a["type"] == "MAIN"],
+                False
+            )
+            title = track_data["title"]
+
+            if not isinstance(path, pathlib.Path):
+                path = pathlib.Path(path)
+            if folder:
+                path /= f"{artist} - {title}"
+            path.mkdir(exist_ok=True, parents=True)
+
+            file = path / (
+                f"{track_data['trackNumber']:02} {track_data['title']}"
+                f".{AUDIO_FORMATS_EXTENSIONS[format]}"
+            ).translate(ILLEGAL_CHARACTERS)
+            with open(file, "wb") as f:
+                f.write(stream)
+
+            if metadata:
+                try:
+                    track = audio.Audio(file)
+                except:
+                    tempfile = file.parent / f"temp_{file.name}"
+                    subprocess.run(
+                        f"ffmpeg -y -i '{file}' -c:a copy '{tempfile}' "
+                        "-hide_banner -loglevel error",
+                        shell=True
+                    )
+                    file.unlink()
+                    file = tempfile.rename(file)
+                    track = audio.Audio(file)
+
+                track.set_metadata_using_tidal(
+                    track_data,
+                    album_data=album_data,
+                    composer=self.get_track_composers(track_id),
+                    artwork=self.get_image(track_data["album"]["cover"], "album"),
+                    lyrics=self.get_track_lyrics(track_id), 
+                    comment=track_data["url"]
+                )
+                track.write_metadata()
+
+            return file
+        else:
+            return stream
+
+    def get_video_stream(
+            self, video_id: Union[int, str], *, video_quality: str = "HIGH",
+            max_resolution: int = 2160, playback_mode: str = "STREAM", 
+            asset_presentation: str = "FULL", streaming_session_id: str = None,
+            save: bool = False, path: Union[str, pathlib.Path] = None, 
+            folder: bool = False) -> Union[bytes, pathlib.Path]:
+
+        """
+        Get the audio and video stream data for a video.
+
+        .. admonition:: User authentication, authorization scope, and 
+                        subscription
+           :class: dropdown warning
+        
+           Requires the :code:`r_usr` authorization scope if the device
+           code flow was used.
+
+           Full video playback information is only available with user
+           authentication and an active TIDAL subscription.
+
+        .. note::
+
+           This method is provided for convenience and is not a private
+           TIDAL API endpoint.
+           
+        Parameters
+        ----------
+        video_id : `int` or `str`
+            TIDAL video ID.
+
+            **Example**: :code:`59727844`.
+
+        video_quality : `str`, keyword-only, default: :code:`"HIGH"`
+            Video quality.
+
+            **Valid values**: :code:`"AUDIO_ONLY"`, :code:`"LOW"`,
+            :code:`"MEDIUM"`, and :code:`"HIGH"`.
+
+        max_resolution : `int`, keyword-only, default: :code:`2160`
+            Maximum video resolution (number of vertical pixels).
+
+        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
+            Playback mode.
+
+            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
+
+        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
+            Asset presentation.
+
+            .. container::
+
+               **Valid values**:
+            
+               * :code:`"FULL"`: Full video.
+               * :code:`"PREVIEW"`: 30-second preview of the video.
+
+        streaming_session_id : `str`, keyword-only, optional
+            Streaming session ID.
+
+        save : `bool`, keyword-only, default: :code:`False`
+            Determines whether the stream is saved to a video file.
+
+        path : `str` or `pathlib.Path`, keyword-only, optional
+            If :code:`save=True`, path in which the video file is saved.
+
+        folder : `bool`, keyword-only, default: :code:`False`
+            Determines whether a folder in `path` (or in the current
+            directory if `path` is not specified) is created to hold the
+            video file.
+
+        Returns
+        -------
+        stream : `bytes`
+            Video stream data. If :code:`save=True`, the stream data is 
+            saved to an video file and its filename is returned instead.
+        """
+
+        manifest = base64.b64decode(
+            self.get_video_playback_info(
+                video_id, 
+                video_quality=video_quality, 
+                playback_mode=playback_mode, 
+                asset_presentation=asset_presentation,
+                streaming_session_id=streaming_session_id
+            )["manifest"]
+        )
+
+        m3u8 = next(
+            pl for res, pl in re.findall(
+                "(?<=RESOLUTION=)\d+x(\d+)\n(http.*)", 
+                self.session.get(
+                    json.loads(manifest)["urls"][0]
+                ).content.decode("utf-8")
+            )[::-1] if int(res) < max_resolution
+        )
+
+        stream = bytearray()
+        for ts in re.findall("(?<=\n).*(http.*)", 
+                             self.session.get(m3u8).content.decode("utf-8")):
+            with self.session.get(ts) as r:
+                stream.extend(r.content)
+
+        if save:
+            video_data = self.get_video(video_id)
+            artist = utility.multivalue_formatter(
+                [a["name"] for a in video_data["artists"] 
+                 if a["type"] == "MAIN"],
+                False
+            )
+            title = video_data["title"]
+
+            if not isinstance(path, pathlib.Path):
+                path = pathlib.Path(path)
+            if folder:
+                path /= f"{artist} - {title}"
+            path.mkdir(exist_ok=True, parents=True)
+
+            file = path / (
+                f"{video_data['trackNumber']:02} {video_data['title']}.mkv"
+            ).translate(ILLEGAL_CHARACTERS)
+            with open(file, "wb") as f:
+                f.write(stream)
+
+            return file
+        else:
+            return stream
+
     ### TRACKS ################################################################
 
     def get_track(
@@ -5674,10 +6282,10 @@ class PrivateAPI:
         ) -> dict[str, Any]:
         
         """
-        Get TIDAL catalog information for a single track.
+        Get TIDAL catalog information for a track.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -5699,7 +6307,7 @@ class PrivateAPI:
         Returns
         -------
         track : `dict`
-            TIDAL catalog information for a single track.
+            TIDAL catalog information for a track.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -5776,7 +6384,7 @@ class PrivateAPI:
         Get the contributors to a track and their roles.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -5849,7 +6457,7 @@ class PrivateAPI:
         Get credits for a track.
         
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -5902,7 +6510,7 @@ class PrivateAPI:
         Get the composers, lyricists, and/or songwriters of a track.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -5941,7 +6549,7 @@ class PrivateAPI:
         Get lyrics for a track.
 
         .. admonition:: User authentication and subscription
-           :class: attention
+           :class: warning
         
            Requires user authentication via an OAuth 2.0 authorization 
            flow and an active TIDAL subscription.
@@ -6002,7 +6610,7 @@ class PrivateAPI:
         Get the curated mix of tracks based on a track.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -6047,7 +6655,7 @@ class PrivateAPI:
 
         .. admonition:: User authentication, authorization scope, and 
                         subscription
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -6165,220 +6773,6 @@ class PrivateAPI:
             }
         )
 
-    def get_track_stream(
-            self, track_id: Union[int, str], *, audio_quality: str = "HI_RES", 
-            playback_mode: str = "STREAM", asset_presentation: str = "FULL",
-            streaming_session_id: str = None, save: bool = False, 
-            path: str = None, folder: bool = False, 
-            metadata: bool = True) -> Union[None, bytes]:
-
-        """
-        Get the audio stream data for a track.
-
-        .. admonition:: User authentication, authorization scope, and 
-                        subscription
-           :class: dropdown attention
-        
-           Requires the :code:`r_usr` authorization scope if the device
-           code flow was used.
-
-           Full track playback information and lossless audio is only 
-           available with user authentication and an active TIDAL 
-           subscription.
-
-           High-resolution and immersive audio is only available with 
-           the HiFi Plus plan and when the current client credentials
-           are from a supported device.
-
-           .. seealso::
-
-              For more information on audio quality availability, see 
-              the `Download TIDAL <https://offer.tidal.com/download>`_,
-              `TIDAL Pricing <https://tidal.com/pricing>`_, and
-              `Dolby Atmos <https://support.tidal.com/hc/en-us/articles
-              /360004255778-Dolby-Atmos>`_ web pages.
-
-        .. note::
-
-           This method is provided for convenience and is not a private
-           TIDAL API endpoint.
-           
-        Parameters
-        ----------
-        track_id : `int` or `str`
-            TIDAL track ID.
-
-            **Example**: :code:`251380837`.
-
-        audio_quality : `str`, keyword-only, default: :code:`"HI-RES"`
-            Audio quality.
-
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user 
-                 authentication or 96 kbps AAC with user authentication.
-               * :code:`"HIGH"` for 320 kbps AAC.
-               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
-                 or FLAC.
-               * :code:`"HI_RES"` for Up to 9216 kbps (24-bit, 96 kHz) 
-                 MQA-encoded FLAC.
-
-        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
-            Playback mode.
-
-            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
-
-        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
-            Asset presentation.
-
-            .. container::
-
-               **Valid values**:
-            
-               * :code:`"FULL"`: Full track.
-               * :code:`"PREVIEW"`: 30-second preview of the track.
-
-        streaming_session_id : `str`, keyword-only, optional
-            Streaming session ID.
-
-        save : `bool`, keyword-only, default: :code:`False`
-            Determines whether the stream is saved to an audio file.
-
-        path : `str`, keyword-only, optional
-            If :code:`save=True`, path in which the audio file is saved.
-
-        folder : `bool`, keyword-only, default: :code:`False`
-            Determines whether a folder in `path` (or in the current
-            directory if `path` is not specified) is created to hold the
-            audio file.
-
-        metadata : `bool`, keyword-only, default: :code:`True`
-            Determines whether the audio file's metadata is
-            populated.
-
-        Returns
-        -------
-        stream : `bytes`
-            Audio stream data. If :code:`save=True`, :code:`None` is 
-            returned and the stream data is saved to an audio file 
-            instead.
-        """
-
-        AUDIO_FORMATS_EXTENSIONS = {
-            "alac": "m4a",
-            "flac": "flac",
-            "m4a": "m4a",
-            "mp3": "mp3",
-            "mpeg": "mp3",
-            "mp4a": "m4a",
-            "mqa": "flac"
-        }
-
-        manifest = base64.b64decode(
-            self.get_track_playback_info(
-                track_id, 
-                audio_quality=audio_quality, 
-                playback_mode=playback_mode, 
-                asset_presentation=asset_presentation,
-                streaming_session_id=streaming_session_id
-            )["manifest"]
-        )
-
-        if b"urn:mpeg:dash" in manifest:
-            manifest = minidom.parseString(manifest)
-            codec = (manifest.getElementsByTagName("Representation")[0]
-                     .getAttribute("codecs"))
-            if "." in codec:
-                codec = codec[:codec.index(".")]
-            format = AUDIO_FORMATS_EXTENSIONS[codec]
-            segment = manifest.getElementsByTagName("SegmentTemplate")[0]
-            stream = bytearray()
-            with self.session.get(
-                    segment.getAttribute("initialization")
-                ) as r:
-                stream.extend(r.content)
-            for i in range(1, sum(int(tl.getAttribute("r")) 
-                                  if tl.hasAttribute("r") else 1 
-                                  for tl in 
-                                  segment.getElementsByTagName("S")) + 1):
-                with self.session.get(
-                        segment.getAttribute("media").replace(
-                            "$Number$", str(i)
-                        )
-                    ) as r:
-                    stream.extend(r.content)
-        else:
-            manifest = json.loads(manifest)
-            codec = manifest["codecs"]
-            if "." in codec:
-                codec = codec[:codec.index(".")]
-            format = AUDIO_FORMATS_EXTENSIONS[codec]
-            with self.session.get(manifest["urls"][0]) as r:
-                stream = r.content
-            if manifest["encryptionType"] != "NONE":
-                d_key_id = base64.b64decode(manifest['keyId'])
-                d_id = AES.new(self._MASTER_KEY, AES.MODE_CBC,
-                               d_key_id[:16]).decrypt(d_key_id[16:])
-                d_key, d_nonce = d_id[:16], d_id[16:24]
-                stream = AES.new(
-                    d_key, AES.MODE_CTR,
-                    counter=Counter.new(64, prefix=d_nonce, 
-                                        initial_value=0)
-                ).decrypt(stream)
-
-        if save:
-            track_data = self.get_track(track_id)
-            album_data = self.get_album(track_data["album"]["id"])
-            artist = utility.multivalue_formatter(
-                [a["name"] for a in album_data["artists"] 
-                 if a["type"] == "MAIN"],
-                False
-            )
-            title = track_data["title"]
-
-            if path is not None:
-                os.chdir(path)
-            if folder:
-                dirname = f"{artist} - {title}"
-                if not os.path.isdir(dirname):
-                    os.mkdir(dirname)
-                os.chdir(dirname)
-
-            file = (f"{track_data['trackNumber']:02} "
-                    f"{track_data['title'].translate(ILLEGAL_CHARACTERS)}"
-                    f".{AUDIO_FORMATS_EXTENSIONS[format]}")
-            with open(file, "wb") as f:
-                f.write(stream)
-
-            if metadata:
-                try:
-                    track = audio.Audio(file)
-                except:
-                    tempfile = f"temp_{file}"
-                    subprocess.run(
-                        f"ffmpeg -y -i '{file}' -c:a copy '{tempfile}'",
-                        shell=True
-                    )
-                    os.remove(file)
-                    os.rename(tempfile, file)
-                    track = audio.Audio(file)
-
-                track.set_metadata_using_tidal_private(
-                    track_data,
-                    album_data=album_data,
-                    composer=self.get_track_composers(track_id),
-                    artwork=self.get_image(track_data["album"]["cover"], "album"),
-                    lyrics=self.get_track_lyrics(track_id), comment=track_data["url"]
-                )
-                track.write_metadata()
-
-            if folder:
-                os.chdir("..")
-        else:
-            return stream
-
     def get_track_recommendations(
             self, track_id: Union[int, str], country_code: str = None, *,
             limit: int = None, offset = None) -> dict[str, Any]:
@@ -6388,7 +6782,7 @@ class PrivateAPI:
         tracks and videos.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -6514,7 +6908,7 @@ class PrivateAPI:
         collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -6647,7 +7041,7 @@ class PrivateAPI:
         Add tracks to the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -6693,7 +7087,7 @@ class PrivateAPI:
         Remove tracks from the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -6723,7 +7117,7 @@ class PrivateAPI:
         Get the current user's profile information.
 
         .. admonition:: User authentication
-           :class: attention
+           :class: warning
         
            Requires user authentication via an OAuth 2.0 authorization 
            flow.
@@ -6778,7 +7172,7 @@ class PrivateAPI:
         Get information about the current private TIDAL API session.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -6820,7 +7214,7 @@ class PrivateAPI:
         tracks, and videos in the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -6857,7 +7251,7 @@ class PrivateAPI:
         Get a TIDAL user's profile information.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -6917,7 +7311,7 @@ class PrivateAPI:
         Get a TIDAL user's followers.
         
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -6961,7 +7355,7 @@ class PrivateAPI:
         Get the people (artists, users, etc.) a TIDAL user follows.
         
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -7039,7 +7433,7 @@ class PrivateAPI:
         Follow a user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -7063,7 +7457,7 @@ class PrivateAPI:
         Unfollow a user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -7088,7 +7482,7 @@ class PrivateAPI:
         Get users blocked by the current user.
         
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -7123,7 +7517,7 @@ class PrivateAPI:
         Block a user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -7146,7 +7540,7 @@ class PrivateAPI:
         Unblock a user.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -7170,10 +7564,10 @@ class PrivateAPI:
         ) -> dict[str, Any]:
         
         """
-        Get TIDAL catalog information for a single video.
+        Get TIDAL catalog information for a video.
 
         .. admonition:: Authorization scope
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -7195,7 +7589,7 @@ class PrivateAPI:
         Returns
         -------
         video : `dict`
-            TIDAL catalog information for a single video.
+            TIDAL catalog information for a video.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -7260,7 +7654,7 @@ class PrivateAPI:
 
         .. admonition:: User authentication, authorization scope, and 
                         subscription
-           :class: dropdown attention
+           :class: dropdown warning
         
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
@@ -7351,136 +7745,6 @@ class PrivateAPI:
             }
         )
 
-    def get_video_stream(
-            self, video_id: Union[int, str], *, video_quality: str = "HIGH",
-            max_resolution: int = 2160, playback_mode: str = "STREAM", 
-            asset_presentation: str = "FULL", streaming_session_id: str = None,
-            save: bool = False, path: str = None, folder: bool = False
-        ) -> Union[None, bytes]:
-
-        """
-        Get the audio and video stream data for a video.
-
-        .. admonition:: User authentication, authorization scope, and 
-                        subscription
-           :class: dropdown attention
-        
-           Requires the :code:`r_usr` authorization scope if the device
-           code flow was used.
-
-           Full video playback information is only available with user
-           authentication and an active TIDAL subscription.
-
-        .. note::
-
-           This method is provided for convenience and is not a private
-           TIDAL API endpoint.
-           
-        Parameters
-        ----------
-        video_id : `int` or `str`
-            TIDAL video ID.
-
-            **Example**: :code:`59727844`.
-
-        video_quality : `str`, keyword-only, default: :code:`"HIGH"`
-            Video quality.
-
-            **Valid values**: :code:`"AUDIO_ONLY"`, :code:`"LOW"`,
-            :code:`"MEDIUM"`, and :code:`"HIGH"`.
-
-        max_resolution : `int`, keyword-only, default: :code:`2160`
-            Maximum video resolution (number of vertical pixels).
-
-        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
-            Playback mode.
-
-            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
-
-        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
-            Asset presentation.
-
-            .. container::
-
-               **Valid values**:
-            
-               * :code:`"FULL"`: Full video.
-               * :code:`"PREVIEW"`: 30-second preview of the video.
-
-        streaming_session_id : `str`, keyword-only, optional
-            Streaming session ID.
-
-        save : `bool`, keyword-only, default: :code:`False`
-            Determines whether the stream is saved to a video file.
-
-        path : `str`, keyword-only, optional
-            If :code:`save=True`, path in which the video file is saved.
-
-        folder : `bool`, keyword-only, default: :code:`False`
-            Determines whether a folder in `path` (or in the current
-            directory if `path` is not specified) is created to hold the
-            video file.
-
-        Returns
-        -------
-        stream : `bytes`
-            Video stream data. If :code:`save=True`, :code:`None` is 
-            returned and the stream data is saved to a video file 
-            instead.
-        """
-
-        manifest = base64.b64decode(
-            self.get_video_playback_info(
-                video_id, 
-                video_quality=video_quality, 
-                playback_mode=playback_mode, 
-                asset_presentation=asset_presentation,
-                streaming_session_id=streaming_session_id
-            )["manifest"]
-        )
-
-        m3u8 = next(
-            pl for res, pl in re.findall(
-                "(?<=RESOLUTION=)\d+x(\d+)\n(http.*)", 
-                self.session.get(
-                    json.loads(manifest)["urls"][0]
-                ).content.decode("utf-8")
-            )[::-1] if int(res) < max_resolution
-        )
-
-        stream = bytearray()
-        for ts in re.findall("(?<=\n).*(http.*)", 
-                             self.session.get(m3u8).content.decode("utf-8")):
-            with self.session.get(ts) as r:
-                stream.extend(r.content)
-
-        if save:
-            video_data = self.get_video(video_id)
-            artist = utility.multivalue_formatter(
-                [a["name"] for a in video_data["artists"] 
-                 if a["type"] == "MAIN"],
-                False
-            )
-            title = video_data["title"]
-
-            if path is not None:
-                os.chdir(path)
-            if folder:
-                dirname = f"{artist} - {title}"
-                if not os.path.isdir(dirname):
-                    os.mkdir(dirname)
-                os.chdir(dirname)
-
-            file = (f"{video_data['trackNumber']:02} "
-                    f"{video_data['title'].translate(ILLEGAL_CHARACTERS)}.mkv")
-            with open(file, "wb") as f:
-                f.write(stream)
-
-            if folder:
-                os.chdir("..")
-        else:
-            return stream
-
     def get_favorite_videos(
             self, country_code: str = None, *, limit: int = 50, 
             offset: int = None, order: str = "DATE",
@@ -7491,7 +7755,7 @@ class PrivateAPI:
         collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -7610,7 +7874,7 @@ class PrivateAPI:
         Add videos to the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -7656,7 +7920,7 @@ class PrivateAPI:
         Remove videos from the current user's collection.
 
         .. admonition:: User authentication and authorization scope
-           :class: attention
+           :class: warning
         
            Requires user authentication and the :code:`r_usr` 
            authorization scope if the device code flow was used.
@@ -7677,275 +7941,3 @@ class PrivateAPI:
         self._request("delete", 
                       f"{self.API_URL}/v1/users/{self._user_id}"
                       f"/favorites/videos/{video_ids}")
-        
-    ### MISCELLANEOUS #########################################################
-
-    def get_collection_streams(
-            self, collection_id: Union[int, str], type: str, *, 
-            device: str = "BROWSER", audio_quality: str = "HI_RES", 
-            video_quality: str = "HIGH", max_resolution: int = 2160,
-            playback_mode: str = "STREAM", asset_presentation: str = "FULL",
-            streaming_session_id: str = None, save: bool = False, 
-            path: str = None, folder: bool = False, metadata: bool = True
-        ) -> Union[None, list[bytes]]:
-
-        """
-        Get audio and video stream data for items (tracks and videos) in
-        an album, mix, or playlist.
-
-        .. admonition:: User authentication, authorization scope, and 
-                        subscription
-           :class: dropdown attention
-        
-           Requires the :code:`r_usr` authorization scope if the device
-           code flow was used.
-
-           Full track and video playback information and lossless audio
-           is only available with user authentication and an active 
-           TIDAL subscription.
-
-           High-resolution and immersive audio is only available with 
-           the HiFi Plus plan and when the current client credentials
-           are from a supported device.
-
-           .. seealso::
-
-              For more information on audio quality availability, see 
-              the `Download TIDAL <https://offer.tidal.com/download>`_,
-              `TIDAL Pricing <https://tidal.com/pricing>`_, and
-              `Dolby Atmos <https://support.tidal.com/hc/en-us/articles
-              /360004255778-Dolby-Atmos>`_ web pages.
-
-        .. note::
-
-           This method is provided for convenience and is not a private
-           TIDAL API endpoint.
-
-        Parameters
-        ----------
-        collection_id : `int` or `str`
-            TIDAL collection ID or UUID.
-
-        type : `str`
-            Collection type.
-
-            **Valid values**: :code:`"album"`, :code:`"mix"`, and 
-            :code:`"playlist"`.
-
-        device : `str`, keyword-only, default: :code:`"BROWSER"`
-            Device type.
-
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"BROWSER"` for a web browser.
-               * :code:`"DESKTOP"` for the desktop TIDAL application.
-               * :code:`"PHONE"` for the mobile TIDAL application.
-               * :code:`"TV"` for the smart TV TIDAL application.
-
-        audio_quality : `str`, keyword-only, default: :code:`"HI-RES"`
-            Audio quality.
-
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user 
-                 authentication or 96 kbps AAC with user authentication.
-               * :code:`"HIGH"` for 320 kbps AAC.
-               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
-                 or FLAC.
-               * :code:`"HI_RES"` for Up to 9216 kbps (24-bit, 96 kHz) 
-                 MQA-encoded FLAC.
-
-        video_quality : `str`, keyword-only, default: :code:`"HIGH"`
-            Video quality.
-
-            **Valid values**: :code:`"AUDIO_ONLY"`, :code:`"LOW"`,
-            :code:`"MEDIUM"`, and :code:`"HIGH"`.
-
-        max_resolution : `int`, keyword-only, default: :code:`2160`
-            Maximum video resolution (number of vertical pixels).
-
-        playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
-            Playback mode.
-
-            **Valid values**: :code:`"STREAM"` and :code:`"OFFLINE"`.
-
-        asset_presentation : `str`, keyword-only, default: :code:`"FULL"`
-            Asset presentation.
-
-            .. container::
-
-               **Valid values**:
-            
-               * :code:`"FULL"`: Full track or video.
-               * :code:`"PREVIEW"`: 30-second preview of the track or 
-                 video.
-
-        streaming_session_id : `str`, keyword-only, optional
-            Streaming session ID.
-
-        save : `bool`, keyword-only, default: :code:`False`
-            Determines whether the streams are saved to audio and video
-            files.
-
-        path : `str`, keyword-only, optional
-            If :code:`save=True`, path in which the audio and video 
-            files are saved.
-
-        folder : `bool`, keyword-only, default: :code:`False`
-            Determines whether a folder in `path` (or in the current
-            directory if `path` is not specified) is created to hold the
-            audio and video files.
-
-        metadata : `bool`, keyword-only, default: :code:`True`
-            Determines whether the audio and video files' metadata is
-            populated.
-
-        Returns
-        -------
-        streams : `list`
-            Audio and video stream data. If :code:`save=True`, 
-            :code:`None` is returned and the streams are saved to audio 
-            and video files instead.
-        """
-
-        if type not in (COLLECTION_TYPES := {"album", "mix", "playlist"}):
-            emsg = ("Invalid collection type. The supported types are " 
-                    f"{', '.join(COLLECTION_TYPES)}.")
-            raise ValueError(emsg)
-
-        if type == "album":
-            data = self.get_album(collection_id)
-            artist = utility.multivalue_formatter(
-                [a["name"] for a in data["artists"] if a["type"] == "MAIN"], 
-                False
-            )
-            title = data["title"]
-            items = self.get_album_items(collection_id)["items"]
-        elif type == "mix":
-            data = self.get_mix_page(collection_id, device=device)
-            artist = data["rows"][0]["modules"][0]["mix"]["subTitle"]
-            title = data["rows"][0]["modules"][0]["mix"]["title"]
-            items = self.get_mix_items(collection_id)["items"]
-        elif type == "playlist":
-            data = self.get_playlist(collection_id)
-            artist = utility.multivalue_formatter(
-                [a["name"] for a in data["promotedArtists"] if a["type"] == "MAIN"], 
-                False
-            )
-            title = data["title"]
-            items = self.get_playlist_items(collection_id)["items"]
-
-        if save:
-            if path is not None:
-                os.chdir(path)
-            if folder:
-                dirname = f"{artist} - {title}"
-                if not os.path.isdir(dirname):
-                    os.mkdir(dirname)
-                os.chdir(dirname)
-        else:
-            streams = []
-
-        for item in items:
-            if item["type"] == "track":
-                stream = self.get_track_stream(
-                    item["item"]["id"], 
-                    audio_quality=audio_quality, 
-                    playback_mode=playback_mode, 
-                    asset_presentation=asset_presentation,
-                    streaming_session_id=streaming_session_id,
-                    save=save, 
-                    metadata=metadata
-                )
-            elif item["type"] == "video":
-                stream = self.get_video_stream(
-                    item["item"]["id"], 
-                    video_quality=video_quality,
-                    max_resolution=max_resolution,
-                    playback_mode=playback_mode, 
-                    asset_presentation=asset_presentation,
-                    streaming_session_id=streaming_session_id,
-                    save=save, 
-                    metadata=metadata
-                )
-            if not save:
-                streams.append(stream)
-        
-        if not save:
-            return streams
-        elif folder:
-            os.chdir("..")
-
-    def get_image(
-            self, uuid: str, type: str = None, *, width: int = None, 
-            height: int = None, filename: str = None) -> bytes:
-
-        """
-        Get cover art or image for a TIDAL item.
-
-        .. note::
-        
-           This method is provided for convenience and is not a private
-           TIDAL API endpoint.
-
-        Parameters
-        ----------
-        uuid : `str`
-            Image UUID.
-
-            **Example**: :code:`"d3c4372b-a652-40e0-bdb1-fc8d032708f6"`.
-
-        type : `str`
-            TIDAL item type.
-
-            **Valid values**: :code:`"artist"`, :code:`"album"`,
-            :code:`"playlist"`, :code:`"track"`, and :code:`"video"`.
-
-        width : `int`, keyword-only, optional
-            Image width.
-
-        height : `int`, keyword-only, optional
-            Image height.
-
-        filename : `str`, keyword-only, optional
-            Filename. If specified, the image is saved to a file with the
-            specified name instead of being returned.
-
-        Returns
-        -------
-        image : `bytes`
-            Image data. If :code:`filename` is specified, :code:`None` is
-            returned and the image is saved to a file instead.
-        """
-       
-        IMAGE_SIZES = {
-            "artist": (750, 750),
-            "album": (1280, 1280),
-            "playlist": (1080, 1080),
-            "track": (1280, 1280),
-            "userProfile": (1080, 1080),
-            "video": (640, 360)
-        }
-
-        if width is None or height is None:
-            if type and type in IMAGE_SIZES.keys():
-                width, height = IMAGE_SIZES[type.lower()]
-            else:
-                emsg = ("Either the image dimensions or a valid item "
-                        "type must be specified.")
-                raise ValueError(emsg)
-
-        with self.session.get(f"{self.RESOURCES_URL}/images"
-                              f"/{uuid.replace('-', '/')}"
-                              f"/{width}x{height}.jpg") as r:
-            image = r.content
-            
-        if filename:
-            with open(filename, "wb") as f:
-                f.write(image)
-        else:
-            return image          

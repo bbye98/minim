@@ -1,4 +1,4 @@
-﻿WAVEAudio
+WAVEAudio
 =========
 
 .. currentmodule:: minim.audio
@@ -20,7 +20,7 @@
       ~WAVEAudio.set_metadata_using_itunes
       ~WAVEAudio.set_metadata_using_qobuz
       ~WAVEAudio.set_metadata_using_spotify
-      ~WAVEAudio.set_metadata_using_tidal_private
+      ~WAVEAudio.set_metadata_using_tidal
       ~WAVEAudio.write_metadata
    
    

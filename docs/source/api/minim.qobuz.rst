@@ -20,13 +20,7 @@ qobuz
       :template: autosummary/class.rst
       :nosignatures:
    
-      Album
-      Artist
-      Label
-      Playlist
       PrivateAPI
-      Track
-      User
    
    
 

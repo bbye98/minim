@@ -162,8 +162,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../guides.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/qobuz.html">Using the Qobuz API (<code class="docutils literal notranslate"><span class="pre">minim.qobuz</span></code>)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../guides.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="minim.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -177,18 +176,11 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.itunes.html">itunes</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of itunes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.itunes.lookup.html">lookup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.itunes.search.html">search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.itunes.SearchAPI.html">SearchAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.qobuz.html">qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of qobuz</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Album.html">Album</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Artist.html">Artist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Label.html">Label</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Playlist.html">Playlist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Track.html">Track</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.User.html">User</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -277,8 +269,8 @@ expires.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>The authorization flow and access token can be changed or updated
-at any time using <a class="reference internal" href="#minim.tidal.API.set_authorization_flow" title="minim.tidal.API.set_authorization_flow"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_authorization_flow()</span></code></a> and
-<a class="reference internal" href="#minim.tidal.API.set_access_token" title="minim.tidal.API.set_access_token"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_access_token()</span></code></a>, respectively.</p>
+at any time using <code class="xref py py-meth docutils literal notranslate"><span class="pre">set_auflow()</span></code> and <a class="reference internal" href="#minim.tidal.API.set_access_token" title="minim.tidal.API.set_access_token"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_access_token()</span></code></a>,
+respectively.</p>
 </div>
 <p>Minim also stores and manages access tokens and their properties.
 When an access token is acquired, it is automatically saved to the
@@ -364,13 +356,13 @@ file.</p>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-artists-by-ids">Artist API &gt; Get multiple artists</a>: Retrieve a list of artist details by TIDAL artist IDs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.get_track" title="minim.tidal.API.get_track"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track</span></code></a></p></td>
-<td><p><cite>Track API &gt; Get single track &lt;https://developer.tidal.com/apiref?ref=get-track&gt;</cite>: Retrieve track details by TIDAL track ID.</p></td>
+<td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-track">Track API &gt; Get single track</a>: Retrieve track details by TIDAL track ID.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.get_tracks" title="minim.tidal.API.get_tracks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tracks</span></code></a></p></td>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-tracks-by-ids">Album API &gt; Get multiple tracks</a>: Retrieve a list of track details by TIDAL track IDs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.get_video" title="minim.tidal.API.get_video"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_video</span></code></a></p></td>
-<td><p><cite>Video API &gt; Get single video &lt;https://developer.tidal.com/apiref?ref=get-video&gt;</cite>: Retrieve video details by TIDAL video ID.</p></td>
+<td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-video">Video API &gt; Get single video</a>: Retrieve video details by TIDAL video ID.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.get_videos" title="minim.tidal.API.get_videos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_videos</span></code></a></p></td>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-videos-by-ids">Album API &gt; Get multiple videos</a>: Retrieve a list of video details by TIDAL video IDs.</p></td>
@@ -381,7 +373,7 @@ file.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.set_access_token" title="minim.tidal.API.set_access_token"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_access_token</span></code></a></p></td>
 <td><p>Set the TIDAL API access token.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.set_authorization_flow" title="minim.tidal.API.set_authorization_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_authorization_flow</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.set_flow" title="minim.tidal.API.set_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flow</span></code></a></p></td>
 <td><p>Set the authorization flow.</p></td>
 </tr>
 </tbody>
@@ -408,8 +400,8 @@ possible) when <cite>access_token</cite> expires.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="minim.tidal.API.set_authorization_flow">
-<span class="sig-name descname"><span class="pre">set_authorization_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_secret</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.set_authorization_flow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.set_authorization_flow" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="minim.tidal.API.set_flow">
+<span class="sig-name descname"><span class="pre">set_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_secret</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.set_flow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.set_flow" title="Permalink to this definition">#</a></dt>
 <dd><p>Set the authorization flow.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -983,8 +975,7 @@ returned results.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.tidal.API.get_track">
 <span class="sig-name descname"><span class="pre">get_track</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_track"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_track" title="Permalink to this definition">#</a></dt>
-<dd><p><cite>Track API &gt; Get single track
-&lt;https://developer.tidal.com/apiref?ref=get-track&gt;</cite>: Retrieve
+<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-track">Track API &gt; Get single track</a>: Retrieve
 track details by TIDAL track ID.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1156,8 +1147,7 @@ multiple tracks and metadata for the returned results.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.tidal.API.get_video">
 <span class="sig-name descname"><span class="pre">get_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_video" title="Permalink to this definition">#</a></dt>
-<dd><p><cite>Video API &gt; Get single video
-&lt;https://developer.tidal.com/apiref?ref=get-video&gt;</cite>: Retrieve
+<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-video">Video API &gt; Get single video</a>: Retrieve
 video details by TIDAL video ID.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1565,7 +1555,7 @@ query, and metadata for the returned results.</p>
 <li><a class="reference internal" href="#">API</a><ul>
 <li><a class="reference internal" href="#minim.tidal.API"><code class="docutils literal notranslate"><span class="pre">API</span></code></a><ul>
 <li><a class="reference internal" href="#minim.tidal.API.set_access_token"><code class="docutils literal notranslate"><span class="pre">set_access_token()</span></code></a></li>
-<li><a class="reference internal" href="#minim.tidal.API.set_authorization_flow"><code class="docutils literal notranslate"><span class="pre">set_authorization_flow()</span></code></a></li>
+<li><a class="reference internal" href="#minim.tidal.API.set_flow"><code class="docutils literal notranslate"><span class="pre">set_flow()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.get_album"><code class="docutils literal notranslate"><span class="pre">get_album()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.get_albums"><code class="docutils literal notranslate"><span class="pre">get_albums()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.get_album_items"><code class="docutils literal notranslate"><span class="pre">get_album_items()</span></code></a></li>

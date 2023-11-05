@@ -1,4 +1,4 @@
-﻿Audio
+Audio
 =====
 
 .. currentmodule:: minim.audio
@@ -20,6 +20,6 @@
       ~Audio.set_metadata_using_itunes
       ~Audio.set_metadata_using_qobuz
       ~Audio.set_metadata_using_spotify
-      ~Audio.set_metadata_using_tidal_private
+      ~Audio.set_metadata_using_tidal
    
    

@@ -1,4 +1,4 @@
-﻿WebAPI
+WebAPI
 ======
 
 .. currentmodule:: minim.spotify
@@ -96,7 +96,7 @@
       ~WebAPI.search
       ~WebAPI.seek_to_position
       ~WebAPI.set_access_token
-      ~WebAPI.set_authorization_flow
+      ~WebAPI.set_flow
       ~WebAPI.set_playback_volume
       ~WebAPI.set_repeat_mode
       ~WebAPI.skip_to_next

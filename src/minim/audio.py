@@ -5,12 +5,17 @@ Audio file objects
 
 This module provides convenient Python objects to keep track of audio
 file handles and metadata, and convert between different audio formats.
+
+.. attention::
+
+    This submodule is pending a major refactor. 
 """
 
 import base64
 from datetime import datetime
 import logging
 import os
+import pathlib
 import re
 import subprocess
 from typing import Any, Sequence, Union
@@ -495,8 +500,8 @@ class Audio:
         "track_count": (int,)
     }
 
-    def __init__(self, filename: str):
-        self._filename = filename
+    def __init__(self, filename: Union[str, pathlib.Path]):
+        self._filename = filename if isinstance(filename, str) else str(filename)
 
     def __new__(cls, *args, **kwargs):
 
@@ -859,7 +864,7 @@ class Audio:
         if self.track_count is None or overwrite:
             self.track_count = data["album"]["total_tracks"]
 
-    def set_metadata_using_tidal_private(
+    def set_metadata_using_tidal(
             self, data: dict, *, album_data: dict = None,
             composer: Union[str, list[str]] = None, artwork: bytes = None,
             lyrics: dict[str, Any] = None, comment: str = None,

@@ -4,352 +4,446 @@ iTunes
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
 This module contains a complete implementation of all iTunes Search API
-endpoints, which allow media (albums, movies, tracks, etc.) and people
-(actors, artists, etc.) to be queried and information about them to be
-retrieved. 
-
-.. seealso::
-   For more information, see the `iTunes Search API 
-   documentation <https://developer.apple.com/library/archive/
-   documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html>`_.
+endpoints.
 """
 
-from collections.abc import Sequence
-import requests
 from typing import Any, Union
 
-API_URL = "https://itunes.apple.com"
+import requests
 
-def search(
-        term: str, *, country: str = None, media: str = None,
-        entity: Union[str, Sequence[str]] = None,
-        attribute: str = None, limit: Union[int, str] = None, lang: str = None,
-        version: Union[int, str] = None, explicit: Union[bool, str] = None
-    ) -> dict[str, Any]:
+class SearchAPI:
 
     """
-    Search for content using the iTunes Search API.
+    iTunes Search API client.
 
-    Parameters
+    The iTunes Search API allows searching for a variety of content, 
+    including apps, iBooks, movies, podcasts, music, music videos, 
+    audiobooks, and TV shows within the iTunes Store, App Store, 
+    iBooks Store and Mac App Store. It also supports ID-based lookup
+    requests to create mappings between your content library and the
+    digital catalog.
+
+    .. seealso::
+
+       For more information, see the `iTunes Search API 
+       documentation <https://developer.apple.com/library/archive/
+       documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html>`_.
+
+    Attributes
     ----------
-    term : str
-    	The text string to search for.
-
-        .. note::
-           URL encoding replaces spaces with the plus (:code:`+`) 
-           character, and all characters except letters, numbers, 
-           periods (:code:`.`), dashes (:code:`-`), underscores 
-           (:code:`_`), and asterisks (:code:`*`) are encoded.
-
-        **Example**: :code:`"jack+johnson"`.
-
-    country : str, keyword-only, optional
-        The two-letter country code for the store you want to search.
-        The search uses the default store front for the specified
-        country. 
-        
-        .. seealso::
-           For a list of ISO country codes, see the
-           `ISO OBP <https://www.iso.org/obp/ui>`_.
-
-        **Default**: :code:`"US"`.
-    
-    media : str, keyword-only, optional
-        The media type you want to search for.
-
-        .. container::
-
-           **Valid values**: :code:`"movie"`, :code:`"podcast"`, 
-           :code:`"music"`, :code:`"musicVideo"`, :code:`"audioBook"`,
-           :code:`"shortFilm"`, :code:`"tvShow"`, :code:`"software"`,
-           and :code:`"ebook"`.
-
-        **Default**: :code:`"all"`.
-    
-    entity : `str` or `Sequence`, keyword-only, optional
-        The type(s) of results you want returned, relative to the
-        specified media type in `media`. 
-        
-        .. seealso::
-           For a list of available
-           entities, see the `iTunes Store API Table 2-1
-           <https://developer.apple.com/library/archive/documentation/
-           AudioVideo/Conceptual/iTuneSearchAPI/Searching.html#//
-           apple_ref/doc/uid/TP40017632-CH5-SW2>`_.
-
-        **Default**: The track entity associated with the specified
-        media type.
-
-        **Example**: :code:`"movieArtist"` for a movie media type
-        search.
-    
-    attribute : `str`, keyword-only, optional
-        The attribute you want to search for in the stores, relative to
-        the specified media type (`media`). 
-        
-        .. seealso::
-           For a list of available
-           attributes, see the `iTunes Store API Table 2-2
-           <https://developer.apple.com/library/archive/documentation/
-           AudioVideo/Conceptual/iTuneSearchAPI/Searching.html#//
-           apple_ref/doc/uid/TP40017632-CH5-SW3>`_.
-
-        **Default**: All attributes associated with the specified 
-        media type. 
-
-        **Example**: If you want to search for an artist by name,
-        specify :code:`entity="allArtist"` and
-        :code:`attribute="allArtistTerm"`. Then, if you search for
-        :code:`term="maroon"`, iTunes returns "Maroon 5" in the
-        search results, instead of all artists who have ever recorded
-        a song with the word "maroon" in the title.
-
-    limit : `int` or `str`, keyword-only, optional
-        The number of search results you want the iTunes Store to
-        return. 
-
-        **Valid values**: `limit` must be between 1 and 200.
-
-        **Default**: :code:`50`.
-    
-    lang : `str`, keyword-only, optional
-        The language, English or Japanese, you want to use when
-        returning search results. Specify the language using the
-        five-letter codename.
-
-        .. container::
-
-           **Valid values**:
-           
-           * :code:`"en_us"` for English.
-           * :code:`"ja_jp"` for Japanese.
-
-        **Default**: :code:`"en_us"`.
-
-    version : `int` or `str`, keyword-only, optional
-        The search result key version you want to receive back from your
-        search.
-
-        **Valid values**: :code:`1` and :code:`2`.
-        
-        **Default**: :code:`2`.
-
-    explicit : `bool` or `str`, keyword-only, optional
-        A flag indicating whether or not you want to include explicit
-        content in your search results.
-        
-        **Default**: :code:`"Yes"`.
-
-    Returns
-    -------
-    results : `dict`
-        The search results in JSON format.
-
-    Examples
-    --------
-    To search for all Jack Johnson audio and video content (movies,
-    podcasts, music, music videos, audiobooks, short films, and TV
-    shows),
-
-    >>> itunes.search("jack johnson")
-
-    To search for all Jack Johnson audio and video content and return
-    only the first 25 items,
-
-    >>> itunes.search("jack johnson", limit=25)
-
-    To search for only Jack Johnson music videos,
-
-    >>> itunes.search("jack johnson", entity="musicVideo")
-    
-    To search for all Jim Jones audio and video content and return only
-    the results from the Canada iTunes Store,
-
-    >>> itunes.search("jack johnson", country="ca")
-
-    To search for applications titled “Yelp” and return only the results
-    from the United States iTunes Store,
-
-    >>> itunes.search("yelp", country="us", entity="software")
+    API_URL : `str`
+        Base URL for the iTunes Search API.
     """
 
-    return requests.get(
-        f"{API_URL}/search",
-        params={
-            "term": term,
-            "country": country,
-            "media": media,
-            "entity": entity if entity is None or isinstance(entity, str)
-                      else ",".join(entity),
-            "attribute": attribute,
-            "limit": limit,
-            "lang": lang,
-            "version": version,
-            "explicit": ("No", "Yes")[explicit] if isinstance(explicit, bool)
-                        else explicit
-        }
-    ).json()
+    API_URL = "https://itunes.apple.com"
 
-def lookup(
-        id: Union[int, str, Sequence[Union[int, str]]] = None, *,
-        amg_artist_id: Union[int, str, Sequence[Union[int, str]]] = None,
-        amg_album_id: Union[int, str, Sequence[Union[int, str]]] = None,
-        amg_video_id: Union[int, str, Sequence[Union[int, str]]] = None,
-        bundle_id: Union[str, Sequence[str]] = None,
-        upc: Union[int, str, Sequence[Union[int, str]]] = None,
-        isbn: Union[int, str, Sequence[Union[int, str]]] = None,
-        entity: Union[str, Sequence[str]] = None,
-        limit: Union[int, str] = None, sort: str = None
-    ) -> dict[str, Any]:
+    def __init__(self) -> None:
 
-    """
-    Search for content based on iTunes IDs, AMG IDs, UPCs/EANs, or
-    ISBNs. ID-based lookups are faster and contain fewer false-positive
-    results.
+        """
+        Create a iTunes Search API client.
+        """
 
-    Parameters
-    ----------
-    id : `int`, `str`, or `Sequence`, optional
-        The iTunes ID(s) to lookup.
+        self.session = requests.Session()
 
-    amg_artist_id : `int`, `str`, or `Sequence`, keyword-only, optional
-        The AMG artist ID(s) to lookup.
+    def _get_json(self, url: str, **kwargs) -> dict:
 
-    amg_album_id : `int`, `str`, or `Sequence`, keyword-only, optional
-        The AMG album ID(s) to lookup.
+        """
+        Send a GET request and return the JSON-encoded content of the 
+        response.
 
-    amg_video_id : `int`, `str`, or `Sequence`, keyword-only, optional
-        The AMG video ID(s) to lookup.
-
-    bundle_id : `str` or `Sequence`, keyword-only, optional
-        The Apple bundle ID(s) to lookup.
-
-    upc : `int`, `str`, or `Sequence`, keyword-only, optional
-        The UPC(s) to lookup.
-
-    isbn : `int`, `str`, or `Sequence`, keyword-only, optional
-        The 13-digit ISBN(s) to lookup.
-
-    entity : `str` or `Sequence`, keyword-only, optional
-        The type(s) of results you want returned. 
+        Parameters
+        ----------
+        url : `str`
+            URL for the GET request.
         
-        .. seealso::
-           For a list of available entities, see the `iTunes Store API 
-           Table 2-1 <https://developer.apple.com/library/archive/
-           documentation/AudioVideo/Conceptual/iTuneSearchAPI/
-           Searching.html#//apple_ref/doc/uid/TP40017632-CH5-SW2>`_.
+        **kwargs
+            Keyword arguments to pass to :meth:`requests.request`.
 
-        **Default**: The track entity associated with the specified
-        media type.
+        Returns
+        -------
+        resp : `dict`
+            JSON-encoded content of the response.
+        """
 
-    limit : `int` or `str`, keyword-only, optional
-        The number of search results you want the iTunes Store to
-        return. 
+        return self._request("get", url, **kwargs).json()
+
+    def _request(
+            self, method: str, url: str, **kwargs
+        ) -> requests.Response:
+
+        """
+        Construct and send a request, but with status code checking.
+
+        Parameters
+        ----------
+        method : `str`
+            Method for the request.
+
+        url : `str`
+            URL for the request.
+
+        **kwargs
+            Keyword arguments passed to :meth:`requests.request`.
+
+        Returns
+        -------
+        resp : `requests.Response`
+            Response to the request.
+        """
+
+        r = self.session.request(method, url, **kwargs)
+        if r.status_code not in range(200, 299):
+            raise RuntimeError(f"{r.status_code} {r.json()['errorMessage']}")
+        return r
+
+    def search(
+            self, term: str, *, country: str = None, media: str = None,
+            entity: Union[str, list[str]] = None, attribute: str = None, 
+            limit: Union[int, str] = None, lang: str = None,
+            version: Union[int, str] = None, explicit: Union[bool, str] = None
+        ) -> dict[str, Any]:
+
+        """
+        Search for content using the iTunes Search API.
+
+        Parameters
+        ----------
+        term : str
+            The text string to search for.
+
+            .. note::
+
+               URL encoding replaces spaces with the plus (:code:`+`) 
+               character, and all characters except letters, numbers, 
+               periods (:code:`.`), dashes (:code:`-`), underscores 
+               (:code:`_`), and asterisks (:code:`*`) are encoded.
+
+            **Example**: :code:`"jack+johnson"`.
+
+        country : str, keyword-only, optional
+            The two-letter country code for the store you want to search.
+            The search uses the default store front for the specified
+            country. 
+            
+            .. seealso::
+
+               For a list of ISO country codes, see the
+               `ISO OBP <https://www.iso.org/obp/ui>`_.
+
+            **Default**: :code:`"US"`.
         
-        **Valid values**: `limit` must be between 1 and 200.
+        media : str, keyword-only, optional
+            The media type you want to search for.
 
-        **Default**: :code:`50`.
+            .. container::
 
-    sort : `str`, keyword-only, optional
-        The sort applied to the search results.
+               **Valid values**: :code:`"movie"`, :code:`"podcast"`, 
+               :code:`"music"`, :code:`"musicVideo"`, :code:`"audioBook"`,
+               :code:`"shortFilm"`, :code:`"tvShow"`, :code:`"software"`,
+               and :code:`"ebook"`.
 
-        **Allowed value**: :code:`"recent"`.
+            **Default**: :code:`"all"`.
+        
+        entity : `str` or `list`, keyword-only, optional
+            The type(s) of results you want returned, relative to the
+            specified media type in `media`. 
+            
+            .. seealso::
 
-    Returns
-    -------
-    results : `dict`
-        The lookup results in JSON format.
+               For a list of available
+               entities, see the `iTunes Store API Table 2-1
+               <https://developer.apple.com/library/archive
+               /documentation/AudioVideo/Conceptual/iTuneSearchAPI
+               /Searching.html#//apple_ref/doc/uid
+               /TP40017632-CH5-SW2>`_.
 
-    Examples
-    --------
-    Look up Jack Johnson by iTunes artist ID:
+            **Default**: The track entity associated with the specified
+            media type.
 
-    >>> itunes.lookup(909253)
+            **Example**: :code:`"movieArtist"` for a movie media type
+            search.
+        
+        attribute : `str`, keyword-only, optional
+            The attribute you want to search for in the stores, relative
+            to the specified media type (`media`). 
+            
+            .. seealso::
 
-    Look up the Yelp application by iTunes ID:
+               For a list of available
+               attributes, see the `iTunes Store API Table 2-2
+               <https://developer.apple.com/library/archive
+               /documentation/AudioVideo/Conceptual/iTuneSearchAPI
+               /Searching.html#//apple_ref/doc/uid
+               /TP40017632-CH5-SW3>`_.
 
-    >>> itunes.lookup(284910350)
+            **Default**: All attributes associated with the specified 
+            media type. 
 
-    Look up Jack Johnson by AMG artist ID:
+            **Example**: If you want to search for an artist by name,
+            specify :code:`entity="allArtist"` and
+            :code:`attribute="allArtistTerm"`. Then, if you search for
+            :code:`term="maroon"`, iTunes returns "Maroon 5" in the
+            search results, instead of all artists who have ever 
+            recorded a song with the word "maroon" in the title.
 
-    >>> itunes.lookup(amg_artist_id=468749)
+        limit : `int` or `str`, keyword-only, optional
+            The number of search results you want the iTunes Store to
+            return. 
 
-    Look up multiple artists by their AMG artist IDs:
+            **Valid values**: `limit` must be between 1 and 200.
 
-    >>> itunes.lookup(amg_artist_id=[468749, 5723])
+            **Default**: :code:`50`.
+        
+        lang : `str`, keyword-only, optional
+            The language, English or Japanese, you want to use when
+            returning search results. Specify the language using the
+            five-letter codename.
 
-    Look up all albums for Jack Johnson:
+            .. container::
 
-    >>> itunes.lookup(909253, entity="album")
+               **Valid values**:
+            
+               * :code:`"en_us"` for English.
+               * :code:`"ja_jp"` for Japanese.
 
-    Look up multiple artists by their AMG artist IDs and get each
-    artist's top 5 albums:
+            **Default**: :code:`"en_us"`.
 
-    >>> itunes.lookup(amg_artist_id=[468749, 5723], entity="album",
-    ...               limit=5)
+        version : `int` or `str`, keyword-only, optional
+            The search result key version you want to receive back from
+            your search.
 
-    Look up multiple artists by their AMG artist IDs and get each
-    artist's 5 most recent songs:
+            **Valid values**: :code:`1` and :code:`2`.
+            
+            **Default**: :code:`2`.
 
-    >>> itunes.lookup(amg_artist_id=[468749, 5723], entity="song",
-    ...               limit=5, sort="recent")
+        explicit : `bool` or `str`, keyword-only, optional
+            A flag indicating whether or not you want to include 
+            explicit content in your search results.
+            
+            **Default**: :code:`"Yes"`.
 
-    Look up an album or video by its UPC:
+        Returns
+        -------
+        results : `dict`
+            The search results in JSON format.
 
-    >>> itunes.lookup(upc=720642462928)
+        Examples
+        --------
+        To search for all Jack Johnson audio and video content (movies,
+        podcasts, music, music videos, audiobooks, short films, and TV
+        shows),
 
-    Look up an album by its UPC, including the tracks on that album:
+        >>> itunes.search("jack johnson")
 
-    >>> itunes.lookup(upc=720642462928, entity="song")
+        To search for all Jack Johnson audio and video content and 
+        return only the first 25 items,
 
-    Look up an album by its AMG Album ID:
+        >>> itunes.search("jack johnson", limit=25)
 
-    >>> itunes.lookup(amg_album_id=[15175, 15176, 15177, 15178, 15183,
-    ...                             15184, 15187, 15190, 15191, 15195,
-    ...                             15197, 15198])
+        To search for only Jack Johnson music videos,
 
-    Look up a Movie by AMG Video ID:
+        >>> itunes.search("jack johnson", entity="musicVideo")
+        
+        To search for all Jim Jones audio and video content and return 
+        only the results from the Canada iTunes Store,
 
-    >>> itunes.lookup(amg_video_id=17120)
+        >>> itunes.search("jack johnson", country="ca")
 
-    Look up a book by its 13-digit ISBN:
+        To search for applications titled “Yelp” and return only the 
+        results from the United States iTunes Store,
 
-    >>> itunes.lookup(isbn=9780316069359)
+        >>> itunes.search("yelp", country="us", entity="software")
+        """
 
-    Look up the Yelp application by iTunes bundle ID:
+        return self._get_json(
+            f"{self.API_URL}/search",
+            params={
+                "term": term,
+                "country": country,
+                "media": media,
+                "entity": entity if entity is None or isinstance(entity, str)
+                          else ",".join(entity),
+                "attribute": attribute,
+                "limit": limit,
+                "lang": lang,
+                "version": version,
+                "explicit": ("No", "Yes")[explicit] 
+                            if isinstance(explicit, bool) else explicit
+            }
+        )
 
-    >>> itunes.lookup(bundle_id="com.yelp.yelpiphone")
-    """
+    def lookup(
+            self, id: Union[int, str, list[Union[int, str]]] = None, *,
+            amg_artist_id: Union[int, str, list[Union[int, str]]] = None,
+            amg_album_id: Union[int, str, list[Union[int, str]]] = None,
+            amg_video_id: Union[int, str, list[Union[int, str]]] = None,
+            bundle_id: Union[str, list[str]] = None,
+            upc: Union[int, str, list[Union[int, str]]] = None,
+            isbn: Union[int, str, list[Union[int, str]]] = None,
+            entity: Union[str, list[str]] = None,
+            limit: Union[int, str] = None, sort: str = None
+        ) -> dict[str, Any]:
 
-    return requests.get(
-        f"{API_URL}/lookup",
-        params={
-            "id": id if id is None or isinstance(id, (int, str))
-                  else ",".join(id if isinstance(id[0], str)
-                                else (str(i) for i in id)),
-            "amgArtistId": amg_artist_id if amg_artist_id is None
-                           or isinstance(amg_artist_id, (int, str))
-                           else ",".join(amg_artist_id if isinstance(amg_artist_id[0], str)
-                                         else (str(i) for i in amg_artist_id)),
-            "amgAlbumId": amg_album_id if amg_album_id is None
-                          or isinstance(amg_album_id, (int, str))
-                          else ",".join(amg_album_id if isinstance(amg_album_id[0], str)
-                                        else (str(i) for i in amg_album_id)),
-            "amgVideoId": amg_video_id if amg_video_id is None
-                          or isinstance(amg_video_id, (int, str))
-                          else ",".join(amg_video_id if isinstance(amg_video_id[0], str)
-                                        else (str(i) for i in amg_video_id)),
-            "bundleId": bundle_id if bundle_id is None or isinstance(bundle_id, str)
-                        else ",".join(bundle_id),
-            "upc": upc if upc is None or isinstance(upc, (int, str))
-                   else ",".join(upc if isinstance(upc[0], str)
-                                 else (str(u) for u in upc)),
-            "isbn": isbn if isbn is None or isinstance(isbn, (int, str))
-                    else ",".join(isbn if isinstance(isbn[0], str)
-                                  else (str(i) for i in isbn)),
-            "entity": entity if entity is None or isinstance(entity, str)
-                      else ",".join(entity),
-            "limit": limit,
-            "sort": sort
-        }
-    ).json()
+        """
+        Search for content based on iTunes IDs, AMG IDs, UPCs/EANs, or
+        ISBNs. ID-based lookups are faster and contain fewer 
+        false-positive results.
+
+        Parameters
+        ----------
+        id : `int`, `str`, or `list`, optional
+            The iTunes ID(s) to lookup.
+
+        amg_artist_id : `int`, `str`, or `list`, keyword-only, optional
+            The AMG artist ID(s) to lookup.
+
+        amg_album_id : `int`, `str`, or `list`, keyword-only, optional
+            The AMG album ID(s) to lookup.
+
+        amg_video_id : `int`, `str`, or `list`, keyword-only, optional
+            The AMG video ID(s) to lookup.
+
+        bundle_id : `str` or `list`, keyword-only, optional
+            The Apple bundle ID(s) to lookup.
+
+        upc : `int`, `str`, or `list`, keyword-only, optional
+            The UPC(s) to lookup.
+
+        isbn : `int`, `str`, or `list`, keyword-only, optional
+            The 13-digit ISBN(s) to lookup.
+
+        entity : `str` or `list`, keyword-only, optional
+            The type(s) of results you want returned. 
+            
+            .. seealso::
+
+               For a list of available entities, see the `iTunes Store
+               API Table 2-1 <https://developer.apple.com/library
+               /archive/documentation/AudioVideo/Conceptual
+               /iTuneSearchAPI/Searching.html#//apple_ref/doc/uid
+               /TP40017632-CH5-SW2>`_.
+
+            **Default**: The track entity associated with the specified
+            media type.
+
+        limit : `int` or `str`, keyword-only, optional
+            The number of search results you want the iTunes Store to
+            return. 
+            
+            **Valid values**: `limit` must be between 1 and 200.
+
+            **Default**: :code:`50`.
+
+        sort : `str`, keyword-only, optional
+            The sort applied to the search results.
+
+            **Allowed value**: :code:`"recent"`.
+
+        Returns
+        -------
+        results : `dict`
+            The lookup results in JSON format.
+
+        Examples
+        --------
+        Look up Jack Johnson by iTunes artist ID:
+
+        >>> itunes.lookup(909253)
+
+        Look up the Yelp application by iTunes ID:
+
+        >>> itunes.lookup(284910350)
+
+        Look up Jack Johnson by AMG artist ID:
+
+        >>> itunes.lookup(amg_artist_id=468749)
+
+        Look up multiple artists by their AMG artist IDs:
+
+        >>> itunes.lookup(amg_artist_id=[468749, 5723])
+
+        Look up all albums for Jack Johnson:
+
+        >>> itunes.lookup(909253, entity="album")
+
+        Look up multiple artists by their AMG artist IDs and get each
+        artist's top 5 albums:
+
+        >>> itunes.lookup(amg_artist_id=[468749, 5723], entity="album",
+        ...               limit=5)
+
+        Look up multiple artists by their AMG artist IDs and get each
+        artist's 5 most recent songs:
+
+        >>> itunes.lookup(amg_artist_id=[468749, 5723], entity="song",
+        ...               limit=5, sort="recent")
+
+        Look up an album or video by its UPC:
+
+        >>> itunes.lookup(upc=720642462928)
+
+        Look up an album by its UPC, including the tracks on that album:
+
+        >>> itunes.lookup(upc=720642462928, entity="song")
+
+        Look up an album by its AMG Album ID:
+
+        >>> itunes.lookup(amg_album_id=[15175, 15176, 15177, 15178, 
+        ...                             15183, 15184, 15187, 15190, 
+        ...                             15191, 15195, 15197, 15198])
+
+        Look up a Movie by AMG Video ID:
+
+        >>> itunes.lookup(amg_video_id=17120)
+
+        Look up a book by its 13-digit ISBN:
+
+        >>> itunes.lookup(isbn=9780316069359)
+
+        Look up the Yelp application by iTunes bundle ID:
+
+        >>> itunes.lookup(bundle_id="com.yelp.yelpiphone")
+        """
+
+        return self._get_json(
+            f"{self.API_URL}/lookup",
+            params={
+                "id": id if id is None or isinstance(id, (int, str))
+                      else ",".join(id if isinstance(id[0], str)
+                                    else (str(i) for i in id)),
+                "amgArtistId": 
+                    amg_artist_id if amg_artist_id is None
+                                     or isinstance(amg_artist_id, (int, str))
+                    else ",".join(
+                        amg_artist_id if isinstance(amg_artist_id[0], str)
+                        else (str(i) for i in amg_artist_id)
+                    ),
+                "amgAlbumId": 
+                    amg_album_id if amg_album_id is None
+                                    or isinstance(amg_album_id, (int, str))
+                    else ",".join(
+                        amg_album_id if isinstance(amg_album_id[0], str)
+                        else (str(i) for i in amg_album_id)
+                    ),
+                "amgVideoId": 
+                    amg_video_id if amg_video_id is None
+                                    or isinstance(amg_video_id, (int, str))
+                    else ",".join(
+                        amg_video_id if isinstance(amg_video_id[0], str)
+                        else (str(i) for i in amg_video_id)
+                    ),
+                "bundleId": bundle_id 
+                            if bundle_id is None or isinstance(bundle_id, str)
+                            else ",".join(bundle_id),
+                "upc": upc if upc is None or isinstance(upc, (int, str))
+                       else ",".join(upc if isinstance(upc[0], str)
+                                     else (str(u) for u in upc)),
+                "isbn": isbn if isbn is None or isinstance(isbn, (int, str))
+                        else ",".join(isbn if isinstance(isbn[0], str)
+                                      else (str(i) for i in isbn)),
+                "entity": entity if entity is None or isinstance(entity, str)
+                          else ",".join(entity),
+                "limit": limit,
+                "sort": sort
+            }
+        )

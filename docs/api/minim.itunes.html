@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="lookup" href="minim.itunes.lookup.html" /><link rel="prev" title="WAVEAudio" href="minim.audio.WAVEAudio.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="SearchAPI" href="minim.itunes.SearchAPI.html" /><link rel="prev" title="WAVEAudio" href="minim.audio.WAVEAudio.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 5.3.0 and Furo 2023.05.20 -->
         <title>itunes - minim documentation</title>
@@ -162,8 +162,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../guides.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../guides/qobuz.html">Using the Qobuz API (<code class="docutils literal notranslate"><span class="pre">minim.qobuz</span></code>)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../guides.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="minim.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -177,18 +176,11 @@
 </ul>
 </li>
 <li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">itunes</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of itunes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.itunes.lookup.html">lookup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.itunes.search.html">search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.itunes.SearchAPI.html">SearchAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.qobuz.html">qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of qobuz</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Album.html">Album</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Artist.html">Artist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Label.html">Label</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Playlist.html">Playlist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.Track.html">Track</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.qobuz.User.html">User</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -247,24 +239,14 @@
 <section id="id1">
 <h2>iTunes<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
 <p>This module contains a complete implementation of all iTunes Search API
-endpoints, which allow media (albums, movies, tracks, etc.) and people
-(actors, artists, etc.) to be queried and information about them to be
-retrieved.</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p>For more information, see the <a class="reference external" href="https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html">iTunes Search API
-documentation</a>.</p>
-</div>
+endpoints.</p>
 </section>
-<p class="rubric">Functions</p>
+<p class="rubric">Classes</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="minim.itunes.lookup.html#minim.itunes.lookup" title="minim.itunes.lookup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lookup</span></code></a></p></td>
-<td><p>Search for content based on iTunes IDs, AMG IDs, UPCs/EANs, or ISBNs.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="minim.itunes.search.html#minim.itunes.search" title="minim.itunes.search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search</span></code></a></p></td>
-<td><p>Search for content using the iTunes Search API.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="minim.itunes.SearchAPI.html#minim.itunes.SearchAPI" title="minim.itunes.SearchAPI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SearchAPI</span></code></a></p></td>
+<td><p>iTunes Search API client.</p></td>
 </tr>
 </tbody>
 </table>
@@ -276,12 +258,12 @@ documentation</a>.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="minim.itunes.lookup.html">
+          <a class="next-page" href="minim.itunes.SearchAPI.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">lookup</div>
+                <div class="title">SearchAPI</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

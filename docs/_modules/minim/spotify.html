@@ -161,8 +161,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../guides.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../guides/qobuz.html">Using the Qobuz API (<code class="docutils literal notranslate"><span class="pre">minim.qobuz</span></code>)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../guides.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/minim.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -176,18 +175,11 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.itunes.html">itunes</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of itunes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.lookup.html">lookup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.search.html">search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.SearchAPI.html">SearchAPI</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.qobuz.html">qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of qobuz</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Album.html">Album</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Artist.html">Artist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Label.html">Label</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Playlist.html">Playlist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.Track.html">Track</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.User.html">User</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -292,7 +284,7 @@
 <span class="sd">    publicly documented, so its endpoints have been determined by </span>
 <span class="sd">    watching HTTP network traffic.</span>
 
-<span class="sd">    .. warning::</span>
+<span class="sd">    .. attention::</span>
 
 <span class="sd">       As the Spotify Lyrics service is not designed to be publicly</span>
 <span class="sd">       accessible, this class can be disabled or removed at any time to</span>
@@ -347,8 +339,7 @@
 <span class="sd">    expiry : `datetime.datetime` or `str`, keyword-only, optional</span>
 <span class="sd">        Expiry time of `access_token` in the ISO 8601 format</span>
 <span class="sd">        :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be </span>
-<span class="sd">        reauthenticated using the default authorization flow (if </span>
-<span class="sd">        possible) when `access_token` expires.</span>
+<span class="sd">        reauthenticated when `access_token` expires.</span>
 
 <span class="sd">    save : `bool`, keyword-only, default: :code:`True`</span>
 <span class="sd">        Determines whether newly obtained access tokens and their</span>
@@ -654,8 +645,8 @@
 <span class="sd">    .. tip::</span>
 
 <span class="sd">       The authorization flow and access token can be changed or updated</span>
-<span class="sd">       at any time using :meth:`set_authorization_flow` and </span>
-<span class="sd">       :meth:`set_access_token`, respectively.</span>
+<span class="sd">       at any time using :meth:`set_flow` and :meth:`set_access_token`,</span>
+<span class="sd">       respectively.</span>
 
 <span class="sd">    Minim also stores and manages access tokens and their properties. </span>
 <span class="sd">    When any of the authorization flows above are used to acquire an </span>
@@ -680,7 +671,7 @@
 <span class="sd">        environment variables or found in the Minim configuration file,</span>
 <span class="sd">        it must be provided here.</span>
 
-<span class="sd">    flow : `str`, keyword-only, optional</span>
+<span class="sd">    flow : `str`, keyword-only, default: :code:`&quot;web_player&quot;`</span>
 <span class="sd">        Authorization flow.</span>
 
 <span class="sd">        .. container::</span>
@@ -689,8 +680,8 @@
 <span class="sd">           </span>
 <span class="sd">           * :code:`&quot;authorization_code&quot;` for the authorization code </span>
 <span class="sd">             flow.</span>
-<span class="sd">           * :code:`&quot;authorization_code_pkce&quot;` for the authorization </span>
-<span class="sd">             code with proof key for code exchange (PKCE) flow.</span>
+<span class="sd">           * :code:`&quot;pkce&quot;` for the authorization code with proof</span>
+<span class="sd">             key for code exchange (PKCE) flow.</span>
 <span class="sd">           * :code:`&quot;client_credentials&quot;` for the client credentials </span>
 <span class="sd">             flow.</span>
 <span class="sd">           * :code:`&quot;web_player&quot;` for a Spotify Web Player access </span>
@@ -786,8 +777,7 @@
 <span class="sd">        Session used to send requests to the Spotify Web API.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">_FLOWS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;authorization_code_pkce&quot;</span><span class="p">,</span> <span class="s2">&quot;authorization_code&quot;</span><span class="p">,</span> 
-              <span class="s2">&quot;client_credentials&quot;</span><span class="p">,</span> <span class="s2">&quot;web_player&quot;</span><span class="p">]</span>
+    <span class="n">_FLOWS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;authorization_code&quot;</span><span class="p">,</span> <span class="s2">&quot;pkce&quot;</span><span class="p">,</span> <span class="s2">&quot;client_credentials&quot;</span><span class="p">,</span> <span class="s2">&quot;web_player&quot;</span><span class="p">}</span>
     <span class="n">_NAME</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="n">API_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.spotify.com/v1&quot;</span>
@@ -928,7 +918,7 @@
             <span class="n">scopes</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;scopes&quot;</span><span class="p">)</span>
             <span class="n">sp_dc</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;sp_dc&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_authorization_flow</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_flow</span><span class="p">(</span>
             <span class="n">flow</span><span class="p">,</span> <span class="n">client_id</span><span class="o">=</span><span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span> 
             <span class="n">framework</span><span class="o">=</span><span class="n">framework</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="o">=</span><span class="n">redirect_uri</span><span class="p">,</span> 
             <span class="n">scopes</span><span class="o">=</span><span class="n">scopes</span><span class="p">,</span> <span class="n">sp_dc</span><span class="o">=</span><span class="n">sp_dc</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span>
@@ -1019,7 +1009,7 @@
                 <span class="n">page</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">new_page</span><span class="p">()</span>
                 <span class="n">page</span><span class="o">.</span><span class="n">goto</span><span class="p">(</span><span class="n">auth_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                 <span class="n">page</span><span class="o">.</span><span class="n">wait_for_url</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">,</span> 
-                                  <span class="n">wait_until</span><span class="o">=</span><span class="s2">&quot;networkidle&quot;</span><span class="p">)</span>
+                                  <span class="n">wait_until</span><span class="o">=</span><span class="s2">&quot;commit&quot;</span><span class="p">)</span>
                 <span class="n">context</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                 <span class="n">browser</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
@@ -1198,7 +1188,16 @@
                     <span class="n">emsg</span> <span class="o">=</span> <span class="s2">&quot;Spotify Web API client credentials not provided.&quot;</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
             
-                <span class="k">if</span> <span class="s2">&quot;authorization_code&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;client_credentials&quot;</span><span class="p">:</span>
+                    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">TOKEN_URL</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="p">,</span>
+                            <span class="s2">&quot;client_secret&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="p">,</span>
+                            <span class="s2">&quot;grant_type&quot;</span><span class="p">:</span> <span class="s2">&quot;client_credentials&quot;</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
                     <span class="n">client_b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
@@ -1206,7 +1205,7 @@
                         <span class="s2">&quot;grant_type&quot;</span><span class="p">:</span> <span class="s2">&quot;authorization_code&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;redirect_uri&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span>
                     <span class="p">}</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;authorization_code_pkce&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;pkce&quot;</span><span class="p">:</span>
                         <span class="n">data</span><span class="p">[</span><span class="s2">&quot;client_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span>
                         <span class="n">data</span><span class="p">[</span><span class="s2">&quot;code_verifier&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_urlsafe</span><span class="p">(</span><span class="mi">96</span><span class="p">)</span>
                         <span class="n">data</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_authorization_code</span><span class="p">(</span>
@@ -1223,15 +1222,6 @@
                         <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Basic </span><span class="si">{</span><span class="n">client_b64</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
                     <span class="n">refresh_token</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">]</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;client_credentials&quot;</span><span class="p">:</span>
-                    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">TOKEN_URL</span><span class="p">,</span>
-                        <span class="n">data</span><span class="o">=</span><span class="p">{</span>
-                            <span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="p">,</span>
-                            <span class="s2">&quot;client_secret&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="p">,</span>
-                            <span class="s2">&quot;grant_type&quot;</span><span class="p">:</span> <span class="s2">&quot;client_credentials&quot;</span>
-                        <span class="p">}</span>
-                    <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
                 <span class="n">access_token</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;access_token&quot;</span><span class="p">]</span>
                 <span class="n">expiry</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
                           <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;expires_in&quot;</span><span class="p">]))</span>
@@ -1261,7 +1251,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expiry</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">expiry</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="WebAPI.set_authorization_flow"><a class="viewcode-back" href="../../api/minim.spotify.WebAPI.html#minim.spotify.WebAPI.set_authorization_flow">[docs]</a>    <span class="k">def</span> <span class="nf">set_authorization_flow</span><span class="p">(</span>
+<div class="viewcode-block" id="WebAPI.set_flow"><a class="viewcode-back" href="../../api/minim.spotify.WebAPI.html#minim.spotify.WebAPI.set_flow">[docs]</a>    <span class="k">def</span> <span class="nf">set_flow</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
             <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">framework</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">port</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8888</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
@@ -1282,8 +1272,8 @@
 <span class="sd">           </span>
 <span class="sd">               * :code:`&quot;authorization_code&quot;` for the authorization code </span>
 <span class="sd">                 flow.</span>
-<span class="sd">               * :code:`&quot;authorization_code_pkce&quot;` for the authorization</span>
-<span class="sd">                 code with proof key for code exchange (PKCE) flow.</span>
+<span class="sd">               * :code:`&quot;pkce&quot;` for the authorization code with proof </span>
+<span class="sd">                 key for code exchange (PKCE) flow.</span>
 <span class="sd">               * :code:`&quot;client_credentials&quot;` for the client credentials </span>
 <span class="sd">                 flow.</span>
 <span class="sd">               * :code:`&quot;web_player&quot;` for a Spotify Web Player access </span>
@@ -1845,7 +1835,7 @@
 <span class="sd">        current Spotify user&#39;s &#39;Your Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -2038,7 +2028,7 @@
 <span class="sd">        current user&#39;s &#39;Your Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -2071,7 +2061,7 @@
 <span class="sd">        from the current user&#39;s &#39;Your Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 <span class="sd">        </span>
@@ -2105,7 +2095,7 @@
 <span class="sd">        Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -3135,7 +3125,7 @@
 <span class="sd">        albums saved in the current Spotify user&#39;s audiobooks library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -3234,7 +3224,7 @@
 <span class="sd">        audiobooks to current Spotify user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -3266,7 +3256,7 @@
 <span class="sd">        audiobooks from current Spotify user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -3299,7 +3289,7 @@
 <span class="sd">        library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -3373,7 +3363,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        category : `dict`</span>
-<span class="sd">            Spotify catalog information for a single category.</span>
+<span class="sd">            Information for a single browse category.</span>
 
 <span class="sd">            .. admonition:: Sample response</span>
 <span class="sd">               :class: dropdown</span>
@@ -3448,8 +3438,8 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        categories : `dict`</span>
-<span class="sd">            A dictionary containing Spotify catalog information for the</span>
-<span class="sd">            browse categories and the number of results returned.</span>
+<span class="sd">            A dictionary containing nformation for the browse categories</span>
+<span class="sd">            and the number of results returned.</span>
 
 <span class="sd">            .. admonition:: Sample response</span>
 <span class="sd">               :class: dropdown</span>
@@ -3993,7 +3983,7 @@
 <span class="sd">        episodes saved in the current Spotify user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -4135,7 +4125,7 @@
 <span class="sd">        the current user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -4168,7 +4158,7 @@
 <span class="sd">        episodes from the current user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -4202,7 +4192,7 @@
 <span class="sd">        Episodes&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -4290,7 +4280,7 @@
 <span class="sd">        track or episode, progress, and active device.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-read-playback-state` scope.</span>
 
@@ -4494,7 +4484,7 @@
 <span class="sd">        start playing.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -4534,7 +4524,7 @@
 <span class="sd">        available devices.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-read-playback-state` scope.</span>
 
@@ -4580,7 +4570,7 @@
 <span class="sd">        currently being played on the user&#39;s Spotify account.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-read-currently-playing` scope.</span>
 
@@ -4786,7 +4776,7 @@
 <span class="sd">        device.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -4863,7 +4853,7 @@
 <span class="sd">        playback on the user&#39;s account.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -4891,7 +4881,7 @@
 <span class="sd">        user&#39;s queue.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -4919,7 +4909,7 @@
 <span class="sd">        track in the user&#39;s queue.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -4948,7 +4938,7 @@
 <span class="sd">        given position in the user&#39;s currently playing track.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -4987,7 +4977,7 @@
 <span class="sd">        and off.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -5027,7 +5017,7 @@
 <span class="sd">        current playback device.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -5065,7 +5055,7 @@
 <span class="sd">        for user&#39;s playback.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -5103,7 +5093,7 @@
 <span class="sd">           Currently doesn&#39;t support podcast episodes.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-read-recently-played` scope.</span>
 
@@ -5286,7 +5276,7 @@
 <span class="sd">        objects that make up the user&#39;s queue.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-read-playback-state` scope.</span>
 
@@ -5532,7 +5522,7 @@
 <span class="sd">        playback queue.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-modify-playback-state` scope.</span>
 
@@ -5831,7 +5821,7 @@
 <span class="sd">        the playlist.)</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-public` or the </span>
 <span class="sd">           :code:`playlist-modify-private` scope.</span>
@@ -5897,7 +5887,7 @@
 <span class="sd">        playlist owned by a Spotify user.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-private` scope.</span>
 <span class="sd">        </span>
@@ -6143,7 +6133,7 @@
 <span class="sd">        a user&#39;s playlist.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-public` or the </span>
 <span class="sd">           :code:`playlist-modify-private` scope.</span>
@@ -6236,7 +6226,7 @@
 <span class="sd">           operations can&#39;t be applied together in a single request.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-public` or the </span>
 <span class="sd">           :code:`playlist-modify-private` scope.</span>
@@ -6349,7 +6339,7 @@
 <span class="sd">        user&#39;s playlist.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-public` or the </span>
 <span class="sd">           :code:`playlist-modify-private` scope.</span>
@@ -6405,7 +6395,7 @@
 <span class="sd">        playlists owned or followed by the current Spotify user.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-read-private` and the</span>
 <span class="sd">           :code:`playlist-read-collaborative` scopes.</span>
@@ -6506,7 +6496,7 @@
 <span class="sd">        or followed by a Spotify user.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-read-private` and the</span>
 <span class="sd">           :code:`playlist-read-collaborative` scopes.</span>
@@ -6611,7 +6601,7 @@
 <span class="sd">        you add tracks.)</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-public` or the</span>
 <span class="sd">           :code:`playlist-modify-private` scope.</span>
@@ -7138,7 +7128,7 @@
 <span class="sd">        represent a specific playlist.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`ugc-image-upload` and the</span>
 <span class="sd">           :code:`playlist-modify-public` or </span>
@@ -8015,7 +8005,7 @@
 <span class="sd">        to limit the number of shows returned.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -8112,7 +8102,7 @@
 <span class="sd">        current Spotify user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -8143,7 +8133,7 @@
 <span class="sd">        current Spotify user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -8187,7 +8177,7 @@
 <span class="sd">        shows is already saved in the current Spotify user&#39;s library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -8540,7 +8530,7 @@
 <span class="sd">        saved in the current Spotify user&#39;s &#39;Your Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -8723,7 +8713,7 @@
 <span class="sd">        current user&#39;s &#39;Your Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -8756,7 +8746,7 @@
 <span class="sd">        from the current user&#39;s &#39;Your Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-modify` scope.</span>
 
@@ -8790,7 +8780,7 @@
 <span class="sd">        Music&#39; library.</span>
 <span class="sd">        </span>
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-library-read` scope.</span>
 
@@ -9290,7 +9280,7 @@
 <span class="sd">        username).</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-read-private` scope.</span>
 <span class="sd">        </span>
@@ -9349,7 +9339,7 @@
 <span class="sd">        artists or tracks based on calculated affinity.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-top-read` scope.</span>
 
@@ -9503,7 +9493,7 @@
 <span class="sd">        Add the current user as a follower of a playlist.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-private` scope.</span>
 
@@ -9529,7 +9519,7 @@
 <span class="sd">        playlist.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`playlist-modify-private` scope.</span>
 
@@ -9555,7 +9545,7 @@
 <span class="sd">        Get the current user&#39;s followed artists.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-follow-read` scope.</span>
 <span class="sd">        </span>
@@ -9637,7 +9627,7 @@
 <span class="sd">        one or more artists or other Spotify users.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-follow-modify` scope.</span>
 <span class="sd">        </span>
@@ -9675,7 +9665,7 @@
 <span class="sd">        as a follower of one or more artists or other Spotify users.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-follow-modify` scope.</span>
 <span class="sd">        </span>
@@ -9715,7 +9705,7 @@
 <span class="sd">        users.</span>
 
 <span class="sd">        .. admonition:: Authorization scope</span>
-<span class="sd">           :class: attention</span>
+<span class="sd">           :class: warning</span>
 <span class="sd">        </span>
 <span class="sd">           Requires the :code:`user-follow-read` scope.</span>
 
