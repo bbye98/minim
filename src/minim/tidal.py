@@ -1735,12 +1735,7 @@ class PrivateAPI:
                       browser=browser, scopes=scopes, save=save)
         self.set_access_token(access_token, refresh_token=refresh_token,
                               expiry=expiry)
-        
-        if self._flow is not None:
-            me = self.get_profile()
-            self._country_code = me["countryCode"]
-            self._user_id = me["userId"]
-
+  
     def _check_scope(
             self, endpoint: str, scope: str = None, *, 
             flows: Union[str, list[set], set[str]] = None,
@@ -1841,7 +1836,7 @@ class PrivateAPI:
                 queries = dict(
                     urllib.parse.parse_qsl(
                         urllib.parse.urlparse(
-                            re.search(f'{self.REDIRECT_URI}\?(.*?)"', 
+                            re.search(fr'{self.REDIRECT_URI}\?(.*?)"', 
                                       f.read()).group(0)
                         ).query
                     )
@@ -2112,6 +2107,11 @@ class PrivateAPI:
             datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ") 
             if isinstance(expiry, str) else expiry
         )
+
+        if self._flow is not None:
+            me = self.get_profile()
+            self._country_code = me["countryCode"]
+            self._user_id = me["userId"]
 
     def set_flow(
             self, flow: str, client_id: str, *, client_secret: str = None,
@@ -2534,6 +2534,107 @@ class PrivateAPI:
             params={"countryCode": self._get_country_code(country_code)}
         )
 
+    def get_similar_albums(
+            self, album_id: Union[int, str], country_code: str = None
+        ) -> dict[str, Any]:
+        
+        """
+        Get TIDAL catalog information for albums similar to the
+        specified album.
+
+        .. admonition:: Authorization scope
+           :class: dropdown warning
+        
+           Requires the :code:`r_usr` authorization scope if the device
+           code flow was used.
+
+        Parameters
+        ----------
+        album_id : `int` or `str`
+            TIDAL album ID.
+
+            **Example**: :code:`251380836`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        album : `dict`
+            TIDAL catalog information for an album.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "id": <int>,
+                        "title": <str>,
+                        "duration": <int>,
+                        "streamReady": <bool>,
+                        "adSupportedStreamReady": <bool>,
+                        "djReady": <bool>,
+                        "stemReady": <bool>,
+                        "streamStartDate": <str>,
+                        "allowStreaming": <bool>,
+                        "premiumStreamingOnly": <bool>,
+                        "numberOfTracks": <int>,
+                        "numberOfVideos": <int>,
+                        "numberOfVolumes": <int>,
+                        "releaseDate": <str>,
+                        "copyright": <str>,
+                        "type": "ALBUM",
+                        "version": <str>,
+                        "url": <str>,
+                        "cover": <str>,
+                        "vibrantColor": <str>,
+                        "videoCover": <str>,
+                        "explicit": <bool>,
+                        "upc": <str>,
+                        "popularity": <int>,
+                        "audioQuality": <str>,
+                        "audioModes": [<str>],
+                        "mediaMetadata": {
+                          "tags": [<str>]
+                        },
+                        "artist": {
+                          "id": <int>,
+                          "name": <str>,
+                          "type": <str>,
+                          "picture": <str>
+                        },
+                        "artists": [
+                          {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          }
+                        ]
+                      }
+                    ],
+                    "source": <str>
+                  }
+        """
+
+        self._check_scope("get_similar_albums", "r_usr", flows={"device_code"},
+                          require_authentication=False)
+
+        return self._get_json(
+            f"{self.API_URL}/v1/albums/{album_id}/similar",
+            params={"countryCode": self._get_country_code(country_code)}
+        )
+
     def get_favorite_albums(
             self, country_code: str = None, *, limit: int = 50,
             offset: int = None, order: str = "DATE", 
@@ -2806,7 +2907,8 @@ class PrivateAPI:
 
     def get_artist_albums(
             self, artist_id: Union[int, str], country_code: str = None, *, 
-            limit: int = 100, offset: int = None) -> dict[str, Any]:
+            filter: str = None, limit: int = 100, offset: int = None
+        ) -> dict[str, Any]:
 
         """
         Get TIDAL catalog information for albums by an artist.
@@ -2830,6 +2932,12 @@ class PrivateAPI:
             session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
+
+        filter : `str`, keyword-only, optional
+            Subset of albums to retrieve.
+        
+            **Valid values**: :code:`"EPSANDSINGLES"` and 
+            :code:`"COMPILATIONS"`.
 
         limit : `int`, keyword-only, default: :code:`100`
             Page size.
@@ -2914,6 +3022,7 @@ class PrivateAPI:
             f"{self.API_URL}/v1/artists/{artist_id}/albums",
             params={
                 "countryCode": self._get_country_code(country_code),
+                "filter": filter,
                 "limit": limit, 
                 "offset": offset
             }
@@ -3147,11 +3256,12 @@ class PrivateAPI:
             }
         )
 
-    def get_artist_mix(
+    def get_artist_mix_id(
             self, artist_id: Union[int, str], country_code: str = None) -> str:
-
+        
         """
-        Get a curated mix of tracks based on an artist's works.
+        Get the ID of a curated mix of tracks based on an artist's 
+        works.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
@@ -3181,13 +3291,143 @@ class PrivateAPI:
             **Example**: :code:`"000ec0b01da1ddd752ec5dee553d48"`.
         """
 
-        self._check_scope("get_artist_mix", "r_usr", flows={"device_code"},
+        self._check_scope("get_artist_mix_id", "r_usr", flows={"device_code"},
                           require_authentication=False)
 
         return self._get_json(
             f"{self.API_URL}/v1/artists/{artist_id}/mix",
             params={"countryCode": self._get_country_code(country_code)}
         )["id"]
+
+    def get_artist_radio(
+            self, artist_id: Union[int, str], country_code: str = None, *,
+            limit: int = None, offset: int = None) -> dict[str, Any]:
+
+        """
+        Get TIDAL catalog information for tracks inspired by an artist's
+        works.
+
+        .. admonition:: Authorization scope
+           :class: dropdown warning
+        
+           Requires the :code:`r_usr` authorization scope if the device
+           code flow was used.
+
+        .. note::
+
+           This method is functionally identical to first getting the 
+           artist mix ID using :meth:`get_artist_mix_id` and then 
+           retrieving TIDAL catalog information for the items in the mix
+           using :meth:`get_mix_items`.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`
+            TIDAL artist ID.
+
+            **Example**: :code:`1566`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        limit : `int`, keyword-only, optional
+            Page size.
+
+            **Default**: :code:`100`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`. 
+            
+        Returns
+        -------
+        tracks : `dict`
+            A dictionary containing TIDAL catalog information for tracks
+            inspired by an artist's works and metadata for the returned
+            results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "id": <int>,
+                        "title": <str>,
+                        "duration": <int>,
+                        "replayGain": <float>,
+                        "peak": <float>,
+                        "allowStreaming": <bool>,
+                        "streamReady": <bool>,
+                        "adSupportedStreamReady": <bool>,
+                        "djReady": <bool>,
+                        "stemReady": <bool>,
+                        "streamStartDate": <str>,
+                        "premiumStreamingOnly": <bool>,
+                        "trackNumber": <int>,
+                        "volumeNumber": <int>,
+                        "version": <str>,
+                        "popularity": <int>,
+                        "copyright": <str>,
+                        "url": <str>,
+                        "isrc": <str>,
+                        "editable": <bool>,
+                        "explicit": <bool>,
+                        "audioQuality": <str>,
+                        "audioModes": [<str>],
+                        "mediaMetadata": {
+                          "tags": [<str>]
+                        },
+                        "artist": {
+                          "id": <int>,
+                          "name": <str>,
+                          "type": <str>,
+                          "picture": <str>
+                        },
+                        "artists": [
+                          {
+                            "id": <int>,
+                            "name": <str>,
+                            "type": <str>,
+                            "picture": <str>
+                          }
+                        ],
+                        "album": {
+                          "id": <int>,
+                          "title": <str>,
+                          "cover": <str>,
+                          "vibrantColor": <str>,
+                          "videoCover": <str>
+                        },
+                        "mixes": {
+                          "TRACK_MIX": <str>
+                        }
+                      }
+                    ]
+                  }
+        """
+
+        self._check_scope("get_artist_radio", "r_usr", flows={"device_code"},
+                          require_authentication=False)
+
+        return self._get_json(
+            f"{self.API_URL}/v1/artists/{artist_id}/radio",
+            params={
+                "countryCode": self._get_country_code(country_code),
+                "limit": limit,
+                "offset": offset
+            }
+        )
 
     def get_artist_biography(
             self, artist_id: Union[int, str], country_code: str = None
@@ -3313,6 +3553,91 @@ class PrivateAPI:
             params={
                 "countryCode": self._get_country_code(country_code),
                 "limit": limit, 
+                "offset": offset
+            }
+        )
+
+    def get_similar_artists(
+            self, artist_id: str, country_code: str = None, *, 
+            limit: int = None, offset: int = None) -> dict[str, Any]:
+        
+        """
+        Get TIDAL catalog information for artists similar to a specified
+        artist.
+
+        .. admonition:: Authorization scope
+           :class: dropdown warning
+        
+           Requires the :code:`r_usr` authorization scope if the device
+           code flow was used.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`
+            TIDAL artist ID.
+
+            **Example**: :code:`1566`.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country code associated with the user account in the current
+            session or the current IP address will be used instead.
+
+            **Example**: :code:`"US"`.
+
+        limit : `int`, keyword-only, default: :code:`100`
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`. 
+
+        Returns
+        -------
+        artists : `dict`
+            A dictionary containing TIDAL catalog information for 
+            artists similar to the specified artist and metadata for the
+            returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>,
+                    "items": [
+                      {
+                        "id": <int>,
+                        "name": <str>,
+                        "type": None,
+                        "artistTypes": [<str>],
+                        "url": <str>,
+                        "picture": <str>,
+                        "popularity": <int>,
+                        "banner": <str>,
+                        "artistRoles": <list>,
+                        "mixes": <dict>,
+                        "relationType": "SIMILAR_ARTIST"
+                      }
+                    ],
+                    "source": "TIDAL"
+                  }
+        """
+        
+        self._check_scope("get_similar_artists", "r_usr", 
+                          flows={"device_code"}, require_authentication=False)
+
+        return self._get_json(
+            f"{self.API_URL}/v1/artists/{artist_id}/similar",
+            params={
+                "countryCode": self._get_country_code(country_code),
+                "limit": limit,
                 "offset": offset
             }
         )
@@ -3640,11 +3965,12 @@ class PrivateAPI:
     ### IMAGES ################################################################
 
     def get_image(
-            self, uuid: str, type: str = None, *, width: int = None, 
-            height: int = None, filename: str = None) -> bytes:
+            self, uuid: str, type: str = None, animated: bool = False, *, 
+            width: int = None, height: int = None, 
+            filename: Union[str, pathlib.Path] = None) -> bytes:
 
         """
-        Get cover art or image for a TIDAL item.
+        Get (animated) cover art or image for a TIDAL item.
 
         .. note::
         
@@ -3659,26 +3985,33 @@ class PrivateAPI:
             **Example**: :code:`"d3c4372b-a652-40e0-bdb1-fc8d032708f6"`.
 
         type : `str`
-            TIDAL item type.
+            Item type.
 
             **Valid values**: :code:`"artist"`, :code:`"album"`,
-            :code:`"playlist"`, :code:`"track"`, and :code:`"video"`.
+            :code:`"playlist"`, :code:`"track"`, :code:`"userProfile"`,
+            and :code:`"video"`.
+
+        animated : `bool`, default: :code:`False`
+            Specifies whether the image is animated.
 
         width : `int`, keyword-only, optional
-            Image width.
+            Image width. If not specified, the default size for the
+            media type is used.
 
         height : `int`, keyword-only, optional
-            Image height.
+            Image height. If not specified, the default size for the
+            media type is used.
 
-        filename : `str`, keyword-only, optional
-            Filename. If specified, the image is saved to a file with the
-            specified name instead of being returned.
+        filename : `str` or `pathlib.Path`, keyword-only, optional
+            Filename with the :code:`.jpg` or :code:`.mp4` extension. If
+            specified, the image is saved to a file instead.
 
         Returns
         -------
         image : `bytes`
-            Image data. If :code:`filename` is specified, :code:`None` is
-            returned and the image is saved to a file instead.
+            Image data. If :code:`save=True`, the stream data is saved 
+            to an image or video file and its filename is returned 
+            instead.
         """
        
         IMAGE_SIZES = {
@@ -3698,12 +4031,23 @@ class PrivateAPI:
                         "type must be specified.")
                 raise ValueError(emsg)
 
-        with self.session.get(f"{self.RESOURCES_URL}/images"
+        if animated:
+            extension = ".mp4"
+            media_type = "videos"
+        else:
+            extension = ".jpg"
+            media_type = "images"
+
+        with self.session.get(f"{self.RESOURCES_URL}/{media_type}"
                               f"/{uuid.replace('-', '/')}"
-                              f"/{width}x{height}.jpg") as r:
+                              f"/{width}x{height}.{extension}") as r:
             image = r.content
             
         if filename:
+            if not isinstance(filename, pathlib.Path):
+                filename = pathlib.Path(filename)
+            if not filename.name.endswith(extension):
+                filename += extension
             with open(filename, "wb") as f:
                 f.write(image)
         else:
@@ -4987,7 +5331,7 @@ class PrivateAPI:
 
     def create_playlist(
             self, name: str, *, description: str = None, 
-            folder_uuid: str = "root", public: bool = None) -> None:
+            folder_uuid: str = "root", public: bool = None) -> dict[str, Any]:
         
         """
         Create a user playlist.
@@ -5014,11 +5358,58 @@ class PrivateAPI:
         public : `bool`, keyword-only, optional
             Determines whether the playlist is public (:code:`True`) or
             private (:code:`False`).
+
+        Returns
+        -------
+        playlist : `dict`
+            TIDAL catalog information for the newly created playlist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "trn": <str>,
+                    "itemType": "PLAYLIST",
+                    "addedAt": <str>,
+                    "lastModifiedAt": <str>,
+                    "name": <str>,
+                    "parent": <str>,
+                    "data": {
+                      "uuid": <str>,
+                      "type": "USER",
+                      "creator": {
+                        "id": <int>,
+                        "name": <str>,
+                        "picture": <str>,
+                        "type": "USER"
+                      },
+                      "contentBehavior": <str>,
+                      "sharingLevel": <str>,
+                      "status": "READY",
+                      "source": <str>,
+                      "title": <str>,
+                      "description": <str>,
+                      "image": <str>,
+                      "squareImage": <str>,
+                      "url": <str>,
+                      "created": <str>,
+                      "lastUpdated": <str>,
+                      "lastItemAddedAt": <str>,
+                      "duration": <int>,
+                      "numberOfTracks": <int>,
+                      "numberOfVideos": <int>,
+                      "promotedArtists": <list>,
+                      "trn": <str>,
+                      "itemType": "PLAYLIST"
+                    }
+                  }
         """
 
         self._check_scope("create_playlist", "r_usr", flows={"device_code"})
 
-        self._request(
+        return self._request(
             "put",
             f"{self.API_URL}/v2/my-collection/playlists/folders/create-playlist",
             params={
@@ -5027,7 +5418,7 @@ class PrivateAPI:
                 "folderId": folder_uuid, 
                 "isPublic": public
             }
-        )
+        ).json()
 
     def update_playlist(
             self, playlist_uuid: str, *, title: str = None, 
@@ -5167,9 +5558,10 @@ class PrivateAPI:
         else:
             data |= {"fromPlaylistUuid": from_playlist_uuid}
         self._request(
-            "put", 
-            f"{self.API_URL}/v1/playlist/{playlist_uuid}/items",
-            data=data
+            "post", 
+            f"{self.API_URL}/v1/playlists/{playlist_uuid}/items",
+            data=data,
+            headers={"If-None-Match": self.get_playlist_etag(playlist_uuid)}
         )
 
     def move_playlist_item(
@@ -5202,9 +5594,10 @@ class PrivateAPI:
         self._check_scope("move_playlist_item", "r_usr", flows={"device_code"})
 
         self._request(
-            "put",
+            "post",
             f"{self.API_URL}/v1/playlists/{playlist_uuid}/items/{from_index}",
-            params={"toIndex": to_index}
+            params={"toIndex": to_index},
+            headers={"If-None-Match": self.get_playlist_etag(playlist_uuid)}
         )
 
     def delete_playlist_item(
@@ -6237,7 +6630,7 @@ class PrivateAPI:
 
         m3u8 = next(
             pl for res, pl in re.findall(
-                "(?<=RESOLUTION=)\d+x(\d+)\n(http.*)", 
+                r"(?<=RESOLUTION=)\d+x(\d+)\n(http.*)", 
                 self.session.get(
                     json.loads(manifest)["urls"][0]
                 ).content.decode("utf-8")
@@ -6603,7 +6996,7 @@ class PrivateAPI:
                             "or the current account does not have an active "
                             "TIDAL subscription.")
         
-    def get_track_mix(
+    def get_track_mix_id(
             self, tidal_id: Union[int, str], country_code: str = None) -> str:
         
         """
@@ -6637,7 +7030,7 @@ class PrivateAPI:
             **Example**: :code:`"0017159e6a1f34ae3d981792d72ecf"`.
         """
 
-        self._check_scope("get_track_mix", "r_usr", flows={"device_code"},
+        self._check_scope("get_track_mix_id", "r_usr", flows={"device_code"},
                           require_authentication=False)
 
         return self._get_json(

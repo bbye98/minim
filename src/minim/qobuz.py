@@ -54,7 +54,7 @@ class PrivateAPI:
     but it is an inherently unsafe method of authentication since it has
     no mechanisms for multifactor authentication or brute force attack 
     detection. As such, it is highly encouraged that you obtain a user
-    authentication token yourself through the Qobuz Web Player or 
+    authentication token yourself through the Qobuz Web Player or the
     Android, iOS, macOS, and Windows applications, and then provide it
     and its accompanying app ID and secret to this class's constructor 
     as keyword arguments. The app credentials can also be stored as
@@ -165,16 +165,6 @@ class PrivateAPI:
         self.set_flow(flow, app_id=app_id, app_secret=app_secret, 
                       auth_token=auth_token, browser=browser, save=save)
         self.set_auth_token(auth_token, email=email, password=password)
-
-        if self._flow:
-            me = self.get_profile()
-            self._user_id = me["id"]
-            self._sub = (
-                me["subscription"] is not None 
-                and datetime.datetime.now() 
-                <= datetime.datetime.strptime(me["subscription"]["end_date"],
-                                              "%Y-%m-%d")
-            )
    
     def _check_authentication(self, endpoint: str) -> None:
         
@@ -343,6 +333,16 @@ class PrivateAPI:
                     config.write(f)
 
         self.session.headers["X-User-Auth-Token"] = auth_token
+
+        if self._flow:
+            me = self.get_profile()
+            self._user_id = me["id"]
+            self._sub = (
+                me["subscription"] is not None 
+                and datetime.datetime.now() 
+                <= datetime.datetime.strptime(me["subscription"]["end_date"],
+                                              "%Y-%m-%d")
+            )
     
     def set_flow(
             self, flow: str, *, app_id: str = None, app_secret: str = None, 
@@ -407,7 +407,7 @@ class PrivateAPI:
         if (not app_id or not app_secret) and auth_token:
             emsg = ("App credentials are required when an user "
                     "authentication token is provided.")
-            raise ValueError(emsg)
+            
         self._set_app_credentials(app_id, app_secret)
 
     ### ALBUMS ################################################################

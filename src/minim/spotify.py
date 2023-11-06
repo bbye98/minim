@@ -386,7 +386,7 @@ class WebAPI:
        Spotify application <https://developer.spotify.com/documentation
        /general/guides/authorization/app-settings/>`_. To take advantage
        of Minim's automatic authorization code retrieval functionality 
-       for the authorization code (with PCKE) flow, the redirect URI 
+       for the authorization code (with PKCE) flow, the redirect URI 
        should be in the form :code:`http://localhost:{port}/callback`, 
        where :code:`{port}` is an open port on :code:`localhost`.
     
@@ -1016,6 +1016,10 @@ class WebAPI:
             if isinstance(expiry, str) else expiry
         )
 
+        if self._flow in {"authorization_code", "pkce"} \
+                or (self._flow == "web_player" and self._sp_dc):
+            self._user_id = self.get_profile()["id"]
+
     def set_flow(
             self, flow: str, *, client_id: str = None, 
             client_secret: str = None, framework: Union[bool, str] = None,
@@ -1102,7 +1106,7 @@ class WebAPI:
             self._client_id = client_id or os.environ.get("SPOTIFY_CLIENT_ID")
             self._client_secret = (client_secret
                                    or os.environ.get("SPOTIFY_CLIENT_SECRET"))
-            if "authorization_code" in flow:
+            if flow in {"authorization_code", "pkce"}:
                 self._scopes = " ".join(scopes) if isinstance(scopes, list) \
                                else scopes
 
@@ -6355,9 +6359,8 @@ class WebAPI:
                               params={"limit": limit, "offset": offset})
     
     def create_playlist(
-            self, user_id: str, name: str, public: bool = True,
-            collaborative: bool = None, description: str = None
-        ) -> dict[str, Any]:
+            self, name: str, public: bool = True, collaborative: bool = None,
+            description: str = None) -> dict[str, Any]:
 
         """
         `Playlists > Create Playlist <https://developer.spotify.com/
@@ -6373,11 +6376,6 @@ class WebAPI:
 
         Parameters
         ----------
-        user_id : `str`
-            The user's Spotify user ID.
-
-            **Example**: :code:`"smedjan"`
-
         name : `str`
             The name for the new playlist. This name does not need to be
             unique; a user may have several playlists with the same
@@ -6606,7 +6604,7 @@ class WebAPI:
             json["description"] = description
 
         return self._request("post",
-                             f"{self.API_URL}/users/{user_id}/playlists",
+                             f"{self.API_URL}/users/{self._user_id}/playlists",
                              json=json).json()
 
     def get_featured_playlists(
@@ -9089,7 +9087,7 @@ class WebAPI:
                   }
         """
 
-        self._check_scope("get_current_user_profile", "user-read-private")
+        self._check_scope("get_profile", "user-read-private")
 
         return self._get_json(f"{self.API_URL}/me")
 
@@ -9193,7 +9191,7 @@ class WebAPI:
             raise ValueError(f"Invalid entity type ({type=}). "
                              f"Valid values: {', '.join(TYPES)}.")
 
-        self._check_scope("get_user_top_items", "user-top-read")
+        self._check_scope("get_top_items", "user-top-read")
 
         return self._get_json(
             f"{self.API_URL}/me/top/{type}",
@@ -9412,7 +9410,7 @@ class WebAPI:
             **Valid values**: :code:`"artist"` and :code:`"user"`.
         """
 
-        self._check_scope("follow_person", "user-follow-modify")
+        self._check_scope("follow_people", "user-follow-modify")
 
         if isinstance(ids, str):
             self._request("put", f"{self.API_URL}/me/following",
@@ -9450,7 +9448,7 @@ class WebAPI:
             **Valid values**: :code:`"artist"` and :code:`"user"`.
         """
 
-        self._check_scope("unfollow_person", "user-follow-modify")
+        self._check_scope("unfollow_people", "user-follow-modify")
 
         if isinstance(ids, str):
             self._request("delete", f"{self.API_URL}/me/following",
