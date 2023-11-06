@@ -1,4 +1,4 @@
-PrivateAPI
+﻿PrivateAPI
 ==========
 
 .. currentmodule:: minim.tidal
@@ -40,8 +40,9 @@ PrivateAPI
       ~PrivateAPI.get_artist_albums
       ~PrivateAPI.get_artist_biography
       ~PrivateAPI.get_artist_links
-      ~PrivateAPI.get_artist_mix
+      ~PrivateAPI.get_artist_mix_id
       ~PrivateAPI.get_artist_page
+      ~PrivateAPI.get_artist_radio
       ~PrivateAPI.get_artist_top_tracks
       ~PrivateAPI.get_artist_videos
       ~PrivateAPI.get_blocked_artists
@@ -65,12 +66,14 @@ PrivateAPI
       ~PrivateAPI.get_playlist_recommendations
       ~PrivateAPI.get_profile
       ~PrivateAPI.get_session
+      ~PrivateAPI.get_similar_albums
+      ~PrivateAPI.get_similar_artists
       ~PrivateAPI.get_track
       ~PrivateAPI.get_track_composers
       ~PrivateAPI.get_track_contributors
       ~PrivateAPI.get_track_credits
       ~PrivateAPI.get_track_lyrics
-      ~PrivateAPI.get_track_mix
+      ~PrivateAPI.get_track_mix_id
       ~PrivateAPI.get_track_playback_info
       ~PrivateAPI.get_track_recommendations
       ~PrivateAPI.get_track_stream

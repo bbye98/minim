@@ -1,0 +1,23 @@
+name: minim
+channels:
+  - conda-forge
+  - microsoft
+dependencies:
+  # CORE DEPENDENCIES
+  - levenshtein
+  - mutagen
+  - numpy
+  - pycryptodome
+  - requests
+  # OPTIONAL DEPENDENCIES
+  - flask
+  - pytest-playwright
+  # DOCUMENTATION DEPENDENCIES
+  - furo
+  - ipywidgets
+  - jupyterlab
+  - myst-nb
+  - numpydoc
+  - sphinx
+  - sphinx-copybutton
+  - sphinx-togglebutton

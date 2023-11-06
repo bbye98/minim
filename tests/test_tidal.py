@@ -91,9 +91,17 @@ class TestPrivateAPI:
             for i in self.obj.get_album_items(self.ALBUM_ID)["items"]
         )
 
+    def test_get_album_credits(self):
+        assert all(k in c for c in self.obj.get_album_credits(self.ALBUM_ID)
+                   for k in {"type", "contributors"})
+
     def test_get_album_review(self):
         assert all(k in self.obj.get_album_review(self.ALBUM_ID)
                    for k in {"source", "lastUpdated", "text", "summary"})
+        
+    def test_get_similar_albums(self):
+        assert all(a["type"] == "ALBUM" 
+                   for a in self.obj.get_similar_albums(self.ALBUM_ID)["items"])
 
     def test_get_artist(self):
         assert self.obj.get_artist(self.ARTIST_ID)["id"] == self.ARTIST_ID
@@ -116,9 +124,15 @@ class TestPrivateAPI:
             for v in self.obj.get_artist_videos(self.ARTIST_ID)["items"]
         )
 
-    def test_get_artist_mix(self):
-        mix_id = self.obj.get_artist_mix(self.ARTIST_ID)
+    def test_get_artist_mix_id(self):
+        mix_id = self.obj.get_artist_mix_id(self.ARTIST_ID)
         assert isinstance(mix_id, str) and len(mix_id) == 30
+
+    def test_get_artist_radio(self):
+        assert all(
+            "trackNumber" in t 
+            for t in self.obj.get_artist_radio(self.ARTIST_ID)["items"]
+        )
 
     def test_get_artist_biography(self):
         assert all(k in self.obj.get_artist_biography(self.ARTIST_ID) 
@@ -128,6 +142,12 @@ class TestPrivateAPI:
         assert all(
             k in l for l in self.obj.get_artist_links(self.ARTIST_ID)["items"]
             for k in {"url", "siteName"}
+        )
+
+    def test_get_similar_artists(self):
+        assert all(
+            "artistRoles" in a
+            for a in self.obj.get_similar_artists(self.ARTIST_ID)["items"]
         )
 
     def test_get_country_code(self):
@@ -174,16 +194,14 @@ class TestPrivateAPI:
         )
 
     def test_get_track_credits(self):
-        assert all(
-            k in c for c in self.obj.get_track_credits(self.TRACK_ID)
-            for k in {"type", "contributors"}
-        )
+        assert all(k in c for c in self.obj.get_track_credits(self.TRACK_ID)
+                   for k in {"type", "contributors"})
 
     def test_get_track_composers(self):
         assert isinstance(self.obj.get_track_composers(self.TRACK_ID), list)
 
-    def test_get_track_mix(self):
-        mix_id = self.obj.get_track_mix(self.TRACK_ID)
+    def test_get_track_mix_id(self):
+        mix_id = self.obj.get_track_mix_id(self.TRACK_ID)
         assert isinstance(mix_id, str) and len(mix_id) == 30
 
     def test_get_track_recommendations(self):

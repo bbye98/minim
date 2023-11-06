@@ -1,11 +1,13 @@
-minim
+Minim
 =====
 
-Minim is a lightweight Python 3 library that can retrieve media information,
-(semi-)automate music tagging, and more through the iTunes Store, Spotify, and
-Qobuz, and TIDAL APIs.
+Minim is a lightweight Python 3 library that can interface with APIs 
+by popular music services—iTunes, Qobuz, Spotify, and TIDAL—and operate 
+on audio files, such as updating metadata and converting between audio
+formats.
 
 .. important::
+   
    This project is under active development. As such, 
    
    * Minim is currently not available via :code:`pip` or :code:`conda`,
@@ -16,5 +18,6 @@ Qobuz, and TIDAL APIs.
    :hidden:
 
    Home <self>
-   User Guide <guides>
+   Getting Started <notebooks/start>
+   User Guide <guide>
    API Reference <api/minim>
