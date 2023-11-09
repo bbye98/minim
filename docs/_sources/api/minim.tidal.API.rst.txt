@@ -1,4 +1,4 @@
-API
+﻿API
 ===
 
 .. currentmodule:: minim.tidal
@@ -23,6 +23,9 @@ API
       ~API.get_artist
       ~API.get_artist_albums
       ~API.get_artists
+      ~API.get_similar_albums
+      ~API.get_similar_artists
+      ~API.get_similar_tracks
       ~API.get_track
       ~API.get_tracks
       ~API.get_video

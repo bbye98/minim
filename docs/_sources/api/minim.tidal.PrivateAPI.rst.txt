@@ -1,4 +1,4 @@
-﻿PrivateAPI
+PrivateAPI
 ==========
 
 .. currentmodule:: minim.tidal

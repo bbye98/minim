@@ -52,11 +52,10 @@ Clone the repository and install the package using pip:
   authentication.
 
       >>> from minim import itunes, qobuz, spotify, tidal
-
       >>> client_itunes = itunes.SearchAPI()
       >>> client_qobuz = qobuz.PrivateAPI()
       >>> client_spotify = spotify.WebAPI(flow="web_player")
-      >>> client_tidal = tidal.PrivateAPI(client_id=TIDAL_CLIENT_ID)
+      >>> client_tidal = tidal.PrivateAPI(client_id=<TIDAL_CLIENT_ID>)
 
 - Search for and retrieve information about an artist, such as the EDM 
   group Galantis:

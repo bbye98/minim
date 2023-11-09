@@ -35,6 +35,11 @@ class TestAPI:
         assert (album["data"][0]["resource"]["barcodeId"] 
                 == self.ALBUM_BARCODE_ID)
         
+    def test_get_similar_albums(self):
+        album_id = (self.obj.get_similar_albums(self.ALBUM_IDS[0], "US")
+                    ["data"][4]["resource"]["id"])
+        assert self.obj.get_album(album_id, "US")["id"] == album_id
+        
     def test_get_artist(self):
         artist = self.obj.get_artist(self.ARTIST_IDS[0], "US")
         assert artist["id"] == self.ARTIST_IDS[0]
@@ -49,6 +54,11 @@ class TestAPI:
         assert all(a["resource"]["artists"][0]["id"] == self.ARTIST_IDS[0]
                    for a in albums["data"])
         
+    def test_get_similar_artists(self):
+        artist_id = (self.obj.get_similar_artists(self.ARTIST_IDS[0], "US")
+                     ["data"][0]["resource"]["id"])
+        assert self.obj.get_artist(artist_id, "US")["id"] == artist_id
+
     def test_get_track(self):
         track = self.obj.get_track(self.TRACK_IDS[0], "US")
         assert track["id"] == self.TRACK_IDS[0]
@@ -58,6 +68,11 @@ class TestAPI:
         assert all(t["resource"]["id"] == i 
                    for t, i in zip(tracks["data"], self.TRACK_IDS))
         
+    def test_get_similar_tracks(self):
+        track_id = (self.obj.get_similar_tracks(self.TRACK_IDS[0], "US")
+                    ["data"][1]["resource"]["id"])
+        assert self.obj.get_track(track_id, "US")["id"] == track_id
+
     def test_get_video(self):
         video = self.obj.get_video(self.VIDEO_IDS[0], "US")
         assert video["id"] == self.VIDEO_IDS[0]

@@ -3,9 +3,9 @@ TIDAL
 =====
 .. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
 
-This module contains a complete implementation of all TIDAL API
-1.0.0 endpoints and a minimum implementation of the more robust but 
-private TIDAL API.
+This module contains a complete implementation of all public TIDAL API
+endpoints and a minimum implementation of the more robust but private
+TIDAL API.
 """
 
 import base64
@@ -220,8 +220,11 @@ class API:
 
         r = self.session.request(method, url, **kwargs)
         if r.status_code not in range(200, 299):
-            error = r.json()["errors"][0]
-            emsg = f"{r.status_code} {error['code']}: {error['detail']}"
+            try:
+                error = r.json()["errors"][0]
+                emsg = f"{r.status_code} {error['code']}: {error['detail']}"
+            except:
+                emsg = f"{r.status_code} {r.reason}"
             raise RuntimeError(emsg)
         return r
 
@@ -716,6 +719,71 @@ class API:
             params={"barcodeId": barcode_id, "countryCode": country_code}
         )
 
+    def get_similar_albums(
+            self, album_id: Union[int, str], country_code: str, *, 
+            limit: int = None, offset: int = None) -> dict[str, Any]:
+        
+        """
+        `Album API > Get similar albums for the given album
+        <https://developer.tidal.com/apiref?ref=get-similar-albums>`_: 
+        Retrieve a list of albums similar to the given album.
+
+        Parameters
+        ----------
+        album_id : `int` or `str`
+            TIDAL album ID.
+
+            **Examples**: :code:`251380836`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        limit : `int`, keyword-only, optional
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`. 
+
+        Returns
+        -------
+        album_ids : `dict`
+            A dictionary containing TIDAL album IDs for similar albums
+            and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "resource": {
+                          "id": <str>
+                        }
+                      }
+                    ],
+                    "metadata": {
+                      "total": <int>
+                    }
+                  }
+        """
+
+        return self._get_json(
+            f"{self.API_URL}/albums/{album_id}/similar",
+            params={
+                "countryCode": country_code, 
+                "limit": limit,
+                "offset": offset
+            }
+        )
+
     ### ARTIST API ############################################################
 
     def get_artist(
@@ -940,6 +1008,71 @@ class API:
                 "offset": offset
             }
         )
+    
+    def get_similar_artists(
+            self, artist_id: Union[int, str], country_code: str, *,
+            limit: int = None, offset: int = None) -> dict[str, Any]:
+        
+        """
+        `Artist API > Get similar artists for the given artist
+        <https://developer.tidal.com/apiref?ref=get-similar-artists>`_: 
+        Retrieve a list of artists similar to the given artist.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`
+            TIDAL artist ID.
+
+            **Example**: :code:`1566`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        limit : `int`, keyword-only, optional
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`.
+
+        Returns
+        -------
+        artist_ids : `dict`
+            A dictionary containing TIDAL artist IDs for similar albums
+            and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "resource": {
+                          "id": <str>
+                        }
+                      }
+                    ],
+                    "metadata": {
+                      "total": <int>
+                    }
+                  }
+        """
+
+        return self._get_json(
+            f"{self.API_URL}/artists/{artist_id}/similar",
+            params={
+                "countryCode": country_code,
+                "limit": limit,
+                "offset": offset
+            }
+        )
 
     ### TRACK API #############################################################
 
@@ -1127,6 +1260,71 @@ class API:
         return self._get_json(
             f"{self.API_URL}/tracks",
             params={"ids": track_ids, "countryCode": country_code}
+        )
+
+    def get_similar_tracks(
+            self, track_id: Union[int, str], country_code: str, *,
+            limit: int = None, offset: int = None) -> dict[str, Any]:
+        
+        """
+        `Track API > Get similar tracks for the given track
+        <https://developer.tidal.com/apiref?ref=get-similar-tracks>`_:
+        Retrieve a list of tracks similar to the given track.
+
+        Parameters
+        ----------
+        track_id : `int` or `str`
+            TIDAL track ID.
+
+            **Example**: :code:`251380837`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        limit : `int`, keyword-only, optional
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`.
+
+        Returns
+        -------
+        track_ids : `dict`
+            A dictionary containing TIDAL track IDs for similar albums
+            and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "resource": {
+                          "id": <str>
+                        }
+                      }
+                    ],
+                    "metadata": {
+                      "total": <int>
+                    }
+                  }
+        """
+
+        return self._get_json(
+            f"{self.API_URL}/tracks/{track_id}/similar",
+            params={
+                "countryCode": country_code,
+                "limit": limit,
+                "offset": offset
+            }
         )
     
     ### VIDEO API #############################################################

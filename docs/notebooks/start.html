@@ -1,18 +1,18 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="User Guide" href="../guide.html" /><link rel="prev" title="Minim" href="../index.html" />
 
-    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 5.3.0 and Furo 2023.05.20 -->
-        <title>Getting Started - minim documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+        <title>Getting Started - Minim 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -126,7 +126,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">minim  documentation</div></a>
+      <a href="../index.html"><div class="brand">Minim 1.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,13 +146,12 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   <div class="sidebar-logo-container">
     <img class="sidebar-logo" src="../_static/icon.svg" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">minim  documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -234,9 +233,9 @@
         </div>
         <article role="main">
           <section id="getting-started">
-<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">#</a></h1>
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h1>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
 <p>Minim is a Python package and can be installed from source using pip, the package installer for Python.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -322,9 +321,9 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </ol>
 </section>
 <section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">#</a></h2>
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h2>
 <section id="music-service-apis">
-<h3>Music service APIs<a class="headerlink" href="#music-service-apis" title="Permalink to this heading">#</a></h3>
+<h3>Music service APIs<a class="headerlink" href="#music-service-apis" title="Link to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">minim</span> <span class="kn">import</span> <span class="n">itunes</span><span class="p">,</span> <span class="n">qobuz</span><span class="p">,</span> <span class="n">spotify</span><span class="p">,</span> <span class="n">tidal</span>
@@ -334,7 +333,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 <p>Currently, clients for iTunes Search API, Qobuz API, Spotify Web API, and TIDAL APIs have been implemented. Other than the iTunes Search API, which does not require client credentials or support user authentication and can be used out of the box, the other APIs have a few additional prerequisite steps before they can be used. If you authenticate via Minim, the tokens and their related information will be cached and updated automatically as they expire and are refreshed.</p>
 <section id="itunes-search-api-minim-itunes-searchapi">
-<h4>iTunes Search API (<code class="docutils literal notranslate"><span class="pre">minim.itunes.SearchAPI</span></code>)<a class="headerlink" href="#itunes-search-api-minim-itunes-searchapi" title="Permalink to this heading">#</a></h4>
+<h4>iTunes Search API (<code class="docutils literal notranslate"><span class="pre">minim.itunes.SearchAPI</span></code>)<a class="headerlink" href="#itunes-search-api-minim-itunes-searchapi" title="Link to this heading">#</a></h4>
 <p>To use the iTunes Search API, simply create a client with no arguments:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -345,7 +344,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="private-qobuz-api-minim-qobuz-privateapi">
-<h4>Private Qobuz API (<code class="docutils literal notranslate"><span class="pre">minim.qobuz.PrivateAPI</span></code>)<a class="headerlink" href="#private-qobuz-api-minim-qobuz-privateapi" title="Permalink to this heading">#</a></h4>
+<h4>Private Qobuz API (<code class="docutils literal notranslate"><span class="pre">minim.qobuz.PrivateAPI</span></code>)<a class="headerlink" href="#private-qobuz-api-minim-qobuz-privateapi" title="Link to this heading">#</a></h4>
 <p>If you already have a user authentication token, you can provide it and its accompanying app credentials to the client as keyword arguments <code class="docutils literal notranslate"><span class="pre">auth_token</span></code>, <code class="docutils literal notranslate"><span class="pre">app_id</span></code>, and <code class="docutils literal notranslate"><span class="pre">app_secret</span></code>, respectively, and skip this section.</p>
 <p>To use the Qobuz API without user authentication, simply create a client with no arguments:</p>
 <div class="cell docutils container">
@@ -366,14 +365,14 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <p>which you can use to log in normally.</p>
 </section>
 <section id="private-spotify-lyrics-service-minim-spotify-privatelyricsservice">
-<h4>Private Spotify Lyrics Service (<code class="docutils literal notranslate"><span class="pre">minim.spotify.PrivateLyricsService</span></code>)<a class="headerlink" href="#private-spotify-lyrics-service-minim-spotify-privatelyricsservice" title="Permalink to this heading">#</a></h4>
+<h4>Private Spotify Lyrics Service (<code class="docutils literal notranslate"><span class="pre">minim.spotify.PrivateLyricsService</span></code>)<a class="headerlink" href="#private-spotify-lyrics-service-minim-spotify-privatelyricsservice" title="Link to this heading">#</a></h4>
 <p>If you already have a user access token, you can provide it and optionally its accompanying expiry time and <code class="docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie to the client as keyword arguments <code class="docutils literal notranslate"><span class="pre">access_token</span></code>, <code class="docutils literal notranslate"><span class="pre">expiry</span></code>, and <code class="docutils literal notranslate"><span class="pre">sp_dc</span></code>, respectively, and skip this section.</p>
 <p>To use the Spotify Lyrics service,</p>
 <ol class="arabic">
 <li><p>Launch a web browser and log into the <a class="reference external" href="https://accounts.spotify.com/en/login?continue=https%3A%2F%2Fopen.spotify.com%2F">Spotify Web Player</a>.</p></li>
 <li><p>Find the <code class="docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie in your web browser’s storage.</p>
 <ul class="simple">
-<li><p>For Chromium-based browsers, press <code class="docutils literal notranslate"><span class="pre">F12</span></code> to open Chrome DevTools and navigate to <code class="docutils literal notranslate"><span class="pre">Application</span> <span class="pre">&gt;</span> <span class="pre">Storage</span> <span class="pre">&gt;</span> <span class="pre">Cookies</span> <span class="pre">&gt;</span> <span class="pre">https://open.spotify.com</span></code>.</p></li>
+<li><p>For Chromium-based browsers, press <code class="docutils literal notranslate"><span class="pre">F12</span></code> to open DevTools and navigate to <code class="docutils literal notranslate"><span class="pre">Application</span> <span class="pre">&gt;</span> <span class="pre">Storage</span> <span class="pre">&gt;</span> <span class="pre">Cookies</span> <span class="pre">&gt;</span> <span class="pre">https://open.spotify.com</span></code>.fi</p></li>
 <li><p>For Firefox, press <code class="docutils literal notranslate"><span class="pre">Shift</span></code> + <code class="docutils literal notranslate"><span class="pre">F9</span></code> to open Storage Inspector and nagivate to <code class="docutils literal notranslate"><span class="pre">Storage</span> <span class="pre">&gt;</span> <span class="pre">Cookies</span> <span class="pre">&gt;</span> <span class="pre">https://open.spotify.com</span></code>.</p></li>
 </ul>
 </li>
@@ -393,7 +392,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="spotify-web-api-minim-spotify-webapi">
-<h4>Spotify Web API (<code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI</span></code>)<a class="headerlink" href="#spotify-web-api-minim-spotify-webapi" title="Permalink to this heading">#</a></h4>
+<h4>Spotify Web API (<code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI</span></code>)<a class="headerlink" href="#spotify-web-api-minim-spotify-webapi" title="Link to this heading">#</a></h4>
 <p>If you already have an access token, you can provide it and optionally its accompanying refresh token, expiry time, and client credentials to the client as keyword arguments <code class="docutils literal notranslate"><span class="pre">access_token</span></code>, <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code>, <code class="docutils literal notranslate"><span class="pre">expiry</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code>, respectively, and skip this section.</p>
 <p>First, register a Spotify application <a class="reference external" href="https://developer.spotify.com/documentation/general/guides/authorization/app-settings/">here</a> and grab its client credentials. For the redirect URI, use <code class="docutils literal notranslate"><span class="pre">http://localhost:8888/callback</span></code>. You can replace <code class="docutils literal notranslate"><span class="pre">8888</span></code> with an open port of your choice, but you will need to pass <code class="docutils literal notranslate"><span class="pre">port=&lt;SPOTIFY_PORT&gt;</span></code> when you create a client.</p>
 <p>To use the Spotify Web API without user authentication, you can provide the client credentials as keyword arguments <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code> to the client:</p>
@@ -424,7 +423,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </ol>
 </section>
 <section id="tidal-api-minim-tidal-api">
-<h4>TIDAL API (<code class="docutils literal notranslate"><span class="pre">minim.tidal.API</span></code>)<a class="headerlink" href="#tidal-api-minim-tidal-api" title="Permalink to this heading">#</a></h4>
+<h4>TIDAL API (<code class="docutils literal notranslate"><span class="pre">minim.tidal.API</span></code>)<a class="headerlink" href="#tidal-api-minim-tidal-api" title="Link to this heading">#</a></h4>
 <p>If you already have a client-only access token, you can provide it and optionally its accompanying refresh token, expiry time, and client credentials to the client as keyword arguments <code class="docutils literal notranslate"><span class="pre">access_token</span></code>, <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code>, <code class="docutils literal notranslate"><span class="pre">expiry</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code>, respectively, and skip this section.</p>
 <p>First, register a TIDAL application <a class="reference external" href="https://developer.tidal.com/documentation/dashboard/dashboard-client-credentials">here</a> and jot down the client credentials.</p>
 <p>To use the TIDAL API, you can provide the client credentials as keyword arguments <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code> to the client:</p>
@@ -441,7 +440,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="private-tidal-api-minim-tidal-privateapi">
-<h4>Private TIDAL API (<code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI</span></code>)<a class="headerlink" href="#private-tidal-api-minim-tidal-privateapi" title="Permalink to this heading">#</a></h4>
+<h4>Private TIDAL API (<code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI</span></code>)<a class="headerlink" href="#private-tidal-api-minim-tidal-privateapi" title="Link to this heading">#</a></h4>
 <p>If you already have an access token, you can provide it and optionally its accompanying refresh token, expiry time, and client credentials to the client as keyword arguments <code class="docutils literal notranslate"><span class="pre">access_token</span></code>, <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code>, <code class="docutils literal notranslate"><span class="pre">expiry</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code>, respectively, and skip this section.</p>
 <p>To use the TIDAL API without user authentication, simply create a client with no arguments:</p>
 <div class="cell docutils container">
@@ -472,12 +471,12 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </ol>
 </section>
 <section id="examples">
-<h4>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">#</a></h4>
+<h4>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h4>
 <section id="search-for-an-artist">
-<h5>Search for an artist<a class="headerlink" href="#search-for-an-artist" title="Permalink to this heading">#</a></h5>
+<h5>Search for an artist<a class="headerlink" href="#search-for-an-artist" title="Link to this heading">#</a></h5>
 <p>Each of the APIs has a <code class="docutils literal notranslate"><span class="pre">search()</span></code> method that can be used to search for and retrieve information about an artist, such as the EDM group Galantis:</p>
 <section id="itunes-search-api">
-<h6>iTunes Search API<a class="headerlink" href="#itunes-search-api" title="Permalink to this heading">#</a></h6>
+<h6>iTunes Search API<a class="headerlink" href="#itunes-search-api" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_itunes</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Galantis&quot;</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="s2">&quot;musicArtist&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -505,7 +504,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="private-qobuz-api">
-<h6>Private Qobuz API<a class="headerlink" href="#private-qobuz-api" title="Permalink to this heading">#</a></h6>
+<h6>Private Qobuz API<a class="headerlink" href="#private-qobuz-api" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_qobuz</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Galantis&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -535,7 +534,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="spotify-web-api">
-<h6>Spotify Web API<a class="headerlink" href="#spotify-web-api" title="Permalink to this heading">#</a></h6>
+<h6>Spotify Web API<a class="headerlink" href="#spotify-web-api" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_spotify</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Galantis&quot;</span><span class="p">,</span> <span class="s2">&quot;artist&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -549,7 +548,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </summary>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;external_urls&#39;: {&#39;spotify&#39;: &#39;https://open.spotify.com/artist/4sTQVOfp9vEMCemLw50sbu&#39;},
- &#39;followers&#39;: {&#39;href&#39;: None, &#39;total&#39;: 3373622},
+ &#39;followers&#39;: {&#39;href&#39;: None, &#39;total&#39;: 3374400},
  &#39;genres&#39;: [&#39;dance pop&#39;, &#39;edm&#39;, &#39;pop&#39;, &#39;pop dance&#39;],
  &#39;href&#39;: &#39;https://api.spotify.com/v1/artists/4sTQVOfp9vEMCemLw50sbu&#39;,
  &#39;id&#39;: &#39;4sTQVOfp9vEMCemLw50sbu&#39;,
@@ -573,7 +572,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="tidal-api">
-<h6>TIDAL API<a class="headerlink" href="#tidal-api" title="Permalink to this heading">#</a></h6>
+<h6>TIDAL API<a class="headerlink" href="#tidal-api" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_tidal</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Galantis&quot;</span><span class="p">,</span> <span class="s2">&quot;US&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;ARTISTS&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -628,7 +627,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="private-tidal-api">
-<h6>Private TIDAL API<a class="headerlink" href="#private-tidal-api" title="Permalink to this heading">#</a></h6>
+<h6>Private TIDAL API<a class="headerlink" href="#private-tidal-api" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_tidal_private</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Galantis&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;artist&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -662,10 +661,10 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </section>
 </section>
 <section id="search-for-a-track">
-<h5>Search for a track<a class="headerlink" href="#search-for-a-track" title="Permalink to this heading">#</a></h5>
+<h5>Search for a track<a class="headerlink" href="#search-for-a-track" title="Link to this heading">#</a></h5>
 <p>The same <code class="docutils literal notranslate"><span class="pre">search()</span></code> method can also be used to search for and retrieve information about a track, such as “Everybody Talks” by Neon Trees:</p>
 <section id="id1">
-<h6>iTunes Search API<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h6>
+<h6>iTunes Search API<a class="headerlink" href="#id1" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_itunes</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Everybody Talks&quot;</span><span class="p">,</span> <span class="n">media</span><span class="o">=</span><span class="s2">&quot;music&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -717,7 +716,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="id2">
-<h6>Private Qobuz API<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h6>
+<h6>Private Qobuz API<a class="headerlink" href="#id2" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">track_qobuz</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Everybody Talks&quot;</span><span class="p">,</span> <span class="s2">&quot;ReleaseName&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
@@ -818,7 +817,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="id3">
-<h6>Spotify Web API<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h6>
+<h6>Spotify Web API<a class="headerlink" href="#id3" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">track_spotify</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Everybody Talks&quot;</span><span class="p">,</span> <span class="s2">&quot;track&quot;</span><span class="p">,</span> 
@@ -1235,7 +1234,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="id4">
-<h6>TIDAL API<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h6>
+<h6>TIDAL API<a class="headerlink" href="#id4" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_tidal</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Everybody Talks&quot;</span><span class="p">,</span> <span class="s2">&quot;US&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;TRACKS&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -1258,7 +1257,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="id5">
-<h6>Private TIDAL API<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h6>
+<h6>Private TIDAL API<a class="headerlink" href="#id5" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">track_tidal_private</span> <span class="o">=</span> <span class="n">client_tidal_private</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Everybody Talks&quot;</span><span class="p">,</span> 
@@ -1320,10 +1319,10 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </section>
 </section>
 <section id="create-modify-and-delete-a-personal-playlist">
-<h5>Create, modify, and delete a personal playlist<a class="headerlink" href="#create-modify-and-delete-a-personal-playlist" title="Permalink to this heading">#</a></h5>
+<h5>Create, modify, and delete a personal playlist<a class="headerlink" href="#create-modify-and-delete-a-personal-playlist" title="Link to this heading">#</a></h5>
 <p>If the clients are authenticated, you can create and modify user playlists. As an example, we will create a private playlist named “Minim”, make it public, add “Everybody Talks” by Neon Trees to it, and then delete it.</p>
 <section id="id6">
-<h6>Private Qobuz API<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h6>
+<h6>Private Qobuz API<a class="headerlink" href="#id6" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">playlist_qobuz</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">create_playlist</span><span class="p">(</span>
@@ -1351,19 +1350,19 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
  &#39;images&#39;: [&#39;https://static.qobuz.com/images/covers/42/54/0060252795442_50.jpg&#39;],
  &#39;is_collaborative&#39;: False,
  &#39;description&#39;: &#39;A playlist created using Minim.&#39;,
- &#39;created_at&#39;: 1699261479,
+ &#39;created_at&#39;: 1699502856,
  &#39;images300&#39;: [&#39;https://static.qobuz.com/images/covers/42/54/0060252795442_300.jpg&#39;],
  &#39;duration&#39;: 177,
- &#39;updated_at&#39;: 1699261480,
+ &#39;updated_at&#39;: 1699502857,
  &#39;published_to&#39;: None,
  &#39;genres&#39;: [],
  &#39;tracks_count&#39;: 1,
- &#39;public_at&#39;: 1699261480,
+ &#39;public_at&#39;: 1699502856,
  &#39;name&#39;: &#39;Minim&#39;,
  &#39;is_public&#39;: True,
  &#39;published_from&#39;: None,
- &#39;id&#39;: 17747647,
- &#39;slug&#39;: &#39;minim-10&#39;,
+ &#39;id&#39;: 17785563,
+ &#39;slug&#39;: &#39;minim-20&#39;,
  &#39;is_featured&#39;: False,
  &#39;tracks&#39;: {&#39;offset&#39;: 0,
   &#39;limit&#39;: 50,
@@ -1448,8 +1447,8 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
     &#39;hires&#39;: False,
     &#39;hires_streamable&#39;: False,
     &#39;position&#39;: 1,
-    &#39;created_at&#39;: 1699261480,
-    &#39;playlist_track_id&#39;: 3734187444}]}}
+    &#39;created_at&#39;: 1699502856,
+    &#39;playlist_track_id&#39;: 3756687402}]}}
 </pre></div>
 </div>
 </div>
@@ -1464,7 +1463,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="id7">
-<h6>Spotify Web API<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h6>
+<h6>Spotify Web API<a class="headerlink" href="#id7" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">playlist_spotify</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">create_playlist</span><span class="p">(</span>
@@ -1490,10 +1489,10 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;collaborative&#39;: False,
  &#39;description&#39;: &#39;A playlist created using Minim.&#39;,
- &#39;external_urls&#39;: {&#39;spotify&#39;: &#39;https://open.spotify.com/playlist/4eFh6lJiLhvCTUt53vDhtB&#39;},
+ &#39;external_urls&#39;: {&#39;spotify&#39;: &#39;https://open.spotify.com/playlist/0BCa4y93NxGd5l7zk4rhsB&#39;},
  &#39;followers&#39;: {&#39;href&#39;: None, &#39;total&#39;: 0},
- &#39;href&#39;: &#39;https://api.spotify.com/v1/playlists/4eFh6lJiLhvCTUt53vDhtB&#39;,
- &#39;id&#39;: &#39;4eFh6lJiLhvCTUt53vDhtB&#39;,
+ &#39;href&#39;: &#39;https://api.spotify.com/v1/playlists/0BCa4y93NxGd5l7zk4rhsB&#39;,
+ &#39;id&#39;: &#39;0BCa4y93NxGd5l7zk4rhsB&#39;,
  &#39;images&#39;: [{&#39;height&#39;: 640,
    &#39;url&#39;: &#39;https://i.scdn.co/image/ab67616d0000b2734a6c0376235e5aa44e59d2c2&#39;,
    &#39;width&#39;: 640}],
@@ -1501,9 +1500,9 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
  &#39;owner&#39;: None,
  &#39;primary_color&#39;: None,
  &#39;public&#39;: True,
- &#39;snapshot_id&#39;: &#39;MyxiZTQyM2FkOGM0MDQ5NTUyYTcxYWY5YmM3Mjc2OWUxYzRkYTAzMTIx&#39;,
- &#39;tracks&#39;: {&#39;href&#39;: &#39;https://api.spotify.com/v1/playlists/4eFh6lJiLhvCTUt53vDhtB/tracks?offset=0&amp;limit=100&#39;,
-  &#39;items&#39;: [{&#39;added_at&#39;: &#39;2023-11-06T09:04:42Z&#39;,
+ &#39;snapshot_id&#39;: &#39;MywyYTNmNjVlNzAzODM3MTliNDZmMzNjYzMwNTBhYjllNzJhNTY0ZTll&#39;,
+ &#39;tracks&#39;: {&#39;href&#39;: &#39;https://api.spotify.com/v1/playlists/0BCa4y93NxGd5l7zk4rhsB/tracks?offset=0&amp;limit=100&#39;,
+  &#39;items&#39;: [{&#39;added_at&#39;: &#39;2023-11-09T04:07:39Z&#39;,
     &#39;added_by&#39;: None,
     &#39;is_local&#39;: False,
     &#39;primary_color&#39;: None,
@@ -1911,7 +1910,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
   &#39;previous&#39;: None,
   &#39;total&#39;: 1},
  &#39;type&#39;: &#39;playlist&#39;,
- &#39;uri&#39;: &#39;spotify:playlist:4eFh6lJiLhvCTUt53vDhtB&#39;}
+ &#39;uri&#39;: &#39;spotify:playlist:0BCa4y93NxGd5l7zk4rhsB&#39;}
 </pre></div>
 </div>
 </div>
@@ -1926,7 +1925,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 <section id="id8">
-<h6>Private TIDAL API<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h6>
+<h6>Private TIDAL API<a class="headerlink" href="#id8" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
 <div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">playlist_tidal_private</span> <span class="o">=</span> <span class="n">client_tidal_private</span><span class="o">.</span><span class="n">create_playlist</span><span class="p">(</span>
@@ -1953,7 +1952,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <span class="expanded">Hide code cell output</span>
 </summary>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;playlist&#39;: {&#39;uuid&#39;: &#39;bab4ca34-8823-49cc-8ceb-d744e8bad900&#39;,
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;playlist&#39;: {&#39;uuid&#39;: &#39;1e1b0341-7d0e-41ce-843e-fe8d5ff3dc6f&#39;,
   &#39;type&#39;: &#39;USER&#39;,
   &#39;creator&#39;: None,
   &#39;contentBehavior&#39;: &#39;UNRESTRICTED&#39;,
@@ -1962,19 +1961,19 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
   &#39;source&#39;: &#39;DEFAULT&#39;,
   &#39;title&#39;: &#39;Minim&#39;,
   &#39;description&#39;: &#39;A playlist created using Minim.&#39;,
-  &#39;image&#39;: &#39;a990bf6a-2ba4-4fda-a873-3c62d7355724&#39;,
-  &#39;squareImage&#39;: &#39;9ca258cc-c4f1-4a1b-9bf8-7beb3c359fdd&#39;,
-  &#39;url&#39;: &#39;http://www.tidal.com/playlist/bab4ca34-8823-49cc-8ceb-d744e8bad900&#39;,
-  &#39;created&#39;: &#39;2023-11-06T09:04:43.111+0000&#39;,
-  &#39;lastUpdated&#39;: &#39;2023-11-06T09:04:43.629+0000&#39;,
-  &#39;lastItemAddedAt&#39;: &#39;2023-11-06T09:04:43.629+0000&#39;,
+  &#39;image&#39;: &#39;d6765025-25fa-4f5f-9e45-581fd4311969&#39;,
+  &#39;squareImage&#39;: &#39;fd909e76-0ee1-421a-841f-299bc5d58c4d&#39;,
+  &#39;url&#39;: &#39;http://www.tidal.com/playlist/1e1b0341-7d0e-41ce-843e-fe8d5ff3dc6f&#39;,
+  &#39;created&#39;: &#39;2023-11-09T04:07:39.714+0000&#39;,
+  &#39;lastUpdated&#39;: &#39;2023-11-09T04:07:40.281+0000&#39;,
+  &#39;lastItemAddedAt&#39;: &#39;2023-11-09T04:07:40.281+0000&#39;,
   &#39;duration&#39;: 177,
   &#39;numberOfTracks&#39;: 1,
   &#39;numberOfVideos&#39;: 0,
   &#39;promotedArtists&#39;: [],
-  &#39;trn&#39;: &#39;trn:playlist:bab4ca34-8823-49cc-8ceb-d744e8bad900&#39;},
+  &#39;trn&#39;: &#39;trn:playlist:1e1b0341-7d0e-41ce-843e-fe8d5ff3dc6f&#39;},
  &#39;followInfo&#39;: {&#39;nrOfFollowers&#39;: 0,
-  &#39;tidalResourceName&#39;: &#39;trn:playlist:bab4ca34-8823-49cc-8ceb-d744e8bad900&#39;,
+  &#39;tidalResourceName&#39;: &#39;trn:playlist:1e1b0341-7d0e-41ce-843e-fe8d5ff3dc6f&#39;,
   &#39;followed&#39;: True,
   &#39;followType&#39;: &#39;PLAYLIST&#39;},
  &#39;profile&#39;: None}
@@ -1993,6 +1992,17 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </section>
 </section>
 </section>
+</section>
+<section id="audio-file-handlers">
+<h3>Audio file handlers<a class="headerlink" href="#audio-file-handlers" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">minim.audio</span> <span class="kn">import</span> <span class="n">Audio</span><span class="p">,</span> <span class="n">FLACAudio</span><span class="p">,</span> <span class="n">MP3Audio</span><span class="p">,</span> <span class="n">MP4Audio</span><span class="p">,</span> <span class="n">OGGAudio</span><span class="p">,</span> <span class="n">WAVEAudio</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Minim uses <a class="reference external" href="https://mutagen.readthedocs.io/en/latest/">Mutagen</a> to load and edit audio files. Currently, the most common audio formats, such as FLAC, MP3, M4A, OGG, and WAV, are supported.</p>
 </section>
 </section>
 </section>
@@ -2089,6 +2099,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#audio-file-handlers">Audio file handlers</a></li>
 </ul>
 </li>
 </ul>
@@ -2102,19 +2113,17 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scripts/furo.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
+</div><script src="../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
     <script>let toggleHintShow = '';</script>
     <script>let toggleHintHide = '';</script>
     <script>let toggleOpenOnPrint = 'true';</script>
-    <script src="../_static/togglebutton.js"></script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     </body>
 </html>

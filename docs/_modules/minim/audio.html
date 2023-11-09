@@ -1,17 +1,17 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 5.3.0 and Furo 2023.05.20 -->
-        <title>minim.audio - minim documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+        <title>minim.audio - Minim 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">minim  documentation</div></a>
+      <a href="../../index.html"><div class="brand">Minim 1.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,13 +145,12 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   <div class="sidebar-logo-container">
     <img class="sidebar-logo" src="../../_static/icon.svg" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">minim  documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -605,7 +604,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Audio"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio">[docs]</a><span class="k">class</span> <span class="nc">Audio</span><span class="p">:</span>
+<div class="viewcode-block" id="Audio">
+<a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio">[docs]</a>
+<span class="k">class</span> <span class="nc">Audio</span><span class="p">:</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A generic audio file.</span>
@@ -779,7 +780,9 @@
                     <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS_TYPES</span><span class="p">[</span><span class="n">attr</span><span class="p">][</span><span class="mi">0</span><span class="p">](</span><span class="n">val</span><span class="p">))</span>
 
-<div class="viewcode-block" id="Audio.convert"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span>
+<div class="viewcode-block" id="Audio.convert">
+<a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.convert">[docs]</a>
+    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">codec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">container</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
             <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">preserve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -949,7 +952,10 @@
             <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS_TYPES</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Audio.set_metadata_using_itunes"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_itunes">[docs]</a>    <span class="k">def</span> <span class="nf">set_metadata_using_itunes</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Audio.set_metadata_using_itunes">
+<a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_itunes">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_metadata_using_itunes</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">album_data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
             <span class="n">artwork_size</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1400</span><span class="p">,</span> <span class="n">artwork_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;jpg&quot;</span><span class="p">,</span>
             <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1034,7 +1040,10 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">copyright</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">copyright</span> <span class="o">=</span> <span class="n">album_data</span><span class="p">[</span><span class="s2">&quot;copyright&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Audio.set_metadata_using_spotify"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_spotify">[docs]</a>    <span class="k">def</span> <span class="nf">set_metadata_using_spotify</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Audio.set_metadata_using_spotify">
+<a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_spotify">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_metadata_using_spotify</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">audio_features</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">lyrics</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1098,7 +1107,10 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;total_tracks&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Audio.set_metadata_using_tidal"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_tidal">[docs]</a>    <span class="k">def</span> <span class="nf">set_metadata_using_tidal</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Audio.set_metadata_using_tidal">
+<a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_tidal">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_metadata_using_tidal</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">album_data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">composer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">artwork</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">lyrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1182,7 +1194,10 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="o">=</span> <span class="n">album_data</span><span class="p">[</span><span class="s2">&quot;numberOfTracks&quot;</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Audio.set_metadata_using_qobuz"><a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_qobuz">[docs]</a>    <span class="k">def</span> <span class="nf">set_metadata_using_qobuz</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Audio.set_metadata_using_qobuz">
+<a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_qobuz">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_metadata_using_qobuz</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">main_artist</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">feat_artist</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">composer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">artwork</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1311,9 +1326,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="o">+=</span> <span class="s2">&quot; - Single&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artist</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artist</span><span class="p">,</span> 
                                                   <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span><span class="p">,</span> 
-                                                  <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span></div></div>
+                                                  <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span></div>
+</div>
 
-<div class="viewcode-block" id="FLACAudio"><a class="viewcode-back" href="../../api/minim.audio.FLACAudio.html#minim.audio.FLACAudio">[docs]</a><span class="k">class</span> <span class="nc">FLACAudio</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="n">_VorbisComment</span><span class="p">):</span>
+
+<div class="viewcode-block" id="FLACAudio">
+<a class="viewcode-back" href="../../api/minim.audio.FLACAudio.html#minim.audio.FLACAudio">[docs]</a>
+<span class="k">class</span> <span class="nc">FLACAudio</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="n">_VorbisComment</span><span class="p">):</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A FLAC audio file.</span>
@@ -1386,7 +1405,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_from_filename</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MP3Audio"><a class="viewcode-back" href="../../api/minim.audio.MP3Audio.html#minim.audio.MP3Audio">[docs]</a><span class="k">class</span> <span class="nc">MP3Audio</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="n">_ID3</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MP3Audio">
+<a class="viewcode-back" href="../../api/minim.audio.MP3Audio.html#minim.audio.MP3Audio">[docs]</a>
+<span class="k">class</span> <span class="nc">MP3Audio</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="n">_ID3</span><span class="p">):</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An MP3 audio file.</span>
@@ -1457,7 +1479,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_from_filename</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MP4Audio"><a class="viewcode-back" href="../../api/minim.audio.MP4Audio.html#minim.audio.MP4Audio">[docs]</a><span class="k">class</span> <span class="nc">MP4Audio</span><span class="p">(</span><span class="n">Audio</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MP4Audio">
+<a class="viewcode-back" href="../../api/minim.audio.MP4Audio.html#minim.audio.MP4Audio">[docs]</a>
+<span class="k">class</span> <span class="nc">MP4Audio</span><span class="p">(</span><span class="n">Audio</span><span class="p">):</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An MP4 audio file.</span>
@@ -1603,7 +1628,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_artwork_format</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="MP4Audio.write_metadata"><a class="viewcode-back" href="../../api/minim.audio.MP4Audio.html#minim.audio.MP4Audio.write_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">write_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="MP4Audio.write_metadata">
+<a class="viewcode-back" href="../../api/minim.audio.MP4Audio.html#minim.audio.MP4Audio.write_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write metadata to file.</span>
@@ -1643,9 +1670,13 @@
                 <span class="p">)</span>
             <span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+</div>
 
-<div class="viewcode-block" id="OGGAudio"><a class="viewcode-back" href="../../api/minim.audio.OGGAudio.html#minim.audio.OGGAudio">[docs]</a><span class="k">class</span> <span class="nc">OGGAudio</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="n">_VorbisComment</span><span class="p">):</span>
+
+<div class="viewcode-block" id="OGGAudio">
+<a class="viewcode-back" href="../../api/minim.audio.OGGAudio.html#minim.audio.OGGAudio">[docs]</a>
+<span class="k">class</span> <span class="nc">OGGAudio</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="n">_VorbisComment</span><span class="p">):</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An OGG audio file.</span>
@@ -1738,7 +1769,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_from_filename</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WAVEAudio"><a class="viewcode-back" href="../../api/minim.audio.WAVEAudio.html#minim.audio.WAVEAudio">[docs]</a><span class="k">class</span> <span class="nc">WAVEAudio</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="n">_ID3</span><span class="p">):</span>
+
+<div class="viewcode-block" id="WAVEAudio">
+<a class="viewcode-back" href="../../api/minim.audio.WAVEAudio.html#minim.audio.WAVEAudio">[docs]</a>
+<span class="k">class</span> <span class="nc">WAVEAudio</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="n">_ID3</span><span class="p">):</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A WAVE audio file.</span>
@@ -1810,6 +1844,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">sample_rate</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_from_filename</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span></div>
+
 </pre></div>
         </article>
       </div>
@@ -1842,19 +1877,17 @@
       
     </aside>
   </div>
-</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/scripts/furo.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
+</div><script src="../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
     <script>let toggleHintShow = '';</script>
     <script>let toggleHintHide = '';</script>
     <script>let toggleOpenOnPrint = 'true';</script>
-    <script src="../../_static/togglebutton.js"></script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     </body>
 </html>

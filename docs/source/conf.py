@@ -1,7 +1,9 @@
-import pathlib
+from pathlib import Path
 import sys
 
-sys.path.insert(0, f"{pathlib.Path(__file__).resolve().parents[2]}/src")
+sys.path.insert(0, f"{Path(__file__).resolve().parents[2]}/src")
+
+from minim import VERSION
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -11,9 +13,10 @@ sys.path.insert(0, f"{pathlib.Path(__file__).resolve().parents[2]}/src")
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "minim"
-copyright = "2023, Benjamin Ye"
+project = "Minim"
 author = "Benjamin Ye"
+copyright = "2023, Benjamin Ye"
+version = release = VERSION
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -38,6 +41,7 @@ toc_object_entries_show_parents = "hide"
 autodoc_member_order = "bysource"
 autosummary_generate = True
 intersphinx_mapping = {
+    "mutagen": ("https://mutagen.readthedocs.io/en/latest/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "python": ("https://docs.python.org/3/", None)
 }
@@ -55,3 +59,6 @@ html_logo = "../../assets/icon.svg"
 html_show_sourcelink = False
 html_static_path = ["_static"]
 html_theme = "furo"
+html_theme_options = {
+    "sidebar_hide_name": True
+}
