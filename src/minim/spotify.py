@@ -11,6 +11,7 @@ service.
 import base64
 import datetime
 import hashlib
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 import logging
 import multiprocessing
@@ -26,17 +27,40 @@ import requests
 
 try:
     from flask import Flask, request
-    FOUND = {"flask": True}
+    FOUND_FLASK = True
 except ModuleNotFoundError: # pragma: no cover
-    FOUND = {"flask": False}
+    FOUND_FLASK = False
 
 try:
     from playwright.sync_api import sync_playwright
-    FOUND["playwright"] = True
+    FOUND_PLAYWRIGHT = True
 except ModuleNotFoundError: # pragma: no cover
-    FOUND["playwright"] = False
+    FOUND_PLAYWRIGHT = False
  
 from . import HOME_DIR, TEMP_DIR, config
+
+class _SpotifyRedirectHandler(BaseHTTPRequestHandler):
+    
+    """
+    HTTP request handler for the Spotify authorization code flow.
+    """
+
+    def do_GET(self):
+        
+        """
+        Handles an incoming GET request and parses the query string.
+        """
+
+        self.server.response = dict(
+            urllib.parse.parse_qsl(
+                urllib.parse.urlparse(f"{self.path}").query
+            )
+        )
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html")
+        self.end_headers()
+        status = "denied" if "error" in self.server.response else "granted" 
+        self.wfile.write(f"Access {status}. You may close this page now.".encode())
 
 class PrivateLyricsService:
 
@@ -452,7 +476,7 @@ class WebAPI:
            * :code:`"web_player"` for a Spotify Web Player access 
              token.
     
-    framework : `str` or `bool`, keyword-only, optional
+    framework : `str`, keyword-only, optional
         Determines which web framework to use for the authorization code
         flow. 
         
@@ -460,15 +484,11 @@ class WebAPI:
 
            **Valid values**:
 
+           * :code:`http.server` for the built-in implementation of
+             HTTP servers.
            * :code:`"flask"` for the Flask framework.
            * :code:`"playwright"` for the Playwright framework by 
              Microsoft.
-           * :code:`True` to automatically select an available 
-             framework.
-           * :code:`False` or :code:`None` to complete the 
-             authentication process headlessly. The user will have to
-             manually open the authorization URL and provide the full
-             callback URI via the terminal.
 
     port : `int` or `str`, keyword-only, default: :code:`8888`
         Port on :code:`localhost` to use for the authorization code
@@ -655,7 +675,7 @@ class WebAPI:
 
     def __init__(
             self, *, client_id: str = None, client_secret: str = None,
-            flow: str = "web_player", framework: Union[bool, str] = None,
+            flow: str = "web_player", framework: str = None,
             port: Union[int, str] = 8888, redirect_uri: str = None,
             scopes: Union[str, list[str]] = "", sp_dc: str = None,
             access_token: str = None, refresh_token: str = None, 
@@ -741,7 +761,13 @@ class WebAPI:
             params["code_challenge_method"] = "S256"
         auth_url = f"{self.AUTH_URL}?{urllib.parse.urlencode(params)}"
 
-        if self._web_framework == "flask":
+        if self._framework == "http.server":
+            httpd = HTTPServer(("", self._port), _SpotifyRedirectHandler)
+            webbrowser.open(auth_url)
+            httpd.handle_request()
+            queries = httpd.response
+
+        elif self._framework == "flask":
             app = Flask(__name__)
             json_file = TEMP_DIR / "minim_spotify.json"
 
@@ -765,7 +791,7 @@ class WebAPI:
                 queries = json.load(f)
             json_file.unlink()
         
-        elif self._web_framework == "playwright":
+        elif self._framework == "playwright":
             har_file = TEMP_DIR / "minim_spotify.har"
             
             with sync_playwright() as playwright:
@@ -1022,7 +1048,7 @@ class WebAPI:
 
     def set_flow(
             self, flow: str, *, client_id: str = None, 
-            client_secret: str = None, framework: Union[bool, str] = None,
+            client_secret: str = None, framework: str = None,
             port: Union[int, str] = 8888, redirect_uri: str = None, 
             scopes: Union[str, list[str]] = "", sp_dc: str = None, 
             save: bool = True) -> None:
@@ -1055,7 +1081,7 @@ class WebAPI:
             Client secret. Required for all OAuth 2.0 authorization 
             flows.
 
-        framework : `bool` or `str`, keyword-only, optional
+        framework : `str`, keyword-only, optional
             Web framework used to automatically complete the 
             authorization code flow.
 
@@ -1063,13 +1089,10 @@ class WebAPI:
 
                **Valid values**:
 
-               * :code:`True` to automatically determine which web
-                 framework to use.
+               * :code:`http.server` for the built-in implementation of
+                 HTTP servers.
                * :code:`"flask"` for the Flask framework.
                * :code:`"playwright"` for the Playwright framework.
-               * :code:`False` or :code:`None` to manually open the
-                 authorization URL in a web browser and provide the
-                 full callback URI via the terminal.
             
         port : `int` or `str`, keyword-only, default: :code:`8888`
             Port on :code:`localhost` to use for the authorization code
@@ -1125,16 +1148,13 @@ class WebAPI:
                     self._port = port
                     self._redirect_uri = f"http://localhost:{port}/callback"
 
-                if framework is True:
-                    self._web_framework = next(
-                        (wb for wb, f in FOUND.items() if f), None
-                    )
-                elif framework:
-                    self._web_framework = (framework if FOUND[framework]
-                                           else None)
-                else:
-                    self._web_framework = None
-                if self._web_framework is None and framework:
+                self._framework = (
+                    framework if framework is None 
+                                 or framework == "http.server"
+                                 or globals()[f"FOUND_{framework.upper()}"]
+                    else None
+                )
+                if self._framework is None and framework:
                     logging.warning(
                         "The specified web framework was not found, so "
                         "the automatic authorization code retrieval "
