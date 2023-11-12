@@ -1,0 +1,603 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="minim" href="../../api/minim.html" /><link rel="prev" title="User Guide" href="../../guide.html" />
+
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+        <title>Transferring Music Libraries - Minim 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">Minim 1.0.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/icon.svg" alt="Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../guide.html">User Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Transferring Music Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/minim.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.audio.html">audio</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of audio</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.Audio.html">Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.itunes.html">itunes</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of itunes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.SearchAPI.html">SearchAPI</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.qobuz.html">qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of qobuz</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.PrivateLyricsService.html">PrivateLyricsService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.WebAPI.html">WebAPI</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.tidal.html">tidal</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of tidal</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.API.html">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.PrivateAPI.html">PrivateAPI</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratio.html">levenshtein_ratio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.multivalue_formatter.html">multivalue_formatter</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="transferring-music-libraries">
+<h1>Transferring Music Libraries<a class="headerlink" href="#transferring-music-libraries" title="Link to this heading">#</a></h1>
+<p>Minim can be used as a free, open-source alternative to services like <a class="reference external" href="https://www.tunemymusic.com/">TuneMyMusic</a> for moving playlists and synchronizing libraries between the supported streaming services.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">minim</span> <span class="kn">import</span> <span class="n">qobuz</span><span class="p">,</span> <span class="n">spotify</span><span class="p">,</span> <span class="n">tidal</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<p>All clients must be authenticated to access private user information. Assuming the relevant client credentials are stored as environment variables, the recommended client instantiation is as follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_qobuz</span> <span class="o">=</span> <span class="n">qobuz</span><span class="o">.</span><span class="n">PrivateAPI</span><span class="p">(</span><span class="n">flow</span><span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="n">browser</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">client_spotify</span> <span class="o">=</span> <span class="n">spotify</span><span class="o">.</span><span class="n">WebAPI</span><span class="p">(</span><span class="n">flow</span><span class="o">=</span><span class="s2">&quot;pkce&quot;</span><span class="p">,</span> 
+                                <span class="n">scopes</span><span class="o">=</span><span class="n">spotify</span><span class="o">.</span><span class="n">WebAPI</span><span class="o">.</span><span class="n">get_scopes</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">),</span>
+                                <span class="n">framework</span><span class="o">=</span><span class="s2">&quot;http.server&quot;</span><span class="p">)</span>
+<span class="n">client_tidal</span> <span class="o">=</span> <span class="n">tidal</span><span class="o">.</span><span class="n">PrivateAPI</span><span class="p">(</span><span class="n">flow</span><span class="o">=</span><span class="s2">&quot;device&quot;</span><span class="p">,</span> <span class="n">browser</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="moving-playlists">
+<h2>Moving playlists<a class="headerlink" href="#moving-playlists" title="Link to this heading">#</a></h2>
+<p>The general process is to</p>
+<ol class="arabic simple">
+<li><p>get information about and the items in the source playlist,</p></li>
+<li><p>create a new playlist in the destination service, and</p></li>
+<li><p>find and add the corresponding items to the newly-created playlist.</p></li>
+</ol>
+<p>The challenge often lies in the third step. The items in the source playlist may not be available in the destination service or it may be difficult finding the matching item in the destination service, especially if its catalog lookup does not support searching by ISRC.</p>
+<p>The following examples provide barebones implementations of the process above for various service pairs. Additional fine-tuning is likely necessary to handle tracks with complex metadata, such as those with multiple (featured) artists, remixes, etc.</p>
+<section id="from-qobuz">
+<h3>From Qobuz<a class="headerlink" href="#from-qobuz" title="Link to this heading">#</a></h3>
+<p>We start with a Qobuz playlist with 5 tracks:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">QOBUZ_PLAYLIST_ID</span> <span class="o">=</span> <span class="mi">17865119</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can get the playlist information and the items in the playlist using <code class="docutils literal notranslate"><span class="pre">qobuz.PrivateAPI.get_playlist()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qobuz_playlist</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">get_playlist</span><span class="p">(</span><span class="n">QOBUZ_PLAYLIST_ID</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="to-spotify">
+<h4>To Spotify<a class="headerlink" href="#to-spotify" title="Link to this heading">#</a></h4>
+<p>First, we create a new playlist on Spotify with the same details as the Qobuz playlist using <code class="docutils literal notranslate"><span class="pre">spotify.WebAPI.create_playlist()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_spotify_playlist</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">create_playlist</span><span class="p">(</span>
+    <span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+    <span class="n">description</span><span class="o">=</span><span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">public</span><span class="o">=</span><span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;is_public&quot;</span><span class="p">],</span>
+    <span class="n">collaborative</span><span class="o">=</span><span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;is_collaborative&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then, we get the Spotify tracks equivalent to those in the Qobuz playlist. This is a simple process as Spotify allows looking up tracks by their ISRCs with its best-in-class API:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spotify_track_uris</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">qobuz_track</span> <span class="ow">in</span> <span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">]:</span>
+    <span class="n">spotify_track</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;isrc:</span><span class="si">{</span><span class="n">qobuz_track</span><span class="p">[</span><span class="s2">&quot;isrc&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;track&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">spotify_track_uris</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;spotify:track:</span><span class="si">{</span><span class="n">spotify_track</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we add the tracks to the Spotify playlist using <code class="docutils literal notranslate"><span class="pre">spotify.WebAPI.add_playlist_items()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_spotify</span><span class="o">.</span><span class="n">add_playlist_items</span><span class="p">(</span><span class="n">new_spotify_playlist</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">spotify_track_uris</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="to-tidal">
+<h4>To TIDAL<a class="headerlink" href="#to-tidal" title="Link to this heading">#</a></h4>
+<p>First, we create a new playlist on TIDAL with the same details as the Qobuz playlist using <code class="docutils literal notranslate"><span class="pre">tidal.PrivateAPI.create_playlist()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_tidal_playlist</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">create_playlist</span><span class="p">(</span>
+    <span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> 
+    <span class="n">description</span><span class="o">=</span><span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">public</span><span class="o">=</span><span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;is_public&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then, we try to find TIDAL tracks equivalent to those in the Qobuz playlist. Unfortunately, TIDAL does not support searching by ISRCs, so we have to look up the tracks using their titles and artists. The TIDAL API does, however, return ISRCs so we can confirm that we have the right tracks before adding them to the TIDAL playlist.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tidal_track_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">qobuz_track</span> <span class="ow">in</span> <span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">]:</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">qobuz_track</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">qobuz_track</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]:</span>
+        <span class="n">title</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="n">qobuz_track</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">tidal_track</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">qobuz_track</span><span class="p">[</span><span class="s2">&quot;performer&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> 
+        <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;track&quot;</span><span class="p">,</span> 
+        <span class="n">limit</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">qobuz_track</span><span class="p">[</span><span class="s2">&quot;isrc&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">tidal_track</span><span class="p">[</span><span class="s2">&quot;isrc&quot;</span><span class="p">]:</span>
+        <span class="n">tidal_track_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tidal_track</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we add the tracks to the TIDAL playlist using <code class="docutils literal notranslate"><span class="pre">tidal.PrivateAPI.add_playlist_items()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_tidal</span><span class="o">.</span><span class="n">add_playlist_items</span><span class="p">(</span><span class="n">new_tidal_playlist</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;uuid&quot;</span><span class="p">],</span> <span class="n">tidal_track_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="from-spotify">
+<h3>From Spotify<a class="headerlink" href="#from-spotify" title="Link to this heading">#</a></h3>
+<p>We start with a Spotify playlist with 5 tracks:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">SPOTIFY_PLAYLIST_ID</span> <span class="o">=</span> <span class="s2">&quot;3rw9qY60CEh6dfJauWdxMh&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can get the playlist information and the items in the playlist using <code class="docutils literal notranslate"><span class="pre">spotify.WebAPI.get_playlist()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spotify_playlist</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">get_playlist</span><span class="p">(</span><span class="n">SPOTIFY_PLAYLIST_ID</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="to-qobuz">
+<h4>To Qobuz<a class="headerlink" href="#to-qobuz" title="Link to this heading">#</a></h4>
+<p>First, we create a new playlist on Qobuz with the same details as the Spotify playlist using <code class="docutils literal notranslate"><span class="pre">qobuz.PrivateAPI.create_playlist()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_qobuz_playlist</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">create_playlist</span><span class="p">(</span>
+    <span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+    <span class="n">description</span><span class="o">=</span><span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">public</span><span class="o">=</span><span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;public&quot;</span><span class="p">],</span>
+    <span class="n">collaborative</span><span class="o">=</span><span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;collaborative&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then, we get the Qobuz tracks equivalent to those in the Spotify playlist. Thankfully, we can search by ISRC on Qobuz, so we can get the correct Qobuz tracks directly if they are available in the Qobuz catalog:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qobuz_track_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">spotify_track</span> <span class="ow">in</span> <span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">]:</span>
+    <span class="n">qobuz_track</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="n">spotify_track</span><span class="p">[</span><span class="s2">&quot;track&quot;</span><span class="p">][</span><span class="s2">&quot;external_ids&quot;</span><span class="p">][</span><span class="s2">&quot;isrc&quot;</span><span class="p">],</span>  
+        <span class="n">limit</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">qobuz_track_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qobuz_track</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we add the tracks to the Qobuz playlist using <code class="docutils literal notranslate"><span class="pre">qobuz.PrivateAPI.add_playlist_tracks()</span></code>:</p>
+<div class="cell tag_hide-output docutils container">
+<div class="cell_input above-output-prompt docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_qobuz</span><span class="o">.</span><span class="n">add_playlist_tracks</span><span class="p">(</span><span class="n">new_qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">qobuz_track_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<details class="hide below-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell output</span>
+<span class="expanded">Hide code cell output</span>
+</summary>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;id&#39;: 17865241,
+ &#39;name&#39;: &#39;Minim Example&#39;,
+ &#39;description&#39;: &#39;Moving playlists between music services.&#39;,
+ &#39;tracks_count&#39;: 5,
+ &#39;users_count&#39;: 0,
+ &#39;duration&#39;: 1056,
+ &#39;public_at&#39;: 1699743600,
+ &#39;created_at&#39;: 1699778411,
+ &#39;updated_at&#39;: 1699778414,
+ &#39;is_public&#39;: True,
+ &#39;is_collaborative&#39;: False,
+ &#39;owner&#39;: {&#39;id&#39;: 2733263, &#39;name&#39;: &#39;Foreign Arcanine&#39;}}
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</section>
+<section id="id1">
+<h4>To TIDAL<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
+<p>First, we create a new playlist on TIDAL with the same details as the Spotify playlist:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_tidal_playlist</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">create_playlist</span><span class="p">(</span>
+    <span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> 
+    <span class="n">description</span><span class="o">=</span><span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">public</span><span class="o">=</span><span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;public&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then, we try to find TIDAL tracks equivalent to those in the Spotify playlist:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tidal_track_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">spotify_track</span> <span class="ow">in</span> <span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">]:</span>
+    <span class="n">tidal_track</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">spotify_track</span><span class="p">[</span><span class="s2">&quot;track&quot;</span><span class="p">][</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">spotify_track</span><span class="p">[</span><span class="s2">&quot;track&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> 
+        <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;track&quot;</span><span class="p">,</span> 
+        <span class="n">limit</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">spotify_track</span><span class="p">[</span><span class="s2">&quot;track&quot;</span><span class="p">][</span><span class="s2">&quot;external_ids&quot;</span><span class="p">][</span><span class="s2">&quot;isrc&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">tidal_track</span><span class="p">[</span><span class="s2">&quot;isrc&quot;</span><span class="p">]:</span>
+        <span class="n">tidal_track_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tidal_track</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we add the tracks to the TIDAL playlist:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_tidal</span><span class="o">.</span><span class="n">add_playlist_items</span><span class="p">(</span><span class="n">new_tidal_playlist</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;uuid&quot;</span><span class="p">],</span> <span class="n">tidal_track_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="from-tidal">
+<h3>From TIDAL<a class="headerlink" href="#from-tidal" title="Link to this heading">#</a></h3>
+<section id="id2">
+<h4>To Qobuz<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
+</section>
+<section id="id3">
+<h4>To Spotify<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
+</section>
+</section>
+</section>
+<section id="synchronizing-favorites">
+<h2>Synchronizing favorites<a class="headerlink" href="#synchronizing-favorites" title="Link to this heading">#</a></h2>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../../api/minim.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">minim</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../../guide.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">User Guide</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Benjamin Ye
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Transferring Music Libraries</a><ul>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#moving-playlists">Moving playlists</a><ul>
+<li><a class="reference internal" href="#from-qobuz">From Qobuz</a><ul>
+<li><a class="reference internal" href="#to-spotify">To Spotify</a></li>
+<li><a class="reference internal" href="#to-tidal">To TIDAL</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#from-spotify">From Spotify</a><ul>
+<li><a class="reference internal" href="#to-qobuz">To Qobuz</a></li>
+<li><a class="reference internal" href="#id1">To TIDAL</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#from-tidal">From TIDAL</a><ul>
+<li><a class="reference internal" href="#id2">To Qobuz</a></li>
+<li><a class="reference internal" href="#id3">To Spotify</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#synchronizing-favorites">Synchronizing favorites</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script>let toggleHintShow = '';</script>
+    <script>let toggleHintHide = '';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    </body>
+</html>
