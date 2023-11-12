@@ -2,14 +2,14 @@ name: continuous-integration
 on: [push]
 jobs:
   build:
-    name: continuous-integration-${{ matrix.python-version}}
+    name: continuous-integration-${{matrix.python-version}}
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -el {0}
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11"]
     timeout-minutes: 60
     steps:      
       - uses: actions/checkout@v3
@@ -17,7 +17,7 @@ jobs:
         with:
           auto-update-conda: true
           channels: conda-forge
-          python-version: ${{ matrix.python-version}}
+          python-version: ${{matrix.python-version}}
       - uses: FedericoCarboni/setup-ffmpeg@v2
         id: setup-ffmpeg
       - name: install-dependencies
@@ -26,7 +26,7 @@ jobs:
       - name: ruff-lint
         run: |
           python3 -m pip install ruff
-          ruff --format=github --target-version=py38 .
+          ruff --format=github --target-version=py39 .
         continue-on-error: true
       - name: pytest-test
         run: |

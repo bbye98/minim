@@ -39,6 +39,8 @@ formats.
 
 ## Installation
 
+Minim requires Python 3.9 or later.
+
 Clone the repository and install the package using pip:
 
     git clone https://github.com/bbye98/minim.git

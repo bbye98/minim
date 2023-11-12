@@ -25,7 +25,7 @@ A collection of music service APIs to query media information and
 (semi-)automate tagging.
 """
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 [project.urls]
 "Homepage" = "https://github.com/bbye98/minim"
