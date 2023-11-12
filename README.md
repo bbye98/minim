@@ -10,6 +10,8 @@
 
 # Minim
 
+[![continuous-integration](https://github.com/bbye98/minim/actions/workflows/ci.yml/badge.svg)](https://github.com/bbye98/minim/actions/workflows/ci.yml)
+
 Minim is a lightweight Python 3 library that can interface with APIs 
 by popular music services—iTunes, Qobuz, Spotify, and TIDAL—and operate 
 on audio files, such as updating metadata and converting between audio

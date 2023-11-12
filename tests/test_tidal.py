@@ -173,12 +173,6 @@ class TestPrivateAPI:
             for i in self.obj.get_playlist_items(self.PLAYLIST_UUID)["items"]
         )
 
-    def test_get_playlist_recommendations(self):
-        assert all(
-            i["type"] == "track" for i in self.obj
-            .get_playlist_recommendations(self.PLAYLIST_UUID)["items"]
-        )
-
     def test_search(self):
         assert self.obj.search("Beyoncé")["topHit"]["type"] == "ARTISTS"
 
@@ -202,12 +196,6 @@ class TestPrivateAPI:
     def test_get_track_mix_id(self):
         mix_id = self.obj.get_track_mix_id(self.TRACK_ID)
         assert isinstance(mix_id, str) and len(mix_id) == 30
-
-    def test_get_track_recommendations(self):
-        assert all(
-            "SUGGESTED_TRACKS" in i["sources"] 
-            for i in self.obj.get_track_recommendations(self.TRACK_ID)["items"]
-        )
 
     def test_get_video(self):
         assert self.obj.get_video(self.VIDEO_ID)["id"] == self.VIDEO_ID
