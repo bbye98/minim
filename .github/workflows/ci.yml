@@ -18,6 +18,8 @@ jobs:
           auto-update-conda: true
           channels: conda-forge
           python-version: ${{ matrix.python-version}}
+      - uses: FedericoCarboni/setup-ffmpeg@v2
+        id: setup-ffmpeg
       - name: install-dependencies
         run: |
           python3 -m pip install -r requirements_minimal.txt
