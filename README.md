@@ -23,7 +23,7 @@ formats.
   Audio file handlers for reading and writing metadata and converting
   between audio formats.
 * [`minim.itunes`](https://github.com/bbye98/minim/blob/main/src/minim/itunes.py):
-  A client for the iTunes Store API.
+  A client for the iTunes Search API.
 * [`minim.qobuz`](https://github.com/bbye98/minim/blob/main/src/minim/qobuz.py):
   A client for the Qobuz API with support for the password grant type 
   for user authentication and user authentication token caching.
@@ -60,7 +60,7 @@ Clone the repository and install the package using pip:
 - Search for and retrieve information about an artist, such as the EDM 
   group Galantis:
 
-  **iTunes Store API**
+  **iTunes Search API**
 
       >>> client_itunes.search("Galantis", entity="musicArtist", 
       ...                      limit=1)["results"][0]
@@ -206,7 +206,7 @@ Clone the repository and install the package using pip:
 
 - Search for and retrieve information about a track, such as "Everybody Talks" by Neon Trees:
 
-  **iTunes Store API**
+  **iTunes Search API**
 
       >>> client_itunes.search("Everybody Talks", media="music", 
       ...                      limit=1)["results"][0]

@@ -1,9 +1,9 @@
-OGGAudio
+OggAudio
 ========
 
 .. currentmodule:: minim.audio
 
-.. autoclass:: OGGAudio
+.. autoclass:: OggAudio
    :members:
    :show-inheritance:
    :inherited-members:
@@ -16,11 +16,11 @@ OGGAudio
    .. autosummary::
       :nosignatures:
    
-      ~OGGAudio.convert
-      ~OGGAudio.set_metadata_using_itunes
-      ~OGGAudio.set_metadata_using_qobuz
-      ~OGGAudio.set_metadata_using_spotify
-      ~OGGAudio.set_metadata_using_tidal
-      ~OGGAudio.write_metadata
+      ~OggAudio.convert
+      ~OggAudio.set_metadata_using_itunes
+      ~OggAudio.set_metadata_using_qobuz
+      ~OggAudio.set_metadata_using_spotify
+      ~OggAudio.set_metadata_using_tidal
+      ~OggAudio.write_metadata
    
    

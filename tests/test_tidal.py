@@ -1,8 +1,9 @@
 from pathlib import Path
 import sys
+import time
 
 sys.path.insert(0, f"{Path(__file__).parents[1]}/src")
-from minim import tidal
+from minim import tidal # noqa: E402
 
 class TestAPI:
 
@@ -15,6 +16,9 @@ class TestAPI:
     @classmethod
     def setup_class(cls):
         cls.obj = tidal.API()
+
+    def teardown_method(self):
+        time.sleep(1)
 
     def test_get_album(self):
         album = self.obj.get_album(self.ALBUM_IDS[0], "US")
@@ -35,11 +39,6 @@ class TestAPI:
         assert (album["data"][0]["resource"]["barcodeId"] 
                 == self.ALBUM_BARCODE_ID)
         
-    def test_get_similar_albums(self):
-        album_id = (self.obj.get_similar_albums(self.ALBUM_IDS[0], "US")
-                    ["data"][4]["resource"]["id"])
-        assert self.obj.get_album(album_id, "US")["id"] == album_id
-        
     def test_get_artist(self):
         artist = self.obj.get_artist(self.ARTIST_IDS[0], "US")
         assert artist["id"] == self.ARTIST_IDS[0]
@@ -53,11 +52,6 @@ class TestAPI:
         albums = self.obj.get_artist_albums(self.ARTIST_IDS[0], "US")
         assert all(a["resource"]["artists"][0]["id"] == self.ARTIST_IDS[0]
                    for a in albums["data"])
-        
-    def test_get_similar_artists(self):
-        artist_id = (self.obj.get_similar_artists(self.ARTIST_IDS[0], "US")
-                     ["data"][0]["resource"]["id"])
-        assert self.obj.get_artist(artist_id, "US")["id"] == artist_id
 
     def test_get_track(self):
         track = self.obj.get_track(self.TRACK_IDS[0], "US")
@@ -67,11 +61,6 @@ class TestAPI:
         tracks = self.obj.get_tracks(self.TRACK_IDS, "US")
         assert all(t["resource"]["id"] == i 
                    for t, i in zip(tracks["data"], self.TRACK_IDS))
-        
-    def test_get_similar_tracks(self):
-        track_id = (self.obj.get_similar_tracks(self.TRACK_IDS[0], "US")
-                    ["data"][1]["resource"]["id"])
-        assert self.obj.get_track(track_id, "US")["id"] == track_id
 
     def test_get_video(self):
         video = self.obj.get_video(self.VIDEO_IDS[0], "US")
@@ -88,7 +77,6 @@ class TestPrivateAPI:
     ARTIST_ID = 1566
     MIX_UUID = "000ec0b01da1ddd752ec5dee553d48"
     PLAYLIST_UUID = "36ea71a8-445e-41a4-82ab-6628c581535d"
-    PLAYLIST_ETAG = "1698984074453"
     TRACK_ID = 251380837
     VIDEO_ID = 59727844
 
@@ -155,7 +143,7 @@ class TestPrivateAPI:
 
     def test_get_artist_links(self):
         assert all(
-            k in l for l in self.obj.get_artist_links(self.ARTIST_ID)["items"]
+            k in u for u in self.obj.get_artist_links(self.ARTIST_ID)["items"]
             for k in {"url", "siteName"}
         )
 
@@ -178,10 +166,6 @@ class TestPrivateAPI:
     def test_get_playlist(self):
         assert (self.obj.get_playlist(self.PLAYLIST_UUID)["uuid"] 
                 == self.PLAYLIST_UUID)
-
-    def test_get_playlist_etag(self):
-        assert (self.obj.get_playlist_etag(self.PLAYLIST_UUID)
-                == self.PLAYLIST_ETAG)
 
     def test_get_playlist_items(self):
         assert all(

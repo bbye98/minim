@@ -1,8 +1,8 @@
-import pathlib
+from pathlib import Path
 import sys
 
-sys.path.insert(0, f"{pathlib.Path(__file__).parents[1].resolve()}/src")
-from minim import itunes
+sys.path.insert(0, f"{Path(__file__).parents[1].resolve()}/src")
+from minim import itunes # noqa: E402
 
 class TestSearchAPI:
 

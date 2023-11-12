@@ -6,25 +6,78 @@ Qobuz
 This module contains a minimum implementation of the private Qobuz API.
 """
 
-import base64
-import datetime
-import hashlib
-import logging
-import os
-import pathlib
-import re
-import subprocess
-from typing import Any, Union
+from . import (
+    base64, datetime, hashlib, logging, os, pathlib, re, subprocess,
+    requests, warnings,
+    audio, utility, 
+    FOUND_PLAYWRIGHT, FOUND_FFMPEG, DIR_HOME, DIR_TEMP, ILLEGAL_CHARACTERS, 
+    Any, Union, config
+)
 
-import requests
+if FOUND_PLAYWRIGHT:
+    from . import sync_playwright
 
-try:
-    from playwright.sync_api import sync_playwright
-    FOUND_PLAYWRIGHT = True
-except:
-    FOUND_PLAYWRIGHT = False
+__all__ = ["PrivateAPI"]
 
-from . import audio, utility, HOME_DIR, TEMP_DIR, ILLEGAL_CHARACTERS, config
+def _parse_performers(
+        performers: str, roles: Union[list[str], set[str]] = None
+    ) -> dict[str, list]:
+
+    """
+    Parse a string containing credits for a track.
+
+    Parameters
+    ----------
+    performers : `str`
+        An unformatted string containing the track credits obtained
+        from calling :meth:`get_track`.
+
+    roles : `list` or `set`, keyword-only, optional
+        Role filter. The special :code:`"Composers"` filter will 
+        combine the :code:`"Composer"`, :code:`"ComposerLyricist"`,
+        :code:`"Lyricist"`, and :code:`"Writer"` roles.
+
+        **Valid values**: :code:`"MainArtist"`, 
+        :code:`"FeaturedArtist"`, :code:`"Producer"`, 
+        :code:`"Co-Producer"`, :code:`"Mixer"`, 
+        :code:`"Composers"` (:code:`"Composer"`, 
+        :code:`"ComposerLyricist"`, :code:`"Lyricist"`, 
+        :code:`"Writer"`), :code:`"MusicPublisher"`, etc.
+
+    Returns
+    -------
+    credits : `dict`
+        A dictionary containing the track contributors, with their
+        roles (in snake case) being the keys.
+    """
+    
+    people = {}
+    for p in performers.split(" - "):
+        if (regex := re.search(
+            r"(^.*[A-Za-z]\.|^.*&.*|[\d\s\w].*?)(?:, )(.*)",
+            p.rstrip()
+        )):
+            people[regex.groups()[0]] = regex.groups()[1].split(", ")
+    
+    credits = {}
+    if roles is None:
+        roles = set(c for r in people.values() for c in r)
+    elif "Composers" in roles:
+        roles.remove("Composers")
+        credits["composers"] = sorted({
+            p for cr in {"Composer", "ComposerLyricist", "Lyricist", 
+                         "Writer"}
+            for p, r in people.items() 
+            if cr in r
+        })
+    for role in roles:
+        credits[
+            "_".join(
+                re.findall(r"(?:[A-Z][a-z]+)(?:-[A-Z][a-z]+)?", role)
+            ).lower()
+        ] = [p for p, r in people.items() if role in r]
+    
+    return credits
 
 class PrivateAPI:
 
@@ -287,7 +340,7 @@ class PrivateAPI:
             if self._flow == "password":
                 if email is None or password is None:
                     if self._browser:
-                        har_file = TEMP_DIR / "minim_qobuz_private.har"
+                        har_file = DIR_TEMP / "minim_qobuz_private.har"
 
                         with sync_playwright() as playwright:
                             browser = playwright.firefox.launch(headless=False)
@@ -303,7 +356,7 @@ class PrivateAPI:
 
                         with open(har_file, "r") as f:
                             regex = re.search(
-                                f'"X-User-Auth-Token", "value": "(.*?)"',
+                                '"X-User-Auth-Token", "value": "(.*?)"',
                                 f.read()
                             )
                         har_file.unlink()
@@ -329,7 +382,7 @@ class PrivateAPI:
                     "app_id": self.session.headers["X-App-Id"],
                     "app_secret": self._app_secret
                 }
-                with open(HOME_DIR / "minim.cfg", "w") as f:
+                with open(DIR_HOME / "minim.cfg", "w") as f:
                     config.write(f)
 
         self.session.headers["X-User-Auth-Token"] = auth_token
@@ -2273,7 +2326,7 @@ class PrivateAPI:
         return self._get_json(f"{self.API_URL}/track/get",
                               params={"track_id": track_id})
 
-    def get_track_credits(
+    def get_track_performers(
             self, track_id: Union[int, str] = None, *, performers: str = None,
             roles: Union[list[str], set[str]] = None) -> dict[str, list]:
 
@@ -2326,33 +2379,7 @@ class PrivateAPI:
         if performers is None:
             return {}
         
-        people = {}
-        for p in performers.split(" - "):
-            if (regex := re.search(
-                r"(^.*[A-Za-z]\.|^.*&.*|[\d\s\w].*?)(?:, )(.*)",
-                p.rstrip()
-            )):
-                people[regex.groups()[0]] = regex.groups()[1].split(", ")
-        
-        credits = {}
-        if roles is None:
-            roles = set(c for r in people.values() for c in r)
-        elif "Composers" in roles:
-            roles.remove("Composers")
-            credits["composers"] = [
-                p for cr in {"Composer", "ComposerLyricist", "Lyricist", 
-                             "Writer"}
-                for p, r in people.items() 
-                if cr in r
-            ]
-        for role in roles:
-            credits[
-                "_".join(
-                    re.findall(r"(?:[A-Z][a-z]+)(?:-[A-Z][a-z]+)?", role)
-                ).lower()
-            ] = [p for p, r in people.items() if role in r]
-        
-        return credits
+        return _parse_performers(performers, roles=roles)
 
     def get_track_file_url(
             self, track_id: Union[int, str], format_id: Union[int, str] = 27
@@ -2671,7 +2698,7 @@ class PrivateAPI:
         AUDIO_FORMATS_EXTENSIONS = {"flac": "flac", "mpeg": "mp3"}
 
         file = self.get_track_file_url(track_id, format_id=format_id)
-        format = file["mime_type"][6:]
+        audio_format = file["mime_type"][6:]
         with self.session.get(file["url"]) as r:
             stream = r.content
 
@@ -2712,29 +2739,32 @@ class PrivateAPI:
                     track_data['version']
                 )
             file = path / (filename.translate(ILLEGAL_CHARACTERS) 
-                           + f".{AUDIO_FORMATS_EXTENSIONS[format]}")
+                           + f".{AUDIO_FORMATS_EXTENSIONS[audio_format]}")
             with open(file, "wb") as f:
                 f.write(stream)
 
             if metadata:
                 try:
                     track = audio.Audio(file)
-                except:
-                    tempfile = file.parent / f"temp_{file.name}"
-                    subprocess.run(
-                        f"ffmpeg -y -i '{file}' -c:a copy '{tempfile}' "
-                        "-hide_banner -loglevel error",
-                        shell=True
-                    )
-                    file.unlink()
-                    file = tempfile.rename(file)
-                    track = audio.Audio(file)
+                except Exception:
+                    if FOUND_FFMPEG:
+                        tempfile = file.parent / f"temp_{file.name}"
+                        subprocess.run(
+                            f"ffmpeg -y -i '{file}' -c:a copy '{tempfile}' "
+                            "-hide_banner -loglevel error",
+                            shell=True
+                        )
+                        file.unlink()
+                        file = tempfile.rename(file)
+                        track = audio.Audio(file)
+                    else:
+                        wmsg = ("Could not load audio file. "
+                                "Metadata was not written.")
+                        warnings.warn(wmsg)
+                        return file
 
                 track.set_metadata_using_qobuz(
-                    track_data, main_artist=credits["main_artist"],
-                    feat_artist=credits["featured_artist"],
-                    composer=credits["composers"],
-                    artwork=track_data["album"]["image"]["large"],
+                    track_data,
                     comment=f"https://open.qobuz.com/track/{track_data['id']}"
                 )
                 track.write_metadata()

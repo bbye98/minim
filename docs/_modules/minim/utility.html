@@ -8,11 +8,10 @@
         <title>minim.utility - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sidebar.css" />
     
     
 
@@ -152,7 +151,6 @@
     <img class="sidebar-logo" src="../../_static/icon.svg" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Minim 1.0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -170,7 +168,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OGGAudio.html">OGGAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -241,22 +238,26 @@
 <span class="sd">This module contains a collection of utility functions.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">Levenshtein</span>
     <span class="n">FOUND_LEVENSHTEIN</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span><span class="p">:</span>
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
     <span class="n">FOUND_LEVELSHTEIN</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
     <span class="n">FOUND_NUMPY</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span><span class="p">:</span>
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
     <span class="n">FOUND_NUMPY</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;levenshtein_ratio&quot;</span><span class="p">,</span> <span class="s2">&quot;multivalue_formatter&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="levenshtein_ratio">
 <a class="viewcode-back" href="../../api/minim.utility.levenshtein_ratio.html#minim.utility.levenshtein_ratio">[docs]</a>
-<span class="k">def</span> <span class="nf">levenshtein_ratio</span><span class="p">(</span><span class="n">base</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">levenshtein_ratio</span><span class="p">(</span>
+        <span class="n">base</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the Levenshtein ratio, a measure of similarity, for</span>
@@ -267,30 +268,35 @@
 <span class="sd">    base : `str`</span>
 <span class="sd">        Reference string.</span>
 
-<span class="sd">    values : `str` or `Sequence`</span>
+<span class="sd">    values : `str` or `list`</span>
 <span class="sd">        String(s) to compare with `base`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    ratios : `float` or `numpy.ndarray`</span>
-<span class="sd">        Levenshtein ratio(s).</span>
+<span class="sd">    ratios : `float`, `list`, or `numpy.ndarray`</span>
+<span class="sd">        Levenshtein ratio(s). If `values` is a `str`, a `float` is</span>
+<span class="sd">        returned. If `values` is a `list`, a `numpy.ndarray` is returned</span>
+<span class="sd">        if NumPy is installed; otherwise, a `list` is returned.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">FOUND_LEVENSHTEIN</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">FOUND_NUMPY</span><span class="p">:</span>
-        <span class="n">emsg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Either the Levenshtein or the NumPy library was not &quot;</span>
-                <span class="s2">&quot;found.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">FOUND_LEVENSHTEIN</span><span class="p">:</span>
+        <span class="n">emsg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The Levenshtein module was not found, so &quot;</span>
+                <span class="s2">&quot;minim.utility.levenshtein_ratio() is unavailable.&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
     
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Levenshtein</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">((</span><span class="n">Levenshtein</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">),</span>
-                       <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">))</span></div>
+    <span class="n">gen</span> <span class="o">=</span> <span class="p">(</span><span class="n">Levenshtein</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">FOUND_NUMPY</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span><span class="n">gen</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="multivalue_formatter">
 <a class="viewcode-back" href="../../api/minim.utility.multivalue_formatter.html#minim.utility.multivalue_formatter">[docs]</a>
 <span class="k">def</span> <span class="nf">multivalue_formatter</span><span class="p">(</span>
         <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">multivalue</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">primary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">sep</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">,</span> <span class="s2">&quot; &amp; &quot;</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">sep</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">,</span> <span class="s2">&quot; &amp; &quot;</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Format a field value based on whether multivalue for that field is </span>
@@ -302,20 +308,25 @@
 <span class="sd">        Field value to format.</span>
 
 <span class="sd">    multivalue : `bool`</span>
-<span class="sd">        Determines whether multivalue tags are supported (:code:`True`)</span>
-<span class="sd">        or should be concatenated (:code:`False`) using the separator(s)</span>
-<span class="sd">        specified in `sep`.</span>
+<span class="sd">        Determines whether multivalue tags are supported. If </span>
+<span class="sd">        :code:`False`, the items in `value` are concatenated using the</span>
+<span class="sd">        separator(s) specified in `sep`.</span>
 
 <span class="sd">    primary : `bool`, keyword-only, default: :code:`False`</span>
 <span class="sd">        Specifies whether the first item in `value` should be used when</span>
-<span class="sd">        `value` is a `Sequence` and :code:`multivalue=False`.</span>
+<span class="sd">        `value` is a `list` and :code:`multivalue=False`.</span>
 
 <span class="sd">    sep : `str` or `tuple`, keyword-only, default: :code:`(&quot;, &quot;, &quot; &amp; &quot;)`</span>
 <span class="sd">        Separator(s) to use to concatenate multivalue tags. If a </span>
 <span class="sd">        :code:`str` is provided, it is used to concatenate all values.</span>
 <span class="sd">        If a :code:`tuple` is provided, the first :code:`str` is used to</span>
-<span class="sd">        concatenate the first :math:`n - 1` values, and the second</span>
+<span class="sd">        concatenate all values except the last, and the second </span>
 <span class="sd">        :code:`str` is used to append the final value. </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    value : `Any`</span>
+<span class="sd">        Formatted field value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>

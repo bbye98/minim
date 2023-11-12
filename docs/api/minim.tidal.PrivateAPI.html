@@ -169,7 +169,7 @@
 <li class="toctree-l3"><a class="reference internal" href="minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.audio.MP4Audio.html">MP4Audio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="minim.audio.OGGAudio.html">OGGAudio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="minim.audio.OggAudio.html">OggAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -2155,11 +2155,11 @@ and <code class="code docutils literal notranslate"><span class="pre">&quot;vide
 </dd>
 <dt><strong>animated</strong><span class="classifier"><cite>bool</cite>, default: <code class="code docutils literal notranslate"><span class="pre">False</span></code></span></dt><dd><p>Specifies whether the image is animated.</p>
 </dd>
-<dt><strong>width</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Image width. If not specified, the default size for the
-media type is used.</p>
+<dt><strong>width</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Valid image width for the item type. If not specified, the
+default size for the item type is used.</p>
 </dd>
-<dt><strong>height</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Image height. If not specified, the default size for the
-media type is used.</p>
+<dt><strong>height</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Valid image height for the item type. If not specified, the
+default size for the item type is used.</p>
 </dd>
 <dt><strong>filename</strong><span class="classifier"><cite>str</cite> or <cite>pathlib.Path</cite>, keyword-only, optional</span></dt><dd><p>Filename with the <code class="code docutils literal notranslate"><span class="pre">.jpg</span></code> or <code class="code docutils literal notranslate"><span class="pre">.mp4</span></code> extension. If
 specified, the image is saved to a file instead.</p>

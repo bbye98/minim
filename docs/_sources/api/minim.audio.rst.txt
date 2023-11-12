@@ -24,7 +24,7 @@ audio
       FLACAudio
       MP3Audio
       MP4Audio
-      OGGAudio
+      OggAudio
       WAVEAudio
    
    

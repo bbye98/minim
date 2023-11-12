@@ -2,8 +2,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, f"{Path(__file__).resolve().parents[2]}/src")
-
-from minim import VERSION
+from minim import VERSION # noqa: E402
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -59,6 +58,4 @@ html_logo = "../../assets/icon.svg"
 html_show_sourcelink = False
 html_static_path = ["_static"]
 html_theme = "furo"
-html_theme_options = {
-    "sidebar_hide_name": True
-}
+html_theme_options = {"sidebar_hide_name": True}

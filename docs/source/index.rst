@@ -18,6 +18,6 @@ formats.
    :hidden:
 
    Home <self>
-   Getting Started <notebooks/start>
+   Getting Started <notebooks/getting_started>
    User Guide <guide>
    API Reference <api/minim>

@@ -8,33 +8,23 @@ endpoints and a minimum implementation of the more robust but private
 TIDAL API.
 """
 
-import base64
-import datetime
-import hashlib
-import json
-import logging
-import os
-import pathlib
-import re
-import secrets
-import subprocess
-import time
-from typing import Any, Union
-import urllib
-import webbrowser
 from xml.dom import minidom
 
 from Crypto.Cipher import AES
 from Crypto.Util import Counter
-import requests
 
-try:
-    from playwright.sync_api import sync_playwright
-    FOUND_PLAYWRIGHT = True
-except:
-    FOUND_PLAYWRIGHT = False
+from . import (
+    base64, datetime, hashlib, json, logging, os, pathlib, re, requests, 
+    secrets, subprocess, time, urllib, warnings, webbrowser,
+    audio, utility, 
+    FOUND_PLAYWRIGHT, FOUND_FFMPEG, DIR_HOME, DIR_TEMP, ILLEGAL_CHARACTERS,
+    Any, Union, config
+)
 
-from . import audio, utility, HOME_DIR, TEMP_DIR, ILLEGAL_CHARACTERS, config
+if FOUND_PLAYWRIGHT:
+    from . import sync_playwright
+
+__all__ = ["API", "PrivateAPI"]
 
 class API:
     
@@ -223,7 +213,7 @@ class API:
             try:
                 error = r.json()["errors"][0]
                 emsg = f"{r.status_code} {error['code']}: {error['detail']}"
-            except:
+            except requests.exceptions.JSONDecodeError:
                 emsg = f"{r.status_code} {r.reason}"
             raise RuntimeError(emsg)
         return r
@@ -273,7 +263,7 @@ class API:
                     "access_token": access_token,
                     "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
                 }
-                with open(HOME_DIR / "minim.cfg", "w") as f:
+                with open(DIR_HOME / "minim.cfg", "w") as f:
                     config.write(f)
 
         self.session.headers["Authorization"] = f"Bearer {access_token}"
@@ -2013,7 +2003,7 @@ class PrivateAPI:
                     f"{urllib.parse.urlencode(params)}")
 
         if self._browser:
-            har_file = TEMP_DIR / "minim_tidal_private.har"
+            har_file = DIR_TEMP / "minim_tidal_private.har"
 
             with sync_playwright() as playwright:
                 browser = playwright.firefox.launch(headless=False)
@@ -2133,7 +2123,7 @@ class PrivateAPI:
                     "expiry": self._expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "scopes": self._scopes
                 })
-                with open(HOME_DIR / "minim.cfg", "w") as f:
+                with open(DIR_HOME / "minim.cfg", "w") as f:
                     config.write(f)
 
     def _request(
@@ -2296,7 +2286,7 @@ class PrivateAPI:
                     if hasattr(self, "_client_secret"):
                         config[self._NAME]["client_secret"] \
                             = self._client_secret
-                    with open(HOME_DIR / "minim.cfg", "w") as f:
+                    with open(DIR_HOME / "minim.cfg", "w") as f:
                         config.write(f)
                     
         self.session.headers["Authorization"] = f"Bearer {access_token}"
@@ -2379,11 +2369,10 @@ class PrivateAPI:
             self._browser = browser
             if flow == "pkce" and browser and not FOUND_PLAYWRIGHT:
                 self._browser = False
-                logging.warning(
-                    "The Playwright web framework was not found, so "
-                    "the automatic authorization code retrieval "
-                    "functionality is not available."
-                )
+                wmsg = ("The Playwright web framework was not found, "
+                        "so automatic authorization code retrieval is "
+                        "not available.")
+                warnings.warn(wmsg)
 
             self._client_secret = (client_secret 
                                    or os.environ.get("TIDAL_PRIVATE_CLIENT_SECRET"))
@@ -4193,12 +4182,12 @@ class PrivateAPI:
             Specifies whether the image is animated.
 
         width : `int`, keyword-only, optional
-            Image width. If not specified, the default size for the
-            media type is used.
+            Valid image width for the item type. If not specified, the 
+            default size for the item type is used.
 
         height : `int`, keyword-only, optional
-            Image height. If not specified, the default size for the
-            media type is used.
+            Valid image height for the item type. If not specified, the
+            default size for the item type is used.
 
         filename : `str` or `pathlib.Path`, keyword-only, optional
             Filename with the :code:`.jpg` or :code:`.mp4` extension. If
@@ -5649,8 +5638,8 @@ class PrivateAPI:
         self._check_scope("update_playlist", "r_usr", flows={"device_code"})
 
         if title is None and description is None:
-            logging.warning("No changes were specified or made to the "
-                            "playlist.")
+            wmsg = "No changes were specified or made to the playlist."
+            warnings.warn(wmsg)
             return
         
         data = {}
@@ -5743,8 +5732,8 @@ class PrivateAPI:
         self._check_scope("add_playlist_items", "r_usr", flows={"device_code"})
 
         if items is None and from_playlist_uuid is None:
-            logging.warning("No changes were specified or made to the "
-                            "playlist.")
+            wmsg = "No changes were specified or made to the playlist."
+            warnings.warn(wmsg)
             return
         
         data = {
@@ -6714,22 +6703,24 @@ class PrivateAPI:
             if metadata:
                 try:
                     track = audio.Audio(file)
-                except:
-                    tempfile = file.parent / f"temp_{file.name}"
-                    subprocess.run(
-                        f"ffmpeg -y -i '{file}' -c:a copy '{tempfile}' "
-                        "-hide_banner -loglevel error",
-                        shell=True
-                    )
-                    file.unlink()
-                    file = tempfile.rename(file)
-                    track = audio.Audio(file)
+                except Exception:
+                    if FOUND_FFMPEG:
+                        tempfile = file.parent / f"temp_{file.name}"
+                        subprocess.run(
+                            f"ffmpeg -y -i '{file}' -c:a copy '{tempfile}' "
+                            "-hide_banner -loglevel error",
+                            shell=True
+                        )
+                        file.unlink()
+                        file = tempfile.rename(file)
+                        track = audio.Audio(file)
+                    else:
+                        warnings.warn("Could not read audio file.")
 
                 track.set_metadata_using_tidal(
                     track_data,
                     album_data=album_data,
                     composer=self.get_track_composers(track_id),
-                    artwork=self.get_image(track_data["album"]["cover"], "album"),
                     lyrics=self.get_track_lyrics(track_id), 
                     comment=track_data["url"]
                 )
@@ -7128,9 +7119,9 @@ class PrivateAPI:
             'Mike Dean']`
         """
 
-        return list({c["name"] 
-                     for c in self.get_track_contributors(track_id)["items"]
-                     if c["role"] in {"Composer", "Lyricist", "Writer"}})
+        return sorted({c["name"] 
+                       for c in self.get_track_contributors(track_id)["items"]
+                       if c["role"] in {"Composer", "Lyricist", "Writer"}})
 
     def get_track_lyrics(
             self, id: Union[int, str], country_code: str = None
@@ -7189,8 +7180,8 @@ class PrivateAPI:
                 f"{self.WEB_URL}/v1/tracks/{id}/lyrics",
                 params={"countryCode": self._get_country_code(country_code)}
             )
-        except:
-            logging.warning(f"Either lyrics are not available for this track "
+        except RuntimeError:
+            logging.warning("Either lyrics are not available for this track "
                             "or the current account does not have an active "
                             "TIDAL subscription.")
         

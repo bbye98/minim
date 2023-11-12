@@ -98,7 +98,7 @@
     "\n",
     "#### iTunes Search API (`minim.itunes.SearchAPI`)\n",
     "\n",
-    "To use the iTunes Search API, simply create a client with no arguments:"
+    "To use the iTunes Search API, simply create a client by instantiating a `minim.itunes.SearchAPI` object with no arguments:"
    ]
   },
   {
@@ -118,7 +118,7 @@
     "\n",
     "If you already have a user authentication token, you can provide it and its accompanying app credentials to the client as keyword arguments `auth_token`, `app_id`, and `app_secret`, respectively, and skip this section.\n",
     "\n",
-    "To use the Qobuz API without user authentication, simply create a client with no arguments:"
+    "To use the Qobuz API without user authentication, simply create a client by instantiating a `minim.qobuz.PrivateAPI` object with no arguments:"
    ]
   },
   {
@@ -134,7 +134,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "To use the Qobuz API with user authentication and get access to all public and protected endpoints, you can pass `flow=\"password\"` and provide your Qobuz email and password as keyword arguments `email` and `password` to the client:\n",
+    "To use the Qobuz API with user authentication and get access to all public and protected endpoints, you can pass `flow=\"password\"` and provide your Qobuz email and password as keyword arguments `email` and `password` to the constructor:\n",
     "\n",
     "```python\n",
     "client_qobuz = qobuz.PrivateAPI(flow=\"password\", email=<QOBUZ_EMAIL>, password=<QOBUZ_PASSWORD>)\n",
@@ -158,17 +158,17 @@
     "\n",
     "2. Find the `sp_dc` cookie in your web browser's storage.\n",
     "\n",
-    "   - For Chromium-based browsers, press `F12` to open DevTools and navigate to `Application > Storage > Cookies > https://open.spotify.com`.fi\n",
+    "   - For Chromium-based browsers, press `F12` to open DevTools and navigate to `Application > Storage > Cookies > https://open.spotify.com`.\n",
     "   \n",
     "   - For Firefox, press `Shift` + `F9` to open Storage Inspector and nagivate to `Storage > Cookies > https://open.spotify.com`.\n",
     "   \n",
-    "3. Create a client with the `sp_dc` cookie as a keyword argument:\n",
+    "3. Create a client by instantiating a `minim.spotify.WebAPI` object with the `sp_dc` cookie as a keyword argument:\n",
     "\n",
     "   ```python\n",
     "   client_spotify_lyrics = spotify.PrivateLyricsService(sp_dc=<SPOTIFY_SP_DC>)\n",
     "   ```\n",
     "\n",
-    "   or store the `sp_dc` cookie as an environment variable `SPOTIFY_SP_DC` and create a client with no arguments:"
+    "   or store the `sp_dc` cookie as an environment variable `SPOTIFY_SP_DC` and call the constructor with no arguments:"
    ]
   },
   {
@@ -190,14 +190,14 @@
     "\n",
     "First, register a Spotify application [here](https://developer.spotify.com/documentation/general/guides/authorization/app-settings/) and grab its client credentials. For the redirect URI, use `http://localhost:8888/callback`. You can replace `8888` with an open port of your choice, but you will need to pass `port=<SPOTIFY_PORT>` when you create a client.\n",
     "\n",
-    "To use the Spotify Web API without user authentication, you can provide the client credentials as keyword arguments `client_id` and `client_secret` to the client:\n",
+    "To use the Spotify Web API without user authentication, you can provide the client credentials as keyword arguments `client_id` and `client_secret` to the constructor:\n",
     "\n",
     "```python\n",
     "client_spotify = spotify.WebAPI(client_id=<SPOTIFY_CLIENT_ID>, \n",
     "                                client_secret=<SPOTIFY_CLIENT_SECRET>)\n",
     "```\n",
     "\n",
-    "or store the client credentials as environment variables `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` and create a client with no arguments:"
+    "or store the client credentials as environment variables `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` and call the constructor with no arguments:"
    ]
   },
   {
@@ -215,19 +215,35 @@
    "source": [
     "To use the Spotify Web API with user authentication, \n",
     "\n",
-    "1. Create a client with `flow=\"pkce\"`, the client credentials in `client_id` and `client_secret`, and optionally `framework=True` to automate the authorization code retrieval process:\n",
+    "1. Get the necessary authorization scopes using `spotify.WebAPI.get_authorization_scopes()`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "scopes = spotify.WebAPI.get_scopes(\"all\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "2. Create a client with `flow=\"pkce\"`, the client credentials in `client_id` and `client_secret`, the authorization scopes in `scopes`, and optionally `framework=True` to automate the authorization code retrieval process:\n",
     "\n",
     "   ```python\n",
     "   client_spotify = spotify.WebAPI(client_id=<SPOTIFY_CLIENT_ID>, \n",
     "                                   client_secret=<SPOTIFY_CLIENT_SECRET>,\n",
-    "                                   flow=\"pkce\", framework=True)\n",
+    "                                   flow=\"pkce\", scopes=scopes, framework=True)\n",
     "   ```\n",
     "\n",
-    "2. If `framework=False`, open the authorization URL in a web browser.\n",
+    "3. If `framework=False`, open the authorization URL in a web browser.\n",
     "\n",
-    "3. Log into your Spotify account and authorize Minim by clicking `Agree`.\n",
+    "4. Log into your Spotify account and authorize Minim by clicking `Agree`.\n",
     "\n",
-    "4. If `framework=False`, copy and paste the redirect URI into the prompt.\n"
+    "5. If `framework=False`, copy and paste the redirect URI into the prompt."
    ]
   },
   {
@@ -240,7 +256,7 @@
     "\n",
     "First, register a TIDAL application [here](https://developer.tidal.com/documentation/dashboard/dashboard-client-credentials) and jot down the client credentials.\n",
     "\n",
-    "To use the TIDAL API, you can provide the client credentials as keyword arguments `client_id` and `client_secret` to the client:\n",
+    "To use the TIDAL API, you can provide the client credentials as keyword arguments `client_id` and `client_secret` to the `minim.tidal.API` constructor:\n",
     "\n",
     "```python\n",
     "client_tidal = tidal.API(client_id=<TIDAL_CLIENT_ID>, client_secret=<TIDAL_CLIENT_SECRET>)\n",
@@ -251,7 +267,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 6,
+   "execution_count": 7,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -266,12 +282,12 @@
     "\n",
     "If you already have an access token, you can provide it and optionally its accompanying refresh token, expiry time, and client credentials to the client as keyword arguments `access_token`, `refresh_token`, `expiry`, `client_id`, and `client_secret`, respectively, and skip this section.\n",
     "\n",
-    "To use the TIDAL API without user authentication, simply create a client with no arguments:"
+    "To use the TIDAL API without user authentication, simply create a client by instantiating a `minim.tidal.PrivateAPI` object with no arguments:"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 7,
+   "execution_count": 8,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -304,7 +320,7 @@
     "\n",
     "   if you obtained client credentials from the Android or iOS applications.\n",
     "   \n",
-    "3. Follow the instructions in the web browser to log into your TIDAL account and authorize Minim.\n",
+    "3. Follow the instructions in the console (`browser=False`) or the web browser (`browser=True`) to log into your TIDAL account and authorize Minim.\n",
     "\n",
     "#### Examples\n",
     "\n",
@@ -317,7 +333,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 8,
+   "execution_count": 9,
    "metadata": {
     "tags": [
      "hide-output"
@@ -337,7 +353,7 @@
        " 'primaryGenreId': 17}"
       ]
      },
-     "execution_count": 8,
+     "execution_count": 9,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -355,7 +371,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 9,
+   "execution_count": 10,
    "metadata": {
     "tags": [
      "hide-output"
@@ -377,7 +393,7 @@
        " 'id': 865362}"
       ]
      },
-     "execution_count": 9,
+     "execution_count": 10,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -395,7 +411,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 10,
+   "execution_count": 11,
    "metadata": {
     "tags": [
      "hide-output"
@@ -406,7 +422,7 @@
      "data": {
       "text/plain": [
        "{'external_urls': {'spotify': 'https://open.spotify.com/artist/4sTQVOfp9vEMCemLw50sbu'},\n",
-       " 'followers': {'href': None, 'total': 3373622},\n",
+       " 'followers': {'href': None, 'total': 3375748},\n",
        " 'genres': ['dance pop', 'edm', 'pop', 'pop dance'],\n",
        " 'href': 'https://api.spotify.com/v1/artists/4sTQVOfp9vEMCemLw50sbu',\n",
        " 'id': '4sTQVOfp9vEMCemLw50sbu',\n",
@@ -425,7 +441,7 @@
        " 'uri': 'spotify:artist:4sTQVOfp9vEMCemLw50sbu'}"
       ]
      },
-     "execution_count": 10,
+     "execution_count": 11,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -443,7 +459,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 11,
+   "execution_count": 12,
    "metadata": {
     "tags": [
      "hide-output"
@@ -490,7 +506,7 @@
        " 'message': 'success'}"
       ]
      },
-     "execution_count": 11,
+     "execution_count": 12,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -508,7 +524,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 12,
+   "execution_count": 13,
    "metadata": {
     "tags": [
      "hide-output"
@@ -533,7 +549,7 @@
        " 'mixes': {'ARTIST_MIX': '000202a7e72fd90d0c0df2ed56ddea'}}"
       ]
      },
-     "execution_count": 12,
+     "execution_count": 13,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -548,14 +564,14 @@
    "source": [
     "##### Search for a track\n",
     "\n",
-    "The same `search()` method can also be used to search for and retrieve information about a track, such as \"Everybody Talks\" by Neon Trees:\n",
+    "The `search()` methods can also be used to search for and retrieve information about a track, such as \"Everybody Talks\" by Neon Trees:\n",
     "\n",
     "###### iTunes Search API"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 13,
+   "execution_count": 14,
    "metadata": {
     "tags": [
      "hide-output"
@@ -599,7 +615,7 @@
        " 'isStreamable': True}"
       ]
      },
-     "execution_count": 13,
+     "execution_count": 14,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -617,7 +633,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 14,
+   "execution_count": 15,
    "metadata": {
     "tags": [
      "hide-output"
@@ -708,7 +724,7 @@
        " 'hires_streamable': False}"
       ]
      },
-     "execution_count": 14,
+     "execution_count": 15,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -728,7 +744,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 15,
+   "execution_count": 16,
    "metadata": {
     "tags": [
      "hide-output"
@@ -1135,7 +1151,7 @@
        " 'uri': 'spotify:track:2iUmqdfGZcHIhS3b9E9EWq'}"
       ]
      },
-     "execution_count": 15,
+     "execution_count": 16,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1155,7 +1171,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 16,
+   "execution_count": 17,
    "metadata": {
     "tags": [
      "hide-output"
@@ -1170,7 +1186,7 @@
        " 'message': 'Unavailable due to demand from the right-holders to prohibit access to the resource'}"
       ]
      },
-     "execution_count": 16,
+     "execution_count": 17,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1188,7 +1204,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 17,
+   "execution_count": 18,
    "metadata": {
     "tags": [
      "hide-output"
@@ -1238,7 +1254,7 @@
        " 'mixes': {'TRACK_MIX': '0019768c833a193c29829e5bf473fc'}}"
       ]
      },
-     "execution_count": 17,
+     "execution_count": 18,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1254,7 +1270,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "##### Create, modify, and delete a personal playlist\n",
+    "##### Create, modify, and delete personal playlists\n",
     "\n",
     "If the clients are authenticated, you can create and modify user playlists. As an example, we will create a private playlist named \"Minim\", make it public, add \"Everybody Talks\" by Neon Trees to it, and then delete it.\n",
     "\n",
@@ -1263,7 +1279,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 18,
+   "execution_count": 19,
    "metadata": {
     "tags": [
      "hide-output"
@@ -1279,19 +1295,19 @@
        " 'images': ['https://static.qobuz.com/images/covers/42/54/0060252795442_50.jpg'],\n",
        " 'is_collaborative': False,\n",
        " 'description': 'A playlist created using Minim.',\n",
-       " 'created_at': 1699261272,\n",
+       " 'created_at': 1699760099,\n",
        " 'images300': ['https://static.qobuz.com/images/covers/42/54/0060252795442_300.jpg'],\n",
        " 'duration': 177,\n",
-       " 'updated_at': 1699261273,\n",
+       " 'updated_at': 1699760100,\n",
        " 'published_to': None,\n",
        " 'genres': [],\n",
        " 'tracks_count': 1,\n",
-       " 'public_at': 1699261272,\n",
+       " 'public_at': 1699760100,\n",
        " 'name': 'Minim',\n",
        " 'is_public': True,\n",
        " 'published_from': None,\n",
-       " 'id': 17747602,\n",
-       " 'slug': 'minim-8',\n",
+       " 'id': 17864331,\n",
+       " 'slug': 'minim-24',\n",
        " 'is_featured': False,\n",
        " 'tracks': {'offset': 0,\n",
        "  'limit': 50,\n",
@@ -1376,11 +1392,11 @@
        "    'hires': False,\n",
        "    'hires_streamable': False,\n",
        "    'position': 1,\n",
-       "    'created_at': 1699261273,\n",
-       "    'playlist_track_id': 3734172395}]}}"
+       "    'created_at': 1699760100,\n",
+       "    'playlist_track_id': 3775048859}]}}"
       ]
      },
-     "execution_count": 18,
+     "execution_count": 19,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1400,7 +1416,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 19,
+   "execution_count": 20,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -1416,7 +1432,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 20,
+   "execution_count": 21,
    "metadata": {
     "tags": [
      "hide-output"
@@ -1428,10 +1444,10 @@
       "text/plain": [
        "{'collaborative': False,\n",
        " 'description': 'A playlist created using Minim.',\n",
-       " 'external_urls': {'spotify': 'https://open.spotify.com/playlist/1MHh3IQs67gjxhcnDFOxV6'},\n",
+       " 'external_urls': {'spotify': 'https://open.spotify.com/playlist/1o95b3Y5b5szr7qJ7DUx1E'},\n",
        " 'followers': {'href': None, 'total': 0},\n",
-       " 'href': 'https://api.spotify.com/v1/playlists/1MHh3IQs67gjxhcnDFOxV6',\n",
-       " 'id': '1MHh3IQs67gjxhcnDFOxV6',\n",
+       " 'href': 'https://api.spotify.com/v1/playlists/1o95b3Y5b5szr7qJ7DUx1E',\n",
+       " 'id': '1o95b3Y5b5szr7qJ7DUx1E',\n",
        " 'images': [{'height': 640,\n",
        "   'url': 'https://i.scdn.co/image/ab67616d0000b2734a6c0376235e5aa44e59d2c2',\n",
        "   'width': 640}],\n",
@@ -1439,14 +1455,10 @@
        " 'owner': None,\n",
        " 'primary_color': None,\n",
        " 'public': True,\n",
-       " 'snapshot_id': 'MyxlYTNkM2M3Nzc3YzBkODY2ODE2YTg2OTA2NDQ4Yjk2Yzc2Y2FjNTc4',\n",
-       " 'tracks': {'href': 'https://api.spotify.com/v1/playlists/1MHh3IQs67gjxhcnDFOxV6/tracks?offset=0&limit=100',\n",
-       "  'items': [{'added_at': '2023-11-06T09:01:15Z',\n",
-       "    'added_by': {'external_urls': {'spotify': 'https://open.spotify.com/user/juelovrcp9g9bfc5r4z1rnlvm'},\n",
-       "     'href': 'https://api.spotify.com/v1/users/juelovrcp9g9bfc5r4z1rnlvm',\n",
-       "     'id': 'juelovrcp9g9bfc5r4z1rnlvm',\n",
-       "     'type': 'user',\n",
-       "     'uri': 'spotify:user:juelovrcp9g9bfc5r4z1rnlvm'},\n",
+       " 'snapshot_id': 'Myw4YTMwNzY1Y2FlNTdkYmNjYjdlYzQ3MGQzYjQyYjk2NzQ0OTcwZjRi',\n",
+       " 'tracks': {'href': 'https://api.spotify.com/v1/playlists/1o95b3Y5b5szr7qJ7DUx1E/tracks?offset=0&limit=100',\n",
+       "  'items': [{'added_at': '2023-11-12T03:35:02Z',\n",
+       "    'added_by': None,\n",
        "    'is_local': False,\n",
        "    'primary_color': None,\n",
        "    'track': {'album': {'album_type': 'album',\n",
@@ -1853,10 +1865,10 @@
        "  'previous': None,\n",
        "  'total': 1},\n",
        " 'type': 'playlist',\n",
-       " 'uri': 'spotify:playlist:1MHh3IQs67gjxhcnDFOxV6'}"
+       " 'uri': 'spotify:playlist:1o95b3Y5b5szr7qJ7DUx1E'}"
       ]
      },
-     "execution_count": 20,
+     "execution_count": 21,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1878,7 +1890,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 21,
+   "execution_count": 22,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -1894,7 +1906,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 22,
+   "execution_count": 23,
    "metadata": {
     "tags": [
      "hide-output"
@@ -1904,7 +1916,7 @@
     {
      "data": {
       "text/plain": [
-       "{'playlist': {'uuid': 'b88a6384-24eb-4ff0-8a78-d8ef661327f7',\n",
+       "{'playlist': {'uuid': 'f4d88c7b-40ca-4264-95ab-7831a7c916e3',\n",
        "  'type': 'USER',\n",
        "  'creator': None,\n",
        "  'contentBehavior': 'UNRESTRICTED',\n",
@@ -1913,25 +1925,25 @@
        "  'source': 'DEFAULT',\n",
        "  'title': 'Minim',\n",
        "  'description': 'A playlist created using Minim.',\n",
-       "  'image': '100f9209-87b1-4b16-958f-106063b10fb6',\n",
-       "  'squareImage': '9b97b7ea-2490-47c2-8abb-e38f74b13c02',\n",
-       "  'url': 'http://www.tidal.com/playlist/b88a6384-24eb-4ff0-8a78-d8ef661327f7',\n",
-       "  'created': '2023-11-06T09:01:15.606+0000',\n",
-       "  'lastUpdated': '2023-11-06T09:01:16.255+0000',\n",
-       "  'lastItemAddedAt': '2023-11-06T09:01:16.255+0000',\n",
+       "  'image': 'c856783e-1888-4578-ae8f-cc303357904a',\n",
+       "  'squareImage': '34a871ed-e1f3-4150-ae64-5ab98a33d25a',\n",
+       "  'url': 'http://www.tidal.com/playlist/f4d88c7b-40ca-4264-95ab-7831a7c916e3',\n",
+       "  'created': '2023-11-12T03:35:03.480+0000',\n",
+       "  'lastUpdated': '2023-11-12T03:35:04.032+0000',\n",
+       "  'lastItemAddedAt': '2023-11-12T03:35:04.032+0000',\n",
        "  'duration': 177,\n",
        "  'numberOfTracks': 1,\n",
        "  'numberOfVideos': 0,\n",
        "  'promotedArtists': [],\n",
-       "  'trn': 'trn:playlist:b88a6384-24eb-4ff0-8a78-d8ef661327f7'},\n",
+       "  'trn': 'trn:playlist:f4d88c7b-40ca-4264-95ab-7831a7c916e3'},\n",
        " 'followInfo': {'nrOfFollowers': 0,\n",
-       "  'tidalResourceName': 'trn:playlist:b88a6384-24eb-4ff0-8a78-d8ef661327f7',\n",
+       "  'tidalResourceName': 'trn:playlist:f4d88c7b-40ca-4264-95ab-7831a7c916e3',\n",
        "  'followed': True,\n",
        "  'followType': 'PLAYLIST'},\n",
        " 'profile': None}"
       ]
      },
-     "execution_count": 22,
+     "execution_count": 23,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1956,7 +1968,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 23,
+   "execution_count": 24,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -1972,18 +1984,194 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 33,
+   "execution_count": 25,
    "metadata": {},
    "outputs": [],
    "source": [
-    "from minim.audio import Audio, FLACAudio, MP3Audio, MP4Audio, OGGAudio, WAVEAudio"
+    "from pathlib import Path\n",
+    "from minim.audio import Audio, FLACAudio, MP3Audio, MP4Audio, OggAudio, WAVEAudio"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Minim uses [Mutagen](https://mutagen.readthedocs.io/en/latest/) to load and edit audio files. Currently, the most common audio formats, such as FLAC, MP3, M4A, OGG, and WAV, are supported. "
+    "Minim uses [Mutagen](https://mutagen.readthedocs.io/en/latest/) to load and edit audio files and [FFmpeg](https://ffmpeg.org/) to convert between different audio formats. Currently, the most common audio formats, such as AAC, ALAC, FLAC, MP3, Opus, Vorbis, and WAVE, are supported.\n",
+    "\n",
+    "#### Examples\n",
+    "\n",
+    "##### Load and edit an audio file\n",
+    "\n",
+    "To load an audio file, pass the filename as a `str` or a `pathlib.Path` object either to the `minim.audio.Audio` constructor for Minim to automatically detect the audio format:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "file = Path().resolve().parents[2] / \"tests/data/middle_c.wav\"\n",
+    "middle_c = Audio(file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "or the specific class for the audio format if known (in this case, `minim.audio.WAVEAudio`):\n",
+    "\n",
+    "```python\n",
+    "middle_c = WAVEAudio(Path().resolve().parents[2] / \"tests/data/middle_c.wav\")\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "For this example, both approaches return a `minim.audio.WAVEAudio` object:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "minim.audio.WAVEAudio"
+      ]
+     },
+     "execution_count": 27,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "type(middle_c)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The metadata stored in the audio file can be accessed using dot notation or `getattr()`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Title: Middle C\n",
+      "Album: Minim\n",
+      "Artist: Square Wave\n",
+      "Genre: Game\n",
+      "Codec: lpcm\n",
+      "Bit depth: 24\n"
+     ]
+    }
+   ],
+   "source": [
+    "for attr in [\"title\", \"album\", \"artist\", \"genre\", \"codec\", \"bit_depth\"]:\n",
+    "    print(f\"{attr.capitalize().replace('_', ' ')}: {getattr(middle_c, attr)}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "and edited similarly using dot notation or `setattr()`:\n",
+    "\n",
+    "```python\n",
+    "middle_c.title = \"Middle C (261.63 Hz)\"\n",
+    "middle_c.write_metadata()\n",
+    "```\n",
+    "\n",
+    "If changes are made, don't forget to write them to file using `minim.audio.Audio.write_metadata()`.\n",
+    "\n",
+    "##### Convert between audio formats\n",
+    "\n",
+    "Conversion between the supported audio formats is powered by FFmpeg.\n",
+    "\n",
+    "To re-encode the previous WAVE audio using the ALAC codec and store it in a MP4 container, use the `minim.audio.Audio.convert()` method:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {
+    "tags": [
+     "hide-output"
+    ]
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "size=     116kB time=00:00:01.02 bitrate= 930.3kbits/s speed= 164x    \n"
+     ]
+    }
+   ],
+   "source": [
+    "middle_c.convert(\"alac\", \"middle_c_alac\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The call above not only converts the WAVE audio into ALAC audio, but also updates the variable `middle_c` to now point to a `minim.audio.MP4Audio` file handler for the new file `middle_c.m4a` and maintains the metadata:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "minim.audio.MP4Audio"
+      ]
+     },
+     "execution_count": 30,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "type(middle_c)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Title: Middle C\n",
+      "Album: Minim\n",
+      "Artist: Square Wave\n",
+      "Genre: Game\n",
+      "Codec: alac\n",
+      "Bit depth: 24\n"
+     ]
+    }
+   ],
+   "source": [
+    "for attr in [\"title\", \"album\", \"artist\", \"genre\", \"codec\", \"bit_depth\"]:\n",
+    "    print(f\"{attr.capitalize().replace('_', ' ')}: {getattr(middle_c, attr)}\")"
    ]
   }
  ],

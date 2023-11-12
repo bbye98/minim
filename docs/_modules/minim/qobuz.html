@@ -8,11 +8,10 @@
         <title>minim.qobuz - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sidebar.css" />
     
     
 
@@ -152,7 +151,6 @@
     <img class="sidebar-logo" src="../../_static/icon.svg" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Minim 1.0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -170,7 +168,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OGGAudio.html">OGGAudio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -241,25 +239,78 @@
 <span class="sd">This module contains a minimum implementation of the private Qobuz API.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">base64</span>
-<span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">hashlib</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pathlib</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">base64</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">hashlib</span><span class="p">,</span> <span class="n">logging</span><span class="p">,</span> <span class="n">os</span><span class="p">,</span> <span class="n">pathlib</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">subprocess</span><span class="p">,</span>
+    <span class="n">requests</span><span class="p">,</span> <span class="n">warnings</span><span class="p">,</span>
+    <span class="n">audio</span><span class="p">,</span> <span class="n">utility</span><span class="p">,</span> 
+    <span class="n">FOUND_PLAYWRIGHT</span><span class="p">,</span> <span class="n">FOUND_FFMPEG</span><span class="p">,</span> <span class="n">DIR_HOME</span><span class="p">,</span> <span class="n">DIR_TEMP</span><span class="p">,</span> <span class="n">ILLEGAL_CHARACTERS</span><span class="p">,</span> 
+    <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">config</span>
+<span class="p">)</span>
 
-<span class="kn">import</span> <span class="nn">requests</span>
+<span class="k">if</span> <span class="n">FOUND_PLAYWRIGHT</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">sync_playwright</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">playwright.sync_api</span> <span class="kn">import</span> <span class="n">sync_playwright</span>
-    <span class="n">FOUND_PLAYWRIGHT</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span><span class="p">:</span>
-    <span class="n">FOUND_PLAYWRIGHT</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PrivateAPI&quot;</span><span class="p">]</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">audio</span><span class="p">,</span> <span class="n">utility</span><span class="p">,</span> <span class="n">HOME_DIR</span><span class="p">,</span> <span class="n">TEMP_DIR</span><span class="p">,</span> <span class="n">ILLEGAL_CHARACTERS</span><span class="p">,</span> <span class="n">config</span>
+<span class="k">def</span> <span class="nf">_parse_performers</span><span class="p">(</span>
+        <span class="n">performers</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">roles</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse a string containing credits for a track.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    performers : `str`</span>
+<span class="sd">        An unformatted string containing the track credits obtained</span>
+<span class="sd">        from calling :meth:`get_track`.</span>
+
+<span class="sd">    roles : `list` or `set`, keyword-only, optional</span>
+<span class="sd">        Role filter. The special :code:`&quot;Composers&quot;` filter will </span>
+<span class="sd">        combine the :code:`&quot;Composer&quot;`, :code:`&quot;ComposerLyricist&quot;`,</span>
+<span class="sd">        :code:`&quot;Lyricist&quot;`, and :code:`&quot;Writer&quot;` roles.</span>
+
+<span class="sd">        **Valid values**: :code:`&quot;MainArtist&quot;`, </span>
+<span class="sd">        :code:`&quot;FeaturedArtist&quot;`, :code:`&quot;Producer&quot;`, </span>
+<span class="sd">        :code:`&quot;Co-Producer&quot;`, :code:`&quot;Mixer&quot;`, </span>
+<span class="sd">        :code:`&quot;Composers&quot;` (:code:`&quot;Composer&quot;`, </span>
+<span class="sd">        :code:`&quot;ComposerLyricist&quot;`, :code:`&quot;Lyricist&quot;`, </span>
+<span class="sd">        :code:`&quot;Writer&quot;`), :code:`&quot;MusicPublisher&quot;`, etc.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    credits : `dict`</span>
+<span class="sd">        A dictionary containing the track contributors, with their</span>
+<span class="sd">        roles (in snake case) being the keys.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">people</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">performers</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; - &quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">regex</span> <span class="o">:=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;(^.*[A-Za-z]\.|^.*&amp;.*|[\d\s\w].*?)(?:, )(.*)&quot;</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+        <span class="p">)):</span>
+            <span class="n">people</span><span class="p">[</span><span class="n">regex</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">regex</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+    
+    <span class="n">credits</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">roles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">roles</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">people</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">r</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s2">&quot;Composers&quot;</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
+        <span class="n">roles</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Composers&quot;</span><span class="p">)</span>
+        <span class="n">credits</span><span class="p">[</span><span class="s2">&quot;composers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span>
+            <span class="n">p</span> <span class="k">for</span> <span class="n">cr</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;Composer&quot;</span><span class="p">,</span> <span class="s2">&quot;ComposerLyricist&quot;</span><span class="p">,</span> <span class="s2">&quot;Lyricist&quot;</span><span class="p">,</span> 
+                         <span class="s2">&quot;Writer&quot;</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">people</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> 
+            <span class="k">if</span> <span class="n">cr</span> <span class="ow">in</span> <span class="n">r</span>
+        <span class="p">})</span>
+    <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
+        <span class="n">credits</span><span class="p">[</span>
+            <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?:[A-Z][a-z]+)(?:-[A-Z][a-z]+)?&quot;</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">people</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">r</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">credits</span>
 
 <div class="viewcode-block" id="PrivateAPI">
 <a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI">[docs]</a>
@@ -526,7 +577,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;password&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">email</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">password</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_browser</span><span class="p">:</span>
-                        <span class="n">har_file</span> <span class="o">=</span> <span class="n">TEMP_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim_qobuz_private.har&quot;</span>
+                        <span class="n">har_file</span> <span class="o">=</span> <span class="n">DIR_TEMP</span> <span class="o">/</span> <span class="s2">&quot;minim_qobuz_private.har&quot;</span>
 
                         <span class="k">with</span> <span class="n">sync_playwright</span><span class="p">()</span> <span class="k">as</span> <span class="n">playwright</span><span class="p">:</span>
                             <span class="n">browser</span> <span class="o">=</span> <span class="n">playwright</span><span class="o">.</span><span class="n">firefox</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -542,7 +593,7 @@
 
                         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">har_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                             <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-                                <span class="sa">f</span><span class="s1">&#39;&quot;X-User-Auth-Token&quot;, &quot;value&quot;: &quot;(.*?)&quot;&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;&quot;X-User-Auth-Token&quot;, &quot;value&quot;: &quot;(.*?)&quot;&#39;</span><span class="p">,</span>
                                 <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                             <span class="p">)</span>
                         <span class="n">har_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
@@ -568,7 +619,7 @@
                     <span class="s2">&quot;app_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;X-App-Id&quot;</span><span class="p">],</span>
                     <span class="s2">&quot;app_secret&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_secret</span>
                 <span class="p">}</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">HOME_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DIR_HOME</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;X-User-Auth-Token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth_token</span>
@@ -2570,9 +2621,9 @@
                               <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;track_id&quot;</span><span class="p">:</span> <span class="n">track_id</span><span class="p">})</span></div>
 
 
-<div class="viewcode-block" id="PrivateAPI.get_track_credits">
-<a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_track_credits">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_track_credits</span><span class="p">(</span>
+<div class="viewcode-block" id="PrivateAPI.get_track_performers">
+<a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_track_performers">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_track_performers</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">track_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">performers</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">roles</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
 
@@ -2625,33 +2676,7 @@
         <span class="k">if</span> <span class="n">performers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{}</span>
         
-        <span class="n">people</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">performers</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; - &quot;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">regex</span> <span class="o">:=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-                <span class="sa">r</span><span class="s2">&quot;(^.*[A-Za-z]\.|^.*&amp;.*|[\d\s\w].*?)(?:, )(.*)&quot;</span><span class="p">,</span>
-                <span class="n">p</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
-            <span class="p">)):</span>
-                <span class="n">people</span><span class="p">[</span><span class="n">regex</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">regex</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
-        
-        <span class="n">credits</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">roles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">roles</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">people</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">r</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="s2">&quot;Composers&quot;</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
-            <span class="n">roles</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;Composers&quot;</span><span class="p">)</span>
-            <span class="n">credits</span><span class="p">[</span><span class="s2">&quot;composers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">p</span> <span class="k">for</span> <span class="n">cr</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;Composer&quot;</span><span class="p">,</span> <span class="s2">&quot;ComposerLyricist&quot;</span><span class="p">,</span> <span class="s2">&quot;Lyricist&quot;</span><span class="p">,</span> 
-                             <span class="s2">&quot;Writer&quot;</span><span class="p">}</span>
-                <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">people</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> 
-                <span class="k">if</span> <span class="n">cr</span> <span class="ow">in</span> <span class="n">r</span>
-            <span class="p">]</span>
-        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">:</span>
-            <span class="n">credits</span><span class="p">[</span>
-                <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?:[A-Z][a-z]+)(?:-[A-Z][a-z]+)?&quot;</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">people</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">r</span><span class="p">]</span>
-        
-        <span class="k">return</span> <span class="n">credits</span></div>
+        <span class="k">return</span> <span class="n">_parse_performers</span><span class="p">(</span><span class="n">performers</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="n">roles</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PrivateAPI.get_track_file_url">
@@ -2979,7 +3004,7 @@
         <span class="n">AUDIO_FORMATS_EXTENSIONS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;flac&quot;</span><span class="p">:</span> <span class="s2">&quot;flac&quot;</span><span class="p">,</span> <span class="s2">&quot;mpeg&quot;</span><span class="p">:</span> <span class="s2">&quot;mp3&quot;</span><span class="p">}</span>
 
         <span class="n">file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_track_file_url</span><span class="p">(</span><span class="n">track_id</span><span class="p">,</span> <span class="n">format_id</span><span class="o">=</span><span class="n">format_id</span><span class="p">)</span>
-        <span class="nb">format</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s2">&quot;mime_type&quot;</span><span class="p">][</span><span class="mi">6</span><span class="p">:]</span>
+        <span class="n">audio_format</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s2">&quot;mime_type&quot;</span><span class="p">][</span><span class="mi">6</span><span class="p">:]</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">])</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
             <span class="n">stream</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">content</span>
 
@@ -3020,29 +3045,32 @@
                     <span class="n">track_data</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span>
                 <span class="p">)</span>
             <span class="n">file</span> <span class="o">=</span> <span class="n">path</span> <span class="o">/</span> <span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">ILLEGAL_CHARACTERS</span><span class="p">)</span> 
-                           <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">AUDIO_FORMATS_EXTENSIONS</span><span class="p">[</span><span class="nb">format</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                           <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">AUDIO_FORMATS_EXTENSIONS</span><span class="p">[</span><span class="n">audio_format</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">metadata</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">track</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">Audio</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-                <span class="k">except</span><span class="p">:</span>
-                    <span class="n">tempfile</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;temp_</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;ffmpeg -y -i &#39;</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&#39; -c:a copy &#39;</span><span class="si">{</span><span class="n">tempfile</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                        <span class="s2">&quot;-hide_banner -loglevel error&quot;</span><span class="p">,</span>
-                        <span class="n">shell</span><span class="o">=</span><span class="kc">True</span>
-                    <span class="p">)</span>
-                    <span class="n">file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
-                    <span class="n">file</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-                    <span class="n">track</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">Audio</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">FOUND_FFMPEG</span><span class="p">:</span>
+                        <span class="n">tempfile</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;temp_</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;ffmpeg -y -i &#39;</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&#39; -c:a copy &#39;</span><span class="si">{</span><span class="n">tempfile</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                            <span class="s2">&quot;-hide_banner -loglevel error&quot;</span><span class="p">,</span>
+                            <span class="n">shell</span><span class="o">=</span><span class="kc">True</span>
+                        <span class="p">)</span>
+                        <span class="n">file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+                        <span class="n">file</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                        <span class="n">track</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">Audio</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">wmsg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Could not load audio file. &quot;</span>
+                                <span class="s2">&quot;Metadata was not written.&quot;</span><span class="p">)</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">wmsg</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">file</span>
 
                 <span class="n">track</span><span class="o">.</span><span class="n">set_metadata_using_qobuz</span><span class="p">(</span>
-                    <span class="n">track_data</span><span class="p">,</span> <span class="n">main_artist</span><span class="o">=</span><span class="n">credits</span><span class="p">[</span><span class="s2">&quot;main_artist&quot;</span><span class="p">],</span>
-                    <span class="n">feat_artist</span><span class="o">=</span><span class="n">credits</span><span class="p">[</span><span class="s2">&quot;featured_artist&quot;</span><span class="p">],</span>
-                    <span class="n">composer</span><span class="o">=</span><span class="n">credits</span><span class="p">[</span><span class="s2">&quot;composers&quot;</span><span class="p">],</span>
-                    <span class="n">artwork</span><span class="o">=</span><span class="n">track_data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;image&quot;</span><span class="p">][</span><span class="s2">&quot;large&quot;</span><span class="p">],</span>
+                    <span class="n">track_data</span><span class="p">,</span>
                     <span class="n">comment</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;https://open.qobuz.com/track/</span><span class="si">{</span><span class="n">track_data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
                 <span class="n">track</span><span class="o">.</span><span class="n">write_metadata</span><span class="p">()</span>

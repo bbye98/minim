@@ -1,8 +1,8 @@
-import pathlib
+from pathlib import Path
 import sys
 
-sys.path.insert(0, f"{pathlib.Path(__file__).parents[1].resolve()}/src")
-from minim import qobuz
+sys.path.insert(0, f"{Path(__file__).parents[1].resolve()}/src")
+from minim import qobuz # noqa: E402
 
 class TestPrivateAPI:
 
@@ -42,5 +42,5 @@ class TestPrivateAPI:
     def test_get_track(self):
         assert self.obj.get_track(self.TRACK_ID)["id"] == self.TRACK_ID
 
-    def test_get_track_credits(self):
-        assert isinstance(self.obj.get_track_credits(self.TRACK_ID), dict)
+    def test_get_track_performers(self):
+        assert isinstance(self.obj.get_track_performers(self.TRACK_ID), dict)

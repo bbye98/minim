@@ -168,7 +168,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OGGAudio.html">OGGAudio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -241,36 +241,25 @@
 <span class="sd">service.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">base64</span>
-<span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">hashlib</span>
 <span class="kn">from</span> <span class="nn">http.server</span> <span class="kn">import</span> <span class="n">HTTPServer</span><span class="p">,</span> <span class="n">BaseHTTPRequestHandler</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">secrets</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">import</span> <span class="nn">urllib</span>
-<span class="kn">import</span> <span class="nn">webbrowser</span>
-
-<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span>
     <span class="n">FOUND_FLASK</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
     <span class="n">FOUND_FLASK</span> <span class="o">=</span> <span class="kc">False</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">playwright.sync_api</span> <span class="kn">import</span> <span class="n">sync_playwright</span>
-    <span class="n">FOUND_PLAYWRIGHT</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
-    <span class="n">FOUND_PLAYWRIGHT</span> <span class="o">=</span> <span class="kc">False</span>
  
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">HOME_DIR</span><span class="p">,</span> <span class="n">TEMP_DIR</span><span class="p">,</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">base64</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">hashlib</span><span class="p">,</span> <span class="n">json</span><span class="p">,</span> <span class="n">logging</span><span class="p">,</span> <span class="n">os</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">requests</span><span class="p">,</span> <span class="n">secrets</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span>
+    <span class="n">urllib</span><span class="p">,</span> <span class="n">warnings</span><span class="p">,</span> <span class="n">webbrowser</span><span class="p">,</span>
+    <span class="n">FOUND_PLAYWRIGHT</span><span class="p">,</span> <span class="n">DIR_HOME</span><span class="p">,</span> <span class="n">DIR_TEMP</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">config</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="n">FOUND_PLAYWRIGHT</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">sync_playwright</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PrivateLyricsService&quot;</span><span class="p">,</span> <span class="s2">&quot;WebAPI&quot;</span><span class="p">]</span>
 
 <span class="k">class</span> <span class="nc">_SpotifyRedirectHandler</span><span class="p">(</span><span class="n">BaseHTTPRequestHandler</span><span class="p">):</span>
 <span class="w">    </span>
@@ -537,7 +526,7 @@
                     <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
                     <span class="s2">&quot;expiry&quot;</span><span class="p">:</span> <span class="n">expiry</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">)</span>
                 <span class="p">}</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">HOME_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DIR_HOME</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -549,14 +538,14 @@
 
 <div class="viewcode-block" id="PrivateLyricsService.get_lyrics">
 <a class="viewcode-back" href="../../api/minim.spotify.PrivateLyricsService.html#minim.spotify.PrivateLyricsService.get_lyrics">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">track_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get lyrics for a Spotify track.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        id : `str`</span>
+<span class="sd">        track_id : `str`</span>
 <span class="sd">            The Spotify ID for the track.</span>
 
 <span class="sd">            **Example**: :code:`&quot;0VjIjW4GlUZAMYd2vXMi3b&quot;`.</span>
@@ -602,7 +591,7 @@
 <span class="sd">                  }</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">LYRICS_URL</span><span class="si">}</span><span class="s2">/track/</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">LYRICS_URL</span><span class="si">}</span><span class="s2">/track/</span><span class="si">{</span><span class="n">track_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                               <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
                                       <span class="s2">&quot;market&quot;</span><span class="p">:</span> <span class="s2">&quot;from_token&quot;</span><span class="p">})</span></div>
 </div>
@@ -731,7 +720,7 @@
 
 <span class="sd">           **Valid values**:</span>
 
-<span class="sd">           * :code:`http.server` for the built-in implementation of</span>
+<span class="sd">           * :code:`&quot;http.server&quot;` for the built-in implementation of</span>
 <span class="sd">             HTTP servers.</span>
 <span class="sd">           * :code:`&quot;flask&quot;` for the Flask framework.</span>
 <span class="sd">           * :code:`&quot;playwright&quot;` for the Playwright framework by </span>
@@ -1019,7 +1008,7 @@
 
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_framework</span> <span class="o">==</span> <span class="s2">&quot;flask&quot;</span><span class="p">:</span>
             <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-            <span class="n">json_file</span> <span class="o">=</span> <span class="n">TEMP_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim_spotify.json&quot;</span>
+            <span class="n">json_file</span> <span class="o">=</span> <span class="n">DIR_TEMP</span> <span class="o">/</span> <span class="s2">&quot;minim_spotify.json&quot;</span>
 
             <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/callback&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
             <span class="k">def</span> <span class="nf">_callback</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1029,8 +1018,7 @@
                     <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
                 <span class="k">return</span> <span class="s2">&quot;Access granted. You may close this page now.&quot;</span>
 
-            <span class="n">server</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> 
-                                             <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">))</span>
+            <span class="n">server</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">))</span>
             <span class="n">server</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
             <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">auth_url</span><span class="p">)</span>
             <span class="k">while</span> <span class="ow">not</span> <span class="n">json_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
@@ -1042,7 +1030,7 @@
             <span class="n">json_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
         
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_framework</span> <span class="o">==</span> <span class="s2">&quot;playwright&quot;</span><span class="p">:</span>
-            <span class="n">har_file</span> <span class="o">=</span> <span class="n">TEMP_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim_spotify.har&quot;</span>
+            <span class="n">har_file</span> <span class="o">=</span> <span class="n">DIR_TEMP</span> <span class="o">/</span> <span class="s2">&quot;minim_spotify.har&quot;</span>
             
             <span class="k">with</span> <span class="n">sync_playwright</span><span class="p">()</span> <span class="k">as</span> <span class="n">playwright</span><span class="p">:</span>
                 <span class="n">browser</span> <span class="o">=</span> <span class="n">playwright</span><span class="o">.</span><span class="n">firefox</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1139,7 +1127,7 @@
                     <span class="s2">&quot;expiry&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expiry</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">),</span>
                     <span class="s2">&quot;scopes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span>
                 <span class="p">})</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">HOME_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DIR_HOME</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_request</span><span class="p">(</span>
@@ -1224,8 +1212,9 @@
                     <span class="n">r</span><span class="p">[</span><span class="s2">&quot;accessTokenExpirationTimestampMs&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">1000</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp_dc</span> <span class="ow">and</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;isAnonymous&quot;</span><span class="p">]:</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;The sp_dc cookie is valid, so the &quot;</span>
-                                    <span class="s2">&quot;access token granted is client-only.&quot;</span><span class="p">)</span>
+                    <span class="n">wmsg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The sp_dc cookie is invalid, so the &quot;</span>
+                            <span class="s2">&quot;access token granted is client-only.&quot;</span><span class="p">)</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">wmsg</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="p">:</span>
                     <span class="n">emsg</span> <span class="o">=</span> <span class="s2">&quot;Spotify Web API client credentials not provided.&quot;</span>
@@ -1283,8 +1272,8 @@
                 <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;client_secret&quot;</span><span class="p">,</span> <span class="s2">&quot;redirect_uri&quot;</span><span class="p">,</span> <span class="s2">&quot;sp_dc&quot;</span><span class="p">):</span>
                     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
                         <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">][</span><span class="n">attr</span><span class="p">]</span> \
-                            <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">HOME_DIR</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                            <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DIR_HOME</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
                 
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -1344,7 +1333,7 @@
 
 <span class="sd">               **Valid values**:</span>
 
-<span class="sd">               * :code:`http.server` for the built-in implementation of</span>
+<span class="sd">               * :code:`&quot;http.server&quot;` for the built-in implementation of</span>
 <span class="sd">                 HTTP servers.</span>
 <span class="sd">               * :code:`&quot;flask&quot;` for the Flask framework.</span>
 <span class="sd">               * :code:`&quot;playwright&quot;` for the Playwright framework.</span>
@@ -1410,11 +1399,11 @@
                     <span class="k">else</span> <span class="kc">None</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_framework</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">framework</span><span class="p">:</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;The specified web framework was not found, so &quot;</span>
-                        <span class="s2">&quot;the automatic authorization code retrieval &quot;</span>
-                        <span class="s2">&quot;functionality is not available.&quot;</span>
-                    <span class="p">)</span>
+                    <span class="n">wmsg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">framework</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> web &quot;</span>
+                            <span class="s2">&quot;framework was not found, so automatic &quot;</span>
+                            <span class="s2">&quot;authorization code retrieval is not &quot;</span>
+                            <span class="s2">&quot;available.&quot;</span><span class="p">)</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">wmsg</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">flow</span> <span class="o">==</span> <span class="s2">&quot;client_credentials&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span></div>

@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="User Guide" href="../guide.html" /><link rel="prev" title="Minim" href="../index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
         <title>Getting Started - Minim 1.0.0 documentation</title>
@@ -159,9 +159,8 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
+  <ul>
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../guide.html">User Guide</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/minim.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api/minim.audio.html">audio</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of audio</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -169,7 +168,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/minim.audio.OGGAudio.html">OGGAudio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/minim.audio.OggAudio.html">OggAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -334,7 +333,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <p>Currently, clients for iTunes Search API, Qobuz API, Spotify Web API, and TIDAL APIs have been implemented. Other than the iTunes Search API, which does not require client credentials or support user authentication and can be used out of the box, the other APIs have a few additional prerequisite steps before they can be used. If you authenticate via Minim, the tokens and their related information will be cached and updated automatically as they expire and are refreshed.</p>
 <section id="itunes-search-api-minim-itunes-searchapi">
 <h4>iTunes Search API (<code class="docutils literal notranslate"><span class="pre">minim.itunes.SearchAPI</span></code>)<a class="headerlink" href="#itunes-search-api-minim-itunes-searchapi" title="Link to this heading">#</a></h4>
-<p>To use the iTunes Search API, simply create a client with no arguments:</p>
+<p>To use the iTunes Search API, simply create a client by instantiating a <code class="docutils literal notranslate"><span class="pre">minim.itunes.SearchAPI</span></code> object with no arguments:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_itunes</span> <span class="o">=</span> <span class="n">itunes</span><span class="o">.</span><span class="n">SearchAPI</span><span class="p">()</span>
@@ -346,7 +345,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <section id="private-qobuz-api-minim-qobuz-privateapi">
 <h4>Private Qobuz API (<code class="docutils literal notranslate"><span class="pre">minim.qobuz.PrivateAPI</span></code>)<a class="headerlink" href="#private-qobuz-api-minim-qobuz-privateapi" title="Link to this heading">#</a></h4>
 <p>If you already have a user authentication token, you can provide it and its accompanying app credentials to the client as keyword arguments <code class="docutils literal notranslate"><span class="pre">auth_token</span></code>, <code class="docutils literal notranslate"><span class="pre">app_id</span></code>, and <code class="docutils literal notranslate"><span class="pre">app_secret</span></code>, respectively, and skip this section.</p>
-<p>To use the Qobuz API without user authentication, simply create a client with no arguments:</p>
+<p>To use the Qobuz API without user authentication, simply create a client by instantiating a <code class="docutils literal notranslate"><span class="pre">minim.qobuz.PrivateAPI</span></code> object with no arguments:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_qobuz</span> <span class="o">=</span> <span class="n">qobuz</span><span class="o">.</span><span class="n">PrivateAPI</span><span class="p">()</span>
@@ -354,7 +353,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </div>
 </div>
-<p>To use the Qobuz API with user authentication and get access to all public and protected endpoints, you can pass <code class="docutils literal notranslate"><span class="pre">flow=&quot;password&quot;</span></code> and provide your Qobuz email and password as keyword arguments <code class="docutils literal notranslate"><span class="pre">email</span></code> and <code class="docutils literal notranslate"><span class="pre">password</span></code> to the client:</p>
+<p>To use the Qobuz API with user authentication and get access to all public and protected endpoints, you can pass <code class="docutils literal notranslate"><span class="pre">flow=&quot;password&quot;</span></code> and provide your Qobuz email and password as keyword arguments <code class="docutils literal notranslate"><span class="pre">email</span></code> and <code class="docutils literal notranslate"><span class="pre">password</span></code> to the constructor:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client_qobuz</span> <span class="o">=</span> <span class="n">qobuz</span><span class="o">.</span><span class="n">PrivateAPI</span><span class="p">(</span><span class="n">flow</span><span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="n">email</span><span class="o">=&lt;</span><span class="n">QOBUZ_EMAIL</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">password</span><span class="o">=&lt;</span><span class="n">QOBUZ_PASSWORD</span><span class="o">&gt;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -372,15 +371,15 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <li><p>Launch a web browser and log into the <a class="reference external" href="https://accounts.spotify.com/en/login?continue=https%3A%2F%2Fopen.spotify.com%2F">Spotify Web Player</a>.</p></li>
 <li><p>Find the <code class="docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie in your web browser’s storage.</p>
 <ul class="simple">
-<li><p>For Chromium-based browsers, press <code class="docutils literal notranslate"><span class="pre">F12</span></code> to open DevTools and navigate to <code class="docutils literal notranslate"><span class="pre">Application</span> <span class="pre">&gt;</span> <span class="pre">Storage</span> <span class="pre">&gt;</span> <span class="pre">Cookies</span> <span class="pre">&gt;</span> <span class="pre">https://open.spotify.com</span></code>.fi</p></li>
+<li><p>For Chromium-based browsers, press <code class="docutils literal notranslate"><span class="pre">F12</span></code> to open DevTools and navigate to <code class="docutils literal notranslate"><span class="pre">Application</span> <span class="pre">&gt;</span> <span class="pre">Storage</span> <span class="pre">&gt;</span> <span class="pre">Cookies</span> <span class="pre">&gt;</span> <span class="pre">https://open.spotify.com</span></code>.</p></li>
 <li><p>For Firefox, press <code class="docutils literal notranslate"><span class="pre">Shift</span></code> + <code class="docutils literal notranslate"><span class="pre">F9</span></code> to open Storage Inspector and nagivate to <code class="docutils literal notranslate"><span class="pre">Storage</span> <span class="pre">&gt;</span> <span class="pre">Cookies</span> <span class="pre">&gt;</span> <span class="pre">https://open.spotify.com</span></code>.</p></li>
 </ul>
 </li>
-<li><p>Create a client with the <code class="docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie as a keyword argument:</p>
+<li><p>Create a client by instantiating a <code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI</span></code> object with the <code class="docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie as a keyword argument:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client_spotify_lyrics</span> <span class="o">=</span> <span class="n">spotify</span><span class="o">.</span><span class="n">PrivateLyricsService</span><span class="p">(</span><span class="n">sp_dc</span><span class="o">=&lt;</span><span class="n">SPOTIFY_SP_DC</span><span class="o">&gt;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>or store the <code class="docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie as an environment variable <code class="docutils literal notranslate"><span class="pre">SPOTIFY_SP_DC</span></code> and create a client with no arguments:</p>
+<p>or store the <code class="docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie as an environment variable <code class="docutils literal notranslate"><span class="pre">SPOTIFY_SP_DC</span></code> and call the constructor with no arguments:</p>
 </li>
 </ol>
 <div class="cell docutils container">
@@ -395,12 +394,12 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <h4>Spotify Web API (<code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI</span></code>)<a class="headerlink" href="#spotify-web-api-minim-spotify-webapi" title="Link to this heading">#</a></h4>
 <p>If you already have an access token, you can provide it and optionally its accompanying refresh token, expiry time, and client credentials to the client as keyword arguments <code class="docutils literal notranslate"><span class="pre">access_token</span></code>, <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code>, <code class="docutils literal notranslate"><span class="pre">expiry</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code>, respectively, and skip this section.</p>
 <p>First, register a Spotify application <a class="reference external" href="https://developer.spotify.com/documentation/general/guides/authorization/app-settings/">here</a> and grab its client credentials. For the redirect URI, use <code class="docutils literal notranslate"><span class="pre">http://localhost:8888/callback</span></code>. You can replace <code class="docutils literal notranslate"><span class="pre">8888</span></code> with an open port of your choice, but you will need to pass <code class="docutils literal notranslate"><span class="pre">port=&lt;SPOTIFY_PORT&gt;</span></code> when you create a client.</p>
-<p>To use the Spotify Web API without user authentication, you can provide the client credentials as keyword arguments <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code> to the client:</p>
+<p>To use the Spotify Web API without user authentication, you can provide the client credentials as keyword arguments <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code> to the constructor:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client_spotify</span> <span class="o">=</span> <span class="n">spotify</span><span class="o">.</span><span class="n">WebAPI</span><span class="p">(</span><span class="n">client_id</span><span class="o">=&lt;</span><span class="n">SPOTIFY_CLIENT_ID</span><span class="o">&gt;</span><span class="p">,</span> 
                                 <span class="n">client_secret</span><span class="o">=&lt;</span><span class="n">SPOTIFY_CLIENT_SECRET</span><span class="o">&gt;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>or store the client credentials as environment variables <code class="docutils literal notranslate"><span class="pre">SPOTIFY_CLIENT_ID</span></code> and <code class="docutils literal notranslate"><span class="pre">SPOTIFY_CLIENT_SECRET</span></code> and create a client with no arguments:</p>
+<p>or store the client credentials as environment variables <code class="docutils literal notranslate"><span class="pre">SPOTIFY_CLIENT_ID</span></code> and <code class="docutils literal notranslate"><span class="pre">SPOTIFY_CLIENT_SECRET</span></code> and call the constructor with no arguments:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_spotify</span> <span class="o">=</span> <span class="n">spotify</span><span class="o">.</span><span class="n">WebAPI</span><span class="p">()</span>
@@ -409,11 +408,21 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </div>
 <p>To use the Spotify Web API with user authentication,</p>
-<ol class="arabic">
-<li><p>Create a client with <code class="docutils literal notranslate"><span class="pre">flow=&quot;pkce&quot;</span></code>, the client credentials in <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code>, and optionally <code class="docutils literal notranslate"><span class="pre">framework=True</span></code> to automate the authorization code retrieval process:</p>
+<ol class="arabic simple">
+<li><p>Get the necessary authorization scopes using <code class="docutils literal notranslate"><span class="pre">spotify.WebAPI.get_authorization_scopes()</span></code>:</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">scopes</span> <span class="o">=</span> <span class="n">spotify</span><span class="o">.</span><span class="n">WebAPI</span><span class="o">.</span><span class="n">get_scopes</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ol class="arabic" start="2">
+<li><p>Create a client with <code class="docutils literal notranslate"><span class="pre">flow=&quot;pkce&quot;</span></code>, the client credentials in <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code>, the authorization scopes in <code class="docutils literal notranslate"><span class="pre">scopes</span></code>, and optionally <code class="docutils literal notranslate"><span class="pre">framework=True</span></code> to automate the authorization code retrieval process:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client_spotify</span> <span class="o">=</span> <span class="n">spotify</span><span class="o">.</span><span class="n">WebAPI</span><span class="p">(</span><span class="n">client_id</span><span class="o">=&lt;</span><span class="n">SPOTIFY_CLIENT_ID</span><span class="o">&gt;</span><span class="p">,</span> 
                                 <span class="n">client_secret</span><span class="o">=&lt;</span><span class="n">SPOTIFY_CLIENT_SECRET</span><span class="o">&gt;</span><span class="p">,</span>
-                                <span class="n">flow</span><span class="o">=</span><span class="s2">&quot;pkce&quot;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                                <span class="n">flow</span><span class="o">=</span><span class="s2">&quot;pkce&quot;</span><span class="p">,</span> <span class="n">scopes</span><span class="o">=</span><span class="n">scopes</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
@@ -426,7 +435,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <h4>TIDAL API (<code class="docutils literal notranslate"><span class="pre">minim.tidal.API</span></code>)<a class="headerlink" href="#tidal-api-minim-tidal-api" title="Link to this heading">#</a></h4>
 <p>If you already have a client-only access token, you can provide it and optionally its accompanying refresh token, expiry time, and client credentials to the client as keyword arguments <code class="docutils literal notranslate"><span class="pre">access_token</span></code>, <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code>, <code class="docutils literal notranslate"><span class="pre">expiry</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code>, respectively, and skip this section.</p>
 <p>First, register a TIDAL application <a class="reference external" href="https://developer.tidal.com/documentation/dashboard/dashboard-client-credentials">here</a> and jot down the client credentials.</p>
-<p>To use the TIDAL API, you can provide the client credentials as keyword arguments <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code> to the client:</p>
+<p>To use the TIDAL API, you can provide the client credentials as keyword arguments <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code> to the <code class="docutils literal notranslate"><span class="pre">minim.tidal.API</span></code> constructor:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client_tidal</span> <span class="o">=</span> <span class="n">tidal</span><span class="o">.</span><span class="n">API</span><span class="p">(</span><span class="n">client_id</span><span class="o">=&lt;</span><span class="n">TIDAL_CLIENT_ID</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">client_secret</span><span class="o">=&lt;</span><span class="n">TIDAL_CLIENT_SECRET</span><span class="o">&gt;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -442,7 +451,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <section id="private-tidal-api-minim-tidal-privateapi">
 <h4>Private TIDAL API (<code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI</span></code>)<a class="headerlink" href="#private-tidal-api-minim-tidal-privateapi" title="Link to this heading">#</a></h4>
 <p>If you already have an access token, you can provide it and optionally its accompanying refresh token, expiry time, and client credentials to the client as keyword arguments <code class="docutils literal notranslate"><span class="pre">access_token</span></code>, <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code>, <code class="docutils literal notranslate"><span class="pre">expiry</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, and <code class="docutils literal notranslate"><span class="pre">client_secret</span></code>, respectively, and skip this section.</p>
-<p>To use the TIDAL API without user authentication, simply create a client with no arguments:</p>
+<p>To use the TIDAL API without user authentication, simply create a client by instantiating a <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI</span></code> object with no arguments:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_tidal_private</span> <span class="o">=</span> <span class="n">tidal</span><span class="o">.</span><span class="n">PrivateAPI</span><span class="p">()</span>
@@ -467,7 +476,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 <p>if you obtained client credentials from the Android or iOS applications.</p>
 </li>
-<li><p>Follow the instructions in the web browser to log into your TIDAL account and authorize Minim.</p></li>
+<li><p>Follow the instructions in the console (<code class="docutils literal notranslate"><span class="pre">browser=False</span></code>) or the web browser (<code class="docutils literal notranslate"><span class="pre">browser=True</span></code>) to log into your TIDAL account and authorize Minim.</p></li>
 </ol>
 </section>
 <section id="examples">
@@ -548,7 +557,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </summary>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;external_urls&#39;: {&#39;spotify&#39;: &#39;https://open.spotify.com/artist/4sTQVOfp9vEMCemLw50sbu&#39;},
- &#39;followers&#39;: {&#39;href&#39;: None, &#39;total&#39;: 3374400},
+ &#39;followers&#39;: {&#39;href&#39;: None, &#39;total&#39;: 3375748},
  &#39;genres&#39;: [&#39;dance pop&#39;, &#39;edm&#39;, &#39;pop&#39;, &#39;pop dance&#39;],
  &#39;href&#39;: &#39;https://api.spotify.com/v1/artists/4sTQVOfp9vEMCemLw50sbu&#39;,
  &#39;id&#39;: &#39;4sTQVOfp9vEMCemLw50sbu&#39;,
@@ -662,7 +671,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </section>
 <section id="search-for-a-track">
 <h5>Search for a track<a class="headerlink" href="#search-for-a-track" title="Link to this heading">#</a></h5>
-<p>The same <code class="docutils literal notranslate"><span class="pre">search()</span></code> method can also be used to search for and retrieve information about a track, such as “Everybody Talks” by Neon Trees:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">search()</span></code> methods can also be used to search for and retrieve information about a track, such as “Everybody Talks” by Neon Trees:</p>
 <section id="id1">
 <h6>iTunes Search API<a class="headerlink" href="#id1" title="Link to this heading">#</a></h6>
 <div class="cell tag_hide-output docutils container">
@@ -1318,8 +1327,8 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 </section>
-<section id="create-modify-and-delete-a-personal-playlist">
-<h5>Create, modify, and delete a personal playlist<a class="headerlink" href="#create-modify-and-delete-a-personal-playlist" title="Link to this heading">#</a></h5>
+<section id="create-modify-and-delete-personal-playlists">
+<h5>Create, modify, and delete personal playlists<a class="headerlink" href="#create-modify-and-delete-personal-playlists" title="Link to this heading">#</a></h5>
 <p>If the clients are authenticated, you can create and modify user playlists. As an example, we will create a private playlist named “Minim”, make it public, add “Everybody Talks” by Neon Trees to it, and then delete it.</p>
 <section id="id6">
 <h6>Private Qobuz API<a class="headerlink" href="#id6" title="Link to this heading">#</a></h6>
@@ -1350,19 +1359,19 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
  &#39;images&#39;: [&#39;https://static.qobuz.com/images/covers/42/54/0060252795442_50.jpg&#39;],
  &#39;is_collaborative&#39;: False,
  &#39;description&#39;: &#39;A playlist created using Minim.&#39;,
- &#39;created_at&#39;: 1699502856,
+ &#39;created_at&#39;: 1699767029,
  &#39;images300&#39;: [&#39;https://static.qobuz.com/images/covers/42/54/0060252795442_300.jpg&#39;],
  &#39;duration&#39;: 177,
- &#39;updated_at&#39;: 1699502857,
+ &#39;updated_at&#39;: 1699767030,
  &#39;published_to&#39;: None,
  &#39;genres&#39;: [],
  &#39;tracks_count&#39;: 1,
- &#39;public_at&#39;: 1699502856,
+ &#39;public_at&#39;: 1699767030,
  &#39;name&#39;: &#39;Minim&#39;,
  &#39;is_public&#39;: True,
  &#39;published_from&#39;: None,
- &#39;id&#39;: 17785563,
- &#39;slug&#39;: &#39;minim-20&#39;,
+ &#39;id&#39;: 17864727,
+ &#39;slug&#39;: &#39;minim-32&#39;,
  &#39;is_featured&#39;: False,
  &#39;tracks&#39;: {&#39;offset&#39;: 0,
   &#39;limit&#39;: 50,
@@ -1447,8 +1456,8 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
     &#39;hires&#39;: False,
     &#39;hires_streamable&#39;: False,
     &#39;position&#39;: 1,
-    &#39;created_at&#39;: 1699502856,
-    &#39;playlist_track_id&#39;: 3756687402}]}}
+    &#39;created_at&#39;: 1699767030,
+    &#39;playlist_track_id&#39;: 3775088750}]}}
 </pre></div>
 </div>
 </div>
@@ -1489,10 +1498,10 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;collaborative&#39;: False,
  &#39;description&#39;: &#39;A playlist created using Minim.&#39;,
- &#39;external_urls&#39;: {&#39;spotify&#39;: &#39;https://open.spotify.com/playlist/0BCa4y93NxGd5l7zk4rhsB&#39;},
+ &#39;external_urls&#39;: {&#39;spotify&#39;: &#39;https://open.spotify.com/playlist/32I1AkITOGAkXClljcTfL4&#39;},
  &#39;followers&#39;: {&#39;href&#39;: None, &#39;total&#39;: 0},
- &#39;href&#39;: &#39;https://api.spotify.com/v1/playlists/0BCa4y93NxGd5l7zk4rhsB&#39;,
- &#39;id&#39;: &#39;0BCa4y93NxGd5l7zk4rhsB&#39;,
+ &#39;href&#39;: &#39;https://api.spotify.com/v1/playlists/32I1AkITOGAkXClljcTfL4&#39;,
+ &#39;id&#39;: &#39;32I1AkITOGAkXClljcTfL4&#39;,
  &#39;images&#39;: [{&#39;height&#39;: 640,
    &#39;url&#39;: &#39;https://i.scdn.co/image/ab67616d0000b2734a6c0376235e5aa44e59d2c2&#39;,
    &#39;width&#39;: 640}],
@@ -1500,9 +1509,9 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
  &#39;owner&#39;: None,
  &#39;primary_color&#39;: None,
  &#39;public&#39;: True,
- &#39;snapshot_id&#39;: &#39;MywyYTNmNjVlNzAzODM3MTliNDZmMzNjYzMwNTBhYjllNzJhNTY0ZTll&#39;,
- &#39;tracks&#39;: {&#39;href&#39;: &#39;https://api.spotify.com/v1/playlists/0BCa4y93NxGd5l7zk4rhsB/tracks?offset=0&amp;limit=100&#39;,
-  &#39;items&#39;: [{&#39;added_at&#39;: &#39;2023-11-09T04:07:39Z&#39;,
+ &#39;snapshot_id&#39;: &#39;MyxjOTU4MWVlMjZlMzFiOTdkMGZiM2ExNDQ0OTU3NDg2MDllZmFjODZm&#39;,
+ &#39;tracks&#39;: {&#39;href&#39;: &#39;https://api.spotify.com/v1/playlists/32I1AkITOGAkXClljcTfL4/tracks?offset=0&amp;limit=100&#39;,
+  &#39;items&#39;: [{&#39;added_at&#39;: &#39;2023-11-12T05:30:32Z&#39;,
     &#39;added_by&#39;: None,
     &#39;is_local&#39;: False,
     &#39;primary_color&#39;: None,
@@ -1910,7 +1919,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
   &#39;previous&#39;: None,
   &#39;total&#39;: 1},
  &#39;type&#39;: &#39;playlist&#39;,
- &#39;uri&#39;: &#39;spotify:playlist:0BCa4y93NxGd5l7zk4rhsB&#39;}
+ &#39;uri&#39;: &#39;spotify:playlist:32I1AkITOGAkXClljcTfL4&#39;}
 </pre></div>
 </div>
 </div>
@@ -1952,7 +1961,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <span class="expanded">Hide code cell output</span>
 </summary>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;playlist&#39;: {&#39;uuid&#39;: &#39;1e1b0341-7d0e-41ce-843e-fe8d5ff3dc6f&#39;,
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;playlist&#39;: {&#39;uuid&#39;: &#39;b378b64b-68df-47cf-bcf3-e830a7f26b8e&#39;,
   &#39;type&#39;: &#39;USER&#39;,
   &#39;creator&#39;: None,
   &#39;contentBehavior&#39;: &#39;UNRESTRICTED&#39;,
@@ -1961,19 +1970,19 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
   &#39;source&#39;: &#39;DEFAULT&#39;,
   &#39;title&#39;: &#39;Minim&#39;,
   &#39;description&#39;: &#39;A playlist created using Minim.&#39;,
-  &#39;image&#39;: &#39;d6765025-25fa-4f5f-9e45-581fd4311969&#39;,
-  &#39;squareImage&#39;: &#39;fd909e76-0ee1-421a-841f-299bc5d58c4d&#39;,
-  &#39;url&#39;: &#39;http://www.tidal.com/playlist/1e1b0341-7d0e-41ce-843e-fe8d5ff3dc6f&#39;,
-  &#39;created&#39;: &#39;2023-11-09T04:07:39.714+0000&#39;,
-  &#39;lastUpdated&#39;: &#39;2023-11-09T04:07:40.281+0000&#39;,
-  &#39;lastItemAddedAt&#39;: &#39;2023-11-09T04:07:40.281+0000&#39;,
+  &#39;image&#39;: &#39;ceed3a59-68ac-4a34-a506-eba00faf2b1b&#39;,
+  &#39;squareImage&#39;: &#39;cba847fa-aa85-44a3-8162-5e8570e6d1c5&#39;,
+  &#39;url&#39;: &#39;http://www.tidal.com/playlist/b378b64b-68df-47cf-bcf3-e830a7f26b8e&#39;,
+  &#39;created&#39;: &#39;2023-11-12T05:30:33.056+0000&#39;,
+  &#39;lastUpdated&#39;: &#39;2023-11-12T05:30:33.588+0000&#39;,
+  &#39;lastItemAddedAt&#39;: &#39;2023-11-12T05:30:33.588+0000&#39;,
   &#39;duration&#39;: 177,
   &#39;numberOfTracks&#39;: 1,
   &#39;numberOfVideos&#39;: 0,
   &#39;promotedArtists&#39;: [],
-  &#39;trn&#39;: &#39;trn:playlist:1e1b0341-7d0e-41ce-843e-fe8d5ff3dc6f&#39;},
+  &#39;trn&#39;: &#39;trn:playlist:b378b64b-68df-47cf-bcf3-e830a7f26b8e&#39;},
  &#39;followInfo&#39;: {&#39;nrOfFollowers&#39;: 0,
-  &#39;tidalResourceName&#39;: &#39;trn:playlist:1e1b0341-7d0e-41ce-843e-fe8d5ff3dc6f&#39;,
+  &#39;tidalResourceName&#39;: &#39;trn:playlist:b378b64b-68df-47cf-bcf3-e830a7f26b8e&#39;,
   &#39;followed&#39;: True,
   &#39;followType&#39;: &#39;PLAYLIST&#39;},
  &#39;profile&#39;: None}
@@ -1997,12 +2006,124 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <h3>Audio file handlers<a class="headerlink" href="#audio-file-handlers" title="Link to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">minim.audio</span> <span class="kn">import</span> <span class="n">Audio</span><span class="p">,</span> <span class="n">FLACAudio</span><span class="p">,</span> <span class="n">MP3Audio</span><span class="p">,</span> <span class="n">MP4Audio</span><span class="p">,</span> <span class="n">OGGAudio</span><span class="p">,</span> <span class="n">WAVEAudio</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">minim.audio</span> <span class="kn">import</span> <span class="n">Audio</span><span class="p">,</span> <span class="n">FLACAudio</span><span class="p">,</span> <span class="n">MP3Audio</span><span class="p">,</span> <span class="n">MP4Audio</span><span class="p">,</span> <span class="n">OggAudio</span><span class="p">,</span> <span class="n">WAVEAudio</span>
 </pre></div>
 </div>
 </div>
 </div>
-<p>Minim uses <a class="reference external" href="https://mutagen.readthedocs.io/en/latest/">Mutagen</a> to load and edit audio files. Currently, the most common audio formats, such as FLAC, MP3, M4A, OGG, and WAV, are supported.</p>
+<p>Minim uses <a class="reference external" href="https://mutagen.readthedocs.io/en/latest/">Mutagen</a> to load and edit audio files and <a class="reference external" href="https://ffmpeg.org/">FFmpeg</a> to convert between different audio formats. Currently, the most common audio formats, such as AAC, ALAC, FLAC, MP3, Opus, Vorbis, and WAVE, are supported.</p>
+<section id="id9">
+<h4>Examples<a class="headerlink" href="#id9" title="Link to this heading">#</a></h4>
+<section id="load-and-edit-an-audio-file">
+<h5>Load and edit an audio file<a class="headerlink" href="#load-and-edit-an-audio-file" title="Link to this heading">#</a></h5>
+<p>To load an audio file, pass the filename as a <code class="docutils literal notranslate"><span class="pre">str</span></code> or a <code class="docutils literal notranslate"><span class="pre">pathlib.Path</span></code> object either to the <code class="docutils literal notranslate"><span class="pre">minim.audio.Audio</span></code> constructor for Minim to automatically detect the audio format:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tests/data/middle_c.wav&quot;</span>
+<span class="n">middle_c</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>or the specific class for the audio format if known (in this case, <code class="docutils literal notranslate"><span class="pre">minim.audio.WAVEAudio</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">middle_c</span> <span class="o">=</span> <span class="n">WAVEAudio</span><span class="p">(</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tests/data/middle_c.wav&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For this example, both approaches return a <code class="docutils literal notranslate"><span class="pre">minim.audio.WAVEAudio</span></code> object:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span><span class="p">(</span><span class="n">middle_c</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>minim.audio.WAVEAudio
+</pre></div>
+</div>
+</div>
+</div>
+<p>The metadata stored in the audio file can be accessed using dot notation or <code class="docutils literal notranslate"><span class="pre">getattr()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;album&quot;</span><span class="p">,</span> <span class="s2">&quot;artist&quot;</span><span class="p">,</span> <span class="s2">&quot;genre&quot;</span><span class="p">,</span> <span class="s2">&quot;codec&quot;</span><span class="p">,</span> <span class="s2">&quot;bit_depth&quot;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">attr</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">middle_c</span><span class="p">,</span><span class="w"> </span><span class="n">attr</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Title: Middle C
+Album: Minim
+Artist: Square Wave
+Genre: Game
+Codec: lpcm
+Bit depth: 24
+</pre></div>
+</div>
+</div>
+</div>
+<p>and edited similarly using dot notation or <code class="docutils literal notranslate"><span class="pre">setattr()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">middle_c</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Middle C (261.63 Hz)&quot;</span>
+<span class="n">middle_c</span><span class="o">.</span><span class="n">write_metadata</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If changes are made, don’t forget to write them to file using <code class="docutils literal notranslate"><span class="pre">minim.audio.Audio.write_metadata()</span></code>.</p>
+</section>
+<section id="convert-between-audio-formats">
+<h5>Convert between audio formats<a class="headerlink" href="#convert-between-audio-formats" title="Link to this heading">#</a></h5>
+<p>Conversion between the supported audio formats is powered by FFmpeg.</p>
+<p>To re-encode the previous WAVE audio using the ALAC codec and store it in a MP4 container, use the <code class="docutils literal notranslate"><span class="pre">minim.audio.Audio.convert()</span></code> method:</p>
+<div class="cell tag_hide-output docutils container">
+<div class="cell_input above-output-prompt docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">middle_c</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;alac&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;middle_c_alac&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<details class="hide below-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell output</span>
+<span class="expanded">Hide code cell output</span>
+</summary>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>size=     116kB time=00:00:01.02 bitrate= 930.3kbits/s speed= 155x    
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<p>The call above not only converts the WAVE audio into ALAC audio, but also updates the variable <code class="docutils literal notranslate"><span class="pre">middle_c</span></code> to now point to a <code class="docutils literal notranslate"><span class="pre">minim.audio.MP4Audio</span></code> file handler for the new file <code class="docutils literal notranslate"><span class="pre">middle_c.m4a</span></code> and maintains the metadata:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span><span class="p">(</span><span class="n">middle_c</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>minim.audio.MP4Audio
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;album&quot;</span><span class="p">,</span> <span class="s2">&quot;artist&quot;</span><span class="p">,</span> <span class="s2">&quot;genre&quot;</span><span class="p">,</span> <span class="s2">&quot;codec&quot;</span><span class="p">,</span> <span class="s2">&quot;bit_depth&quot;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">attr</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">middle_c</span><span class="p">,</span><span class="w"> </span><span class="n">attr</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Title: Middle C
+Album: Minim
+Artist: Square Wave
+Genre: Game
+Codec: alac
+Bit depth: 24
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
 </section>
 </section>
 </section>
@@ -2012,26 +2133,8 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../guide.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">User Guide</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="../index.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">Home</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -2089,7 +2192,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <li><a class="reference internal" href="#id5">Private TIDAL API</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#create-modify-and-delete-a-personal-playlist">Create, modify, and delete a personal playlist</a><ul>
+<li><a class="reference internal" href="#create-modify-and-delete-personal-playlists">Create, modify, and delete personal playlists</a><ul>
 <li><a class="reference internal" href="#id6">Private Qobuz API</a></li>
 <li><a class="reference internal" href="#id7">Spotify Web API</a></li>
 <li><a class="reference internal" href="#id8">Private TIDAL API</a></li>
@@ -2099,7 +2202,14 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#audio-file-handlers">Audio file handlers</a></li>
+<li><a class="reference internal" href="#audio-file-handlers">Audio file handlers</a><ul>
+<li><a class="reference internal" href="#id9">Examples</a><ul>
+<li><a class="reference internal" href="#load-and-edit-an-audio-file">Load and edit an audio file</a></li>
+<li><a class="reference internal" href="#convert-between-audio-formats">Convert between audio formats</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

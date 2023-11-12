@@ -8,36 +8,25 @@ endpoints and a minimal implementation to use the private Spotify Lyrics
 service.
 """
 
-import base64
-import datetime
-import hashlib
 from http.server import HTTPServer, BaseHTTPRequestHandler
-import json
-import logging
-import multiprocessing
-import os
-import re
-import secrets
-import time
-from typing import Any, Union
-import urllib
-import webbrowser
-
-import requests
+from multiprocessing import Process
 
 try:
     from flask import Flask, request
     FOUND_FLASK = True
-except ModuleNotFoundError: # pragma: no cover
+except ModuleNotFoundError:
     FOUND_FLASK = False
-
-try:
-    from playwright.sync_api import sync_playwright
-    FOUND_PLAYWRIGHT = True
-except ModuleNotFoundError: # pragma: no cover
-    FOUND_PLAYWRIGHT = False
  
-from . import HOME_DIR, TEMP_DIR, config
+from . import (
+    base64, datetime, hashlib, json, logging, os, re, requests, secrets, time,
+    urllib, warnings, webbrowser,
+    FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, Any, Union, config
+)
+
+if FOUND_PLAYWRIGHT:
+    from . import sync_playwright
+
+__all__ = ["PrivateLyricsService", "WebAPI"]
 
 class _SpotifyRedirectHandler(BaseHTTPRequestHandler):
     
@@ -297,7 +286,7 @@ class PrivateLyricsService:
                     "access_token": access_token,
                     "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
                 }
-                with open(HOME_DIR / "minim.cfg", "w") as f:
+                with open(DIR_HOME / "minim.cfg", "w") as f:
                     config.write(f)
         
         self.session.headers["Authorization"] = f"Bearer {access_token}"
@@ -306,14 +295,14 @@ class PrivateLyricsService:
             if isinstance(expiry, str) else expiry
         )
 
-    def get_lyrics(self, id: str) -> dict[str, Any]:
+    def get_lyrics(self, track_id: str) -> dict[str, Any]:
 
         """
         Get lyrics for a Spotify track.
 
         Parameters
         ----------
-        id : `str`
+        track_id : `str`
             The Spotify ID for the track.
 
             **Example**: :code:`"0VjIjW4GlUZAMYd2vXMi3b"`.
@@ -359,7 +348,7 @@ class PrivateLyricsService:
                   }
         """
 
-        return self._get_json(f"{self.LYRICS_URL}/track/{id}",
+        return self._get_json(f"{self.LYRICS_URL}/track/{track_id}",
                               params={"format": "json",
                                       "market": "from_token"})
 
@@ -484,7 +473,7 @@ class WebAPI:
 
            **Valid values**:
 
-           * :code:`http.server` for the built-in implementation of
+           * :code:`"http.server"` for the built-in implementation of
              HTTP servers.
            * :code:`"flask"` for the Flask framework.
            * :code:`"playwright"` for the Playwright framework by 
@@ -769,7 +758,7 @@ class WebAPI:
 
         elif self._framework == "flask":
             app = Flask(__name__)
-            json_file = TEMP_DIR / "minim_spotify.json"
+            json_file = DIR_TEMP / "minim_spotify.json"
 
             @app.route("/callback", methods=["GET"])
             def _callback() -> str:
@@ -779,8 +768,7 @@ class WebAPI:
                     json.dump(request.args, f)
                 return "Access granted. You may close this page now."
 
-            server = multiprocessing.Process(target=app.run, 
-                                             args=("0.0.0.0", self._port))
+            server = Process(target=app.run, args=("0.0.0.0", self._port))
             server.start()
             webbrowser.open(auth_url)
             while not json_file.is_file():
@@ -792,7 +780,7 @@ class WebAPI:
             json_file.unlink()
         
         elif self._framework == "playwright":
-            har_file = TEMP_DIR / "minim_spotify.har"
+            har_file = DIR_TEMP / "minim_spotify.har"
             
             with sync_playwright() as playwright:
                 browser = playwright.firefox.launch(headless=False)
@@ -889,7 +877,7 @@ class WebAPI:
                     "expiry": self._expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "scopes": self._scopes
                 })
-                with open(HOME_DIR / "minim.cfg", "w") as f:
+                with open(DIR_HOME / "minim.cfg", "w") as f:
                     config.write(f)
 
     def _request(
@@ -972,8 +960,9 @@ class WebAPI:
                     r["accessTokenExpirationTimestampMs"] / 1000
                 )
                 if self._sp_dc and r["isAnonymous"]:
-                    logging.warning("The sp_dc cookie is valid, so the "
-                                    "access token granted is client-only.")
+                    wmsg = ("The sp_dc cookie is invalid, so the "
+                            "access token granted is client-only.")
+                    warnings.warn(wmsg)
             else:
                 if not self._client_id or not self._client_secret:
                     emsg = "Spotify Web API client credentials not provided."
@@ -1031,8 +1020,8 @@ class WebAPI:
                 for attr in ("client_secret", "redirect_uri", "sp_dc"):
                     if hasattr(self, f"_{attr}"):
                         config[self._NAME][attr] \
-                            = getattr(self, f"_{attr}")
-                with open(HOME_DIR / "minim.cfg", "w") as f:
+                            = getattr(self, f"_{attr}") or ""
+                with open(DIR_HOME / "minim.cfg", "w") as f:
                     config.write(f)
                 
         self.session.headers["Authorization"] = f"Bearer {access_token}"
@@ -1089,7 +1078,7 @@ class WebAPI:
 
                **Valid values**:
 
-               * :code:`http.server` for the built-in implementation of
+               * :code:`"http.server"` for the built-in implementation of
                  HTTP servers.
                * :code:`"flask"` for the Flask framework.
                * :code:`"playwright"` for the Playwright framework.
@@ -1155,11 +1144,11 @@ class WebAPI:
                     else None
                 )
                 if self._framework is None and framework:
-                    logging.warning(
-                        "The specified web framework was not found, so "
-                        "the automatic authorization code retrieval "
-                        "functionality is not available."
-                    )
+                    wmsg = (f"The {framework.capitalize()} web "
+                            "framework was not found, so automatic "
+                            "authorization code retrieval is not "
+                            "available.")
+                    warnings.warn(wmsg)
 
             elif flow == "client_credentials":
                 self._scopes = ""

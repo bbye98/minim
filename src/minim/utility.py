@@ -6,20 +6,24 @@ Utility functions
 This module contains a collection of utility functions.
 """
 
-from typing import Any, Sequence, Union
+from . import Any, Union
 
 try:
     import Levenshtein
     FOUND_LEVENSHTEIN = True
-except:
+except ModuleNotFoundError:
     FOUND_LEVELSHTEIN = False
 try:
     import numpy as np
     FOUND_NUMPY = True
-except:
+except ModuleNotFoundError:
     FOUND_NUMPY = False
 
-def levenshtein_ratio(base: str, values: Union[str, Sequence[str]]) -> float:
+__all__ = ["levenshtein_ratio", "multivalue_formatter"]
+
+def levenshtein_ratio(
+        base: str, values: Union[str, list[str]]
+    ) -> Union[float, list[float], np.ndarray[float]]:
 
     """
     Compute the Levenshtein ratio, a measure of similarity, for
@@ -30,27 +34,32 @@ def levenshtein_ratio(base: str, values: Union[str, Sequence[str]]) -> float:
     base : `str`
         Reference string.
 
-    values : `str` or `Sequence`
+    values : `str` or `list`
         String(s) to compare with `base`.
 
     Returns
     -------
-    ratios : `float` or `numpy.ndarray`
-        Levenshtein ratio(s).
+    ratios : `float`, `list`, or `numpy.ndarray`
+        Levenshtein ratio(s). If `values` is a `str`, a `float` is
+        returned. If `values` is a `list`, a `numpy.ndarray` is returned
+        if NumPy is installed; otherwise, a `list` is returned.
     """
-    if not FOUND_LEVENSHTEIN or not FOUND_NUMPY:
-        emsg = ("Either the Levenshtein or the NumPy library was not "
-                "found.")
+
+    if not FOUND_LEVENSHTEIN:
+        emsg = ("The Levenshtein module was not found, so "
+                "minim.utility.levenshtein_ratio() is unavailable.")
         raise ImportError(emsg)
     
     if isinstance(values, str):
         return Levenshtein.ratio(base, values)
-    return np.fromiter((Levenshtein.ratio(base, v) for v in values),
-                       dtype=float, count=len(values))
+    gen = (Levenshtein.ratio(base, v) for v in values)
+    if FOUND_NUMPY:
+        return np.fromiter(gen, dtype=float, count=len(values))
+    return list(gen)
 
 def multivalue_formatter(
         value: Any, multivalue: bool, *, primary: bool = False,
-        sep: Union[str, Sequence[str]] = (", ", " & ")) -> Any:
+        sep: Union[str, tuple[str]] = (", ", " & ")) -> Union[str, list[Any]]:
     
     """
     Format a field value based on whether multivalue for that field is 
@@ -62,20 +71,25 @@ def multivalue_formatter(
         Field value to format.
 
     multivalue : `bool`
-        Determines whether multivalue tags are supported (:code:`True`)
-        or should be concatenated (:code:`False`) using the separator(s)
-        specified in `sep`.
+        Determines whether multivalue tags are supported. If 
+        :code:`False`, the items in `value` are concatenated using the
+        separator(s) specified in `sep`.
 
     primary : `bool`, keyword-only, default: :code:`False`
         Specifies whether the first item in `value` should be used when
-        `value` is a `Sequence` and :code:`multivalue=False`.
+        `value` is a `list` and :code:`multivalue=False`.
 
     sep : `str` or `tuple`, keyword-only, default: :code:`(", ", " & ")`
         Separator(s) to use to concatenate multivalue tags. If a 
         :code:`str` is provided, it is used to concatenate all values.
         If a :code:`tuple` is provided, the first :code:`str` is used to
-        concatenate the first :math:`n - 1` values, and the second
+        concatenate all values except the last, and the second 
         :code:`str` is used to append the final value. 
+
+    Returns
+    -------
+    value : `Any`
+        Formatted field value.
     """
 
     if isinstance(value, list):
