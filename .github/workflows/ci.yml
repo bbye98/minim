@@ -1,5 +1,13 @@
 name: continuous-integration
 on: [push]
+env:
+  SPOTIFY_CLIENT_ID: ${{secrets.SPOTIFY_CLIENT_ID}}
+  SPOTIFY_CLIENT_SECRET: ${{secrets.SPOTIFY_CLIENT_SECRET}}
+  SPOTIFY_SP_DC: ${{secrets.SPOTIFY_SP_DC}}
+  TIDAL_CLIENT_ID: ${{secrets.TIDAL_CLIENT_ID}}
+  TIDAL_CLIENT_SECRET: ${{secrets.TIDAL_CLIENT_SECRET}}
+  TIDAL_PRIVATE_CLIENT_ID: ${{secrets.TIDAL_PRIVATE_CLIENT_ID}}
+  TIDAL_PRIVATE_CLIENT_SECRET: ${{secrets.TIDAL_PRIVATE_CLIENT_SECRET}}
 jobs:
   build:
     name: continuous-integration-${{matrix.python-version}}
@@ -26,7 +34,7 @@ jobs:
       - name: ruff-lint
         run: |
           python3 -m pip install ruff
-          ruff --format=github --target-version=py39 .
+          ruff --target-version=py39 .
         continue-on-error: true
       - name: pytest-test
         run: |
