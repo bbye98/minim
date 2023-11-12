@@ -23,7 +23,7 @@ __all__ = ["levenshtein_ratio", "multivalue_formatter"]
 
 def levenshtein_ratio(
         base: str, values: Union[str, list[str]]
-    ) -> Union[float, list[float], np.ndarray[float]]:
+    ) -> Union[float, list[float], "np.ndarray[float]"]:
 
     """
     Compute the Levenshtein ratio, a measure of similarity, for
