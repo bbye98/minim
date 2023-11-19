@@ -759,14 +759,16 @@ class Audio:
         ----------
         data : `dict`
             Information about the track in JSON format obtained using
-            the iTunes Search API via :meth:`minim.itunes.search` or
-            :meth:`minim.itunes.lookup`.
+            the iTunes Search API via 
+            :meth:`minim.itunes.SearchAPI.search` or
+            :meth:`minim.itunes.SearchAPI.lookup`.
 
         album_data : `dict`, keyword-only, optional
             Information about the track's album in JSON format obtained
-            using the iTunes Search API via :meth:`minim.itunes.search`
-            or :meth:`minim.itunes.lookup`. If not provided, album 
-            artist and copyright information is unavailable.
+            using the iTunes Search API via 
+            :meth:`minim.itunes.SearchAPI.search` or 
+            :meth:`minim.itunes.SearchAPI.lookup`. If not provided, 
+            album artist and copyright information is unavailable.
 
         artwork_size : `int` or `str`, keyword-only, default: :code:`1400`
             Resized artwork size in pixels. If

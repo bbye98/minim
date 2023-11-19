@@ -3027,7 +3027,7 @@ class PrivateAPI:
 
         self._check_authentication("get_favorites")
 
-        if type not in (MEDIA_TYPES := {"albums", "artists", "tracks"}):
+        if type and type not in (MEDIA_TYPES := {"albums", "artists", "tracks"}):
             emsg = ("Invalid media type. Valid values: "
                     f"{', '.join(MEDIA_TYPES)}.")
             raise ValueError(emsg)

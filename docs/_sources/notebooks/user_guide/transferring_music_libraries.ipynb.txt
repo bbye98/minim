@@ -11,7 +11,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 22,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -29,7 +29,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 23,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -44,17 +44,21 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
+    ":::{seealso}\n",
+    "See [Getting Started](../getting_started.ipynb) for more information about setting up clients with user authentication.\n",
+    ":::\n",
+    "\n",
     "## Moving playlists\n",
     "\n",
     "The general process is to\n",
     "\n",
-    "1. get information about and the items in the source playlist,\n",
+    "1. get information about the tracks in the source playlist,\n",
     "2. create a new playlist in the destination service, and\n",
-    "3. find and add the corresponding items to the newly-created playlist.\n",
+    "3. find and add the corresponding tracks to the newly-created playlist.\n",
     "\n",
-    "The challenge often lies in the third step. The items in the source playlist may not be available in the destination service or it may be difficult finding the matching item in the destination service, especially if its catalog lookup does not support searching by ISRC.\n",
+    "The challenge often lies in the third step. The tracks in the source playlist may not be available in the destination service or it may be difficult finding the matching track in the destination service, especially if its catalog lookup does not support searching by ISRC or UPC.\n",
     "\n",
-    "The following examples provide barebones implementations of the process above for various service pairs. Additional fine-tuning is likely necessary to handle tracks with complex metadata, such as those with multiple (featured) artists, remixes, etc.\n",
+    "The following examples provide barebones implementations of the process above for various service pairs. Additional fine-tuning is likely necessary to handle tracks with complex metadata, such as those with multiple or featured artists, remixes, etc.\n",
     "\n",
     "### From Qobuz\n",
     "\n",
@@ -63,7 +67,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 24,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -74,12 +78,12 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "We can get the playlist information and the items in the playlist using `qobuz.PrivateAPI.get_playlist()`:"
+    "We can get the playlist information and the items in the playlist using `minim.qobuz.PrivateAPI.get_playlist()`:"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 50,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -92,12 +96,12 @@
    "source": [
     "#### To Spotify\n",
     "\n",
-    "First, we create a new playlist on Spotify with the same details as the Qobuz playlist using `spotify.WebAPI.create_playlist()`:"
+    "First, we create a new playlist on Spotify with the same details as the Qobuz playlist using `minim.spotify.WebAPI.create_playlist()`:"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 28,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -118,7 +122,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 54,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -132,12 +136,12 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Finally, we add the tracks to the Spotify playlist using `spotify.WebAPI.add_playlist_items()`:"
+    "Finally, we add the tracks to the Spotify playlist using `minim.spotify.WebAPI.add_playlist_items()`:"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 55,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -163,7 +167,7 @@
    "source": [
     "#### To TIDAL\n",
     "\n",
-    "First, we create a new playlist on TIDAL with the same details as the Qobuz playlist using `tidal.PrivateAPI.create_playlist()`:"
+    "First, we create a new playlist on TIDAL with the same details as the Qobuz playlist using `minim.tidal.PrivateAPI.create_playlist()`:"
    ]
   },
   {
@@ -188,7 +192,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 67,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -210,7 +214,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Finally, we add the tracks to the TIDAL playlist using `tidal.PrivateAPI.add_playlist_items()`:"
+    "Finally, we add the tracks to the TIDAL playlist using `minim.tidal.PrivateAPI.add_playlist_items()`:"
    ]
   },
   {
@@ -257,7 +261,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "We can get the playlist information and the items in the playlist using `spotify.WebAPI.get_playlist()`:"
+    "We can get the playlist information and the items in the playlist using `minim.spotify.WebAPI.get_playlist()`:"
    ]
   },
   {
@@ -275,7 +279,7 @@
    "source": [
     "#### To Qobuz\n",
     "\n",
-    "First, we create a new playlist on Qobuz with the same details as the Spotify playlist using `qobuz.PrivateAPI.create_playlist()`:"
+    "First, we create a new playlist on Qobuz with the same details as the Spotify playlist using `minim.qobuz.PrivateAPI.create_playlist()`:"
    ]
   },
   {
@@ -318,7 +322,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Finally, we add the tracks to the Qobuz playlist using `qobuz.PrivateAPI.add_playlist_tracks()`:"
+    "Finally, we add the tracks to the Qobuz playlist using `minim.qobuz.PrivateAPI.add_playlist_tracks()`:"
    ]
   },
   {
@@ -326,7 +330,7 @@
    "execution_count": null,
    "metadata": {
     "tags": [
-     "hide-output"
+     "remove-output"
     ]
    },
    "outputs": [],
@@ -427,28 +431,580 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "### From TIDAL"
+    "### From TIDAL\n",
+    "\n",
+    "We start with a TIDAL playlist with 5 tracks:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "TIDAL_PLAYLIST_UUID = \"40052e73-58d4-4abb-bc1c-abace76d2f15\""
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "#### To Qobuz"
+    "We can get the playlist information using `minim.tidal.PrivateAPI.get_user_playlist()` and the items in the playlist using `minim.tidal.PrivateAPI.get_playlist_items()`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tidal_playlist = client_tidal.get_user_playlist(TIDAL_PLAYLIST_UUID)\n",
+    "tidal_playlist_items = client_tidal.get_playlist_items(TIDAL_PLAYLIST_UUID)[\"items\"]"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "#### To Spotify"
+    "#### To Qobuz\n",
+    "\n",
+    "First, we create a new playlist on Qobuz with the same details as the TIDAL playlist:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "new_qobuz_playlist = client_qobuz.create_playlist(\n",
+    "    spotify_playlist[\"name\"],\n",
+    "    description=spotify_playlist[\"description\"],\n",
+    "    public=spotify_playlist[\"public\"],\n",
+    "    collaborative=spotify_playlist[\"collaborative\"],\n",
+    ")"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "## Synchronizing favorites"
+    "Then, we get the Qobuz tracks equivalent to those in the TIDAL playlist:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "qobuz_track_ids = []\n",
+    "for tidal_track in tidal_playlist_items:\n",
+    "    qobuz_track = client_qobuz.search(\n",
+    "        tidal_track[\"item\"][\"isrc\"],  \n",
+    "        limit=1\n",
+    "    )[\"tracks\"][\"items\"][0]\n",
+    "    qobuz_track_ids.append(qobuz_track[\"id\"])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Finally, we add the tracks to the Qobuz playlist:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "remove-output"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "client_qobuz.add_playlist_tracks(new_qobuz_playlist[\"id\"], qobuz_track_ids)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "remove-cell"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "client_qobuz.delete_playlist(new_qobuz_playlist[\"id\"])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### To Spotify\n",
+    "\n",
+    "First, we create a new playlist on Spotify with the same details as the TIDAL playlist:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "new_spotify_playlist = client_spotify.create_playlist(\n",
+    "    qobuz_playlist[\"name\"],\n",
+    "    description=qobuz_playlist[\"description\"],\n",
+    "    public=qobuz_playlist[\"is_public\"],\n",
+    "    collaborative=qobuz_playlist[\"is_collaborative\"],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Then, we get the Spotify tracks equivalent to those in the TIDAL playlist:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "spotify_track_uris = []\n",
+    "for tidal_track in tidal_playlist_items:\n",
+    "    spotify_track = client_spotify.search(f'isrc:{tidal_track[\"item\"][\"isrc\"]}', \n",
+    "                                          type=\"track\", limit=1)[\"items\"][0]\n",
+    "    spotify_track_uris.append(f\"spotify:track:{spotify_track['id']}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Finally, we add the tracks to the Spotify playlist:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "client_spotify.add_playlist_items(new_spotify_playlist[\"id\"], \n",
+    "                                  spotify_track_uris)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "remove-cell"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "client_spotify.unfollow_playlist(new_spotify_playlist[\"id\"])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Synchronizing favorites\n",
+    "\n",
+    "Synchronizing favorite albums, artists, tracks, etc. across services follows a similar procedure as above; we first get information about the entities in the source service and then try to find the corresponding media or people in the destination service. For albums and tracks, we can search using their UPCs and ISRCs, respectively, when available, or their titles and the main artist names. For artists, we can only search using their names. \n",
+    "\n",
+    "Sample implementations for synchronizing albums and artists are available below for various service pairs.\n",
+    "\n",
+    "### From Qobuz\n",
+    "\n",
+    "We start by getting the current user's favorite albums and artists using `minim.qobuz.PrivateAPI.get_favorites()`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "qobuz_favorites = client_qobuz.get_favorites()\n",
+    "qobuz_favorite_albums = qobuz_favorites[\"albums\"][\"items\"]\n",
+    "qobuz_favorite_artists = qobuz_favorites[\"artists\"][\"items\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### To Spotify\n",
+    "\n",
+    "The Spotify Web API supports searching for albums by UPC, but sometimes the UPCs returned by Qobuz do not align with those in the Spotify catalog. In those cases, we can search for the albums using their titles and the main artist names. Then, we select the correct album from the search results by matching the album title, main artists, and number of tracks. Finally, we add the albums to the user's Spotify library using their Spotify album IDs and `minim.spotify.WebAPI.save_albums()`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "spotify_album_ids = []\n",
+    "for qobuz_album in qobuz_favorite_albums:\n",
+    "    try:\n",
+    "        spotify_album = client_spotify.search(f'upc:{qobuz_album[\"upc\"][1:]}', \n",
+    "                                              \"album\")[\"items\"][0]\n",
+    "    except IndexError:\n",
+    "        spotify_albums = client_spotify.search(\n",
+    "            f'{qobuz_album[\"artist\"][\"name\"]} {qobuz_album[\"title\"]}', \"album\"\n",
+    "        )[\"items\"]\n",
+    "        for spotify_album in spotify_albums:\n",
+    "            if (spotify_album[\"name\"] == qobuz_album[\"title\"] \n",
+    "                    and spotify_album[\"artists\"][0][\"name\"] \n",
+    "                        == qobuz_album[\"artist\"][\"name\"]\n",
+    "                    and spotify_album[\"total_tracks\"] \n",
+    "                        == qobuz_album[\"tracks_count\"]):\n",
+    "                break\n",
+    "    spotify_album_ids.append(spotify_album[\"id\"])\n",
+    "client_spotify.save_albums(spotify_album_ids)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "For artists, we can search for them using their names and add them to the user's Spotify library using their Spotify artist IDs and `minim.spotify.WebAPI.follow_artists()`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "spotify_artist_ids = []\n",
+    "for qobuz_artist in qobuz_favorite_artists:\n",
+    "    spotify_artist = client_spotify.search(qobuz_artist[\"name\"], \"artist\")[\"items\"][0]\n",
+    "    spotify_artist_ids.append(spotify_artist[\"id\"])\n",
+    "client_spotify.follow_people(spotify_artist_ids, \"artist\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### To TIDAL\n",
+    "\n",
+    "The private TIDAL API does not support searching for albums by UPC, so we have to search for them using their titles and the main artist names. Then, we select the correct albums by matching UPCs. Finally, we add the albums to the user's TIDAL library using their TIDAL album IDs and `minim.tidal.PrivateAPI.favorite_albums()`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tidal_album_ids = []\n",
+    "for qobuz_album in qobuz_favorite_albums:\n",
+    "    tidal_albums = client_tidal.search(\n",
+    "        f'{qobuz_album[\"artist\"][\"name\"]} {qobuz_album[\"title\"]}', type=\"album\"\n",
+    "    )[\"items\"]\n",
+    "    for tidal_album in tidal_albums:\n",
+    "        if tidal_album[\"upc\"].lstrip(\"0\") == qobuz_album[\"upc\"].lstrip(\"0\"):\n",
+    "            tidal_album_ids.append(tidal_album[\"id\"])\n",
+    "            break\n",
+    "client_tidal.favorite_albums(tidal_album_ids)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "For artists, we can search for them using their names and add them to the user's TIDAL library using their TIDAL artist IDs and `minim.tidal.PrivateAPI.favorite_artists()`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tidal_artist_ids = []\n",
+    "for qobuz_artist in qobuz_favorite_artists:\n",
+    "    tidal_artist = client_tidal.search(qobuz_artist[\"name\"], \n",
+    "                                       type=\"artist\")[\"items\"][0]\n",
+    "    tidal_artist_ids.append(tidal_artist[\"id\"])\n",
+    "client_tidal.favorite_artists(tidal_artist_ids)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### From Spotify\n",
+    "\n",
+    "We start by getting the current user's favorite albums and artists using `minim.spotify.WebAPI.get_saved_albums()` and `minim.spotify.WebAPI.get_followed_artists()`, respectively:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "spotify_favorite_albums = client_spotify.get_saved_albums()[\"items\"]\n",
+    "spotify_favorite_artists = client_spotify.get_followed_artists()[\"items\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### To Qobuz\n",
+    "\n",
+    "The private Qobuz API does not support searching for albums by UPC, so we have to search for them using their titles and the main artist names. Then, we select the correct albums by matching UPCs or the album title, main artists, and number of tracks. Finally, we add the albums to the user's Qobuz library using their Qobuz album IDs and `minim.qobuz.PrivateAPI.favorite_items()`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "qobuz_album_ids = []\n",
+    "for spotify_album in spotify_favorite_albums:\n",
+    "    qobuz_albums = client_qobuz.search(\n",
+    "        f'{spotify_album[\"album\"][\"artists\"][0][\"name\"]} '\n",
+    "        f'{spotify_album[\"album\"][\"name\"]}'\n",
+    "    )[\"albums\"][\"items\"]\n",
+    "    for qobuz_album in qobuz_albums:\n",
+    "        if (spotify_album[\"album\"][\"external_ids\"][\"upc\"].lstrip(\"0\") \n",
+    "                    == qobuz_albums[0][\"upc\"].lstrip(\"0\")\n",
+    "                or (spotify_album[\"album\"][\"name\"] == qobuz_album[\"title\"]\n",
+    "                    and spotify_album[\"album\"][\"artists\"][0][\"name\"] \n",
+    "                        == qobuz_album[\"artist\"][\"name\"]\n",
+    "                    and spotify_album[\"album\"][\"tracks\"][\"total\"] \n",
+    "                        == qobuz_album[\"tracks_count\"])):\n",
+    "            qobuz_album_ids.append(qobuz_album[\"id\"])\n",
+    "            break\n",
+    "client_qobuz.favorite_items(album_ids=qobuz_album_ids)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "For artists, we can search for them using their names and add them to the user's Qobuz library using their Qobuz artist IDs and `minim.qobuz.PrivateAPI.favorite_items()`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "qobuz_artist_ids = []\n",
+    "for spotify_artist in spotify_favorite_artists:\n",
+    "    qobuz_artist = client_qobuz.search(\n",
+    "        spotify_artist[\"name\"]\n",
+    "    )[\"artists\"][\"items\"][0]\n",
+    "    qobuz_artist_ids.append(qobuz_artist[\"id\"])\n",
+    "client_qobuz.favorite_items(artist_ids=qobuz_artist_ids)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### To TIDAL\n",
+    "\n",
+    "To search for albums using their titles and the main artist names, select the correct albums by matching UPCs or the album title, main artists, and number of tracks, and add the albums to the user's TIDAL library,"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tidal_album_ids = []\n",
+    "for spotify_album in spotify_favorite_albums:\n",
+    "    tidal_albums = client_tidal.search(\n",
+    "        f'{spotify_album[\"album\"][\"artists\"][0][\"name\"]} '\n",
+    "        f'{spotify_album[\"album\"][\"name\"]}',\n",
+    "        type=\"album\"\n",
+    "    )[\"items\"]\n",
+    "    for tidal_album in tidal_albums:\n",
+    "        if (tidal_album[\"upc\"].lstrip(\"0\") \n",
+    "                    == spotify_album[\"album\"][\"external_ids\"][\"upc\"].lstrip(\"0\")\n",
+    "                or (tidal_album[\"title\"] == spotify_album[\"album\"][\"name\"]\n",
+    "                    and tidal_album[\"artists\"][0][\"name\"] \n",
+    "                        == spotify_album[\"album\"][\"artists\"][0][\"name\"]\n",
+    "                    and tidal_album[\"numberOfTracks\"] \n",
+    "                        == spotify_album[\"album\"][\"tracks\"][\"total\"])):\n",
+    "            tidal_album_ids.append(tidal_album[\"id\"])\n",
+    "            break\n",
+    "client_tidal.favorite_albums(tidal_album_ids)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To search for artists using their names and add them to the user's TIDAL library,"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tidal_artist_ids = []\n",
+    "for spotify_artist in spotify_favorite_artists:\n",
+    "    tidal_artist = client_tidal.search(spotify_artist[\"name\"], \n",
+    "                                       type=\"artist\")[\"items\"][0]\n",
+    "    tidal_artist_ids.append(tidal_artist[\"id\"])\n",
+    "client_tidal.favorite_artists(tidal_artist_ids)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### From TIDAL\n",
+    "\n",
+    "We start by getting the current user's favorite albums and artists using `minim.tidal.PrivateAPI.get_favorite_albums()` and `minim.tidal.PrivateAPI.get_favorite_artists()`, respectively:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tidal_favorite_albums = client_tidal.get_favorite_albums()[\"items\"]\n",
+    "tidal_favorite_artists = client_tidal.get_favorite_artists()[\"items\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### To Qobuz\n",
+    "\n",
+    "To search for albums using their titles and the main artist names, select the correct albums by matching UPCs or the album title, main artists, and number of tracks, and add the albums to the user's Qobuz library,"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "qobuz_album_ids = []\n",
+    "for tidal_album in tidal_favorite_albums:\n",
+    "    qobuz_albums = client_qobuz.search(\n",
+    "        f'{tidal_album[\"item\"][\"artist\"][\"name\"]} {tidal_album[\"item\"][\"title\"]}'\n",
+    "    )[\"albums\"][\"items\"]\n",
+    "    for qobuz_album in qobuz_albums:\n",
+    "        if (tidal_album[\"item\"][\"upc\"].lstrip(\"0\") \n",
+    "                    == qobuz_album[\"upc\"].lstrip(\"0\")\n",
+    "                or (tidal_album[\"item\"][\"title\"] == qobuz_album[\"title\"]\n",
+    "                    and tidal_album[\"item\"][\"artist\"][\"name\"] \n",
+    "                        == qobuz_album[\"artist\"][\"name\"]\n",
+    "                    and tidal_album[\"item\"][\"numberOfTracks\"] \n",
+    "                        == qobuz_album[\"tracks_count\"])):\n",
+    "            qobuz_album_ids.append(qobuz_album[\"id\"])\n",
+    "            break\n",
+    "client_qobuz.favorite_items(album_ids=qobuz_album_ids)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To search for artists using their names and add them to the user's Qobuz library,"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "qobuz_artist_ids = []\n",
+    "for tidal_artist in tidal_favorite_artists:\n",
+    "    qobuz_artist = client_qobuz.search(\n",
+    "        tidal_artist[\"item\"][\"name\"]\n",
+    "    )[\"artists\"][\"items\"][0]\n",
+    "    qobuz_artist_ids.append(qobuz_artist[\"id\"])\n",
+    "client_qobuz.favorite_items(artist_ids=qobuz_artist_ids)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### To Spotify\n",
+    "\n",
+    "To search for albums using their UPCs or titles and the main artist names, select the correct albums by matching the album title, main artists, and number of tracks, and add the albums to the user's Spotify library, "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "spotify_album_ids = []\n",
+    "for tidal_album in tidal_favorite_albums:\n",
+    "    try:\n",
+    "        spotify_album = client_spotify.search(\n",
+    "            f'upc:{tidal_album[\"item\"][\"upc\"]}', \n",
+    "            \"album\"\n",
+    "        )[\"items\"][0]\n",
+    "    except IndexError:\n",
+    "        spotify_albums = client_spotify.search(\n",
+    "            f'{tidal_album[\"item\"][\"artist\"][\"name\"]} '\n",
+    "            f'{tidal_album[\"item\"][\"title\"]}', \n",
+    "            \"album\"\n",
+    "        )[\"items\"]\n",
+    "        for spotify_album in spotify_albums:\n",
+    "            if (spotify_album[\"name\"] == tidal_album[\"item\"][\"title\"]\n",
+    "                    and spotify_album[\"artists\"][0][\"name\"] \n",
+    "                        == tidal_album[\"item\"][\"artist\"][\"name\"]\n",
+    "                    and spotify_album[\"total_tracks\"] \n",
+    "                        == tidal_album[\"item\"][\"numberOfTracks\"]):\n",
+    "                break\n",
+    "    spotify_album_ids.append(spotify_album[\"id\"])\n",
+    "client_spotify.save_albums(spotify_album_ids)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To search for artists using their names and add them to the user's Spotify library,"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "spotify_artist_ids = []\n",
+    "for tidal_artist in tidal_favorite_artists:\n",
+    "    spotify_artist = client_spotify.search(tidal_artist[\"item\"][\"name\"], \n",
+    "                                           \"artist\")[\"items\"][0]\n",
+    "    spotify_artist_ids.append(spotify_artist[\"id\"])\n",
+    "client_spotify.follow_people(spotify_artist_ids, \"artist\")"
    ]
   }
  ],

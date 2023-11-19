@@ -10,8 +10,12 @@ dependencies:
   - pycryptodome
   - requests
   # OPTIONAL DEPENDENCIES
+  - ffmpeg
   - flask
   - pytest-playwright
+  # DEVELOPMENT DEPENDENCIES
+  - pytest
+  - ruff
   # DOCUMENTATION DEPENDENCIES
   - furo
   - ipywidgets

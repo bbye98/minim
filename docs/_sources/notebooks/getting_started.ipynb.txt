@@ -324,7 +324,7 @@
     "\n",
     "#### Examples\n",
     "\n",
-    "##### Search for an artist\n",
+    "##### Searching for artists\n",
     "\n",
     "Each of the APIs has a `search()` method that can be used to search for and retrieve information about an artist, such as the EDM group Galantis:\n",
     "\n",
@@ -562,7 +562,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "##### Search for a track\n",
+    "##### Searching for tracks\n",
     "\n",
     "The `search()` methods can also be used to search for and retrieve information about a track, such as \"Everybody Talks\" by Neon Trees:\n",
     "\n",
@@ -1270,7 +1270,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "##### Create, modify, and delete personal playlists\n",
+    "##### Creating, modifying, and deleting a personal playlist\n",
     "\n",
     "If the clients are authenticated, you can create and modify user playlists. As an example, we will create a private playlist named \"Minim\", make it public, add \"Everybody Talks\" by Neon Trees to it, and then delete it.\n",
     "\n",
@@ -2000,7 +2000,7 @@
     "\n",
     "#### Examples\n",
     "\n",
-    "##### Load and edit an audio file\n",
+    "##### Loading and editing audio files\n",
     "\n",
     "To load an audio file, pass the filename as a `str` or a `pathlib.Path` object either to the `minim.audio.Audio` constructor for Minim to automatically detect the audio format:"
    ]
@@ -2096,7 +2096,7 @@
     "\n",
     "If changes are made, don't forget to write them to file using `minim.audio.Audio.write_metadata()`.\n",
     "\n",
-    "##### Convert between audio formats\n",
+    "##### Converting between audio formats\n",
     "\n",
     "Conversion between the supported audio formats is powered by FFmpeg.\n",
     "\n",

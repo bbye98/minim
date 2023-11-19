@@ -2981,7 +2981,7 @@ class PrivateAPI:
         on_artifact_not_found : `str`, keyword-only, default: :code:`"FAIL"`
             Behavior when the item to be added does not exist.
 
-            **Valid values**: :code:`"FAIL"`.
+            **Valid values**: :code:`"FAIL"` or :code:`"SKIP"`.
         """
 
         self._check_scope("favorite_albums", "r_usr", flows={"device_code"})
@@ -3959,7 +3959,7 @@ class PrivateAPI:
         on_artifact_not_found : `str`, keyword-only, default: :code:`"FAIL"`
             Behavior when the item to be added does not exist.
 
-            **Valid values**: :code:`"FAIL"`.
+            **Valid values**: :code:`"FAIL"` or :code:`"SKIP"`.
         """
 
         self._check_scope("favorite_artists", "r_usr", flows={"device_code"})
@@ -4486,7 +4486,7 @@ class PrivateAPI:
         on_artifact_not_found : `str`, keyword-only, default: :code:`"FAIL"`
             Behavior when the item to be added does not exist.
 
-            **Valid values**: :code:`"FAIL"`.
+            **Valid values**: :code:`"FAIL"` or :code:`"SKIP"`.
         """
 
         self._check_scope("favorite_mixes", "r_usr", flows={"device_code"})
@@ -7646,7 +7646,7 @@ class PrivateAPI:
         on_artifact_not_found : `str`, keyword-only, default: :code:`"FAIL"`
             Behavior when the item to be added does not exist.
 
-            **Valid values**: :code:`"FAIL"`.
+            **Valid values**: :code:`"FAIL"` or :code:`"SKIP"`.
         """
 
         self._check_scope("favorite_tracks", "r_usr", flows={"device_code"})
@@ -8479,7 +8479,7 @@ class PrivateAPI:
         on_artifact_not_found : `str`, keyword-only, default: :code:`"FAIL"`
             Behavior when the item to be added does not exist.
 
-            **Valid values**: :code:`"FAIL"`.
+            **Valid values**: :code:`"FAIL"` or :code:`"SKIP"`.
         """
 
         self._check_scope("favorite_videos", "r_usr", flows={"device_code"})

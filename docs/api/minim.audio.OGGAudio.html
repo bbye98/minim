@@ -162,7 +162,8 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/getting_started.html">Getting Started</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../guide.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/user_guide/getting_recommendations.html">Getting Recommendations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../notebooks/user_guide/transferring_music_libraries.html">Transferring Music Libraries</a></li>
 </ul>
 </li>
@@ -413,13 +414,15 @@ appropriate new extension appended, is used.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>data</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Information about the track in JSON format obtained using
-the iTunes Search API via <code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.itunes.search()</span></code> or
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.itunes.lookup()</span></code>.</p>
+the iTunes Search API via
+<a class="reference internal" href="minim.itunes.SearchAPI.html#minim.itunes.SearchAPI.search" title="minim.itunes.SearchAPI.search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.itunes.SearchAPI.search()</span></code></a> or
+<a class="reference internal" href="minim.itunes.SearchAPI.html#minim.itunes.SearchAPI.lookup" title="minim.itunes.SearchAPI.lookup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.itunes.SearchAPI.lookup()</span></code></a>.</p>
 </dd>
 <dt><strong>album_data</strong><span class="classifier"><cite>dict</cite>, keyword-only, optional</span></dt><dd><p>Information about the track’s album in JSON format obtained
-using the iTunes Search API via <code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.itunes.search()</span></code>
-or <code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.itunes.lookup()</span></code>. If not provided, album
-artist and copyright information is unavailable.</p>
+using the iTunes Search API via
+<a class="reference internal" href="minim.itunes.SearchAPI.html#minim.itunes.SearchAPI.search" title="minim.itunes.SearchAPI.search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.itunes.SearchAPI.search()</span></code></a> or
+<a class="reference internal" href="minim.itunes.SearchAPI.html#minim.itunes.SearchAPI.lookup" title="minim.itunes.SearchAPI.lookup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">minim.itunes.SearchAPI.lookup()</span></code></a>. If not provided,
+album artist and copyright information is unavailable.</p>
 </dd>
 <dt><strong>artwork_size</strong><span class="classifier"><cite>int</cite> or <cite>str</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">1400</span></code></span></dt><dd><p>Resized artwork size in pixels. If
 <code class="code docutils literal notranslate"><span class="pre">artwork_size=&quot;raw&quot;</span></code>, the uncompressed high-resolution

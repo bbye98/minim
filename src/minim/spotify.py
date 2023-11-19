@@ -6925,7 +6925,7 @@ class WebAPI:
                            else "private"))
 
         self._request("put", f"{self.API_URL}/playlists/{playlist_id}/images",
-                      data=image)
+                      data=image, headers={"Content-Type": "image/jpeg"})
 
     ### SEARCH ################################################################
 
@@ -8822,9 +8822,15 @@ class WebAPI:
         the available information for a given seed entity and matched
         against similar artists and tracks. If there is sufficient
         information about the provided seeds, a list of tracks will be
-        returned together with pool size details. For artists and tracks
-        that are very new or obscure there might not be enough data to
-        generate a list of tracks.
+        returned together with pool size details. 
+        
+        For artists and tracks that are very new or obscure, there might
+        not be enough data to generate a list of tracks.
+
+        .. important::
+
+           Spotify content may not be used to train machine learning or
+           AI models.
 
         Parameters
         ----------

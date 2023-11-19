@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="User Guide" href="../guide.html" /><link rel="prev" title="Minim" href="../index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="User Guide" href="../user_guide.html" /><link rel="prev" title="Minim" href="../index.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
         <title>Getting Started - Minim 1.0.0 documentation</title>
@@ -162,7 +162,8 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Getting Started</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../guide.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/getting_recommendations.html">Getting Recommendations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/transferring_music_libraries.html">Transferring Music Libraries</a></li>
 </ul>
 </li>
@@ -485,8 +486,8 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </section>
 <section id="examples">
 <h4>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h4>
-<section id="search-for-an-artist">
-<h5>Search for an artist<a class="headerlink" href="#search-for-an-artist" title="Link to this heading">#</a></h5>
+<section id="searching-for-artists">
+<h5>Searching for artists<a class="headerlink" href="#searching-for-artists" title="Link to this heading">#</a></h5>
 <p>Each of the APIs has a <code class="docutils literal notranslate"><span class="pre">search()</span></code> method that can be used to search for and retrieve information about an artist, such as the EDM group Galantis:</p>
 <section id="itunes-search-api">
 <h6>iTunes Search API<a class="headerlink" href="#itunes-search-api" title="Link to this heading">#</a></h6>
@@ -561,7 +562,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </summary>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;external_urls&#39;: {&#39;spotify&#39;: &#39;https://open.spotify.com/artist/4sTQVOfp9vEMCemLw50sbu&#39;},
- &#39;followers&#39;: {&#39;href&#39;: None, &#39;total&#39;: 3376291},
+ &#39;followers&#39;: {&#39;href&#39;: None, &#39;total&#39;: 3379437},
  &#39;genres&#39;: [&#39;dance pop&#39;, &#39;edm&#39;, &#39;pop&#39;, &#39;pop dance&#39;],
  &#39;href&#39;: &#39;https://api.spotify.com/v1/artists/4sTQVOfp9vEMCemLw50sbu&#39;,
  &#39;id&#39;: &#39;4sTQVOfp9vEMCemLw50sbu&#39;,
@@ -673,8 +674,8 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 </section>
-<section id="search-for-a-track">
-<h5>Search for a track<a class="headerlink" href="#search-for-a-track" title="Link to this heading">#</a></h5>
+<section id="searching-for-tracks">
+<h5>Searching for tracks<a class="headerlink" href="#searching-for-tracks" title="Link to this heading">#</a></h5>
 <p>The <code class="docutils literal notranslate"><span class="pre">search()</span></code> methods can also be used to search for and retrieve information about a track, such as “Everybody Talks” by Neon Trees:</p>
 <section id="id1">
 <h6>iTunes Search API<a class="headerlink" href="#id1" title="Link to this heading">#</a></h6>
@@ -745,68 +746,67 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </summary>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;maximum_bit_depth&#39;: 16,
- &#39;copyright&#39;: &#39;℗ 2011 UMG Recordings, Inc.&#39;,
- &#39;performers&#39;: &#39;Justin Meldal-Johnsen, Producer, Guitar, Additional Keyboards, Percussion, Programmer, AssociatedPerformer - Tim Pagnotta, ComposerLyricist - Greg Collins, Engineer, StudioPersonnel - Wesley Seidman, Asst. Recording Engineer, StudioPersonnel - Tyler Glenn, ComposerLyricist - Neon Trees, MainArtist - Matt Wiggers, Asst. Recording Engineer, StudioPersonnel - Bill Bush, Mixer, StudioPersonnel&#39;,
- &#39;audio_info&#39;: {&#39;replaygain_track_peak&#39;: 0.999969,
-  &#39;replaygain_track_gain&#39;: -11.63},
- &#39;performer&#39;: {&#39;name&#39;: &#39;Neon Trees&#39;, &#39;id&#39;: 470727},
- &#39;album&#39;: {&#39;image&#39;: {&#39;small&#39;: &#39;https://static.qobuz.com/images/covers/42/54/0060252795442_230.jpg&#39;,
-   &#39;thumbnail&#39;: &#39;https://static.qobuz.com/images/covers/42/54/0060252795442_50.jpg&#39;,
-   &#39;large&#39;: &#39;https://static.qobuz.com/images/covers/42/54/0060252795442_600.jpg&#39;},
+ &#39;copyright&#39;: &#39;2022 Arko Boom 2022 Arko Boom&#39;,
+ &#39;performers&#39;: &#39;Arko Boom, MainArtist - Arkos Todd, Songwriter, ComposerLyricist&#39;,
+ &#39;audio_info&#39;: {&#39;replaygain_track_peak&#39;: 1, &#39;replaygain_track_gain&#39;: -3.06},
+ &#39;performer&#39;: {&#39;name&#39;: &#39;Arko Boom&#39;, &#39;id&#39;: 15899504},
+ &#39;album&#39;: {&#39;image&#39;: {&#39;small&#39;: &#39;https://static.qobuz.com/images/covers/fc/7v/ilfmuz10e7vfc_230.jpg&#39;,
+   &#39;thumbnail&#39;: &#39;https://static.qobuz.com/images/covers/fc/7v/ilfmuz10e7vfc_50.jpg&#39;,
+   &#39;large&#39;: &#39;https://static.qobuz.com/images/covers/fc/7v/ilfmuz10e7vfc_600.jpg&#39;},
   &#39;maximum_bit_depth&#39;: 16,
   &#39;media_count&#39;: 1,
   &#39;artist&#39;: {&#39;image&#39;: None,
-   &#39;name&#39;: &#39;Neon Trees&#39;,
-   &#39;id&#39;: 470727,
-   &#39;albums_count&#39;: 42,
-   &#39;slug&#39;: &#39;neon-trees&#39;,
+   &#39;name&#39;: &#39;Arko Boom&#39;,
+   &#39;id&#39;: 15899504,
+   &#39;albums_count&#39;: 0,
+   &#39;slug&#39;: &#39;arko-boom&#39;,
    &#39;picture&#39;: None},
-  &#39;upc&#39;: &#39;0060252795442&#39;,
-  &#39;released_at&#39;: 1325372400,
-  &#39;label&#39;: {&#39;name&#39;: &#39;Mercury Records&#39;,
-   &#39;id&#39;: 17487,
-   &#39;albums_count&#39;: 774,
-   &#39;supplier_id&#39;: 1,
-   &#39;slug&#39;: &#39;mercury-records&#39;},
-  &#39;title&#39;: &#39;Picture Show&#39;,
-  &#39;qobuz_id&#39;: 5653617,
+  &#39;upc&#39;: &#39;0859766309663&#39;,
+  &#39;released_at&#39;: 1665180000,
+  &#39;label&#39;: {&#39;name&#39;: &#39;Arko Boom&#39;,
+   &#39;id&#39;: 4026379,
+   &#39;albums_count&#39;: 1,
+   &#39;supplier_id&#39;: 95,
+   &#39;slug&#39;: &#39;arko-boom&#39;},
+  &#39;title&#39;: &#39;Speedy&#39;,
+  &#39;qobuz_id&#39;: 178369185,
   &#39;version&#39;: None,
-  &#39;duration&#39;: 2785,
-  &#39;parental_warning&#39;: True,
-  &#39;tracks_count&#39;: 11,
+  &#39;duration&#39;: 536,
+  &#39;parental_warning&#39;: False,
+  &#39;tracks_count&#39;: 4,
   &#39;popularity&#39;: 0,
-  &#39;genre&#39;: {&#39;path&#39;: [112, 119, 113],
+  &#39;genre&#39;: {&#39;path&#39;: [133],
    &#39;color&#39;: &#39;#0070ef&#39;,
-   &#39;name&#39;: &#39;Alternative &amp; Indie&#39;,
-   &#39;id&#39;: 113,
-   &#39;slug&#39;: &#39;alternatif-et-inde&#39;},
+   &#39;name&#39;: &#39;Hip-Hop/Rap&#39;,
+   &#39;id&#39;: 133,
+   &#39;slug&#39;: &#39;rap-hip-hop&#39;},
   &#39;maximum_channel_count&#39;: 2,
-  &#39;id&#39;: &#39;0060252795442&#39;,
+  &#39;id&#39;: &#39;ilfmuz10e7vfc&#39;,
   &#39;maximum_sampling_rate&#39;: 44.1,
   &#39;previewable&#39;: True,
   &#39;sampleable&#39;: True,
   &#39;displayable&#39;: True,
   &#39;streamable&#39;: True,
-  &#39;streamable_at&#39;: 1683529200,
+  &#39;streamable_at&#39;: 1689231600,
   &#39;downloadable&#39;: False,
   &#39;purchasable_at&#39;: None,
   &#39;purchasable&#39;: False,
-  &#39;release_date_original&#39;: &#39;2012-01-01&#39;,
-  &#39;release_date_download&#39;: &#39;2012-01-01&#39;,
-  &#39;release_date_stream&#39;: &#39;2012-01-01&#39;,
-  &#39;release_date_purchase&#39;: &#39;2012-01-01&#39;,
+  &#39;release_date_original&#39;: &#39;2022-10-08&#39;,
+  &#39;release_date_download&#39;: &#39;2022-10-08&#39;,
+  &#39;release_date_stream&#39;: &#39;2022-10-08&#39;,
+  &#39;release_date_purchase&#39;: &#39;2022-10-08&#39;,
   &#39;hires&#39;: False,
   &#39;hires_streamable&#39;: False},
  &#39;work&#39;: None,
- &#39;composer&#39;: {&#39;name&#39;: &#39;Tyler Glenn&#39;, &#39;id&#39;: 583118},
- &#39;isrc&#39;: &#39;USUM71119189&#39;,
+ &#39;composer&#39;: {&#39;name&#39;: &#39;Arkos Todd&#39;, &#39;id&#39;: 15899505},
+ &#39;isrc&#39;: &#39;TCAGM2280786&#39;,
  &#39;title&#39;: &#39;Everybody Talks&#39;,
- &#39;version&#39;: &#39;Album Version&#39;,
- &#39;duration&#39;: 177,
- &#39;parental_warning&#39;: True,
- &#39;track_number&#39;: 3,
+ &#39;version&#39;: None,
+ &#39;duration&#39;: 127,
+ &#39;parental_warning&#39;: False,
+ &#39;track_number&#39;: 2,
  &#39;maximum_channel_count&#39;: 2,
- &#39;id&#39;: 5653620,
+ &#39;id&#39;: 178369187,
  &#39;media_number&#39;: 1,
  &#39;maximum_sampling_rate&#39;: 44.1,
  &#39;release_date_original&#39;: None,
@@ -819,8 +819,8 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
  &#39;sampleable&#39;: True,
  &#39;downloadable&#39;: True,
  &#39;displayable&#39;: True,
- &#39;purchasable_at&#39;: 1683702000,
- &#39;streamable_at&#39;: 1683529200,
+ &#39;purchasable_at&#39;: 1689231600,
+ &#39;streamable_at&#39;: 1689231600,
  &#39;hires&#39;: False,
  &#39;hires_streamable&#39;: False}
 </pre></div>
@@ -1331,8 +1331,8 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 </div>
 </section>
 </section>
-<section id="create-modify-and-delete-personal-playlists">
-<h5>Create, modify, and delete personal playlists<a class="headerlink" href="#create-modify-and-delete-personal-playlists" title="Link to this heading">#</a></h5>
+<section id="creating-modifying-and-deleting-a-personal-playlist">
+<h5>Creating, modifying, and deleting a personal playlist<a class="headerlink" href="#creating-modifying-and-deleting-a-personal-playlist" title="Link to this heading">#</a></h5>
 <p>If the clients are authenticated, you can create and modify user playlists. As an example, we will create a private playlist named “Minim”, make it public, add “Everybody Talks” by Neon Trees to it, and then delete it.</p>
 <section id="id6">
 <h6>Private Qobuz API<a class="headerlink" href="#id6" title="Link to this heading">#</a></h6>
@@ -1359,90 +1359,89 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;owner&#39;: None,
  &#39;users_count&#39;: 0,
- &#39;images150&#39;: [&#39;https://static.qobuz.com/images/covers/42/54/0060252795442_150.jpg&#39;],
- &#39;images&#39;: [&#39;https://static.qobuz.com/images/covers/42/54/0060252795442_50.jpg&#39;],
+ &#39;images150&#39;: [&#39;https://static.qobuz.com/images/covers/fc/7v/ilfmuz10e7vfc_150.jpg&#39;],
+ &#39;images&#39;: [&#39;https://static.qobuz.com/images/covers/fc/7v/ilfmuz10e7vfc_50.jpg&#39;],
  &#39;is_collaborative&#39;: False,
  &#39;description&#39;: &#39;A playlist created using Minim.&#39;,
- &#39;created_at&#39;: 1699777596,
- &#39;images300&#39;: [&#39;https://static.qobuz.com/images/covers/42/54/0060252795442_300.jpg&#39;],
- &#39;duration&#39;: 177,
- &#39;updated_at&#39;: 1699777597,
+ &#39;created_at&#39;: 1700437274,
+ &#39;images300&#39;: [&#39;https://static.qobuz.com/images/covers/fc/7v/ilfmuz10e7vfc_300.jpg&#39;],
+ &#39;duration&#39;: 127,
+ &#39;updated_at&#39;: 1700437275,
  &#39;published_to&#39;: None,
  &#39;genres&#39;: [],
  &#39;tracks_count&#39;: 1,
- &#39;public_at&#39;: 1699777597,
+ &#39;public_at&#39;: 1700437275,
  &#39;name&#39;: &#39;Minim&#39;,
  &#39;is_public&#39;: True,
  &#39;published_from&#39;: None,
- &#39;id&#39;: 17865201,
- &#39;slug&#39;: &#39;minim-35&#39;,
+ &#39;id&#39;: 18012324,
+ &#39;slug&#39;: &#39;minim-44&#39;,
  &#39;is_featured&#39;: False,
  &#39;tracks&#39;: {&#39;offset&#39;: 0,
   &#39;limit&#39;: 50,
   &#39;total&#39;: 1,
   &#39;items&#39;: [{&#39;maximum_bit_depth&#39;: 16,
-    &#39;copyright&#39;: &#39;℗ 2011 UMG Recordings, Inc.&#39;,
-    &#39;performers&#39;: &#39;Justin Meldal-Johnsen, Producer, Guitar, Additional Keyboards, Percussion, Programmer, AssociatedPerformer - Tim Pagnotta, ComposerLyricist - Greg Collins, Engineer, StudioPersonnel - Wesley Seidman, Asst. Recording Engineer, StudioPersonnel - Tyler Glenn, ComposerLyricist - Neon Trees, MainArtist - Matt Wiggers, Asst. Recording Engineer, StudioPersonnel - Bill Bush, Mixer, StudioPersonnel&#39;,
-    &#39;audio_info&#39;: {&#39;replaygain_track_peak&#39;: 0.999969,
-     &#39;replaygain_track_gain&#39;: -11.63},
-    &#39;performer&#39;: {&#39;name&#39;: &#39;Neon Trees&#39;, &#39;id&#39;: 470727},
-    &#39;album&#39;: {&#39;image&#39;: {&#39;small&#39;: &#39;https://static.qobuz.com/images/covers/42/54/0060252795442_230.jpg&#39;,
-      &#39;thumbnail&#39;: &#39;https://static.qobuz.com/images/covers/42/54/0060252795442_50.jpg&#39;,
-      &#39;large&#39;: &#39;https://static.qobuz.com/images/covers/42/54/0060252795442_600.jpg&#39;},
+    &#39;copyright&#39;: &#39;2022 Arko Boom 2022 Arko Boom&#39;,
+    &#39;performers&#39;: &#39;Arko Boom, MainArtist - Arkos Todd, Songwriter, ComposerLyricist&#39;,
+    &#39;audio_info&#39;: {&#39;replaygain_track_peak&#39;: 1, &#39;replaygain_track_gain&#39;: -3.06},
+    &#39;performer&#39;: {&#39;name&#39;: &#39;Arko Boom&#39;, &#39;id&#39;: 15899504},
+    &#39;album&#39;: {&#39;image&#39;: {&#39;small&#39;: &#39;https://static.qobuz.com/images/covers/fc/7v/ilfmuz10e7vfc_230.jpg&#39;,
+      &#39;thumbnail&#39;: &#39;https://static.qobuz.com/images/covers/fc/7v/ilfmuz10e7vfc_50.jpg&#39;,
+      &#39;large&#39;: &#39;https://static.qobuz.com/images/covers/fc/7v/ilfmuz10e7vfc_600.jpg&#39;},
      &#39;maximum_bit_depth&#39;: 16,
      &#39;media_count&#39;: 1,
      &#39;artist&#39;: {&#39;image&#39;: None,
-      &#39;name&#39;: &#39;Neon Trees&#39;,
-      &#39;id&#39;: 470727,
-      &#39;albums_count&#39;: 42,
-      &#39;slug&#39;: &#39;neon-trees&#39;,
+      &#39;name&#39;: &#39;Arko Boom&#39;,
+      &#39;id&#39;: 15899504,
+      &#39;albums_count&#39;: 0,
+      &#39;slug&#39;: &#39;arko-boom&#39;,
       &#39;picture&#39;: None},
-     &#39;upc&#39;: &#39;0060252795442&#39;,
-     &#39;released_at&#39;: 1325372400,
-     &#39;label&#39;: {&#39;name&#39;: &#39;Mercury Records&#39;,
-      &#39;id&#39;: 17487,
-      &#39;albums_count&#39;: 774,
-      &#39;supplier_id&#39;: 1,
-      &#39;slug&#39;: &#39;mercury-records&#39;},
-     &#39;title&#39;: &#39;Picture Show&#39;,
-     &#39;qobuz_id&#39;: 5653617,
+     &#39;upc&#39;: &#39;0859766309663&#39;,
+     &#39;released_at&#39;: 1665180000,
+     &#39;label&#39;: {&#39;name&#39;: &#39;Arko Boom&#39;,
+      &#39;id&#39;: 4026379,
+      &#39;albums_count&#39;: 1,
+      &#39;supplier_id&#39;: 95,
+      &#39;slug&#39;: &#39;arko-boom&#39;},
+     &#39;title&#39;: &#39;Speedy&#39;,
+     &#39;qobuz_id&#39;: 178369185,
      &#39;version&#39;: None,
-     &#39;duration&#39;: 2785,
-     &#39;parental_warning&#39;: True,
-     &#39;tracks_count&#39;: 11,
+     &#39;duration&#39;: 536,
+     &#39;parental_warning&#39;: False,
+     &#39;tracks_count&#39;: 4,
      &#39;popularity&#39;: 0,
-     &#39;genre&#39;: {&#39;path&#39;: [112, 119, 113],
+     &#39;genre&#39;: {&#39;path&#39;: [133],
       &#39;color&#39;: &#39;#0070ef&#39;,
-      &#39;name&#39;: &#39;Alternative &amp; Indie&#39;,
-      &#39;id&#39;: 113,
-      &#39;slug&#39;: &#39;alternatif-et-inde&#39;},
+      &#39;name&#39;: &#39;Hip-Hop/Rap&#39;,
+      &#39;id&#39;: 133,
+      &#39;slug&#39;: &#39;rap-hip-hop&#39;},
      &#39;maximum_channel_count&#39;: 2,
-     &#39;id&#39;: &#39;0060252795442&#39;,
+     &#39;id&#39;: &#39;ilfmuz10e7vfc&#39;,
      &#39;maximum_sampling_rate&#39;: 44.1,
      &#39;previewable&#39;: True,
      &#39;sampleable&#39;: True,
      &#39;displayable&#39;: True,
      &#39;streamable&#39;: True,
-     &#39;streamable_at&#39;: 1683529200,
+     &#39;streamable_at&#39;: 1689231600,
      &#39;downloadable&#39;: False,
      &#39;purchasable_at&#39;: None,
      &#39;purchasable&#39;: False,
-     &#39;release_date_original&#39;: &#39;2012-01-01&#39;,
-     &#39;release_date_download&#39;: &#39;2012-01-01&#39;,
-     &#39;release_date_stream&#39;: &#39;2012-01-01&#39;,
-     &#39;release_date_purchase&#39;: &#39;2012-01-01&#39;,
+     &#39;release_date_original&#39;: &#39;2022-10-08&#39;,
+     &#39;release_date_download&#39;: &#39;2022-10-08&#39;,
+     &#39;release_date_stream&#39;: &#39;2022-10-08&#39;,
+     &#39;release_date_purchase&#39;: &#39;2022-10-08&#39;,
      &#39;hires&#39;: False,
      &#39;hires_streamable&#39;: False},
     &#39;work&#39;: None,
-    &#39;composer&#39;: {&#39;name&#39;: &#39;Tyler Glenn&#39;, &#39;id&#39;: 583118},
-    &#39;isrc&#39;: &#39;USUM71119189&#39;,
+    &#39;composer&#39;: {&#39;name&#39;: &#39;Arkos Todd&#39;, &#39;id&#39;: 15899505},
+    &#39;isrc&#39;: &#39;TCAGM2280786&#39;,
     &#39;title&#39;: &#39;Everybody Talks&#39;,
-    &#39;version&#39;: &#39;Album Version&#39;,
-    &#39;duration&#39;: 177,
-    &#39;parental_warning&#39;: True,
-    &#39;track_number&#39;: 3,
+    &#39;version&#39;: None,
+    &#39;duration&#39;: 127,
+    &#39;parental_warning&#39;: False,
+    &#39;track_number&#39;: 2,
     &#39;maximum_channel_count&#39;: 2,
-    &#39;id&#39;: 5653620,
+    &#39;id&#39;: 178369187,
     &#39;media_number&#39;: 1,
     &#39;maximum_sampling_rate&#39;: 44.1,
     &#39;release_date_original&#39;: None,
@@ -1455,13 +1454,13 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
     &#39;sampleable&#39;: True,
     &#39;downloadable&#39;: True,
     &#39;displayable&#39;: True,
-    &#39;purchasable_at&#39;: 1683702000,
-    &#39;streamable_at&#39;: 1683529200,
+    &#39;purchasable_at&#39;: 1689231600,
+    &#39;streamable_at&#39;: 1689231600,
     &#39;hires&#39;: False,
     &#39;hires_streamable&#39;: False,
     &#39;position&#39;: 1,
-    &#39;created_at&#39;: 1699777597,
-    &#39;playlist_track_id&#39;: 3775135404}]}}
+    &#39;created_at&#39;: 1700437275,
+    &#39;playlist_track_id&#39;: 3820687728}]}}
 </pre></div>
 </div>
 </div>
@@ -1502,10 +1501,10 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;collaborative&#39;: False,
  &#39;description&#39;: &#39;A playlist created using Minim.&#39;,
- &#39;external_urls&#39;: {&#39;spotify&#39;: &#39;https://open.spotify.com/playlist/0tuFz784sXT5wDrGmGCDuM&#39;},
+ &#39;external_urls&#39;: {&#39;spotify&#39;: &#39;https://open.spotify.com/playlist/6kFpmgCHRPguLl1WwnP7Z1&#39;},
  &#39;followers&#39;: {&#39;href&#39;: None, &#39;total&#39;: 0},
- &#39;href&#39;: &#39;https://api.spotify.com/v1/playlists/0tuFz784sXT5wDrGmGCDuM&#39;,
- &#39;id&#39;: &#39;0tuFz784sXT5wDrGmGCDuM&#39;,
+ &#39;href&#39;: &#39;https://api.spotify.com/v1/playlists/6kFpmgCHRPguLl1WwnP7Z1&#39;,
+ &#39;id&#39;: &#39;6kFpmgCHRPguLl1WwnP7Z1&#39;,
  &#39;images&#39;: [{&#39;height&#39;: 640,
    &#39;url&#39;: &#39;https://i.scdn.co/image/ab67616d0000b2734a6c0376235e5aa44e59d2c2&#39;,
    &#39;width&#39;: 640}],
@@ -1513,9 +1512,9 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
  &#39;owner&#39;: None,
  &#39;primary_color&#39;: None,
  &#39;public&#39;: True,
- &#39;snapshot_id&#39;: &#39;MywwMzNhOGNmMjNjM2U5N2E5NmQ1MjEyZGY4MDZmN2MwYTE0NDgxNmFh&#39;,
- &#39;tracks&#39;: {&#39;href&#39;: &#39;https://api.spotify.com/v1/playlists/0tuFz784sXT5wDrGmGCDuM/tracks?offset=0&amp;limit=100&#39;,
-  &#39;items&#39;: [{&#39;added_at&#39;: &#39;2023-11-12T08:26:39Z&#39;,
+ &#39;snapshot_id&#39;: &#39;MywzZmI1ZDlmMjQ0ODNiMjU3MWUyODU4ZDY1OTZkNzZlNzMwZWM0YTRk&#39;,
+ &#39;tracks&#39;: {&#39;href&#39;: &#39;https://api.spotify.com/v1/playlists/6kFpmgCHRPguLl1WwnP7Z1/tracks?offset=0&amp;limit=100&#39;,
+  &#39;items&#39;: [{&#39;added_at&#39;: &#39;2023-11-19T23:41:17Z&#39;,
     &#39;added_by&#39;: None,
     &#39;is_local&#39;: False,
     &#39;primary_color&#39;: None,
@@ -1923,7 +1922,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
   &#39;previous&#39;: None,
   &#39;total&#39;: 1},
  &#39;type&#39;: &#39;playlist&#39;,
- &#39;uri&#39;: &#39;spotify:playlist:0tuFz784sXT5wDrGmGCDuM&#39;}
+ &#39;uri&#39;: &#39;spotify:playlist:6kFpmgCHRPguLl1WwnP7Z1&#39;}
 </pre></div>
 </div>
 </div>
@@ -1965,7 +1964,7 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <span class="expanded">Hide code cell output</span>
 </summary>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;playlist&#39;: {&#39;uuid&#39;: &#39;59ead903-9675-48da-8596-82d6de7fec3e&#39;,
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;playlist&#39;: {&#39;uuid&#39;: &#39;53b49ed0-8fff-420d-9c37-e3d3a39fcc1c&#39;,
   &#39;type&#39;: &#39;USER&#39;,
   &#39;creator&#39;: None,
   &#39;contentBehavior&#39;: &#39;UNRESTRICTED&#39;,
@@ -1974,19 +1973,19 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
   &#39;source&#39;: &#39;DEFAULT&#39;,
   &#39;title&#39;: &#39;Minim&#39;,
   &#39;description&#39;: &#39;A playlist created using Minim.&#39;,
-  &#39;image&#39;: &#39;828757ad-2180-4561-aea0-27756f9d899c&#39;,
-  &#39;squareImage&#39;: &#39;41f044ae-8836-4cd3-ad19-5a372db2a89a&#39;,
-  &#39;url&#39;: &#39;http://www.tidal.com/playlist/59ead903-9675-48da-8596-82d6de7fec3e&#39;,
-  &#39;created&#39;: &#39;2023-11-12T08:26:40.015+0000&#39;,
-  &#39;lastUpdated&#39;: &#39;2023-11-12T08:26:40.396+0000&#39;,
-  &#39;lastItemAddedAt&#39;: &#39;2023-11-12T08:26:40.396+0000&#39;,
+  &#39;image&#39;: &#39;9955eee9-b6f1-4d2e-9326-43337e6a2903&#39;,
+  &#39;squareImage&#39;: &#39;9461b211-a637-4d0c-a07f-a5ce6524aa2d&#39;,
+  &#39;url&#39;: &#39;http://www.tidal.com/playlist/53b49ed0-8fff-420d-9c37-e3d3a39fcc1c&#39;,
+  &#39;created&#39;: &#39;2023-11-19T23:41:18.133+0000&#39;,
+  &#39;lastUpdated&#39;: &#39;2023-11-19T23:41:18.654+0000&#39;,
+  &#39;lastItemAddedAt&#39;: &#39;2023-11-19T23:41:18.654+0000&#39;,
   &#39;duration&#39;: 177,
   &#39;numberOfTracks&#39;: 1,
   &#39;numberOfVideos&#39;: 0,
   &#39;promotedArtists&#39;: [],
-  &#39;trn&#39;: &#39;trn:playlist:59ead903-9675-48da-8596-82d6de7fec3e&#39;},
+  &#39;trn&#39;: &#39;trn:playlist:53b49ed0-8fff-420d-9c37-e3d3a39fcc1c&#39;},
  &#39;followInfo&#39;: {&#39;nrOfFollowers&#39;: 0,
-  &#39;tidalResourceName&#39;: &#39;trn:playlist:59ead903-9675-48da-8596-82d6de7fec3e&#39;,
+  &#39;tidalResourceName&#39;: &#39;trn:playlist:53b49ed0-8fff-420d-9c37-e3d3a39fcc1c&#39;,
   &#39;followed&#39;: True,
   &#39;followType&#39;: &#39;PLAYLIST&#39;},
  &#39;profile&#39;: None}
@@ -2019,8 +2018,8 @@ minim\Scripts\Activate.ps1       # Windows: PowerShell
 <p>Minim uses <a class="reference external" href="https://mutagen.readthedocs.io/en/latest/">Mutagen</a> to load and edit audio files and <a class="reference external" href="https://ffmpeg.org/">FFmpeg</a> to convert between different audio formats. Currently, the most common audio formats, such as AAC, ALAC, FLAC, MP3, Opus, Vorbis, and WAVE, are supported.</p>
 <section id="id9">
 <h4>Examples<a class="headerlink" href="#id9" title="Link to this heading">#</a></h4>
-<section id="load-and-edit-an-audio-file">
-<h5>Load and edit an audio file<a class="headerlink" href="#load-and-edit-an-audio-file" title="Link to this heading">#</a></h5>
+<section id="loading-and-editing-audio-files">
+<h5>Loading and editing audio files<a class="headerlink" href="#loading-and-editing-audio-files" title="Link to this heading">#</a></h5>
 <p>To load an audio file, pass the filename as a <code class="docutils literal notranslate"><span class="pre">str</span></code> or a <code class="docutils literal notranslate"><span class="pre">pathlib.Path</span></code> object either to the <code class="docutils literal notranslate"><span class="pre">minim.audio.Audio</span></code> constructor for Minim to automatically detect the audio format:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -2073,8 +2072,8 @@ Bit depth: 24
 </div>
 <p>If changes are made, don’t forget to write them to file using <code class="docutils literal notranslate"><span class="pre">minim.audio.Audio.write_metadata()</span></code>.</p>
 </section>
-<section id="convert-between-audio-formats">
-<h5>Convert between audio formats<a class="headerlink" href="#convert-between-audio-formats" title="Link to this heading">#</a></h5>
+<section id="converting-between-audio-formats">
+<h5>Converting between audio formats<a class="headerlink" href="#converting-between-audio-formats" title="Link to this heading">#</a></h5>
 <p>Conversion between the supported audio formats is powered by FFmpeg.</p>
 <p>To re-encode the previous WAVE audio using the ALAC codec and store it in a MP4 container, use the <code class="docutils literal notranslate"><span class="pre">minim.audio.Audio.convert()</span></code> method:</p>
 <div class="cell tag_hide-output docutils container">
@@ -2089,7 +2088,7 @@ Bit depth: 24
 <span class="expanded">Hide code cell output</span>
 </summary>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>size=     116kB time=00:00:01.02 bitrate= 930.3kbits/s speed= 152x    
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>size=     116kB time=00:00:01.02 bitrate= 930.3kbits/s speed= 171x    
 </pre></div>
 </div>
 </div>
@@ -2137,7 +2136,7 @@ Bit depth: 24
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../guide.html">
+          <a class="next-page" href="../user_guide.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
@@ -2198,7 +2197,7 @@ Bit depth: 24
 <li><a class="reference internal" href="#tidal-api-minim-tidal-api">TIDAL API (<code class="docutils literal notranslate"><span class="pre">minim.tidal.API</span></code>)</a></li>
 <li><a class="reference internal" href="#private-tidal-api-minim-tidal-privateapi">Private TIDAL API (<code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI</span></code>)</a></li>
 <li><a class="reference internal" href="#examples">Examples</a><ul>
-<li><a class="reference internal" href="#search-for-an-artist">Search for an artist</a><ul>
+<li><a class="reference internal" href="#searching-for-artists">Searching for artists</a><ul>
 <li><a class="reference internal" href="#itunes-search-api">iTunes Search API</a></li>
 <li><a class="reference internal" href="#private-qobuz-api">Private Qobuz API</a></li>
 <li><a class="reference internal" href="#spotify-web-api">Spotify Web API</a></li>
@@ -2206,7 +2205,7 @@ Bit depth: 24
 <li><a class="reference internal" href="#private-tidal-api">Private TIDAL API</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#search-for-a-track">Search for a track</a><ul>
+<li><a class="reference internal" href="#searching-for-tracks">Searching for tracks</a><ul>
 <li><a class="reference internal" href="#id1">iTunes Search API</a></li>
 <li><a class="reference internal" href="#id2">Private Qobuz API</a></li>
 <li><a class="reference internal" href="#id3">Spotify Web API</a></li>
@@ -2214,7 +2213,7 @@ Bit depth: 24
 <li><a class="reference internal" href="#id5">Private TIDAL API</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#create-modify-and-delete-personal-playlists">Create, modify, and delete personal playlists</a><ul>
+<li><a class="reference internal" href="#creating-modifying-and-deleting-a-personal-playlist">Creating, modifying, and deleting a personal playlist</a><ul>
 <li><a class="reference internal" href="#id6">Private Qobuz API</a></li>
 <li><a class="reference internal" href="#id7">Spotify Web API</a></li>
 <li><a class="reference internal" href="#id8">Private TIDAL API</a></li>
@@ -2226,8 +2225,8 @@ Bit depth: 24
 </li>
 <li><a class="reference internal" href="#audio-file-handlers">Audio file handlers</a><ul>
 <li><a class="reference internal" href="#id9">Examples</a><ul>
-<li><a class="reference internal" href="#load-and-edit-an-audio-file">Load and edit an audio file</a></li>
-<li><a class="reference internal" href="#convert-between-audio-formats">Convert between audio formats</a></li>
+<li><a class="reference internal" href="#loading-and-editing-audio-files">Loading and editing audio files</a></li>
+<li><a class="reference internal" href="#converting-between-audio-formats">Converting between audio formats</a></li>
 </ul>
 </li>
 </ul>

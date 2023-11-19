@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="minim" href="../../api/minim.html" /><link rel="prev" title="User Guide" href="../../guide.html" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="minim" href="../../api/minim.html" /><link rel="prev" title="Getting Recommendations" href="getting_recommendations.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
         <title>Transferring Music Libraries - Minim 1.0.0 documentation</title>
@@ -162,7 +162,8 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../../guide.html">User Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../user_guide.html">User Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="getting_recommendations.html">Getting Recommendations</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Transferring Music Libraries</a></li>
 </ul>
 </li>
@@ -259,17 +260,21 @@
 </div>
 </div>
 </div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>See <a class="reference internal" href="../getting_started.html"><span class="std std-doc">Getting Started</span></a> for more information about setting up clients with user authentication.</p>
+</div>
 </section>
 <section id="moving-playlists">
 <h2>Moving playlists<a class="headerlink" href="#moving-playlists" title="Link to this heading">#</a></h2>
 <p>The general process is to</p>
 <ol class="arabic simple">
-<li><p>get information about and the items in the source playlist,</p></li>
+<li><p>get information about the tracks in the source playlist,</p></li>
 <li><p>create a new playlist in the destination service, and</p></li>
-<li><p>find and add the corresponding items to the newly-created playlist.</p></li>
+<li><p>find and add the corresponding tracks to the newly-created playlist.</p></li>
 </ol>
-<p>The challenge often lies in the third step. The items in the source playlist may not be available in the destination service or it may be difficult finding the matching item in the destination service, especially if its catalog lookup does not support searching by ISRC.</p>
-<p>The following examples provide barebones implementations of the process above for various service pairs. Additional fine-tuning is likely necessary to handle tracks with complex metadata, such as those with multiple (featured) artists, remixes, etc.</p>
+<p>The challenge often lies in the third step. The tracks in the source playlist may not be available in the destination service or it may be difficult finding the matching track in the destination service, especially if its catalog lookup does not support searching by ISRC or UPC.</p>
+<p>The following examples provide barebones implementations of the process above for various service pairs. Additional fine-tuning is likely necessary to handle tracks with complex metadata, such as those with multiple or featured artists, remixes, etc.</p>
 <section id="from-qobuz">
 <h3>From Qobuz<a class="headerlink" href="#from-qobuz" title="Link to this heading">#</a></h3>
 <p>We start with a Qobuz playlist with 5 tracks:</p>
@@ -280,7 +285,7 @@
 </div>
 </div>
 </div>
-<p>We can get the playlist information and the items in the playlist using <code class="docutils literal notranslate"><span class="pre">qobuz.PrivateAPI.get_playlist()</span></code>:</p>
+<p>We can get the playlist information and the items in the playlist using <code class="docutils literal notranslate"><span class="pre">minim.qobuz.PrivateAPI.get_playlist()</span></code>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qobuz_playlist</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">get_playlist</span><span class="p">(</span><span class="n">QOBUZ_PLAYLIST_ID</span><span class="p">)</span>
@@ -290,7 +295,7 @@
 </div>
 <section id="to-spotify">
 <h4>To Spotify<a class="headerlink" href="#to-spotify" title="Link to this heading">#</a></h4>
-<p>First, we create a new playlist on Spotify with the same details as the Qobuz playlist using <code class="docutils literal notranslate"><span class="pre">spotify.WebAPI.create_playlist()</span></code>:</p>
+<p>First, we create a new playlist on Spotify with the same details as the Qobuz playlist using <code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI.create_playlist()</span></code>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_spotify_playlist</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">create_playlist</span><span class="p">(</span>
@@ -314,7 +319,7 @@
 </div>
 </div>
 </div>
-<p>Finally, we add the tracks to the Spotify playlist using <code class="docutils literal notranslate"><span class="pre">spotify.WebAPI.add_playlist_items()</span></code>:</p>
+<p>Finally, we add the tracks to the Spotify playlist using <code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI.add_playlist_items()</span></code>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_spotify</span><span class="o">.</span><span class="n">add_playlist_items</span><span class="p">(</span><span class="n">new_spotify_playlist</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">spotify_track_uris</span><span class="p">)</span>
@@ -325,7 +330,7 @@
 </section>
 <section id="to-tidal">
 <h4>To TIDAL<a class="headerlink" href="#to-tidal" title="Link to this heading">#</a></h4>
-<p>First, we create a new playlist on TIDAL with the same details as the Qobuz playlist using <code class="docutils literal notranslate"><span class="pre">tidal.PrivateAPI.create_playlist()</span></code>:</p>
+<p>First, we create a new playlist on TIDAL with the same details as the Qobuz playlist using <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.create_playlist()</span></code>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_tidal_playlist</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">create_playlist</span><span class="p">(</span>
@@ -356,7 +361,7 @@
 </div>
 </div>
 </div>
-<p>Finally, we add the tracks to the TIDAL playlist using <code class="docutils literal notranslate"><span class="pre">tidal.PrivateAPI.add_playlist_items()</span></code>:</p>
+<p>Finally, we add the tracks to the TIDAL playlist using <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.add_playlist_items()</span></code>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_tidal</span><span class="o">.</span><span class="n">add_playlist_items</span><span class="p">(</span><span class="n">new_tidal_playlist</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;uuid&quot;</span><span class="p">],</span> <span class="n">tidal_track_ids</span><span class="p">)</span>
@@ -376,7 +381,7 @@
 </div>
 </div>
 </div>
-<p>We can get the playlist information and the items in the playlist using <code class="docutils literal notranslate"><span class="pre">spotify.WebAPI.get_playlist()</span></code>:</p>
+<p>We can get the playlist information and the items in the playlist using <code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI.get_playlist()</span></code>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spotify_playlist</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">get_playlist</span><span class="p">(</span><span class="n">SPOTIFY_PLAYLIST_ID</span><span class="p">)</span>
@@ -386,7 +391,7 @@
 </div>
 <section id="to-qobuz">
 <h4>To Qobuz<a class="headerlink" href="#to-qobuz" title="Link to this heading">#</a></h4>
-<p>First, we create a new playlist on Qobuz with the same details as the Spotify playlist using <code class="docutils literal notranslate"><span class="pre">qobuz.PrivateAPI.create_playlist()</span></code>:</p>
+<p>First, we create a new playlist on Qobuz with the same details as the Spotify playlist using <code class="docutils literal notranslate"><span class="pre">minim.qobuz.PrivateAPI.create_playlist()</span></code>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_qobuz_playlist</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">create_playlist</span><span class="p">(</span>
@@ -413,35 +418,13 @@
 </div>
 </div>
 </div>
-<p>Finally, we add the tracks to the Qobuz playlist using <code class="docutils literal notranslate"><span class="pre">qobuz.PrivateAPI.add_playlist_tracks()</span></code>:</p>
-<div class="cell tag_hide-output docutils container">
-<div class="cell_input above-output-prompt docutils container">
+<p>Finally, we add the tracks to the Qobuz playlist using <code class="docutils literal notranslate"><span class="pre">minim.qobuz.PrivateAPI.add_playlist_tracks()</span></code>:</p>
+<div class="cell tag_remove-output docutils container">
+<div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_qobuz</span><span class="o">.</span><span class="n">add_playlist_tracks</span><span class="p">(</span><span class="n">new_qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">qobuz_track_ids</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<details class="hide below-input">
-<summary aria-label="Toggle hidden content">
-<span class="collapsed">Show code cell output</span>
-<span class="expanded">Hide code cell output</span>
-</summary>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;id&#39;: 17865241,
- &#39;name&#39;: &#39;Minim Example&#39;,
- &#39;description&#39;: &#39;Moving playlists between music services.&#39;,
- &#39;tracks_count&#39;: 5,
- &#39;users_count&#39;: 0,
- &#39;duration&#39;: 1056,
- &#39;public_at&#39;: 1699743600,
- &#39;created_at&#39;: 1699778411,
- &#39;updated_at&#39;: 1699778414,
- &#39;is_public&#39;: True,
- &#39;is_collaborative&#39;: False,
- &#39;owner&#39;: {&#39;id&#39;: 2733263, &#39;name&#39;: &#39;Foreign Arcanine&#39;}}
-</pre></div>
-</div>
-</div>
-</details>
 </div>
 </section>
 <section id="id1">
@@ -487,16 +470,381 @@
 </section>
 <section id="from-tidal">
 <h3>From TIDAL<a class="headerlink" href="#from-tidal" title="Link to this heading">#</a></h3>
+<p>We start with a TIDAL playlist with 5 tracks:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">TIDAL_PLAYLIST_UUID</span> <span class="o">=</span> <span class="s2">&quot;40052e73-58d4-4abb-bc1c-abace76d2f15&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can get the playlist information using <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.get_user_playlist()</span></code> and the items in the playlist using <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.get_playlist_items()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tidal_playlist</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">get_user_playlist</span><span class="p">(</span><span class="n">TIDAL_PLAYLIST_UUID</span><span class="p">)</span>
+<span class="n">tidal_playlist_items</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">get_playlist_items</span><span class="p">(</span><span class="n">TIDAL_PLAYLIST_UUID</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
 <section id="id2">
 <h4>To Qobuz<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
+<p>First, we create a new playlist on Qobuz with the same details as the TIDAL playlist:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_qobuz_playlist</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">create_playlist</span><span class="p">(</span>
+    <span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+    <span class="n">description</span><span class="o">=</span><span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">public</span><span class="o">=</span><span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;public&quot;</span><span class="p">],</span>
+    <span class="n">collaborative</span><span class="o">=</span><span class="n">spotify_playlist</span><span class="p">[</span><span class="s2">&quot;collaborative&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then, we get the Qobuz tracks equivalent to those in the TIDAL playlist:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qobuz_track_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">tidal_track</span> <span class="ow">in</span> <span class="n">tidal_playlist_items</span><span class="p">:</span>
+    <span class="n">qobuz_track</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="n">tidal_track</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;isrc&quot;</span><span class="p">],</span>  
+        <span class="n">limit</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">qobuz_track_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qobuz_track</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we add the tracks to the Qobuz playlist:</p>
+<div class="cell tag_remove-output docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_qobuz</span><span class="o">.</span><span class="n">add_playlist_tracks</span><span class="p">(</span><span class="n">new_qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">qobuz_track_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 <section id="id3">
 <h4>To Spotify<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
+<p>First, we create a new playlist on Spotify with the same details as the TIDAL playlist:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_spotify_playlist</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">create_playlist</span><span class="p">(</span>
+    <span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+    <span class="n">description</span><span class="o">=</span><span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">public</span><span class="o">=</span><span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;is_public&quot;</span><span class="p">],</span>
+    <span class="n">collaborative</span><span class="o">=</span><span class="n">qobuz_playlist</span><span class="p">[</span><span class="s2">&quot;is_collaborative&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then, we get the Spotify tracks equivalent to those in the TIDAL playlist:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spotify_track_uris</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">tidal_track</span> <span class="ow">in</span> <span class="n">tidal_playlist_items</span><span class="p">:</span>
+    <span class="n">spotify_track</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;isrc:</span><span class="si">{</span><span class="n">tidal_track</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;isrc&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> 
+                                          <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;track&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">spotify_track_uris</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;spotify:track:</span><span class="si">{</span><span class="n">spotify_track</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we add the tracks to the Spotify playlist:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_spotify</span><span class="o">.</span><span class="n">add_playlist_items</span><span class="p">(</span><span class="n">new_spotify_playlist</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> 
+                                  <span class="n">spotify_track_uris</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 </section>
 </section>
 <section id="synchronizing-favorites">
 <h2>Synchronizing favorites<a class="headerlink" href="#synchronizing-favorites" title="Link to this heading">#</a></h2>
+<p>Synchronizing favorite albums, artists, tracks, etc. across services follows a similar procedure as above; we first get information about the entities in the source service and then try to find the corresponding media or people in the destination service. For albums and tracks, we can search using their UPCs and ISRCs, respectively, when available, or their titles and the main artist names. For artists, we can only search using their names.</p>
+<p>Sample implementations for synchronizing albums and artists are available below for various service pairs.</p>
+<section id="id4">
+<h3>From Qobuz<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<p>We start by getting the current user’s favorite albums and artists using <code class="docutils literal notranslate"><span class="pre">minim.qobuz.PrivateAPI.get_favorites()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qobuz_favorites</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">get_favorites</span><span class="p">()</span>
+<span class="n">qobuz_favorite_albums</span> <span class="o">=</span> <span class="n">qobuz_favorites</span><span class="p">[</span><span class="s2">&quot;albums&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+<span class="n">qobuz_favorite_artists</span> <span class="o">=</span> <span class="n">qobuz_favorites</span><span class="p">[</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="id5">
+<h4>To Spotify<a class="headerlink" href="#id5" title="Link to this heading">#</a></h4>
+<p>The Spotify Web API supports searching for albums by UPC, but sometimes the UPCs returned by Qobuz do not align with those in the Spotify catalog. In those cases, we can search for the albums using their titles and the main artist names. Then, we select the correct album from the search results by matching the album title, main artists, and number of tracks. Finally, we add the albums to the user’s Spotify library using their Spotify album IDs and <code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI.save_albums()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spotify_album_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">qobuz_album</span> <span class="ow">in</span> <span class="n">qobuz_favorite_albums</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">spotify_album</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;upc:</span><span class="si">{</span><span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;upc&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> 
+                                              <span class="s2">&quot;album&quot;</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+        <span class="n">spotify_albums</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s2">&quot;album&quot;</span>
+        <span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">spotify_album</span> <span class="ow">in</span> <span class="n">spotify_albums</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> 
+                    <span class="ow">and</span> <span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> 
+                        <span class="o">==</span> <span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;total_tracks&quot;</span><span class="p">]</span> 
+                        <span class="o">==</span> <span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;tracks_count&quot;</span><span class="p">]):</span>
+                <span class="k">break</span>
+    <span class="n">spotify_album_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="n">client_spotify</span><span class="o">.</span><span class="n">save_albums</span><span class="p">(</span><span class="n">spotify_album_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>For artists, we can search for them using their names and add them to the user’s Spotify library using their Spotify artist IDs and <code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI.follow_artists()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spotify_artist_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">qobuz_artist</span> <span class="ow">in</span> <span class="n">qobuz_favorite_artists</span><span class="p">:</span>
+    <span class="n">spotify_artist</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">qobuz_artist</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="s2">&quot;artist&quot;</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">spotify_artist_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spotify_artist</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="n">client_spotify</span><span class="o">.</span><span class="n">follow_people</span><span class="p">(</span><span class="n">spotify_artist_ids</span><span class="p">,</span> <span class="s2">&quot;artist&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="id6">
+<h4>To TIDAL<a class="headerlink" href="#id6" title="Link to this heading">#</a></h4>
+<p>The private TIDAL API does not support searching for albums by UPC, so we have to search for them using their titles and the main artist names. Then, we select the correct albums by matching UPCs. Finally, we add the albums to the user’s TIDAL library using their TIDAL album IDs and <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.favorite_albums()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tidal_album_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">qobuz_album</span> <span class="ow">in</span> <span class="n">qobuz_favorite_albums</span><span class="p">:</span>
+    <span class="n">tidal_albums</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;album&quot;</span>
+    <span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">tidal_album</span> <span class="ow">in</span> <span class="n">tidal_albums</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;upc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;upc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">):</span>
+            <span class="n">tidal_album_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+            <span class="k">break</span>
+<span class="n">client_tidal</span><span class="o">.</span><span class="n">favorite_albums</span><span class="p">(</span><span class="n">tidal_album_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>For artists, we can search for them using their names and add them to the user’s TIDAL library using their TIDAL artist IDs and <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.favorite_artists()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tidal_artist_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">qobuz_artist</span> <span class="ow">in</span> <span class="n">qobuz_favorite_artists</span><span class="p">:</span>
+    <span class="n">tidal_artist</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">qobuz_artist</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> 
+                                       <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;artist&quot;</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tidal_artist_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tidal_artist</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="n">client_tidal</span><span class="o">.</span><span class="n">favorite_artists</span><span class="p">(</span><span class="n">tidal_artist_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="id7">
+<h3>From Spotify<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<p>We start by getting the current user’s favorite albums and artists using <code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI.get_saved_albums()</span></code> and <code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI.get_followed_artists()</span></code>, respectively:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spotify_favorite_albums</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">get_saved_albums</span><span class="p">()[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+<span class="n">spotify_favorite_artists</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">get_followed_artists</span><span class="p">()[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="id8">
+<h4>To Qobuz<a class="headerlink" href="#id8" title="Link to this heading">#</a></h4>
+<p>The private Qobuz API does not support searching for albums by UPC, so we have to search for them using their titles and the main artist names. Then, we select the correct albums by matching UPCs or the album title, main artists, and number of tracks. Finally, we add the albums to the user’s Qobuz library using their Qobuz album IDs and <code class="docutils literal notranslate"><span class="pre">minim.qobuz.PrivateAPI.favorite_items()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qobuz_album_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">spotify_album</span> <span class="ow">in</span> <span class="n">spotify_favorite_albums</span><span class="p">:</span>
+    <span class="n">qobuz_albums</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="p">)[</span><span class="s2">&quot;albums&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">qobuz_album</span> <span class="ow">in</span> <span class="n">qobuz_albums</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;external_ids&quot;</span><span class="p">][</span><span class="s2">&quot;upc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span> 
+                    <span class="o">==</span> <span class="n">qobuz_albums</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;upc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> 
+                        <span class="o">==</span> <span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;tracks&quot;</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> 
+                        <span class="o">==</span> <span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;tracks_count&quot;</span><span class="p">])):</span>
+            <span class="n">qobuz_album_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+            <span class="k">break</span>
+<span class="n">client_qobuz</span><span class="o">.</span><span class="n">favorite_items</span><span class="p">(</span><span class="n">album_ids</span><span class="o">=</span><span class="n">qobuz_album_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>For artists, we can search for them using their names and add them to the user’s Qobuz library using their Qobuz artist IDs and <code class="docutils literal notranslate"><span class="pre">minim.qobuz.PrivateAPI.favorite_items()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qobuz_artist_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">spotify_artist</span> <span class="ow">in</span> <span class="n">spotify_favorite_artists</span><span class="p">:</span>
+    <span class="n">qobuz_artist</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="n">spotify_artist</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+    <span class="p">)[</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">qobuz_artist_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qobuz_artist</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="n">client_qobuz</span><span class="o">.</span><span class="n">favorite_items</span><span class="p">(</span><span class="n">artist_ids</span><span class="o">=</span><span class="n">qobuz_artist_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="id9">
+<h4>To TIDAL<a class="headerlink" href="#id9" title="Link to this heading">#</a></h4>
+<p>To search for albums using their titles and the main artist names, select the correct albums by matching UPCs or the album title, main artists, and number of tracks, and add the albums to the user’s TIDAL library,</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tidal_album_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">spotify_album</span> <span class="ow">in</span> <span class="n">spotify_favorite_albums</span><span class="p">:</span>
+    <span class="n">tidal_albums</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;album&quot;</span>
+    <span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">tidal_album</span> <span class="ow">in</span> <span class="n">tidal_albums</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;upc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span> 
+                    <span class="o">==</span> <span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;external_ids&quot;</span><span class="p">][</span><span class="s2">&quot;upc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> 
+                        <span class="o">==</span> <span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;numberOfTracks&quot;</span><span class="p">]</span> 
+                        <span class="o">==</span> <span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;tracks&quot;</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">])):</span>
+            <span class="n">tidal_album_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+            <span class="k">break</span>
+<span class="n">client_tidal</span><span class="o">.</span><span class="n">favorite_albums</span><span class="p">(</span><span class="n">tidal_album_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To search for artists using their names and add them to the user’s TIDAL library,</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tidal_artist_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">spotify_artist</span> <span class="ow">in</span> <span class="n">spotify_favorite_artists</span><span class="p">:</span>
+    <span class="n">tidal_artist</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">spotify_artist</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> 
+                                       <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;artist&quot;</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">tidal_artist_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tidal_artist</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="n">client_tidal</span><span class="o">.</span><span class="n">favorite_artists</span><span class="p">(</span><span class="n">tidal_artist_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="id10">
+<h3>From TIDAL<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<p>We start by getting the current user’s favorite albums and artists using <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.get_favorite_albums()</span></code> and <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.get_favorite_artists()</span></code>, respectively:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tidal_favorite_albums</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">get_favorite_albums</span><span class="p">()[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+<span class="n">tidal_favorite_artists</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">get_favorite_artists</span><span class="p">()[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="id11">
+<h4>To Qobuz<a class="headerlink" href="#id11" title="Link to this heading">#</a></h4>
+<p>To search for albums using their titles and the main artist names, select the correct albums by matching UPCs or the album title, main artists, and number of tracks, and add the albums to the user’s Qobuz library,</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qobuz_album_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">tidal_album</span> <span class="ow">in</span> <span class="n">tidal_favorite_albums</span><span class="p">:</span>
+    <span class="n">qobuz_albums</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="p">)[</span><span class="s2">&quot;albums&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">qobuz_album</span> <span class="ow">in</span> <span class="n">qobuz_albums</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;upc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span> 
+                    <span class="o">==</span> <span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;upc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> 
+                        <span class="o">==</span> <span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;numberOfTracks&quot;</span><span class="p">]</span> 
+                        <span class="o">==</span> <span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;tracks_count&quot;</span><span class="p">])):</span>
+            <span class="n">qobuz_album_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qobuz_album</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+            <span class="k">break</span>
+<span class="n">client_qobuz</span><span class="o">.</span><span class="n">favorite_items</span><span class="p">(</span><span class="n">album_ids</span><span class="o">=</span><span class="n">qobuz_album_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To search for artists using their names and add them to the user’s Qobuz library,</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qobuz_artist_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">tidal_artist</span> <span class="ow">in</span> <span class="n">tidal_favorite_artists</span><span class="p">:</span>
+    <span class="n">qobuz_artist</span> <span class="o">=</span> <span class="n">client_qobuz</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="n">tidal_artist</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+    <span class="p">)[</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">qobuz_artist_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qobuz_artist</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="n">client_qobuz</span><span class="o">.</span><span class="n">favorite_items</span><span class="p">(</span><span class="n">artist_ids</span><span class="o">=</span><span class="n">qobuz_artist_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="id12">
+<h4>To Spotify<a class="headerlink" href="#id12" title="Link to this heading">#</a></h4>
+<p>To search for albums using their UPCs or titles and the main artist names, select the correct albums by matching the album title, main artists, and number of tracks, and add the albums to the user’s Spotify library,</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spotify_album_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">tidal_album</span> <span class="ow">in</span> <span class="n">tidal_favorite_albums</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">spotify_album</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;upc:</span><span class="si">{</span><span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;upc&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> 
+            <span class="s2">&quot;album&quot;</span>
+        <span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+        <span class="n">spotify_albums</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> 
+            <span class="s2">&quot;album&quot;</span>
+        <span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">spotify_album</span> <span class="ow">in</span> <span class="n">spotify_albums</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> 
+                        <span class="o">==</span> <span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;total_tracks&quot;</span><span class="p">]</span> 
+                        <span class="o">==</span> <span class="n">tidal_album</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;numberOfTracks&quot;</span><span class="p">]):</span>
+                <span class="k">break</span>
+    <span class="n">spotify_album_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="n">client_spotify</span><span class="o">.</span><span class="n">save_albums</span><span class="p">(</span><span class="n">spotify_album_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To search for artists using their names and add them to the user’s Spotify library,</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spotify_artist_ids</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">tidal_artist</span> <span class="ow">in</span> <span class="n">tidal_favorite_artists</span><span class="p">:</span>
+    <span class="n">spotify_artist</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">tidal_artist</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> 
+                                           <span class="s2">&quot;artist&quot;</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">spotify_artist_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spotify_artist</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="n">client_spotify</span><span class="o">.</span><span class="n">follow_people</span><span class="p">(</span><span class="n">spotify_artist_ids</span><span class="p">,</span> <span class="s2">&quot;artist&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
 </section>
 </section>
 
@@ -514,14 +862,14 @@
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../../guide.html">
+          <a class="prev-page" href="getting_recommendations.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">User Guide</div>
+                <div class="title">Getting Recommendations</div>
                 
               </div>
             </a>
@@ -575,7 +923,24 @@
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#synchronizing-favorites">Synchronizing favorites</a></li>
+<li><a class="reference internal" href="#synchronizing-favorites">Synchronizing favorites</a><ul>
+<li><a class="reference internal" href="#id4">From Qobuz</a><ul>
+<li><a class="reference internal" href="#id5">To Spotify</a></li>
+<li><a class="reference internal" href="#id6">To TIDAL</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id7">From Spotify</a><ul>
+<li><a class="reference internal" href="#id8">To Qobuz</a></li>
+<li><a class="reference internal" href="#id9">To TIDAL</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id10">From TIDAL</a><ul>
+<li><a class="reference internal" href="#id11">To Qobuz</a></li>
+<li><a class="reference internal" href="#id12">To Spotify</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

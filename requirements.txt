@@ -1,13 +1,17 @@
 # CORE DEPENDENCIES
-levenshtein
 mutagen
-numpy
 pycryptodome
 requests
 
 # OPTIONAL DEPENDENCIES
 flask
+levenshtein
+numpy
 pytest-playwright
+
+# DEVELOPMENT DEPENDENCIES
+pytest
+ruff
 
 # DOCUMENTATION DEPENDENCIES
 furo
