@@ -9,7 +9,7 @@ class TestAudio:
 
     @classmethod
     def setup_class(cls):
-        cls.obj = audio.Audio(Path(__file__).parent / "data/middle_c.wav")
+        cls.obj = audio.Audio(Path(__file__).parent / "data/samples/middle_c.wav")
         assert isinstance(cls.obj, audio.WAVEAudio)
 
     def test_convert_flac(self):

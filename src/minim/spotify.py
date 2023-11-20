@@ -6368,7 +6368,7 @@ class WebAPI:
                               params={"limit": limit, "offset": offset})
     
     def create_playlist(
-            self, name: str, public: bool = True, collaborative: bool = None,
+            self, name: str, *, public: bool = True, collaborative: bool = None,
             description: str = None) -> dict[str, Any]:
 
         """
@@ -6397,6 +6397,7 @@ class WebAPI:
             :code:`False`, it will be private. 
             
             .. note::
+            
                To be able to create private playlists, the user must 
                have granted the :code:`playlist-modify-private` scope.
 

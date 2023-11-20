@@ -2704,7 +2704,7 @@ class PrivateAPI:
 
         if save:
             track_data = self.get_track(track_id)
-            credits = self.get_track_credits(
+            credits = self.get_track_performers(
                 performers=track_data["performers"],
                 roles=["MainArtist", "FeaturedArtist", "Composers"]
             )

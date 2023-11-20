@@ -397,7 +397,7 @@ class Audio:
 
            * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
              filenames like "Taylor Swift - Cruel Summer.flac".
-           * :code:`("(.*) - (.*)", ("track_number", "title"))` matches
+           * :code:`("(\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "04 - The Man.m4a".
            * :code:`("(\d*) (.*)", ("track_number", "title"))` matches
              filenames like "13 You Need to Calm Down.mp3".
@@ -519,9 +519,9 @@ class Audio:
         """
 
         self._file = pathlib.Path(file).resolve()
+        self._pattern = pattern
         self._multivalue = multivalue
         self._sep = sep
-        self._from_filename(pattern)
 
     def __new__(cls, *args, **kwargs) -> None:
 
@@ -550,25 +550,19 @@ class Audio:
         
         return super(Audio, cls).__new__(cls)
 
-    def _from_filename(self, pattern: tuple[str, tuple[str]] = None) -> None:
+    def _from_filename(self) -> None:
 
         """
         Get track information from the filename.
-
-        Parameters
-        ----------
-        pattern : `tuple`, keyword-only, optional
-            Regular expression search pattern and the corresponding metadata
-            field(s).
         """
 
-        if pattern:
-            groups = re.findall(pattern[0], self._file.stem)
+        if self._pattern:
+            groups = re.findall(self._pattern[0], self._file.stem)
             if groups:
                 missing = tuple(k in {"artist", "title", "track_number"}
                                 and getattr(self, k) is None 
-                                for k in pattern[1])
-                for flag, attr, val in zip(missing, pattern[1], groups[0]):
+                                for k in self._pattern[1])
+                for flag, attr, val in zip(missing, self._pattern[1], groups[0]):
                     if flag:
                         setattr(self, attr, self._FIELDS_TYPES[attr][0](val))
 
@@ -1191,7 +1185,7 @@ class FLACAudio(Audio, _VorbisComment):
 
            * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
              filenames like "Taylor Swift - Fearless.flac".
-           * :code:`("(.*) - (.*)", ("track_number", "title"))` matches
+           * :code:`("(\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "03 - Love Story.flac".
            * :code:`("(\d*) (.*)", ("track_number", "title"))` matches
              filenames like "06 You Belong with Me.flac".
@@ -1223,11 +1217,11 @@ class FLACAudio(Audio, _VorbisComment):
 
         Audio.__init__(self, file, pattern=pattern, multivalue=multivalue, 
                        sep=sep)
-
         self._afile = flac.FLAC(file)
         if self._afile.tags is None:
             self._afile.add_tags()
         _VorbisComment.__init__(self, self._afile.tags)
+        self._from_filename()
 
         self.bit_depth = self._afile.info.bits_per_sample
         self.bitrate = self._afile.info.bitrate
@@ -1268,7 +1262,7 @@ class MP3Audio(Audio, _ID3):
 
            * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
              filenames like "Taylor Swift - Red.mp3".
-           * :code:`("(.*) - (.*)", ("track_number", "title"))` matches
+           * :code:`("(\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "04 - I Knew You Were Trouble.mp3".
            * :code:`("(\d*) (.*)", ("track_number", "title"))` matches
              filenames like "06 22.mp3".
@@ -1303,6 +1297,7 @@ class MP3Audio(Audio, _ID3):
         Audio.__init__(self, file, pattern=pattern, multivalue=multivalue,
                        sep=sep)
         _ID3.__init__(self, _file.tags)
+        self._from_filename()
 
         self.bit_depth = None
         self.bitrate = _file.info.bitrate
@@ -1343,7 +1338,7 @@ class MP4Audio(Audio):
 
            * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
              filenames like "Taylor Swift - Mine.m4a".
-           * :code:`("(.*) - (.*)", ("track_number", "title"))` matches
+           * :code:`("(\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "04 - Speak Now.m4a".
            * :code:`("(\d*) (.*)", ("track_number", "title"))` matches
              filenames like "07 The Story of Us.m4a".
@@ -1406,6 +1401,7 @@ class MP4Audio(Audio):
         self._multivalue = multivalue
         self._sep = sep
         self._from_file()
+        self._from_filename()
 
     def _from_file(self) -> None:
 
@@ -1542,7 +1538,7 @@ class OggAudio(Audio, _VorbisComment):
 
            * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
              filenames like "Taylor Swift - Blank Space.ogg".
-           * :code:`("(.*) - (.*)", ("track_number", "title"))` matches
+           * :code:`("(\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "03 - Style.ogg".
            * :code:`("(\d*) (.*)", ("track_number", "title"))` matches
              filenames like "06 Shake It Off.ogg".
@@ -1589,6 +1585,7 @@ class OggAudio(Audio, _VorbisComment):
             if not hasattr(self, "_afile"):
                 raise RuntimeError(f"'{file}' is not a valid Ogg file.")
         _VorbisComment.__init__(self, self._afile.tags)
+        self._from_filename()
 
         self.channel_count = self._afile.info.channels
         if self.codec == "flac":
@@ -1636,7 +1633,7 @@ class WAVEAudio(Audio, _ID3):
 
            * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
              filenames like "Taylor Swift - Don't Blame Me.wav".
-           * :code:`("(.*) - (.*)", ("track_number", "title"))` matches
+           * :code:`("(\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "05 - Delicate.wav".
            * :code:`("(\d*) (.*)", ("track_number", "title"))` matches
              filenames like "06 Look What You Made Me Do.wav".
@@ -1673,6 +1670,7 @@ class WAVEAudio(Audio, _ID3):
         Audio.__init__(self, file, pattern=pattern, multivalue=multivalue,
                        sep=sep)
         _ID3.__init__(self, _file.tags)
+        self._from_filename()
 
         self.bit_depth = _file.info.bits_per_sample
         self.bitrate = _file.info.bitrate
