@@ -825,7 +825,7 @@ class API:
 
     def get_artists(
             self, artist_ids: Union[int, str, list[Union[int, str]]], 
-            country_code: str) -> list[dict[str, Any]]:
+            country_code: str) -> dict[str, Any]:
 
         """
         `Artist API > Get multiple artists 
@@ -1152,7 +1152,7 @@ class API:
 
     def get_tracks(
             self, track_ids: Union[int, str, list[Union[int, str]]], 
-            country_code: str) -> list[dict[str, Any]]:
+            country_code: str) -> dict[str, Any]:
         
         """
         `Album API > Get multiple tracks
@@ -1250,6 +1250,107 @@ class API:
         return self._get_json(
             f"{self.API_URL}/tracks",
             params={"ids": track_ids, "countryCode": country_code}
+        )
+
+    def get_track_by_isrc(self, isrc: str, country_code: str) -> dict[str, Any]:
+        
+        """
+        `Track API > Get tracks by ISRC 
+        <https://developer.tidal.com/apiref?ref=get-tracks-by-isrc>`:
+        Retrieve a list of track details by ISRC.
+
+        Parameters
+        ----------
+        isrc : `str`
+            Valid ISRC code (usually comprises 12 alphanumeric 
+            characters).
+
+            **Example**: :code:`"USSM12209515"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        Returns
+        -------
+        tracks : `dict`
+            A dictionary containing TIDAL catalog information for
+            tracks with the specified ISRC and metadata for the
+            returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "resource": {
+                          "artifactType": "track",
+                          "id": <str>,
+                          "title": <str>,
+                          "artists": [
+                            {
+                              "id": <str>,
+                              "name": <str>,
+                              "picture": [
+                                {
+                                  "url": <str>,
+                                  "width": <int>,
+                                  "height": <int>
+                                }
+                              ],
+                              "main": <bool>
+                            }
+                          ],
+                          "album": {
+                            "id": <str>,
+                            "title": <str>, 
+                            "imageCover": [
+                              {
+                                "url": <str>,
+                                "width": <int>,
+                                "height": <int>
+                              }
+                            ],
+                            "videoCover": [
+                                {
+                                  "url": <str>,
+                                  "width": <int>,
+                                  "height": <int>
+                                }
+                            ]
+                          },
+                          "duration": <int>,
+                          "trackNumber": <int>,
+                          "volumeNumber": <int>,
+                          "isrc": <int>,
+                          "copyright": <int>,
+                          "mediaMetadata": {
+                            "tags": [<str>]
+                          },
+                          "properties": {
+                            "content": [<str>]
+                          }
+                        },
+                        "id": <str>,
+                        "status": 200,
+                        "message": "success"
+                      }
+                    ],
+                    "metadata": {
+                      "requested": <int>,
+                      "success": <int>,
+                      "failure": <int>
+                    }
+                  }
+        """
+
+        return self._get_json(
+            f"{self.API_URL}/tracks/byIsrc",
+            params={"isrc": isrc, "countryCode": country_code}
         )
 
     def get_similar_tracks(
