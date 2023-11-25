@@ -6,7 +6,7 @@
    "source": [
     "# Editing Audio Metadata\n",
     "\n",
-    "**Last updated**: November 24, 2023\n",
+    "**Last updated**: November 25, 2023\n",
     "\n",
     "Minim can organize your local music library by tagging audio files with metadata retrieved from popular music services, such as iTunes, Spotify, and TIDAL."
    ]
@@ -102,7 +102,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "## Example 1: Converting and tagging an audio file with no metadata\n",
+    "## Converting and tagging an audio file with no metadata\n",
     "\n",
     "First, we load the audio file into a file handler by passing its filename and its corresponding regular expression and metadata fields to the `minim.audio.Audio` constructor:"
    ]
@@ -509,7 +509,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "## Example 2: Tagging an audio file with existing metadata\n",
+    "## Tagging an audio file with existing metadata\n",
     "\n",
     "Now, we will process an audio file that already has most of the metadata fields populated. As before, we load the file, but this time using the `minim.audio.FLACAudio` constructor directly:"
    ]
@@ -560,7 +560,11 @@
   {
    "cell_type": "code",
    "execution_count": 16,
-   "metadata": {},
+   "metadata": {
+    "tags": [
+     "hide-output"
+    ]
+   },
    "outputs": [
     {
      "name": "stdout",
@@ -662,7 +666,11 @@
   {
    "cell_type": "code",
    "execution_count": 18,
-   "metadata": {},
+   "metadata": {
+    "tags": [
+     "hide-output"
+    ]
+   },
    "outputs": [
     {
      "name": "stdout",
@@ -702,7 +710,9 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Voilà! The metadata has been updated and is now complete. As always, don't forget to write the changes to the file:"
+    "Voilà! The metadata has been updated and is now complete. (Toms Burkovskis, otherwise known as Tobu, appears twice in the composer field because of the unique names. There is no elegant solution to this problem, unfortunately.)\n",
+    "\n",
+    "As always, don't forget to write the changes to the file:"
    ]
   },
   {

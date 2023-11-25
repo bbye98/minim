@@ -239,7 +239,7 @@
         <article role="main">
           <section id="editing-audio-metadata">
 <h1>Editing Audio Metadata<a class="headerlink" href="#editing-audio-metadata" title="Link to this heading">#</a></h1>
-<p><strong>Last updated</strong>: November 24, 2023</p>
+<p><strong>Last updated</strong>: November 25, 2023</p>
 <p>Minim can organize your local music library by tagging audio files with metadata retrieved from popular music services, such as iTunes, Spotify, and TIDAL.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -300,8 +300,8 @@
 <p>The two examples below highlight the utility of the <code class="docutils literal notranslate"><span class="pre">minim.audio.*Audio</span></code> classes. The first example involves an audio with no metadata other than that stored in its filename, and the second example shows how to update the tags of an audio file without overwriting existing metadata.</p>
 </section>
 </section>
-<section id="example-1-converting-and-tagging-an-audio-file-with-no-metadata">
-<h2>Example 1: Converting and tagging an audio file with no metadata<a class="headerlink" href="#example-1-converting-and-tagging-an-audio-file-with-no-metadata" title="Link to this heading">#</a></h2>
+<section id="converting-and-tagging-an-audio-file-with-no-metadata">
+<h2>Converting and tagging an audio file with no metadata<a class="headerlink" href="#converting-and-tagging-an-audio-file-with-no-metadata" title="Link to this heading">#</a></h2>
 <p>First, we load the audio file into a file handler by passing its filename and its corresponding regular expression and metadata fields to the <code class="docutils literal notranslate"><span class="pre">minim.audio.Audio</span></code> constructor:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -311,7 +311,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;spektrem_shine.flac&#39;, &lt;minim.audio.FLACAudio at 0x7f179069c6d0&gt;)
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;spektrem_shine.flac&#39;, &lt;minim.audio.FLACAudio at 0x7fb3e7600550&gt;)
 </pre></div>
 </div>
 </div>
@@ -367,10 +367,10 @@ Sample rate: 44100
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>size=    1032kB time=00:00:30.09 bitrate= 280.9kbits/s speed=69.5x    
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>size=    1032kB time=00:00:30.09 bitrate= 280.9kbits/s speed=67.8x    
 </pre></div>
 </div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;minim.audio.MP3Audio at 0x7f179069c6d0&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;minim.audio.MP3Audio at 0x7fb3e7600550&gt;
 </pre></div>
 </div>
 </div>
@@ -608,8 +608,8 @@ Sample rate: 44100
 </div>
 </div>
 </section>
-<section id="example-2-tagging-an-audio-file-with-existing-metadata">
-<h2>Example 2: Tagging an audio file with existing metadata<a class="headerlink" href="#example-2-tagging-an-audio-file-with-existing-metadata" title="Link to this heading">#</a></h2>
+<section id="tagging-an-audio-file-with-existing-metadata">
+<h2>Tagging an audio file with existing metadata<a class="headerlink" href="#tagging-an-audio-file-with-existing-metadata" title="Link to this heading">#</a></h2>
 <p>Now, we will process an audio file that already has most of the metadata fields populated. As before, we load the file, but this time using the <code class="docutils literal notranslate"><span class="pre">minim.audio.FLACAudio</span></code> constructor directly:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -619,18 +619,23 @@ Sample rate: 44100
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;tobu_back_to_you.flac&#39;, &lt;minim.audio.FLACAudio at 0x7f17a80a6e90&gt;)
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;tobu_back_to_you.flac&#39;, &lt;minim.audio.FLACAudio at 0x7fb47455f2d0&gt;)
 </pre></div>
 </div>
 </div>
 </div>
 <p>Let’s take a look at the file’s metadata:</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
+<div class="cell tag_hide-output docutils container">
+<div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">print_metadata</span><span class="p">(</span><span class="n">audio_file</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<details class="hide below-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell output</span>
+<span class="expanded">Hide code cell output</span>
+</summary>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Album: Back To You - Single
 Album artist: Tobu
@@ -658,6 +663,7 @@ Sample rate: 44100
 </pre></div>
 </div>
 </div>
+</details>
 </div>
 <p>The file has a poorly formatted copyright string and is missing lyrics, tempo, and cover art information. We can fix this by querying the three APIs as we did in the previous example, and overwrite the existing metadata:</p>
 <div class="cell docutils container">
@@ -708,12 +714,17 @@ Sample rate: 44100
 </div>
 </div>
 <p>Let’s take another look at the file’s metadata:</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
+<div class="cell tag_hide-output docutils container">
+<div class="cell_input above-output-prompt docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">print_metadata</span><span class="p">(</span><span class="n">audio_file</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<details class="hide below-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell output</span>
+<span class="expanded">Hide code cell output</span>
+</summary>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Album: Back to You - Single
 Album artist: Tobu
@@ -741,8 +752,10 @@ Sample rate: 44100
 </pre></div>
 </div>
 </div>
+</details>
 </div>
-<p>Voilà! The metadata has been updated and is now complete. As always, don’t forget to write the changes to the file:</p>
+<p>Voilà! The metadata has been updated and is now complete. (Toms Burkovskis, otherwise known as Tobu, appears twice in the composer field because of the unique names. There is no elegant solution to this problem, unfortunately.)</p>
+<p>As always, don’t forget to write the changes to the file:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">audio_file</span><span class="o">.</span><span class="n">write_metadata</span><span class="p">()</span>
@@ -815,8 +828,8 @@ Sample rate: 44100
 <li><a class="reference internal" href="#defining-helper-functions">Defining helper functions</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#example-1-converting-and-tagging-an-audio-file-with-no-metadata">Example 1: Converting and tagging an audio file with no metadata</a></li>
-<li><a class="reference internal" href="#example-2-tagging-an-audio-file-with-existing-metadata">Example 2: Tagging an audio file with existing metadata</a></li>
+<li><a class="reference internal" href="#converting-and-tagging-an-audio-file-with-no-metadata">Converting and tagging an audio file with no metadata</a></li>
+<li><a class="reference internal" href="#tagging-an-audio-file-with-existing-metadata">Tagging an audio file with existing metadata</a></li>
 </ul>
 </li>
 </ul>
