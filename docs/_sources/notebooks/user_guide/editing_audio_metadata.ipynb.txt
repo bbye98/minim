@@ -1,0 +1,752 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Editing Audio Metadata\n",
+    "\n",
+    "**Last updated**: November 24, 2023\n",
+    "\n",
+    "Minim can organize your local music library by tagging audio files with metadata retrieved from popular music services, such as iTunes, Spotify, and TIDAL."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pathlib import Path\n",
+    "\n",
+    "from minim import audio, itunes, spotify, tidal, utility\n",
+    "import numpy as np"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Setup\n",
+    "\n",
+    "### Instantiating API clients\n",
+    "\n",
+    "To get started, we will need to create API clients for the music services that we want to query for album and track information:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "client_itunes = itunes.SearchAPI()\n",
+    "client_spotify = spotify.WebAPI()\n",
+    "client_tidal = tidal.PrivateAPI()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Finding audio files\n",
+    "\n",
+    "To find all audio files in a specified directory, we use the `pathlib.Path.glob()` method:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "audio_files = [f for f in (Path().resolve().parents[3] \n",
+    "                           / \"tests/data/previews\").glob(\"**/*\") \n",
+    "               if f.suffix == \".flac\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Defining helper functions\n",
+    "\n",
+    "Before diving into the examples, we define a helper function that will print out the metadata of an audio file:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def print_metadata(audio_file):\n",
+    "    for field, value in audio_file.__dict__.items():\n",
+    "        if not field.startswith(\"_\"):\n",
+    "            if field in {\"artwork\", \"lyrics\"}:\n",
+    "                if value:\n",
+    "                    value = type(value)\n",
+    "            field = (field.upper() if field == \"isrc\" \n",
+    "                     else field.replace(\"_\", \" \").capitalize())\n",
+    "            print(f\"{field}: {value}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The two examples below highlight the utility of the `minim.audio.*Audio` classes. The first example involves an audio with no metadata other than that stored in its filename, and the second example shows how to update the tags of an audio file without overwriting existing metadata."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Example 1: Converting and tagging an audio file with no metadata\n",
+    "\n",
+    "First, we load the audio file into a file handler by passing its filename and its corresponding regular expression and metadata fields to the `minim.audio.Audio` constructor:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "('spektrem_shine.flac', <minim.audio.FLACAudio at 0x7efd38776d10>)"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "audio_file = audio.Audio(audio_files[0], pattern=(\"(.*)_(.*)\", (\"artist\", \"title\")))\n",
+    "audio_files[0].name, audio_file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "A `minim.audio.FLACAudio` object is returned, as the `minim.audio.Audio` constructor has automatically determined the audio format. Let's take a look at the file's metadata:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {
+    "tags": [
+     "hide-output"
+    ]
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Album: None\n",
+      "Album artist: None\n",
+      "Artist: spektrem\n",
+      "Comment: None\n",
+      "Composer: None\n",
+      "Copyright: None\n",
+      "Date: None\n",
+      "Genre: None\n",
+      "ISRC: None\n",
+      "Lyrics: None\n",
+      "Tempo: None\n",
+      "Title: shine\n",
+      "Compilation: None\n",
+      "Disc number: None\n",
+      "Disc count: None\n",
+      "Track number: None\n",
+      "Track count: None\n",
+      "Artwork: None\n",
+      "Bit depth: 16\n",
+      "Bitrate: 1030107\n",
+      "Channel count: 2\n",
+      "Codec: flac\n",
+      "Sample rate: 44100\n"
+     ]
+    }
+   ],
+   "source": [
+    "print_metadata(audio_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "While the file originally had no artist or title information, the search pattern we provided to the `minim.audio.Audio` constructor has allowed it to pull the information from the filename. At this point, however, the artist and title information have not yet been written to file.\n",
+    "\n",
+    "If we wanted compatibility with most music players, we can convert the FLAC file to a MP3 file using `minim.audio.FLACAudio.convert()`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "size=    1032kB time=00:00:30.09 bitrate= 280.9kbits/s speed=67.7x    \n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "<minim.audio.MP3Audio at 0x7efd38776d10>"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "audio_file.convert(\"mp3\")\n",
+    "audio_file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "With the file conversion, the `audio_file` object is automatically updated to a `minim.audio.MP3Audio` object. Let's take a look at the new file's metadata:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {
+    "tags": [
+     "hide-output"
+    ]
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Album: None\n",
+      "Album artist: None\n",
+      "Artist: spektrem\n",
+      "Comment: None\n",
+      "Compilation: None\n",
+      "Composer: None\n",
+      "Copyright: None\n",
+      "Date: None\n",
+      "Genre: None\n",
+      "ISRC: None\n",
+      "Lyrics: None\n",
+      "Tempo: None\n",
+      "Title: shine\n",
+      "Disc number: None\n",
+      "Disc count: None\n",
+      "Track number: None\n",
+      "Track count: None\n",
+      "Artwork: None\n",
+      "Bit depth: None\n",
+      "Bitrate: 280593\n",
+      "Channel count: 2\n",
+      "Codec: mp3\n",
+      "Sample rate: 44100\n"
+     ]
+    }
+   ],
+   "source": [
+    "print_metadata(audio_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The metadata persisted—even the artist and title, which has not been written to the FLAC file—with the exception of format-specific properties, like the bitrate and codec.\n",
+    "\n",
+    "Now, we start populating the file's metadata. The Apple Music/iTunes catalog typically contains the most complete and accurate information about a track, so it is generally a good idea to start there. As such, we \n",
+    "\n",
+    "* build a query using the only information available to us, namely, the artist and title,\n",
+    "* search for the track on iTunes via `minim.itunes.SearchAPI.search()`, \n",
+    "* select the closest match out of the results by choosing the one with the lowest Levenshtein distance/ratio for the artist and title (available via `minim.utility.levenshtein_ratio()`),\n",
+    "* separately get the track's album information using `minim.itunes.SearchAPI.lookup()`, and\n",
+    "* populate the file handler's metadata with the JSON results using `minim.audio.FLACAudio.set_metadata_using_itunes()`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {
+    "tags": [
+     "hide-output"
+    ]
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Album: Enter the Spektrem - Single\n",
+      "Album artist: Spektrem\n",
+      "Artist: Spektrem\n",
+      "Comment: None\n",
+      "Compilation: False\n",
+      "Composer: None\n",
+      "Copyright: ℗ 2013 GFTED\n",
+      "Date: 2013-03-06T12:00:00Z\n",
+      "Genre: Electronic\n",
+      "ISRC: None\n",
+      "Lyrics: None\n",
+      "Tempo: None\n",
+      "Title: Shine\n",
+      "Disc number: 1\n",
+      "Disc count: 1\n",
+      "Track number: 2\n",
+      "Track count: 3\n",
+      "Artwork: <class 'bytes'>\n",
+      "Bit depth: None\n",
+      "Bitrate: 280593\n",
+      "Channel count: 2\n",
+      "Codec: mp3\n",
+      "Sample rate: 44100\n"
+     ]
+    }
+   ],
+   "source": [
+    "query = f\"{audio_file.artist} {audio_file.title}\".lower()\n",
+    "itunes_results = client_itunes.search(query)[\"results\"]\n",
+    "itunes_track = itunes_results[\n",
+    "    np.argmax(\n",
+    "        utility.levenshtein_ratio(\n",
+    "            query, \n",
+    "            [f\"{r['artistName']} {r['trackName']}\".lower() \n",
+    "             for r in itunes_results]\n",
+    "        )\n",
+    "    )\n",
+    "]\n",
+    "itunes_album = client_itunes.lookup(itunes_track[\"collectionId\"])[\"results\"][0]\n",
+    "audio_file.set_metadata_using_itunes(itunes_track, album_data=itunes_album, \n",
+    "                                     overwrite=True)\n",
+    "print_metadata(audio_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can see that most of the fields have now been filled out. The iTunes Search API does not return composers, ISRC, lyrics, or tempo information, so we will have to use the Spotify Web API and the TIDAL API to complete the metadata.\n",
+    "\n",
+    "The Spotify catalog contains ISRCs for tracks. Conveniently, the Spotify Web API also has a `minim.spotify.WebAPI.get_track_audio_features()` endpoint that returns a `dict` of audio features, including the track's tempo. \n",
+    "\n",
+    "Like before for the iTunes Search API, we\n",
+    "\n",
+    "* search for the track on Spotify via `minim.spotify.WebAPI.search()`,\n",
+    "* select the closest match out of the results by choosing the one with the lowest Levenshtein distance/ratio for the artist and title,\n",
+    "* get the track's audio features using `minim.spotify.WebAPI.get_track_audio_features()`, and\n",
+    "* populate file handler's metadata with the JSON results using `minim.audio.FLACAudio.set_metadata_using_spotify()`.\n",
+    "\n",
+    ":::{note}\n",
+    "By default, the `minim.audio.FLACAudio.set_metadata_using*()` methods do not overwrite existing metadata. To change this behavior, pass `overwrite=True` as a keyword argument.\n",
+    ":::"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {
+    "tags": [
+     "hide-output"
+    ]
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Album: Enter the Spektrem - Single\n",
+      "Album artist: Spektrem\n",
+      "Artist: Spektrem\n",
+      "Comment: None\n",
+      "Compilation: False\n",
+      "Composer: None\n",
+      "Copyright: ℗ 2013 GFTED\n",
+      "Date: 2013-03-06T12:00:00Z\n",
+      "Genre: Electronic\n",
+      "ISRC: GB2LD0901581\n",
+      "Lyrics: None\n",
+      "Tempo: 128\n",
+      "Title: Shine\n",
+      "Disc number: 1\n",
+      "Disc count: 1\n",
+      "Track number: 2\n",
+      "Track count: 3\n",
+      "Artwork: <class 'bytes'>\n",
+      "Bit depth: None\n",
+      "Bitrate: 280593\n",
+      "Channel count: 2\n",
+      "Codec: mp3\n",
+      "Sample rate: 44100\n"
+     ]
+    }
+   ],
+   "source": [
+    "spotify_results = client_spotify.search(query, type=\"track\")[\"items\"]\n",
+    "spotify_track = spotify_results[\n",
+    "    np.argmax(\n",
+    "        utility.levenshtein_ratio(\n",
+    "            query, \n",
+    "            [f\"{r['artists'][0]['name']} {r['name']}\".lower() \n",
+    "             for r in spotify_results]\n",
+    "        )\n",
+    "    )\n",
+    "]\n",
+    "audio_file.set_metadata_using_spotify(\n",
+    "    spotify_track, \n",
+    "    audio_features=client_spotify.get_track_audio_features(spotify_track[\"id\"])\n",
+    ")\n",
+    "print_metadata(audio_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Finally, we repeat the process above using the TIDAL API to get the composers and lyrics by\n",
+    "\n",
+    "* searching for the track on TIDAL via `minim.tidal.PrivateAPI.search()`,\n",
+    "* selecting the correct result by matching the ISRC,\n",
+    "* getting the track's composers and lyrics using `minim.tidal.PrivateAPI.get_track_compoers()` and `minim.tidal.PrivateAPI.get_track_lyrics()`, respectively, and\n",
+    "* populating the file handler's metadata with the JSON results using `minim.audio.FLACAudio.set_metadata_using_tidal()`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {
+    "tags": [
+     "hide-output"
+    ]
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Album: Enter the Spektrem - Single\n",
+      "Album artist: Spektrem\n",
+      "Artist: Spektrem\n",
+      "Comment: None\n",
+      "Compilation: False\n",
+      "Composer: None\n",
+      "Copyright: ℗ 2013 GFTED\n",
+      "Date: 2013-03-06T12:00:00Z\n",
+      "Genre: Electronic\n",
+      "ISRC: GB2LD0901581\n",
+      "Lyrics: <class 'str'>\n",
+      "Tempo: 128\n",
+      "Title: Shine\n",
+      "Disc number: 1\n",
+      "Disc count: 1\n",
+      "Track number: 2\n",
+      "Track count: 3\n",
+      "Artwork: <class 'bytes'>\n",
+      "Bit depth: None\n",
+      "Bitrate: 280593\n",
+      "Channel count: 2\n",
+      "Codec: mp3\n",
+      "Sample rate: 44100\n"
+     ]
+    }
+   ],
+   "source": [
+    "tidal_results = client_tidal.search(query)[\"tracks\"][\"items\"]\n",
+    "tidal_track = next((r for r in tidal_results if r[\"isrc\"] == audio_file.isrc), None)\n",
+    "tidal_composers = client_tidal.get_track_composers(tidal_track[\"id\"])\n",
+    "tidal_lyrics = client_tidal.get_track_lyrics(tidal_track[\"id\"])\n",
+    "audio_file.set_metadata_using_tidal(tidal_track, composers=tidal_composers, lyrics=tidal_lyrics)\n",
+    "print_metadata(audio_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The metadata for the track is now complete. (For this example, TIDAL did not have songwriting credits for the track. This happens sometimes when the track is not very popular.)\n",
+    "\n",
+    "Don't forget to write the changes to file using `minim.audio.FLACAudio.write()`!"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "audio_file.write_metadata()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {
+    "tags": [
+     "remove-cell"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "audio_file._file.unlink()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Example 2: Tagging an audio file with existing metadata\n",
+    "\n",
+    "Now, we will process an audio file that already has most of the metadata fields populated. As before, we load the file, but this time using the `minim.audio.FLACAudio` constructor directly:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "('tobu_back_to_you.flac', <minim.audio.FLACAudio at 0x7efd3873e650>)"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "audio_file = audio.FLACAudio(audio_files[1])\n",
+    "audio_files[1].name, audio_file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {
+    "tags": [
+     "remove-cell"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "_audio_file = audio_files[1].with_stem(f\"{audio_files[1].stem}_copy\")\n",
+    "_audio_file.write_bytes(audio_files[1].read_bytes())\n",
+    "audio_file = audio.FLACAudio(_audio_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's take a look at the file's metadata:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Album: Back To You - Single\n",
+      "Album artist: Tobu\n",
+      "Artist: Tobu\n",
+      "Comment: None\n",
+      "Composer: Tobu & Toms Burkovskis\n",
+      "Copyright: 2022 NCS 2022 NCS\n",
+      "Date: 2023-07-06T07:00:00Z\n",
+      "Genre: House\n",
+      "ISRC: GB2LD2210368\n",
+      "Lyrics: None\n",
+      "Tempo: None\n",
+      "Title: Back To You\n",
+      "Compilation: None\n",
+      "Disc number: 1\n",
+      "Disc count: 1\n",
+      "Track number: 1\n",
+      "Track count: 1\n",
+      "Artwork: <class 'bytes'>\n",
+      "Bit depth: 16\n",
+      "Bitrate: 1104053\n",
+      "Channel count: 2\n",
+      "Codec: flac\n",
+      "Sample rate: 44100\n"
+     ]
+    }
+   ],
+   "source": [
+    "print_metadata(audio_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The file has a poorly formatted copyright string and is missing lyrics, tempo, and cover art information. We can fix this by querying the three APIs as we did in the previous example, and overwrite the existing metadata:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "query = f\"{audio_file.artist} {audio_file.title}\".lower()\n",
+    "\n",
+    "# iTunes Search API\n",
+    "itunes_results = client_itunes.search(query)[\"results\"]\n",
+    "itunes_track = itunes_results[\n",
+    "    np.argmax(\n",
+    "        utility.levenshtein_ratio(\n",
+    "            query, \n",
+    "            [f\"{r['artistName']} {r['trackName']}\".lower() \n",
+    "             for r in itunes_results]\n",
+    "        )\n",
+    "    )\n",
+    "]\n",
+    "itunes_album = client_itunes.lookup(itunes_track[\"collectionId\"])[\"results\"][0]\n",
+    "audio_file.set_metadata_using_itunes(itunes_track, album_data=itunes_album, \n",
+    "                                     overwrite=True)\n",
+    "\n",
+    "# Spotify Web API\n",
+    "spotify_results = client_spotify.search(query, type=\"track\")[\"items\"]\n",
+    "spotify_track = spotify_results[\n",
+    "    np.argmax(\n",
+    "        utility.levenshtein_ratio(\n",
+    "            query, \n",
+    "            [f\"{r['artists'][0]['name']} {r['name']}\".lower() \n",
+    "             for r in spotify_results]\n",
+    "        )\n",
+    "    )\n",
+    "]\n",
+    "audio_file.set_metadata_using_spotify(\n",
+    "    spotify_track, \n",
+    "    audio_features=client_spotify.get_track_audio_features(spotify_track[\"id\"])\n",
+    ")\n",
+    "\n",
+    "# Private TIDAL API\n",
+    "tidal_results = client_tidal.search(query)[\"tracks\"][\"items\"]\n",
+    "tidal_track = next((r for r in tidal_results if r[\"isrc\"] == audio_file.isrc), \n",
+    "                   None)\n",
+    "tidal_composers = client_tidal.get_track_composers(tidal_track[\"id\"])\n",
+    "tidal_lyrics = client_tidal.get_track_lyrics(tidal_track[\"id\"])\n",
+    "audio_file.set_metadata_using_tidal(tidal_track, composers=tidal_composers, \n",
+    "                                    lyrics=tidal_lyrics)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's take another look at the file's metadata:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Album: Back to You - Single\n",
+      "Album artist: Tobu\n",
+      "Artist: Tobu\n",
+      "Comment: None\n",
+      "Composer: Tobu & Toms Burkovskis\n",
+      "Copyright: ℗ 2022 NCS\n",
+      "Date: 2022-11-25T12:00:00Z\n",
+      "Genre: House\n",
+      "ISRC: GB2LD2210368\n",
+      "Lyrics: <class 'str'>\n",
+      "Tempo: 98\n",
+      "Title: Back to You\n",
+      "Compilation: False\n",
+      "Disc number: 1\n",
+      "Disc count: 1\n",
+      "Track number: 1\n",
+      "Track count: 1\n",
+      "Artwork: <class 'bytes'>\n",
+      "Bit depth: 16\n",
+      "Bitrate: 1104053\n",
+      "Channel count: 2\n",
+      "Codec: flac\n",
+      "Sample rate: 44100\n"
+     ]
+    }
+   ],
+   "source": [
+    "print_metadata(audio_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Voilà! The metadata has been updated and is now complete. As always, don't forget to write the changes to the file:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "audio_file.write_metadata()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {
+    "tags": [
+     "remove-cell"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "audio_file._file.unlink()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "minim",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

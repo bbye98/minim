@@ -1,0 +1,844 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Getting Recommendations" href="getting_recommendations.html" /><link rel="prev" title="User Guide" href="../../user_guide.html" />
+
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+        <title>Editing Audio Metadata - Minim 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">Minim 1.0.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/icon.svg" alt="Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../user_guide.html">User Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Editing Audio Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_recommendations.html">Getting Recommendations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transferring_music_libraries.html">Transferring Music Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/minim.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.audio.html">audio</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of audio</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.Audio.html">Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.itunes.html">itunes</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of itunes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.SearchAPI.html">SearchAPI</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.qobuz.html">qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of qobuz</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.PrivateLyricsService.html">PrivateLyricsService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.WebAPI.html">WebAPI</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.tidal.html">tidal</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of tidal</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.API.html">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.PrivateAPI.html">PrivateAPI</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratio.html">levenshtein_ratio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.multivalue_formatter.html">multivalue_formatter</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="editing-audio-metadata">
+<h1>Editing Audio Metadata<a class="headerlink" href="#editing-audio-metadata" title="Link to this heading">#</a></h1>
+<p><strong>Last updated</strong>: November 24, 2023</p>
+<p>Minim can organize your local music library by tagging audio files with metadata retrieved from popular music services, such as iTunes, Spotify, and TIDAL.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">minim</span> <span class="kn">import</span> <span class="n">audio</span><span class="p">,</span> <span class="n">itunes</span><span class="p">,</span> <span class="n">spotify</span><span class="p">,</span> <span class="n">tidal</span><span class="p">,</span> <span class="n">utility</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">#</a></h2>
+<section id="instantiating-api-clients">
+<h3>Instantiating API clients<a class="headerlink" href="#instantiating-api-clients" title="Link to this heading">#</a></h3>
+<p>To get started, we will need to create API clients for the music services that we want to query for album and track information:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client_itunes</span> <span class="o">=</span> <span class="n">itunes</span><span class="o">.</span><span class="n">SearchAPI</span><span class="p">()</span>
+<span class="n">client_spotify</span> <span class="o">=</span> <span class="n">spotify</span><span class="o">.</span><span class="n">WebAPI</span><span class="p">()</span>
+<span class="n">client_tidal</span> <span class="o">=</span> <span class="n">tidal</span><span class="o">.</span><span class="n">PrivateAPI</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="finding-audio-files">
+<h3>Finding audio files<a class="headerlink" href="#finding-audio-files" title="Link to this heading">#</a></h3>
+<p>To find all audio files in a specified directory, we use the <code class="docutils literal notranslate"><span class="pre">pathlib.Path.glob()</span></code> method:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">audio_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Path</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> 
+                           <span class="o">/</span> <span class="s2">&quot;tests/data/previews&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;**/*&quot;</span><span class="p">)</span> 
+               <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.flac&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="defining-helper-functions">
+<h3>Defining helper functions<a class="headerlink" href="#defining-helper-functions" title="Link to this heading">#</a></h3>
+<p>Before diving into the examples, we define a helper function that will print out the metadata of an audio file:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">print_metadata</span><span class="p">(</span><span class="n">audio_file</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">audio_file</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">field</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;artwork&quot;</span><span class="p">,</span> <span class="s2">&quot;lyrics&quot;</span><span class="p">}:</span>
+                <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;isrc&quot;</span> 
+                     <span class="k">else</span> <span class="n">field</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The two examples below highlight the utility of the <code class="docutils literal notranslate"><span class="pre">minim.audio.*Audio</span></code> classes. The first example involves an audio with no metadata other than that stored in its filename, and the second example shows how to update the tags of an audio file without overwriting existing metadata.</p>
+</section>
+</section>
+<section id="example-1-converting-and-tagging-an-audio-file-with-no-metadata">
+<h2>Example 1: Converting and tagging an audio file with no metadata<a class="headerlink" href="#example-1-converting-and-tagging-an-audio-file-with-no-metadata" title="Link to this heading">#</a></h2>
+<p>First, we load the audio file into a file handler by passing its filename and its corresponding regular expression and metadata fields to the <code class="docutils literal notranslate"><span class="pre">minim.audio.Audio</span></code> constructor:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">audio_file</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">Audio</span><span class="p">(</span><span class="n">audio_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pattern</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;(.*)_(.*)&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;artist&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">)))</span>
+<span class="n">audio_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">audio_file</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;spektrem_shine.flac&#39;, &lt;minim.audio.FLACAudio at 0x7f179069c6d0&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">minim.audio.FLACAudio</span></code> object is returned, as the <code class="docutils literal notranslate"><span class="pre">minim.audio.Audio</span></code> constructor has automatically determined the audio format. Let’s take a look at the file’s metadata:</p>
+<div class="cell tag_hide-output docutils container">
+<div class="cell_input above-output-prompt docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">print_metadata</span><span class="p">(</span><span class="n">audio_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<details class="hide below-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell output</span>
+<span class="expanded">Hide code cell output</span>
+</summary>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Album: None
+Album artist: None
+Artist: spektrem
+Comment: None
+Composer: None
+Copyright: None
+Date: None
+Genre: None
+ISRC: None
+Lyrics: None
+Tempo: None
+Title: shine
+Compilation: None
+Disc number: None
+Disc count: None
+Track number: None
+Track count: None
+Artwork: None
+Bit depth: 16
+Bitrate: 1030107
+Channel count: 2
+Codec: flac
+Sample rate: 44100
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<p>While the file originally had no artist or title information, the search pattern we provided to the <code class="docutils literal notranslate"><span class="pre">minim.audio.Audio</span></code> constructor has allowed it to pull the information from the filename. At this point, however, the artist and title information have not yet been written to file.</p>
+<p>If we wanted compatibility with most music players, we can convert the FLAC file to a MP3 file using <code class="docutils literal notranslate"><span class="pre">minim.audio.FLACAudio.convert()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">audio_file</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;mp3&quot;</span><span class="p">)</span>
+<span class="n">audio_file</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>size=    1032kB time=00:00:30.09 bitrate= 280.9kbits/s speed=69.5x    
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;minim.audio.MP3Audio at 0x7f179069c6d0&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<p>With the file conversion, the <code class="docutils literal notranslate"><span class="pre">audio_file</span></code> object is automatically updated to a <code class="docutils literal notranslate"><span class="pre">minim.audio.MP3Audio</span></code> object. Let’s take a look at the new file’s metadata:</p>
+<div class="cell tag_hide-output docutils container">
+<div class="cell_input above-output-prompt docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">print_metadata</span><span class="p">(</span><span class="n">audio_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<details class="hide below-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell output</span>
+<span class="expanded">Hide code cell output</span>
+</summary>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Album: None
+Album artist: None
+Artist: spektrem
+Comment: None
+Compilation: None
+Composer: None
+Copyright: None
+Date: None
+Genre: None
+ISRC: None
+Lyrics: None
+Tempo: None
+Title: shine
+Disc number: None
+Disc count: None
+Track number: None
+Track count: None
+Artwork: None
+Bit depth: None
+Bitrate: 280593
+Channel count: 2
+Codec: mp3
+Sample rate: 44100
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<p>The metadata persisted—even the artist and title, which has not been written to the FLAC file—with the exception of format-specific properties, like the bitrate and codec.</p>
+<p>Now, we start populating the file’s metadata. The Apple Music/iTunes catalog typically contains the most complete and accurate information about a track, so it is generally a good idea to start there. As such, we</p>
+<ul class="simple">
+<li><p>build a query using the only information available to us, namely, the artist and title,</p></li>
+<li><p>search for the track on iTunes via <code class="docutils literal notranslate"><span class="pre">minim.itunes.SearchAPI.search()</span></code>,</p></li>
+<li><p>select the closest match out of the results by choosing the one with the lowest Levenshtein distance/ratio for the artist and title (available via <code class="docutils literal notranslate"><span class="pre">minim.utility.levenshtein_ratio()</span></code>),</p></li>
+<li><p>separately get the track’s album information using <code class="docutils literal notranslate"><span class="pre">minim.itunes.SearchAPI.lookup()</span></code>, and</p></li>
+<li><p>populate the file handler’s metadata with the JSON results using <code class="docutils literal notranslate"><span class="pre">minim.audio.FLACAudio.set_metadata_using_itunes()</span></code>.</p></li>
+</ul>
+<div class="cell tag_hide-output docutils container">
+<div class="cell_input above-output-prompt docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">audio_file</span><span class="o">.</span><span class="n">artist</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">audio_file</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<span class="n">itunes_results</span> <span class="o">=</span> <span class="n">client_itunes</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">)[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span>
+<span class="n">itunes_track</span> <span class="o">=</span> <span class="n">itunes_results</span><span class="p">[</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span>
+        <span class="n">utility</span><span class="o">.</span><span class="n">levenshtein_ratio</span><span class="p">(</span>
+            <span class="n">query</span><span class="p">,</span> 
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;artistName&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;trackName&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> 
+             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">itunes_results</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+<span class="n">itunes_album</span> <span class="o">=</span> <span class="n">client_itunes</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">itunes_track</span><span class="p">[</span><span class="s2">&quot;collectionId&quot;</span><span class="p">])[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">audio_file</span><span class="o">.</span><span class="n">set_metadata_using_itunes</span><span class="p">(</span><span class="n">itunes_track</span><span class="p">,</span> <span class="n">album_data</span><span class="o">=</span><span class="n">itunes_album</span><span class="p">,</span> 
+                                     <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">print_metadata</span><span class="p">(</span><span class="n">audio_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<details class="hide below-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell output</span>
+<span class="expanded">Hide code cell output</span>
+</summary>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Album: Enter the Spektrem - Single
+Album artist: Spektrem
+Artist: Spektrem
+Comment: None
+Compilation: False
+Composer: None
+Copyright: ℗ 2013 GFTED
+Date: 2013-03-06T12:00:00Z
+Genre: Electronic
+ISRC: None
+Lyrics: None
+Tempo: None
+Title: Shine
+Disc number: 1
+Disc count: 1
+Track number: 2
+Track count: 3
+Artwork: &lt;class &#39;bytes&#39;&gt;
+Bit depth: None
+Bitrate: 280593
+Channel count: 2
+Codec: mp3
+Sample rate: 44100
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<p>We can see that most of the fields have now been filled out. The iTunes Search API does not return composers, ISRC, lyrics, or tempo information, so we will have to use the Spotify Web API and the TIDAL API to complete the metadata.</p>
+<p>The Spotify catalog contains ISRCs for tracks. Conveniently, the Spotify Web API also has a <code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI.get_track_audio_features()</span></code> endpoint that returns a <code class="docutils literal notranslate"><span class="pre">dict</span></code> of audio features, including the track’s tempo.</p>
+<p>Like before for the iTunes Search API, we</p>
+<ul class="simple">
+<li><p>search for the track on Spotify via <code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI.search()</span></code>,</p></li>
+<li><p>select the closest match out of the results by choosing the one with the lowest Levenshtein distance/ratio for the artist and title,</p></li>
+<li><p>get the track’s audio features using <code class="docutils literal notranslate"><span class="pre">minim.spotify.WebAPI.get_track_audio_features()</span></code>, and</p></li>
+<li><p>populate file handler’s metadata with the JSON results using <code class="docutils literal notranslate"><span class="pre">minim.audio.FLACAudio.set_metadata_using_spotify()</span></code>.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, the <code class="docutils literal notranslate"><span class="pre">minim.audio.FLACAudio.set_metadata_using*()</span></code> methods do not overwrite existing metadata. To change this behavior, pass <code class="docutils literal notranslate"><span class="pre">overwrite=True</span></code> as a keyword argument.</p>
+</div>
+<div class="cell tag_hide-output docutils container">
+<div class="cell_input above-output-prompt docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spotify_results</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;track&quot;</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+<span class="n">spotify_track</span> <span class="o">=</span> <span class="n">spotify_results</span><span class="p">[</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span>
+        <span class="n">utility</span><span class="o">.</span><span class="n">levenshtein_ratio</span><span class="p">(</span>
+            <span class="n">query</span><span class="p">,</span> 
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;artists&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> 
+             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">spotify_results</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+<span class="n">audio_file</span><span class="o">.</span><span class="n">set_metadata_using_spotify</span><span class="p">(</span>
+    <span class="n">spotify_track</span><span class="p">,</span> 
+    <span class="n">audio_features</span><span class="o">=</span><span class="n">client_spotify</span><span class="o">.</span><span class="n">get_track_audio_features</span><span class="p">(</span><span class="n">spotify_track</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="p">)</span>
+<span class="n">print_metadata</span><span class="p">(</span><span class="n">audio_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<details class="hide below-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell output</span>
+<span class="expanded">Hide code cell output</span>
+</summary>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Album: Enter the Spektrem - Single
+Album artist: Spektrem
+Artist: Spektrem
+Comment: None
+Compilation: False
+Composer: None
+Copyright: ℗ 2013 GFTED
+Date: 2013-03-06T12:00:00Z
+Genre: Electronic
+ISRC: GB2LD0901581
+Lyrics: None
+Tempo: 128
+Title: Shine
+Disc number: 1
+Disc count: 1
+Track number: 2
+Track count: 3
+Artwork: &lt;class &#39;bytes&#39;&gt;
+Bit depth: None
+Bitrate: 280593
+Channel count: 2
+Codec: mp3
+Sample rate: 44100
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<p>Finally, we repeat the process above using the TIDAL API to get the composers and lyrics by</p>
+<ul class="simple">
+<li><p>searching for the track on TIDAL via <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.search()</span></code>,</p></li>
+<li><p>selecting the correct result by matching the ISRC,</p></li>
+<li><p>getting the track’s composers and lyrics using <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.get_track_compoers()</span></code> and <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.get_track_lyrics()</span></code>, respectively, and</p></li>
+<li><p>populating the file handler’s metadata with the JSON results using <code class="docutils literal notranslate"><span class="pre">minim.audio.FLACAudio.set_metadata_using_tidal()</span></code>.</p></li>
+</ul>
+<div class="cell tag_hide-output docutils container">
+<div class="cell_input above-output-prompt docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tidal_results</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">)[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+<span class="n">tidal_track</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">tidal_results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;isrc&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">audio_file</span><span class="o">.</span><span class="n">isrc</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">tidal_composers</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">get_track_composers</span><span class="p">(</span><span class="n">tidal_track</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="n">tidal_lyrics</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">get_track_lyrics</span><span class="p">(</span><span class="n">tidal_track</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="n">audio_file</span><span class="o">.</span><span class="n">set_metadata_using_tidal</span><span class="p">(</span><span class="n">tidal_track</span><span class="p">,</span> <span class="n">composers</span><span class="o">=</span><span class="n">tidal_composers</span><span class="p">,</span> <span class="n">lyrics</span><span class="o">=</span><span class="n">tidal_lyrics</span><span class="p">)</span>
+<span class="n">print_metadata</span><span class="p">(</span><span class="n">audio_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<details class="hide below-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell output</span>
+<span class="expanded">Hide code cell output</span>
+</summary>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Album: Enter the Spektrem - Single
+Album artist: Spektrem
+Artist: Spektrem
+Comment: None
+Compilation: False
+Composer: None
+Copyright: ℗ 2013 GFTED
+Date: 2013-03-06T12:00:00Z
+Genre: Electronic
+ISRC: GB2LD0901581
+Lyrics: &lt;class &#39;str&#39;&gt;
+Tempo: 128
+Title: Shine
+Disc number: 1
+Disc count: 1
+Track number: 2
+Track count: 3
+Artwork: &lt;class &#39;bytes&#39;&gt;
+Bit depth: None
+Bitrate: 280593
+Channel count: 2
+Codec: mp3
+Sample rate: 44100
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<p>The metadata for the track is now complete. (For this example, TIDAL did not have songwriting credits for the track. This happens sometimes when the track is not very popular.)</p>
+<p>Don’t forget to write the changes to file using <code class="docutils literal notranslate"><span class="pre">minim.audio.FLACAudio.write()</span></code>!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">audio_file</span><span class="o">.</span><span class="n">write_metadata</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="example-2-tagging-an-audio-file-with-existing-metadata">
+<h2>Example 2: Tagging an audio file with existing metadata<a class="headerlink" href="#example-2-tagging-an-audio-file-with-existing-metadata" title="Link to this heading">#</a></h2>
+<p>Now, we will process an audio file that already has most of the metadata fields populated. As before, we load the file, but this time using the <code class="docutils literal notranslate"><span class="pre">minim.audio.FLACAudio</span></code> constructor directly:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">audio_file</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">FLACAudio</span><span class="p">(</span><span class="n">audio_files</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">audio_files</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">audio_file</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;tobu_back_to_you.flac&#39;, &lt;minim.audio.FLACAudio at 0x7f17a80a6e90&gt;)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s take a look at the file’s metadata:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">print_metadata</span><span class="p">(</span><span class="n">audio_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Album: Back To You - Single
+Album artist: Tobu
+Artist: Tobu
+Comment: None
+Composer: Tobu &amp; Toms Burkovskis
+Copyright: 2022 NCS 2022 NCS
+Date: 2023-07-06T07:00:00Z
+Genre: House
+ISRC: GB2LD2210368
+Lyrics: None
+Tempo: None
+Title: Back To You
+Compilation: None
+Disc number: 1
+Disc count: 1
+Track number: 1
+Track count: 1
+Artwork: &lt;class &#39;bytes&#39;&gt;
+Bit depth: 16
+Bitrate: 1104053
+Channel count: 2
+Codec: flac
+Sample rate: 44100
+</pre></div>
+</div>
+</div>
+</div>
+<p>The file has a poorly formatted copyright string and is missing lyrics, tempo, and cover art information. We can fix this by querying the three APIs as we did in the previous example, and overwrite the existing metadata:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">audio_file</span><span class="o">.</span><span class="n">artist</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">audio_file</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+<span class="c1"># iTunes Search API</span>
+<span class="n">itunes_results</span> <span class="o">=</span> <span class="n">client_itunes</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">)[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span>
+<span class="n">itunes_track</span> <span class="o">=</span> <span class="n">itunes_results</span><span class="p">[</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span>
+        <span class="n">utility</span><span class="o">.</span><span class="n">levenshtein_ratio</span><span class="p">(</span>
+            <span class="n">query</span><span class="p">,</span> 
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;artistName&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;trackName&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> 
+             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">itunes_results</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+<span class="n">itunes_album</span> <span class="o">=</span> <span class="n">client_itunes</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">itunes_track</span><span class="p">[</span><span class="s2">&quot;collectionId&quot;</span><span class="p">])[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">audio_file</span><span class="o">.</span><span class="n">set_metadata_using_itunes</span><span class="p">(</span><span class="n">itunes_track</span><span class="p">,</span> <span class="n">album_data</span><span class="o">=</span><span class="n">itunes_album</span><span class="p">,</span> 
+                                     <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Spotify Web API</span>
+<span class="n">spotify_results</span> <span class="o">=</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;track&quot;</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+<span class="n">spotify_track</span> <span class="o">=</span> <span class="n">spotify_results</span><span class="p">[</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span>
+        <span class="n">utility</span><span class="o">.</span><span class="n">levenshtein_ratio</span><span class="p">(</span>
+            <span class="n">query</span><span class="p">,</span> 
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;artists&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> 
+             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">spotify_results</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+<span class="n">audio_file</span><span class="o">.</span><span class="n">set_metadata_using_spotify</span><span class="p">(</span>
+    <span class="n">spotify_track</span><span class="p">,</span> 
+    <span class="n">audio_features</span><span class="o">=</span><span class="n">client_spotify</span><span class="o">.</span><span class="n">get_track_audio_features</span><span class="p">(</span><span class="n">spotify_track</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="p">)</span>
+
+<span class="c1"># Private TIDAL API</span>
+<span class="n">tidal_results</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">)[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
+<span class="n">tidal_track</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">tidal_results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;isrc&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">audio_file</span><span class="o">.</span><span class="n">isrc</span><span class="p">),</span> 
+                   <span class="kc">None</span><span class="p">)</span>
+<span class="n">tidal_composers</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">get_track_composers</span><span class="p">(</span><span class="n">tidal_track</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="n">tidal_lyrics</span> <span class="o">=</span> <span class="n">client_tidal</span><span class="o">.</span><span class="n">get_track_lyrics</span><span class="p">(</span><span class="n">tidal_track</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="n">audio_file</span><span class="o">.</span><span class="n">set_metadata_using_tidal</span><span class="p">(</span><span class="n">tidal_track</span><span class="p">,</span> <span class="n">composers</span><span class="o">=</span><span class="n">tidal_composers</span><span class="p">,</span> 
+                                    <span class="n">lyrics</span><span class="o">=</span><span class="n">tidal_lyrics</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s take another look at the file’s metadata:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">print_metadata</span><span class="p">(</span><span class="n">audio_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Album: Back to You - Single
+Album artist: Tobu
+Artist: Tobu
+Comment: None
+Composer: Tobu &amp; Toms Burkovskis
+Copyright: ℗ 2022 NCS
+Date: 2022-11-25T12:00:00Z
+Genre: House
+ISRC: GB2LD2210368
+Lyrics: &lt;class &#39;str&#39;&gt;
+Tempo: 98
+Title: Back to You
+Compilation: False
+Disc number: 1
+Disc count: 1
+Track number: 1
+Track count: 1
+Artwork: &lt;class &#39;bytes&#39;&gt;
+Bit depth: 16
+Bitrate: 1104053
+Channel count: 2
+Codec: flac
+Sample rate: 44100
+</pre></div>
+</div>
+</div>
+</div>
+<p>Voilà! The metadata has been updated and is now complete. As always, don’t forget to write the changes to the file:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">audio_file</span><span class="o">.</span><span class="n">write_metadata</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="getting_recommendations.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Getting Recommendations</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../../user_guide.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">User Guide</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Benjamin Ye
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Editing Audio Metadata</a><ul>
+<li><a class="reference internal" href="#setup">Setup</a><ul>
+<li><a class="reference internal" href="#instantiating-api-clients">Instantiating API clients</a></li>
+<li><a class="reference internal" href="#finding-audio-files">Finding audio files</a></li>
+<li><a class="reference internal" href="#defining-helper-functions">Defining helper functions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#example-1-converting-and-tagging-an-audio-file-with-no-metadata">Example 1: Converting and tagging an audio file with no metadata</a></li>
+<li><a class="reference internal" href="#example-2-tagging-an-audio-file-with-existing-metadata">Example 2: Tagging an audio file with existing metadata</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script>let toggleHintShow = '';</script>
+    <script>let toggleHintHide = '';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    </body>
+</html>

@@ -8,7 +8,7 @@
         <title>minim.audio - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -162,6 +162,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/user_guide/editing_audio_metadata.html">Editing Audio Metadata</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../notebooks/user_guide/getting_recommendations.html">Getting Recommendations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../notebooks/user_guide/transferring_music_libraries.html">Transferring Music Libraries</a></li>
 </ul>
@@ -528,9 +529,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">track_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="p">,</span> <span class="s2">&quot;pictures&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">pictures</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">pictures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_artwork_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">pictures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mime</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="p">,</span> <span class="s2">&quot;pictures&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="o">.</span><span class="n">pictures</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="o">.</span><span class="n">pictures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_artwork_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="o">.</span><span class="n">pictures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mime</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">elif</span> <span class="s2">&quot;metadata_block_picture&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">:</span>
             <span class="n">IMAGE_FILE_SIGS</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;jpg&quot;</span><span class="p">:</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -573,6 +574,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="n">artwork</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span>
             <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="o">.</span><span class="n">clear_pictures</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="o">.</span><span class="n">add_picture</span><span class="p">(</span><span class="n">artwork</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">[</span><span class="s2">&quot;metadata_block_picture&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span>
@@ -636,7 +638,7 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Cruel Summer.flac&quot;.</span>
-<span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;04 - The Man.m4a&quot;.</span>
 <span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;13 You Need to Calm Down.mp3&quot;.</span>
@@ -758,9 +760,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_file</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span> <span class="o">=</span> <span class="n">pattern</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_multivalue</span> <span class="o">=</span> <span class="n">multivalue</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sep</span> <span class="o">=</span> <span class="n">sep</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_from_filename</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -789,25 +791,19 @@
         
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_from_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_from_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get track information from the filename.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        pattern : `tuple`, keyword-only, optional</span>
-<span class="sd">            Regular expression search pattern and the corresponding metadata</span>
-<span class="sd">            field(s).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">pattern</span><span class="p">:</span>
-            <span class="n">groups</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span><span class="p">:</span>
+            <span class="n">groups</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">groups</span><span class="p">:</span>
                 <span class="n">missing</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;artist&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;track_number&quot;</span><span class="p">}</span>
                                 <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> 
-                                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">pattern</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">missing</span><span class="p">,</span> <span class="n">pattern</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">missing</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                     <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS_TYPES</span><span class="p">[</span><span class="n">attr</span><span class="p">][</span><span class="mi">0</span><span class="p">](</span><span class="n">val</span><span class="p">))</span>
 
@@ -1362,7 +1358,11 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">comment</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">composer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">composer</span> <span class="o">=</span> <span class="n">credits</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;composers&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;composer&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">composer</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">credits</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;composers&quot;</span><span class="p">)</span> 
+                <span class="ow">or</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;composer&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;composer&quot;</span><span class="p">)</span> 
+                    <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">copyright</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">copyright</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;copyright&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
@@ -1448,7 +1448,7 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Fearless.flac&quot;.</span>
-<span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;03 - Love Story.flac&quot;.</span>
 <span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;06 You Belong with Me.flac&quot;.</span>
@@ -1480,11 +1480,11 @@
 
         <span class="n">Audio</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="n">pattern</span><span class="p">,</span> <span class="n">multivalue</span><span class="o">=</span><span class="n">multivalue</span><span class="p">,</span> 
                        <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span> <span class="o">=</span> <span class="n">flac</span><span class="o">.</span><span class="n">FLAC</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="o">.</span><span class="n">tags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="o">.</span><span class="n">add_tags</span><span class="p">()</span>
         <span class="n">_VorbisComment</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="o">.</span><span class="n">tags</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_from_filename</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">bits_per_sample</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bitrate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">bitrate</span>
@@ -1528,7 +1528,7 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Red.mp3&quot;.</span>
-<span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;04 - I Knew You Were Trouble.mp3&quot;.</span>
 <span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;06 22.mp3&quot;.</span>
@@ -1563,6 +1563,7 @@
         <span class="n">Audio</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="n">pattern</span><span class="p">,</span> <span class="n">multivalue</span><span class="o">=</span><span class="n">multivalue</span><span class="p">,</span>
                        <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
         <span class="n">_ID3</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_file</span><span class="o">.</span><span class="n">tags</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_from_filename</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bitrate</span> <span class="o">=</span> <span class="n">_file</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">bitrate</span>
@@ -1606,7 +1607,7 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Mine.m4a&quot;.</span>
-<span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;04 - Speak Now.m4a&quot;.</span>
 <span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;07 The Story of Us.m4a&quot;.</span>
@@ -1669,6 +1670,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_multivalue</span> <span class="o">=</span> <span class="n">multivalue</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sep</span> <span class="o">=</span> <span class="n">sep</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_from_file</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_from_filename</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -1811,7 +1813,7 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Blank Space.ogg&quot;.</span>
-<span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;03 - Style.ogg&quot;.</span>
 <span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;06 Shake It Off.ogg&quot;.</span>
@@ -1858,6 +1860,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_afile&quot;</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&#39; is not a valid Ogg file.&quot;</span><span class="p">)</span>
         <span class="n">_VorbisComment</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="o">.</span><span class="n">tags</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_from_filename</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">channel_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_afile</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">channels</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">codec</span> <span class="o">==</span> <span class="s2">&quot;flac&quot;</span><span class="p">:</span>
@@ -1908,7 +1911,7 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Don&#39;t Blame Me.wav&quot;.</span>
-<span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;05 - Delicate.wav&quot;.</span>
 <span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;06 Look What You Made Me Do.wav&quot;.</span>
@@ -1945,6 +1948,7 @@
         <span class="n">Audio</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="n">pattern</span><span class="p">,</span> <span class="n">multivalue</span><span class="o">=</span><span class="n">multivalue</span><span class="p">,</span>
                        <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
         <span class="n">_ID3</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_file</span><span class="o">.</span><span class="n">tags</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_from_filename</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">bit_depth</span> <span class="o">=</span> <span class="n">_file</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">bits_per_sample</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bitrate</span> <span class="o">=</span> <span class="n">_file</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">bitrate</span>

@@ -1256,7 +1256,7 @@ class API:
         
         """
         `Track API > Get tracks by ISRC 
-        <https://developer.tidal.com/apiref?ref=get-tracks-by-isrc>`:
+        <https://developer.tidal.com/apiref?ref=get-tracks-by-isrc>`_:
         Retrieve a list of track details by ISRC.
 
         Parameters

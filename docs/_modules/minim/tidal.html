@@ -8,7 +8,7 @@
         <title>minim.tidal - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -162,6 +162,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/user_guide/editing_audio_metadata.html">Editing Audio Metadata</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../notebooks/user_guide/getting_recommendations.html">Getting Recommendations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../notebooks/user_guide/transferring_music_libraries.html">Transferring Music Libraries</a></li>
 </ul>
@@ -1090,7 +1091,7 @@
 <a class="viewcode-back" href="../../api/minim.tidal.API.html#minim.tidal.API.get_artists">[docs]</a>
     <span class="k">def</span> <span class="nf">get_artists</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">artist_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]],</span> 
-            <span class="n">country_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+            <span class="n">country_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        `Artist API &gt; Get multiple artists </span>
@@ -1429,7 +1430,7 @@
 <a class="viewcode-back" href="../../api/minim.tidal.API.html#minim.tidal.API.get_tracks">[docs]</a>
     <span class="k">def</span> <span class="nf">get_tracks</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">track_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]],</span> 
-            <span class="n">country_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+            <span class="n">country_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        `Album API &gt; Get multiple tracks</span>
@@ -1527,6 +1528,110 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/tracks&quot;</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="n">track_ids</span><span class="p">,</span> <span class="s2">&quot;countryCode&quot;</span><span class="p">:</span> <span class="n">country_code</span><span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.get_track_by_isrc">
+<a class="viewcode-back" href="../../api/minim.tidal.API.html#minim.tidal.API.get_track_by_isrc">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_track_by_isrc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isrc</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">country_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Track API &gt; Get tracks by ISRC </span>
+<span class="sd">        &lt;https://developer.tidal.com/apiref?ref=get-tracks-by-isrc&gt;`:</span>
+<span class="sd">        Retrieve a list of track details by ISRC.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        isrc : `str`</span>
+<span class="sd">            Valid ISRC code (usually comprises 12 alphanumeric </span>
+<span class="sd">            characters).</span>
+
+<span class="sd">            **Example**: :code:`&quot;USSM12209515&quot;`.</span>
+
+<span class="sd">        country_code : `str`</span>
+<span class="sd">            ISO 3166-1 alpha-2 country code.</span>
+
+<span class="sd">            **Example**: :code:`&quot;US&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tracks : `dict`</span>
+<span class="sd">            A dictionary containing TIDAL catalog information for</span>
+<span class="sd">            tracks with the specified ISRC and metadata for the</span>
+<span class="sd">            returned results.</span>
+
+<span class="sd">            .. admonition:: Sample response</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;data&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;resource&quot;: {</span>
+<span class="sd">                          &quot;artifactType&quot;: &quot;track&quot;,</span>
+<span class="sd">                          &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;title&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;artists&quot;: [</span>
+<span class="sd">                            {</span>
+<span class="sd">                              &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;picture&quot;: [</span>
+<span class="sd">                                {</span>
+<span class="sd">                                  &quot;url&quot;: &lt;str&gt;,</span>
+<span class="sd">                                  &quot;width&quot;: &lt;int&gt;,</span>
+<span class="sd">                                  &quot;height&quot;: &lt;int&gt;</span>
+<span class="sd">                                }</span>
+<span class="sd">                              ],</span>
+<span class="sd">                              &quot;main&quot;: &lt;bool&gt;</span>
+<span class="sd">                            }</span>
+<span class="sd">                          ],</span>
+<span class="sd">                          &quot;album&quot;: {</span>
+<span class="sd">                            &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;title&quot;: &lt;str&gt;, </span>
+<span class="sd">                            &quot;imageCover&quot;: [</span>
+<span class="sd">                              {</span>
+<span class="sd">                                &quot;url&quot;: &lt;str&gt;,</span>
+<span class="sd">                                &quot;width&quot;: &lt;int&gt;,</span>
+<span class="sd">                                &quot;height&quot;: &lt;int&gt;</span>
+<span class="sd">                              }</span>
+<span class="sd">                            ],</span>
+<span class="sd">                            &quot;videoCover&quot;: [</span>
+<span class="sd">                                {</span>
+<span class="sd">                                  &quot;url&quot;: &lt;str&gt;,</span>
+<span class="sd">                                  &quot;width&quot;: &lt;int&gt;,</span>
+<span class="sd">                                  &quot;height&quot;: &lt;int&gt;</span>
+<span class="sd">                                }</span>
+<span class="sd">                            ]</span>
+<span class="sd">                          },</span>
+<span class="sd">                          &quot;duration&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;trackNumber&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;volumeNumber&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;isrc&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;copyright&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;mediaMetadata&quot;: {</span>
+<span class="sd">                            &quot;tags&quot;: [&lt;str&gt;]</span>
+<span class="sd">                          },</span>
+<span class="sd">                          &quot;properties&quot;: {</span>
+<span class="sd">                            &quot;content&quot;: [&lt;str&gt;]</span>
+<span class="sd">                          }</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;id&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;status&quot;: 200,</span>
+<span class="sd">                        &quot;message&quot;: &quot;success&quot;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;metadata&quot;: {</span>
+<span class="sd">                      &quot;requested&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;success&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;failure&quot;: &lt;int&gt;</span>
+<span class="sd">                    }</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/tracks/byIsrc&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;isrc&quot;</span><span class="p">:</span> <span class="n">isrc</span><span class="p">,</span> <span class="s2">&quot;countryCode&quot;</span><span class="p">:</span> <span class="n">country_code</span><span class="p">}</span>
         <span class="p">)</span></div>
 
 

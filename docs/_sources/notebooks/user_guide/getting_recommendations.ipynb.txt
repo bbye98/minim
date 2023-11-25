@@ -1,58 +1,14 @@
 {
  "cells": [
   {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "# Getting Recommendations\n",
-    "\n",
-    "Minim can help you discover new artists and music by leveraging the Spotify and TIDAL recommender systems and suggesting tracks based on your music libraries."
-   ]
-  },
-  {
    "cell_type": "code",
-   "execution_count": 34,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "from base64 import b64encode\n",
-    "import random\n",
-    "\n",
-    "from IPython.display import HTML, IFrame, display\n",
-    "from ipywidgets import Output, GridspecLayout\n",
-    "\n",
-    "from minim import spotify, tidal"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": 2,
+   "execution_count": null,
    "metadata": {
     "tags": [
      "remove-cell"
     ]
    },
-   "outputs": [
-    {
-     "data": {
-      "text/html": [
-       "<style>\n",
-       ".cell-output-ipywidget-background {\n",
-       "   background-color: transparent !important;\n",
-       "}\n",
-       ".jp-OutputArea-output {\n",
-       "   background-color: transparent;\n",
-       "}  \n",
-       "</style>\n"
-      ],
-      "text/plain": [
-       "<IPython.core.display.HTML object>"
-      ]
-     },
-     "metadata": {},
-     "output_type": "display_data"
-    }
-   ],
+   "outputs": [],
    "source": [
     "%%html\n",
     "<style>\n",
@@ -63,6 +19,31 @@
     "   background-color: transparent;\n",
     "}  \n",
     "</style>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Getting Recommendations\n",
+    "\n",
+    "**Last updated**: November 19, 2023\n",
+    "\n",
+    "Minim can help you discover new artists and music by leveraging the Spotify and TIDAL recommender systems and suggesting tracks based on your music libraries."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from base64 import b64encode\n",
+    "import random\n",
+    "\n",
+    "from IPython.display import HTML, IFrame, display\n",
+    "from ipywidgets import Output, GridspecLayout\n",
+    "from minim import spotify, tidal"
    ]
   },
   {
@@ -80,7 +61,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -108,7 +89,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 4,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -133,7 +114,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 5,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -156,7 +137,11 @@
     ")\n",
     "with open(globals()[\"_dh\"][0].parents[3] / \"assets/minim_mix_small.jpg\", \"rb\") as f:\n",
     "    client_spotify.add_playlist_cover_image(spotify_playlist[\"id\"], b64encode(f.read()))\n",
-    "```"
+    "```\n",
+    "\n",
+    "The last two lines above add a nifty custom cover art for mixes created with Minim:\n",
+    "\n",
+    "![Minim Mix cover art](https://raw.githubusercontent.com/bbye98/minim/main/assets/minim_mix_small.jpg)"
    ]
   },
   {
@@ -168,25 +153,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 7,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "application/vnd.jupyter.widget-view+json": {
-       "model_id": "81531a13ebf94fee877173266fc8cce7",
-       "version_major": 2,
-       "version_minor": 0
-      },
-      "text/plain": [
-       "GridspecLayout(children=(Output(layout=Layout(grid_area='widget001')), Output(layout=Layout(grid_area='widget0…"
-      ]
-     },
-     "execution_count": 7,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
+   "outputs": [],
    "source": [
     "grid = GridspecLayout(len(recommended_tracks), 1)\n",
     "for i, track in enumerate(recommended_tracks):\n",
@@ -213,7 +182,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 8,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -229,7 +198,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 10,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -254,11 +223,12 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 42,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
-    "similar_tracks = client_tidal.get_similar_tracks(random.choice(favorite_tracks), \"US\")[\"data\"]"
+    "similar_tracks = client_tidal.get_similar_tracks(random.choice(favorite_tracks), \n",
+    "                                                 \"US\")[\"data\"]"
    ]
   },
   {
@@ -270,25 +240,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 43,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "application/vnd.jupyter.widget-view+json": {
-       "model_id": "b598d7055c8d4f71ab9dea69f8a5427f",
-       "version_major": 2,
-       "version_minor": 0
-      },
-      "text/plain": [
-       "GridspecLayout(children=(Output(layout=Layout(grid_area='widget001')), Output(layout=Layout(grid_area='widget0…"
-      ]
-     },
-     "execution_count": 43,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
+   "outputs": [],
    "source": [
     "grid = GridspecLayout(len(similar_tracks) // 2, 2)\n",
     "for i, track in enumerate(similar_tracks):\n",

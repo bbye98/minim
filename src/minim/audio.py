@@ -291,9 +291,9 @@ class _VorbisComment:
         else:
             self.track_number = self.track_count = None
 
-        if hasattr(self._file, "pictures") and self._file.pictures:
-            self.artwork = self._file.pictures[0].data
-            self._artwork_format = self._file.pictures[0].mime.split("/")[1]
+        if hasattr(self._afile, "pictures") and self._afile.pictures:
+            self.artwork = self._afile.pictures[0].data
+            self._artwork_format = self._afile.pictures[0].mime.split("/")[1]
         elif "metadata_block_picture" in self._tags:
             IMAGE_FILE_SIGS = {
                 "jpg": b"\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01",
@@ -336,6 +336,7 @@ class _VorbisComment:
                     self.artwork = f.read()
             artwork.data = self.artwork
             try:
+                self._afile.clear_pictures()
                 self._afile.add_picture(artwork)
             except Exception:
                 self._tags["metadata_block_picture"] = base64.b64encode(
@@ -1103,7 +1104,11 @@ class Audio:
         if self.comment is None or overwrite:
             self.comment = comment
         if self.composer is None or overwrite:
-            self.composer = credits.get("composers") or data["composer"]["name"]
+            self.composer = (
+                credits.get("composers") 
+                or (data["composer"]["name"] if hasattr(data, "composer") 
+                    else None)
+            )
         if self.copyright is None or overwrite:
             self.copyright = data["album"].get("copyright")
         if self.date is None or overwrite:

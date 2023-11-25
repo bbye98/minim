@@ -27,6 +27,7 @@ API
       ~API.get_similar_artists
       ~API.get_similar_tracks
       ~API.get_track
+      ~API.get_track_by_isrc
       ~API.get_tracks
       ~API.get_video
       ~API.get_videos

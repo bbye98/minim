@@ -6,6 +6,8 @@
    "source": [
     "# Transferring Music Libraries\n",
     "\n",
+    "**Last updated**: November 19, 2023\n",
+    "\n",
     "Minim can be used as a free, open-source alternative to services like [TuneMyMusic](https://www.tunemymusic.com/) for moving playlists and synchronizing libraries between the supported streaming services."
    ]
   },

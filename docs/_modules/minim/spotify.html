@@ -162,6 +162,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/user_guide/editing_audio_metadata.html">Editing Audio Metadata</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../notebooks/user_guide/getting_recommendations.html">Getting Recommendations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../notebooks/user_guide/transferring_music_libraries.html">Transferring Music Libraries</a></li>
 </ul>
@@ -6795,7 +6796,7 @@
 <div class="viewcode-block" id="WebAPI.create_playlist">
 <a class="viewcode-back" href="../../api/minim.spotify.WebAPI.html#minim.spotify.WebAPI.create_playlist">[docs]</a>
     <span class="k">def</span> <span class="nf">create_playlist</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">public</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">collaborative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">public</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">collaborative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -6824,6 +6825,7 @@
 <span class="sd">            :code:`False`, it will be private. </span>
 <span class="sd">            </span>
 <span class="sd">            .. note::</span>
+<span class="sd">            </span>
 <span class="sd">               To be able to create private playlists, the user must </span>
 <span class="sd">               have granted the :code:`playlist-modify-private` scope.</span>
 
