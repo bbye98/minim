@@ -2678,7 +2678,7 @@ class PrivateAPI:
             Audio stream MIME type.
         """
 
-        file = self.get_track_file_url(track_id, format_id=format_id)["url"]
+        file = self.get_track_file_url(track_id, format_id=format_id)
         with self.session.get(file["url"]) as r:
             return r.content, file["mime_type"]
 
