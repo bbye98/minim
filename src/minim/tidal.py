@@ -15,10 +15,8 @@ from Crypto.Util import Counter
 
 from . import (
     base64, datetime, hashlib, json, logging, os, pathlib, re, requests, 
-    secrets, subprocess, time, urllib, warnings, webbrowser,
-    audio, utility, 
-    FOUND_PLAYWRIGHT, FOUND_FFMPEG, DIR_HOME, DIR_TEMP, ILLEGAL_CHARACTERS,
-    Any, Union, config
+    secrets, time, urllib, warnings, webbrowser,
+    FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, Any, Union, config
 )
 
 if FOUND_PLAYWRIGHT:

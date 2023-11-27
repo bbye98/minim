@@ -11,8 +11,7 @@ from mutagen import id3, flac, mp3, mp4, oggflac, oggopus, oggvorbis, wave
 
 from . import (
     base64, datetime, logging, pathlib, re, subprocess, urllib,
-    utility,
-    FOUND_FFMPEG, FFMPEG_CODECS, Any, Union
+    utility, FOUND_FFMPEG, FFMPEG_CODECS, Any, Union
 )
 from .qobuz import _parse_performers
 
