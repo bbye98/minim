@@ -7,11 +7,8 @@ This module contains a minimum implementation of the private Qobuz API.
 """
 
 from . import (
-    base64, datetime, hashlib, logging, os, pathlib, re, subprocess,
-    requests, warnings,
-    audio, utility, 
-    FOUND_PLAYWRIGHT, FOUND_FFMPEG, DIR_HOME, DIR_TEMP, ILLEGAL_CHARACTERS, 
-    Any, Union, config
+    base64, datetime, hashlib, logging, os, re, requests,
+    FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, Any, Union, config
 )
 
 if FOUND_PLAYWRIGHT:
@@ -393,8 +390,9 @@ class PrivateAPI:
             self._sub = (
                 me["subscription"] is not None 
                 and datetime.datetime.now() 
-                <= datetime.datetime.strptime(me["subscription"]["end_date"],
-                                              "%Y-%m-%d")
+                <= datetime.datetime.strptime(
+                    me["subscription"]["end_date"], "%Y-%m-%d"
+                ) + datetime.timedelta(days=1)
             )
     
     def set_flow(
@@ -2635,10 +2633,8 @@ class PrivateAPI:
     ### STREAMS ###############################################################
 
     def get_track_stream(
-            self, track_id: Union[int, str], *, 
-            format_id: Union[int, str] = 27, save: bool = False, 
-            path: Union[str, pathlib.Path] = None, folder: bool = False, 
-            metadata: bool = True) -> Union[bytes, pathlib.Path]:
+            self, track_id: Union[int, str], *, format_id: Union[int, str] = 27
+        ) -> tuple[bytes, str]:
         
         """
         Get the audio stream data for a track.
@@ -2673,111 +2669,22 @@ class PrivateAPI:
                * :code:`7` for up to 24-bit, 96 kHz Hi-Res FLAC.
                * :code:`27` for up to 24-bit, 192 kHz Hi-Res FLAC.
 
-        save : `bool`, keyword-only, default: :code:`False`
-            Determines whether the stream is saved to an audio file.
-
-        path : `str` or `pathlib.Path`, keyword-only, optional
-            If :code:`save=True`, path in which the audio file is saved.
-
-        folder : `bool`, keyword-only, default: :code:`False`
-            Determines whether a folder in `path` (or in the current
-            directory if `path` is not specified) is created to hold the
-            audio file.
-
-        metadata : `bool`, keyword-only, default: :code:`True`
-            Determines whether the audio file's metadata is
-            populated.
-
         Returns
         -------
-        stream : `bytes` or `pathlib.Path`
-            Audio stream data. If :code:`save=True`, the stream data is 
-            saved to an audio file and its filename is returned instead.
+        stream : `bytes`
+            Audio stream data.
+
+        mime_type : `str`
+            Audio stream MIME type.
         """
 
-        AUDIO_FORMATS_EXTENSIONS = {"flac": "flac", "mpeg": "mp3"}
-
-        file = self.get_track_file_url(track_id, format_id=format_id)
-        audio_format = file["mime_type"][6:]
+        file = self.get_track_file_url(track_id, format_id=format_id)["url"]
         with self.session.get(file["url"]) as r:
-            stream = r.content
-
-        if save:
-            track_data = self.get_track(track_id)
-            credits = self.get_track_performers(
-                performers=track_data["performers"],
-                roles=["MainArtist", "FeaturedArtist", "Composers"]
-            )
-            if track_data["performer"]["name"] in credits["main_artist"]:
-                i = credits["main_artist"].index(
-                    track_data["performer"]["name"]
-                )
-                if i != 0:
-                    credits["main_artist"].insert(
-                        0, credits["main_artist"].pop(i)
-                    )
-            else:
-                credits["main_artist"] = [track_data["performer"]["name"]]
-            artist = utility.multivalue_formatter(credits["main_artist"], False)
-            title = track_data["title"].rstrip()
-
-            if not isinstance(path, pathlib.Path):
-                path = pathlib.Path(path)
-            if folder:
-                path /= f"{artist} - {title}"
-            path.mkdir(exist_ok=True, parents=True)
-
-            filename = f"{track_data['track_number']:02} {track_data['title']}"
-            if credits["featured_artist"] and "feat." not in filename:
-                filename += (" [feat. {}]" if "(" in filename
-                             else " (feat. {})").format(
-                    utility.multivalue_formatter(credits['featured_artist'], 
-                                                 False)
-                )
-            if track_data["version"]:
-                filename += (" [{}]" if "(" in file else " ({})").format(
-                    track_data['version']
-                )
-            file = path / (filename.translate(ILLEGAL_CHARACTERS) 
-                           + f".{AUDIO_FORMATS_EXTENSIONS[audio_format]}")
-            with open(file, "wb") as f:
-                f.write(stream)
-
-            if metadata:
-                try:
-                    track = audio.Audio(file)
-                except Exception:
-                    if FOUND_FFMPEG:
-                        tempfile = file.parent / f"temp_{file.name}"
-                        subprocess.run(
-                            f"ffmpeg -y -i '{file}' -c:a copy '{tempfile}' "
-                            "-hide_banner -loglevel error",
-                            shell=True
-                        )
-                        file.unlink()
-                        file = tempfile.rename(file)
-                        track = audio.Audio(file)
-                    else:
-                        wmsg = ("Could not load audio file. "
-                                "Metadata was not written.")
-                        warnings.warn(wmsg)
-                        return file
-
-                track.set_metadata_using_qobuz(
-                    track_data,
-                    comment=f"https://open.qobuz.com/track/{track_data['id']}"
-                )
-                track.write_metadata()
-
-            return file
-        else:
-            return stream
+            return r.content, file["mime_type"]
 
     def get_collection_streams(
-            self, collection_id: Union[int, str], type: str, *, 
-            format_id: Union[int, str] = 27, save: bool = False, 
-            path: Union[str, pathlib.Path] = None, folder: bool = False, 
-            metadata: bool = True) -> list[Union[bytes, pathlib.Path]]:
+            self, id: Union[int, str], type: str, *, 
+            format_id: Union[int, str] = 27) -> list[tuple[bytes, str]]:
 
         """
         Get audio stream data for all tracks in an album or a playlist.
@@ -2795,7 +2702,7 @@ class PrivateAPI:
 
         Parameters
         ----------
-        collection_id : `int` or `str`
+        id : `int` or `str`
             Qobuz collection ID.
 
         type : `str`
@@ -2815,28 +2722,10 @@ class PrivateAPI:
                * :code:`7` for up to 24-bit, 96 kHz Hi-Res FLAC.
                * :code:`27` for up to 24-bit, 192 kHz Hi-Res FLAC.
 
-        save : `bool`, keyword-only, default: :code:`False`
-            Determines whether the streams are saved to audio files.
-
-        path : `str` or `pathlib.Path`, keyword-only, optional
-            If :code:`save=True`, path in which the audio files are 
-            saved.
-
-        folder : `bool`, keyword-only, default: :code:`False`
-            Determines whether a folder in `path` (or in the current
-            directory if `path` is not specified) is created to hold the
-            audio files.
-
-        metadata : `bool`, keyword-only, default: :code:`True`
-            Determines whether the audio files' metadata is
-            populated.
-
         Returns
         -------
         streams : `list`
-            Audio stream data. If :code:`save=True`, the stream data is
-            saved to audio files and their filenames are returned 
-            instead.
+            Audio stream data.
         """
 
         if type not in (COLLECTION_TYPES := {"album", "playlist"}):
@@ -2845,43 +2734,12 @@ class PrivateAPI:
             raise ValueError(emsg)
 
         if type == "album":
-            data = self.get_album(collection_id)
-            artist = [a["name"] for a in data["artists"]]
-            if data["artist"]["name"] in artist:
-                i = artist.index(data["artist"]["name"])
-                if i != 0:
-                    artist.insert(0, artist.pop(i))
-                artist = utility.multivalue_formatter(artist, False)
-            else:
-                artist = data["artist"]["name"]
-            title = data["title"].rstrip()
+            data = self.get_album(id)
         elif type == "playlist":
-            data = self.get_playlist(collection_id, limit=500)
-            if data["featured_artists"]:
-                artist = utility.multivalue_formatter(
-                    [a["name"] for a in data["featured_artists"]], 
-                    False
-                )
-            else:
-                artist = data["owner"]["name"]
-            title = data["name"]
-        tracks = data["tracks"]["items"]
-
-        if save:
-            if not isinstance(path, pathlib.Path):
-                path = pathlib.Path(path)
-            if folder:
-                path /= f"{artist} - {title}"
-                path.mkdir(exist_ok=True, parents=True)
-
-        streams = []
-        for track in tracks:
-            streams.append(
-                self.get_track_stream(track["id"], format_id=format_id,
-                                      save=save, metadata=metadata) \
+            data = self.get_playlist(id, limit=500)
+        return [self.get_track_stream(track["id"], format_id=format_id)
                 if track["streamable"] else None
-            )
-        return streams
+                for track in data["tracks"]["items"]]
 
     ### USER ##################################################################
 

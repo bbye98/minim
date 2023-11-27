@@ -8,7 +8,7 @@
         <title>minim.tidal - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -1537,7 +1537,7 @@
 <span class="w">        </span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        `Track API &gt; Get tracks by ISRC </span>
-<span class="sd">        &lt;https://developer.tidal.com/apiref?ref=get-tracks-by-isrc&gt;`:</span>
+<span class="sd">        &lt;https://developer.tidal.com/apiref?ref=get-tracks-by-isrc&gt;`_:</span>
 <span class="sd">        Retrieve a list of track details by ISRC.</span>
 
 <span class="sd">        Parameters</span>
@@ -6891,12 +6891,10 @@
 <a class="viewcode-back" href="../../api/minim.tidal.PrivateAPI.html#minim.tidal.PrivateAPI.get_collection_streams">[docs]</a>
     <span class="k">def</span> <span class="nf">get_collection_streams</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">collection_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> 
-            <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;BROWSER&quot;</span><span class="p">,</span> <span class="n">audio_quality</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HI_RES&quot;</span><span class="p">,</span> 
-            <span class="n">video_quality</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HIGH&quot;</span><span class="p">,</span> <span class="n">max_resolution</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2160</span><span class="p">,</span>
-            <span class="n">playback_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;STREAM&quot;</span><span class="p">,</span> <span class="n">asset_presentation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;FULL&quot;</span><span class="p">,</span>
-            <span class="n">streaming_session_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-            <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-            <span class="n">metadata</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]]:</span>
+            <span class="n">audio_quality</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HI_RES&quot;</span><span class="p">,</span> <span class="n">video_quality</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HIGH&quot;</span><span class="p">,</span> 
+            <span class="n">max_resolution</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2160</span><span class="p">,</span> <span class="n">playback_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;STREAM&quot;</span><span class="p">,</span> 
+            <span class="n">asset_presentation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;FULL&quot;</span><span class="p">,</span> <span class="n">streaming_session_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get audio and video stream data for items (tracks and videos) in</span>
@@ -6941,18 +6939,6 @@
 <span class="sd">            **Valid values**: :code:`&quot;album&quot;`, :code:`&quot;mix&quot;`, and </span>
 <span class="sd">            :code:`&quot;playlist&quot;`.</span>
 
-<span class="sd">        device : `str`, keyword-only, default: :code:`&quot;BROWSER&quot;`</span>
-<span class="sd">            Device type.</span>
-
-<span class="sd">            .. container::</span>
-
-<span class="sd">               **Valid values**:</span>
-
-<span class="sd">               * :code:`&quot;BROWSER&quot;` for a web browser.</span>
-<span class="sd">               * :code:`&quot;DESKTOP&quot;` for the desktop TIDAL application.</span>
-<span class="sd">               * :code:`&quot;PHONE&quot;` for the mobile TIDAL application.</span>
-<span class="sd">               * :code:`&quot;TV&quot;` for the smart TV TIDAL application.</span>
-
 <span class="sd">        audio_quality : `str`, keyword-only, default: :code:`&quot;HI-RES&quot;`</span>
 <span class="sd">            Audio quality.</span>
 
@@ -6965,7 +6951,7 @@
 <span class="sd">               * :code:`&quot;HIGH&quot;` for 320 kbps AAC.</span>
 <span class="sd">               * :code:`&quot;LOSSLESS&quot;` for 1411 kbps (16-bit, 44.1 kHz) ALAC </span>
 <span class="sd">                 or FLAC.</span>
-<span class="sd">               * :code:`&quot;HI_RES&quot;` for Up to 9216 kbps (24-bit, 96 kHz) </span>
+<span class="sd">               * :code:`&quot;HI_RES&quot;` for up to 9216 kbps (24-bit, 96 kHz) </span>
 <span class="sd">                 MQA-encoded FLAC.</span>
 
 <span class="sd">        video_quality : `str`, keyword-only, default: :code:`&quot;HIGH&quot;`</span>
@@ -6996,29 +6982,10 @@
 <span class="sd">        streaming_session_id : `str`, keyword-only, optional</span>
 <span class="sd">            Streaming session ID.</span>
 
-<span class="sd">        save : `bool`, keyword-only, default: :code:`False`</span>
-<span class="sd">            Determines whether the streams are saved to audio and video</span>
-<span class="sd">            files.</span>
-
-<span class="sd">        path : `str`, keyword-only, optional</span>
-<span class="sd">            If :code:`save=True`, path in which the audio and video </span>
-<span class="sd">            files are saved.</span>
-
-<span class="sd">        folder : `bool`, keyword-only, default: :code:`False`</span>
-<span class="sd">            Determines whether a folder in `path` (or in the current</span>
-<span class="sd">            directory if `path` is not specified) is created to hold the</span>
-<span class="sd">            audio and video files.</span>
-
-<span class="sd">        metadata : `bool`, keyword-only, default: :code:`True`</span>
-<span class="sd">            Determines whether the audio and video files&#39; metadata is</span>
-<span class="sd">            populated.</span>
-
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        streams : `list`</span>
-<span class="sd">            Audio and video stream data. If :code:`save=True`, the </span>
-<span class="sd">            stream data is saved to audio and video files and their</span>
-<span class="sd">            filenames are returned instead.</span>
+<span class="sd">            Audio and video stream data and their MIME types.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">COLLECTION_TYPES</span> <span class="o">:=</span> <span class="p">{</span><span class="s2">&quot;album&quot;</span><span class="p">,</span> <span class="s2">&quot;mix&quot;</span><span class="p">,</span> <span class="s2">&quot;playlist&quot;</span><span class="p">}):</span>
@@ -7027,33 +6994,11 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;album&quot;</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_album</span><span class="p">(</span><span class="n">collection_id</span><span class="p">)</span>
-            <span class="n">artist</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;artists&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;MAIN&quot;</span><span class="p">],</span> 
-                <span class="kc">False</span>
-            <span class="p">)</span>
-            <span class="n">title</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
             <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_album_items</span><span class="p">(</span><span class="n">collection_id</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;mix&quot;</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mix_page</span><span class="p">(</span><span class="n">collection_id</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
-            <span class="n">artist</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;rows&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;modules&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;mix&quot;</span><span class="p">][</span><span class="s2">&quot;subTitle&quot;</span><span class="p">]</span>
-            <span class="n">title</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;rows&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;modules&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;mix&quot;</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
             <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mix_items</span><span class="p">(</span><span class="n">collection_id</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;playlist&quot;</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_playlist</span><span class="p">(</span><span class="n">collection_id</span><span class="p">)</span>
-            <span class="n">artist</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;promotedArtists&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;MAIN&quot;</span><span class="p">],</span> 
-                <span class="kc">False</span>
-            <span class="p">)</span>
-            <span class="n">title</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
             <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_playlist_items</span><span class="p">(</span><span class="n">collection_id</span><span class="p">)[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">folder</span><span class="p">:</span>
-                <span class="n">path</span> <span class="o">/=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artist</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">streams</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
@@ -7063,10 +7008,7 @@
                     <span class="n">audio_quality</span><span class="o">=</span><span class="n">audio_quality</span><span class="p">,</span> 
                     <span class="n">playback_mode</span><span class="o">=</span><span class="n">playback_mode</span><span class="p">,</span> 
                     <span class="n">asset_presentation</span><span class="o">=</span><span class="n">asset_presentation</span><span class="p">,</span>
-                    <span class="n">streaming_session_id</span><span class="o">=</span><span class="n">streaming_session_id</span><span class="p">,</span>
-                    <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">,</span> 
-                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
-                    <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span>
+                    <span class="n">streaming_session_id</span><span class="o">=</span><span class="n">streaming_session_id</span>
                 <span class="p">)</span>
             <span class="k">elif</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;video&quot;</span><span class="p">:</span>
                 <span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_video_stream</span><span class="p">(</span>
@@ -7075,10 +7017,7 @@
                     <span class="n">max_resolution</span><span class="o">=</span><span class="n">max_resolution</span><span class="p">,</span>
                     <span class="n">playback_mode</span><span class="o">=</span><span class="n">playback_mode</span><span class="p">,</span> 
                     <span class="n">asset_presentation</span><span class="o">=</span><span class="n">asset_presentation</span><span class="p">,</span>
-                    <span class="n">streaming_session_id</span><span class="o">=</span><span class="n">streaming_session_id</span><span class="p">,</span>
-                    <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">,</span> 
-                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
-                    <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span>
+                    <span class="n">streaming_session_id</span><span class="o">=</span><span class="n">streaming_session_id</span>
                 <span class="p">)</span>
             <span class="n">streams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">streams</span></div>
@@ -7089,9 +7028,7 @@
     <span class="k">def</span> <span class="nf">get_track_stream</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">track_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">audio_quality</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HI_RES&quot;</span><span class="p">,</span> 
             <span class="n">playback_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;STREAM&quot;</span><span class="p">,</span> <span class="n">asset_presentation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;FULL&quot;</span><span class="p">,</span>
-            <span class="n">streaming_session_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-            <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-            <span class="n">metadata</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
+            <span class="n">streaming_session_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the audio stream data for a track.</span>
@@ -7143,7 +7080,7 @@
 <span class="sd">               * :code:`&quot;HIGH&quot;` for 320 kbps AAC.</span>
 <span class="sd">               * :code:`&quot;LOSSLESS&quot;` for 1411 kbps (16-bit, 44.1 kHz) ALAC </span>
 <span class="sd">                 or FLAC.</span>
-<span class="sd">               * :code:`&quot;HI_RES&quot;` for Up to 9216 kbps (24-bit, 96 kHz) </span>
+<span class="sd">               * :code:`&quot;HI_RES&quot;` for up to 9216 kbps (24-bit, 96 kHz) </span>
 <span class="sd">                 MQA-encoded FLAC.</span>
 
 <span class="sd">        playback_mode : `str`, keyword-only, default: :code:`&quot;STREAM&quot;`</span>
@@ -7164,37 +7101,14 @@
 <span class="sd">        streaming_session_id : `str`, keyword-only, optional</span>
 <span class="sd">            Streaming session ID.</span>
 
-<span class="sd">        save : `bool`, keyword-only, default: :code:`False`</span>
-<span class="sd">            Determines whether the stream is saved to an audio file.</span>
-
-<span class="sd">        path : `str` or `pathlib.Path`, keyword-only, optional</span>
-<span class="sd">            If :code:`save=True`, path in which the audio file is saved.</span>
-
-<span class="sd">        folder : `bool`, keyword-only, default: :code:`False`</span>
-<span class="sd">            Determines whether a folder in `path` (or in the current</span>
-<span class="sd">            directory if `path` is not specified) is created to hold the</span>
-<span class="sd">            audio file.</span>
-
-<span class="sd">        metadata : `bool`, keyword-only, default: :code:`True`</span>
-<span class="sd">            Determines whether the audio file&#39;s metadata is</span>
-<span class="sd">            populated.</span>
-
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        stream : `bytes`</span>
-<span class="sd">            Audio stream data. If :code:`save=True`, the stream data is </span>
-<span class="sd">            saved to an audio file and its filename is returned instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            Audio stream data.</span>
 
-        <span class="n">AUDIO_FORMATS_EXTENSIONS</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;alac&quot;</span><span class="p">:</span> <span class="s2">&quot;m4a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;flac&quot;</span><span class="p">:</span> <span class="s2">&quot;flac&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;m4a&quot;</span><span class="p">:</span> <span class="s2">&quot;m4a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mp3&quot;</span><span class="p">:</span> <span class="s2">&quot;mp3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mpeg&quot;</span><span class="p">:</span> <span class="s2">&quot;mp3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mp4a&quot;</span><span class="p">:</span> <span class="s2">&quot;m4a&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mqa&quot;</span><span class="p">:</span> <span class="s2">&quot;flac&quot;</span>
-        <span class="p">}</span>
+<span class="sd">        codec : `str`</span>
+<span class="sd">            Audio codec.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">manifest</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_track_playback_info</span><span class="p">(</span>
@@ -7210,9 +7124,6 @@
             <span class="n">manifest</span> <span class="o">=</span> <span class="n">minidom</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span>
             <span class="n">codec</span> <span class="o">=</span> <span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;Representation&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                      <span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s2">&quot;codecs&quot;</span><span class="p">))</span>
-            <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">codec</span><span class="p">:</span>
-                <span class="n">codec</span> <span class="o">=</span> <span class="n">codec</span><span class="p">[:</span><span class="n">codec</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)]</span>
-            <span class="nb">format</span> <span class="o">=</span> <span class="n">AUDIO_FORMATS_EXTENSIONS</span><span class="p">[</span><span class="n">codec</span><span class="p">]</span>
             <span class="n">segment</span> <span class="o">=</span> <span class="n">manifest</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;SegmentTemplate&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">stream</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -7232,9 +7143,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span>
             <span class="n">codec</span> <span class="o">=</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;codecs&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">codec</span><span class="p">:</span>
-                <span class="n">codec</span> <span class="o">=</span> <span class="n">codec</span><span class="p">[:</span><span class="n">codec</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)]</span>
-            <span class="nb">format</span> <span class="o">=</span> <span class="n">AUDIO_FORMATS_EXTENSIONS</span><span class="p">[</span><span class="n">codec</span><span class="p">]</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;urls&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
                 <span class="n">stream</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">content</span>
             <span class="k">if</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;encryptionType&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;NONE&quot;</span><span class="p">:</span>
@@ -7247,59 +7155,7 @@
                     <span class="n">counter</span><span class="o">=</span><span class="n">Counter</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">d_nonce</span><span class="p">,</span> 
                                         <span class="n">initial_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
-            <span class="n">track_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_track</span><span class="p">(</span><span class="n">track_id</span><span class="p">)</span>
-            <span class="n">album_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_album</span><span class="p">(</span><span class="n">track_data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
-            <span class="n">artist</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">album_data</span><span class="p">[</span><span class="s2">&quot;artists&quot;</span><span class="p">]</span> 
-                 <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;MAIN&quot;</span><span class="p">],</span>
-                <span class="kc">False</span>
-            <span class="p">)</span>
-            <span class="n">title</span> <span class="o">=</span> <span class="n">track_data</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">folder</span><span class="p">:</span>
-                <span class="n">path</span> <span class="o">/=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artist</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-            <span class="n">file</span> <span class="o">=</span> <span class="n">path</span> <span class="o">/</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">track_data</span><span class="p">[</span><span class="s1">&#39;trackNumber&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">02</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">track_data</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">AUDIO_FORMATS_EXTENSIONS</span><span class="p">[</span><span class="nb">format</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">ILLEGAL_CHARACTERS</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">metadata</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">track</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">Audio</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">FOUND_FFMPEG</span><span class="p">:</span>
-                        <span class="n">tempfile</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;temp_</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;ffmpeg -y -i &#39;</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&#39; -c:a copy &#39;</span><span class="si">{</span><span class="n">tempfile</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
-                            <span class="s2">&quot;-hide_banner -loglevel error&quot;</span><span class="p">,</span>
-                            <span class="n">shell</span><span class="o">=</span><span class="kc">True</span>
-                        <span class="p">)</span>
-                        <span class="n">file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
-                        <span class="n">file</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-                        <span class="n">track</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">Audio</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Could not read audio file.&quot;</span><span class="p">)</span>
-
-                <span class="n">track</span><span class="o">.</span><span class="n">set_metadata_using_tidal</span><span class="p">(</span>
-                    <span class="n">track_data</span><span class="p">,</span>
-                    <span class="n">album_data</span><span class="o">=</span><span class="n">album_data</span><span class="p">,</span>
-                    <span class="n">composer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_track_composers</span><span class="p">(</span><span class="n">track_id</span><span class="p">),</span>
-                    <span class="n">lyrics</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_track_lyrics</span><span class="p">(</span><span class="n">track_id</span><span class="p">),</span> 
-                    <span class="n">comment</span><span class="o">=</span><span class="n">track_data</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
-                <span class="p">)</span>
-                <span class="n">track</span><span class="o">.</span><span class="n">write_metadata</span><span class="p">()</span>
-
-            <span class="k">return</span> <span class="n">file</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">stream</span></div>
+        <span class="k">return</span> <span class="n">stream</span><span class="p">,</span> <span class="n">codec</span></div>
 
 
 <div class="viewcode-block" id="PrivateAPI.get_video_stream">
@@ -7307,12 +7163,11 @@
     <span class="k">def</span> <span class="nf">get_video_stream</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">video_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">video_quality</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HIGH&quot;</span><span class="p">,</span>
             <span class="n">max_resolution</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2160</span><span class="p">,</span> <span class="n">playback_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;STREAM&quot;</span><span class="p">,</span> 
-            <span class="n">asset_presentation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;FULL&quot;</span><span class="p">,</span> <span class="n">streaming_session_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-            <span class="n">folder</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]:</span>
+            <span class="n">asset_presentation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;FULL&quot;</span><span class="p">,</span> <span class="n">streaming_session_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the audio and video stream data for a video.</span>
+<span class="sd">        Get the video stream data for a music video.</span>
 
 <span class="sd">        .. admonition:: User authentication, authorization scope, and </span>
 <span class="sd">                        subscription</span>
@@ -7363,22 +7218,13 @@
 <span class="sd">        streaming_session_id : `str`, keyword-only, optional</span>
 <span class="sd">            Streaming session ID.</span>
 
-<span class="sd">        save : `bool`, keyword-only, default: :code:`False`</span>
-<span class="sd">            Determines whether the stream is saved to a video file.</span>
-
-<span class="sd">        path : `str` or `pathlib.Path`, keyword-only, optional</span>
-<span class="sd">            If :code:`save=True`, path in which the video file is saved.</span>
-
-<span class="sd">        folder : `bool`, keyword-only, default: :code:`False`</span>
-<span class="sd">            Determines whether a folder in `path` (or in the current</span>
-<span class="sd">            directory if `path` is not specified) is created to hold the</span>
-<span class="sd">            video file.</span>
-
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        stream : `bytes`</span>
-<span class="sd">            Video stream data. If :code:`save=True`, the stream data is </span>
-<span class="sd">            saved to an video file and its filename is returned instead.</span>
+<span class="sd">            Video stream data.</span>
+
+<span class="sd">        codec : `str`</span>
+<span class="sd">            Video codec.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">manifest</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span>
@@ -7391,9 +7237,9 @@
             <span class="p">)[</span><span class="s2">&quot;manifest&quot;</span><span class="p">]</span>
         <span class="p">)</span>
 
-        <span class="n">m3u8</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
-            <span class="n">pl</span> <span class="k">for</span> <span class="n">res</span><span class="p">,</span> <span class="n">pl</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
-                <span class="sa">r</span><span class="s2">&quot;(?&lt;=RESOLUTION=)\d+x(\d+)\n(http.*)&quot;</span><span class="p">,</span> 
+        <span class="n">codec</span><span class="p">,</span> <span class="n">playlist</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">pl</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">pl</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s1">&#39;(?&lt;=CODECS=&quot;)(.*)&quot;,(?:RESOLUTION=)\d+x(\d+)\n(http.*)&#39;</span><span class="p">,</span> 
                 <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                     <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">manifest</span><span class="p">)[</span><span class="s2">&quot;urls&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
@@ -7401,35 +7247,13 @@
         <span class="p">)</span>
 
         <span class="n">stream</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;(?&lt;=</span><span class="se">\n</span><span class="s2">).*(http.*)&quot;</span><span class="p">,</span> 
-                             <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">m3u8</span><span class="p">)</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
+                <span class="s2">&quot;(?&lt;=</span><span class="se">\n</span><span class="s2">).*(http.*)&quot;</span><span class="p">,</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">playlist</span><span class="p">)</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="p">):</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
                 <span class="n">stream</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
-            <span class="n">video_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_video</span><span class="p">(</span><span class="n">video_id</span><span class="p">)</span>
-            <span class="n">artist</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">video_data</span><span class="p">[</span><span class="s2">&quot;artists&quot;</span><span class="p">]</span> 
-                 <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;MAIN&quot;</span><span class="p">],</span>
-                <span class="kc">False</span>
-            <span class="p">)</span>
-            <span class="n">title</span> <span class="o">=</span> <span class="n">video_data</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">folder</span><span class="p">:</span>
-                <span class="n">path</span> <span class="o">/=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artist</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-            <span class="n">file</span> <span class="o">=</span> <span class="n">path</span> <span class="o">/</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">video_data</span><span class="p">[</span><span class="s1">&#39;trackNumber&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">02</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">video_data</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.mkv&quot;</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">ILLEGAL_CHARACTERS</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
-
-            <span class="k">return</span> <span class="n">file</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">stream</span></div>
+        <span class="k">return</span> <span class="n">stream</span><span class="p">,</span> <span class="n">codec</span></div>
 
 
     <span class="c1">### TRACKS ################################################################</span>
@@ -7872,7 +7696,7 @@
 <span class="sd">               * :code:`&quot;HIGH&quot;` for 320 kbps AAC.</span>
 <span class="sd">               * :code:`&quot;LOSSLESS&quot;` for 1411 kbps (16-bit, 44.1 kHz) ALAC </span>
 <span class="sd">                 or FLAC.</span>
-<span class="sd">               * :code:`&quot;HI_RES&quot;` for Up to 9216 kbps (24-bit, 96 kHz) </span>
+<span class="sd">               * :code:`&quot;HI_RES&quot;` for up to 9216 kbps (24-bit, 96 kHz) </span>
 <span class="sd">                 MQA-encoded FLAC.</span>
 
 <span class="sd">        playback_mode : `str`, keyword-only, default: :code:`&quot;STREAM&quot;`</span>

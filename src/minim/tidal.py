@@ -6424,12 +6424,10 @@ class PrivateAPI:
 
     def get_collection_streams(
             self, collection_id: Union[int, str], type: str, *, 
-            device: str = "BROWSER", audio_quality: str = "HI_RES", 
-            video_quality: str = "HIGH", max_resolution: int = 2160,
-            playback_mode: str = "STREAM", asset_presentation: str = "FULL",
-            streaming_session_id: str = None, save: bool = False, 
-            path: Union[str, pathlib.Path] = None, folder: bool = False, 
-            metadata: bool = True) -> list[Union[bytes, pathlib.Path]]:
+            audio_quality: str = "HI_RES", video_quality: str = "HIGH", 
+            max_resolution: int = 2160, playback_mode: str = "STREAM", 
+            asset_presentation: str = "FULL", streaming_session_id: str = None
+        ) -> list[tuple[bytes, str]]:
 
         """
         Get audio and video stream data for items (tracks and videos) in
@@ -6474,18 +6472,6 @@ class PrivateAPI:
             **Valid values**: :code:`"album"`, :code:`"mix"`, and 
             :code:`"playlist"`.
 
-        device : `str`, keyword-only, default: :code:`"BROWSER"`
-            Device type.
-
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"BROWSER"` for a web browser.
-               * :code:`"DESKTOP"` for the desktop TIDAL application.
-               * :code:`"PHONE"` for the mobile TIDAL application.
-               * :code:`"TV"` for the smart TV TIDAL application.
-
         audio_quality : `str`, keyword-only, default: :code:`"HI-RES"`
             Audio quality.
 
@@ -6498,7 +6484,7 @@ class PrivateAPI:
                * :code:`"HIGH"` for 320 kbps AAC.
                * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
                  or FLAC.
-               * :code:`"HI_RES"` for Up to 9216 kbps (24-bit, 96 kHz) 
+               * :code:`"HI_RES"` for up to 9216 kbps (24-bit, 96 kHz) 
                  MQA-encoded FLAC.
 
         video_quality : `str`, keyword-only, default: :code:`"HIGH"`
@@ -6529,29 +6515,10 @@ class PrivateAPI:
         streaming_session_id : `str`, keyword-only, optional
             Streaming session ID.
 
-        save : `bool`, keyword-only, default: :code:`False`
-            Determines whether the streams are saved to audio and video
-            files.
-
-        path : `str`, keyword-only, optional
-            If :code:`save=True`, path in which the audio and video 
-            files are saved.
-
-        folder : `bool`, keyword-only, default: :code:`False`
-            Determines whether a folder in `path` (or in the current
-            directory if `path` is not specified) is created to hold the
-            audio and video files.
-
-        metadata : `bool`, keyword-only, default: :code:`True`
-            Determines whether the audio and video files' metadata is
-            populated.
-
         Returns
         -------
         streams : `list`
-            Audio and video stream data. If :code:`save=True`, the 
-            stream data is saved to audio and video files and their
-            filenames are returned instead.
+            Audio and video stream data and their MIME types.
         """
 
         if type not in (COLLECTION_TYPES := {"album", "mix", "playlist"}):
@@ -6560,33 +6527,11 @@ class PrivateAPI:
             raise ValueError(emsg)
 
         if type == "album":
-            data = self.get_album(collection_id)
-            artist = utility.multivalue_formatter(
-                [a["name"] for a in data["artists"] if a["type"] == "MAIN"], 
-                False
-            )
-            title = data["title"]
             items = self.get_album_items(collection_id)["items"]
         elif type == "mix":
-            data = self.get_mix_page(collection_id, device=device)
-            artist = data["rows"][0]["modules"][0]["mix"]["subTitle"]
-            title = data["rows"][0]["modules"][0]["mix"]["title"]
             items = self.get_mix_items(collection_id)["items"]
         elif type == "playlist":
-            data = self.get_playlist(collection_id)
-            artist = utility.multivalue_formatter(
-                [a["name"] for a in data["promotedArtists"] if a["type"] == "MAIN"], 
-                False
-            )
-            title = data["title"]
             items = self.get_playlist_items(collection_id)["items"]
-
-        if save:
-            if not isinstance(path, pathlib.Path):
-                path = pathlib.Path(path)
-            if folder:
-                path /= f"{artist} - {title}"
-                path.mkdir(exist_ok=True, parents=True)
 
         streams = []
         for item in items:
@@ -6596,10 +6541,7 @@ class PrivateAPI:
                     audio_quality=audio_quality, 
                     playback_mode=playback_mode, 
                     asset_presentation=asset_presentation,
-                    streaming_session_id=streaming_session_id,
-                    save=save, 
-                    path=path,
-                    metadata=metadata
+                    streaming_session_id=streaming_session_id
                 )
             elif item["type"] == "video":
                 stream = self.get_video_stream(
@@ -6608,10 +6550,7 @@ class PrivateAPI:
                     max_resolution=max_resolution,
                     playback_mode=playback_mode, 
                     asset_presentation=asset_presentation,
-                    streaming_session_id=streaming_session_id,
-                    save=save, 
-                    path=path,
-                    metadata=metadata
+                    streaming_session_id=streaming_session_id
                 )
             streams.append(stream)
         return streams
@@ -6619,9 +6558,7 @@ class PrivateAPI:
     def get_track_stream(
             self, track_id: Union[int, str], *, audio_quality: str = "HI_RES", 
             playback_mode: str = "STREAM", asset_presentation: str = "FULL",
-            streaming_session_id: str = None, save: bool = False, 
-            path: Union[str, pathlib.Path] = None, folder: bool = False, 
-            metadata: bool = True) -> Union[bytes, pathlib.Path]:
+            streaming_session_id: str = None) -> Union[bytes, str]:
 
         """
         Get the audio stream data for a track.
@@ -6673,7 +6610,7 @@ class PrivateAPI:
                * :code:`"HIGH"` for 320 kbps AAC.
                * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
                  or FLAC.
-               * :code:`"HI_RES"` for Up to 9216 kbps (24-bit, 96 kHz) 
+               * :code:`"HI_RES"` for up to 9216 kbps (24-bit, 96 kHz) 
                  MQA-encoded FLAC.
 
         playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
@@ -6694,37 +6631,14 @@ class PrivateAPI:
         streaming_session_id : `str`, keyword-only, optional
             Streaming session ID.
 
-        save : `bool`, keyword-only, default: :code:`False`
-            Determines whether the stream is saved to an audio file.
-
-        path : `str` or `pathlib.Path`, keyword-only, optional
-            If :code:`save=True`, path in which the audio file is saved.
-
-        folder : `bool`, keyword-only, default: :code:`False`
-            Determines whether a folder in `path` (or in the current
-            directory if `path` is not specified) is created to hold the
-            audio file.
-
-        metadata : `bool`, keyword-only, default: :code:`True`
-            Determines whether the audio file's metadata is
-            populated.
-
         Returns
         -------
         stream : `bytes`
-            Audio stream data. If :code:`save=True`, the stream data is 
-            saved to an audio file and its filename is returned instead.
-        """
+            Audio stream data.
 
-        AUDIO_FORMATS_EXTENSIONS = {
-            "alac": "m4a",
-            "flac": "flac",
-            "m4a": "m4a",
-            "mp3": "mp3",
-            "mpeg": "mp3",
-            "mp4a": "m4a",
-            "mqa": "flac"
-        }
+        codec : `str`
+            Audio codec.
+        """
 
         manifest = base64.b64decode(
             self.get_track_playback_info(
@@ -6740,9 +6654,6 @@ class PrivateAPI:
             manifest = minidom.parseString(manifest)
             codec = (manifest.getElementsByTagName("Representation")[0]
                      .getAttribute("codecs"))
-            if "." in codec:
-                codec = codec[:codec.index(".")]
-            format = AUDIO_FORMATS_EXTENSIONS[codec]
             segment = manifest.getElementsByTagName("SegmentTemplate")[0]
             stream = bytearray()
             with self.session.get(
@@ -6762,9 +6673,6 @@ class PrivateAPI:
         else:
             manifest = json.loads(manifest)
             codec = manifest["codecs"]
-            if "." in codec:
-                codec = codec[:codec.index(".")]
-            format = AUDIO_FORMATS_EXTENSIONS[codec]
             with self.session.get(manifest["urls"][0]) as r:
                 stream = r.content
             if manifest["encryptionType"] != "NONE":
@@ -6777,69 +6685,16 @@ class PrivateAPI:
                     counter=Counter.new(64, prefix=d_nonce, 
                                         initial_value=0)
                 ).decrypt(stream)
-
-        if save:
-            track_data = self.get_track(track_id)
-            album_data = self.get_album(track_data["album"]["id"])
-            artist = utility.multivalue_formatter(
-                [a["name"] for a in album_data["artists"] 
-                 if a["type"] == "MAIN"],
-                False
-            )
-            title = track_data["title"]
-
-            if not isinstance(path, pathlib.Path):
-                path = pathlib.Path(path)
-            if folder:
-                path /= f"{artist} - {title}"
-            path.mkdir(exist_ok=True, parents=True)
-
-            file = path / (
-                f"{track_data['trackNumber']:02} {track_data['title']}"
-                f".{AUDIO_FORMATS_EXTENSIONS[format]}"
-            ).translate(ILLEGAL_CHARACTERS)
-            with open(file, "wb") as f:
-                f.write(stream)
-
-            if metadata:
-                try:
-                    track = audio.Audio(file)
-                except Exception:
-                    if FOUND_FFMPEG:
-                        tempfile = file.parent / f"temp_{file.name}"
-                        subprocess.run(
-                            f"ffmpeg -y -i '{file}' -c:a copy '{tempfile}' "
-                            "-hide_banner -loglevel error",
-                            shell=True
-                        )
-                        file.unlink()
-                        file = tempfile.rename(file)
-                        track = audio.Audio(file)
-                    else:
-                        warnings.warn("Could not read audio file.")
-
-                track.set_metadata_using_tidal(
-                    track_data,
-                    album_data=album_data,
-                    composer=self.get_track_composers(track_id),
-                    lyrics=self.get_track_lyrics(track_id), 
-                    comment=track_data["url"]
-                )
-                track.write_metadata()
-
-            return file
-        else:
-            return stream
+        return stream, codec
 
     def get_video_stream(
             self, video_id: Union[int, str], *, video_quality: str = "HIGH",
             max_resolution: int = 2160, playback_mode: str = "STREAM", 
-            asset_presentation: str = "FULL", streaming_session_id: str = None,
-            save: bool = False, path: Union[str, pathlib.Path] = None, 
-            folder: bool = False) -> Union[bytes, pathlib.Path]:
+            asset_presentation: str = "FULL", streaming_session_id: str = None
+        ) -> tuple[bytes, str]:
 
         """
-        Get the audio and video stream data for a video.
+        Get the video stream data for a music video.
 
         .. admonition:: User authentication, authorization scope, and 
                         subscription
@@ -6890,22 +6745,13 @@ class PrivateAPI:
         streaming_session_id : `str`, keyword-only, optional
             Streaming session ID.
 
-        save : `bool`, keyword-only, default: :code:`False`
-            Determines whether the stream is saved to a video file.
-
-        path : `str` or `pathlib.Path`, keyword-only, optional
-            If :code:`save=True`, path in which the video file is saved.
-
-        folder : `bool`, keyword-only, default: :code:`False`
-            Determines whether a folder in `path` (or in the current
-            directory if `path` is not specified) is created to hold the
-            video file.
-
         Returns
         -------
         stream : `bytes`
-            Video stream data. If :code:`save=True`, the stream data is 
-            saved to an video file and its filename is returned instead.
+            Video stream data.
+
+        codec : `str`
+            Video codec.
         """
 
         manifest = base64.b64decode(
@@ -6918,9 +6764,9 @@ class PrivateAPI:
             )["manifest"]
         )
 
-        m3u8 = next(
-            pl for res, pl in re.findall(
-                r"(?<=RESOLUTION=)\d+x(\d+)\n(http.*)", 
+        codec, playlist = next(
+            (c, pl) for c, res, pl in re.findall(
+                r'(?<=CODECS=")(.*)",(?:RESOLUTION=)\d+x(\d+)\n(http.*)', 
                 self.session.get(
                     json.loads(manifest)["urls"][0]
                 ).content.decode("utf-8")
@@ -6928,35 +6774,13 @@ class PrivateAPI:
         )
 
         stream = bytearray()
-        for ts in re.findall("(?<=\n).*(http.*)", 
-                             self.session.get(m3u8).content.decode("utf-8")):
+        for ts in re.findall(
+                "(?<=\n).*(http.*)", 
+                self.session.get(playlist).content.decode("utf-8")
+            ):
             with self.session.get(ts) as r:
                 stream.extend(r.content)
-
-        if save:
-            video_data = self.get_video(video_id)
-            artist = utility.multivalue_formatter(
-                [a["name"] for a in video_data["artists"] 
-                 if a["type"] == "MAIN"],
-                False
-            )
-            title = video_data["title"]
-
-            if not isinstance(path, pathlib.Path):
-                path = pathlib.Path(path)
-            if folder:
-                path /= f"{artist} - {title}"
-            path.mkdir(exist_ok=True, parents=True)
-
-            file = path / (
-                f"{video_data['trackNumber']:02} {video_data['title']}.mkv"
-            ).translate(ILLEGAL_CHARACTERS)
-            with open(file, "wb") as f:
-                f.write(stream)
-
-            return file
-        else:
-            return stream
+        return stream, codec
 
     ### TRACKS ################################################################
 
@@ -7378,7 +7202,7 @@ class PrivateAPI:
                * :code:`"HIGH"` for 320 kbps AAC.
                * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
                  or FLAC.
-               * :code:`"HI_RES"` for Up to 9216 kbps (24-bit, 96 kHz) 
+               * :code:`"HI_RES"` for up to 9216 kbps (24-bit, 96 kHz) 
                  MQA-encoded FLAC.
 
         playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
