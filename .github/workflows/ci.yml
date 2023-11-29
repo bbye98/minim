@@ -1,13 +1,13 @@
 name: Continuous Integration
 on: [push]
 env:
-  SPOTIFY_CLIENT_ID: ${{secrets.SPOTIFY_CLIENT_ID}}
-  SPOTIFY_CLIENT_SECRET: ${{secrets.SPOTIFY_CLIENT_SECRET}}
-  SPOTIFY_SP_DC: ${{secrets.SPOTIFY_SP_DC}}
-  TIDAL_CLIENT_ID: ${{secrets.TIDAL_CLIENT_ID}}
-  TIDAL_CLIENT_SECRET: ${{secrets.TIDAL_CLIENT_SECRET}}
-  TIDAL_PRIVATE_CLIENT_ID: ${{secrets.TIDAL_PRIVATE_CLIENT_ID}}
-  TIDAL_PRIVATE_CLIENT_SECRET: ${{secrets.TIDAL_PRIVATE_CLIENT_SECRET}}
+  SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+  SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+  SPOTIFY_SP_DC: ${{ secrets.SPOTIFY_SP_DC }}
+  TIDAL_CLIENT_ID: ${{ secrets.TIDAL_CLIENT_ID }}
+  TIDAL_CLIENT_SECRET: ${{ secrets.TIDAL_CLIENT_SECRET }}
+  TIDAL_PRIVATE_CLIENT_ID: ${{ secrets.TIDAL_PRIVATE_CLIENT_ID }}
+  TIDAL_PRIVATE_CLIENT_SECRET: ${{ secrets.TIDAL_PRIVATE_CLIENT_SECRE }}
 jobs:
   build:
     name: continuous-integration-${{matrix.python-version}}
@@ -21,11 +21,10 @@ jobs:
     timeout-minutes: 60
     steps:      
       - uses: actions/checkout@v3
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: setup-python-${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
-          auto-update-conda: true
-          channels: conda-forge
-          python-version: ${{matrix.python-version}}
+          python-version: ${{ matrix.python-version }}
       - uses: FedericoCarboni/setup-ffmpeg@v2
         id: setup-ffmpeg
       - name: install-dependencies
@@ -36,11 +35,11 @@ jobs:
           python3 -m pip install ruff
           ruff --target-version=py39 .
         continue-on-error: true
-      - name: test-pytest
+      - name: test-coverage-pytest
         run: |
-          python3 -m pip install pytest
-          pytest
-      - name: coverage-codecov
+          python3 -m pip install coverage pytest
+          coverage run -m pytest
+      - name: upload-codecov
         uses: codecov/codecov-action@v3
         env:
-          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

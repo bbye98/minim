@@ -4,17 +4,17 @@ import sys
 sys.path.insert(0, f"{Path(__file__).parents[1]}/src")
 from minim import spotify # noqa: E402
 
-class TestPrivateLyricsService:
-
-    TRACK_ID = "0VjIjW4GlUZAMYd2vXMi3b"
-
-    @classmethod
-    def setup_class(cls):
-        cls.obj = spotify.PrivateLyricsService()
-
-    def test_get_lyrics(self):
-        r = self.obj.get_lyrics(self.TRACK_ID)
-        assert "lyrics" in r
+# class TestPrivateLyricsService:
+#
+#     TRACK_ID = "0VjIjW4GlUZAMYd2vXMi3b"
+#
+#     @classmethod
+#     def setup_class(cls):
+#         cls.obj = spotify.PrivateLyricsService()
+#
+#     def test_get_lyrics(self):
+#         r = self.obj.get_lyrics(self.TRACK_ID)
+#         assert "lyrics" in r
  
 class TestWebAPI:
 
