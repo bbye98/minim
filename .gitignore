@@ -5,4 +5,4 @@ _examples/
 dist/
 jupyter_execute/
 src/minim.egg-info
-tests/.coverage
+.coverage
