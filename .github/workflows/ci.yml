@@ -1,4 +1,4 @@
-name: continuous-integration
+name: Continuous Integration
 on: [push]
 env:
   SPOTIFY_CLIENT_ID: ${{secrets.SPOTIFY_CLIENT_ID}}
@@ -31,12 +31,16 @@ jobs:
       - name: install-dependencies
         run: |
           python3 -m pip install -r requirements_minimal.txt
-      - name: ruff-lint
+      - name: lint-ruff
         run: |
           python3 -m pip install ruff
           ruff --target-version=py39 .
         continue-on-error: true
-      - name: pytest-test
+      - name: test-pytest
         run: |
           python3 -m pip install pytest
           pytest
+      - name: coverage-codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
