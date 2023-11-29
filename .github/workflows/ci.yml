@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: continuous integration
 on: [push]
 env:
   SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
@@ -10,7 +10,7 @@ env:
   TIDAL_PRIVATE_CLIENT_SECRET: ${{ secrets.TIDAL_PRIVATE_CLIENT_SECRET }}
 jobs:
   build:
-    name: continuous-integration-${{matrix.python-version}}
+    name: Continuous integration (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -21,26 +21,23 @@ jobs:
     timeout-minutes: 60
     steps:      
       - uses: actions/checkout@v3
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: actions/setup-python@v4
         with:
-          auto-update-conda: true
-          channels: conda-forge
           python-version: ${{ matrix.python-version }}
       - uses: FedericoCarboni/setup-ffmpeg@v2
         id: setup-ffmpeg
-      - name: install-dependencies
+      - name: Install required dependencies using pip
         run: |
           python3 -m pip install -r requirements_minimal.txt
-      - name: lint-ruff
+      - name: Lint with ruff
         run: |
           python3 -m pip install ruff
           ruff --target-version=py39 .
         continue-on-error: true
-      - name: test-coverage-pytest
+      - name: Test with coverage and pytest
         run: |
           python3 -m pip install coverage pytest
           coverage run -m pytest
-      - name: upload-codecov
-        uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
