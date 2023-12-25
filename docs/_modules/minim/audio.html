@@ -197,8 +197,8 @@
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.format_multivalue.html">format_multivalue</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.gestalt_ratios.html">gestalt_ratios</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratios.html">levenshtein_ratios</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.gestalt_ratio.html">gestalt_ratio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratio.html">levenshtein_ratio</a></li>
 </ul>
 </li>
 </ul>
@@ -638,9 +638,9 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Cruel Summer.flac&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;04 - The Man.m4a&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;13 You Need to Calm Down.mp3&quot;.</span>
 
 <span class="sd">    multivalue : `bool`</span>
@@ -1417,7 +1417,7 @@
 <a class="viewcode-back" href="../../api/minim.audio.FLACAudio.html#minim.audio.FLACAudio">[docs]</a>
 <span class="k">class</span> <span class="nc">FLACAudio</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="n">_VorbisComment</span><span class="p">):</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    FLAC audio file handler.</span>
 
 <span class="sd">    .. seealso::</span>
@@ -1448,9 +1448,9 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Fearless.flac&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;03 - Love Story.flac&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;06 You Belong with Me.flac&quot;.</span>
 
 <span class="sd">    multivalue : `bool`</span>
@@ -1497,7 +1497,7 @@
 <a class="viewcode-back" href="../../api/minim.audio.MP3Audio.html#minim.audio.MP3Audio">[docs]</a>
 <span class="k">class</span> <span class="nc">MP3Audio</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="n">_ID3</span><span class="p">):</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    MP3 audio file handler.</span>
 
 <span class="sd">    .. seealso::</span>
@@ -1528,9 +1528,9 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Red.mp3&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;04 - I Knew You Were Trouble.mp3&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;06 22.mp3&quot;.</span>
 
 <span class="sd">    multivalue : `bool`</span>
@@ -1576,7 +1576,7 @@
 <a class="viewcode-back" href="../../api/minim.audio.MP4Audio.html#minim.audio.MP4Audio">[docs]</a>
 <span class="k">class</span> <span class="nc">MP4Audio</span><span class="p">(</span><span class="n">Audio</span><span class="p">):</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    MP4 audio file handler.</span>
 
 <span class="sd">    .. seealso::</span>
@@ -1607,9 +1607,9 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Mine.m4a&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;04 - Speak Now.m4a&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;07 The Story of Us.m4a&quot;.</span>
 
 <span class="sd">    multivalue : `bool`</span>
@@ -1775,7 +1775,7 @@
 <a class="viewcode-back" href="../../api/minim.audio.OggAudio.html#minim.audio.OggAudio">[docs]</a>
 <span class="k">class</span> <span class="nc">OggAudio</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="n">_VorbisComment</span><span class="p">):</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Ogg audio file handler.</span>
 
 <span class="sd">    .. seealso::</span>
@@ -1813,9 +1813,9 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Blank Space.ogg&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;03 - Style.ogg&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;06 Shake It Off.ogg&quot;.</span>
 
 <span class="sd">    multivalue : `bool`</span>
@@ -1880,7 +1880,7 @@
 <a class="viewcode-back" href="../../api/minim.audio.WAVEAudio.html#minim.audio.WAVEAudio">[docs]</a>
 <span class="k">class</span> <span class="nc">WAVEAudio</span><span class="p">(</span><span class="n">Audio</span><span class="p">,</span> <span class="n">_ID3</span><span class="p">):</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    WAVE audio file handler.</span>
 
 <span class="sd">    .. seealso::</span>
@@ -1911,9 +1911,9 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Don&#39;t Blame Me.wav&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;05 - Delicate.wav&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;06 Look What You Made Me Do.wav&quot;.</span>
 
 <span class="sd">    multivalue : `bool`</span>
