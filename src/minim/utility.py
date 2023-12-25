@@ -6,6 +6,8 @@ Utility functions
 This module contains a collection of utility functions.
 """
 
+from difflib import SequenceMatcher
+
 from . import Any, Union
 
 try:
@@ -19,7 +21,7 @@ try:
 except ModuleNotFoundError:
     FOUND_NUMPY = False
 
-__all__ = ["format_multivalue", "levenshtein_ratio"]
+__all__ = ["format_multivalue", "gestalt_ratios", "levenshtein_ratios"]
 
 def format_multivalue(
         value: Any, multivalue: bool, *, primary: bool = False,
@@ -68,28 +70,60 @@ def format_multivalue(
         return [value]
     return value
 
-def levenshtein_ratio(
-        base: str, values: Union[str, list[str]]
+def gestalt_ratios(
+        reference: str, strings: Union[str, list[str]]
     ) -> Union[float, list[float], "np.ndarray[float]"]:
 
     """
-    Compute the Levenshtein ratio, a measure of similarity, for
-    string(s) with respect to a reference string.
+    Compute the Gestalt or Ratcliff–Obershelp ratios, a measure of 
+    similarity, for strings with respect to a reference string.
 
     Parameters
     ----------
-    base : `str`
+    reference : `str`
         Reference string.
 
-    values : `str` or `list`
-        String(s) to compare with `base`.
+    strings : `str` or `list`
+        Strings to compare with `reference`.
 
     Returns
     -------
     ratios : `float`, `list`, or `numpy.ndarray`
-        Levenshtein ratio(s). If `values` is a `str`, a `float` is
-        returned. If `values` is a `list`, a `numpy.ndarray` is returned
-        if NumPy is installed; otherwise, a `list` is returned.
+        Gestalt or Ratcliff–Obershelp ratios. If `strings` is a `str`, a
+        `float` is returned. If `strings` is a `list`, a `numpy.ndarray` 
+        is returned if NumPy is installed; otherwise, a `list` is 
+        returned.
+    """
+
+    if isinstance(strings, str):
+        return SequenceMatcher(None, reference, strings).ratio()
+    gen = (SequenceMatcher(None, reference, s).ratio() for s in strings)
+    if FOUND_NUMPY:
+        return np.fromiter(gen, dtype=float, count=len(strings))
+    return list(gen)
+
+def levenshtein_ratios(
+        reference: str, strings: Union[str, list[str]]
+    ) -> Union[float, list[float], "np.ndarray[float]"]:
+
+    """
+    Compute the Levenshtein ratios, a measure of similarity, for
+    strings with respect to a reference string.
+
+    Parameters
+    ----------
+    reference : `str`
+        Reference string.
+
+    strings : `str` or `list`
+        Strings to compare with `reference`.
+
+    Returns
+    -------
+    ratios : `float`, `list`, or `numpy.ndarray`
+        Levenshtein ratios. If `strings` is a `str`, a `float` is
+        returned. If `strings` is a `list`, a `numpy.ndarray` is 
+        returned if NumPy is installed; otherwise, a `list` is returned.
     """
 
     if not FOUND_LEVENSHTEIN:
@@ -97,9 +131,9 @@ def levenshtein_ratio(
                 "minim.utility.levenshtein_ratio() is unavailable.")
         raise ImportError(emsg)
     
-    if isinstance(values, str):
-        return Levenshtein.ratio(base, values)
-    gen = (Levenshtein.ratio(base, v) for v in values)
+    if isinstance(strings, str):
+        return Levenshtein.ratio(reference, strings)
+    gen = (Levenshtein.ratio(reference, s) for s in strings)
     if FOUND_NUMPY:
-        return np.fromiter(gen, dtype=float, count=len(values))
+        return np.fromiter(gen, dtype=float, count=len(strings))
     return list(gen)
