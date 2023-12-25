@@ -1,4 +1,4 @@
-utility
+﻿utility
 =======
 
 .. automodule:: minim.utility
@@ -15,8 +15,9 @@ utility
       :toctree:
       :nosignatures:
    
+      format_multivalue
+      gestalt_ratio
       levenshtein_ratio
-      multivalue_formatter
    
    
 

@@ -8,7 +8,7 @@
         <title>minim.qobuz - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -173,7 +173,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -196,8 +195,9 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratio.html">levenshtein_ratio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.multivalue_formatter.html">multivalue_formatter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.format_multivalue.html">format_multivalue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.gestalt_ratios.html">gestalt_ratios</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratios.html">levenshtein_ratios</a></li>
 </ul>
 </li>
 </ul>
@@ -2989,7 +2989,7 @@
 <span class="sd">            Audio stream MIME type.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_track_file_url</span><span class="p">(</span><span class="n">track_id</span><span class="p">,</span> <span class="n">format_id</span><span class="o">=</span><span class="n">format_id</span><span class="p">)[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_track_file_url</span><span class="p">(</span><span class="n">track_id</span><span class="p">,</span> <span class="n">format_id</span><span class="o">=</span><span class="n">format_id</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">])</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">file</span><span class="p">[</span><span class="s2">&quot;mime_type&quot;</span><span class="p">]</span></div>
 

@@ -9,7 +9,7 @@
         <title>Editing Audio Metadata - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -197,8 +197,9 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.format_multivalue.html">format_multivalue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.gestalt_ratio.html">gestalt_ratio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratio.html">levenshtein_ratio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.multivalue_formatter.html">multivalue_formatter</a></li>
 </ul>
 </li>
 </ul>
@@ -311,7 +312,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;spektrem_shine.flac&#39;, &lt;minim.audio.FLACAudio at 0x7fb5cdaeb790&gt;)
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;spektrem_shine.flac&#39;, &lt;minim.audio.FLACAudio at 0x7fa51e606090&gt;)
 </pre></div>
 </div>
 </div>
@@ -367,10 +368,17 @@ Sample rate: 44100
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>size=    1032kB time=00:00:30.09 bitrate= 280.9kbits/s speed=68.5x    
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>size=       0kB time=00:00:00.00 bitrate=1891.2kbits/s speed=0.746x    
 </pre></div>
 </div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;minim.audio.MP3Audio at 0x7fb5cdaeb790&gt;
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>size=     256kB time=00:00:13.89 bitrate= 150.9kbits/s speed=27.6x    
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>size=     768kB time=00:00:28.21 bitrate= 223.0kbits/s speed=28.1x    
+size=    1032kB time=00:00:30.06 bitrate= 281.1kbits/s speed=28.1x    
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;minim.audio.MP3Audio at 0x7fa51e606090&gt;
 </pre></div>
 </div>
 </div>
@@ -619,7 +627,7 @@ Sample rate: 44100
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;tobu_back_to_you.flac&#39;, &lt;minim.audio.FLACAudio at 0x7fb6744afdd0&gt;)
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;tobu_back_to_you.flac&#39;, &lt;minim.audio.FLACAudio at 0x7fa5e9463ed0&gt;)
 </pre></div>
 </div>
 </div>

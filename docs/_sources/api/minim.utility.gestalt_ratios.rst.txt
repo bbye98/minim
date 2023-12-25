@@ -1,0 +1,6 @@
+gestalt\_ratios
+===============
+
+.. currentmodule:: minim.utility
+
+.. autofunction:: gestalt_ratios

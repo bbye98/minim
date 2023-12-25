@@ -8,7 +8,7 @@
         <title>minim.tidal - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -173,7 +173,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -196,8 +195,9 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratio.html">levenshtein_ratio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.multivalue_formatter.html">multivalue_formatter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.format_multivalue.html">format_multivalue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.gestalt_ratios.html">gestalt_ratios</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratios.html">levenshtein_ratios</a></li>
 </ul>
 </li>
 </ul>
@@ -248,15 +248,12 @@
 
 <span class="kn">from</span> <span class="nn">xml.dom</span> <span class="kn">import</span> <span class="n">minidom</span>
 
-<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">AES</span>
-<span class="kn">from</span> <span class="nn">Crypto.Util</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span> <span class="nn">cryptography.hazmat.primitives.ciphers</span> <span class="kn">import</span> <span class="n">Cipher</span><span class="p">,</span> <span class="n">algorithms</span><span class="p">,</span> <span class="n">modes</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">base64</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">hashlib</span><span class="p">,</span> <span class="n">json</span><span class="p">,</span> <span class="n">logging</span><span class="p">,</span> <span class="n">os</span><span class="p">,</span> <span class="n">pathlib</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">requests</span><span class="p">,</span> 
-    <span class="n">secrets</span><span class="p">,</span> <span class="n">subprocess</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">urllib</span><span class="p">,</span> <span class="n">warnings</span><span class="p">,</span> <span class="n">webbrowser</span><span class="p">,</span>
-    <span class="n">audio</span><span class="p">,</span> <span class="n">utility</span><span class="p">,</span> 
-    <span class="n">FOUND_PLAYWRIGHT</span><span class="p">,</span> <span class="n">FOUND_FFMPEG</span><span class="p">,</span> <span class="n">DIR_HOME</span><span class="p">,</span> <span class="n">DIR_TEMP</span><span class="p">,</span> <span class="n">ILLEGAL_CHARACTERS</span><span class="p">,</span>
-    <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">config</span>
+    <span class="n">secrets</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">urllib</span><span class="p">,</span> <span class="n">warnings</span><span class="p">,</span> <span class="n">webbrowser</span><span class="p">,</span>
+    <span class="n">FOUND_PLAYWRIGHT</span><span class="p">,</span> <span class="n">DIR_HOME</span><span class="p">,</span> <span class="n">DIR_TEMP</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">config</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">FOUND_PLAYWRIGHT</span><span class="p">:</span>
@@ -2280,8 +2277,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_FLOWS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pkce&quot;</span><span class="p">,</span> <span class="s2">&quot;device_code&quot;</span><span class="p">}</span>
-    <span class="n">_MASTER_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="sa">b</span><span class="s2">&quot;P</span><span class="se">\x89</span><span class="s2">SLC&amp;</span><span class="se">\x98\xb7\xc6\xa3\n</span><span class="s2">?P.</span><span class="se">\xb4\xc7</span><span class="s2">a</span><span class="se">\xf8\xe5</span><span class="s2">n&quot;</span>
-                   <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x8c</span><span class="s2">th</span><span class="se">\x13</span><span class="s2">E</span><span class="se">\xfa</span><span class="s2">?</span><span class="se">\xba</span><span class="s2">h8</span><span class="se">\xef\x9e</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">_NAME</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="n">API_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.tidal.com&quot;</span>
@@ -7145,16 +7140,19 @@
             <span class="n">codec</span> <span class="o">=</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;codecs&quot;</span><span class="p">]</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;urls&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
                 <span class="n">stream</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">content</span>
-            <span class="k">if</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;encryptionType&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;NONE&quot;</span><span class="p">:</span>
-                <span class="n">d_key_id</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">manifest</span><span class="p">[</span><span class="s1">&#39;keyId&#39;</span><span class="p">])</span>
-                <span class="n">d_id</span> <span class="o">=</span> <span class="n">AES</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MASTER_KEY</span><span class="p">,</span> <span class="n">AES</span><span class="o">.</span><span class="n">MODE_CBC</span><span class="p">,</span>
-                               <span class="n">d_key_id</span><span class="p">[:</span><span class="mi">16</span><span class="p">])</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">d_key_id</span><span class="p">[</span><span class="mi">16</span><span class="p">:])</span>
-                <span class="n">d_key</span><span class="p">,</span> <span class="n">d_nonce</span> <span class="o">=</span> <span class="n">d_id</span><span class="p">[:</span><span class="mi">16</span><span class="p">],</span> <span class="n">d_id</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="mi">24</span><span class="p">]</span>
-                <span class="n">stream</span> <span class="o">=</span> <span class="n">AES</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
-                    <span class="n">d_key</span><span class="p">,</span> <span class="n">AES</span><span class="o">.</span><span class="n">MODE_CTR</span><span class="p">,</span>
-                    <span class="n">counter</span><span class="o">=</span><span class="n">Counter</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">d_nonce</span><span class="p">,</span> 
-                                        <span class="n">initial_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;encryptionType&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;OLD_AES&quot;</span><span class="p">:</span>
+                <span class="n">key_id</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;keyId&quot;</span><span class="p">])</span>
+                <span class="n">key_nonce</span> <span class="o">=</span> <span class="n">Cipher</span><span class="p">(</span>
+                    <span class="n">algorithms</span><span class="o">.</span><span class="n">AES</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;P</span><span class="se">\x89</span><span class="s2">SLC&amp;</span><span class="se">\x98\xb7\xc6\xa3\n</span><span class="s2">?P.</span><span class="se">\xb4\xc7</span><span class="s2">&quot;</span>
+                                   <span class="sa">b</span><span class="s2">&quot;a</span><span class="se">\xf8\xe5</span><span class="s2">n</span><span class="se">\x8c</span><span class="s2">th</span><span class="se">\x13</span><span class="s2">E</span><span class="se">\xfa</span><span class="s2">?</span><span class="se">\xba</span><span class="s2">h8</span><span class="se">\xef\x9e</span><span class="s2">&quot;</span><span class="p">),</span>
+                    <span class="n">modes</span><span class="o">.</span><span class="n">CBC</span><span class="p">(</span><span class="n">key_id</span><span class="p">[:</span><span class="mi">16</span><span class="p">])</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">decryptor</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">key_id</span><span class="p">[</span><span class="mi">16</span><span class="p">:])</span>
+                <span class="n">stream</span> <span class="o">=</span> <span class="n">Cipher</span><span class="p">(</span>
+                    <span class="n">algorithms</span><span class="o">.</span><span class="n">AES</span><span class="p">(</span><span class="n">key_nonce</span><span class="p">[:</span><span class="mi">16</span><span class="p">]),</span>
+                    <span class="n">modes</span><span class="o">.</span><span class="n">CTR</span><span class="p">(</span><span class="n">key_nonce</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="mi">32</span><span class="p">])</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">decryptor</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;encryptionType&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;NONE&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Unsupported encryption type.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">stream</span><span class="p">,</span> <span class="n">codec</span></div>
 
 

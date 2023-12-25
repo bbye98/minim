@@ -8,7 +8,7 @@
         <title>minim.utility - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -196,8 +196,9 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.format_multivalue.html">format_multivalue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.gestalt_ratio.html">gestalt_ratio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratio.html">levenshtein_ratio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.multivalue_formatter.html">multivalue_formatter</a></li>
 </ul>
 </li>
 </ul>
@@ -244,63 +245,26 @@
 <span class="sd">This module contains a collection of utility functions.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">difflib</span> <span class="kn">import</span> <span class="n">SequenceMatcher</span>
+
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">Levenshtein</span>
     <span class="n">FOUND_LEVENSHTEIN</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
-    <span class="n">FOUND_LEVELSHTEIN</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">FOUND_LEVENSHTEIN</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
     <span class="n">FOUND_NUMPY</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
     <span class="n">FOUND_NUMPY</span> <span class="o">=</span> <span class="kc">False</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;levenshtein_ratio&quot;</span><span class="p">,</span> <span class="s2">&quot;multivalue_formatter&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;format_multivalue&quot;</span><span class="p">,</span> <span class="s2">&quot;gestalt_ratios&quot;</span><span class="p">,</span> <span class="s2">&quot;levenshtein_ratios&quot;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="levenshtein_ratio">
-<a class="viewcode-back" href="../../api/minim.utility.levenshtein_ratio.html#minim.utility.levenshtein_ratio">[docs]</a>
-<span class="k">def</span> <span class="nf">levenshtein_ratio</span><span class="p">(</span>
-        <span class="n">base</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="s2">&quot;np.ndarray[float]&quot;</span><span class="p">]:</span>
-
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the Levenshtein ratio, a measure of similarity, for</span>
-<span class="sd">    string(s) with respect to a reference string.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    base : `str`</span>
-<span class="sd">        Reference string.</span>
-
-<span class="sd">    values : `str` or `list`</span>
-<span class="sd">        String(s) to compare with `base`.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    ratios : `float`, `list`, or `numpy.ndarray`</span>
-<span class="sd">        Levenshtein ratio(s). If `values` is a `str`, a `float` is</span>
-<span class="sd">        returned. If `values` is a `list`, a `numpy.ndarray` is returned</span>
-<span class="sd">        if NumPy is installed; otherwise, a `list` is returned.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">FOUND_LEVENSHTEIN</span><span class="p">:</span>
-        <span class="n">emsg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The Levenshtein module was not found, so &quot;</span>
-                <span class="s2">&quot;minim.utility.levenshtein_ratio() is unavailable.&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
-    
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Levenshtein</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
-    <span class="n">gen</span> <span class="o">=</span> <span class="p">(</span><span class="n">Levenshtein</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">FOUND_NUMPY</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span><span class="n">gen</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="multivalue_formatter">
-<a class="viewcode-back" href="../../api/minim.utility.multivalue_formatter.html#minim.utility.multivalue_formatter">[docs]</a>
-<span class="k">def</span> <span class="nf">multivalue_formatter</span><span class="p">(</span>
+<div class="viewcode-block" id="format_multivalue">
+<a class="viewcode-back" href="../../api/minim.utility.format_multivalue.html#minim.utility.format_multivalue">[docs]</a>
+<span class="k">def</span> <span class="nf">format_multivalue</span><span class="p">(</span>
         <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">multivalue</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">primary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">sep</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">,</span> <span class="s2">&quot; &amp; &quot;</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span>
@@ -346,6 +310,80 @@
     <span class="k">elif</span> <span class="n">multivalue</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="gestalt_ratio">
+<a class="viewcode-back" href="../../api/minim.utility.gestalt_ratio.html#minim.utility.gestalt_ratio">[docs]</a>
+<span class="k">def</span> <span class="nf">gestalt_ratio</span><span class="p">(</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">strings</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="s2">&quot;np.ndarray[float]&quot;</span><span class="p">]:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the Gestalt or Ratcliff–Obershelp ratios, a measure of </span>
+<span class="sd">    similarity, for strings with respect to a reference string.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reference : `str`</span>
+<span class="sd">        Reference string.</span>
+
+<span class="sd">    strings : `str` or `list`</span>
+<span class="sd">        Strings to compare with `reference`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ratios : `float`, `list`, or `numpy.ndarray`</span>
+<span class="sd">        Gestalt or Ratcliff–Obershelp ratios. If `strings` is a `str`, a</span>
+<span class="sd">        `float` is returned. If `strings` is a `list`, a `numpy.ndarray` </span>
+<span class="sd">        is returned if NumPy is installed; otherwise, a `list` is </span>
+<span class="sd">        returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">SequenceMatcher</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">strings</span><span class="p">)</span><span class="o">.</span><span class="n">ratio</span><span class="p">()</span>
+    <span class="n">gen</span> <span class="o">=</span> <span class="p">(</span><span class="n">SequenceMatcher</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">reference</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">ratio</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">FOUND_NUMPY</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span><span class="n">gen</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">strings</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="levenshtein_ratio">
+<a class="viewcode-back" href="../../api/minim.utility.levenshtein_ratio.html#minim.utility.levenshtein_ratio">[docs]</a>
+<span class="k">def</span> <span class="nf">levenshtein_ratio</span><span class="p">(</span>
+        <span class="n">reference</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">strings</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="s2">&quot;np.ndarray[float]&quot;</span><span class="p">]:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the Levenshtein ratios, a measure of similarity, for</span>
+<span class="sd">    strings with respect to a reference string.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reference : `str`</span>
+<span class="sd">        Reference string.</span>
+
+<span class="sd">    strings : `str` or `list`</span>
+<span class="sd">        Strings to compare with `reference`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ratios : `float`, `list`, or `numpy.ndarray`</span>
+<span class="sd">        Levenshtein ratios. If `strings` is a `str`, a `float` is</span>
+<span class="sd">        returned. If `strings` is a `list`, a `numpy.ndarray` is </span>
+<span class="sd">        returned if NumPy is installed; otherwise, a `list` is returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">FOUND_LEVENSHTEIN</span><span class="p">:</span>
+        <span class="n">emsg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The Levenshtein module was not found, so &quot;</span>
+                <span class="s2">&quot;minim.utility.levenshtein_ratio() is unavailable.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Levenshtein</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">strings</span><span class="p">)</span>
+    <span class="n">gen</span> <span class="o">=</span> <span class="p">(</span><span class="n">Levenshtein</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">FOUND_NUMPY</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span><span class="n">gen</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">strings</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span></div>
 
 </pre></div>
         </article>

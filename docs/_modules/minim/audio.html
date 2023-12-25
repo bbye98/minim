@@ -8,7 +8,7 @@
         <title>minim.audio - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -196,8 +196,9 @@
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratio.html">levenshtein_ratio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.multivalue_formatter.html">multivalue_formatter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.format_multivalue.html">format_multivalue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.gestalt_ratios.html">gestalt_ratios</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratios.html">levenshtein_ratios</a></li>
 </ul>
 </li>
 </ul>
@@ -249,8 +250,7 @@
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">base64</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">logging</span><span class="p">,</span> <span class="n">pathlib</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">subprocess</span><span class="p">,</span> <span class="n">urllib</span><span class="p">,</span>
-    <span class="n">utility</span><span class="p">,</span>
-    <span class="n">FOUND_FFMPEG</span><span class="p">,</span> <span class="n">FFMPEG_CODECS</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
+    <span class="n">utility</span><span class="p">,</span> <span class="n">FOUND_FFMPEG</span><span class="p">,</span> <span class="n">FFMPEG_CODECS</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.qobuz</span> <span class="kn">import</span> <span class="n">_parse_performers</span>
 
@@ -312,7 +312,7 @@
                 <span class="n">value</span> <span class="o">=</span> <span class="p">([</span><span class="n">sv</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">for</span> <span class="n">sv</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">base</span><span class="p">)]</span>
                          <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">base</span><span class="p">))</span>
                 <span class="k">if</span> <span class="nb">list</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS_TYPES</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> 
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">format_multivalue</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> 
                                                          <span class="n">primary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS_TYPES</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
                         <span class="k">try</span><span class="p">:</span>
@@ -378,7 +378,7 @@
         <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">format_multivalue</span><span class="p">(</span>
                     <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multivalue</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sep</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
@@ -478,7 +478,7 @@
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">list</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS_TYPES</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> 
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">format_multivalue</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> 
                                                          <span class="n">primary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS_TYPES</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
                         <span class="k">try</span><span class="p">:</span>
@@ -558,7 +558,7 @@
         <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS_SPECIAL</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">format_multivalue</span><span class="p">(</span>
                     <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multivalue</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sep</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">func</span> <span class="k">else</span> <span class="n">value</span>
@@ -638,9 +638,9 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Cruel Summer.flac&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;04 - The Man.m4a&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;13 You Need to Calm Down.mp3&quot;.</span>
 
 <span class="sd">    multivalue : `bool`</span>
@@ -1075,6 +1075,135 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">copyright</span> <span class="o">=</span> <span class="n">album_data</span><span class="p">[</span><span class="s2">&quot;copyright&quot;</span><span class="p">]</span></div>
 
 
+<div class="viewcode-block" id="Audio.set_metadata_using_qobuz">
+<a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_qobuz">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_metadata_using_qobuz</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">artwork_size</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;large&quot;</span><span class="p">,</span>
+            <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Populate tags using data retrieved from the Qobuz API.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : `dict`</span>
+<span class="sd">            Information about the track in JSON format obtained using</span>
+<span class="sd">            the Qobuz API via :meth:`minim.qobuz.PrivateAPI.get_track`</span>
+<span class="sd">            or :meth:`minim.qobuz.PrivateAPI.search`.</span>
+
+<span class="sd">        artwork_size : `str`, keyword-only, default: :code:`&quot;large&quot;`</span>
+<span class="sd">            Artwork size.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;large&quot;`, :code:`&quot;small&quot;`, or</span>
+<span class="sd">            :code:`&quot;thumbnail&quot;`.</span>
+
+<span class="sd">        comment : `str`, keyword-only, optional</span>
+<span class="sd">            Comment or description.</span>
+
+<span class="sd">        overwrite : `bool`, keyword-only, default: :code:`False`</span>
+<span class="sd">            Determines whether existing metadata should be overwritten.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">album_artists</span> <span class="o">:=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;artists&quot;</span><span class="p">)):</span>
+                <span class="n">album_feat_artist</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">album_artists</span>
+                                     <span class="k">if</span> <span class="s2">&quot;featured-artist&quot;</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;roles&quot;</span><span class="p">]]</span>
+                <span class="k">if</span> <span class="n">album_feat_artist</span> <span class="ow">and</span> <span class="s2">&quot;feat.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot; [feat. </span><span class="si">{}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album</span> 
+                                   <span class="k">else</span> <span class="s2">&quot; (feat. </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">utility</span><span class="o">.</span><span class="n">format_multivalue</span><span class="p">(</span><span class="n">album_feat_artist</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;version&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="o">+=</span> <span class="p">(</span>
+                    <span class="s2">&quot; [</span><span class="si">{}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="k">else</span> <span class="s2">&quot; (</span><span class="si">{}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;album&#39;</span><span class="p">][</span><span class="s1">&#39;version&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">album_artists</span> <span class="o">:=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;artists&quot;</span><span class="p">)):</span>
+                <span class="n">album_artist</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">album_artists</span>
+                                <span class="k">if</span> <span class="s2">&quot;main-artist&quot;</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;roles&quot;</span><span class="p">]]</span>
+                <span class="n">album_main_artist</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">album_main_artist</span> <span class="ow">in</span> <span class="n">album_artist</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">:=</span> <span class="n">album_artist</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">album_main_artist</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">album_main_artist</span> <span class="ow">in</span> <span class="n">album_artist</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">album_artist</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">album_artist</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span> <span class="o">=</span> <span class="n">album_artist</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span> <span class="o">=</span> <span class="n">album_main_artist</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+
+        <span class="n">credits</span> <span class="o">=</span> <span class="n">_parse_performers</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;performers&quot;</span><span class="p">],</span> 
+            <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;MainArtist&quot;</span><span class="p">,</span> <span class="s2">&quot;FeaturedArtist&quot;</span><span class="p">,</span> <span class="s2">&quot;Composers&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">artist</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">artist</span> <span class="o">=</span> <span class="n">credits</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;main_artist&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;performer&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">artwork_size</span> <span class="ow">not</span> <span class="ow">in</span> \
+                    <span class="p">(</span><span class="n">ARTWORK_SIZES</span> <span class="o">:=</span> <span class="p">{</span><span class="s2">&quot;large&quot;</span><span class="p">,</span> <span class="s2">&quot;small&quot;</span><span class="p">,</span> <span class="s2">&quot;thumbnail&quot;</span><span class="p">}):</span>
+                <span class="n">emsg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid artwork size &#39;</span><span class="si">{</span><span class="n">artwork_size</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Valid values: </span><span class="si">{</span><span class="n">ARTWORK_SIZES</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;image&quot;</span><span class="p">][</span><span class="n">artwork_size</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_artwork_format</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artwork</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">comment</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">composer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">composer</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">credits</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;composers&quot;</span><span class="p">)</span> 
+                <span class="ow">or</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;composer&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;composer&quot;</span><span class="p">)</span> 
+                    <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">copyright</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">copyright</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;copyright&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">max</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="p">(</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">{</span>
+                        <span class="s2">&quot;release_date_original&quot;</span><span class="p">,</span> 
+                        <span class="s2">&quot;release_date_download&quot;</span><span class="p">,</span> 
+                        <span class="s2">&quot;release_date_stream&quot;</span><span class="p">,</span> 
+                        <span class="s2">&quot;release_date_purchase&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;purchasable_at&quot;</span><span class="p">,</span> 
+                        <span class="s2">&quot;streamable_at&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%SZ&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disc_number</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disc_number</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;media_number&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disc_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">disc_count</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;media_count&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">genre</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">genre</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;genre&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isrc</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">isrc</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;isrc&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">feat_artist</span> <span class="o">:=</span> <span class="n">credits</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;featured_artist&quot;</span><span class="p">))</span> \
+                    <span class="ow">and</span> <span class="s2">&quot;feat.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot; [feat. </span><span class="si">{}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span> 
+                               <span class="k">else</span> <span class="s2">&quot; (feat. </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">utility</span><span class="o">.</span><span class="n">format_multivalue</span><span class="p">(</span><span class="n">feat_artist</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot; [</span><span class="si">{}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span> 
+                               <span class="k">else</span> <span class="s2">&quot; (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track_number</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">track_number</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;track_number&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;tracks_count&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;release_type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;single&quot;</span> \
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="o">+=</span> <span class="s2">&quot; - Single&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artist</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">artist</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span>
+            <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Audio.set_metadata_using_spotify">
 <a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_spotify">[docs]</a>
     <span class="k">def</span> <span class="nf">set_metadata_using_spotify</span><span class="p">(</span>
@@ -1281,135 +1410,6 @@
                         <span class="n">a</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">album_data</span><span class="p">[</span><span class="s2">&quot;artists&quot;</span><span class="p">]</span> 
                         <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;MAIN&quot;</span>
                     <span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="Audio.set_metadata_using_qobuz">
-<a class="viewcode-back" href="../../api/minim.audio.Audio.html#minim.audio.Audio.set_metadata_using_qobuz">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_metadata_using_qobuz</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">artwork_size</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;large&quot;</span><span class="p">,</span>
-            <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Populate tags using data retrieved from the Qobuz API.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        data : `dict`</span>
-<span class="sd">            Information about the track in JSON format obtained using</span>
-<span class="sd">            the Qobuz API via :meth:`minim.qobuz.PrivateAPI.get_track`</span>
-<span class="sd">            or :meth:`minim.qobuz.PrivateAPI.search`.</span>
-
-<span class="sd">        artwork_size : `str`, keyword-only, default: :code:`&quot;large&quot;`</span>
-<span class="sd">            Artwork size.</span>
-
-<span class="sd">            **Valid values**: :code:`&quot;large&quot;`, :code:`&quot;small&quot;`, or</span>
-<span class="sd">            :code:`&quot;thumbnail&quot;`.</span>
-
-<span class="sd">        comment : `str`, keyword-only, optional</span>
-<span class="sd">            Comment or description.</span>
-
-<span class="sd">        overwrite : `bool`, keyword-only, default: :code:`False`</span>
-<span class="sd">            Determines whether existing metadata should be overwritten.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">album_artists</span> <span class="o">:=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;artists&quot;</span><span class="p">)):</span>
-                <span class="n">album_feat_artist</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">album_artists</span>
-                                     <span class="k">if</span> <span class="s2">&quot;featured-artist&quot;</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;roles&quot;</span><span class="p">]]</span>
-                <span class="k">if</span> <span class="n">album_feat_artist</span> <span class="ow">and</span> <span class="s2">&quot;feat.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot; [feat. </span><span class="si">{}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album</span> 
-                                   <span class="k">else</span> <span class="s2">&quot; (feat. </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                        <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span><span class="n">album_feat_artist</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-                    <span class="p">)</span>
-            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;version&quot;</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="o">+=</span> <span class="p">(</span>
-                    <span class="s2">&quot; [</span><span class="si">{}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="k">else</span> <span class="s2">&quot; (</span><span class="si">{}</span><span class="s2">)&quot;</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;album&#39;</span><span class="p">][</span><span class="s1">&#39;version&#39;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">album_artists</span> <span class="o">:=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;artists&quot;</span><span class="p">)):</span>
-                <span class="n">album_artist</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">album_artists</span>
-                                <span class="k">if</span> <span class="s2">&quot;main-artist&quot;</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;roles&quot;</span><span class="p">]]</span>
-                <span class="n">album_main_artist</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">album_main_artist</span> <span class="ow">in</span> <span class="n">album_artist</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">:=</span> <span class="n">album_artist</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">album_main_artist</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">album_main_artist</span> <span class="ow">in</span> <span class="n">album_artist</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">album_artist</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">album_artist</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span> <span class="o">=</span> <span class="n">album_artist</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span> <span class="o">=</span> <span class="n">album_main_artist</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;artist&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-
-        <span class="n">credits</span> <span class="o">=</span> <span class="n">_parse_performers</span><span class="p">(</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;performers&quot;</span><span class="p">],</span> 
-            <span class="n">roles</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;MainArtist&quot;</span><span class="p">,</span> <span class="s2">&quot;FeaturedArtist&quot;</span><span class="p">,</span> <span class="s2">&quot;Composers&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">artist</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">artist</span> <span class="o">=</span> <span class="n">credits</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;main_artist&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;performer&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">artwork_size</span> <span class="ow">not</span> <span class="ow">in</span> \
-                    <span class="p">(</span><span class="n">ARTWORK_SIZES</span> <span class="o">:=</span> <span class="p">{</span><span class="s2">&quot;large&quot;</span><span class="p">,</span> <span class="s2">&quot;small&quot;</span><span class="p">,</span> <span class="s2">&quot;thumbnail&quot;</span><span class="p">}):</span>
-                <span class="n">emsg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid artwork size &#39;</span><span class="si">{</span><span class="n">artwork_size</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;Valid values: </span><span class="si">{</span><span class="n">ARTWORK_SIZES</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;image&quot;</span><span class="p">][</span><span class="n">artwork_size</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_artwork_format</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artwork</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">comment</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">composer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">composer</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">credits</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;composers&quot;</span><span class="p">)</span> 
-                <span class="ow">or</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;composer&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;composer&quot;</span><span class="p">)</span> 
-                    <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">copyright</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">copyright</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;copyright&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
-                <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
-                <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
-                <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">max</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="p">(</span>
-                    <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">{</span>
-                        <span class="s2">&quot;release_date_original&quot;</span><span class="p">,</span> 
-                        <span class="s2">&quot;release_date_download&quot;</span><span class="p">,</span> 
-                        <span class="s2">&quot;release_date_stream&quot;</span><span class="p">,</span> 
-                        <span class="s2">&quot;release_date_purchase&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;purchasable_at&quot;</span><span class="p">,</span> 
-                        <span class="s2">&quot;streamable_at&quot;</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%SZ&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disc_number</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">disc_number</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;media_number&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disc_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">disc_count</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;media_count&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">genre</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">genre</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;genre&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isrc</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">isrc</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;isrc&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">feat_artist</span> <span class="o">:=</span> <span class="n">credits</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;featured_artist&quot;</span><span class="p">))</span> \
-                    <span class="ow">and</span> <span class="s2">&quot;feat.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot; [feat. </span><span class="si">{}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span> 
-                               <span class="k">else</span> <span class="s2">&quot; (feat. </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span><span class="n">feat_artist</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot; [</span><span class="si">{}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span> 
-                               <span class="k">else</span> <span class="s2">&quot; (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track_number</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">track_number</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;track_number&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">][</span><span class="s2">&quot;tracks_count&quot;</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;album&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;release_type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;single&quot;</span> \
-                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="o">+=</span> <span class="s2">&quot; - Single&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artist</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">artist</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">album_artist</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span>
-            <span class="p">)</span></div>
 </div>
 
 
@@ -1448,9 +1448,9 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Fearless.flac&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;03 - Love Story.flac&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;06 You Belong with Me.flac&quot;.</span>
 
 <span class="sd">    multivalue : `bool`</span>
@@ -1528,9 +1528,9 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Red.mp3&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;04 - I Knew You Were Trouble.mp3&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;06 22.mp3&quot;.</span>
 
 <span class="sd">    multivalue : `bool`</span>
@@ -1607,9 +1607,9 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Mine.m4a&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;04 - Speak Now.m4a&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;07 The Story of Us.m4a&quot;.</span>
 
 <span class="sd">    multivalue : `bool`</span>
@@ -1682,7 +1682,7 @@
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">list</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS_TYPES</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> 
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">format_multivalue</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> 
                                                          <span class="n">primary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS_TYPES</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
                         <span class="k">try</span><span class="p">:</span>
@@ -1716,7 +1716,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">track_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">track_count</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="s2">&quot;covr&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;covr&quot;</span><span class="p">),</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">artwork</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">format_multivalue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;covr&quot;</span><span class="p">),</span> 
                                                         <span class="kc">False</span><span class="p">,</span> <span class="n">primary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_artwork_format</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_IMAGE_FORMATS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">artwork</span><span class="o">.</span><span class="n">imageformat</span><span class="p">]</span>
@@ -1736,7 +1736,7 @@
         <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FIELDS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">multivalue_formatter</span><span class="p">(</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">utility</span><span class="o">.</span><span class="n">format_multivalue</span><span class="p">(</span>
                     <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multivalue</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sep</span>
                 <span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -1813,9 +1813,9 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Blank Space.ogg&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;03 - Style.ogg&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;06 Shake It Off.ogg&quot;.</span>
 
 <span class="sd">    multivalue : `bool`</span>
@@ -1911,9 +1911,9 @@
 
 <span class="sd">           * :code:`(&quot;(.*) - (.*)&quot;, (&quot;artist&quot;, &quot;title&quot;))` matches </span>
 <span class="sd">             filenames like &quot;Taylor Swift - Don&#39;t Blame Me.wav&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\\d*) - (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;05 - Delicate.wav&quot;.</span>
-<span class="sd">           * :code:`(&quot;(\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
+<span class="sd">           * :code:`(&quot;(\\d*) (.*)&quot;, (&quot;track_number&quot;, &quot;title&quot;))` matches</span>
 <span class="sd">             filenames like &quot;06 Look What You Made Me Do.wav&quot;.</span>
 
 <span class="sd">    multivalue : `bool`</span>

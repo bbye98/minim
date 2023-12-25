@@ -70,7 +70,7 @@ def format_multivalue(
         return [value]
     return value
 
-def gestalt_ratios(
+def gestalt_ratio(
         reference: str, strings: Union[str, list[str]]
     ) -> Union[float, list[float], "np.ndarray[float]"]:
 
@@ -102,7 +102,7 @@ def gestalt_ratios(
         return np.fromiter(gen, dtype=float, count=len(strings))
     return list(gen)
 
-def levenshtein_ratios(
+def levenshtein_ratio(
         reference: str, strings: Union[str, list[str]]
     ) -> Union[float, list[float], "np.ndarray[float]"]:
 
