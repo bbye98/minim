@@ -346,7 +346,7 @@ class _VorbisComment:
 
 class Audio:
 
-    """
+    r"""
     Generic audio file handler.
 
     Subclasses for specific audio containers or formats include
@@ -360,7 +360,7 @@ class Audio:
       Audio Codec (ALAC), or stored in a MPEG-4 Part 14 (MP4, M4A)
       container,
     * :class:`OggAudio` for Opus or Vorbis audio stored in an Ogg file,
-      or
+      and
     * :class:`WAVEAudio` for audio encoded using linear pulse-code 
       modulation (LPCM) and in the Waveform Audio File Format (WAVE).
 
@@ -397,9 +397,9 @@ class Audio:
 
            * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
              filenames like "Taylor Swift - Cruel Summer.flac".
-           * :code:`("(\d*) - (.*)", ("track_number", "title"))` matches
+           * :code:`("(\\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "04 - The Man.m4a".
-           * :code:`("(\d*) (.*)", ("track_number", "title"))` matches
+           * :code:`("(\\d*) (.*)", ("track_number", "title"))` matches
              filenames like "13 You Need to Calm Down.mp3".
 
     multivalue : `bool`
@@ -1189,9 +1189,9 @@ class FLACAudio(Audio, _VorbisComment):
 
            * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
              filenames like "Taylor Swift - Fearless.flac".
-           * :code:`("(\d*) - (.*)", ("track_number", "title"))` matches
+           * :code:`("(\\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "03 - Love Story.flac".
-           * :code:`("(\d*) (.*)", ("track_number", "title"))` matches
+           * :code:`("(\\d*) (.*)", ("track_number", "title"))` matches
              filenames like "06 You Belong with Me.flac".
 
     multivalue : `bool`
@@ -1266,9 +1266,9 @@ class MP3Audio(Audio, _ID3):
 
            * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
              filenames like "Taylor Swift - Red.mp3".
-           * :code:`("(\d*) - (.*)", ("track_number", "title"))` matches
+           * :code:`("(\\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "04 - I Knew You Were Trouble.mp3".
-           * :code:`("(\d*) (.*)", ("track_number", "title"))` matches
+           * :code:`("(\\d*) (.*)", ("track_number", "title"))` matches
              filenames like "06 22.mp3".
 
     multivalue : `bool`
@@ -1342,9 +1342,9 @@ class MP4Audio(Audio):
 
            * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
              filenames like "Taylor Swift - Mine.m4a".
-           * :code:`("(\d*) - (.*)", ("track_number", "title"))` matches
+           * :code:`("(\\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "04 - Speak Now.m4a".
-           * :code:`("(\d*) (.*)", ("track_number", "title"))` matches
+           * :code:`("(\\d*) (.*)", ("track_number", "title"))` matches
              filenames like "07 The Story of Us.m4a".
 
     multivalue : `bool`
@@ -1437,8 +1437,8 @@ class MP4Audio(Audio):
                 value = None
             setattr(self, field, value)
 
-        self.isrc = self._tags.get("----:com.apple.iTunes:ISRC")[0].decode() \
-                    if "----:com.apple.iTunes:ISRC" in self._tags else None
+        self.isrc = (self._tags.get("----:com.apple.iTunes:ISRC")[0].decode()
+                     if "----:com.apple.iTunes:ISRC" in self._tags else None)
 
         if "disk" in self._tags:
             self.disc_number, self.disc_count = self._tags.get("disk")[0]
@@ -1542,9 +1542,9 @@ class OggAudio(Audio, _VorbisComment):
 
            * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
              filenames like "Taylor Swift - Blank Space.ogg".
-           * :code:`("(\d*) - (.*)", ("track_number", "title"))` matches
+           * :code:`("(\\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "03 - Style.ogg".
-           * :code:`("(\d*) (.*)", ("track_number", "title"))` matches
+           * :code:`("(\\d*) (.*)", ("track_number", "title"))` matches
              filenames like "06 Shake It Off.ogg".
 
     multivalue : `bool`
@@ -1637,9 +1637,9 @@ class WAVEAudio(Audio, _ID3):
 
            * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
              filenames like "Taylor Swift - Don't Blame Me.wav".
-           * :code:`("(\d*) - (.*)", ("track_number", "title"))` matches
+           * :code:`("(\\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "05 - Delicate.wav".
-           * :code:`("(\d*) (.*)", ("track_number", "title"))` matches
+           * :code:`("(\\d*) (.*)", ("track_number", "title"))` matches
              filenames like "06 Look What You Made Me Do.wav".
 
     multivalue : `bool`

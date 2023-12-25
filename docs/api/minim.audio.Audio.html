@@ -256,7 +256,7 @@ Audio Coding (AAC) format, encoded using the Apple Lossless
 Audio Codec (ALAC), or stored in a MPEG-4 Part 14 (MP4, M4A)
 container,</p></li>
 <li><p><a class="reference internal" href="minim.audio.OggAudio.html#minim.audio.OggAudio" title="minim.audio.OggAudio"><code class="xref py py-class docutils literal notranslate"><span class="pre">OggAudio</span></code></a> for Opus or Vorbis audio stored in an Ogg file,
-or</p></li>
+and</p></li>
 <li><p><a class="reference internal" href="minim.audio.WAVEAudio.html#minim.audio.WAVEAudio" title="minim.audio.WAVEAudio"><code class="xref py py-class docutils literal notranslate"><span class="pre">WAVEAudio</span></code></a> for audio encoded using linear pulse-code
 modulation (LPCM) and in the Waveform Audio File Format (WAVE).</p></li>
 </ul>
@@ -289,9 +289,9 @@ field(s).</p>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">(&quot;(.*)</span> <span class="pre">-</span> <span class="pre">(.*)&quot;,</span> <span class="pre">(&quot;artist&quot;,</span> <span class="pre">&quot;title&quot;))</span></code> matches
 filenames like “Taylor Swift - Cruel Summer.flac”.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">(&quot;(d*)</span> <span class="pre">-</span> <span class="pre">(.*)&quot;,</span> <span class="pre">(&quot;track_number&quot;,</span> <span class="pre">&quot;title&quot;))</span></code> matches
+<li><p><code class="code docutils literal notranslate"><span class="pre">(&quot;(\d*)</span> <span class="pre">-</span> <span class="pre">(.*)&quot;,</span> <span class="pre">(&quot;track_number&quot;,</span> <span class="pre">&quot;title&quot;))</span></code> matches
 filenames like “04 - The Man.m4a”.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">(&quot;(d*)</span> <span class="pre">(.*)&quot;,</span> <span class="pre">(&quot;track_number&quot;,</span> <span class="pre">&quot;title&quot;))</span></code> matches
+<li><p><code class="code docutils literal notranslate"><span class="pre">(&quot;(\d*)</span> <span class="pre">(.*)&quot;,</span> <span class="pre">(&quot;track_number&quot;,</span> <span class="pre">&quot;title&quot;))</span></code> matches
 filenames like “13 You Need to Calm Down.mp3”.</p></li>
 </ul>
 </div>

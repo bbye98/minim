@@ -1,4 +1,4 @@
-﻿utility
+utility
 =======
 
 .. automodule:: minim.utility
