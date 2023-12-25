@@ -12,50 +12,14 @@ try:
     import Levenshtein
     FOUND_LEVENSHTEIN = True
 except ModuleNotFoundError:
-    FOUND_LEVELSHTEIN = False
+    FOUND_LEVENSHTEIN = False
 try:
     import numpy as np
     FOUND_NUMPY = True
 except ModuleNotFoundError:
     FOUND_NUMPY = False
 
-__all__ = ["levenshtein_ratio", "format_multivalue"]
-
-def levenshtein_ratio(
-        base: str, values: Union[str, list[str]]
-    ) -> Union[float, list[float], "np.ndarray[float]"]:
-
-    """
-    Compute the Levenshtein ratio, a measure of similarity, for
-    string(s) with respect to a reference string.
-
-    Parameters
-    ----------
-    base : `str`
-        Reference string.
-
-    values : `str` or `list`
-        String(s) to compare with `base`.
-
-    Returns
-    -------
-    ratios : `float`, `list`, or `numpy.ndarray`
-        Levenshtein ratio(s). If `values` is a `str`, a `float` is
-        returned. If `values` is a `list`, a `numpy.ndarray` is returned
-        if NumPy is installed; otherwise, a `list` is returned.
-    """
-
-    if not FOUND_LEVENSHTEIN:
-        emsg = ("The Levenshtein module was not found, so "
-                "minim.utility.levenshtein_ratio() is unavailable.")
-        raise ImportError(emsg)
-    
-    if isinstance(values, str):
-        return Levenshtein.ratio(base, values)
-    gen = (Levenshtein.ratio(base, v) for v in values)
-    if FOUND_NUMPY:
-        return np.fromiter(gen, dtype=float, count=len(values))
-    return list(gen)
+__all__ = ["format_multivalue", "levenshtein_ratio"]
 
 def format_multivalue(
         value: Any, multivalue: bool, *, primary: bool = False,
@@ -103,3 +67,39 @@ def format_multivalue(
     elif multivalue:
         return [value]
     return value
+
+def levenshtein_ratio(
+        base: str, values: Union[str, list[str]]
+    ) -> Union[float, list[float], "np.ndarray[float]"]:
+
+    """
+    Compute the Levenshtein ratio, a measure of similarity, for
+    string(s) with respect to a reference string.
+
+    Parameters
+    ----------
+    base : `str`
+        Reference string.
+
+    values : `str` or `list`
+        String(s) to compare with `base`.
+
+    Returns
+    -------
+    ratios : `float`, `list`, or `numpy.ndarray`
+        Levenshtein ratio(s). If `values` is a `str`, a `float` is
+        returned. If `values` is a `list`, a `numpy.ndarray` is returned
+        if NumPy is installed; otherwise, a `list` is returned.
+    """
+
+    if not FOUND_LEVENSHTEIN:
+        emsg = ("The Levenshtein module was not found, so "
+                "minim.utility.levenshtein_ratio() is unavailable.")
+        raise ImportError(emsg)
+    
+    if isinstance(values, str):
+        return Levenshtein.ratio(base, values)
+    gen = (Levenshtein.ratio(base, v) for v in values)
+    if FOUND_NUMPY:
+        return np.fromiter(gen, dtype=float, count=len(values))
+    return list(gen)

@@ -828,6 +828,132 @@ class Audio:
             if self.copyright or overwrite:
                 self.copyright = album_data["copyright"]
 
+    def set_metadata_using_qobuz(
+            self, data: dict[str, Any], *, artwork_size: str = "large",
+            comment: str = None, overwrite: bool = False) -> None:
+
+        """
+        Populate tags using data retrieved from the Qobuz API.
+
+        Parameters
+        ----------
+        data : `dict`
+            Information about the track in JSON format obtained using
+            the Qobuz API via :meth:`minim.qobuz.PrivateAPI.get_track`
+            or :meth:`minim.qobuz.PrivateAPI.search`.
+
+        artwork_size : `str`, keyword-only, default: :code:`"large"`
+            Artwork size.
+
+            **Valid values**: :code:`"large"`, :code:`"small"`, or
+            :code:`"thumbnail"`.
+
+        comment : `str`, keyword-only, optional
+            Comment or description.
+
+        overwrite : `bool`, keyword-only, default: :code:`False`
+            Determines whether existing metadata should be overwritten.
+        """
+
+        if self.album is None or overwrite:
+            self.album = data["album"]["title"].rstrip()
+            if (album_artists := data["album"].get("artists")):
+                album_feat_artist = [a["name"] for a in album_artists
+                                     if "featured-artist" in a["roles"]]
+                if album_feat_artist and "feat." not in self.album:
+                    self.album += (" [feat. {}]" if "(" in self.album 
+                                   else " (feat. {})").format(
+                        utility.format_multivalue(album_feat_artist, False)
+                    )
+            if data["album"]["version"]:
+                self.album += (
+                    " [{}]" if "(" in self.album else " ({})"
+                ).format(data['album']['version'])
+        if self.album_artist is None or overwrite:
+            if (album_artists := data["album"].get("artists")):
+                album_artist = [a["name"] for a in album_artists
+                                if "main-artist" in a["roles"]]
+                album_main_artist = data["album"]["artist"]["name"]
+                if album_main_artist in album_artist:
+                    if (i := album_artist.index(album_main_artist)
+                        if album_main_artist in album_artist else 0) != 0:
+                        album_artist.insert(0, album_artist.pop(i))
+                    self.album_artist = album_artist
+                else:
+                    self.album_artist = album_main_artist
+            else:
+                self.album_artist = data["album"]["artist"]["name"]
+
+        credits = _parse_performers(
+            data["performers"], 
+            roles=["MainArtist", "FeaturedArtist", "Composers"]
+        )
+        if self.artist is None or overwrite:
+            self.artist = credits.get("main_artist") or data["performer"]["name"]
+        if self.artwork is None or overwrite:
+            if artwork_size not in \
+                    (ARTWORK_SIZES := {"large", "small", "thumbnail"}):
+                emsg = (f"Invalid artwork size '{artwork_size}'. "
+                        f"Valid values: {ARTWORK_SIZES}.")
+                raise ValueError(emsg)
+            self.artwork = data["album"]["image"][artwork_size]
+            self._artwork_format = pathlib.Path(self.artwork).suffix[1:]
+        if self.comment is None or overwrite:
+            self.comment = comment
+        if self.composer is None or overwrite:
+            self.composer = (
+                credits.get("composers") 
+                or (data["composer"]["name"] if hasattr(data, "composer") 
+                    else None)
+            )
+        if self.copyright is None or overwrite:
+            self.copyright = data["album"].get("copyright")
+        if self.date is None or overwrite:
+            self.date = min(
+                datetime.datetime.utcfromtimestamp(dt) if isinstance(dt, int)
+                else datetime.datetime.strptime(dt, "%Y-%m-%d") if isinstance(dt, str)
+                else datetime.datetime.max for dt in (
+                    data.get(k) for k in {
+                        "release_date_original", 
+                        "release_date_download", 
+                        "release_date_stream", 
+                        "release_date_purchase",
+                        "purchasable_at", 
+                        "streamable_at"
+                    }
+                )
+            ).strftime('%Y-%m-%dT%H:%M:%SZ')
+        if self.disc_number is None or overwrite:
+            self.disc_number = data["media_number"]
+        if self.disc_count is None or overwrite:
+            self.disc_count = data["album"]["media_count"]
+        if self.genre is None or overwrite:
+            self.genre = data["album"]["genre"]["name"]
+        if self.isrc is None or overwrite:
+            self.isrc = data["isrc"]
+        if self.title is None or overwrite:
+            self.title = data["title"].rstrip()
+            if (feat_artist := credits.get("featured_artist")) \
+                    and "feat." not in self.title:
+                self.title += (" [feat. {}]" if "(" in self.title 
+                               else " (feat. {})").format(
+                    utility.format_multivalue(feat_artist, False)
+                )
+            if data["version"]:
+                self.title += (" [{}]" if "(" in self.title 
+                               else " ({})").format(data['version'])
+        if self.track_number is None or overwrite:
+            self.track_number = data["track_number"]
+        if self.track_count is None or overwrite:
+            self.track_count = data["album"]["tracks_count"]
+
+        if data["album"].get("release_type") == "single" \
+                and self.album == self.title:
+            self.album += " - Single"
+            self.album_artist = self.artist = max(
+                self.artist, self.album_artist, key=len
+            )
+
     def set_metadata_using_spotify(
             self, data: dict[str, Any], *, 
             audio_features: dict[str, Any] = None, 
@@ -1029,132 +1155,6 @@ class Audio:
                         a["name"] for a in album_data["artists"] 
                         if a["type"] == "MAIN"
                     ]
-
-    def set_metadata_using_qobuz(
-            self, data: dict[str, Any], *, artwork_size: str = "large",
-            comment: str = None, overwrite: bool = False) -> None:
-
-        """
-        Populate tags using data retrieved from the Qobuz API.
-
-        Parameters
-        ----------
-        data : `dict`
-            Information about the track in JSON format obtained using
-            the Qobuz API via :meth:`minim.qobuz.PrivateAPI.get_track`
-            or :meth:`minim.qobuz.PrivateAPI.search`.
-
-        artwork_size : `str`, keyword-only, default: :code:`"large"`
-            Artwork size.
-
-            **Valid values**: :code:`"large"`, :code:`"small"`, or
-            :code:`"thumbnail"`.
-
-        comment : `str`, keyword-only, optional
-            Comment or description.
-
-        overwrite : `bool`, keyword-only, default: :code:`False`
-            Determines whether existing metadata should be overwritten.
-        """
-
-        if self.album is None or overwrite:
-            self.album = data["album"]["title"].rstrip()
-            if (album_artists := data["album"].get("artists")):
-                album_feat_artist = [a["name"] for a in album_artists
-                                     if "featured-artist" in a["roles"]]
-                if album_feat_artist and "feat." not in self.album:
-                    self.album += (" [feat. {}]" if "(" in self.album 
-                                   else " (feat. {})").format(
-                        utility.format_multivalue(album_feat_artist, False)
-                    )
-            if data["album"]["version"]:
-                self.album += (
-                    " [{}]" if "(" in self.album else " ({})"
-                ).format(data['album']['version'])
-        if self.album_artist is None or overwrite:
-            if (album_artists := data["album"].get("artists")):
-                album_artist = [a["name"] for a in album_artists
-                                if "main-artist" in a["roles"]]
-                album_main_artist = data["album"]["artist"]["name"]
-                if album_main_artist in album_artist:
-                    if (i := album_artist.index(album_main_artist)
-                        if album_main_artist in album_artist else 0) != 0:
-                        album_artist.insert(0, album_artist.pop(i))
-                    self.album_artist = album_artist
-                else:
-                    self.album_artist = album_main_artist
-            else:
-                self.album_artist = data["album"]["artist"]["name"]
-
-        credits = _parse_performers(
-            data["performers"], 
-            roles=["MainArtist", "FeaturedArtist", "Composers"]
-        )
-        if self.artist is None or overwrite:
-            self.artist = credits.get("main_artist") or data["performer"]["name"]
-        if self.artwork is None or overwrite:
-            if artwork_size not in \
-                    (ARTWORK_SIZES := {"large", "small", "thumbnail"}):
-                emsg = (f"Invalid artwork size '{artwork_size}'. "
-                        f"Valid values: {ARTWORK_SIZES}.")
-                raise ValueError(emsg)
-            self.artwork = data["album"]["image"][artwork_size]
-            self._artwork_format = pathlib.Path(self.artwork).suffix[1:]
-        if self.comment is None or overwrite:
-            self.comment = comment
-        if self.composer is None or overwrite:
-            self.composer = (
-                credits.get("composers") 
-                or (data["composer"]["name"] if hasattr(data, "composer") 
-                    else None)
-            )
-        if self.copyright is None or overwrite:
-            self.copyright = data["album"].get("copyright")
-        if self.date is None or overwrite:
-            self.date = min(
-                datetime.datetime.utcfromtimestamp(dt) if isinstance(dt, int)
-                else datetime.datetime.strptime(dt, "%Y-%m-%d") if isinstance(dt, str)
-                else datetime.datetime.max for dt in (
-                    data.get(k) for k in {
-                        "release_date_original", 
-                        "release_date_download", 
-                        "release_date_stream", 
-                        "release_date_purchase",
-                        "purchasable_at", 
-                        "streamable_at"
-                    }
-                )
-            ).strftime('%Y-%m-%dT%H:%M:%SZ')
-        if self.disc_number is None or overwrite:
-            self.disc_number = data["media_number"]
-        if self.disc_count is None or overwrite:
-            self.disc_count = data["album"]["media_count"]
-        if self.genre is None or overwrite:
-            self.genre = data["album"]["genre"]["name"]
-        if self.isrc is None or overwrite:
-            self.isrc = data["isrc"]
-        if self.title is None or overwrite:
-            self.title = data["title"].rstrip()
-            if (feat_artist := credits.get("featured_artist")) \
-                    and "feat." not in self.title:
-                self.title += (" [feat. {}]" if "(" in self.title 
-                               else " (feat. {})").format(
-                    utility.format_multivalue(feat_artist, False)
-                )
-            if data["version"]:
-                self.title += (" [{}]" if "(" in self.title 
-                               else " ({})").format(data['version'])
-        if self.track_number is None or overwrite:
-            self.track_number = data["track_number"]
-        if self.track_count is None or overwrite:
-            self.track_count = data["album"]["tracks_count"]
-
-        if data["album"].get("release_type") == "single" \
-                and self.album == self.title:
-            self.album += " - Single"
-            self.album_artist = self.artist = max(
-                self.artist, self.album_artist, key=len
-            )
 
 class FLACAudio(Audio, _VorbisComment):
 
