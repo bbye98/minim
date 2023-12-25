@@ -73,7 +73,7 @@ class _ID3:
                 value = ([sv for v in value for sv in getattr(v, base)]
                          if len(value) > 1 else getattr(value[0], base))
                 if list not in self._FIELDS_TYPES[field]:
-                    value = utility.multivalue_formatter(value, False, 
+                    value = utility.format_multivalue(value, False, 
                                                          primary=True)
                     if type(value) not in self._FIELDS_TYPES[field]:
                         try:
@@ -139,7 +139,7 @@ class _ID3:
         for field, (frame, base, func) in self._FIELDS.items():
             value = getattr(self, field)
             if value:
-                value = utility.multivalue_formatter(
+                value = utility.format_multivalue(
                     value, self._multivalue, sep=self._sep
                 )
                 self._tags.add(
@@ -239,7 +239,7 @@ class _VorbisComment:
             value = self._tags.get(key)
             if value:
                 if list not in self._FIELDS_TYPES[field]:
-                    value = utility.multivalue_formatter(value, False, 
+                    value = utility.format_multivalue(value, False, 
                                                          primary=True)
                     if type(value) not in self._FIELDS_TYPES[field]:
                         try:
@@ -319,7 +319,7 @@ class _VorbisComment:
         for field, (key, func) in (self._FIELDS | self._FIELDS_SPECIAL).items():
             value = getattr(self, field)
             if value:
-                value = utility.multivalue_formatter(
+                value = utility.format_multivalue(
                     value, self._multivalue, sep=self._sep
                 )
                 self._tags[key] = func(value) if func else value
@@ -1065,7 +1065,7 @@ class Audio:
                 if album_feat_artist and "feat." not in self.album:
                     self.album += (" [feat. {}]" if "(" in self.album 
                                    else " (feat. {})").format(
-                        utility.multivalue_formatter(album_feat_artist, False)
+                        utility.format_multivalue(album_feat_artist, False)
                     )
             if data["album"]["version"]:
                 self.album += (
@@ -1139,7 +1139,7 @@ class Audio:
                     and "feat." not in self.title:
                 self.title += (" [feat. {}]" if "(" in self.title 
                                else " (feat. {})").format(
-                    utility.multivalue_formatter(feat_artist, False)
+                    utility.format_multivalue(feat_artist, False)
                 )
             if data["version"]:
                 self.title += (" [{}]" if "(" in self.title 
@@ -1417,7 +1417,7 @@ class MP4Audio(Audio):
             value = self._tags.get(key)
             if value:
                 if list not in self._FIELDS_TYPES[field]:
-                    value = utility.multivalue_formatter(value, False, 
+                    value = utility.format_multivalue(value, False, 
                                                          primary=True)
                     if type(value) not in self._FIELDS_TYPES[field]:
                         try:
@@ -1451,7 +1451,7 @@ class MP4Audio(Audio):
             self.track_number = self.track_count = None
 
         if "covr" in self._tags:
-            self.artwork = utility.multivalue_formatter(self._tags.get("covr"), 
+            self.artwork = utility.format_multivalue(self._tags.get("covr"), 
                                                         False, primary=True)
             self._artwork_format = str(
                 self._IMAGE_FORMATS[self.artwork.imageformat]
@@ -1469,7 +1469,7 @@ class MP4Audio(Audio):
         for field, key in self._FIELDS.items():
             value = getattr(self, field)
             if value:
-                value = utility.multivalue_formatter(
+                value = utility.format_multivalue(
                     value, self._multivalue, sep=self._sep
                 )
                 try:

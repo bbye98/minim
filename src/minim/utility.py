@@ -19,7 +19,7 @@ try:
 except ModuleNotFoundError:
     FOUND_NUMPY = False
 
-__all__ = ["levenshtein_ratio", "multivalue_formatter"]
+__all__ = ["levenshtein_ratio", "format_multivalue"]
 
 def levenshtein_ratio(
         base: str, values: Union[str, list[str]]
@@ -57,7 +57,7 @@ def levenshtein_ratio(
         return np.fromiter(gen, dtype=float, count=len(values))
     return list(gen)
 
-def multivalue_formatter(
+def format_multivalue(
         value: Any, multivalue: bool, *, primary: bool = False,
         sep: Union[str, tuple[str]] = (", ", " & ")) -> Union[str, list[Any]]:
     

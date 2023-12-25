@@ -10,8 +10,7 @@ TIDAL API.
 
 from xml.dom import minidom
 
-from Crypto.Cipher import AES
-from Crypto.Util import Counter
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from . import (
     base64, datetime, hashlib, json, logging, os, pathlib, re, requests, 
@@ -1981,8 +1980,6 @@ class PrivateAPI:
     """
 
     _FLOWS = {"pkce", "device_code"}
-    _MASTER_KEY = (b"P\x89SLC&\x98\xb7\xc6\xa3\n?P.\xb4\xc7a\xf8\xe5n"
-                   b"\x8cth\x13E\xfa?\xbah8\xef\x9e")
     _NAME = f"{__module__}.{__qualname__}"
 
     API_URL = "https://api.tidal.com"
@@ -6673,16 +6670,19 @@ class PrivateAPI:
             codec = manifest["codecs"]
             with self.session.get(manifest["urls"][0]) as r:
                 stream = r.content
-            if manifest["encryptionType"] != "NONE":
-                d_key_id = base64.b64decode(manifest['keyId'])
-                d_id = AES.new(self._MASTER_KEY, AES.MODE_CBC,
-                               d_key_id[:16]).decrypt(d_key_id[16:])
-                d_key, d_nonce = d_id[:16], d_id[16:24]
-                stream = AES.new(
-                    d_key, AES.MODE_CTR,
-                    counter=Counter.new(64, prefix=d_nonce, 
-                                        initial_value=0)
-                ).decrypt(stream)
+            if manifest["encryptionType"] == "OLD_AES":
+                key_id = base64.b64decode(manifest["keyId"])
+                key_nonce = Cipher(
+                    algorithms.AES(b"P\x89SLC&\x98\xb7\xc6\xa3\n?P.\xb4\xc7"
+                                   b"a\xf8\xe5n\x8cth\x13E\xfa?\xbah8\xef\x9e"),
+                    modes.CBC(key_id[:16])
+                ).decryptor().update(key_id[16:])
+                stream = Cipher(
+                    algorithms.AES(key_nonce[:16]),
+                    modes.CTR(key_nonce[16:32])
+                ).decryptor().update(stream)
+            elif manifest["encryptionType"] != "NONE":
+                raise NotImplementedError("Unsupported encryption type.")
         return stream, codec
 
     def get_video_stream(

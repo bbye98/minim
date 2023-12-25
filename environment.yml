@@ -4,15 +4,15 @@ channels:
   - microsoft
 dependencies:
   # CORE DEPENDENCIES
-  - levenshtein
+  - cryptography
   - mutagen
-  - numpy
-  - pycryptodome
   - requests
   # OPTIONAL DEPENDENCIES
   - ffmpeg
   - flask
-  - pytest-playwright
+  - levenshtein
+  - numpy
+  - playwright
   # DEVELOPMENT DEPENDENCIES
   - pytest
   - ruff

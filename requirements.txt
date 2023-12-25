@@ -1,6 +1,6 @@
 # CORE DEPENDENCIES
+cryptography
 mutagen
-pycryptodome
 requests
 
 # OPTIONAL DEPENDENCIES
