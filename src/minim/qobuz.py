@@ -455,7 +455,7 @@ class PrivateAPI:
 
         app_id = app_id or os.environ.get("QOBUZ_PRIVATE_APP_ID")
         app_secret = app_secret or os.environ.get("QOBUZ_PRIVATE_APP_SECRET")
-        if (not app_id or not app_secret) and auth_token:
+        if (app_id is None or app_secret is None) and auth_token is not None:
             emsg = ("App credentials are required when an user "
                     "authentication token is provided.")
             

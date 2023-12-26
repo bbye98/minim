@@ -43,6 +43,7 @@ else:
     warnings.warn(wmsg)
 
 VERSION = "1.0.0"
+REPOSITORY_URL = "https://github.com/bbye98/minim"
 DIR_HOME = pathlib.Path.home()
 DIR_TEMP = pathlib.Path(tempfile.gettempdir())
 ILLEGAL_CHARACTERS = {ord(c): '_' for c in '<>:"/\\|?*'}
