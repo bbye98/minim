@@ -1,0 +1,1145 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+        <title>minim.discogs - Minim 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">Minim 1.0.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/icon.svg" alt="Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide.html">User Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/user_guide/editing_audio_metadata.html">Editing Audio Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/user_guide/getting_recommendations.html">Getting Recommendations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/user_guide/transferring_music_libraries.html">Transferring Music Libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/minim.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.audio.html">audio</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of audio</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.Audio.html">Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.discogs.html">discogs</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of discogs</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.discogs.API.html">API</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.itunes.html">itunes</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of itunes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.itunes.SearchAPI.html">SearchAPI</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.qobuz.html">qobuz</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of qobuz</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.qobuz.PrivateAPI.html">PrivateAPI</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.spotify.html">spotify</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of spotify</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.PrivateLyricsService.html">PrivateLyricsService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.spotify.WebAPI.html">WebAPI</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.tidal.html">tidal</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of tidal</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.API.html">API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.tidal.PrivateAPI.html">PrivateAPI</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/minim.utility.html">utility</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of utility</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.format_multivalue.html">format_multivalue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.gestalt_ratio.html">gestalt_ratio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.utility.levenshtein_ratio.html">levenshtein_ratio</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <h1>Source code for minim.discogs</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Discogs</span>
+<span class="sd">=======</span>
+<span class="sd">.. moduleauthor:: Benjamin Ye &lt;GitHub: bbye98&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">http.server</span> <span class="kn">import</span> <span class="n">HTTPServer</span><span class="p">,</span> <span class="n">BaseHTTPRequestHandler</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">secrets</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">webbrowser</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span><span class="n">FOUND_FLASK</span><span class="p">,</span> <span class="n">FOUND_PLAYWRIGHT</span><span class="p">,</span> <span class="n">VERSION</span><span class="p">,</span> <span class="n">REPOSITORY_URL</span><span class="p">,</span> 
+               <span class="n">DIR_HOME</span><span class="p">,</span> <span class="n">DIR_TEMP</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">FOUND_FLASK</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span>
+<span class="k">if</span> <span class="n">FOUND_PLAYWRIGHT</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">sync_playwright</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;API&quot;</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">_DiscogsRedirectHandler</span><span class="p">(</span><span class="n">BaseHTTPRequestHandler</span><span class="p">):</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    HTTP request handler for the Discogs OAuth 1.0a flow.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">do_GET</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles an incoming GET request and parses the query string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qsl</span><span class="p">(</span>
+                <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">query</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_response</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_header</span><span class="p">(</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">,</span> <span class="s2">&quot;text/html&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_headers</span><span class="p">()</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;denied&quot;</span> <span class="k">if</span> <span class="s2">&quot;denied&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">response</span> <span class="k">else</span> <span class="s2">&quot;granted&quot;</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Access </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">. You may close this page now.&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="API">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API">[docs]</a>
+<span class="k">class</span> <span class="nc">API</span><span class="p">:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Discogs API client.</span>
+
+<span class="sd">    The Discogs API lets developers build their own Discogs-powered </span>
+<span class="sd">    applications for the web, desktop, and mobile devices. It is a</span>
+<span class="sd">    RESTful interface to Discogs data and enables accessing JSON-</span>
+<span class="sd">    formatted information about artists, releases, and labels,</span>
+<span class="sd">    managing user collections and wantlists, creating marketplace</span>
+<span class="sd">    listings, and more.</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">       For more information, see the `Discogs API home page </span>
+<span class="sd">       &lt;https://www.discogs.com/developers&gt;`_.</span>
+
+<span class="sd">    The Discogs API can be accessed with or without authentication.</span>
+<span class="sd">    (client credentials, personal access token, or OAuth access token </span>
+<span class="sd">    and access token secret). However, it is recommended that users at</span>
+<span class="sd">    least provide client credentials to enjoy higher rate limits and </span>
+<span class="sd">    access to image URLs. The consumer key and consumer secret can </span>
+<span class="sd">    either be provided to this class&#39;s constructor as keyword arguments </span>
+<span class="sd">    or be stored as :code:`DISCOGS_CONSUMER_KEY` and </span>
+<span class="sd">    :code:`DISCOGS_CONSUMER_SECRET` in the operating system&#39;s </span>
+<span class="sd">    environment variables. </span>
+<span class="sd">    </span>
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">       To get client credentials, see the Registration section of the</span>
+<span class="sd">       `Authentication page &lt;https://www.discogs.com/developers</span>
+<span class="sd">       /#page:authentication&gt;`_ of the Discogs API website. To take </span>
+<span class="sd">       advantage of Minim&#39;s automatic access token retrieval </span>
+<span class="sd">       functionality for the OAuth 1.0a flow, the redirect URI should be</span>
+<span class="sd">       in the form :code:`http://localhost:{port}/callback`, where </span>
+<span class="sd">       :code:`{port}` is an open port on :code:`localhost`.</span>
+<span class="sd">    </span>
+<span class="sd">    To view and make changes to account information and resources, users</span>
+<span class="sd">    must either provide a personal access token to this class&#39;s </span>
+<span class="sd">    constructor as a keyword argument or store it as </span>
+<span class="sd">    :code:`DISCOGS_PERSONAL_ACCESS_TOKEN` in the operating system&#39;s</span>
+<span class="sd">    environment variables, or undergo the OAuth 1.0a flow, which require</span>
+<span class="sd">    valid client credentials, using Minim. If an existing OAuth access</span>
+<span class="sd">    token/secret pair is available, it can be provided to this class&#39;s</span>
+<span class="sd">    constructor as keyword arguments to bypass the access token </span>
+<span class="sd">    retrieval process.</span>
+
+<span class="sd">    .. tip::</span>
+
+<span class="sd">       The authorization flow and access token can be changed or updated</span>
+<span class="sd">       at any time using :meth:`set_flow` and :meth:`set_access_token`,</span>
+<span class="sd">       respectively.</span>
+
+<span class="sd">    Minim also stores and manages access tokens and their properties. </span>
+<span class="sd">    When the OAuth 1.0a flow is used to acquire an access token/secret </span>
+<span class="sd">    pair, it is automatically saved to the Minim configuration file to </span>
+<span class="sd">    be loaded on the next instantiation of this class. This behavior can</span>
+<span class="sd">    be disabled if there are any security concerns, like if the computer</span>
+<span class="sd">    being used is a shared device.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    consumer_key : `str`, keyword-only, optional</span>
+<span class="sd">        Consumer key. Required for the OAuth 1.0a flow, and can be used</span>
+<span class="sd">        in the Discogs authorization flow alongside a consumer secret. </span>
+<span class="sd">        If it is not stored as :code:`DISCOGS_CONSUMER_KEY` in the </span>
+<span class="sd">        operating system&#39;s environment variables or found in the Minim</span>
+<span class="sd">        configuration file, it can be provided here.</span>
+
+<span class="sd">    consumer_secret : `str`, keyword-only, optional</span>
+<span class="sd">        Consumer secret. Required for the OAuth 1.0a flow, and can be</span>
+<span class="sd">        used in the Discogs authorization flow alongside a consumer key.</span>
+<span class="sd">        If it is not stored as :code:`DISCOGS_CONSUMER_SECRET` in the </span>
+<span class="sd">        operating system&#39;s environment variables or found in the Minim</span>
+<span class="sd">        configuration file, it can be provided here.</span>
+
+<span class="sd">    flow : `str`, keyword-only, optional</span>
+<span class="sd">        Authorization flow. If :code:`None` and no access token is </span>
+<span class="sd">        provided, no user authentication will be performed and client</span>
+<span class="sd">        credentials will not be attached to requests, even if found or</span>
+<span class="sd">        provided.</span>
+
+<span class="sd">        .. container::</span>
+
+<span class="sd">           **Valid values**:</span>
+
+<span class="sd">           * :code:`None` for no user authentication.</span>
+<span class="sd">           * :code:`&quot;discogs&quot;` for the Discogs authentication flow.</span>
+<span class="sd">           * :code:`&quot;oauth&quot;` for the OAuth 1.0a flow.</span>
+
+<span class="sd">    browser : `bool`, keyword-only, default: :code:`False`</span>
+<span class="sd">        Determines whether a web browser is automatically opened for the</span>
+<span class="sd">        OAuth 1.0a flow. If :code:`False`, users will have to manually </span>
+<span class="sd">        open the authorization URL and provide the full callback URI via</span>
+<span class="sd">        the terminal.</span>
+
+<span class="sd">    web_framework : `str`, keyword-only, optional</span>
+<span class="sd">        Determines which web framework to use for the OAuth 1.0a flow.</span>
+<span class="sd">        </span>
+<span class="sd">        .. container::</span>
+
+<span class="sd">           **Valid values**:</span>
+
+<span class="sd">           * :code:`&quot;http.server&quot;` for the built-in implementation of</span>
+<span class="sd">             HTTP servers.</span>
+<span class="sd">           * :code:`&quot;flask&quot;` for the Flask framework.</span>
+<span class="sd">           * :code:`&quot;playwright&quot;` for the Playwright framework by </span>
+<span class="sd">             Microsoft.</span>
+
+<span class="sd">    port : `int` or `str`, keyword-only, default: :code:`8888`</span>
+<span class="sd">        Port on :code:`localhost` to use for the OAuth 1.0a flow with</span>
+<span class="sd">        the :code:`http.server` and Flask frameworks. Only used if </span>
+<span class="sd">        `redirect_uri` is not specified.</span>
+
+<span class="sd">    redirect_uri : `str`, keyword-only, optional</span>
+<span class="sd">        Redirect URI for the OAuth 1.0a flow. If not on </span>
+<span class="sd">        :code:`localhost`, the automatic request access token retrieval</span>
+<span class="sd">        functionality is not available.</span>
+
+<span class="sd">    access_token : `str`, keyword-only, optional</span>
+<span class="sd">        Personal or OAuth access token. If provided here or found in the</span>
+<span class="sd">        Minim configuration file, the authentication process is </span>
+<span class="sd">        bypassed.</span>
+
+<span class="sd">    access_token_secret : `str`, keyword-only, optional</span>
+<span class="sd">        OAuth access token secret accompanying `access_token`.</span>
+
+<span class="sd">    overwrite : `bool`, keyword-only, default: :code:`False`</span>
+<span class="sd">        Determines whether to overwrite an existing access token in the</span>
+<span class="sd">        Minim configuration file.</span>
+
+<span class="sd">    save : `bool`, keyword-only, default: :code:`True`</span>
+<span class="sd">        Determines whether newly obtained access tokens and their</span>
+<span class="sd">        associated properties are stored to the Minim configuration </span>
+<span class="sd">        file.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    API_URL : `str`</span>
+<span class="sd">        Base URL for the Discogs API.</span>
+
+<span class="sd">    ACCESS_TOKEN_URL : `str`</span>
+<span class="sd">        URL for the OAuth 1.0a access token endpoint.</span>
+
+<span class="sd">    AUTH_URL : `str`</span>
+<span class="sd">        URL for the OAuth 1.0a authorization endpoint.</span>
+
+<span class="sd">    REQUEST_TOKEN_URL : `str`</span>
+<span class="sd">        URL for the OAuth 1.0a request token endpoint.</span>
+<span class="sd">        </span>
+<span class="sd">    session : `requests.Session`</span>
+<span class="sd">        Session used to send requests to the Discogs API.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_FLOWS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;discogs&quot;</span><span class="p">,</span> <span class="s2">&quot;oauth&quot;</span><span class="p">}</span>
+    <span class="n">_NAME</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">API_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.discogs.com&quot;</span>
+    <span class="n">ACCESS_TOKEN_URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/oauth/access_token&quot;</span>
+    <span class="n">AUTH_URL</span> <span class="o">=</span> <span class="s2">&quot;https://www.discogs.com/oauth/authorize&quot;</span>
+    <span class="n">REQUEST_TOKEN_URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/oauth/request_token&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">consumer_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">flow</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">browser</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">web_framework</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+            <span class="n">port</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8888</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+            <span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+            <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Discogs API client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;User-Agent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Minim/</span><span class="si">{</span><span class="n">VERSION</span><span class="si">}</span><span class="s2"> +</span><span class="si">{</span><span class="n">REPOSITORY_URL</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">)</span> 
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">):</span>
+            <span class="n">flow</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;flow&quot;</span><span class="p">)</span>
+            <span class="n">access_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
+            <span class="n">access_token_secret</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;access_token_secret&quot;</span><span class="p">)</span>
+            <span class="n">consumer_key</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;consumer_key&quot;</span><span class="p">)</span>
+            <span class="n">consumer_secret</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;consumer_secret&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">flow</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">flow</span> <span class="o">=</span> <span class="s2">&quot;discogs&quot;</span> <span class="k">if</span> <span class="n">access_token_secret</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;oauth&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_flow</span><span class="p">(</span>
+            <span class="n">flow</span><span class="p">,</span> <span class="n">consumer_key</span><span class="o">=</span><span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="o">=</span><span class="n">consumer_secret</span><span class="p">,</span>
+            <span class="n">browser</span><span class="o">=</span><span class="n">browser</span><span class="p">,</span> <span class="n">web_framework</span><span class="o">=</span><span class="n">web_framework</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> 
+            <span class="n">redirect_uri</span><span class="o">=</span><span class="n">redirect_uri</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_access_token</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_authentication</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the user is authenticated for the desired endpoint.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        endpoint : `str`</span>
+<span class="sd">            Discogs API endpoint.</span>
+
+<span class="sd">        token : `bool`, default: :code:`True`</span>
+<span class="sd">            Specifies whether a personal access token or OAuth access</span>
+<span class="sd">            token is required for the endpoint. If :code:`False`, only</span>
+<span class="sd">            client credentials are required.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">!=</span> <span class="s2">&quot;oauth&quot;</span> 
+                <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;discogs&quot;</span> 
+                   <span class="ow">and</span> <span class="s2">&quot;token&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span>
+            <span class="p">):</span>
+            <span class="n">emsg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">() requires user &quot;</span>
+                    <span class="s2">&quot;authentication.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">emsg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">() requires client credentials.&quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a GET request and return the JSON-encoded content of the </span>
+<span class="sd">        response.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        url : `str`</span>
+<span class="sd">            URL for the GET request.</span>
+<span class="sd">        </span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Keyword arguments to pass to :meth:`requests.request`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        resp : `dict`</span>
+<span class="sd">            JSON-encoded content of the response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_request</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">oauth</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct and send a request with status code checking.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        method : `str`</span>
+<span class="sd">            Method for the request.</span>
+
+<span class="sd">        url : `str`</span>
+<span class="sd">            URL for the request.</span>
+
+<span class="sd">        oauth : `dict`, keyword-only, optional</span>
+<span class="sd">            OAuth-related values to be included in the authorization</span>
+<span class="sd">            header.</span>
+
+<span class="sd">        **kwargs</span>
+<span class="sd">            Keyword arguments passed to :meth:`requests.request`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        resp : `requests.Response`</span>
+<span class="sd">            Response to the request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;oauth&quot;</span> \
+                <span class="ow">and</span> <span class="s2">&quot;Authorization&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;headers&quot;</span><span class="p">,</span> <span class="p">{}):</span>
+            <span class="k">if</span> <span class="n">oauth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">oauth</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">oauth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oauth</span> <span class="o">|</span> <span class="p">{</span>
+                <span class="s2">&quot;oauth_nonce&quot;</span><span class="p">:</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_hex</span><span class="p">(</span><span class="mi">32</span><span class="p">),</span> 
+                <span class="s2">&quot;oauth_timestamp&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">}</span> <span class="o">|</span> <span class="n">oauth</span>
+
+            <span class="k">if</span> <span class="s2">&quot;headers&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">][</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;OAuth &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">&quot;&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">oauth</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">)</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">299</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span>
+
+<div class="viewcode-block" id="API.set_access_token">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.set_access_token">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_access_token</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the Discogs API personal or OAuth access token.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        access_token : `str`, optional</span>
+<span class="sd">            Personal or OAuth access token.</span>
+
+<span class="sd">        access_token_secret : `str`, optional</span>
+<span class="sd">            OAuth access token secret.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;oauth&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_oauth</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;oauth_consumer_key&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_consumer_key</span><span class="p">,</span>
+                <span class="s2">&quot;oauth_signature_method&quot;</span><span class="p">:</span> <span class="s2">&quot;PLAINTEXT&quot;</span>
+            <span class="p">}</span>
+
+            <span class="k">if</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">oauth</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;oauth_signature&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_consumer_secret</span><span class="si">}</span><span class="s2">&amp;&quot;</span><span class="p">}</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">oauth</span><span class="p">[</span><span class="s2">&quot;oauth_callback&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+                    <span class="s2">&quot;get&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">REQUEST_TOKEN_URL</span><span class="p">,</span> 
+                    <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/x-www-form-urlencoded&quot;</span>
+                    <span class="p">},</span>
+                    <span class="n">oauth</span><span class="o">=</span><span class="n">oauth</span>
+                <span class="p">)</span>
+                <span class="n">auth_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">AUTH_URL</span><span class="si">}</span><span class="s2">?</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">oauth</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qsl</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_web_framework</span> <span class="o">==</span> <span class="s2">&quot;playwright&quot;</span><span class="p">:</span>
+                    <span class="n">har_file</span> <span class="o">=</span> <span class="n">DIR_TEMP</span> <span class="o">/</span> <span class="s2">&quot;minim_discogs.har&quot;</span>
+                    
+                    <span class="k">with</span> <span class="n">sync_playwright</span><span class="p">()</span> <span class="k">as</span> <span class="n">playwright</span><span class="p">:</span>
+                        <span class="n">browser</span> <span class="o">=</span> <span class="n">playwright</span><span class="o">.</span><span class="n">firefox</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                        <span class="n">context</span> <span class="o">=</span> <span class="n">browser</span><span class="o">.</span><span class="n">new_context</span><span class="p">(</span><span class="n">record_har_path</span><span class="o">=</span><span class="n">har_file</span><span class="p">)</span>
+                        <span class="n">page</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">new_page</span><span class="p">()</span>
+                        <span class="n">page</span><span class="o">.</span><span class="n">goto</span><span class="p">(</span><span class="n">auth_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">page</span><span class="o">.</span><span class="n">wait_for_url</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">,</span> 
+                                            <span class="n">wait_until</span><span class="o">=</span><span class="s2">&quot;commit&quot;</span><span class="p">)</span>
+                        <span class="n">context</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                        <span class="n">browser</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">har_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">oauth</span> <span class="o">|=</span> <span class="nb">dict</span><span class="p">(</span>
+                            <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qsl</span><span class="p">(</span>
+                                <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span>
+                                    <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span><span class="si">}</span><span class="s1">\?(.*?)&quot;&#39;</span><span class="p">,</span> 
+                                                <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                                <span class="p">)</span><span class="o">.</span><span class="n">query</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="n">har_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_browser</span><span class="p">:</span>
+                        <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">auth_url</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;To grant Minim access to Discogs data &quot;</span>
+                              <span class="s2">&quot;and features, open the following link &quot;</span>
+                              <span class="sa">f</span><span class="s2">&quot;in your web browser:</span><span class="se">\n\n</span><span class="si">{</span><span class="n">auth_url</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_web_framework</span> <span class="o">==</span> <span class="s2">&quot;http.server&quot;</span><span class="p">:</span>
+                        <span class="n">httpd</span> <span class="o">=</span> <span class="n">HTTPServer</span><span class="p">((</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">),</span> 
+                                           <span class="n">_DiscogsRedirectHandler</span><span class="p">)</span>
+                        <span class="n">httpd</span><span class="o">.</span><span class="n">handle_request</span><span class="p">()</span>
+                        <span class="n">oauth</span> <span class="o">|=</span> <span class="n">httpd</span><span class="o">.</span><span class="n">response</span>
+
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_web_framework</span> <span class="o">==</span> <span class="s2">&quot;flask&quot;</span><span class="p">:</span>
+                        <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+                        <span class="n">json_file</span> <span class="o">=</span> <span class="n">DIR_TEMP</span> <span class="o">/</span> <span class="s2">&quot;minim_discogs.json&quot;</span>
+
+                        <span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/callback&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+                        <span class="k">def</span> <span class="nf">_callback</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="s2">&quot;error&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                                <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;Access denied. You may close &quot;</span>
+                                        <span class="s2">&quot;this page now.&quot;</span><span class="p">)</span>
+                            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+                            <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;Access granted. You may close &quot;</span>
+                                    <span class="s2">&quot;this page now.&quot;</span><span class="p">)</span>
+
+                        <span class="n">server</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> 
+                                         <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">))</span>
+                        <span class="n">server</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                        <span class="k">while</span> <span class="ow">not</span> <span class="n">json_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+                        <span class="n">server</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+
+                        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                            <span class="n">oauth</span> <span class="o">|=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                        <span class="n">json_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">oauth</span><span class="p">[</span><span class="s2">&quot;oauth_verifier&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+                            <span class="s2">&quot;After authorizing Minim to access Discogs &quot;</span>
+                            <span class="s2">&quot;on your behalf, enter the displayed code &quot;</span>
+                            <span class="s2">&quot;below.</span><span class="se">\n\n</span><span class="s2">Code: &quot;</span>
+                        <span class="p">)</span>
+
+                <span class="k">if</span> <span class="s2">&quot;denied&quot;</span> <span class="ow">in</span> <span class="n">oauth</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Authorization failed.&quot;</span><span class="p">)</span>
+
+                <span class="n">oauth</span><span class="p">[</span><span class="s2">&quot;oauth_signature&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_consumer_secret</span><span class="si">}</span><span class="s2">&quot;</span>
+                                            <span class="sa">f</span><span class="s2">&quot;&amp;</span><span class="si">{</span><span class="n">oauth</span><span class="p">[</span><span class="s1">&#39;oauth_token_secret&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+                    <span class="s2">&quot;post&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ACCESS_TOKEN_URL</span><span class="p">,</span>
+                    <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/x-www-form-urlencoded&quot;</span>
+                    <span class="p">},</span>
+                    <span class="n">oauth</span><span class="o">=</span><span class="n">oauth</span>
+                <span class="p">)</span>
+                <span class="n">access_token</span><span class="p">,</span> <span class="n">access_token_secret</span> <span class="o">=</span> \
+                    <span class="nb">dict</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qsl</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">))</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">:</span>
+                    <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;flow&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span><span class="p">,</span>
+                        <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
+                        <span class="s2">&quot;access_token_secret&quot;</span><span class="p">:</span> <span class="n">access_token_secret</span><span class="p">,</span>
+                        <span class="s2">&quot;consumer_key&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_consumer_key</span><span class="p">,</span>
+                        <span class="s2">&quot;consumer_secret&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_consumer_secret</span>
+                    <span class="p">}</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DIR_HOME</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        
+            <span class="bp">self</span><span class="o">.</span><span class="n">_oauth</span> <span class="o">|=</span> <span class="p">{</span>
+                <span class="s2">&quot;oauth_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
+                <span class="s2">&quot;oauth_signature&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_consumer_secret</span>
+                                   <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;&amp;</span><span class="si">{</span><span class="n">access_token_secret</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">}</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;discogs&quot;</span><span class="p">:</span>
+            <span class="n">access_token</span> <span class="o">=</span> \
+                <span class="n">access_token</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DISCOGS_PERSONAL_ACCESS_TOKEN&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_consumer_key</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_consumer_secret</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">emsg</span> <span class="o">=</span> <span class="s2">&quot;Discogs API client credentials not provided.&quot;</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Discogs key=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_consumer_key</span><span class="si">}</span><span class="s2">, &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;secret=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_consumer_secret</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="sa">f</span><span class="s2">&quot;Discogs token=</span><span class="si">{</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span>
+                
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;oauth&quot;</span> 
+                <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;discogs&quot;</span> 
+                   <span class="ow">and</span> <span class="s2">&quot;token&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]):</span>
+            <span class="n">identity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_identity</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_username</span> <span class="o">=</span> <span class="n">identity</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="API.set_flow">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.set_flow">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_flow</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">consumer_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">consumer_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">browser</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">web_framework</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8888</span><span class="p">,</span>
+            <span class="n">redirect_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the authorization flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        flow : `str`</span>
+<span class="sd">            Authorization flow. If :code:`None`, no user authentication</span>
+<span class="sd">            will be performed and client credentials will not be </span>
+<span class="sd">            attached to requests, even if found or provided.</span>
+
+<span class="sd">            .. container::</span>
+
+<span class="sd">               **Valid values**:</span>
+
+<span class="sd">               * :code:`None` for no user authentication.</span>
+<span class="sd">               * :code:`&quot;discogs&quot;` for the Discogs authentication flow.</span>
+<span class="sd">               * :code:`&quot;oauth&quot;` for the OAuth 1.0a flow.</span>
+
+<span class="sd">        consumer_key : `str`, keyword-only, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">flow</span> <span class="ow">and</span> <span class="n">flow</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FLOWS</span><span class="p">:</span>
+            <span class="n">emsg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid authorization flow (</span><span class="si">{</span><span class="n">flow</span><span class="si">=}</span><span class="s2">). &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Valid values: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_FLOWS</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">=</span> <span class="n">flow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save</span> <span class="o">=</span> <span class="n">save</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_consumer_key</span> <span class="o">=</span> \
+            <span class="n">consumer_key</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DISCOGS_CONSUMER_KEY&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_consumer_secret</span> <span class="o">=</span> \
+            <span class="n">consumer_secret</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DISCOGS_CONSUMER_SECRET&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">flow</span> <span class="o">==</span> <span class="s2">&quot;oauth&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_browser</span> <span class="o">=</span> <span class="n">browser</span>
+            <span class="k">if</span> <span class="n">redirect_uri</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span> <span class="o">=</span> <span class="n">redirect_uri</span>
+                <span class="k">if</span> <span class="s2">&quot;localhost&quot;</span> <span class="ow">in</span> <span class="n">redirect_uri</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;localhost:(\d+)&quot;</span><span class="p">,</span> 
+                                            <span class="n">redirect_uri</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">web_framework</span><span class="p">:</span>
+                    <span class="n">wmsg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The redirect URI is not on localhost, &quot;</span>
+                            <span class="s2">&quot;so automatic authorization code &quot;</span>
+                            <span class="s2">&quot;retrieval is not available.&quot;</span><span class="p">)</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">wmsg</span><span class="p">)</span>
+                    <span class="n">web_framework</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="n">port</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;http://localhost:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">/callback&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_web_framework</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">web_framework</span> 
+                <span class="k">if</span> <span class="n">web_framework</span> <span class="ow">is</span> <span class="kc">None</span> 
+                   <span class="ow">or</span> <span class="n">web_framework</span> <span class="o">==</span> <span class="s2">&quot;http.server&quot;</span>
+                   <span class="ow">or</span> <span class="nb">globals</span><span class="p">()[</span><span class="sa">f</span><span class="s2">&quot;FOUND_</span><span class="si">{</span><span class="n">web_framework</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_web_framework</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">web_framework</span><span class="p">:</span>
+                <span class="n">wmsg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">web_framework</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> web &quot;</span>
+                        <span class="s2">&quot;framework was not found, so automatic &quot;</span>
+                        <span class="s2">&quot;authorization code retrieval is not &quot;</span>
+                        <span class="s2">&quot;available.&quot;</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">wmsg</span><span class="p">)</span></div>
+
+
+    <span class="c1">### DATABASE ##############################################################</span>
+                
+    <span class="c1">### MARKETPLACE ###########################################################</span>
+                
+    <span class="c1">### INVENTORY EXPORT ######################################################</span>
+                
+    <span class="c1">### INVENTORY UPLOAD ######################################################</span>
+                
+    <span class="c1">### USER IDENTITY #########################################################</span>
+
+<div class="viewcode-block" id="API.get_identity">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_identity">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_identity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Identity &gt; Identity &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:user-identity,header:user-identity-identity-get&gt;`_:</span>
+<span class="sd">        Retrieve basic information about the authenticated user.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: warning</span>
+
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
+
+<span class="sd">        You can use this resource to find out who you&#39;re authenticated </span>
+<span class="sd">        as, and it also doubles as a good sanity check to ensure that </span>
+<span class="sd">        you&#39;re using OAuth correctly.</span>
+
+<span class="sd">        For more detailed information, make another request for the </span>
+<span class="sd">        user&#39;s profile using :meth:`get_profile`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        identity : `dict`</span>
+<span class="sd">            Basic information about the authenticated user.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;username&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;consumer_name&quot;: &lt;str&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;get_identity&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/oauth/identity&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="API.get_profile">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_profile">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Identity &gt; Profile &gt; Get Profile </span>
+<span class="sd">        &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:user-identity,header:user-identity-profile-get&gt;`_:</span>
+<span class="sd">        Retrieve a user by username.</span>
+
+<span class="sd">        If authenticated as the requested user, the :code:`&quot;email&quot;` key</span>
+<span class="sd">        will be visible, and the :code:`&quot;num_lists&quot;` count will include</span>
+<span class="sd">        the user&#39;s private lists.</span>
+
+<span class="sd">        If authenticated as the requested user or the user&#39;s </span>
+<span class="sd">        collection/wantlist is public, the </span>
+<span class="sd">        :code:`&quot;num_collection&quot;`/:code:`&quot;num_wantlist&quot;` keys will be</span>
+<span class="sd">        visible.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : `str`, optional</span>
+<span class="sd">            The username of whose profile you are requesting. If not</span>
+<span class="sd">            specified, the profile of the authenticated user is used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;rodneyfool&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        profile : `dict`</span>
+<span class="sd">            Detailed information about the user.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;profile&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;wantlist_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;rank&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;num_pending&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;num_for_sale&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;home_page&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;location&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;collection_folders_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;username&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;collection_fields_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;releases_contributed&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;registered&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;rating_avg&quot;: &lt;float&gt;,</span>
+<span class="sd">                    &quot;num_collection&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;releases_rated&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;num_lists&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;num_wantlist&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;inventory_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;avatar_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;banner_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;buyer_rating&quot;: &lt;float&gt;,</span>
+<span class="sd">                    &quot;buyer_rating_stars&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;buyer_num_ratings&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;seller_rating&quot;: &lt;float&gt;,</span>
+<span class="sd">                    &quot;seller_rating_stars&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;seller_num_ratings&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;curr_abbr&quot;: &lt;str&gt;,</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_username&quot;</span><span class="p">):</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_username</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No username provided.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="API.edit_profile">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.edit_profile">[docs]</a>
+    <span class="k">def</span> <span class="nf">edit_profile</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">home_page</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">profile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">curr_abbr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Identity &gt; Profile &gt; Edit Profile </span>
+<span class="sd">        &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:user-identity,header:user-identity-profile-post&gt;`_:</span>
+<span class="sd">        Edit a user&#39;s profile data.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">            :class: warning</span>
+<span class="sd">  </span>
+<span class="sd">            Requires user authentication with a personal access token or</span>
+<span class="sd">            via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : `str`, keyword-only, optional</span>
+<span class="sd">            The real name of the user.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Nicolas Cage&quot;`.</span>
+
+<span class="sd">        home_page : `str`, keyword-only, optional</span>
+<span class="sd">            The user&#39;s website.</span>
+
+<span class="sd">            **Example**: :code:`&quot;www.discogs.com&quot;`.</span>
+
+<span class="sd">        location : `str`, keyword-only, optional</span>
+<span class="sd">            The geographical location of the user.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Portland&quot;`.</span>
+
+<span class="sd">        profile : `str`, keyword-only, optional</span>
+<span class="sd">            Biological information about the user.</span>
+
+<span class="sd">            **Example**: :code:`&quot;I am a Discogs user!&quot;`.</span>
+
+<span class="sd">        curr_abbr : `str`, keyword-only, optional</span>
+<span class="sd">            Currency abbreviation for marketplace data.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;USD&quot;`, :code:`&quot;GBP&quot;`, </span>
+<span class="sd">            :code:`&quot;EUR&quot;`, :code:`&quot;CAD&quot;`, :code:`&quot;AUD&quot;`, :code:`&quot;JPY&quot;`, </span>
+<span class="sd">            :code:`&quot;CHF&quot;`, :code:`&quot;MXN&quot;`, :code:`&quot;BRL&quot;`, :code:`&quot;NZD&quot;`,</span>
+<span class="sd">            :code:`&quot;SEK&quot;`, and :code:`&quot;ZAR&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        profile : `dict`</span>
+<span class="sd">            Updated profile.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;username&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;email&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;inventory_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;collection_folders_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;collection_fields_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;wantlist_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;profile&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;home_page&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;location&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;registered&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;num_lists&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;num_for_sale&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;num_collection&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;num_wantlist&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;num_pending&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;releases_contributed&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;rank&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;releases_rated&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;rating_avg&quot;: &lt;float&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;edit_profile&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="s2">&quot;post&quot;</span><span class="p">,</span> 
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">json</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;home_page&quot;</span><span class="p">:</span> <span class="n">home_page</span><span class="p">,</span>
+                <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="n">location</span><span class="p">,</span>
+                <span class="s2">&quot;profile&quot;</span><span class="p">:</span> <span class="n">profile</span><span class="p">,</span>
+                <span class="s2">&quot;curr_abbr&quot;</span><span class="p">:</span> <span class="n">curr_abbr</span>
+            <span class="p">}</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="API.get_user_submissions">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_user_submissions">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_user_submissions</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">per_page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span></div>
+
+    
+<div class="viewcode-block" id="API.get_user_contributions">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_user_contributions">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_user_contributions</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">per_page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">sort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">pass</span></div>
+</div>
+
+    
+    <span class="c1">### USER COLLECTION #######################################################</span>
+
+    <span class="c1">### USER WANTLIST #########################################################</span>
+
+    <span class="c1">### USER LISTS ############################################################</span>
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Benjamin Ye
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script>let toggleHintShow = '';</script>
+    <script>let toggleHintHide = '';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    </body>
+</html>

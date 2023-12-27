@@ -8,21 +8,27 @@ endpoints and a minimal implementation to use the private Spotify Lyrics
 service.
 """
 
+import base64
+import datetime
+import hashlib
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import json
+import logging
 from multiprocessing import Process
+import os
+import re
+import secrets
+import time
+from typing import Any, Union
+import urllib
+import warnings
+import webbrowser
 
-try:
-    from flask import Flask, request
-    FOUND_FLASK = True
-except ModuleNotFoundError:
-    FOUND_FLASK = False
- 
-from . import (
-    base64, datetime, hashlib, json, logging, os, re, requests, secrets, time,
-    urllib, warnings, webbrowser,
-    FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, Any, Union, config
-)
+import requests
 
+from . import FOUND_FLASK, FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, config
+if FOUND_FLASK:
+    from . import Flask, request
 if FOUND_PLAYWRIGHT:
     from . import sync_playwright
 
@@ -49,7 +55,9 @@ class _SpotifyRedirectHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/html")
         self.end_headers()
         status = "denied" if "error" in self.server.response else "granted" 
-        self.wfile.write(f"Access {status}. You may close this page now.".encode())
+        self.wfile.write(
+            f"Access {status}. You may close this page now.".encode()
+          )
 
 class PrivateLyricsService:
 
@@ -188,7 +196,7 @@ class PrivateLyricsService:
         ) -> requests.Response:
 
         """
-        Construct and send a request, but with status code checking.
+        Construct and send a request with status code checking.
 
         Parameters
         ----------
@@ -465,7 +473,7 @@ class WebAPI:
            * :code:`"web_player"` for a Spotify Web Player access 
              token.
     
-    framework : `str`, keyword-only, optional
+    web_framework : `str`, keyword-only, optional
         Determines which web framework to use for the authorization code
         flow. 
         
@@ -481,8 +489,8 @@ class WebAPI:
 
     port : `int` or `str`, keyword-only, default: :code:`8888`
         Port on :code:`localhost` to use for the authorization code
-        flow with the Flask framework. Only used if `redirect_uri` is
-        not specified.
+        flow with the :code:`http.server` and Flask frameworks. Only
+        used if `redirect_uri` is not specified.
 
     redirect_uri : `str`, keyword-only, optional
         Redirect URI for the authorization code flow. If not on
@@ -664,7 +672,7 @@ class WebAPI:
 
     def __init__(
             self, *, client_id: str = None, client_secret: str = None,
-            flow: str = "web_player", framework: str = None,
+            flow: str = "web_player", web_framework: str = None,
             port: Union[int, str] = 8888, redirect_uri: str = None,
             scopes: Union[str, list[str]] = "", sp_dc: str = None,
             access_token: str = None, refresh_token: str = None, 
@@ -694,7 +702,7 @@ class WebAPI:
 
         self.set_flow(
             flow, client_id=client_id, client_secret=client_secret, 
-            framework=framework, port=port, redirect_uri=redirect_uri, 
+            web_framework=web_framework, port=port, redirect_uri=redirect_uri, 
             scopes=scopes, sp_dc=sp_dc, save=save
         )
         self.set_access_token(access_token, refresh_token=refresh_token, 
@@ -750,13 +758,13 @@ class WebAPI:
             params["code_challenge_method"] = "S256"
         auth_url = f"{self.AUTH_URL}?{urllib.parse.urlencode(params)}"
 
-        if self._framework == "http.server":
+        if self._web_framework == "http.server":
             httpd = HTTPServer(("", self._port), _SpotifyRedirectHandler)
             webbrowser.open(auth_url)
             httpd.handle_request()
             queries = httpd.response
 
-        elif self._framework == "flask":
+        elif self._web_framework == "flask":
             app = Flask(__name__)
             json_file = DIR_TEMP / "minim_spotify.json"
 
@@ -779,7 +787,7 @@ class WebAPI:
                 queries = json.load(f)
             json_file.unlink()
         
-        elif self._framework == "playwright":
+        elif self._web_framework == "playwright":
             har_file = DIR_TEMP / "minim_spotify.har"
             
             with sync_playwright() as playwright:
@@ -885,7 +893,7 @@ class WebAPI:
         ) -> requests.Response:
 
         """
-        Construct and send a request, but with status code checking.
+        Construct and send a request with status code checking.
 
         Parameters
         ----------
@@ -1037,7 +1045,7 @@ class WebAPI:
 
     def set_flow(
             self, flow: str, *, client_id: str = None, 
-            client_secret: str = None, framework: str = None,
+            client_secret: str = None, web_framework: str = None,
             port: Union[int, str] = 8888, redirect_uri: str = None, 
             scopes: Union[str, list[str]] = "", sp_dc: str = None, 
             save: bool = True) -> None:
@@ -1070,7 +1078,7 @@ class WebAPI:
             Client secret. Required for all OAuth 2.0 authorization 
             flows.
 
-        framework : `str`, keyword-only, optional
+        web_framework : `str`, keyword-only, optional
             Web framework used to automatically complete the 
             authorization code flow.
 
@@ -1085,7 +1093,7 @@ class WebAPI:
             
         port : `int` or `str`, keyword-only, default: :code:`8888`
             Port on :code:`localhost` to use for the authorization code
-            flow with the Flask framework.
+            flow with the :code:`http.server` and Flask frameworks.
 
         redirect_uri : `str`, keyword-only, optional
             Redirect URI for the authorization code flow. If not 
@@ -1127,24 +1135,24 @@ class WebAPI:
                     if "localhost" in redirect_uri:
                         self._port = re.search("localhost:(\d+)", 
                                                redirect_uri).group(1)
-                    elif framework:
+                    elif web_framework:
                         wmsg = ("The redirect URI is not on localhost, "
                                 "so automatic authorization code "
                                 "retrieval is not available.")
                         logging.warning(wmsg)
-                        framework = None
+                        web_framework = None
                 else:
                     self._port = port
                     self._redirect_uri = f"http://localhost:{port}/callback"
 
-                self._framework = (
-                    framework if framework is None 
-                                 or framework == "http.server"
-                                 or globals()[f"FOUND_{framework.upper()}"]
+                self._web_framework = (
+                    web_framework if web_framework is None 
+                        or web_framework == "http.server"
+                        or globals()[f"FOUND_{web_framework.upper()}"]
                     else None
                 )
-                if self._framework is None and framework:
-                    wmsg = (f"The {framework.capitalize()} web "
+                if self._web_framework is None and web_framework:
+                    wmsg = (f"The {web_framework.capitalize()} web "
                             "framework was not found, so automatic "
                             "authorization code retrieval is not "
                             "available.")
@@ -2499,8 +2507,8 @@ class WebAPI:
         """
         `Audiobooks > Get an Audiobook
         <https://developer.spotify.com/documentation/web-api/reference/
-        get-an-audiobook>`_: Get Spotify catalog
-        information for a single audiobook.
+        get-an-audiobook>`_: Get Spotify catalog information for a 
+        single audiobook.
 
         .. note::
 

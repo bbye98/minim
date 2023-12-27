@@ -7,7 +7,8 @@ This module contains a complete implementation of all iTunes Search API
 endpoints.
 """
 
-from . import requests, Any, Union
+import requests
+from typing import Any, Union
 
 __all__ = ["SearchAPI"]
 

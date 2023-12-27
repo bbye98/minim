@@ -7,12 +7,18 @@ This module provides convenient Python objects to keep track of audio
 file handles and metadata, and convert between different audio formats.
 """
 
+import base64
+import datetime
+import logging
+import pathlib
+import re
+import subprocess
+from typing import Any, Union
+import urllib
+
 from mutagen import id3, flac, mp3, mp4, oggflac, oggopus, oggvorbis, wave
 
-from . import (
-    base64, datetime, logging, pathlib, re, subprocess, urllib,
-    utility, FOUND_FFMPEG, FFMPEG_CODECS, Any, Union
-)
+from . import utility, FOUND_FFMPEG, FFMPEG_CODECS
 from .qobuz import _parse_performers
 
 __all__ = ["Audio", "FLACAudio", "MP3Audio", "MP4Audio", "OggAudio",

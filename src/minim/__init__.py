@@ -1,23 +1,14 @@
-import base64
 import configparser
-import datetime
-import hashlib
-import json
-import logging
-import os
-import re
 import pathlib
-import secrets
 import subprocess
 import tempfile
-import time
-from typing import Any, Union
-import urllib
 import warnings
-import webbrowser
 
-import requests
-
+try:
+    from flask import Flask, request
+    FOUND_FLASK = True
+except ModuleNotFoundError:
+    FOUND_FLASK = False
 try:
     from playwright.sync_api import sync_playwright
     FOUND_PLAYWRIGHT = True
@@ -44,8 +35,10 @@ else:
 
 VERSION = "1.0.0"
 REPOSITORY_URL = "https://github.com/bbye98/minim"
+
 DIR_HOME = pathlib.Path.home()
 DIR_TEMP = pathlib.Path(tempfile.gettempdir())
+
 ILLEGAL_CHARACTERS = {ord(c): '_' for c in '<>:"/\\|?*'}
 
 config = configparser.ConfigParser()
@@ -58,10 +51,8 @@ if not config.has_section("minim"):
 from . import audio, itunes, qobuz, spotify, tidal, utility # noqa: E402
 
 __all__ = [
-    "base64", "datetime", "hashlib", "json", "logging", "os", "re", "requests",
-    "secrets", "subprocess", "time", "urllib", "warnings", "webbrowser",
     "audio", "itunes", "qobuz", "spotify", "tidal", "utility",
-    "FOUND_PLAYWRIGHT", "FOUND_FFMPEG", "FFMPEG_CODECS", "VERSION",
-    "DIR_HOME", "DIR_TEMP", "ILLEGAL_CHARACTERS",
-    "Any", "Union", "sync_playwright", "config"
+    "FOUND_FFMPEG", "FFMPEG_CODECS", "FOUND_FLASK", "FOUND_PLAYWRIGHT", 
+    "VERSION", "REPOSITORY_URL", "DIR_HOME", "DIR_TEMP", "ILLEGAL_CHARACTERS",
+    "config"
 ]

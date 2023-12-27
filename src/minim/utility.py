@@ -7,8 +7,7 @@ This module contains a collection of utility functions.
 """
 
 from difflib import SequenceMatcher
-
-from . import Any, Union
+from typing import Any, Union
 
 try:
     import Levenshtein

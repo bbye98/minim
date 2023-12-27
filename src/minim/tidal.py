@@ -8,16 +8,26 @@ endpoints and a minimum implementation of the more robust but private
 TIDAL API.
 """
 
+import base64
+import datetime
+import hashlib
+import json
+import logging
+import os
+import pathlib
+import re
+import secrets
+import time
+from typing import Any, Union
+import urllib
+import warnings
+import webbrowser
 from xml.dom import minidom
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+import requests
 
-from . import (
-    base64, datetime, hashlib, json, logging, os, pathlib, re, requests, 
-    secrets, time, urllib, warnings, webbrowser,
-    FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, Any, Union, config
-)
-
+from . import FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, config
 if FOUND_PLAYWRIGHT:
     from . import sync_playwright
 
@@ -183,7 +193,7 @@ class API:
     def _request(self, method: str, url: str, **kwargs) -> requests.Response:
 
         """
-        Construct and send a request, but with status code checking.
+        Construct and send a request with status code checking.
 
         Parameters
         ----------
@@ -2227,7 +2237,7 @@ class PrivateAPI:
         ) -> requests.Response:
 
         """
-        Construct and send a request, but with status code checking.
+        Construct and send a request with status code checking.
 
         Parameters
         ----------

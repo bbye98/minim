@@ -6,11 +6,17 @@ Qobuz
 This module contains a minimum implementation of the private Qobuz API.
 """
 
-from . import (
-    base64, datetime, hashlib, logging, os, re, requests,
-    FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, Any, Union, config
-)
+import base64
+import datetime
+import hashlib
+import logging
+import os
+import re
+from typing import Any, Union
 
+import requests
+
+from . import FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, config
 if FOUND_PLAYWRIGHT:
     from . import sync_playwright
 
@@ -257,7 +263,7 @@ class PrivateAPI:
     def _request(self, method: str, url: str, **kwargs) -> requests.Response:
 
         """
-        Construct and send a request, but with status code checking.
+        Construct and send a request with status code checking.
 
         Parameters
         ----------

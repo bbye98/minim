@@ -27,6 +27,7 @@
    :recursive:
 
    minim.audio
+   minim.discogs
    minim.itunes
    minim.qobuz
    minim.spotify
