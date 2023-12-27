@@ -92,13 +92,11 @@ class API:
     
     To view and make changes to account information and resources, users
     must either provide a personal access token to this class's 
-    constructor as a keyword argument or store it as 
-    :code:`DISCOGS_PERSONAL_ACCESS_TOKEN` in the operating system's
-    environment variables, or undergo the OAuth 1.0a flow, which require
-    valid client credentials, using Minim. If an existing OAuth access
-    token/secret pair is available, it can be provided to this class's
-    constructor as keyword arguments to bypass the access token 
-    retrieval process.
+    constructor as a keyword argument or undergo the OAuth 1.0a flow, 
+    which require valid client credentials, using Minim. If an existing
+    OAuth access token/secret pair is available, it can be provided to
+    this class's constructor as keyword arguments to bypass the access
+    token retrieval process.
 
     .. tip::
 
@@ -350,7 +348,7 @@ class API:
         ) -> None:
 
         """
-        Set the Discogs API personal or OAuth access token.
+        Set the Discogs API personal or OAuth access token (and secret).
 
         Parameters
         ----------
@@ -486,8 +484,6 @@ class API:
             }
 
         elif self._flow == "discogs":
-            access_token = \
-                access_token or os.environ.get("DISCOGS_PERSONAL_ACCESS_TOKEN")
             if access_token is None:
                 if self._consumer_key is None or self._consumer_secret is None:
                     emsg = "Discogs API client credentials not provided."
@@ -619,7 +615,7 @@ class API:
                .. code::
 
                   {
-                    "id": <int>,
+                    "id": <int><int>,
                     "username": <str>,
                     "resource_url": <str>,
                     "consumer_name": <str>
@@ -651,7 +647,7 @@ class API:
         ----------
         username : `str`, optional
             The username of whose profile you are requesting. If not
-            specified, the profile of the authenticated user is used.
+            specified, the username of the authenticated user is used.
 
             **Example**: :code:`"rodneyfool"`.
 
@@ -670,7 +666,7 @@ class API:
                     "wantlist_url": <str>,
                     "rank": <int>,
                     "num_pending": <int>,
-                    "id": <int>,
+                    "id": <int><int>,
                     "num_for_sale": <int>,
                     "home_page": <str>,
                     "location": <str>,
@@ -765,7 +761,7 @@ class API:
                .. code::
 
                   {
-                    "id": <int>,
+                    "id": <int><int>,
                     "username": <str>,
                     "name": <str>,
                     "email": <str>,
@@ -793,6 +789,16 @@ class API:
         
         self._check_authentication("edit_profile")
 
+        if curr_abbr and curr_abbr not in (
+                CURRENCIES := {
+                    "USD", "GBP", "EUR", "CAD", "AUD", "JPY",
+                    "CHF", "MXN", "BRL", "NZD", "SEK", "ZAR"
+                }
+            ):
+            emsg = (f"Invalid currency abbreviation ({curr_abbr=}). "
+                    f"Valid values: {', '.join(CURRENCIES)}.")
+            raise ValueError(emsg)
+
         return self._request(
             "post", 
             f"{self.API_URL}/users/{self._username}",
@@ -806,24 +812,361 @@ class API:
         ).json()
 
     def get_user_submissions(
-            self, username: str, *, page: int = None, per_page: int = None
-        ) -> dict[str, Any]:
+            self, username: str = None, *, page: int = None, 
+            per_page: int = None) -> dict[str, Any]:
 
         """
+        `User Identity > User Submissions <https://www.discogs.com
+        /developers/#page:user-identity,header
+        :user-identity-user-submissions-get>`_: Retrieve a user's
+        submissions (edits made to releases, labels, and artists) by
+        username.
 
+        Parameters
+        ----------
+        username : `str`, optional
+            The username of the submissions you are trying to fetch. If 
+            not specified, the username of the authenticated user is 
+            used.
+
+            **Example**: :code:`"shooezgirl"`.
+
+        page : `int`, keyword-only, optional
+            Page of results to fetch.
+
+        per_page : `int`, keyword-only, optional
+            Number of results per page.
+
+        Returns
+        -------
+        submissions : `dict`
+            Submissions made by the user.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {}
+                    },
+                    "submissions": {
+                      "artists": [
+                        {
+                          "data_quality": <str>,
+                          "id": <int>,
+                          "name": <str>,
+                          "namevariations": [<str>],
+                          "releases_url": <str>,
+                          "resource_url": <str>,
+                          "uri": <str>
+                        }
+                      ],
+                      "labels": [],
+                      "releases": [
+                        {
+                          "artists": [
+                            {
+                              "anv": <str>,
+                              "id": <int>,
+                              "join": <str>,
+                              "name": <str>,
+                              "resource_url": <str>,
+                              "role": <str>,
+                              "tracks": <str>
+                            }
+                          ],
+                          "community": {
+                            "contributors": [
+                              {
+                                "resource_url": <str>,
+                                "username": <str>
+                              },
+                              {
+                                "resource_url": <str>,
+                                "username": <str>
+                              }
+                            ],
+                            "data_quality": <str>,
+                            "have": <int>,
+                            "rating": {
+                              "average": <int>,
+                              "count": <int>
+                            },
+                            "status": <str>,
+                            "submitter": {
+                              "resource_url": <str>,
+                              "username": <str>
+                            },
+                            "want": <int>
+                          },
+                          "companies": [],
+                          "country": <str>,
+                          "data_quality": <str>,
+                          "date_added": <str>,
+                          "date_changed": <str>,
+                          "estimated_weight": <int>,
+                          "format_quantity": <int>,
+                          "formats": [
+                            {
+                              "descriptions": [<str>],
+                              "name": <str>,
+                              "qty": <str>
+                            }
+                          ],
+                          "genres": [<str>],
+                          "id": <int>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "resource_url": <str>,
+                              "type": <str>,
+                              "uri": <str>,
+                              "uri150": <str>,
+                              "width": <int>
+                            },
+                            {
+                              "height": <int>,
+                              "resource_url": <str>,
+                              "type": <str>,
+                              "uri": <str>,
+                              "uri150": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "labels": [
+                            {
+                              "catno": <str>,
+                              "entity_type": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "resource_url": <str>
+                            }
+                          ],
+                          "master_id": <int>,
+                          "master_url": <str>,
+                          "notes": <str>,
+                          "released": <str>,
+                          "released_formatted": <str>,
+                          "resource_url": <str>,
+                          "series": [],
+                          "status": <str>,
+                          "styles": [<str>],
+                          "thumb": <str>,
+                          "title": <str>,
+                          "uri": <str>,
+                          "videos": [
+                            {
+                              "description": <str>,
+                              "duration": <int>,
+                              "embed": <bool>,
+                              "title": <str>,
+                              "uri": <str>
+                            },
+                            {
+                              "description": <str>,
+                              "duration": <int>,
+                              "embed": <bool>,
+                              "title": <str>,
+                              "uri": <str>
+                            },
+                            {
+                              "description": <str>,
+                              "duration": <int>,
+                              "embed": <bool>,
+                              "title": <str>,
+                              "uri": <str>
+                            }
+                          ],
+                          "year": <int>
+                        }
+                      ]
+                    }
+                  }
         """
 
-        pass
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        return self._get_json(
+            f"{self.API_URL}/users/{username}/submissions",
+            params={"page": page, "per_page": per_page}
+        )
     
     def get_user_contributions(
-            self, username: str, *, page: int = None, per_page: int = None,
-            sort: str = None, sort_order: str = None) -> dict[str, Any]:
+            self, username: str = None, *, page: int = None, 
+            per_page: int = None, sort: str = None, sort_order: str = None
+        ) -> dict[str, Any]:
         
+        """
+        `User Identity > User Contributions <https://www.discogs.com
+        /developers/#page:user-identity,header
+        :user-identity-user-contributions-get>`_: Retrieve a user's 
+        contributions (releases, labels, artists) by username.
+
+        Parameters
+        ----------
+        username : `str`, optional
+            The username of the contributions you are trying to fetch.
+            If not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"shooezgirl"`.
+
+        page : `int`, keyword-only, optional
+            Page of results to fetch.
+
+        per_page : `int`, keyword-only, optional
+            Number of results per page.
+
+        sort : `str`, keyword-only, optional
+            Sort items by this field.
+
+            **Valid values**: :code:`"label"`, :code:`"artist"`,
+            :code:`"title"`, :code:`"catno"`, :code:`"format"`,
+            :code:`"rating"`, :code:`"year"`, and :code:`"added"`.
+
+        sort_order : `str`, keyword-only, optional
+            Sort items in a particular order.
+
+            **Valid values**: :code:`"asc"` and :code:`"desc"`.
+            
+        Returns
+        -------
+        contributions : `dict`
+            Contributions made by the user.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {}
+                    },
+                    "contributions": [
+                      {
+                        "artists": [
+                          {
+                            "anv": <str>,
+                            "id": <int>,
+                            "join": <str>,
+                            "name": <str>,
+                            "resource_url": <str>,
+                            "role": <str>,
+                            "tracks": <str>
+                          }
+                        ],
+                        "community": {
+                          "contributors": [
+                            {
+                              "resource_url": <str>,
+                              "username": <str>
+                            },
+                            {
+                              "resource_url": <str>,
+                              "username": <str>
+                            }
+                          ],
+                          "data_quality": <str>,
+                          "have": <int>,
+                          "rating": {
+                            "average": <int>,
+                            "count": <int>
+                          },
+                          "status": <str>,
+                          "submitter": {
+                            "resource_url": <str>,
+                            "username": <str>
+                          },
+                          "want": <int>
+                        },
+                        "companies": [],
+                        "country": <str>,
+                        "data_quality": <str>,
+                        "date_added": <str>,
+                        "date_changed": <str>,
+                        "estimated_weight": <int>,
+                        "format_quantity": <int>,
+                        "formats": [
+                          {
+                            "descriptions": [<str>],
+                            "name": <str>,
+                            "qty": <str>
+                          }
+                        ],
+                        "genres": [<str>],
+                        "id": <int>,
+                        "images": [
+                          {
+                            "height": <int>,
+                            "resource_url": <str>,
+                            "type": <str>,
+                            "uri": <str>,
+                            "uri150": <str>,
+                            "width": <int>
+                          }
+                        ],
+                        "labels": [
+                          {
+                            "catno": <str>,
+                            "entity_type": <str>,
+                            "id": <int>,
+                            "name": <str>,
+                            "resource_url": <str>
+                          }
+                        ],
+                        "master_id": <int>,
+                        "master_url": <str>,
+                        "notes": <str>,
+                        "released": <str>,
+                        "released_formatted": <str>,
+                        "resource_url": <str>,
+                        "series": [],
+                        "status": <str>,
+                        "styles": [<str>],
+                        "thumb": <str>,
+                        "title": <str>,
+                        "uri": <str>,
+                        "videos": [
+                          {
+                            "description": <str>,
+                            "duration": <int>,
+                            "embed": <bool>,
+                            "title": <str>,
+                            "uri": <str>
+                          }
+                        ],
+                        "year": <int>
+                      }
+                    ]
+                  }
         """
 
-        """
-        
-        pass
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        return self._get_json(
+            f"{self.API_URL}/users/{username}/contributions",
+            params={"page": page, "per_page": per_page, "sort": sort,
+                    "sort_order": sort_order}
+        )
     
     ### USER COLLECTION #######################################################
 

@@ -279,13 +279,11 @@ in the form <code class="code docutils literal notranslate"><span class="pre">ht
 </div>
 <p>To view and make changes to account information and resources, users
 must either provide a personal access token to this class’s
-constructor as a keyword argument or store it as
-<code class="code docutils literal notranslate"><span class="pre">DISCOGS_PERSONAL_ACCESS_TOKEN</span></code> in the operating system’s
-environment variables, or undergo the OAuth 1.0a flow, which require
-valid client credentials, using Minim. If an existing OAuth access
-token/secret pair is available, it can be provided to this class’s
-constructor as keyword arguments to bypass the access token
-retrieval process.</p>
+constructor as a keyword argument or undergo the OAuth 1.0a flow,
+which require valid client credentials, using Minim. If an existing
+OAuth access token/secret pair is available, it can be provided to
+this class’s constructor as keyword arguments to bypass the access
+token retrieval process.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>The authorization flow and access token can be changed or updated
@@ -395,13 +393,13 @@ file.</p>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-profile-get">User Identity &gt; Profile &gt; Get Profile</a>: Retrieve a user by username.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_contributions" title="minim.discogs.API.get_user_contributions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_contributions</span></code></a></p></td>
-<td><p></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-user-contributions-get">User Identity &gt; User Contributions</a>: Retrieve a user's contributions (releases, labels, artists) by username.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_submissions" title="minim.discogs.API.get_user_submissions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_submissions</span></code></a></p></td>
-<td><p></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-user-submissions-get">User Identity &gt; User Submissions</a>: Retrieve a user's submissions (edits made to releases, labels, and artists) by username.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.set_access_token" title="minim.discogs.API.set_access_token"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_access_token</span></code></a></p></td>
-<td><p>Set the Discogs API personal or OAuth access token.</p></td>
+<td><p>Set the Discogs API personal or OAuth access token (and secret).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.set_flow" title="minim.discogs.API.set_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flow</span></code></a></p></td>
 <td><p>Set the authorization flow.</p></td>
@@ -412,7 +410,7 @@ file.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.discogs.API.set_access_token">
 <span class="sig-name descname"><span class="pre">set_access_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token_secret</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.set_access_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.set_access_token" title="Link to this definition">#</a></dt>
-<dd><p>Set the Discogs API personal or OAuth access token.</p>
+<dd><p>Set the Discogs API personal or OAuth access token (and secret).</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
@@ -472,7 +470,7 @@ user’s profile using <a class="reference internal" href="#minim.discogs.API.ge
 <div class="dropdown admonition">
 <p class="admonition-title">Sample</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
   <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
   <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
   <span class="s2">&quot;consumer_name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
@@ -502,7 +500,7 @@ visible.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>username</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>The username of whose profile you are requesting. If not
-specified, the profile of the authenticated user is used.</p>
+specified, the username of the authenticated user is used.</p>
 <p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;rodneyfool&quot;</span></code>.</p>
 </dd>
 </dl>
@@ -517,7 +515,7 @@ specified, the profile of the authenticated user is used.</p>
   <span class="s2">&quot;wantlist_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
   <span class="s2">&quot;rank&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
   <span class="s2">&quot;num_pending&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
-  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
   <span class="s2">&quot;num_for_sale&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
   <span class="s2">&quot;home_page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
   <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
@@ -593,7 +591,7 @@ via the OAuth 1.0a flow.</p>
 <div class="dropdown admonition">
 <p class="admonition-title">Sample</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
   <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
   <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
   <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
@@ -628,13 +626,324 @@ via the OAuth 1.0a flow.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.discogs.API.get_user_submissions">
-<span class="sig-name descname"><span class="pre">get_user_submissions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_user_submissions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_user_submissions" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">get_user_submissions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_user_submissions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_user_submissions" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-user-submissions-get">User Identity &gt; User Submissions</a>: Retrieve a user’s
+submissions (edits made to releases, labels, and artists) by
+username.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>The username of the submissions you are trying to fetch. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;shooezgirl&quot;</span></code>.</p>
+</dd>
+<dt><strong>page</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Page of results to fetch.</p>
+</dd>
+<dt><strong>per_page</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Number of results per page.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>submissions</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Submissions made by the user.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;pagination&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;pages&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;urls&quot;</span><span class="p">:</span> <span class="p">{}</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;submissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;artists&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;data_quality&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;namevariations&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+        <span class="s2">&quot;releases_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;releases&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;artists&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;anv&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;join&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;tracks&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;community&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;contributors&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+              <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+              <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+              <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+              <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+            <span class="p">}</span>
+          <span class="p">],</span>
+          <span class="s2">&quot;data_quality&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;have&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;rating&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;average&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+          <span class="p">},</span>
+          <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;submitter&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">},</span>
+          <span class="s2">&quot;want&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;companies&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;country&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;data_quality&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;date_added&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;date_changed&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;estimated_weight&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;format_quantity&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;formats&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;descriptions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;genres&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;uri150&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+          <span class="p">},</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;uri150&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;catno&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;master_id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;master_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;released&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;released_formatted&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;series&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;styles&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+        <span class="s2">&quot;thumb&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;videos&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;embed&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">bool</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">},</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;embed&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">bool</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">},</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;embed&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">bool</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.discogs.API.get_user_contributions">
-<span class="sig-name descname"><span class="pre">get_user_contributions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_user_contributions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_user_contributions" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">get_user_contributions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_user_contributions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_user_contributions" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-user-contributions-get">User Identity &gt; User Contributions</a>: Retrieve a user’s
+contributions (releases, labels, artists) by username.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>The username of the contributions you are trying to fetch.
+If not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;shooezgirl&quot;</span></code>.</p>
+</dd>
+<dt><strong>page</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Page of results to fetch.</p>
+</dd>
+<dt><strong>per_page</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Number of results per page.</p>
+</dd>
+<dt><strong>sort</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Sort items by this field.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;label&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;title&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;catno&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;format&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;rating&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;year&quot;</span></code>, and <code class="code docutils literal notranslate"><span class="pre">&quot;added&quot;</span></code>.</p>
+</dd>
+<dt><strong>sort_order</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Sort items in a particular order.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;asc&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;desc&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>contributions</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Contributions made by the user.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;pagination&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;pages&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;urls&quot;</span><span class="p">:</span> <span class="p">{}</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;contributions&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;artists&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s2">&quot;anv&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;join&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;tracks&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;community&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;contributors&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">},</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;data_quality&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;have&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;rating&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;average&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;submitter&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;want&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;companies&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="s2">&quot;country&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;data_quality&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;date_added&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;date_changed&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;estimated_weight&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;format_quantity&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;formats&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s2">&quot;descriptions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+          <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;genres&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;uri150&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s2">&quot;catno&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;master_id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;master_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;released&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;released_formatted&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;series&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;styles&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+      <span class="s2">&quot;thumb&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;videos&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;embed&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">bool</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
