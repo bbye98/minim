@@ -323,17 +323,15 @@ class API:
             Response to the request.
         """
 
-        if self._flow == "oauth" \
-                and "Authorization" not in kwargs.get("headers", {}):
+        if "headers" not in kwargs:
+            kwargs["headers"] = {}
+        if self._flow == "oauth" and "Authorization" not in kwargs["headers"]:
             if oauth is None:
                 oauth = {}
             oauth = self._oauth | {
                 "oauth_nonce": secrets.token_hex(32), 
                 "oauth_timestamp": f"{time.time():.0f}"
             } | oauth
-
-            if "headers" not in kwargs:
-                kwargs["headers"] = {}
             kwargs["headers"]["Authorization"] = "OAuth " + ", ".join(
                 f'{k}="{v}"' for k, v in oauth.items()
             )
@@ -575,7 +573,358 @@ class API:
                 warnings.warn(wmsg)
 
     ### DATABASE ##############################################################
-                
+
+    def get_release(
+            self, release_id: Union[int, str], *, curr_abbr: str = None
+        ) -> dict[str, Any]:
+
+        """
+        `Database > Release <https://www.discogs.com
+        /developers/#page:database,header:database-release-get>`_:
+        Get a release (physical or digital object released by one or
+        more artists).
+
+        Parameters
+        ----------
+        release_id : `int` or `str`
+            The release ID.
+
+            **Example**: :code:`249504`.
+
+        curr_abbr : `str`, keyword-only, optional
+            Currency abbreviation for marketplace data. Defaults to the
+            authenticated user's currency.
+
+            **Valid values**: :code:`"USD"`, :code:`"GBP"`, 
+            :code:`"EUR"`, :code:`"CAD"`, :code:`"AUD"`, :code:`"JPY"`, 
+            :code:`"CHF"`, :code:`"MXN"`, :code:`"BRL"`, :code:`"NZD"`,
+            :code:`"SEK"`, and :code:`"ZAR"`.
+
+        Returns
+        -------
+        release : `dict`
+            Discogs database information for a single release.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "title": <str>,
+                    "id": <int>,
+                    "artists": [
+                      {
+                        "anv": <str>,
+                        "id": <int>,
+                        "join": <str>,
+                        "name": <str>,
+                        "resource_url": <str>,
+                        "role": <str>,
+                        "tracks": <str>
+                      }
+                    ],
+                    "data_quality": <str>,
+                    "thumb": <str>,
+                    "community": {
+                      "contributors": [
+                        {
+                          "resource_url": <str>,
+                          "username": <str>
+                        }
+                      ],
+                      "data_quality": <str>,
+                      "have": <int>,
+                      "rating": {
+                        "average": <float>,
+                        "count": <int>
+                      },
+                      "status": <str>,
+                      "submitter": {
+                        "resource_url": <str>,
+                        "username": <str>
+                      },
+                      "want": <int>
+                    },
+                    "companies": [
+                      {
+                        "catno": <str>,
+                        "entity_type": <str>,
+                        "entity_type_name": <str>,
+                        "id": <int>,
+                        "name": <str>,
+                        "resource_url": <str>
+                      }
+                    ],
+                    "country": <str>,
+                    "date_added": <str>,
+                    "date_changed": <str>,
+                    "estimated_weight": <int>,
+                    "extraartists": [
+                      {
+                        "anv": <str>,
+                        "id": <int>,
+                        "join": <str>,
+                        "name": <str>,
+                        "resource_url": <str>,
+                        "role": <str>,
+                        "tracks": <str>
+                      }
+                    ],
+                    "format_quantity": <int>,
+                    "formats": [
+                      {
+                        "descriptions": [<str>],
+                        "name": <str>,
+                        "qty": <str>
+                      }
+                    ],
+                    "genres": [<str>],
+                    "identifiers": [
+                      {
+                        "type": <str>,
+                        "value": <str>
+                      },
+                    ],
+                    "images": [
+                      {
+                        "height": <int>,
+                        "resource_url": <str>,
+                        "type": <str>,
+                        "uri": <str>,
+                        "uri150": <str>,
+                        "width": <int>
+                      }
+                    ],
+                    "labels": [
+                      {
+                        "catno": <str>,
+                        "entity_type": <str>,
+                        "id": <int>,
+                        "name": <str>,
+                        "resource_url": <str>
+                      }
+                    ],
+                    "lowest_price": <float>,
+                    "master_id": <int>,
+                    "master_url": <str>,
+                    "notes": <str>,
+                    "num_for_sale": <int>,
+                    "released": <str>,
+                    "released_formatted": <str>,
+                    "resource_url": <str>,
+                    "series": [],
+                    "status": <str>,
+                    "styles": [<str>],
+                    "tracklist": [
+                      {
+                        "duration": <str>,
+                        "position": <str>,
+                        "title": <str>,
+                        "type_": <str>
+                      }
+                    ],
+                    "uri": <str>,
+                    "videos": [
+                      {
+                        "description": <str>,
+                        "duration": <int>,
+                        "embed": <bool>,
+                        "title": <str>,
+                        "uri": <str>
+                      },
+                    ],
+                    "year": <int>
+                  }
+        """
+        
+        if curr_abbr and curr_abbr not in (
+                CURRENCIES := {
+                    "USD", "GBP", "EUR", "CAD", "AUD", "JPY",
+                    "CHF", "MXN", "BRL", "NZD", "SEK", "ZAR"
+                }
+            ):
+            emsg = (f"Invalid currency abbreviation ({curr_abbr=}). "
+                    f"Valid values: {', '.join(CURRENCIES)}.")
+            raise ValueError(emsg)
+
+        return self._get_json(
+            f"{self.API_URL}/releases/{release_id}",
+            params={"curr_abbr": curr_abbr}
+        )
+    
+    def get_release_user_rating(
+            self, release_id: Union[int, str], username: str = None
+        ) -> dict[str, Any]:
+
+        """
+        `Database > Release Rating By User > Get Release Rating By User
+        <https://www.discogs.com/developers
+        /#page:database,header:database-release-get>`_: Retrieves the
+        release's rating for a given user.
+
+        Parameters
+        ----------
+        release_id : `int` or `str`
+            The release ID.
+
+            **Example**: :code:`249504`.
+
+        username : `str`, optional
+            The username of the user whose rating you are requesting. If
+            not specified, the username of the authenticated user is 
+            used.
+
+            **Example**: :code:`"memory"`.
+
+        Returns
+        -------
+        rating : `dict`
+            Rating for the release by the given user.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "username": <str>,
+                    "release_id": <int>,
+                    "rating": <int>
+                  }
+        """ 
+        
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+      
+        return self._get_json(
+            f"{self.API_URL}/releases/{release_id}/rating/{username}"
+        )
+
+    def update_release_user_rating(
+            self, release_id: Union[int, str], rating: int, 
+            username: str = None) -> dict[str, Any]:
+        
+        """
+        `Database > Release Rating By User > Update Release Rating By
+        User <https://www.discogs.com/developers
+        /#page:database,header:database-release-rating-by-user-put>`_:
+        Updates the release's rating for a given user.
+
+        .. admonition:: User authentication
+           :class: warning
+  
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        release_id : `int` or `str`
+            The release ID.
+
+            **Example**: :code:`249504`.
+
+        rating : `int`
+            The new rating for a release between :math:`1` and :math:`5`.
+
+        username : `str`, optional
+            The username of the user whose rating you are requesting. If
+            not specified, the username of the authenticated user is 
+            used.
+
+            **Example**: :code:`"memory"`.
+
+        Returns
+        -------
+        rating : `dict`
+            Updated rating for the release by the given user.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "username": <str>,
+                    "release_id": <int>,
+                    "rating": <int>
+                  }
+        """ 
+
+        self._check_authentication("update_release_rating")
+
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        return self._request(
+            "put",
+            f"{self.API_URL}/releases/{release_id}/rating/{username}",
+            json={"rating": rating}
+        )
+
+    def delete_release_user_rating(
+            self, release_id: Union[int, str], username: str = None) -> None:
+        
+        raise NotImplementedError
+
+    def get_release_community_rating(
+            self, release_id: Union[int, str]) -> dict[str, Any]: 
+        
+        raise NotImplementedError
+
+    def get_release_stats(self, release_id: Union[int, str]) -> dict[str, Any]:
+        
+        raise NotImplementedError
+
+    def get_master_release(self, master_id: Union[int, str]) -> dict[str, Any]:
+        
+        raise NotImplementedError
+
+    def get_master_release_versions(
+            self, master_id: Union[int, str], *, country: str = None,
+            format: str = None, label: str = None, released: str = None,
+            page: int = None, per_page: int = None, sort: str = None,
+            sort_order: str = None) -> dict[str, Any]:
+        
+        raise NotImplementedError
+    
+    def get_artist(self, artist_id: Union[int, str]) -> dict[str, Any]:
+        
+        raise NotImplementedError
+    
+    def get_artist_releases(
+            self, artist_id: Union[int, str], *, sort: str = None,
+            sort_order: str = None) -> dict[str, Any]:
+        
+        raise NotImplementedError
+
+    def get_label(self, label_id: Union[int, str]) -> dict[str, Any]:
+        
+        raise NotImplementedError
+    
+    def get_label_releases(
+            self, label_id: Union[int, str], *, page: int = None,
+            per_page: int = None) -> dict[str, Any]:
+        
+        raise NotImplementedError
+    
+    def search(
+            self, query: str, *, type: str = None, title: str = None,
+            release_title: str = None, credit: str = None,
+            artist: str = None, anv: str = None, label: str = None,
+            genre: str = None, style: str = None, country: str = None,
+            year: str = None, format: str = None, catno: str = None,
+            barcode: str = None, track: str = None, submitter: str = None,
+            contributor: str = None):
+        
+        raise NotImplementedError
+
     ### MARKETPLACE ###########################################################
                 
     ### INVENTORY EXPORT ######################################################
@@ -786,8 +1135,14 @@ class API:
                     "rating_avg": <float>
                   }
         """
-        
+
         self._check_authentication("edit_profile")
+
+        if name is None and home_page is None and location is None \
+                and profile is None and curr_abbr is None:
+            wmsg = "No changes were specified or made to the user profile."
+            warnings.warn(wmsg)
+            return
 
         if curr_abbr and curr_abbr not in (
                 CURRENCIES := {
@@ -886,10 +1241,6 @@ class API:
                               {
                                 "resource_url": <str>,
                                 "username": <str>
-                              },
-                              {
-                                "resource_url": <str>,
-                                "username": <str>
                               }
                             ],
                             "data_quality": <str>,
@@ -929,14 +1280,6 @@ class API:
                               "uri": <str>,
                               "uri150": <str>,
                               "width": <int>
-                            },
-                            {
-                              "height": <int>,
-                              "resource_url": <str>,
-                              "type": <str>,
-                              "uri": <str>,
-                              "uri150": <str>,
-                              "width": <int>
                             }
                           ],
                           "labels": [
@@ -961,20 +1304,6 @@ class API:
                           "title": <str>,
                           "uri": <str>,
                           "videos": [
-                            {
-                              "description": <str>,
-                              "duration": <int>,
-                              "embed": <bool>,
-                              "title": <str>,
-                              "uri": <str>
-                            },
-                            {
-                              "description": <str>,
-                              "duration": <int>,
-                              "embed": <bool>,
-                              "title": <str>,
-                              "uri": <str>
-                            },
                             {
                               "description": <str>,
                               "duration": <int>,
@@ -1072,10 +1401,6 @@ class API:
                         ],
                         "community": {
                           "contributors": [
-                            {
-                              "resource_url": <str>,
-                              "username": <str>
-                            },
                             {
                               "resource_url": <str>,
                               "username": <str>

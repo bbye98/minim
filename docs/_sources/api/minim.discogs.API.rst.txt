@@ -1,4 +1,4 @@
-API
+﻿API
 ===
 
 .. currentmodule:: minim.discogs
@@ -16,12 +16,25 @@ API
    .. autosummary::
       :nosignatures:
    
+      ~API.delete_release_user_rating
       ~API.edit_profile
+      ~API.get_artist
+      ~API.get_artist_releases
       ~API.get_identity
+      ~API.get_label
+      ~API.get_label_releases
+      ~API.get_master_release
+      ~API.get_master_release_versions
       ~API.get_profile
+      ~API.get_release
+      ~API.get_release_community_rating
+      ~API.get_release_stats
+      ~API.get_release_user_rating
       ~API.get_user_contributions
       ~API.get_user_submissions
+      ~API.search
       ~API.set_access_token
       ~API.set_flow
+      ~API.update_release_user_rating
    
    

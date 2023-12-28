@@ -383,26 +383,65 @@ file.</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.edit_profile" title="minim.discogs.API.edit_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_profile</span></code></a></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_release_user_rating</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.edit_profile" title="minim.discogs.API.edit_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_profile</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-profile-post">User Identity &gt; Profile &gt; Edit Profile</a>: Edit a user's profile data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_identity" title="minim.discogs.API.get_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_identity</span></code></a></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_artist</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_artist_releases</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_identity" title="minim.discogs.API.get_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_identity</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-identity-get">User Identity &gt; Identity</a>: Retrieve basic information about the authenticated user.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_profile" title="minim.discogs.API.get_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_profile</span></code></a></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_label</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_label_releases</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_master_release</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_master_release_versions</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_profile" title="minim.discogs.API.get_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_profile</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-profile-get">User Identity &gt; Profile &gt; Get Profile</a>: Retrieve a user by username.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_contributions" title="minim.discogs.API.get_user_contributions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_contributions</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_release" title="minim.discogs.API.get_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_release</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-get">Database &gt; Release</a>: Get a release (physical or digital object released by one or more artists).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_release_community_rating</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_release_stats</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_release_user_rating" title="minim.discogs.API.get_release_user_rating"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_release_user_rating</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-get">Database &gt; Release Rating By User &gt; Get Release Rating By User</a>: Retrieves the release's rating for a given user.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_contributions" title="minim.discogs.API.get_user_contributions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_contributions</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-user-contributions-get">User Identity &gt; User Contributions</a>: Retrieve a user's contributions (releases, labels, artists) by username.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_submissions" title="minim.discogs.API.get_user_submissions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_submissions</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_submissions" title="minim.discogs.API.get_user_submissions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_submissions</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-user-submissions-get">User Identity &gt; User Submissions</a>: Retrieve a user's submissions (edits made to releases, labels, and artists) by username.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">search</span></code></p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.set_access_token" title="minim.discogs.API.set_access_token"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_access_token</span></code></a></p></td>
 <td><p>Set the Discogs API personal or OAuth access token (and secret).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.set_flow" title="minim.discogs.API.set_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flow</span></code></a></p></td>
 <td><p>Set the authorization flow.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.update_release_user_rating" title="minim.discogs.API.update_release_user_rating"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_release_user_rating</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-rating-by-user-put">Database &gt; Release Rating By User &gt; Update Release Rating By User</a>: Updates the release's rating for a given user.</p></td>
 </tr>
 </tbody>
 </table>
@@ -443,6 +482,249 @@ attached to requests, even if found or provided.</p>
 </div>
 </dd>
 <dt><strong>consumer_key</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.get_release">
+<span class="sig-name descname"><span class="pre">get_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">release_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_abbr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_release"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_release" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-get">Database &gt; Release</a>:
+Get a release (physical or digital object released by one or
+more artists).</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>release_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>The release ID.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">249504</span></code>.</p>
+</dd>
+<dt><strong>curr_abbr</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Currency abbreviation for marketplace data. Defaults to the
+authenticated user’s currency.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;USD&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;GBP&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;EUR&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;CAD&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;AUD&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;JPY&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;CHF&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;MXN&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;BRL&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;NZD&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;SEK&quot;</span></code>, and <code class="code docutils literal notranslate"><span class="pre">&quot;ZAR&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>release</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Discogs database information for a single release.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;artists&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;anv&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;join&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;tracks&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;data_quality&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;thumb&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;community&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;contributors&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;data_quality&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;have&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;rating&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;average&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;submitter&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;want&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;companies&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;catno&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;entity_type_name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;country&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;date_added&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;date_changed&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;estimated_weight&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;extraartists&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;anv&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;join&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;tracks&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;format_quantity&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;formats&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;descriptions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;genres&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+  <span class="s2">&quot;identifiers&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">},</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;uri150&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;catno&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;lowest_price&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;master_id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;master_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;num_for_sale&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;released&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;released_formatted&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;series&quot;</span><span class="p">:</span> <span class="p">[],</span>
+  <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;styles&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+  <span class="s2">&quot;tracklist&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;type_&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;videos&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;embed&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">bool</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">},</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.get_release_user_rating">
+<span class="sig-name descname"><span class="pre">get_release_user_rating</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">release_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_release_user_rating"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_release_user_rating" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-get">Database &gt; Release Rating By User &gt; Get Release Rating By User</a>: Retrieves the
+release’s rating for a given user.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>release_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>The release ID.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">249504</span></code>.</p>
+</dd>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>The username of the user whose rating you are requesting. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;memory&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>rating</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Rating for the release by the given user.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;release_id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;rating&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.update_release_user_rating">
+<span class="sig-name descname"><span class="pre">update_release_user_rating</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">release_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rating</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.update_release_user_rating"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.update_release_user_rating" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-rating-by-user-put">Database &gt; Release Rating By User &gt; Update Release Rating By
+User</a>:
+Updates the release’s rating for a given user.</p>
+<div class="warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>release_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>The release ID.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">249504</span></code>.</p>
+</dd>
+<dt><strong>rating</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The new rating for a release between <span class="math notranslate nohighlight">\(1\)</span> and <span class="math notranslate nohighlight">\(5\)</span>.</p>
+</dd>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>The username of the user whose rating you are requesting. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;memory&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>rating</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Updated rating for the release by the given user.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;release_id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;rating&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -688,10 +970,6 @@ used.</p>
             <span class="p">{</span>
               <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
               <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
-            <span class="p">},</span>
-            <span class="p">{</span>
-              <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-              <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
             <span class="p">}</span>
           <span class="p">],</span>
           <span class="s2">&quot;data_quality&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
@@ -731,14 +1009,6 @@ used.</p>
             <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
             <span class="s2">&quot;uri150&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
             <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
-          <span class="p">},</span>
-          <span class="p">{</span>
-            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;uri150&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
           <span class="p">}</span>
         <span class="p">],</span>
         <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">[</span>
@@ -763,20 +1033,6 @@ used.</p>
         <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
         <span class="s2">&quot;videos&quot;</span><span class="p">:</span> <span class="p">[</span>
-          <span class="p">{</span>
-            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;embed&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">bool</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
-          <span class="p">},</span>
-          <span class="p">{</span>
-            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;embed&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">bool</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
-          <span class="p">},</span>
           <span class="p">{</span>
             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
             <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
@@ -854,10 +1110,6 @@ used.</p>
       <span class="p">],</span>
       <span class="s2">&quot;community&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;contributors&quot;</span><span class="p">:</span> <span class="p">[</span>
-          <span class="p">{</span>
-            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
-          <span class="p">},</span>
           <span class="p">{</span>
             <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
             <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
@@ -1008,6 +1260,9 @@ used.</p>
 <li><a class="reference internal" href="#minim.discogs.API"><code class="docutils literal notranslate"><span class="pre">API</span></code></a><ul>
 <li><a class="reference internal" href="#minim.discogs.API.set_access_token"><code class="docutils literal notranslate"><span class="pre">set_access_token()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.set_flow"><code class="docutils literal notranslate"><span class="pre">set_flow()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.get_release"><code class="docutils literal notranslate"><span class="pre">get_release()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.get_release_user_rating"><code class="docutils literal notranslate"><span class="pre">get_release_user_rating()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.update_release_user_rating"><code class="docutils literal notranslate"><span class="pre">update_release_user_rating()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_identity"><code class="docutils literal notranslate"><span class="pre">get_identity()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_profile"><code class="docutils literal notranslate"><span class="pre">get_profile()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.edit_profile"><code class="docutils literal notranslate"><span class="pre">edit_profile()</span></code></a></li>
@@ -1038,5 +1293,6 @@ used.</p>
     <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

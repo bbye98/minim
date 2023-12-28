@@ -6171,7 +6171,7 @@ class WebAPI:
                              f"{self.API_URL}/playlists/{playlist_id}/tracks",
                              json=json).json()["snapshot_id"]
     
-    def get_playlists(
+    def get_personal_playlists(
             self, *, limit: int = None, offset: int = None) -> dict[str, Any]:
         
         """

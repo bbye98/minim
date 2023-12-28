@@ -1,4 +1,4 @@
-WebAPI
+﻿WebAPI
 ======
 
 .. currentmodule:: minim.spotify
@@ -54,11 +54,11 @@ WebAPI
       ~WebAPI.get_genre_seeds
       ~WebAPI.get_markets
       ~WebAPI.get_new_albums
+      ~WebAPI.get_personal_playlists
       ~WebAPI.get_playback_state
       ~WebAPI.get_playlist
       ~WebAPI.get_playlist_cover_image
       ~WebAPI.get_playlist_items
-      ~WebAPI.get_playlists
       ~WebAPI.get_profile
       ~WebAPI.get_queue
       ~WebAPI.get_recently_played

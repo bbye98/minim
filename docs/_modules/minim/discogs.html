@@ -568,17 +568,15 @@
 <span class="sd">            Response to the request.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;oauth&quot;</span> \
-                <span class="ow">and</span> <span class="s2">&quot;Authorization&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;headers&quot;</span><span class="p">,</span> <span class="p">{}):</span>
+        <span class="k">if</span> <span class="s2">&quot;headers&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">==</span> <span class="s2">&quot;oauth&quot;</span> <span class="ow">and</span> <span class="s2">&quot;Authorization&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">oauth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">oauth</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">oauth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oauth</span> <span class="o">|</span> <span class="p">{</span>
                 <span class="s2">&quot;oauth_nonce&quot;</span><span class="p">:</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_hex</span><span class="p">(</span><span class="mi">32</span><span class="p">),</span> 
                 <span class="s2">&quot;oauth_timestamp&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">}</span> <span class="o">|</span> <span class="n">oauth</span>
-
-            <span class="k">if</span> <span class="s2">&quot;headers&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-                <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">][</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;OAuth &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">&quot;&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">oauth</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">)</span>
@@ -826,7 +824,367 @@
 
 
     <span class="c1">### DATABASE ##############################################################</span>
-                
+
+<div class="viewcode-block" id="API.get_release">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_release">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_release</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">curr_abbr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Release &lt;https://www.discogs.com</span>
+<span class="sd">        /developers/#page:database,header:database-release-get&gt;`_:</span>
+<span class="sd">        Get a release (physical or digital object released by one or</span>
+<span class="sd">        more artists).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        release_id : `int` or `str`</span>
+<span class="sd">            The release ID.</span>
+
+<span class="sd">            **Example**: :code:`249504`.</span>
+
+<span class="sd">        curr_abbr : `str`, keyword-only, optional</span>
+<span class="sd">            Currency abbreviation for marketplace data. Defaults to the</span>
+<span class="sd">            authenticated user&#39;s currency.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;USD&quot;`, :code:`&quot;GBP&quot;`, </span>
+<span class="sd">            :code:`&quot;EUR&quot;`, :code:`&quot;CAD&quot;`, :code:`&quot;AUD&quot;`, :code:`&quot;JPY&quot;`, </span>
+<span class="sd">            :code:`&quot;CHF&quot;`, :code:`&quot;MXN&quot;`, :code:`&quot;BRL&quot;`, :code:`&quot;NZD&quot;`,</span>
+<span class="sd">            :code:`&quot;SEK&quot;`, and :code:`&quot;ZAR&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        release : `dict`</span>
+<span class="sd">            Discogs database information for a single release.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;title&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;artists&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;anv&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;join&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;role&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;tracks&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;data_quality&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;thumb&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;community&quot;: {</span>
+<span class="sd">                      &quot;contributors&quot;: [</span>
+<span class="sd">                        {</span>
+<span class="sd">                          &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;username&quot;: &lt;str&gt;</span>
+<span class="sd">                        }</span>
+<span class="sd">                      ],</span>
+<span class="sd">                      &quot;data_quality&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;have&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;rating&quot;: {</span>
+<span class="sd">                        &quot;average&quot;: &lt;float&gt;,</span>
+<span class="sd">                        &quot;count&quot;: &lt;int&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                      &quot;status&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;submitter&quot;: {</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;username&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                      &quot;want&quot;: &lt;int&gt;</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;companies&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;catno&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;entity_type&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;entity_type_name&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;country&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;date_added&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;date_changed&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;estimated_weight&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;extraartists&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;anv&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;join&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;role&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;tracks&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;format_quantity&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;formats&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;descriptions&quot;: [&lt;str&gt;],</span>
+<span class="sd">                        &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;qty&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;genres&quot;: [&lt;str&gt;],</span>
+<span class="sd">                    &quot;identifiers&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;type&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;value&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;images&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;height&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;type&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;uri150&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;width&quot;: &lt;int&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;labels&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;catno&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;entity_type&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;lowest_price&quot;: &lt;float&gt;,</span>
+<span class="sd">                    &quot;master_id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;master_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;notes&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;num_for_sale&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;released&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;released_formatted&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;series&quot;: [],</span>
+<span class="sd">                    &quot;status&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;styles&quot;: [&lt;str&gt;],</span>
+<span class="sd">                    &quot;tracklist&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;duration&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;position&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;title&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;type_&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;videos&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;description&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;duration&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;embed&quot;: &lt;bool&gt;,</span>
+<span class="sd">                        &quot;title&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;uri&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;year&quot;: &lt;int&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="n">curr_abbr</span> <span class="ow">and</span> <span class="n">curr_abbr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span>
+                <span class="n">CURRENCIES</span> <span class="o">:=</span> <span class="p">{</span>
+                    <span class="s2">&quot;USD&quot;</span><span class="p">,</span> <span class="s2">&quot;GBP&quot;</span><span class="p">,</span> <span class="s2">&quot;EUR&quot;</span><span class="p">,</span> <span class="s2">&quot;CAD&quot;</span><span class="p">,</span> <span class="s2">&quot;AUD&quot;</span><span class="p">,</span> <span class="s2">&quot;JPY&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;CHF&quot;</span><span class="p">,</span> <span class="s2">&quot;MXN&quot;</span><span class="p">,</span> <span class="s2">&quot;BRL&quot;</span><span class="p">,</span> <span class="s2">&quot;NZD&quot;</span><span class="p">,</span> <span class="s2">&quot;SEK&quot;</span><span class="p">,</span> <span class="s2">&quot;ZAR&quot;</span>
+                <span class="p">}</span>
+            <span class="p">):</span>
+            <span class="n">emsg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid currency abbreviation (</span><span class="si">{</span><span class="n">curr_abbr</span><span class="si">=}</span><span class="s2">). &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Valid values: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CURRENCIES</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/releases/</span><span class="si">{</span><span class="n">release_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;curr_abbr&quot;</span><span class="p">:</span> <span class="n">curr_abbr</span><span class="p">}</span>
+        <span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="API.get_release_user_rating">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_release_user_rating">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_release_user_rating</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Release Rating By User &gt; Get Release Rating By User</span>
+<span class="sd">        &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:database,header:database-release-get&gt;`_: Retrieves the</span>
+<span class="sd">        release&#39;s rating for a given user.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        release_id : `int` or `str`</span>
+<span class="sd">            The release ID.</span>
+
+<span class="sd">            **Example**: :code:`249504`.</span>
+
+<span class="sd">        username : `str`, optional</span>
+<span class="sd">            The username of the user whose rating you are requesting. If</span>
+<span class="sd">            not specified, the username of the authenticated user is </span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;memory&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        rating : `dict`</span>
+<span class="sd">            Rating for the release by the given user.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;username&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;release_id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;rating&quot;: &lt;int&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+        
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_username&quot;</span><span class="p">):</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_username</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No username provided.&quot;</span><span class="p">)</span>
+      
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/releases/</span><span class="si">{</span><span class="n">release_id</span><span class="si">}</span><span class="s2">/rating/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.update_release_user_rating">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.update_release_user_rating">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_release_user_rating</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">rating</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+            <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Release Rating By User &gt; Update Release Rating By</span>
+<span class="sd">        User &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:database,header:database-release-rating-by-user-put&gt;`_:</span>
+<span class="sd">        Updates the release&#39;s rating for a given user.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: warning</span>
+<span class="sd">  </span>
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        release_id : `int` or `str`</span>
+<span class="sd">            The release ID.</span>
+
+<span class="sd">            **Example**: :code:`249504`.</span>
+
+<span class="sd">        rating : `int`</span>
+<span class="sd">            The new rating for a release between :math:`1` and :math:`5`.</span>
+
+<span class="sd">        username : `str`, optional</span>
+<span class="sd">            The username of the user whose rating you are requesting. If</span>
+<span class="sd">            not specified, the username of the authenticated user is </span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;memory&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        rating : `dict`</span>
+<span class="sd">            Updated rating for the release by the given user.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;username&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;release_id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;rating&quot;: &lt;int&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;update_release_rating&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_username&quot;</span><span class="p">):</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_username</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No username provided.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="s2">&quot;put&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/releases/</span><span class="si">{</span><span class="n">release_id</span><span class="si">}</span><span class="s2">/rating/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;rating&quot;</span><span class="p">:</span> <span class="n">rating</span><span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">delete_release_user_rating</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">get_release_community_rating</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span> 
+        
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">get_release_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">get_master_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">get_master_release_versions</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">released</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">per_page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">sort_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    
+    <span class="k">def</span> <span class="nf">get_artist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    
+    <span class="k">def</span> <span class="nf">get_artist_releases</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">artist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">sort_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    
+    <span class="k">def</span> <span class="nf">get_label_releases</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">label_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">per_page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    
+    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">release_title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">credit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">artist</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">anv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">genre</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">year</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">catno</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">barcode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">track</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">submitter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">contributor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
     <span class="c1">### MARKETPLACE ###########################################################</span>
                 
     <span class="c1">### INVENTORY EXPORT ######################################################</span>
@@ -1045,8 +1403,14 @@
 <span class="sd">                    &quot;rating_avg&quot;: &lt;float&gt;</span>
 <span class="sd">                  }</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;edit_profile&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">home_page</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">location</span> <span class="ow">is</span> <span class="kc">None</span> \
+                <span class="ow">and</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">curr_abbr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">wmsg</span> <span class="o">=</span> <span class="s2">&quot;No changes were specified or made to the user profile.&quot;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">wmsg</span><span class="p">)</span>
+            <span class="k">return</span>
 
         <span class="k">if</span> <span class="n">curr_abbr</span> <span class="ow">and</span> <span class="n">curr_abbr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span>
                 <span class="n">CURRENCIES</span> <span class="o">:=</span> <span class="p">{</span>
@@ -1148,10 +1512,6 @@
 <span class="sd">                              {</span>
 <span class="sd">                                &quot;resource_url&quot;: &lt;str&gt;,</span>
 <span class="sd">                                &quot;username&quot;: &lt;str&gt;</span>
-<span class="sd">                              },</span>
-<span class="sd">                              {</span>
-<span class="sd">                                &quot;resource_url&quot;: &lt;str&gt;,</span>
-<span class="sd">                                &quot;username&quot;: &lt;str&gt;</span>
 <span class="sd">                              }</span>
 <span class="sd">                            ],</span>
 <span class="sd">                            &quot;data_quality&quot;: &lt;str&gt;,</span>
@@ -1191,14 +1551,6 @@
 <span class="sd">                              &quot;uri&quot;: &lt;str&gt;,</span>
 <span class="sd">                              &quot;uri150&quot;: &lt;str&gt;,</span>
 <span class="sd">                              &quot;width&quot;: &lt;int&gt;</span>
-<span class="sd">                            },</span>
-<span class="sd">                            {</span>
-<span class="sd">                              &quot;height&quot;: &lt;int&gt;,</span>
-<span class="sd">                              &quot;resource_url&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;type&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;uri&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;uri150&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;width&quot;: &lt;int&gt;</span>
 <span class="sd">                            }</span>
 <span class="sd">                          ],</span>
 <span class="sd">                          &quot;labels&quot;: [</span>
@@ -1223,20 +1575,6 @@
 <span class="sd">                          &quot;title&quot;: &lt;str&gt;,</span>
 <span class="sd">                          &quot;uri&quot;: &lt;str&gt;,</span>
 <span class="sd">                          &quot;videos&quot;: [</span>
-<span class="sd">                            {</span>
-<span class="sd">                              &quot;description&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;duration&quot;: &lt;int&gt;,</span>
-<span class="sd">                              &quot;embed&quot;: &lt;bool&gt;,</span>
-<span class="sd">                              &quot;title&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;uri&quot;: &lt;str&gt;</span>
-<span class="sd">                            },</span>
-<span class="sd">                            {</span>
-<span class="sd">                              &quot;description&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;duration&quot;: &lt;int&gt;,</span>
-<span class="sd">                              &quot;embed&quot;: &lt;bool&gt;,</span>
-<span class="sd">                              &quot;title&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;uri&quot;: &lt;str&gt;</span>
-<span class="sd">                            },</span>
 <span class="sd">                            {</span>
 <span class="sd">                              &quot;description&quot;: &lt;str&gt;,</span>
 <span class="sd">                              &quot;duration&quot;: &lt;int&gt;,</span>
@@ -1337,10 +1675,6 @@
 <span class="sd">                        ],</span>
 <span class="sd">                        &quot;community&quot;: {</span>
 <span class="sd">                          &quot;contributors&quot;: [</span>
-<span class="sd">                            {</span>
-<span class="sd">                              &quot;resource_url&quot;: &lt;str&gt;,</span>
-<span class="sd">                              &quot;username&quot;: &lt;str&gt;</span>
-<span class="sd">                            },</span>
 <span class="sd">                            {</span>
 <span class="sd">                              &quot;resource_url&quot;: &lt;str&gt;,</span>
 <span class="sd">                              &quot;username&quot;: &lt;str&gt;</span>
