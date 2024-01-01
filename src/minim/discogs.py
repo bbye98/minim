@@ -1701,6 +1701,50 @@ class API:
         )
 
     ### MARKETPLACE ###########################################################
+
+    def get_inventory(
+            self, username: str, *, status: str = None, page: str = None,
+            per_page: str = None, sort: str = None, sort_order: str = None
+        ) -> dict[str, Any]:
+
+        pass
+    
+    def get_listing(
+            self, listing_id: Union[int, str], *, curr_abbr: str = None
+        ) -> dict[str, Any]:
+
+        pass
+    
+    def edit_listing(
+            self, listing_id: Union[int, str], release_id: Union[int, str],
+            condition: str, price: float, status: str, *, 
+            sleeve_condition: str = None, comments: str = None, 
+            allow_offers: bool = None, external_id: str = None, 
+            location: str = None, weight: float = None, 
+            format_quantity: int = None) -> None: 
+      
+        pass
+    
+    def delete_listing(self, listing_id: Union[int, str]) -> None:
+
+        pass
+    
+    def create_listing(
+            self, release_id: Union[int, str], condition: str, price: float,
+            status: str, *, sleeve_condition: str = None, comments: str = None,
+            allow_offers: bool = None, external_id: str = None,
+            location: str = None, weight: float = None,
+            format_quantity: int = None) -> dict[str, Any]:
+        
+        pass
+
+    def get_order(self, order_id: Union[int, str]) -> dict[str, Any]:
+        
+        pass
+    
+    def edit_order(self, order_id: Union[int, str], status: str) -> None:
+
+        pass
                 
     ### INVENTORY EXPORT ######################################################
                 
