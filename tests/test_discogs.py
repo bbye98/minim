@@ -14,7 +14,7 @@ class TestAPI:
 
     @classmethod
     def setup_class(cls):
-        cls.obj = discogs.API()
+        cls.obj = discogs.API(flow="discogs")
 
     def test_get_release(self):
         assert self.obj.get_release(self.RELEASE_ID)["id"] == self.RELEASE_ID
