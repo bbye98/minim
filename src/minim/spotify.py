@@ -26,11 +26,11 @@ import webbrowser
 
 import requests
 
-from . import FOUND_FLASK, FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, config
+from . import FOUND_FLASK, FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, _config
 if FOUND_FLASK:
-    from . import Flask, request
+    from flask import Flask, request
 if FOUND_PLAYWRIGHT:
-    from . import sync_playwright
+    from playwright.sync_api import sync_playwright
 
 __all__ = ["PrivateLyricsService", "WebAPI"]
 
@@ -161,10 +161,10 @@ class PrivateLyricsService:
         self.session = requests.Session()
         self.session.headers["App-Platform"] = "WebPlayer"
 
-        if access_token is None and config.has_section(self._NAME):
-            sp_dc = config.get(self._NAME, "sp_dc")
-            access_token = config.get(self._NAME, "access_token")
-            expiry = config.get(self._NAME, "expiry")
+        if access_token is None and _config.has_section(self._NAME):
+            sp_dc = _config.get(self._NAME, "sp_dc")
+            access_token = _config.get(self._NAME, "access_token")
+            expiry = _config.get(self._NAME, "expiry")
 
         self.set_sp_dc(sp_dc, save=save)
         self.set_access_token(access_token=access_token, expiry=expiry)
@@ -289,13 +289,13 @@ class PrivateLyricsService:
             )
 
             if self._save:
-                config[self._NAME] = {
+                _config[self._NAME] = {
                     "sp_dc": self._sp_dc,
                     "access_token": access_token,
                     "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
                 }
                 with open(DIR_HOME / "minim.cfg", "w") as f:
-                    config.write(f)
+                    _config.write(f)
         
         self.session.headers["Authorization"] = f"Bearer {access_token}"
         self._expiry = (
@@ -685,20 +685,20 @@ class WebAPI:
 
         self.session = requests.Session()
 
-        if (access_token is None and config.has_section(self._NAME) 
+        if (access_token is None and _config.has_section(self._NAME) 
                 and not overwrite):
-            flow = config.get(self._NAME, "flow")
-            access_token = config.get(self._NAME, "access_token")
-            refresh_token = config.get(self._NAME, "refresh_token", 
+            flow = _config.get(self._NAME, "flow")
+            access_token = _config.get(self._NAME, "access_token")
+            refresh_token = _config.get(self._NAME, "refresh_token", 
                                        fallback=None)
-            expiry = config.get(self._NAME, "expiry", fallback=None)
-            client_id = config.get(self._NAME, "client_id")
-            client_secret = config.get(self._NAME, "client_secret", 
+            expiry = _config.get(self._NAME, "expiry", fallback=None)
+            client_id = _config.get(self._NAME, "client_id")
+            client_secret = _config.get(self._NAME, "client_secret", 
                                        fallback=None)
-            redirect_uri = config.get(self._NAME, "redirect_uri", 
+            redirect_uri = _config.get(self._NAME, "redirect_uri", 
                                       fallback=None)
-            scopes = config.get(self._NAME, "scopes")
-            sp_dc = config.get(self._NAME, "sp_dc", fallback=None)
+            scopes = _config.get(self._NAME, "scopes")
+            sp_dc = _config.get(self._NAME, "sp_dc", fallback=None)
 
         self.set_flow(
             flow, client_id=client_id, client_secret=client_secret, 
@@ -879,14 +879,14 @@ class WebAPI:
             self._scopes = r["scope"]
 
             if self._save:
-                config[self._NAME].update({
+                _config[self._NAME].update({
                     "access_token": r["access_token"],
                     "refresh_token": self._refresh_token,
                     "expiry": self._expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "scopes": self._scopes
                 })
                 with open(DIR_HOME / "minim.cfg", "w") as f:
-                    config.write(f)
+                    _config.write(f)
 
     def _request(
             self, method: str, url: str, retry: bool = True, **kwargs
@@ -1015,7 +1015,7 @@ class WebAPI:
                           + datetime.timedelta(0, r["expires_in"]))
 
             if self._save:
-                config[self._NAME] = {
+                _config[self._NAME] = {
                     "flow": self._flow,
                     "client_id": self._client_id,
                     "access_token": access_token,
@@ -1023,14 +1023,14 @@ class WebAPI:
                     "scopes": self._scopes
                 }
                 if refresh_token:
-                    config[self._NAME]["refresh_token"] \
+                    _config[self._NAME]["refresh_token"] \
                         = refresh_token
                 for attr in ("client_secret", "redirect_uri", "sp_dc"):
                     if hasattr(self, f"_{attr}"):
-                        config[self._NAME][attr] \
+                        _config[self._NAME][attr] \
                             = getattr(self, f"_{attr}") or ""
                 with open(DIR_HOME / "minim.cfg", "w") as f:
-                    config.write(f)
+                    _config.write(f)
                 
         self.session.headers["Authorization"] = f"Bearer {access_token}"
         self._refresh_token = refresh_token

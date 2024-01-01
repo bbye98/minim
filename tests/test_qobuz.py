@@ -44,3 +44,6 @@ class TestPrivateAPI:
 
     def test_get_track_performers(self):
         assert isinstance(self.obj.get_track_performers(self.TRACK_ID), dict)
+
+    def search(self):
+        pass

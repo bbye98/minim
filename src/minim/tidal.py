@@ -27,9 +27,9 @@ from xml.dom import minidom
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import requests
 
-from . import FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, config
+from . import FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, _config
 if FOUND_PLAYWRIGHT:
-    from . import sync_playwright
+    from playwright.sync_api import sync_playwright
 
 __all__ = ["API", "PrivateAPI"]
 
@@ -156,13 +156,13 @@ class API:
         self.session = requests.Session()
         self.session.headers["Content-Type"] = "application/vnd.tidal.v1+json"
 
-        if (access_token is None and config.has_section(self._NAME) 
+        if (access_token is None and _config.has_section(self._NAME) 
                 and not overwrite):
-            flow = config.get(self._NAME, "flow")
-            access_token = config.get(self._NAME, "access_token")
-            expiry = config.get(self._NAME, "expiry")
-            client_id = config.get(self._NAME, "client_id")
-            client_secret = config.get(self._NAME, "client_secret")
+            flow = _config.get(self._NAME, "flow")
+            access_token = _config.get(self._NAME, "access_token")
+            expiry = _config.get(self._NAME, "expiry")
+            client_id = _config.get(self._NAME, "client_id")
+            client_secret = _config.get(self._NAME, "client_secret")
 
         self.set_flow(flow, client_id=client_id, client_secret=client_secret,
                       save=save)
@@ -263,7 +263,7 @@ class API:
                           + datetime.timedelta(0, r["expires_in"]))
                 
             if self._save:
-                config[self._NAME] = {
+                _config[self._NAME] = {
                     "flow": self._flow,
                     "client_id": self._client_id,
                     "client_secret": self._client_secret,
@@ -271,7 +271,7 @@ class API:
                     "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
                 }
                 with open(DIR_HOME / "minim.cfg", "w") as f:
-                    config.write(f)
+                    _config.write(f)
 
         self.session.headers["Authorization"] = f"Bearer {access_token}"
         self._expiry = (
@@ -2015,15 +2015,15 @@ class PrivateAPI:
         if user_agent:
             self.session.headers["User-Agent"] = user_agent
 
-        if (access_token is None and config.has_section(self._NAME)
+        if (access_token is None and _config.has_section(self._NAME)
                 and not overwrite):
-            flow = config.get(self._NAME, "flow")
-            access_token = config.get(self._NAME, "access_token")
-            refresh_token = config.get(self._NAME, "refresh_token")
-            expiry = config.get(self._NAME, "expiry")
-            client_id = config.get(self._NAME, "client_id")
-            client_secret = config.get(self._NAME, "client_secret")
-            scopes = config.get(self._NAME, "scopes")
+            flow = _config.get(self._NAME, "flow")
+            access_token = _config.get(self._NAME, "access_token")
+            refresh_token = _config.get(self._NAME, "refresh_token")
+            expiry = _config.get(self._NAME, "expiry")
+            client_id = _config.get(self._NAME, "client_id")
+            client_secret = _config.get(self._NAME, "client_secret")
+            scopes = _config.get(self._NAME, "scopes")
 
         self.set_flow(flow, client_id=client_id, client_secret=client_secret,
                       browser=browser, scopes=scopes, save=save)
@@ -2224,13 +2224,13 @@ class PrivateAPI:
             self._scopes = r["scope"]
             
             if self._save:
-                config[self._NAME].update({
+                _config[self._NAME].update({
                     "access_token": r["access_token"],
                     "expiry": self._expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
                     "scopes": self._scopes
                 })
                 with open(DIR_HOME / "minim.cfg", "w") as f:
-                    config.write(f)
+                    _config.write(f)
 
     def _request(
             self, method: str, url: str, retry: bool = True, **kwargs
@@ -2381,7 +2381,7 @@ class PrivateAPI:
                           + datetime.timedelta(0, r["expires_in"]))
                 
                 if self._save:
-                    config[self._NAME] = {
+                    _config[self._NAME] = {
                         "flow": self._flow,
                         "client_id": self._client_id,
                         "access_token": access_token,
@@ -2390,10 +2390,10 @@ class PrivateAPI:
                         "scopes": self._scopes
                     }
                     if hasattr(self, "_client_secret"):
-                        config[self._NAME]["client_secret"] \
+                        _config[self._NAME]["client_secret"] \
                             = self._client_secret
                     with open(DIR_HOME / "minim.cfg", "w") as f:
-                        config.write(f)
+                        _config.write(f)
                     
         self.session.headers["Authorization"] = f"Bearer {access_token}"
         self._refresh_token = refresh_token

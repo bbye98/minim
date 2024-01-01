@@ -20,11 +20,11 @@ import webbrowser
 import requests
 
 from . import (FOUND_FLASK, FOUND_PLAYWRIGHT, VERSION, REPOSITORY_URL, 
-               DIR_HOME, DIR_TEMP, config)
+               DIR_HOME, DIR_TEMP, _config)
 if FOUND_FLASK:
-    from . import Flask, request
+    from flask import Flask, request
 if FOUND_PLAYWRIGHT:
-    from . import sync_playwright
+    from playwright.sync_api import sync_playwright
 
 __all__ = ["API"]
 
@@ -227,13 +227,13 @@ class API:
         self.session = requests.Session()
         self.session.headers["User-Agent"] = f"Minim/{VERSION} +{REPOSITORY_URL}"
 
-        if (access_token is None and config.has_section(self._NAME) 
+        if (access_token is None and _config.has_section(self._NAME) 
                 and not overwrite):
-            flow = config.get(self._NAME, "flow")
-            access_token = config.get(self._NAME, "access_token")
-            access_token_secret = config.get(self._NAME, "access_token_secret")
-            consumer_key = config.get(self._NAME, "consumer_key")
-            consumer_secret = config.get(self._NAME, "consumer_secret")
+            flow = _config.get(self._NAME, "flow")
+            access_token = _config.get(self._NAME, "access_token")
+            access_token_secret = _config.get(self._NAME, "access_token_secret")
+            consumer_key = _config.get(self._NAME, "consumer_key")
+            consumer_secret = _config.get(self._NAME, "consumer_secret")
         elif flow is None and access_token is not None:
             flow = "discogs" if access_token_secret is None else "oauth"
 
@@ -395,8 +395,8 @@ class API:
                         oauth |= dict(
                             urllib.parse.parse_qsl(
                                 urllib.parse.urlparse(
-                                    re.search(f'{self._redirect_uri}\?(.*?)"', 
-                                                f.read()).group(0)
+                                    re.search(fr'{self._redirect_uri}\?(.*?)"', 
+                                              f.read()).group(0)
                                 ).query
                             )
                         )
@@ -465,7 +465,7 @@ class API:
                     dict(urllib.parse.parse_qsl(r.text)).values()
 
                 if self._save:
-                    config[self._NAME] = {
+                    _config[self._NAME] = {
                         "flow": self._flow,
                         "access_token": access_token,
                         "access_token_secret": access_token_secret,
@@ -473,7 +473,7 @@ class API:
                         "consumer_secret": self._consumer_secret
                     }
                     with open(DIR_HOME / "minim.cfg", "w") as f:
-                        config.write(f)
+                        _config.write(f)
         
             self._oauth |= {
                 "oauth_token": access_token,
@@ -525,6 +525,54 @@ class API:
                * :code:`"oauth"` for the OAuth 1.0a flow.
 
         consumer_key : `str`, keyword-only, optional
+            Consumer key. Required for the OAuth 1.0a flow, and can be
+            used in the Discogs authorization flow alongside a consumer
+            secret. If it is not stored as :code:`DISCOGS_CONSUMER_KEY`
+            in the operating system's environment variables or found in
+            the Minim configuration file, it can be provided here.
+
+        consumer_secret : `str`, keyword-only, optional
+            Consumer secret. Required for the OAuth 1.0a flow, and can
+            be used in the Discogs authorization flow alongside a 
+            consumer key. If it is not stored as 
+            :code:`DISCOGS_CONSUMER_SECRET` in the operating system's 
+            environment variables or found in the Minim configuration 
+            file, it can be provided here.
+
+        browser : `bool`, keyword-only, default: :code:`False`
+            Determines whether a web browser is automatically opened for
+            the OAuth 1.0a flow. If :code:`False`, users will have to
+            manually open the authorization URL and provide the full
+            callback URI via the terminal.
+
+        web_framework : `str`, keyword-only, optional
+            Determines which web framework to use for the OAuth 1.0a
+            flow.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`"http.server"` for the built-in implementation
+                 of HTTP servers.
+               * :code:`"flask"` for the Flask framework.
+               * :code:`"playwright"` for the Playwright framework by 
+                 Microsoft.
+
+        port : `int` or `str`, keyword-only, default: :code:`8888`
+            Port on :code:`localhost` to use for the OAuth 1.0a flow
+            with the :code:`http.server` and Flask frameworks. Only used
+            if `redirect_uri` is not specified.
+
+        redirect_uri : `str`, keyword-only, optional
+            Redirect URI for the OAuth 1.0a flow. If not on 
+            :code:`localhost`, the automatic request access token 
+            retrieval functionality is not available. 
+
+        save : `bool`, keyword-only, default: :code:`True`
+            Determines whether newly obtained access tokens and their
+            associated properties are stored to the Minim configuration
+            file.
         """
 
         if flow and flow not in self._FLOWS:
@@ -544,8 +592,8 @@ class API:
             if redirect_uri:
                 self._redirect_uri = redirect_uri
                 if "localhost" in redirect_uri:
-                    self._port = re.search("localhost:(\d+)", 
-                                            redirect_uri).group(1)
+                    self._port = re.search(r"localhost:(\d+)", 
+                                           redirect_uri).group(1)
                 elif web_framework:
                     wmsg = ("The redirect URI is not on localhost, "
                             "so automatic authorization code "
@@ -753,7 +801,7 @@ class API:
             params={"curr_abbr": curr_abbr}
         )
     
-    def get_release_user_rating(
+    def get_user_release_rating(
             self, release_id: Union[int, str], username: str = None
         ) -> dict[str, Any]:
 
@@ -804,7 +852,7 @@ class API:
             f"{self.API_URL}/releases/{release_id}/rating/{username}"
         )
 
-    def update_release_user_rating(
+    def update_user_release_rating(
             self, release_id: Union[int, str], rating: int, 
             username: str = None) -> dict[str, Any]:
         
@@ -854,7 +902,7 @@ class API:
                   }
         """ 
 
-        self._check_authentication("update_release_rating")
+        self._check_authentication("update_user_release_rating")
 
         if username is None:
             if hasattr(self, "_username"):
@@ -868,23 +916,220 @@ class API:
             json={"rating": rating}
         )
 
-    def delete_release_user_rating(
+    def delete_user_release_rating(
             self, release_id: Union[int, str], username: str = None) -> None:
-        
-        raise NotImplementedError
 
-    def get_release_community_rating(
-            self, release_id: Union[int, str]) -> dict[str, Any]: 
+        """
+        `Database > Release Rating By User > Delete Release Rating By
+        User <https://www.discogs.com/developers
+        /#page:database,header:database-release-rating-by-user-delete>`_:
+        Deletes the release's rating for a given user.
+
+        .. admonition:: User authentication
+            :class: warning
+    
+            Requires user authentication with a personal access token or
+            via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        release_id : `int` or `str`
+            The release ID.
+
+            **Example**: :code:`249504`.
+
+        username : `str`, optional
+            The username of the user whose rating you are requesting. If
+            not specified, the username of the authenticated user is 
+            used.
+
+            **Example**: :code:`"memory"`.
+        """
+
+        self._check_authentication("delete_user_release_rating")
         
-        raise NotImplementedError
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+      
+        return self._request(
+            "delete",
+            f"{self.API_URL}/releases/{release_id}/rating/{username}"
+        )
+
+    def get_community_release_rating(
+            self, release_id: Union[int, str]) -> dict[str, Any]:
+        
+        """
+        `Database > Community Release Rating <https://www.discogs.com
+        /developers/#page:database,header
+        :database-community-release-rating-get>`_: Retrieves the
+        community release rating average and count.
+
+        Parameters
+        ----------
+        release_id : `int` or `str`
+            The release ID.
+
+            **Example**: :code:`249504`.
+
+        Returns
+        -------
+        rating : `dict`
+            Community release rating average and count.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "rating": {
+                        "count": <int>,
+                        "average": <float>
+                    },
+                    "release_id": <int>
+                  }
+        """
+        
+        return self._get_json(f"{self.API_URL}/releases/{release_id}/rating")
 
     def get_release_stats(self, release_id: Union[int, str]) -> dict[str, Any]:
+
+        """
+        `Database > Release Stats <https://www.discogs.com/developers
+        /#page:database,header:database-release-stats-get>`_: Retrieves
+        the release's "have" and "want" counts.
+
+        .. attention::
+
+           This endpoint does not appear to be working correctly. 
+           Currently, the response will be of the form
+
+           .. code::
+
+              {
+                "is_offense": <bool>
+              }
+
+        Parameters
+        ----------
+        release_id : `int` or `str`
+            The release ID.
+
+            **Example**: :code:`249504`.
+
+        Returns
+        -------
+        stats : `dict`
+            Release "have" and "want" counts.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "num_have": <int>,
+                    "num_want": <int>
+                  }
+        """
         
-        raise NotImplementedError
+        return self._get_json(f"{self.API_URL}/releases/{release_id}/stats")
 
     def get_master_release(self, master_id: Union[int, str]) -> dict[str, Any]:
+
+        """
+        `Database > Master Release <https://www.discogs.com/developers
+        /#page:database,header:database-master-release-get>`_: Get a
+        master release.
+
+        Parameters
+        ----------
+        master_id : `int` or `str`
+            The master release ID.
+
+            **Example**: :code:`1000`.
+
+        Returns
+        -------
+        master_release : `dict`
+            Discogs database information for a single master release.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "styles": [<str>],
+                    "genres": [<str>],
+                    "videos": [
+                      {
+                        "duration": <int>,
+                        "description": <str>,
+                        "embed": <bool>,
+                        "uri": <str>,
+                        "title": <str>
+                      }
+                    ],
+                    "title": <str>,
+                    "main_release": <int>,
+                    "main_release_url": <str>,
+                    "uri": <str>,
+                    "artists": [
+                      {
+                        "join": <str>,
+                        "name": <str>,
+                        "anv": <str>,
+                        "tracks": <str>,
+                        "role": <str>,
+                        "resource_url": <str>,
+                        "id": <int>
+                      }
+                    ],
+                    "versions_url": <str>,
+                    "year": <int>,
+                    "images": [
+                      {
+                        "height": <int>,
+                        "resource_url": <str>,
+                        "type": <str>,
+                        "uri": <str>,
+                        "uri150": <str>,
+                        "width": <int>
+                      }
+                    ],
+                    "resource_url": <str>,
+                    "tracklist": [
+                      {
+                        "duration": <str>,
+                        "position": <str>,
+                        "type_": <str>,
+                        "extraartists": [
+                          {
+                            "join": <str>,
+                            "name": <str>,
+                            "anv": <str>,
+                            "tracks": <str>,
+                            "role": <str>,
+                            "resource_url": <str>,
+                            "id": <int>
+                          }
+                        ],
+                        "title": <str>
+                      }
+                    ],
+                    "id": <int>,
+                    "num_for_sale": <int>,
+                    "lowest_price": <float>,
+                    "data_quality": <str>
+                  }
+        """
         
-        raise NotImplementedError
+        return self._get_json(f"{self.API_URL}/masters/{master_id}")
 
     def get_master_release_versions(
             self, master_id: Union[int, str], *, country: str = None,
@@ -892,38 +1137,568 @@ class API:
             page: int = None, per_page: int = None, sort: str = None,
             sort_order: str = None) -> dict[str, Any]:
         
-        raise NotImplementedError
+        """
+        `Database > Master Release Versions <https://www.discogs.com
+        /developers/#page:database,header
+        :database-master-release-versions-get>`_: Retrieves a list of
+        all releases that are versions of this master.
+
+        Parameters
+        ----------
+        master_id : `int` or `str`
+            The master release ID.
+
+            **Example**: :code:`1000`.
+
+        country : `str`, keyword-only, optional
+            The country to filter for.
+
+            **Example**: :code:`"Belgium"`.
+
+        format : `str`, keyword-only, optional
+            The format to filter for.
+
+            **Example**: :code:`"Vinyl"`.
+
+        label : `str`, keyword-only, optional
+            The label to filter for.
+
+            **Example**: :code:`"Scorpio Music"`.
+
+        released : `str`, keyword-only, optional
+            The release year to filter for.
+
+            **Example**: :code:`"1992"`.
+
+        page : `int`, keyword-only, optional
+            The page you want to request.
+
+            **Example**: :code:`3`.
+
+        per_page : `int`, keyword-only, optional
+            The number of items per page.
+
+            **Example**: :code:`25`.
+
+        sort : `str`, keyword-only, optional
+            Sort items by this field.
+
+            **Valid values**: :code:`"released"`, :code:`"title"`, 
+            :code:`"format"`, :code:`"label"`, :code:`"catno"`, 
+            and :code:`"country"`.
+
+        sort_order : `str`, keyword-only, optional
+            Sort items in a particular order.
+
+            **Valid values**: :code:`"asc"` and :code:`"desc"`.
+
+        Returns
+        -------
+        versions : `dict`
+            Discogs database information for all releases that are 
+            versions of the specified master.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "last": <str>,
+                        "next": <str>
+                      }
+                    },
+                    "versions": [
+                      {
+                        "status": <str>,
+                        "stats": {
+                          "user": {
+                            "in_collection": <int>,
+                            "in_wantlist": <int>
+                          },
+                          "community": {
+                            "in_collection": <int>,
+                            "in_wantlist": <int>
+                          }
+                        },
+                        "thumb": <str>,
+                        "format": <str>,
+                        "country": <str>,
+                        "title": <str>,
+                        "label": <str>,
+                        "released": <str>,
+                        "major_formats": [<str>],
+                        "catno": <str>,
+                        "resource_url": <str>,
+                        "id": <int>
+                      }
+                    ]
+                  }
+        """
+        
+        return self._get_json(
+            f"{self.API_URL}/masters/{master_id}/versions",
+            params={
+                "country": country,
+                "format": format,
+                "label": label,
+                "released": released,
+                "page": page,
+                "per_page": per_page,
+                "sort": sort,
+                "sort_order": sort_order
+            },
+        )
     
     def get_artist(self, artist_id: Union[int, str]) -> dict[str, Any]:
+
+        """
+        `Database > Artist <https://www.discogs.com/developers
+        /#page:database,header:database-artist-get>`_: Get an artist.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`
+            The artist ID.
+
+            **Example**: :code:`108713`.
+
+        Returns
+        -------
+        artist : `dict`
+            Discogs database information for a single artist.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "namevariations": [<str>],
+                    "profile": <str>,
+                    "releases_url": <str>,
+                    "resource_url": <str>,
+                    "uri": <str>,
+                    "urls": [<str>],
+                    "data_quality": <str>,
+                    "id": <int>,
+                    "images": [
+                      {
+                        "height": <int>,
+                        "resource_url": <str>,
+                        "type": <str>,
+                        "uri": <str>,
+                        "uri150": <str>,
+                        "width": <int>
+                      }
+                    ],
+                    "members": [
+                      {
+                        "active": <bool>,
+                        "id": <int>,
+                        "name": <str>,
+                        "resource_url": <str>
+                      }
+                    ]
+                  }
+        """
         
-        raise NotImplementedError
+        return self._get_json(f"{self.API_URL}/artists/{artist_id}")
     
     def get_artist_releases(
-            self, artist_id: Union[int, str], *, sort: str = None,
-            sort_order: str = None) -> dict[str, Any]:
+            self, artist_id: Union[int, str], *, page: int = None,
+            per_page: int = None, sort: str = None, sort_order: str = None
+        ) -> dict[str, Any]:
+
+        """
+        `Database > Artist Releases <https://www.discogs.com/developers
+        /#page:database,header:database-artist-releases-get>`_: Get an
+        artist's releases and masters.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`
+            The artist ID.
+
+            **Example**: :code:`108713`.
+
+        page : `int`, keyword-only, optional
+            Page of results to fetch.
+
+        per_page : `int`, keyword-only, optional
+            Number of results per page.
+
+        sort : `str`, keyword-only, optional
+            Sort results by this field.
+
+            **Valid values**: :code:`"year"`, :code:`"title"`, and
+            :code:`"format"`.
+
+        sort_order : `str`, keyword-only, optional
+            Sort results in a particular order.
+
+            **Valid values**: :code:`"asc"` and :code:`"desc"`.
         
-        raise NotImplementedError
+        Returns
+        -------
+        releases : `dict`
+            Discogs database information for all releases by the
+            specified artist.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "last": <str>,
+                        "next": <str>
+                      }
+                    },
+                    "releases": [
+                      {
+                        "artist": <str>,
+                        "id": <int>,
+                        "main_release": <int>,
+                        "resource_url": <str>,
+                        "role": <str>,
+                        "thumb": <str>,
+                        "title": <str>,
+                        "type": <str>,
+                        "year": <int>
+                      }
+                    ]
+                  }
+        """
+        
+        return self._get_json(
+            f"{self.API_URL}/artists/{artist_id}/releases",
+            params={
+                "page": page,
+                "per_page": per_page,
+                "sort": sort,
+                "sort_order": sort_order
+            }
+        )
 
     def get_label(self, label_id: Union[int, str]) -> dict[str, Any]:
         
-        raise NotImplementedError
+        """
+        `Database > Label <https://www.discogs.com/developers
+        /#page:database,header:database-label-get>`_: Get a label, 
+        company, recording studio, locxation, or other entity involved
+        with artists and releases.
+
+        Parameters
+        ----------
+        label_id : `int` or `str`
+            The label ID.
+
+            **Example**: :code:`1`.
+
+        Returns
+        -------
+        label : `dict`
+            Discogs database information for a single label.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "profile": <str>,
+                    "releases_url": <str>,
+                    "name": <str>,
+                    "contact_info": <str>,
+                    "uri": <str>,
+                    "sublabels": [
+                      {
+                        "resource_url": <str>,
+                        "id": <int>,
+                        "name": <str>
+                      }
+                    ],
+                    "urls": [<str>],
+                    "images": [
+                      {
+                        "height": <int>,
+                        "resource_url": <str>,
+                        "type": <str>,
+                        "uri": <str>,
+                        "uri150": <str>,
+                        "width": <int>
+                      }
+                    ],
+                    "resource_url": <str>,
+                    "id": <int>,
+                    "data_quality": <str>
+                  }
+        """
+
+        return self._get_json(f"{self.API_URL}/labels/{label_id}")
     
     def get_label_releases(
             self, label_id: Union[int, str], *, page: int = None,
             per_page: int = None) -> dict[str, Any]:
+
+        """
+        `Database > Label Releases <https://www.discogs.com/developers
+        /#page:database,header:database-all-label-releases-get>`_: Get a
+        list of releases associated with the label.
+
+        Parameters
+        ----------
+        label_id : `int` or `str`
+            The label ID.
+
+            **Example**: :code:`1`.
+
+        page : `int`, keyword-only, optional
+            Page of results to fetch.
+
+        per_page : `int`, keyword-only, optional
+            Number of results per page.
+
+        Returns
+        -------
+        releases : `dict`
+            Discogs database information for all releases by the
+            specified label.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "last": <str>,
+                        "next": <str>
+                      }
+                    },
+                    "releases": [
+                      {
+                        "artist": <str>,
+                        "catno": <str>,
+                        "format": <str>,
+                        "id": <int>,
+                        "resource_url": <str>,
+                        "status": <str>,
+                        "thumb": <str>,
+                        "title": <str>,
+                        "year": <int>
+                      }
+                    ]
+                  }
+        """
         
-        raise NotImplementedError
+        return self._get_json(
+            f"{self.API_URL}/labels/{label_id}/releases",
+            params={"page": page, "per_page": per_page}
+        )
     
     def search(
-            self, query: str, *, type: str = None, title: str = None,
+            self, query: str = None, *, type: str = None, title: str = None,
             release_title: str = None, credit: str = None,
             artist: str = None, anv: str = None, label: str = None,
             genre: str = None, style: str = None, country: str = None,
             year: str = None, format: str = None, catno: str = None,
             barcode: str = None, track: str = None, submitter: str = None,
-            contributor: str = None):
+            contributor: str = None) -> dict[str, Any]:
         
-        raise NotImplementedError
+        """
+        `Database > Search <https://www.discogs.com/developers
+        /#page:database,header:database-search-get>`_: Issue a search
+        query to the Discogs database.
+
+        .. admonition:: Authentication
+           :class: warning
+
+            Requires authentication with consumer credentials, with a
+            personal access token, or via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        query : `str`, optional
+            The search query.
+
+            **Example**: :code:`"Nirvana"`.
+
+        type : `str`, keyword-only, optional
+            The type of item to search for.
+
+            **Valid values**: :code:`"release"`, :code:`"master"`, 
+            :code:`"artist"`, and :code:`"label"`.
+
+        title : `str`, keyword-only, optional
+            Search by combined :code:`"<artist name> - <release title>"`
+            title field.
+
+            **Example**: :code:`"Nirvana - Nevermind"`.
+
+        release_title : `str`, keyword-only, optional
+            Search release titles.
+
+            **Example**: :code:`"Nevermind"`.
+
+        credit : `str`, keyword-only, optional
+            Search release credits.
+
+            **Example**: :code:`"Kurt"`.
+
+        artist : `str`, keyword-only, optional
+            Search artist names.
+
+            **Example**: :code:`"Nirvana"`.
+
+        anv : `str`, keyword-only, optional
+            Search artist name variations (ANV).
+
+            **Example**: :code:`"Nirvana"`.
+
+        label : `str`, keyword-only, optional
+            Search labels.
+
+            **Example**: :code:`"DGC"`.
+
+        genre : `str`, keyword-only, optional
+            Search genres.
+
+            **Example**: :code:`"Rock"`.
+
+        style : `str`, keyword-only, optional
+            Search styles.
+
+            **Example**: :code:`"Grunge"`.
+        
+        country : `str`, keyword-only, optional
+            Search release country.
+
+            **Example**: :code:`"Canada"`.
+
+        year : `str`, keyword-only, optional
+            Search release year.
+
+            **Example**: :code:`"1991"`.
+
+        format : `str`, keyword-only, optional
+            Search formats.
+
+            **Example**: :code:`"Album"`.
+
+        catno : `str`, keyword-only, optional
+            Search catalog number.
+
+            **Example**: :code:`"DGCD-24425"`.
+
+        barcode : `str`, keyword-only, optional
+            Search barcode.
+
+            **Example**: :code:`"720642442524"`.
+
+        track : `str`, keyword-only, optional
+            Search track.
+
+            **Example**: :code:`"Smells Like Teen Spirit"`.
+
+        submitter : `str`, keyword-only, optional
+            Search submitter username.
+
+            **Example**: :code:`"milKt"`.
+
+        contributor : `str`, keyword-only, optional
+            Search contributor username.
+
+            **Example**: :code:`"jerome99"`.
+
+        Returns
+        -------
+        results : `dict`
+            Search results.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "items": <int>,
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "urls": {
+                        "last": <str>,
+                        "next": <str>
+                      }
+                    },
+                    "results": [
+                      {
+                        "style": [<str>],
+                        "thumb": <str>,
+                        "title": <str>,
+                        "country": <str>,
+                        "format": [<str>],
+                        "uri": <str>,
+                        "community": {
+                          "want": <int>,
+                          "have": <int>
+                        },
+                        "label": [<str>],
+                        "catno": <str>,
+                        "year": <str>,
+                        "genre": [<str>],
+                        "resource_url": <str>,
+                        "type": <str>,
+                        "id": <int>
+                      }
+                    ]
+                  }
+        """
+
+        self._check_authentication("search", False)
+        
+        return self._get_json(
+            f"{self.API_URL}/database/search",
+            params={
+                "q": query,
+                "type": type,
+                "title": title,
+                "release_title": release_title,
+                "credit": credit,
+                "artist": artist,
+                "anv": anv,
+                "label": label,
+                "genre": genre,
+                "style": style,
+                "country": country,
+                "year": year,
+                "format": format,
+                "catno": catno,
+                "barcode": barcode,
+                "track": track,
+                "submitter": submitter,
+                "contributor": contributor
+            }
+        )
 
     ### MARKETPLACE ###########################################################
                 
@@ -964,7 +1739,7 @@ class API:
                .. code::
 
                   {
-                    "id": <int><int>,
+                    "id": <int>,
                     "username": <str>,
                     "resource_url": <str>,
                     "consumer_name": <str>
@@ -1015,7 +1790,7 @@ class API:
                     "wantlist_url": <str>,
                     "rank": <int>,
                     "num_pending": <int>,
-                    "id": <int><int>,
+                    "id": <int>,
                     "num_for_sale": <int>,
                     "home_page": <str>,
                     "location": <str>,
@@ -1208,7 +1983,10 @@ class API:
                       "page": <int>,
                       "pages": <int>,
                       "per_page": <int>,
-                      "urls": {}
+                      "urls": {
+                        "last": <str>,
+                        "next": <str>
+                      }
                     },
                     "submissions": {
                       "artists": [
@@ -1384,7 +2162,10 @@ class API:
                       "page": <int>,
                       "pages": <int>,
                       "per_page": <int>,
-                      "urls": {}
+                      "urls": {
+                        "last": <str>,
+                        "next": <str>
+                      }
                     },
                     "contributions": [
                       {
@@ -1489,8 +2270,12 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/users/{username}/contributions",
-            params={"page": page, "per_page": per_page, "sort": sort,
-                    "sort_order": sort_order}
+            params={
+                "page": page, 
+                "per_page": per_page, 
+                "sort": sort,
+                "sort_order": sort_order
+            }
         )
     
     ### USER COLLECTION #######################################################

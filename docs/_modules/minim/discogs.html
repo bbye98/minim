@@ -263,11 +263,11 @@
 <span class="kn">import</span> <span class="nn">requests</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span><span class="n">FOUND_FLASK</span><span class="p">,</span> <span class="n">FOUND_PLAYWRIGHT</span><span class="p">,</span> <span class="n">VERSION</span><span class="p">,</span> <span class="n">REPOSITORY_URL</span><span class="p">,</span> 
-               <span class="n">DIR_HOME</span><span class="p">,</span> <span class="n">DIR_TEMP</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+               <span class="n">DIR_HOME</span><span class="p">,</span> <span class="n">DIR_TEMP</span><span class="p">,</span> <span class="n">_config</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">FOUND_FLASK</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span>
+    <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span>
 <span class="k">if</span> <span class="n">FOUND_PLAYWRIGHT</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">sync_playwright</span>
+    <span class="kn">from</span> <span class="nn">playwright.sync_api</span> <span class="kn">import</span> <span class="n">sync_playwright</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;API&quot;</span><span class="p">]</span>
 
@@ -472,13 +472,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;User-Agent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Minim/</span><span class="si">{</span><span class="n">VERSION</span><span class="si">}</span><span class="s2"> +</span><span class="si">{</span><span class="n">REPOSITORY_URL</span><span class="si">}</span><span class="s2">&quot;</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">)</span> 
+        <span class="k">if</span> <span class="p">(</span><span class="n">access_token</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_config</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">)</span> 
                 <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">):</span>
-            <span class="n">flow</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;flow&quot;</span><span class="p">)</span>
-            <span class="n">access_token</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
-            <span class="n">access_token_secret</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;access_token_secret&quot;</span><span class="p">)</span>
-            <span class="n">consumer_key</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;consumer_key&quot;</span><span class="p">)</span>
-            <span class="n">consumer_secret</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;consumer_secret&quot;</span><span class="p">)</span>
+            <span class="n">flow</span> <span class="o">=</span> <span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;flow&quot;</span><span class="p">)</span>
+            <span class="n">access_token</span> <span class="o">=</span> <span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
+            <span class="n">access_token_secret</span> <span class="o">=</span> <span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;access_token_secret&quot;</span><span class="p">)</span>
+            <span class="n">consumer_key</span> <span class="o">=</span> <span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;consumer_key&quot;</span><span class="p">)</span>
+            <span class="n">consumer_secret</span> <span class="o">=</span> <span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">,</span> <span class="s2">&quot;consumer_secret&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">flow</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">flow</span> <span class="o">=</span> <span class="s2">&quot;discogs&quot;</span> <span class="k">if</span> <span class="n">access_token_secret</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;oauth&quot;</span>
 
@@ -642,8 +642,8 @@
                         <span class="n">oauth</span> <span class="o">|=</span> <span class="nb">dict</span><span class="p">(</span>
                             <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qsl</span><span class="p">(</span>
                                 <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span>
-                                    <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span><span class="si">}</span><span class="s1">\?(.*?)&quot;&#39;</span><span class="p">,</span> 
-                                                <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                                    <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">fr</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span><span class="si">}</span><span class="s1">\?(.*?)&quot;&#39;</span><span class="p">,</span> 
+                                              <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                                 <span class="p">)</span><span class="o">.</span><span class="n">query</span>
                             <span class="p">)</span>
                         <span class="p">)</span>
@@ -712,7 +712,7 @@
                     <span class="nb">dict</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qsl</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">))</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">:</span>
-                    <span class="n">config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">_config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_NAME</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                         <span class="s2">&quot;flow&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span><span class="p">,</span>
                         <span class="s2">&quot;access_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
                         <span class="s2">&quot;access_token_secret&quot;</span><span class="p">:</span> <span class="n">access_token_secret</span><span class="p">,</span>
@@ -720,7 +720,7 @@
                         <span class="s2">&quot;consumer_secret&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_consumer_secret</span>
                     <span class="p">}</span>
                     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DIR_HOME</span> <span class="o">/</span> <span class="s2">&quot;minim.cfg&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                        <span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                        <span class="n">_config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         
             <span class="bp">self</span><span class="o">.</span><span class="n">_oauth</span> <span class="o">|=</span> <span class="p">{</span>
                 <span class="s2">&quot;oauth_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">,</span>
@@ -775,6 +775,54 @@
 <span class="sd">               * :code:`&quot;oauth&quot;` for the OAuth 1.0a flow.</span>
 
 <span class="sd">        consumer_key : `str`, keyword-only, optional</span>
+<span class="sd">            Consumer key. Required for the OAuth 1.0a flow, and can be</span>
+<span class="sd">            used in the Discogs authorization flow alongside a consumer</span>
+<span class="sd">            secret. If it is not stored as :code:`DISCOGS_CONSUMER_KEY`</span>
+<span class="sd">            in the operating system&#39;s environment variables or found in</span>
+<span class="sd">            the Minim configuration file, it can be provided here.</span>
+
+<span class="sd">        consumer_secret : `str`, keyword-only, optional</span>
+<span class="sd">            Consumer secret. Required for the OAuth 1.0a flow, and can</span>
+<span class="sd">            be used in the Discogs authorization flow alongside a </span>
+<span class="sd">            consumer key. If it is not stored as </span>
+<span class="sd">            :code:`DISCOGS_CONSUMER_SECRET` in the operating system&#39;s </span>
+<span class="sd">            environment variables or found in the Minim configuration </span>
+<span class="sd">            file, it can be provided here.</span>
+
+<span class="sd">        browser : `bool`, keyword-only, default: :code:`False`</span>
+<span class="sd">            Determines whether a web browser is automatically opened for</span>
+<span class="sd">            the OAuth 1.0a flow. If :code:`False`, users will have to</span>
+<span class="sd">            manually open the authorization URL and provide the full</span>
+<span class="sd">            callback URI via the terminal.</span>
+
+<span class="sd">        web_framework : `str`, keyword-only, optional</span>
+<span class="sd">            Determines which web framework to use for the OAuth 1.0a</span>
+<span class="sd">            flow.</span>
+
+<span class="sd">            .. container::</span>
+
+<span class="sd">               **Valid values**:</span>
+
+<span class="sd">               * :code:`&quot;http.server&quot;` for the built-in implementation</span>
+<span class="sd">                 of HTTP servers.</span>
+<span class="sd">               * :code:`&quot;flask&quot;` for the Flask framework.</span>
+<span class="sd">               * :code:`&quot;playwright&quot;` for the Playwright framework by </span>
+<span class="sd">                 Microsoft.</span>
+
+<span class="sd">        port : `int` or `str`, keyword-only, default: :code:`8888`</span>
+<span class="sd">            Port on :code:`localhost` to use for the OAuth 1.0a flow</span>
+<span class="sd">            with the :code:`http.server` and Flask frameworks. Only used</span>
+<span class="sd">            if `redirect_uri` is not specified.</span>
+
+<span class="sd">        redirect_uri : `str`, keyword-only, optional</span>
+<span class="sd">            Redirect URI for the OAuth 1.0a flow. If not on </span>
+<span class="sd">            :code:`localhost`, the automatic request access token </span>
+<span class="sd">            retrieval functionality is not available. </span>
+
+<span class="sd">        save : `bool`, keyword-only, default: :code:`True`</span>
+<span class="sd">            Determines whether newly obtained access tokens and their</span>
+<span class="sd">            associated properties are stored to the Minim configuration</span>
+<span class="sd">            file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">flow</span> <span class="ow">and</span> <span class="n">flow</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FLOWS</span><span class="p">:</span>
@@ -794,8 +842,8 @@
             <span class="k">if</span> <span class="n">redirect_uri</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_redirect_uri</span> <span class="o">=</span> <span class="n">redirect_uri</span>
                 <span class="k">if</span> <span class="s2">&quot;localhost&quot;</span> <span class="ow">in</span> <span class="n">redirect_uri</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;localhost:(\d+)&quot;</span><span class="p">,</span> 
-                                            <span class="n">redirect_uri</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;localhost:(\d+)&quot;</span><span class="p">,</span> 
+                                           <span class="n">redirect_uri</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">web_framework</span><span class="p">:</span>
                     <span class="n">wmsg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The redirect URI is not on localhost, &quot;</span>
                             <span class="s2">&quot;so automatic authorization code &quot;</span>
@@ -1007,9 +1055,9 @@
         <span class="p">)</span></div>
 
     
-<div class="viewcode-block" id="API.get_release_user_rating">
-<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_release_user_rating">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_release_user_rating</span><span class="p">(</span>
+<div class="viewcode-block" id="API.get_user_release_rating">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_user_release_rating">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_user_release_rating</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
@@ -1061,9 +1109,9 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="API.update_release_user_rating">
-<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.update_release_user_rating">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_release_user_rating</span><span class="p">(</span>
+<div class="viewcode-block" id="API.update_user_release_rating">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.update_user_release_rating">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_user_release_rating</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">rating</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
             <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span>
@@ -1113,7 +1161,7 @@
 <span class="sd">                  }</span>
 <span class="sd">        &quot;&quot;&quot;</span> 
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;update_release_rating&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;update_user_release_rating&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_username&quot;</span><span class="p">):</span>
@@ -1128,62 +1176,819 @@
         <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">delete_release_user_rating</span><span class="p">(</span>
+<div class="viewcode-block" id="API.delete_user_release_rating">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.delete_user_release_rating">[docs]</a>
+    <span class="k">def</span> <span class="nf">delete_user_release_rating</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="k">def</span> <span class="nf">get_release_community_rating</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span> 
-        
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Release Rating By User &gt; Delete Release Rating By</span>
+<span class="sd">        User &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:database,header:database-release-rating-by-user-delete&gt;`_:</span>
+<span class="sd">        Deletes the release&#39;s rating for a given user.</span>
 
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">            :class: warning</span>
+<span class="sd">    </span>
+<span class="sd">            Requires user authentication with a personal access token or</span>
+<span class="sd">            via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        release_id : `int` or `str`</span>
+<span class="sd">            The release ID.</span>
+
+<span class="sd">            **Example**: :code:`249504`.</span>
+
+<span class="sd">        username : `str`, optional</span>
+<span class="sd">            The username of the user whose rating you are requesting. If</span>
+<span class="sd">            not specified, the username of the authenticated user is </span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;memory&quot;`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;delete_user_release_rating&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_username&quot;</span><span class="p">):</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_username</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No username provided.&quot;</span><span class="p">)</span>
+      
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="s2">&quot;delete&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/releases/</span><span class="si">{</span><span class="n">release_id</span><span class="si">}</span><span class="s2">/rating/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.get_community_release_rating">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_community_release_rating">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_community_release_rating</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Community Release Rating &lt;https://www.discogs.com</span>
+<span class="sd">        /developers/#page:database,header</span>
+<span class="sd">        :database-community-release-rating-get&gt;`_: Retrieves the</span>
+<span class="sd">        community release rating average and count.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        release_id : `int` or `str`</span>
+<span class="sd">            The release ID.</span>
+
+<span class="sd">            **Example**: :code:`249504`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        rating : `dict`</span>
+<span class="sd">            Community release rating average and count.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;rating&quot;: {</span>
+<span class="sd">                        &quot;count&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;average&quot;: &lt;float&gt;</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;release_id&quot;: &lt;int&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/releases/</span><span class="si">{</span><span class="n">release_id</span><span class="si">}</span><span class="s2">/rating&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.get_release_stats">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_release_stats">[docs]</a>
     <span class="k">def</span> <span class="nf">get_release_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Release Stats &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:database,header:database-release-stats-get&gt;`_: Retrieves</span>
+<span class="sd">        the release&#39;s &quot;have&quot; and &quot;want&quot; counts.</span>
+
+<span class="sd">        .. attention::</span>
+
+<span class="sd">           This endpoint does not appear to be working correctly. </span>
+<span class="sd">           Currently, the response will be of the form</span>
+
+<span class="sd">           .. code::</span>
+
+<span class="sd">              {</span>
+<span class="sd">                &quot;is_offense&quot;: &lt;bool&gt;</span>
+<span class="sd">              }</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        release_id : `int` or `str`</span>
+<span class="sd">            The release ID.</span>
+
+<span class="sd">            **Example**: :code:`249504`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        stats : `dict`</span>
+<span class="sd">            Release &quot;have&quot; and &quot;want&quot; counts.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;num_have&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;num_want&quot;: &lt;int&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/releases/</span><span class="si">{</span><span class="n">release_id</span><span class="si">}</span><span class="s2">/stats&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.get_master_release">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_master_release">[docs]</a>
     <span class="k">def</span> <span class="nf">get_master_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Master Release &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:database,header:database-master-release-get&gt;`_: Get a</span>
+<span class="sd">        master release.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        master_id : `int` or `str`</span>
+<span class="sd">            The master release ID.</span>
+
+<span class="sd">            **Example**: :code:`1000`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        master_release : `dict`</span>
+<span class="sd">            Discogs database information for a single master release.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;styles&quot;: [&lt;str&gt;],</span>
+<span class="sd">                    &quot;genres&quot;: [&lt;str&gt;],</span>
+<span class="sd">                    &quot;videos&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;duration&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;description&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;embed&quot;: &lt;bool&gt;,</span>
+<span class="sd">                        &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;title&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;title&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;main_release&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;main_release_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;artists&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;join&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;anv&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;tracks&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;role&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;versions_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;year&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;images&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;height&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;type&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;uri150&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;width&quot;: &lt;int&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;tracklist&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;duration&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;position&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;type_&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;extraartists&quot;: [</span>
+<span class="sd">                          {</span>
+<span class="sd">                            &quot;join&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;anv&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;tracks&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;role&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                            &quot;id&quot;: &lt;int&gt;</span>
+<span class="sd">                          }</span>
+<span class="sd">                        ],</span>
+<span class="sd">                        &quot;title&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;num_for_sale&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;lowest_price&quot;: &lt;float&gt;,</span>
+<span class="sd">                    &quot;data_quality&quot;: &lt;str&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/masters/</span><span class="si">{</span><span class="n">master_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.get_master_release_versions">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_master_release_versions">[docs]</a>
     <span class="k">def</span> <span class="nf">get_master_release_versions</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">released</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">per_page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">sort_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-    
-    <span class="k">def</span> <span class="nf">get_artist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-    
-    <span class="k">def</span> <span class="nf">get_artist_releases</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">artist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">sort_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Master Release Versions &lt;https://www.discogs.com</span>
+<span class="sd">        /developers/#page:database,header</span>
+<span class="sd">        :database-master-release-versions-get&gt;`_: Retrieves a list of</span>
+<span class="sd">        all releases that are versions of this master.</span>
 
-    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        master_id : `int` or `str`</span>
+<span class="sd">            The master release ID.</span>
+
+<span class="sd">            **Example**: :code:`1000`.</span>
+
+<span class="sd">        country : `str`, keyword-only, optional</span>
+<span class="sd">            The country to filter for.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Belgium&quot;`.</span>
+
+<span class="sd">        format : `str`, keyword-only, optional</span>
+<span class="sd">            The format to filter for.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Vinyl&quot;`.</span>
+
+<span class="sd">        label : `str`, keyword-only, optional</span>
+<span class="sd">            The label to filter for.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Scorpio Music&quot;`.</span>
+
+<span class="sd">        released : `str`, keyword-only, optional</span>
+<span class="sd">            The release year to filter for.</span>
+
+<span class="sd">            **Example**: :code:`&quot;1992&quot;`.</span>
+
+<span class="sd">        page : `int`, keyword-only, optional</span>
+<span class="sd">            The page you want to request.</span>
+
+<span class="sd">            **Example**: :code:`3`.</span>
+
+<span class="sd">        per_page : `int`, keyword-only, optional</span>
+<span class="sd">            The number of items per page.</span>
+
+<span class="sd">            **Example**: :code:`25`.</span>
+
+<span class="sd">        sort : `str`, keyword-only, optional</span>
+<span class="sd">            Sort items by this field.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;released&quot;`, :code:`&quot;title&quot;`, </span>
+<span class="sd">            :code:`&quot;format&quot;`, :code:`&quot;label&quot;`, :code:`&quot;catno&quot;`, </span>
+<span class="sd">            and :code:`&quot;country&quot;`.</span>
+
+<span class="sd">        sort_order : `str`, keyword-only, optional</span>
+<span class="sd">            Sort items in a particular order.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;asc&quot;` and :code:`&quot;desc&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        versions : `dict`</span>
+<span class="sd">            Discogs database information for all releases that are </span>
+<span class="sd">            versions of the specified master.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;pagination&quot;: {</span>
+<span class="sd">                      &quot;items&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;pages&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;per_page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;urls&quot;: {</span>
+<span class="sd">                        &quot;last&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;next&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;versions&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;status&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;stats&quot;: {</span>
+<span class="sd">                          &quot;user&quot;: {</span>
+<span class="sd">                            &quot;in_collection&quot;: &lt;int&gt;,</span>
+<span class="sd">                            &quot;in_wantlist&quot;: &lt;int&gt;</span>
+<span class="sd">                          },</span>
+<span class="sd">                          &quot;community&quot;: {</span>
+<span class="sd">                            &quot;in_collection&quot;: &lt;int&gt;,</span>
+<span class="sd">                            &quot;in_wantlist&quot;: &lt;int&gt;</span>
+<span class="sd">                          }</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;thumb&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;format&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;country&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;title&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;label&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;released&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;major_formats&quot;: [&lt;str&gt;],</span>
+<span class="sd">                        &quot;catno&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ]</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/masters/</span><span class="si">{</span><span class="n">master_id</span><span class="si">}</span><span class="s2">/versions&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;country&quot;</span><span class="p">:</span> <span class="n">country</span><span class="p">,</span>
+                <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="nb">format</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
+                <span class="s2">&quot;released&quot;</span><span class="p">:</span> <span class="n">released</span><span class="p">,</span>
+                <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span>
+                <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="n">per_page</span><span class="p">,</span>
+                <span class="s2">&quot;sort&quot;</span><span class="p">:</span> <span class="n">sort</span><span class="p">,</span>
+                <span class="s2">&quot;sort_order&quot;</span><span class="p">:</span> <span class="n">sort_order</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+
     
+<div class="viewcode-block" id="API.get_artist">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_artist">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_artist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">artist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Artist &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:database,header:database-artist-get&gt;`_: Get an artist.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        artist_id : `int` or `str`</span>
+<span class="sd">            The artist ID.</span>
+
+<span class="sd">            **Example**: :code:`108713`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        artist : `dict`</span>
+<span class="sd">            Discogs database information for a single artist.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;namevariations&quot;: [&lt;str&gt;],</span>
+<span class="sd">                    &quot;profile&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;releases_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;urls&quot;: [&lt;str&gt;],</span>
+<span class="sd">                    &quot;data_quality&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;images&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;height&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;type&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;uri150&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;width&quot;: &lt;int&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;members&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;active&quot;: &lt;bool&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ]</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/artists/</span><span class="si">{</span><span class="n">artist_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="API.get_artist_releases">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_artist_releases">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_artist_releases</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">artist_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">per_page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Artist Releases &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:database,header:database-artist-releases-get&gt;`_: Get an</span>
+<span class="sd">        artist&#39;s releases and masters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        artist_id : `int` or `str`</span>
+<span class="sd">            The artist ID.</span>
+
+<span class="sd">            **Example**: :code:`108713`.</span>
+
+<span class="sd">        page : `int`, keyword-only, optional</span>
+<span class="sd">            Page of results to fetch.</span>
+
+<span class="sd">        per_page : `int`, keyword-only, optional</span>
+<span class="sd">            Number of results per page.</span>
+
+<span class="sd">        sort : `str`, keyword-only, optional</span>
+<span class="sd">            Sort results by this field.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;year&quot;`, :code:`&quot;title&quot;`, and</span>
+<span class="sd">            :code:`&quot;format&quot;`.</span>
+
+<span class="sd">        sort_order : `str`, keyword-only, optional</span>
+<span class="sd">            Sort results in a particular order.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;asc&quot;` and :code:`&quot;desc&quot;`.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        releases : `dict`</span>
+<span class="sd">            Discogs database information for all releases by the</span>
+<span class="sd">            specified artist.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;pagination&quot;: {</span>
+<span class="sd">                      &quot;items&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;pages&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;per_page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;urls&quot;: {</span>
+<span class="sd">                        &quot;last&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;next&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;releases&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;artist&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;main_release&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;role&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;thumb&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;title&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;type&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;year&quot;: &lt;int&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ]</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/artists/</span><span class="si">{</span><span class="n">artist_id</span><span class="si">}</span><span class="s2">/releases&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span>
+                <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="n">per_page</span><span class="p">,</span>
+                <span class="s2">&quot;sort&quot;</span><span class="p">:</span> <span class="n">sort</span><span class="p">,</span>
+                <span class="s2">&quot;sort_order&quot;</span><span class="p">:</span> <span class="n">sort_order</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.get_label">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_label">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Label &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:database,header:database-label-get&gt;`_: Get a label, </span>
+<span class="sd">        company, recording studio, locxation, or other entity involved</span>
+<span class="sd">        with artists and releases.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        label_id : `int` or `str`</span>
+<span class="sd">            The label ID.</span>
+
+<span class="sd">            **Example**: :code:`1`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        label : `dict`</span>
+<span class="sd">            Discogs database information for a single label.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;profile&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;releases_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;contact_info&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;sublabels&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;name&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;urls&quot;: [&lt;str&gt;],</span>
+<span class="sd">                    &quot;images&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;height&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;type&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;uri150&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;width&quot;: &lt;int&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;data_quality&quot;: &lt;str&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/labels/</span><span class="si">{</span><span class="n">label_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="API.get_label_releases">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_label_releases">[docs]</a>
     <span class="k">def</span> <span class="nf">get_label_releases</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">label_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">per_page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Label Releases &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:database,header:database-all-label-releases-get&gt;`_: Get a</span>
+<span class="sd">        list of releases associated with the label.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        label_id : `int` or `str`</span>
+<span class="sd">            The label ID.</span>
+
+<span class="sd">            **Example**: :code:`1`.</span>
+
+<span class="sd">        page : `int`, keyword-only, optional</span>
+<span class="sd">            Page of results to fetch.</span>
+
+<span class="sd">        per_page : `int`, keyword-only, optional</span>
+<span class="sd">            Number of results per page.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        releases : `dict`</span>
+<span class="sd">            Discogs database information for all releases by the</span>
+<span class="sd">            specified label.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;pagination&quot;: {</span>
+<span class="sd">                      &quot;items&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;pages&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;per_page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;urls&quot;: {</span>
+<span class="sd">                        &quot;last&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;next&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;releases&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;artist&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;catno&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;format&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;status&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;thumb&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;title&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;year&quot;: &lt;int&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ]</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/labels/</span><span class="si">{</span><span class="n">label_id</span><span class="si">}</span><span class="s2">/releases&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span> <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="n">per_page</span><span class="p">}</span>
+        <span class="p">)</span></div>
+
     
+<div class="viewcode-block" id="API.search">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.search">[docs]</a>
     <span class="k">def</span> <span class="nf">search</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">release_title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">credit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">artist</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">anv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">genre</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">year</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">catno</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">barcode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">track</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">submitter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">contributor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">contributor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Database &gt; Search &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:database,header:database-search-get&gt;`_: Issue a search</span>
+<span class="sd">        query to the Discogs database.</span>
+
+<span class="sd">        .. admonition:: Authentication</span>
+<span class="sd">           :class: warning</span>
+
+<span class="sd">            Requires authentication with consumer credentials, with a</span>
+<span class="sd">            personal access token, or via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        query : `str`, optional</span>
+<span class="sd">            The search query.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Nirvana&quot;`.</span>
+
+<span class="sd">        type : `str`, keyword-only, optional</span>
+<span class="sd">            The type of item to search for.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;release&quot;`, :code:`&quot;master&quot;`, </span>
+<span class="sd">            :code:`&quot;artist&quot;`, and :code:`&quot;label&quot;`.</span>
+
+<span class="sd">        title : `str`, keyword-only, optional</span>
+<span class="sd">            Search by combined :code:`&quot;&lt;artist name&gt; - &lt;release title&gt;&quot;`</span>
+<span class="sd">            title field.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Nirvana - Nevermind&quot;`.</span>
+
+<span class="sd">        release_title : `str`, keyword-only, optional</span>
+<span class="sd">            Search release titles.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Nevermind&quot;`.</span>
+
+<span class="sd">        credit : `str`, keyword-only, optional</span>
+<span class="sd">            Search release credits.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Kurt&quot;`.</span>
+
+<span class="sd">        artist : `str`, keyword-only, optional</span>
+<span class="sd">            Search artist names.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Nirvana&quot;`.</span>
+
+<span class="sd">        anv : `str`, keyword-only, optional</span>
+<span class="sd">            Search artist name variations (ANV).</span>
+
+<span class="sd">            **Example**: :code:`&quot;Nirvana&quot;`.</span>
+
+<span class="sd">        label : `str`, keyword-only, optional</span>
+<span class="sd">            Search labels.</span>
+
+<span class="sd">            **Example**: :code:`&quot;DGC&quot;`.</span>
+
+<span class="sd">        genre : `str`, keyword-only, optional</span>
+<span class="sd">            Search genres.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Rock&quot;`.</span>
+
+<span class="sd">        style : `str`, keyword-only, optional</span>
+<span class="sd">            Search styles.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Grunge&quot;`.</span>
+<span class="sd">        </span>
+<span class="sd">        country : `str`, keyword-only, optional</span>
+<span class="sd">            Search release country.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Canada&quot;`.</span>
+
+<span class="sd">        year : `str`, keyword-only, optional</span>
+<span class="sd">            Search release year.</span>
+
+<span class="sd">            **Example**: :code:`&quot;1991&quot;`.</span>
+
+<span class="sd">        format : `str`, keyword-only, optional</span>
+<span class="sd">            Search formats.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Album&quot;`.</span>
+
+<span class="sd">        catno : `str`, keyword-only, optional</span>
+<span class="sd">            Search catalog number.</span>
+
+<span class="sd">            **Example**: :code:`&quot;DGCD-24425&quot;`.</span>
+
+<span class="sd">        barcode : `str`, keyword-only, optional</span>
+<span class="sd">            Search barcode.</span>
+
+<span class="sd">            **Example**: :code:`&quot;720642442524&quot;`.</span>
+
+<span class="sd">        track : `str`, keyword-only, optional</span>
+<span class="sd">            Search track.</span>
+
+<span class="sd">            **Example**: :code:`&quot;Smells Like Teen Spirit&quot;`.</span>
+
+<span class="sd">        submitter : `str`, keyword-only, optional</span>
+<span class="sd">            Search submitter username.</span>
+
+<span class="sd">            **Example**: :code:`&quot;milKt&quot;`.</span>
+
+<span class="sd">        contributor : `str`, keyword-only, optional</span>
+<span class="sd">            Search contributor username.</span>
+
+<span class="sd">            **Example**: :code:`&quot;jerome99&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        results : `dict`</span>
+<span class="sd">            Search results.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;pagination&quot;: {</span>
+<span class="sd">                      &quot;items&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;pages&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;per_page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;urls&quot;: {</span>
+<span class="sd">                        &quot;last&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;next&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;results&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;style&quot;: [&lt;str&gt;],</span>
+<span class="sd">                        &quot;thumb&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;title&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;country&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;format&quot;: [&lt;str&gt;],</span>
+<span class="sd">                        &quot;uri&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;community&quot;: {</span>
+<span class="sd">                          &quot;want&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;have&quot;: &lt;int&gt;</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;label&quot;: [&lt;str&gt;],</span>
+<span class="sd">                        &quot;catno&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;year&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;genre&quot;: [&lt;str&gt;],</span>
+<span class="sd">                        &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;type&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ]</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;search&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/database/search&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;q&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span>
+                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span>
+                <span class="s2">&quot;release_title&quot;</span><span class="p">:</span> <span class="n">release_title</span><span class="p">,</span>
+                <span class="s2">&quot;credit&quot;</span><span class="p">:</span> <span class="n">credit</span><span class="p">,</span>
+                <span class="s2">&quot;artist&quot;</span><span class="p">:</span> <span class="n">artist</span><span class="p">,</span>
+                <span class="s2">&quot;anv&quot;</span><span class="p">:</span> <span class="n">anv</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
+                <span class="s2">&quot;genre&quot;</span><span class="p">:</span> <span class="n">genre</span><span class="p">,</span>
+                <span class="s2">&quot;style&quot;</span><span class="p">:</span> <span class="n">style</span><span class="p">,</span>
+                <span class="s2">&quot;country&quot;</span><span class="p">:</span> <span class="n">country</span><span class="p">,</span>
+                <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">year</span><span class="p">,</span>
+                <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="nb">format</span><span class="p">,</span>
+                <span class="s2">&quot;catno&quot;</span><span class="p">:</span> <span class="n">catno</span><span class="p">,</span>
+                <span class="s2">&quot;barcode&quot;</span><span class="p">:</span> <span class="n">barcode</span><span class="p">,</span>
+                <span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="n">track</span><span class="p">,</span>
+                <span class="s2">&quot;submitter&quot;</span><span class="p">:</span> <span class="n">submitter</span><span class="p">,</span>
+                <span class="s2">&quot;contributor&quot;</span><span class="p">:</span> <span class="n">contributor</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
+
 
     <span class="c1">### MARKETPLACE ###########################################################</span>
                 
@@ -1226,7 +2031,7 @@
 <span class="sd">               .. code::</span>
 
 <span class="sd">                  {</span>
-<span class="sd">                    &quot;id&quot;: &lt;int&gt;&lt;int&gt;,</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;,</span>
 <span class="sd">                    &quot;username&quot;: &lt;str&gt;,</span>
 <span class="sd">                    &quot;resource_url&quot;: &lt;str&gt;,</span>
 <span class="sd">                    &quot;consumer_name&quot;: &lt;str&gt;</span>
@@ -1280,7 +2085,7 @@
 <span class="sd">                    &quot;wantlist_url&quot;: &lt;str&gt;,</span>
 <span class="sd">                    &quot;rank&quot;: &lt;int&gt;,</span>
 <span class="sd">                    &quot;num_pending&quot;: &lt;int&gt;,</span>
-<span class="sd">                    &quot;id&quot;: &lt;int&gt;&lt;int&gt;,</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;,</span>
 <span class="sd">                    &quot;num_for_sale&quot;: &lt;int&gt;,</span>
 <span class="sd">                    &quot;home_page&quot;: &lt;str&gt;,</span>
 <span class="sd">                    &quot;location&quot;: &lt;str&gt;,</span>
@@ -1479,7 +2284,10 @@
 <span class="sd">                      &quot;page&quot;: &lt;int&gt;,</span>
 <span class="sd">                      &quot;pages&quot;: &lt;int&gt;,</span>
 <span class="sd">                      &quot;per_page&quot;: &lt;int&gt;,</span>
-<span class="sd">                      &quot;urls&quot;: {}</span>
+<span class="sd">                      &quot;urls&quot;: {</span>
+<span class="sd">                        &quot;last&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;next&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
 <span class="sd">                    },</span>
 <span class="sd">                    &quot;submissions&quot;: {</span>
 <span class="sd">                      &quot;artists&quot;: [</span>
@@ -1658,7 +2466,10 @@
 <span class="sd">                      &quot;page&quot;: &lt;int&gt;,</span>
 <span class="sd">                      &quot;pages&quot;: &lt;int&gt;,</span>
 <span class="sd">                      &quot;per_page&quot;: &lt;int&gt;,</span>
-<span class="sd">                      &quot;urls&quot;: {}</span>
+<span class="sd">                      &quot;urls&quot;: {</span>
+<span class="sd">                        &quot;last&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;next&quot;: &lt;str&gt;</span>
+<span class="sd">                      }</span>
 <span class="sd">                    },</span>
 <span class="sd">                    &quot;contributions&quot;: [</span>
 <span class="sd">                      {</span>
@@ -1763,8 +2574,12 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">/contributions&quot;</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span> <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="n">per_page</span><span class="p">,</span> <span class="s2">&quot;sort&quot;</span><span class="p">:</span> <span class="n">sort</span><span class="p">,</span>
-                    <span class="s2">&quot;sort_order&quot;</span><span class="p">:</span> <span class="n">sort_order</span><span class="p">}</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span> 
+                <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="n">per_page</span><span class="p">,</span> 
+                <span class="s2">&quot;sort&quot;</span><span class="p">:</span> <span class="n">sort</span><span class="p">,</span>
+                <span class="s2">&quot;sort_order&quot;</span><span class="p">:</span> <span class="n">sort_order</span>
+            <span class="p">}</span>
         <span class="p">)</span></div>
 </div>
 

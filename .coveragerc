@@ -1,0 +1,5 @@
+[run]
+omit = **/tests/*
+
+[html]
+directory = tests/coverage/htmlcov

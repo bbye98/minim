@@ -10,6 +10,7 @@ numpy
 pytest-playwright
 
 # DEVELOPMENT DEPENDENCIES
+coverage
 pytest
 ruff
 

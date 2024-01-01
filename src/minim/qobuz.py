@@ -16,9 +16,9 @@ from typing import Any, Union
 
 import requests
 
-from . import FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, config
+from . import FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, _config
 if FOUND_PLAYWRIGHT:
-    from . import sync_playwright
+    from playwright.sync_api import sync_playwright
 
 __all__ = ["PrivateAPI"]
 
@@ -211,12 +211,12 @@ class PrivateAPI:
         if user_agent:
             self.session.headers["User-Agent"] = user_agent
 
-        if (auth_token is None and config.has_section(self._NAME)
+        if (auth_token is None and _config.has_section(self._NAME)
                 and not overwrite):
-            flow = config.get(self._NAME, "flow") or None
-            auth_token = config.get(self._NAME, "auth_token")
-            app_id = config.get(self._NAME, "app_id")
-            app_secret = config.get(self._NAME, "app_secret")
+            flow = _config.get(self._NAME, "flow") or None
+            auth_token = _config.get(self._NAME, "auth_token")
+            app_id = _config.get(self._NAME, "app_id")
+            app_secret = _config.get(self._NAME, "app_secret")
 
         self.set_flow(flow, app_id=app_id, app_secret=app_secret, 
                       auth_token=auth_token, browser=browser, save=save)
@@ -379,14 +379,14 @@ class PrivateAPI:
                     auth_token = r["user_auth_token"]
 
             if self._save:
-                config[self._NAME] = {
+                _config[self._NAME] = {
                     "flow": self._flow,
                     "auth_token": auth_token,
                     "app_id": self.session.headers["X-App-Id"],
                     "app_secret": self._app_secret
                 }
                 with open(DIR_HOME / "minim.cfg", "w") as f:
-                    config.write(f)
+                    _config.write(f)
 
         self.session.headers["X-User-Auth-Token"] = auth_token
 

@@ -20,7 +20,7 @@ try:
 except ModuleNotFoundError:
     FOUND_NUMPY = False
 
-__all__ = ["format_multivalue", "gestalt_ratios", "levenshtein_ratios"]
+__all__ = ["format_multivalue", "gestalt_ratio", "levenshtein_ratio"]
 
 def format_multivalue(
         value: Any, multivalue: bool, *, primary: bool = False,
