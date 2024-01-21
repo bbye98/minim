@@ -1,7 +1,7 @@
 """
 Spotify
 =======
-.. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
+.. moduleauthor:: Benjamin Ye <GitHub: bbye98>
 
 This module contains a complete implementation of all Spotify Web API 
 endpoints and a minimal implementation to use the private Spotify Lyrics
@@ -473,9 +473,15 @@ class WebAPI:
            * :code:`"web_player"` for a Spotify Web Player access 
              token.
     
+    browser : `bool`, keyword-only, default: :code:`False`
+        Determines whether a web browser is automatically opened for the
+        authorization code (with PKCE) flow. If :code:`False`, users 
+        will have to manually open the authorization URL. Not applicable
+        when `web_framework="playwright"`.
+
     web_framework : `str`, keyword-only, optional
         Determines which web framework to use for the authorization code
-        flow. 
+        (with PKCE) flow. 
         
         .. container::
 
@@ -672,11 +678,12 @@ class WebAPI:
 
     def __init__(
             self, *, client_id: str = None, client_secret: str = None,
-            flow: str = "web_player", web_framework: str = None,
-            port: Union[int, str] = 8888, redirect_uri: str = None,
-            scopes: Union[str, list[str]] = "", sp_dc: str = None,
-            access_token: str = None, refresh_token: str = None, 
-            expiry: Union[datetime.datetime, str] = None, 
+            flow: str = "web_player", browser: bool = False,
+            web_framework: str = None, port: Union[int, str] = 8888,
+            redirect_uri: str = None, scopes: Union[str, list[str]] = "",
+            sp_dc: str = None, access_token: str = None, 
+            refresh_token: str = None,
+            expiry: Union[datetime.datetime, str] = None,
             overwrite: bool = False, save: bool = True) -> None:
         
         """
@@ -702,8 +709,8 @@ class WebAPI:
 
         self.set_flow(
             flow, client_id=client_id, client_secret=client_secret, 
-            web_framework=web_framework, port=port, redirect_uri=redirect_uri, 
-            scopes=scopes, sp_dc=sp_dc, save=save
+            browser=browser, web_framework=web_framework, port=port, 
+            redirect_uri=redirect_uri, scopes=scopes, sp_dc=sp_dc, save=save
         )
         self.set_access_token(access_token, refresh_token=refresh_token, 
                               expiry=expiry)
@@ -758,36 +765,7 @@ class WebAPI:
             params["code_challenge_method"] = "S256"
         auth_url = f"{self.AUTH_URL}?{urllib.parse.urlencode(params)}"
 
-        if self._web_framework == "http.server":
-            httpd = HTTPServer(("", self._port), _SpotifyRedirectHandler)
-            webbrowser.open(auth_url)
-            httpd.handle_request()
-            queries = httpd.response
-
-        elif self._web_framework == "flask":
-            app = Flask(__name__)
-            json_file = DIR_TEMP / "minim_spotify.json"
-
-            @app.route("/callback", methods=["GET"])
-            def _callback() -> str:
-                if "error" in request.args:
-                    return "Access denied. You may close this page now."
-                with open(json_file, "w") as f:
-                    json.dump(request.args, f)
-                return "Access granted. You may close this page now."
-
-            server = Process(target=app.run, args=("0.0.0.0", self._port))
-            server.start()
-            webbrowser.open(auth_url)
-            while not json_file.is_file():
-                time.sleep(0.1)
-            server.terminate()
-
-            with open(json_file, "rb") as f:
-                queries = json.load(f)
-            json_file.unlink()
-        
-        elif self._web_framework == "playwright":
+        if self._web_framework == "playwright":
             har_file = DIR_TEMP / "minim_spotify.har"
             
             with sync_playwright() as playwright:
@@ -812,15 +790,47 @@ class WebAPI:
             har_file.unlink()
 
         else:
-            print("To grant Minim access to Spotify data and features, "
-                  "open the following link in your web browser:\n\n"
-                  f"{auth_url}\n")
-            uri = input("After authorizing Minim to access Spotify on "
-                        "your behalf, copy and paste the URI beginning "
-                        f"with '{self._redirect_uri}' below.\n\nURI: ")
-            queries = dict(
-                urllib.parse.parse_qsl(urllib.parse.urlparse(uri).query)
-            )
+            if self._browser:
+                webbrowser.open(auth_url)
+            else:
+                print("To grant Minim access to Spotify data and "
+                      "features, open the following link in your web "
+                      f"browser:\n\n{auth_url}\n")
+
+            if self._web_framework == "http.server":
+                httpd = HTTPServer(("", self._port), _SpotifyRedirectHandler)
+                httpd.handle_request()
+                queries = httpd.response
+
+            elif self._web_framework == "flask":
+                app = Flask(__name__)
+                json_file = DIR_TEMP / "minim_spotify.json"
+
+                @app.route("/callback", methods=["GET"])
+                def _callback() -> str:
+                    if "error" in request.args:
+                        return "Access denied. You may close this page now."
+                    with open(json_file, "w") as f:
+                        json.dump(request.args, f)
+                    return "Access granted. You may close this page now."
+
+                server = Process(target=app.run, args=("0.0.0.0", self._port))
+                server.start()
+                while not json_file.is_file():
+                    time.sleep(0.1)
+                server.terminate()
+
+                with open(json_file, "rb") as f:
+                    queries = json.load(f)
+                json_file.unlink()
+
+            else:
+                uri = input("After authorizing Minim to access Spotify on "
+                            "your behalf, copy and paste the URI beginning "
+                            f"with '{self._redirect_uri}' below.\n\nURI: ")
+                queries = dict(
+                    urllib.parse.parse_qsl(urllib.parse.urlparse(uri).query)
+                )
 
         if "error" in queries:
             raise RuntimeError(f"Authorization failed. Error: {queries['error']}")
@@ -1045,10 +1055,10 @@ class WebAPI:
 
     def set_flow(
             self, flow: str, *, client_id: str = None, 
-            client_secret: str = None, web_framework: str = None,
-            port: Union[int, str] = 8888, redirect_uri: str = None, 
-            scopes: Union[str, list[str]] = "", sp_dc: str = None, 
-            save: bool = True) -> None:
+            client_secret: str = None, browser: bool = False,
+            web_framework: str = None, port: Union[int, str] = 8888,
+            redirect_uri: str = None, scopes: Union[str, list[str]] = "",
+            sp_dc: str = None, save: bool = True) -> None:
         
         """
         Set the authorization flow.
@@ -1078,9 +1088,15 @@ class WebAPI:
             Client secret. Required for all OAuth 2.0 authorization 
             flows.
 
+        browser : `bool`, keyword-only, default: :code:`False`
+            Determines whether a web browser is automatically opened for
+            the authorization code (with PKCE) flow. If :code:`False`, 
+            users will have to manually open the authorization URL. 
+            Not applicable when `web_framework="playwright"`.
+
         web_framework : `str`, keyword-only, optional
             Web framework used to automatically complete the 
-            authorization code flow.
+            authorization code (with PKCE) flow.
 
             .. container::
 
@@ -1124,9 +1140,10 @@ class WebAPI:
             self._scopes = self.get_scopes("all") if self._sp_dc else ""
         else:
             self._client_id = client_id or os.environ.get("SPOTIFY_CLIENT_ID")
-            self._client_secret = (client_secret
-                                   or os.environ.get("SPOTIFY_CLIENT_SECRET"))
+            self._client_secret = \
+                client_secret or os.environ.get("SPOTIFY_CLIENT_SECRET")
             if flow in {"authorization_code", "pkce"}:
+                self._browser = browser
                 self._scopes = " ".join(scopes) if isinstance(scopes, list) \
                                else scopes
 
@@ -1141,14 +1158,16 @@ class WebAPI:
                                 "retrieval is not available.")
                         logging.warning(wmsg)
                         web_framework = None
-                else:
+                elif port:
                     self._port = port
                     self._redirect_uri = f"http://localhost:{port}/callback"
+                else:
+                    self._port = self._redirect_uri = None
 
                 self._web_framework = (
-                    web_framework if web_framework is None 
-                        or web_framework == "http.server"
-                        or globals()[f"FOUND_{web_framework.upper()}"]
+                    web_framework 
+                    if web_framework in {None, "http.server"}
+                       or globals()[f"FOUND_{web_framework.upper()}"]
                     else None
                 )
                 if self._web_framework is None and web_framework:

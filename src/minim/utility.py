@@ -1,7 +1,7 @@
 """
 Utility functions
 =================
-.. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
+.. moduleauthor:: Benjamin Ye <GitHub: bbye98>
 
 This module contains a collection of utility functions.
 """

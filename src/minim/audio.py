@@ -1,7 +1,7 @@
 """
 Audio file objects
 ==================
-.. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
+.. moduleauthor:: Benjamin Ye <GitHub: bbye98>
 
 This module provides convenient Python objects to keep track of audio
 file handles and metadata, and convert between different audio formats.
@@ -37,6 +37,9 @@ class _ID3:
 
     Parameters
     ----------
+    filename : `str`
+        Audio filename.
+
     tags : `mutagen.id3.ID3`
         ID3 metadata.
     """
@@ -58,12 +61,13 @@ class _ID3:
         "title": ("TIT2", "text", None),
     }
 
-    def __init__(self, tags: id3.ID3) -> None:
+    def __init__(self, filename: str, tags: id3.ID3) -> None:
         
         """
         Create an ID3 tag handler.
         """
 
+        self._filename = filename
         self._tags = tags
         self._from_file()
 
@@ -80,18 +84,19 @@ class _ID3:
                          if len(value) > 1 else getattr(value[0], base))
                 if list not in self._FIELDS_TYPES[field]:
                     value = utility.format_multivalue(value, False, 
-                                                         primary=True)
-                    if type(value) not in self._FIELDS_TYPES[field]:
+                                                      primary=True)
+                    if not isinstance(value, self._FIELDS_TYPES[field]):
                         try:
                             value = self._FIELDS_TYPES[field][0](value)
-                        except Exception:
+                        except ValueError:
+                            logging.warning()
                             continue
                 else:
-                    if type(value[0]) not in self._FIELDS_TYPES[field]:
+                    if not isinstance(value[0], self._FIELDS_TYPES[field]):
                         try:
                             value = [self._FIELDS_TYPES[field][0](v) 
                                      for v in value]
-                        except Exception:
+                        except ValueError:
                             continue
                     if len(value) == 1:
                         value = value[0]
@@ -199,6 +204,9 @@ class _VorbisComment:
 
     Parameters
     ----------
+    filename : `str`
+        Audio filename.
+
     tags : `mutagen.id3.ID3`
         ID3 metadata.
     """
@@ -226,12 +234,13 @@ class _VorbisComment:
         "track_count": ("tracktotal", str)
     }
 
-    def __init__(self, tags: id3.ID3) -> None:
+    def __init__(self, filename: str, tags: id3.ID3) -> None:
         
         """
         Create a Vorbis comment handler.
         """
 
+        self._filename = filename
         self._tags = tags
         self._from_file()
 
@@ -246,18 +255,18 @@ class _VorbisComment:
             if value:
                 if list not in self._FIELDS_TYPES[field]:
                     value = utility.format_multivalue(value, False, 
-                                                         primary=True)
+                                                      primary=True)
                     if type(value) not in self._FIELDS_TYPES[field]:
                         try:
                             value = self._FIELDS_TYPES[field][0](value)
-                        except Exception:
+                        except ValueError:
                             continue
                 else:
                     if type(value[0]) not in self._FIELDS_TYPES[field]:
                         try:
                             value = [self._FIELDS_TYPES[field][0](v) 
                                      for v in value]
-                        except Exception:
+                        except ValueError:
                             continue
                     if len(value) == 1:
                         value = value[0]
@@ -296,9 +305,9 @@ class _VorbisComment:
         else:
             self.track_number = self.track_count = None
 
-        if hasattr(self._afile, "pictures") and self._afile.pictures:
-            self.artwork = self._afile.pictures[0].data
-            self._artwork_format = self._afile.pictures[0].mime.split("/")[1]
+        if hasattr(self._handle, "pictures") and self._handle.pictures:
+            self.artwork = self._handle.pictures[0].data
+            self._artwork_format = self._handle.pictures[0].mime.split("/")[1]
         elif "metadata_block_picture" in self._tags:
             IMAGE_FILE_SIGS = {
                 "jpg": b"\xff\xd8\xff\xe0\x00\x10\x4a\x46\x49\x46\x00\x01",
@@ -341,14 +350,14 @@ class _VorbisComment:
                     self.artwork = f.read()
             artwork.data = self.artwork
             try:
-                self._afile.clear_pictures()
-                self._afile.add_picture(artwork)
-            except Exception:
+                self._handle.clear_pictures()
+                self._handle.add_picture(artwork)
+            except ValueError:
                 self._tags["metadata_block_picture"] = base64.b64encode(
                     artwork.write()
                 ).decode()
 
-        self._afile.save()
+        self._handle.save()
 
 class Audio:
 
@@ -382,8 +391,8 @@ class Audio:
 
     Parameters
     ----------
-    file : `str`
-        Audio file.
+    file : `str` or `pathlib.Path`
+        Audio filename or path.
       
     pattern : `tuple`, keyword-only, optional
         Regular expression search pattern and the corresponding metadata
@@ -862,19 +871,21 @@ class Audio:
         """
 
         if self.album is None or overwrite:
-            self.album = data["album"]["title"].rstrip()
+            self.album = data["album"]["title"]
             if (album_artists := data["album"].get("artists")):
                 album_feat_artist = [a["name"] for a in album_artists
                                      if "featured-artist" in a["roles"]]
                 if album_feat_artist and "feat." not in self.album:
-                    self.album += (" [feat. {}]" if "(" in self.album 
-                                   else " (feat. {})").format(
+                    self.album += (
+                        " [feat. {}]" if "(" in self.album else " (feat. {})"
+                    ).format(
                         utility.format_multivalue(album_feat_artist, False)
                     )
             if data["album"]["version"]:
                 self.album += (
                     " [{}]" if "(" in self.album else " ({})"
                 ).format(data['album']['version'])
+            self.album = self.album.replace("  ", " ")
         if self.album_artist is None or overwrite:
             if (album_artists := data["album"].get("artists")):
                 album_artist = [a["name"] for a in album_artists
@@ -938,16 +949,18 @@ class Audio:
         if self.isrc is None or overwrite:
             self.isrc = data["isrc"]
         if self.title is None or overwrite:
-            self.title = data["title"].rstrip()
+            self.title = data["title"]
             if (feat_artist := credits.get("featured_artist")) \
                     and "feat." not in self.title:
-                self.title += (" [feat. {}]" if "(" in self.title 
-                               else " (feat. {})").format(
+                self.title += (
+                    " [feat. {}]" if "(" in self.title else " (feat. {})"
+                ).format(
                     utility.format_multivalue(feat_artist, False)
                 )
             if data["version"]:
                 self.title += (" [{}]" if "(" in self.title 
                                else " ({})").format(data['version'])
+            self.title = self.title.replace("  ", " ")
         if self.track_number is None or overwrite:
             self.track_number = data["track_number"]
         if self.track_count is None or overwrite:
@@ -1015,8 +1028,8 @@ class Audio:
             self.isrc = data["external_ids"]["isrc"]
         if (self.lyrics is None or overwrite) and lyrics:
             self.lyrics = lyrics if isinstance(lyrics, str) \
-                          else "\n".join(ly["words"] 
-                                         for ly in lyrics["lyrics"]["lines"])
+                          else "\n".join(line["words"] 
+                                         for line in lyrics["lyrics"]["lines"])
         if (self.tempo is None or overwrite) and audio_features:
             self.tempo = round(audio_features["tempo"])
         if self.title is None or overwrite:
@@ -1175,7 +1188,7 @@ class FLACAudio(Audio, _VorbisComment):
     Parameters
     ----------
     file : `str` or `pathlib.Path`
-        FLAC audio file.
+        FLAC audio filename or path.
 
     pattern : `tuple`, keyword-only, optional
         Regular expression search pattern and the corresponding metadata
@@ -1227,17 +1240,17 @@ class FLACAudio(Audio, _VorbisComment):
 
         Audio.__init__(self, file, pattern=pattern, multivalue=multivalue, 
                        sep=sep)
-        self._afile = flac.FLAC(file)
-        if self._afile.tags is None:
-            self._afile.add_tags()
-        _VorbisComment.__init__(self, self._afile.tags)
+        self._handle = flac.FLAC(file)
+        if self._handle.tags is None:
+            self._handle.add_tags()
+        _VorbisComment.__init__(self, self._file.name, self._handle.tags)
         self._from_filename()
 
-        self.bit_depth = self._afile.info.bits_per_sample
-        self.bitrate = self._afile.info.bitrate
-        self.channel_count = self._afile.info.channels
+        self.bit_depth = self._handle.info.bits_per_sample
+        self.bitrate = self._handle.info.bitrate
+        self.channel_count = self._handle.info.channels
         self.codec = "flac"
-        self.sample_rate = self._afile.info.sample_rate
+        self.sample_rate = self._handle.info.sample_rate
 
 class MP3Audio(Audio, _ID3):
 
@@ -1252,7 +1265,7 @@ class MP3Audio(Audio, _ID3):
     Parameters
     ----------
     file : `str` or `pathlib.Path`
-        MP3 audio file.
+        MP3 audio filename or path.
 
     pattern : `tuple`, keyword-only, optional
         Regular expression search pattern and the corresponding metadata
@@ -1302,18 +1315,18 @@ class MP3Audio(Audio, _ID3):
         Create a MP3 audio file handler.
         """
 
-        _file = mp3.MP3(file)
-        _file.tags.filename = str(file)
+        _handle = mp3.MP3(file)
+        _handle.tags.filename = str(file)
         Audio.__init__(self, file, pattern=pattern, multivalue=multivalue,
                        sep=sep)
-        _ID3.__init__(self, _file.tags)
+        _ID3.__init__(self, self._file.name, _handle.tags)
         self._from_filename()
 
         self.bit_depth = None
-        self.bitrate = _file.info.bitrate
-        self.channel_count = _file.info.channels
+        self.bitrate = _handle.info.bitrate
+        self.channel_count = _handle.info.channels
         self.codec = "mp3"
-        self.sample_rate = _file.info.sample_rate
+        self.sample_rate = _handle.info.sample_rate
 
 class MP4Audio(Audio):
 
@@ -1328,7 +1341,7 @@ class MP4Audio(Audio):
     Parameters
     ----------
     file : `str` or `pathlib.Path`
-        MP4 audio file.
+        MP4 audio filename or path.
 
     pattern : `tuple`, keyword-only, optional
         Regular expression search pattern and the corresponding metadata
@@ -1401,12 +1414,12 @@ class MP4Audio(Audio):
         
         super().__init__(file, pattern=pattern, multivalue=multivalue, sep=sep)
 
-        self._tags = mp4.MP4(file)
-        self.bit_depth = self._tags.info.bits_per_sample
-        self.bitrate = self._tags.info.bitrate
-        self.channel_count = self._tags.info.channels
-        self.codec = self._tags.info.codec
-        self.sample_rate = self._tags.info.sample_rate
+        self._handle = mp4.MP4(file)
+        self.bit_depth = self._handle.info.bits_per_sample
+        self.bitrate = self._handle.info.bitrate
+        self.channel_count = self._handle.info.channels
+        self.codec = self._handle.info.codec
+        self.sample_rate = self._handle.info.sample_rate
 
         self._multivalue = multivalue
         self._sep = sep
@@ -1420,22 +1433,22 @@ class MP4Audio(Audio):
         """
 
         for field, key in self._FIELDS.items():
-            value = self._tags.get(key)
+            value = self._handle.get(key)
             if value:
                 if list not in self._FIELDS_TYPES[field]:
                     value = utility.format_multivalue(value, False, 
-                                                         primary=True)
+                                                      primary=True)
                     if type(value) not in self._FIELDS_TYPES[field]:
                         try:
                             value = self._FIELDS_TYPES[field][0](value)
-                        except Exception:
+                        except ValueError:
                             continue
                 else:
                     if type(value[0]) not in self._FIELDS_TYPES[field]:
                         try:
                             value = [self._FIELDS_TYPES[field][0](v) 
                                      for v in value]
-                        except Exception:
+                        except ValueError:
                             continue
                     if len(value) == 1:
                         value = value[0]
@@ -1443,22 +1456,22 @@ class MP4Audio(Audio):
                 value = None
             setattr(self, field, value)
 
-        self.isrc = (self._tags.get("----:com.apple.iTunes:ISRC")[0].decode()
-                     if "----:com.apple.iTunes:ISRC" in self._tags else None)
+        self.isrc = (self._handle.get("----:com.apple.iTunes:ISRC")[0].decode()
+                     if "----:com.apple.iTunes:ISRC" in self._handle else None)
 
-        if "disk" in self._tags:
-            self.disc_number, self.disc_count = self._tags.get("disk")[0]
+        if "disk" in self._handle:
+            self.disc_number, self.disc_count = self._handle.get("disk")[0]
         else:
             self.disc_number = self.disc_count = None
             
-        if "trkn" in self._tags:
-            self.track_number, self.track_count = self._tags.get("trkn")[0]
+        if "trkn" in self._handle:
+            self.track_number, self.track_count = self._handle.get("trkn")[0]
         else:
             self.track_number = self.track_count = None
 
-        if "covr" in self._tags:
-            self.artwork = utility.format_multivalue(self._tags.get("covr"), 
-                                                        False, primary=True)
+        if "covr" in self._handle:
+            self.artwork = utility.format_multivalue(self._handle.get("covr"), 
+                                                     False, primary=True)
             self._artwork_format = str(
                 self._IMAGE_FORMATS[self.artwork.imageformat]
             ).split(".")[1].lower()
@@ -1479,19 +1492,19 @@ class MP4Audio(Audio):
                     value, self._multivalue, sep=self._sep
                 )
                 try:
-                    self._tags[key] = value
-                except Exception:
-                    self._tags[key] = [value]
+                    self._handle[key] = value
+                except ValueError:
+                    self._handle[key] = [value]
 
         if self.isrc:
-            self._tags["----:com.apple.iTunes:ISRC"] = self.isrc.encode()
+            self._handle["----:com.apple.iTunes:ISRC"] = self.isrc.encode()
 
         if self.disc_number or self.disc_count:
-            self._tags["disk"] = [(self.disc_number or 0, 
-                                   self.disc_count or 0)]
+            self._handle["disk"] = [(self.disc_number or 0, 
+                                     self.disc_count or 0)]
         if self.track_number or self.track_count:
-            self._tags["trkn"] = [(self.track_number or 0, 
-                                   self.track_count or 0)]
+            self._handle["trkn"] = [(self.track_number or 0, 
+                                     self.track_count or 0)]
         
         if self.artwork:
             if isinstance(self.artwork, str):
@@ -1499,14 +1512,14 @@ class MP4Audio(Audio):
                         if "http" in self.artwork \
                         else open(self.artwork, "rb") as f:
                     self.artwork = f.read()
-            self._tags["covr"] = [
+            self._handle["covr"] = [
                 mp4.MP4Cover(
                     self.artwork, 
                     imageformat=self._IMAGE_FORMATS[self._artwork_format]
                 )
             ]
 
-        self._tags.save()
+        self._handle.save()
 
 class OggAudio(Audio, _VorbisComment):
 
@@ -1521,7 +1534,7 @@ class OggAudio(Audio, _VorbisComment):
     Parameters
     ----------
     file : `str` or `pathlib.Path`
-        Ogg audio file.
+        Ogg audio filename or path.
 
     codec : `str`, optional
         Audio codec. If not specified, it will be determined 
@@ -1583,32 +1596,33 @@ class OggAudio(Audio, _VorbisComment):
 
         if codec and codec in self._CODECS:
             self.codec = codec
-            self._afile = self._CODECS[codec]["mutagen"](file)
+            self._handle = self._CODECS[codec]["mutagen"](file)
         else:
             for codec, options in self._CODECS.items():
                 try:
-                    self._afile = options["mutagen"](file)
+                    self._handle = options["mutagen"](file)
                     self.codec = codec
-                    break
                 except Exception:
                     pass
-            if not hasattr(self, "_afile"):
+                else:
+                    break
+            if not hasattr(self, "_handle"):
                 raise RuntimeError(f"'{file}' is not a valid Ogg file.")
-        _VorbisComment.__init__(self, self._afile.tags)
+        _VorbisComment.__init__(self, self._file.name, self._handle.tags)
         self._from_filename()
 
-        self.channel_count = self._afile.info.channels
+        self.channel_count = self._handle.info.channels
         if self.codec == "flac":
-            self.bit_depth = self._afile.info.bits_per_sample
-            self.sample_rate = self._afile.info.sample_rate 
+            self.bit_depth = self._handle.info.bits_per_sample
+            self.sample_rate = self._handle.info.sample_rate 
             self.bitrate = self.bit_depth * self.channel_count \
                            * self.sample_rate
         elif self.codec == "opus":
             self.bit_depth = self.bitrate = self.sample_rate = None
         elif self.codec == "vorbis":
             self.bit_depth = None
-            self.bitrate = self._afile.info.bitrate
-            self.sample_rate = self._afile.info.sample_rate
+            self.bitrate = self._handle.info.bitrate
+            self.sample_rate = self._handle.info.sample_rate
 
 class WAVEAudio(Audio, _ID3):
 
@@ -1623,7 +1637,7 @@ class WAVEAudio(Audio, _ID3):
     Parameters
     ----------
     file : `str` or `pathlib.Path`
-        WAVE audio file.
+        WAVE audio filename or path.
 
     pattern : `tuple`, keyword-only, optional
         Regular expression search pattern and the corresponding metadata
@@ -1673,17 +1687,17 @@ class WAVEAudio(Audio, _ID3):
         Create a WAVE audio file handler.
         """
 
-        _file = wave.WAVE(file)
-        if _file.tags is None:
-            _file.add_tags()
-            _file.tags.filename = _file.filename
+        _handle = wave.WAVE(file)
+        if _handle.tags is None:
+            _handle.add_tags()
+            _handle.tags.filename = str(file)
         Audio.__init__(self, file, pattern=pattern, multivalue=multivalue,
                        sep=sep)
-        _ID3.__init__(self, _file.tags)
+        _ID3.__init__(self, self._file.name, _handle.tags)
         self._from_filename()
 
-        self.bit_depth = _file.info.bits_per_sample
-        self.bitrate = _file.info.bitrate
-        self.channel_count = _file.info.channels
+        self.bit_depth = _handle.info.bits_per_sample
+        self.bitrate = _handle.info.bitrate
+        self.channel_count = _handle.info.channels
         self.codec = "lpcm"
-        self.sample_rate = _file.info.sample_rate
+        self.sample_rate = _handle.info.sample_rate

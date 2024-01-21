@@ -1,7 +1,7 @@
 """
 TIDAL
 =====
-.. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
+.. moduleauthor:: Benjamin Ye <GitHub: bbye98>
 
 This module contains a complete implementation of all public TIDAL API
 endpoints and a minimum implementation of the more robust but private
@@ -6665,10 +6665,9 @@ class PrivateAPI:
                     segment.getAttribute("initialization")
                 ) as r:
                 stream.extend(r.content)
-            for i in range(1, sum(int(tl.getAttribute("r")) 
-                                  if tl.hasAttribute("r") else 1 
+            for i in range(1, sum(int(tl.getAttribute("r") or 1)
                                   for tl in 
-                                  segment.getElementsByTagName("S")) + 1):
+                                  segment.getElementsByTagName("S")) + 2):
                 with self.session.get(
                         segment.getAttribute("media").replace(
                             "$Number$", str(i)

@@ -1,7 +1,7 @@
 """
 iTunes
 ======
-.. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
+.. moduleauthor:: Benjamin Ye <GitHub: bbye98>
 
 This module contains a complete implementation of all iTunes Search API
 endpoints.

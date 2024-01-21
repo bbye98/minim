@@ -1,7 +1,7 @@
 """
 Qobuz
 =====
-.. moduleauthor:: Benjamin Ye <GitHub: @bbye98>
+.. moduleauthor:: Benjamin Ye <GitHub: bbye98>
 
 This module contains a minimum implementation of the private Qobuz API.
 """
