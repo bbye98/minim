@@ -12,6 +12,7 @@ dependencies:
   - flask
   - levenshtein
   - numpy
+  - pillow
   - playwright
   # DEVELOPMENT DEPENDENCIES
   - coverage

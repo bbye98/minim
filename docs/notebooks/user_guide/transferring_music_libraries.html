@@ -174,7 +174,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -610,6 +609,31 @@
                 <span class="k">break</span>
     <span class="n">spotify_album_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
 <span class="n">client_spotify</span><span class="o">.</span><span class="n">save_albums</span><span class="p">(</span><span class="n">spotify_album_ids</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">RuntimeError</span><span class="g g-Whitespace">                              </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">34</span><span class="p">],</span> <span class="n">line</span> <span class="mi">18</span>
+<span class="g g-Whitespace">     </span><span class="mi">16</span>                 <span class="k">break</span>
+<span class="g g-Whitespace">     </span><span class="mi">17</span>     <span class="n">spotify_album_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spotify_album</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="ne">---&gt; </span><span class="mi">18</span> <span class="n">client_spotify</span><span class="o">.</span><span class="n">save_albums</span><span class="p">(</span><span class="n">spotify_album_ids</span><span class="p">)</span>
+
+<span class="nn">File /mnt/c/USers/Benjamin/Documents/GitHub/minim-dev/src/minim/spotify.py:1857,</span> in <span class="ni">WebAPI.save_albums</span><span class="nt">(self, ids)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1854</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;put&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/me/albums&quot;</span><span class="p">,</span> 
+<span class="g g-Whitespace">   </span><span class="mi">1855</span>                   <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="n">ids</span><span class="p">})</span>
+<span class="g g-Whitespace">   </span><span class="mi">1856</span> <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+<span class="ne">-&gt; </span><span class="mi">1857</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;put&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/me/albums&quot;</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1858</span>                   <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="n">ids</span><span class="p">})</span>
+
+<span class="nn">File /mnt/c/USers/Benjamin/Documents/GitHub/minim-dev/src/minim/spotify.py:941,</span> in <span class="ni">WebAPI._request</span><span class="nt">(self, method, url, retry, **kwargs)</span>
+<span class="g g-Whitespace">    </span><span class="mi">939</span>         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">940</span>     <span class="k">else</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">941</span>         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">942</span> <span class="k">return</span> <span class="n">r</span>
+
+<span class="ne">RuntimeError</span>: 502 Bad gateway.
 </pre></div>
 </div>
 </div>

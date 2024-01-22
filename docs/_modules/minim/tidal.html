@@ -173,7 +173,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -244,7 +243,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">TIDAL</span>
 <span class="sd">=====</span>
-<span class="sd">.. moduleauthor:: Benjamin Ye &lt;GitHub: @bbye98&gt;</span>
+<span class="sd">.. moduleauthor:: Benjamin Ye &lt;GitHub: bbye98&gt;</span>
 
 <span class="sd">This module contains a complete implementation of all public TIDAL API</span>
 <span class="sd">endpoints and a minimum implementation of the more robust but private</span>
@@ -7140,10 +7139,9 @@
                     <span class="n">segment</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s2">&quot;initialization&quot;</span><span class="p">)</span>
                 <span class="p">)</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
                 <span class="n">stream</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">tl</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">))</span> 
-                                  <span class="k">if</span> <span class="n">tl</span><span class="o">.</span><span class="n">hasAttribute</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1</span> 
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">tl</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span>
                                   <span class="k">for</span> <span class="n">tl</span> <span class="ow">in</span> 
-                                  <span class="n">segment</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                                  <span class="n">segment</span><span class="o">.</span><span class="n">getElementsByTagName</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="mi">2</span><span class="p">):</span>
                 <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                         <span class="n">segment</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s2">&quot;media&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
                             <span class="s2">&quot;$Number$&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>

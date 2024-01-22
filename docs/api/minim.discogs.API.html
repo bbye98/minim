@@ -383,8 +383,20 @@ file.</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_listing</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_listing</span></code></p></td>
+<td><p></p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.delete_user_release_rating" title="minim.discogs.API.delete_user_release_rating"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_user_release_rating</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-rating-by-user-delete">Database &gt; Release Rating By User &gt; Delete Release Rating By User</a>: Deletes the release's rating for a given user.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_listing</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_order</span></code></p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.edit_profile" title="minim.discogs.API.edit_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_profile</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-profile-post">User Identity &gt; Profile &gt; Edit Profile</a>: Edit a user's profile data.</p></td>
@@ -401,11 +413,17 @@ file.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_identity" title="minim.discogs.API.get_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_identity</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-identity-get">User Identity &gt; Identity</a>: Retrieve basic information about the authenticated user.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_label" title="minim.discogs.API.get_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_label</span></code></a></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_inventory</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_label" title="minim.discogs.API.get_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_label</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-label-get">Database &gt; Label</a>: Get a label, company, recording studio, locxation, or other entity involved with artists and releases.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_label_releases" title="minim.discogs.API.get_label_releases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_label_releases</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_label_releases" title="minim.discogs.API.get_label_releases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_label_releases</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-all-label-releases-get">Database &gt; Label Releases</a>: Get a list of releases associated with the label.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_listing</span></code></p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_master_release" title="minim.discogs.API.get_master_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_master_release</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-master-release-get">Database &gt; Master Release</a>: Get a master release.</p></td>
@@ -413,34 +431,37 @@ file.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_master_release_versions" title="minim.discogs.API.get_master_release_versions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_master_release_versions</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-master-release-versions-get">Database &gt; Master Release Versions</a>: Retrieves a list of all releases that are versions of this master.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_profile" title="minim.discogs.API.get_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_profile</span></code></a></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_order</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_profile" title="minim.discogs.API.get_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_profile</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-profile-get">User Identity &gt; Profile &gt; Get Profile</a>: Retrieve a user by username.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_release" title="minim.discogs.API.get_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_release</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_release" title="minim.discogs.API.get_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_release</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-get">Database &gt; Release</a>: Get a release (physical or digital object released by one or more artists).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_release_stats" title="minim.discogs.API.get_release_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_release_stats</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_release_stats" title="minim.discogs.API.get_release_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_release_stats</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-stats-get">Database &gt; Release Stats</a>: Retrieves the release's &quot;have&quot; and &quot;want&quot; counts.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_contributions" title="minim.discogs.API.get_user_contributions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_contributions</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_contributions" title="minim.discogs.API.get_user_contributions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_contributions</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-user-contributions-get">User Identity &gt; User Contributions</a>: Retrieve a user's contributions (releases, labels, artists) by username.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_release_rating" title="minim.discogs.API.get_user_release_rating"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_release_rating</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_release_rating" title="minim.discogs.API.get_user_release_rating"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_release_rating</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-get">Database &gt; Release Rating By User &gt; Get Release Rating By User</a>: Retrieves the release's rating for a given user.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_submissions" title="minim.discogs.API.get_user_submissions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_submissions</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_submissions" title="minim.discogs.API.get_user_submissions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_submissions</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-user-submissions-get">User Identity &gt; User Submissions</a>: Retrieve a user's submissions (edits made to releases, labels, and artists) by username.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.search" title="minim.discogs.API.search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.search" title="minim.discogs.API.search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-search-get">Database &gt; Search</a>: Issue a search query to the Discogs database.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.set_access_token" title="minim.discogs.API.set_access_token"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_access_token</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.set_access_token" title="minim.discogs.API.set_access_token"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_access_token</span></code></a></p></td>
 <td><p>Set the Discogs API personal or OAuth access token (and secret).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.set_flow" title="minim.discogs.API.set_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flow</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.set_flow" title="minim.discogs.API.set_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flow</span></code></a></p></td>
 <td><p>Set the authorization flow.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.update_user_release_rating" title="minim.discogs.API.update_user_release_rating"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_user_release_rating</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.update_user_release_rating" title="minim.discogs.API.update_user_release_rating"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_user_release_rating</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-rating-by-user-put">Database &gt; Release Rating By User &gt; Update Release Rating By User</a>: Updates the release's rating for a given user.</p></td>
 </tr>
 </tbody>

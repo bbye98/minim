@@ -9,6 +9,7 @@ file handles and metadata, and convert between different audio formats.
 
 import base64
 import datetime
+from io import BytesIO
 import logging
 import pathlib
 import re
@@ -20,6 +21,12 @@ from mutagen import id3, flac, mp3, mp4, oggflac, oggopus, oggvorbis, wave
 
 from . import utility, FOUND_FFMPEG, FFMPEG_CODECS
 from .qobuz import _parse_performers
+
+try:
+    from PIL import Image
+    FOUND_PILLOW = True
+except ModuleNotFoundError:
+    FOUND_PILLOW = False
 
 __all__ = ["Audio", "FLACAudio", "MP3Audio", "MP4Audio", "OggAudio",
            "WAVEAudio"]
@@ -804,12 +811,12 @@ class Audio:
                     if "Feature" in self.artwork:
                         self.artwork = (
                             "https://a5.mzstatic.com/us/r1000/0"
-                            f"/{re.search(r'Feature.*?(png|jpg)(?=/|$)', self.artwork)[0]}"
+                            f"/{re.search(r'Feature.*?(jpg|png|tif)(?=/|$)', self.artwork)[0]}"
                         )
                     elif "Music" in self.artwork:
                         self.artwork = (
                             "https://a5.mzstatic.com/"
-                            f"{re.search(r'Music.*?(png|jpg)(?=/|$)', self.artwork)[0]}"
+                            f"{re.search(r'Music.*?(jpg|png|tif)(?=/|$)', self.artwork)[0]}"
                         )
                     self._artwork_format = pathlib.Path(self.artwork).suffix[1:]
                 else:
@@ -820,6 +827,12 @@ class Audio:
                     self._artwork_format = artwork_format
                 with urllib.request.urlopen(self.artwork) as r:
                     self.artwork = r.read()
+                if self._artwork_format == "tif":
+                    with Image.open(BytesIO(self.artwork)) as a:
+                        with BytesIO() as b:
+                            a.save(b, format="png")
+                            self.artwork = b.getvalue()
+                    self._artwork_format = "png"
         if self.compilation is None or overwrite:
             self.compilation = self.album_artist == "Various Artists"
         if "releaseDate" in data and (self.date is None or overwrite):

@@ -1,4 +1,4 @@
-﻿WebAPI
+WebAPI
 ======
 
 .. currentmodule:: minim.spotify
