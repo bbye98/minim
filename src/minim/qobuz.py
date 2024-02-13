@@ -2843,7 +2843,7 @@ class PrivateAPI:
 
         return self._get_json(f"{self.API_URL}/user/get")
 
-    def get_favorites(self, type: str = None) -> dict[str, dict]:
+    def get_favorites(self, type: str = None, limit: int = 50, offset: int = 0) -> dict[str, dict]:
 
         """
         Get the current user's favorite albums, artists, and tracks.
@@ -2863,7 +2863,18 @@ class PrivateAPI:
             
                **Valid values**: :code:`"albums"`, :code:`"artists"`, 
                and :code:`"tracks"`.
-        
+
+        limit : `int`, keyword-only, optional
+            The maximum number of tracks to return.
+
+            **Default**: :code:`50`.
+
+        offset : `int`, keyword-only, optional
+            The index of the first track to return. Use with `limit`
+            to get the next page of tracks.
+
+            **Default**: :code:`0`.
+
         Returns
         -------
         favorites : `dict`
@@ -2905,7 +2916,9 @@ class PrivateAPI:
                     (f"favoritegetUserFavorites{timestamp}"
                      f"{self._app_secret}").encode()
                 ).hexdigest(),
-                "type": type
+                "type": type,
+                "limit": limit,
+                "offset": offset
             }
         )
 
