@@ -4,9 +4,10 @@ requires = ["setuptools"]
 
 [project]
 name = "minim"
-version = "1.0.0"
+version = "1.0.1"
 authors = [
-  { name = "Benjamin B. Ye", email = "benjaminbobinye@gmail.com" }
+  { name = "Benjamin B. Ye", email = "benjaminbobinye@gmail.com" },
+  { name = "ronajon", email = "ronajon@gmail.com" }
 ]
 classifiers = [
   "Operating System :: OS Independent",
