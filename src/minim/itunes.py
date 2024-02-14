@@ -226,7 +226,53 @@ class SearchAPI:
         Returns
         -------
         results : `dict`
-            The search results in JSON format.
+            The search results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "resultCount": <int>,
+                    "results": [
+                      {
+                        "wrapperType": <str>,
+                        "kind": <str>,
+                        "artistId": <int>,
+                        "collectionId": <int>,
+                        "trackId": <int>,
+                        "artistName": <str>,
+                        "collectionName": <str>,
+                        "trackName": <str>,
+                        "collectionCensoredName": <str>,
+                        "trackCensoredName": <str>,
+                        "collectionArtistId": <int>,
+                        "collectionArtistName": <str>,
+                        "artistViewUrl": <str>,
+                        "collectionViewUrl": <str>,
+                        "trackViewUrl": <str>,
+                        "previewUrl": <str>,
+                        "artworkUrl30": <str>,
+                        "artworkUrl60": <str>,
+                        "artworkUrl100": <str>,
+                        "collectionPrice": <float>,
+                        "trackPrice": <float>,
+                        "releaseDate": <str>,
+                        "collectionExplicitness": <str>,
+                        "trackExplicitness": <str>,
+                        "discCount": <int>,
+                        "discNumber": <int>,
+                        "trackCount": <int>,
+                        "trackNumber": <int>,
+                        "trackTimeMillis": <int>,
+                        "country": <str>,
+                        "currency": <str>,
+                        "primaryGenreName": <str>,
+                        "isStreamable": <bool>
+                      }
+                    ]
+                  }
 
         Examples
         --------
@@ -343,8 +389,54 @@ class SearchAPI:
         Returns
         -------
         results : `dict`
-            The lookup results in JSON format.
+            The lookup results.
 
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "resultCount": <int>,
+                    "results": [
+                      {
+                        "wrapperType": <str>,
+                        "kind": <str>,
+                        "artistId": <int>,
+                        "collectionId": <int>,
+                        "trackId": <int>,
+                        "artistName": <str>,
+                        "collectionName": <str>,
+                        "trackName": <str>,
+                        "collectionCensoredName": <str>,
+                        "trackCensoredName": <str>,
+                        "collectionArtistId": <int>,
+                        "collectionArtistName": <str>,
+                        "artistViewUrl": <str>,
+                        "collectionViewUrl": <str>,
+                        "trackViewUrl": <str>,
+                        "previewUrl": <str>,
+                        "artworkUrl30": <str>,
+                        "artworkUrl60": <str>,
+                        "artworkUrl100": <str>,
+                        "collectionPrice": <float>,
+                        "trackPrice": <float>,
+                        "releaseDate": <str>,
+                        "collectionExplicitness": <str>,
+                        "trackExplicitness": <str>,
+                        "discCount": <int>,
+                        "discNumber": <int>,
+                        "trackCount": <int>,
+                        "trackNumber": <int>,
+                        "trackTimeMillis": <int>,
+                        "country": <str>,
+                        "currency": <str>,
+                        "primaryGenreName": <str>,
+                        "isStreamable": <bool>
+                      }
+                    ]
+                  }
+                  
         Examples
         --------
         Look up Jack Johnson by iTunes artist ID:

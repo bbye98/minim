@@ -173,6 +173,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -1991,12 +1992,84 @@
 
     <span class="c1">### MARKETPLACE ###########################################################</span>
 
+<div class="viewcode-block" id="API.get_inventory">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_inventory">[docs]</a>
     <span class="k">def</span> <span class="nf">get_inventory</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">per_page</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
-        <span class="k">pass</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Marketplace &gt; Inventory &lt;https://www.discogs.com/developers</span>
+<span class="sd">        /#page:marketplace,header:marketplace-inventory-get&gt;`_:</span>
+<span class="sd">        Get a seller&#39;s inventory.</span>
+
+<span class="sd">        .. admonition:: Authentication</span>
+<span class="sd">           :class: dropdown warning</span>
+
+<span class="sd">           If you are authenticated as the inventory owner, additional</span>
+<span class="sd">           fields will be returned in the response, such as </span>
+<span class="sd">           :code:`&quot;weight&quot;`, :code:`&quot;format_quantity&quot;`, </span>
+<span class="sd">           :code:`&quot;external_id&quot;`, :code:`&quot;location&quot;`, and </span>
+<span class="sd">           :code:`&quot;quantity&quot;`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : `str`</span>
+<span class="sd">            The username of the inventory owner.</span>
+
+<span class="sd">            **Example**: :code:`&quot;360vinyl&quot;`.</span>
+
+<span class="sd">        status : `str`, keyword-only, optional</span>
+<span class="sd">            The status of the listings to return.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;For Sale&quot;`, :code:`&quot;Draft&quot;`, </span>
+<span class="sd">            :code:`&quot;Expired&quot;`, :code:`&quot;Sold&quot;`, and :code:`&quot;Deleted&quot;`.</span>
+
+<span class="sd">        page : `str`, keyword-only, optional</span>
+<span class="sd">            The page you want to request.</span>
+
+<span class="sd">            **Example**: :code:`3`.</span>
+
+<span class="sd">        per_page : `str`, keyword-only, optional</span>
+<span class="sd">            The number of items per page.</span>
+
+<span class="sd">            **Example**: :code:`25`.</span>
+
+<span class="sd">        sort : `str`, keyword-only, optional</span>
+<span class="sd">            Sort items by this field.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;listed&quot;`, :code:`&quot;price&quot;`, </span>
+<span class="sd">            :code:`&quot;item&quot;`, :code:`&quot;artist&quot;`, :code:`&quot;label&quot;`, </span>
+<span class="sd">            :code:`&quot;catno&quot;`, :code:`&quot;audio&quot;`, :code:`&quot;status&quot;`, and</span>
+<span class="sd">            :code:`&quot;location&quot;`.</span>
+
+<span class="sd">        sort_order : `str`, keyword-only, optional</span>
+<span class="sd">            Sort items in a particular order.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;asc&quot;` and :code:`&quot;desc&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        inventory : `dict`</span>
+<span class="sd">            The seller&#39;s inventory.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                  </span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">/inventory&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span> <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span> <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="n">per_page</span><span class="p">,</span>
+                    <span class="s2">&quot;sort&quot;</span><span class="p">:</span> <span class="n">sort</span><span class="p">,</span> <span class="s2">&quot;sort_order&quot;</span><span class="p">:</span> <span class="n">sort_order</span><span class="p">}</span>
+        <span class="p">)</span></div>
+
     
     <span class="k">def</span> <span class="nf">get_listing</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">listing_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">curr_abbr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2644,7 +2717,7 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2023, Benjamin Ye
+                Copyright &#169; 2023–2024 Benjamin Ye
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             

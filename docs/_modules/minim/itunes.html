@@ -173,6 +173,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -472,7 +473,53 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        results : `dict`</span>
-<span class="sd">            The search results in JSON format.</span>
+<span class="sd">            The search results.</span>
+
+<span class="sd">            .. admonition:: Sample response</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;resultCount&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;results&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;wrapperType&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;kind&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;artistId&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;collectionId&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;trackId&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;artistName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;collectionName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;trackName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;collectionCensoredName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;trackCensoredName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;collectionArtistId&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;collectionArtistName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;artistViewUrl&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;collectionViewUrl&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;trackViewUrl&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;previewUrl&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;artworkUrl30&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;artworkUrl60&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;artworkUrl100&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;collectionPrice&quot;: &lt;float&gt;,</span>
+<span class="sd">                        &quot;trackPrice&quot;: &lt;float&gt;,</span>
+<span class="sd">                        &quot;releaseDate&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;collectionExplicitness&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;trackExplicitness&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;discCount&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;discNumber&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;trackCount&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;trackNumber&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;trackTimeMillis&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;country&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;currency&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;primaryGenreName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;isStreamable&quot;: &lt;bool&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ]</span>
+<span class="sd">                  }</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -592,8 +639,54 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        results : `dict`</span>
-<span class="sd">            The lookup results in JSON format.</span>
+<span class="sd">            The lookup results.</span>
 
+<span class="sd">            .. admonition:: Sample response</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;resultCount&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;results&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;wrapperType&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;kind&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;artistId&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;collectionId&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;trackId&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;artistName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;collectionName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;trackName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;collectionCensoredName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;trackCensoredName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;collectionArtistId&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;collectionArtistName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;artistViewUrl&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;collectionViewUrl&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;trackViewUrl&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;previewUrl&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;artworkUrl30&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;artworkUrl60&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;artworkUrl100&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;collectionPrice&quot;: &lt;float&gt;,</span>
+<span class="sd">                        &quot;trackPrice&quot;: &lt;float&gt;,</span>
+<span class="sd">                        &quot;releaseDate&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;collectionExplicitness&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;trackExplicitness&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;discCount&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;discNumber&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;trackCount&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;trackNumber&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;trackTimeMillis&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;country&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;currency&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;primaryGenreName&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;isStreamable&quot;: &lt;bool&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ]</span>
+<span class="sd">                  }</span>
+<span class="sd">                  </span>
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        Look up Jack Johnson by iTunes artist ID:</span>
@@ -711,7 +804,7 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2023, Benjamin Ye
+                Copyright &#169; 2023–2024 Benjamin Ye
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             

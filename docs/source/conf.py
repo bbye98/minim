@@ -1,8 +1,11 @@
+from datetime import datetime
 from pathlib import Path
 import sys
 
 sys.path.insert(0, f"{Path(__file__).resolve().parents[2]}/src")
 from minim import VERSION # noqa: E402
+
+now = datetime.now()
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -14,7 +17,7 @@ from minim import VERSION # noqa: E402
 
 project = "Minim"
 author = "Benjamin Ye"
-copyright = "2023, Benjamin Ye"
+copyright = f"2023–{now.year} Benjamin Ye"
 version = release = VERSION
 
 # -- General configuration ---------------------------------------------------

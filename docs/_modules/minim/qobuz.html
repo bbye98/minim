@@ -173,6 +173,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -3167,7 +3168,9 @@
 
 <div class="viewcode-block" id="PrivateAPI.get_favorites">
 <a class="viewcode-back" href="../../api/minim.qobuz.PrivateAPI.html#minim.qobuz.PrivateAPI.get_favorites">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_favorites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_favorites</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+            <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the current user&#39;s favorite albums, artists, and tracks.</span>
@@ -3188,6 +3191,17 @@
 <span class="sd">               **Valid values**: :code:`&quot;albums&quot;`, :code:`&quot;artists&quot;`, </span>
 <span class="sd">               and :code:`&quot;tracks&quot;`.</span>
 <span class="sd">        </span>
+<span class="sd">        limit : `int`, keyword-only, optional</span>
+<span class="sd">            The maximum number of favorited items to return.</span>
+
+<span class="sd">            **Default**: :code:`50`.</span>
+
+<span class="sd">        offset : `int`, keyword-only, optional</span>
+<span class="sd">            The index of the first favorited item to return. Use with </span>
+<span class="sd">            `limit` to get the next page of favorited items.</span>
+
+<span class="sd">            **Default**: :code:`0`.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        favorites : `dict`</span>
@@ -3229,7 +3243,9 @@
                     <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;favoritegetUserFavorites</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">&quot;</span>
                      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_app_secret</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span>
-                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">type</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span>
+                <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span>
+                <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="n">offset</span>
             <span class="p">}</span>
         <span class="p">)</span></div>
 
@@ -3408,7 +3424,7 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2023, Benjamin Ye
+                Copyright &#169; 2023–2024 Benjamin Ye
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             

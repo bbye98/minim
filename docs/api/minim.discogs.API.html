@@ -413,8 +413,8 @@ file.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_identity" title="minim.discogs.API.get_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_identity</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-identity-get">User Identity &gt; Identity</a>: Retrieve basic information about the authenticated user.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_inventory</span></code></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_inventory" title="minim.discogs.API.get_inventory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_inventory</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:marketplace,header:marketplace-inventory-get">Marketplace &gt; Inventory</a>: Get a seller's inventory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_label" title="minim.discogs.API.get_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_label</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-label-get">Database &gt; Label</a>: Get a label, company, recording studio, locxation, or other entity involved with artists and releases.</p></td>
@@ -1429,6 +1429,63 @@ title field.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.get_inventory">
+<span class="sig-name descname"><span class="pre">get_inventory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_inventory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_inventory" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:marketplace,header:marketplace-inventory-get">Marketplace &gt; Inventory</a>:
+Get a seller’s inventory.</p>
+<div class="dropdown warning admonition">
+<p class="admonition-title">Authentication</p>
+<p>If you are authenticated as the inventory owner, additional
+fields will be returned in the response, such as
+<code class="code docutils literal notranslate"><span class="pre">&quot;weight&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;format_quantity&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;external_id&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;location&quot;</span></code>, and
+<code class="code docutils literal notranslate"><span class="pre">&quot;quantity&quot;</span></code>.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>The username of the inventory owner.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;360vinyl&quot;</span></code>.</p>
+</dd>
+<dt><strong>status</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The status of the listings to return.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;For</span> <span class="pre">Sale&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;Draft&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;Expired&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;Sold&quot;</span></code>, and <code class="code docutils literal notranslate"><span class="pre">&quot;Deleted&quot;</span></code>.</p>
+</dd>
+<dt><strong>page</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The page you want to request.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">3</span></code>.</p>
+</dd>
+<dt><strong>per_page</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The number of items per page.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">25</span></code>.</p>
+</dd>
+<dt><strong>sort</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Sort items by this field.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;listed&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;price&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;item&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;label&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;catno&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;audio&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;status&quot;</span></code>, and
+<code class="code docutils literal notranslate"><span class="pre">&quot;location&quot;</span></code>.</p>
+</dd>
+<dt><strong>sort_order</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Sort items in a particular order.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;asc&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;desc&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>inventory</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>The seller’s inventory.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="minim.discogs.API.get_identity">
 <span class="sig-name descname"><span class="pre">get_identity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_identity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_identity" title="Link to this definition">#</a></dt>
 <dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-identity-get">User Identity &gt; Identity</a>:
@@ -1934,7 +1991,7 @@ used.</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2023, Benjamin Ye
+                Copyright &#169; 2023–2024 Benjamin Ye
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -1977,6 +2034,7 @@ used.</p>
 <li><a class="reference internal" href="#minim.discogs.API.get_label"><code class="docutils literal notranslate"><span class="pre">get_label()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_label_releases"><code class="docutils literal notranslate"><span class="pre">get_label_releases()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.get_inventory"><code class="docutils literal notranslate"><span class="pre">get_inventory()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_identity"><code class="docutils literal notranslate"><span class="pre">get_identity()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_profile"><code class="docutils literal notranslate"><span class="pre">get_profile()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.edit_profile"><code class="docutils literal notranslate"><span class="pre">edit_profile()</span></code></a></li>

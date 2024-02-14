@@ -1707,7 +1707,76 @@ class API:
             per_page: str = None, sort: str = None, sort_order: str = None
         ) -> dict[str, Any]:
 
-        pass
+        """
+        `Marketplace > Inventory <https://www.discogs.com/developers
+        /#page:marketplace,header:marketplace-inventory-get>`_:
+        Get a seller's inventory.
+
+        .. admonition:: Authentication
+           :class: dropdown warning
+
+           If you are authenticated as the inventory owner, additional
+           fields will be returned in the response, such as 
+           :code:`"weight"`, :code:`"format_quantity"`, 
+           :code:`"external_id"`, :code:`"location"`, and 
+           :code:`"quantity"`.
+
+        Parameters
+        ----------
+        username : `str`
+            The username of the inventory owner.
+
+            **Example**: :code:`"360vinyl"`.
+
+        status : `str`, keyword-only, optional
+            The status of the listings to return.
+
+            **Valid values**: :code:`"For Sale"`, :code:`"Draft"`, 
+            :code:`"Expired"`, :code:`"Sold"`, and :code:`"Deleted"`.
+
+        page : `str`, keyword-only, optional
+            The page you want to request.
+
+            **Example**: :code:`3`.
+
+        per_page : `str`, keyword-only, optional
+            The number of items per page.
+
+            **Example**: :code:`25`.
+
+        sort : `str`, keyword-only, optional
+            Sort items by this field.
+
+            **Valid values**: :code:`"listed"`, :code:`"price"`, 
+            :code:`"item"`, :code:`"artist"`, :code:`"label"`, 
+            :code:`"catno"`, :code:`"audio"`, :code:`"status"`, and
+            :code:`"location"`.
+
+        sort_order : `str`, keyword-only, optional
+            Sort items in a particular order.
+
+            **Valid values**: :code:`"asc"` and :code:`"desc"`.
+
+        Returns
+        -------
+        inventory : `dict`
+            The seller's inventory.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                  
+                  }
+        """
+
+        return self._get_json(
+            f"{self.API_URL}/users/{username}/inventory",
+            params={"status": status, "page": page, "per_page": per_page,
+                    "sort": sort, "sort_order": sort_order}
+        )
     
     def get_listing(
             self, listing_id: Union[int, str], *, curr_abbr: str = None
