@@ -6,6 +6,12 @@ import subprocess
 import tempfile
 import warnings
 
+__all__ = [
+    "audio", "itunes", "qobuz", "spotify", "tidal", "utility",
+    "FOUND_FFMPEG", "FOUND_FLASK", "FOUND_PLAYWRIGHT", 
+    "VERSION", "REPOSITORY_URL", "DIR_HOME", "DIR_TEMP", "ILLEGAL_CHARACTERS"
+]
+
 FOUND_FFMPEG = shutil.which("ffmpeg") is not None
 FOUND_FLASK = find_spec("flask") is not None
 FOUND_PLAYWRIGHT = find_spec("playwright") is not None
@@ -21,6 +27,7 @@ if FOUND_FFMPEG:
         "vorbis": "libvorbis" if b"--enable-libvorbis" in _.stdout
                   else "vorbis -strict experimental"
     }
+    __all__.append("FFMPEG_CODECS")
 else:
     wmsg = ("FFmpeg was not found, so certain key features in Minim "
             "are unavailable. To install FFmpeg, visit "
@@ -40,9 +47,3 @@ if not _config.has_section("minim"):
         _config.write(f)
 
 from . import audio, itunes, qobuz, spotify, tidal, utility # noqa: E402
-
-__all__ = [
-    "audio", "itunes", "qobuz", "spotify", "tidal", "utility",
-    "FOUND_FFMPEG", "FFMPEG_CODECS", "FOUND_FLASK", "FOUND_PLAYWRIGHT", 
-    "VERSION", "REPOSITORY_URL", "DIR_HOME", "DIR_TEMP", "ILLEGAL_CHARACTERS"
-]

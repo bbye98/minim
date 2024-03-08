@@ -13,13 +13,14 @@ env:
 jobs:
   build:
     name: Continuous integration (Python ${{ matrix.python-version }})
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        python-version: ["3.9", "3.10", "3.11"]
+    runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: bash -el {0}
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
     timeout-minutes: 60
     steps:      
       - uses: actions/checkout@v3
@@ -40,6 +41,3 @@ jobs:
         run: |
           python3 -m pip install coverage pytest
           coverage run -m pytest
-      - uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

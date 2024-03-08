@@ -215,7 +215,7 @@
    "source": [
     "To use the Spotify Web API with user authentication, \n",
     "\n",
-    "1. Get the necessary authorization scopes using `spotify.WebAPI.get_authorization_scopes()`:"
+    "1. Get the necessary authorization scopes using `spotify.WebAPI.get_scopes()`:"
    ]
   },
   {
