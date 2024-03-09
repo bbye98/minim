@@ -316,7 +316,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;spektrem_shine.flac&#39;, &lt;minim.audio.FLACAudio at 0x7f76a0672310&gt;)
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;spektrem_shine.flac&#39;, &lt;minim.audio.FLACAudio at 0x7f9d871d2dd0&gt;)
 </pre></div>
 </div>
 </div>
@@ -372,10 +372,10 @@ Sample rate: 44100
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>size=    1032kB time=00:00:30.09 bitrate= 280.9kbits/s speed=65.7x    
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>size=    1032kB time=00:00:30.09 bitrate= 280.9kbits/s speed=63.3x    
 </pre></div>
 </div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;minim.audio.MP3Audio at 0x7f76a0672310&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;minim.audio.MP3Audio at 0x7f9d871d2dd0&gt;
 </pre></div>
 </div>
 </div>
@@ -555,7 +555,7 @@ Sample rate: 44100
 <ul class="simple">
 <li><p>searching for the track on TIDAL via <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.search()</span></code>,</p></li>
 <li><p>selecting the correct result by matching the ISRC,</p></li>
-<li><p>getting the track’s composers and lyrics using <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.get_track_compoers()</span></code> and <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.get_track_lyrics()</span></code>, respectively, and</p></li>
+<li><p>getting the track’s composers and lyrics using <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.get_track_composers()</span></code> and <code class="docutils literal notranslate"><span class="pre">minim.tidal.PrivateAPI.get_track_lyrics()</span></code>, respectively, and</p></li>
 <li><p>populating the file handler’s metadata with the JSON results using <code class="docutils literal notranslate"><span class="pre">minim.audio.FLACAudio.set_metadata_using_tidal()</span></code>.</p></li>
 </ul>
 <div class="cell tag_hide-output docutils container">
@@ -575,6 +575,9 @@ Sample rate: 44100
 <span class="expanded">Hide code cell output</span>
 </summary>
 <div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:root:Either lyrics are not available for this track or the current account does not have an active TIDAL subscription.
+</pre></div>
+</div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Album: Enter the Spektrem - Single
 Album artist: Spektrem
 Artist: Spektrem
@@ -585,7 +588,7 @@ Copyright: ℗ 2013 GFTED
 Date: 2013-03-06T12:00:00Z
 Genre: Electronic
 ISRC: GB2LD0901581
-Lyrics: &lt;class &#39;str&#39;&gt;
+Lyrics: None
 Tempo: 128
 Title: Shine
 Disc number: 1
@@ -624,7 +627,7 @@ Sample rate: 44100
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;tobu_back_to_you.flac&#39;, &lt;minim.audio.FLACAudio at 0x7f77495c5750&gt;)
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&#39;tobu_back_to_you.flac&#39;, &lt;minim.audio.FLACAudio at 0x7f9cdddd6090&gt;)
 </pre></div>
 </div>
 </div>
@@ -717,6 +720,11 @@ Sample rate: 44100
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:root:Either lyrics are not available for this track or the current account does not have an active TIDAL subscription.
+</pre></div>
+</div>
+</div>
 </div>
 <p>Let’s take another look at the file’s metadata:</p>
 <div class="cell tag_hide-output docutils container">
@@ -731,23 +739,23 @@ Sample rate: 44100
 <span class="expanded">Hide code cell output</span>
 </summary>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Album: Back to You - Single
-Album artist: Tobu
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Album: Ncs: The Best Of 2022
+Album artist: Various Artists
 Artist: Tobu
 Comment: None
 Composer: Tobu &amp; Toms Burkovskis
 Copyright: ℗ 2022 NCS
 Date: 2022-11-25T12:00:00Z
-Genre: House
+Genre: Electronic
 ISRC: GB2LD2210368
-Lyrics: &lt;class &#39;str&#39;&gt;
+Lyrics: None
 Tempo: 98
 Title: Back to You
 Compilation: False
 Disc number: 1
 Disc count: 1
-Track number: 1
-Track count: 1
+Track number: 15
+Track count: 16
 Artwork: &lt;class &#39;bytes&#39;&gt;
 Bit depth: 16
 Bitrate: 1104053

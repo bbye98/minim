@@ -14,10 +14,8 @@ classifiers = [
   "Programming Language :: Python :: 3"
 ]
 dependencies = [
-  "levenshtein",
+  "cryptography",
   "mutagen",
-  "numpy",
-  "pycryptodome",
   "requests"
 ]
 description = """
