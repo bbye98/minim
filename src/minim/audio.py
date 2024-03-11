@@ -19,8 +19,11 @@ import urllib
 
 from mutagen import id3, flac, mp3, mp4, oggflac, oggopus, oggvorbis, wave
 
-from . import utility, FOUND_FFMPEG, FFMPEG_CODECS
+from . import utility, FOUND_FFMPEG
 from .qobuz import _parse_performers
+
+if FOUND_FFMPEG:
+    from . import FFMPEG_CODECS
 
 try:
     from PIL import Image
