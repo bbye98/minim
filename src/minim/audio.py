@@ -16,6 +16,7 @@ import re
 import subprocess
 from typing import Any, Union
 import urllib
+import warnings
 
 from mutagen import id3, flac, mp3, mp4, oggflac, oggopus, oggvorbis, wave
 
@@ -831,11 +832,18 @@ class Audio:
                 with urllib.request.urlopen(self.artwork) as r:
                     self.artwork = r.read()
                 if self._artwork_format == "tif":
-                    with Image.open(BytesIO(self.artwork)) as a:
-                        with BytesIO() as b:
-                            a.save(b, format="png")
-                            self.artwork = b.getvalue()
-                    self._artwork_format = "png"
+                    if FOUND_PILLOW:
+                        with Image.open(BytesIO(self.artwork)) as a:
+                            with BytesIO() as b:
+                                a.save(b, format="png")
+                                self.artwork = b.getvalue()
+                        self._artwork_format = "png"
+                    else:
+                        wmsg = ("The Pillow library is required to process "
+                                "TIFF images, but was not found. No artwork "
+                                "will be embedded for the current track.")
+                        warnings.warn(wmsg)
+                        self.artwork = self._artwork_format = None
         if self.compilation is None or overwrite:
             self.compilation = self.album_artist == "Various Artists"
         if "releaseDate" in data and (self.date is None or overwrite):
