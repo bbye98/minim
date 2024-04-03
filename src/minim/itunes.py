@@ -17,16 +17,16 @@ class SearchAPI:
     """
     iTunes Search API client.
 
-    The iTunes Search API allows searching for a variety of content, 
-    including apps, iBooks, movies, podcasts, music, music videos, 
-    audiobooks, and TV shows within the iTunes Store, App Store, 
+    The iTunes Search API allows searching for a variety of content,
+    including apps, iBooks, movies, podcasts, music, music videos,
+    audiobooks, and TV shows within the iTunes Store, App Store,
     iBooks Store and Mac App Store. It also supports ID-based lookup
     requests to create mappings between your content library and the
     digital catalog.
 
     .. seealso::
 
-       For more information, see the `iTunes Search API 
+       For more information, see the `iTunes Search API
        documentation <https://developer.apple.com/library/archive/
        documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html>`_.
 
@@ -49,14 +49,14 @@ class SearchAPI:
     def _get_json(self, url: str, **kwargs) -> dict:
 
         """
-        Send a GET request and return the JSON-encoded content of the 
+        Send a GET request and return the JSON-encoded content of the
         response.
 
         Parameters
         ----------
         url : `str`
             URL for the GET request.
-        
+
         **kwargs
             Keyword arguments to pass to :meth:`requests.request`.
 
@@ -99,7 +99,7 @@ class SearchAPI:
 
     def search(
             self, term: str, *, country: str = None, media: str = None,
-            entity: Union[str, list[str]] = None, attribute: str = None, 
+            entity: Union[str, list[str]] = None, attribute: str = None,
             limit: Union[int, str] = None, lang: str = None,
             version: Union[int, str] = None, explicit: Union[bool, str] = None
         ) -> dict[str, Any]:
@@ -114,9 +114,9 @@ class SearchAPI:
 
             .. note::
 
-               URL encoding replaces spaces with the plus (:code:`+`) 
-               character, and all characters except letters, numbers, 
-               periods (:code:`.`), dashes (:code:`-`), underscores 
+               URL encoding replaces spaces with the plus (:code:`+`)
+               character, and all characters except letters, numbers,
+               periods (:code:`.`), dashes (:code:`-`), underscores
                (:code:`_`), and asterisks (:code:`*`) are encoded.
 
             **Example**: :code:`"jack+johnson"`.
@@ -124,31 +124,31 @@ class SearchAPI:
         country : str, keyword-only, optional
             The two-letter country code for the store you want to search.
             The search uses the default store front for the specified
-            country. 
-            
+            country.
+
             .. seealso::
 
                For a list of ISO country codes, see the
                `ISO OBP <https://www.iso.org/obp/ui>`_.
 
             **Default**: :code:`"US"`.
-        
+
         media : str, keyword-only, optional
             The media type you want to search for.
 
             .. container::
 
-               **Valid values**: :code:`"movie"`, :code:`"podcast"`, 
+               **Valid values**: :code:`"movie"`, :code:`"podcast"`,
                :code:`"music"`, :code:`"musicVideo"`, :code:`"audioBook"`,
                :code:`"shortFilm"`, :code:`"tvShow"`, :code:`"software"`,
                and :code:`"ebook"`.
 
             **Default**: :code:`"all"`.
-        
+
         entity : `str` or `list`, keyword-only, optional
             The type(s) of results you want returned, relative to the
-            specified media type in `media`. 
-            
+            specified media type in `media`.
+
             .. seealso::
 
                For a list of available
@@ -163,11 +163,11 @@ class SearchAPI:
 
             **Example**: :code:`"movieArtist"` for a movie media type
             search.
-        
+
         attribute : `str`, keyword-only, optional
             The attribute you want to search for in the stores, relative
-            to the specified media type (`media`). 
-            
+            to the specified media type (`media`).
+
             .. seealso::
 
                For a list of available
@@ -177,24 +177,24 @@ class SearchAPI:
                /Searching.html#//apple_ref/doc/uid
                /TP40017632-CH5-SW3>`_.
 
-            **Default**: All attributes associated with the specified 
-            media type. 
+            **Default**: All attributes associated with the specified
+            media type.
 
             **Example**: If you want to search for an artist by name,
             specify :code:`entity="allArtist"` and
             :code:`attribute="allArtistTerm"`. Then, if you search for
             :code:`term="maroon"`, iTunes returns "Maroon 5" in the
-            search results, instead of all artists who have ever 
+            search results, instead of all artists who have ever
             recorded a song with the word "maroon" in the title.
 
         limit : `int` or `str`, keyword-only, optional
             The number of search results you want the iTunes Store to
-            return. 
+            return.
 
             **Valid values**: `limit` must be between 1 and 200.
 
             **Default**: :code:`50`.
-        
+
         lang : `str`, keyword-only, optional
             The language, English or Japanese, you want to use when
             returning search results. Specify the language using the
@@ -203,7 +203,7 @@ class SearchAPI:
             .. container::
 
                **Valid values**:
-            
+
                * :code:`"en_us"` for English.
                * :code:`"ja_jp"` for Japanese.
 
@@ -214,13 +214,13 @@ class SearchAPI:
             your search.
 
             **Valid values**: :code:`1` and :code:`2`.
-            
+
             **Default**: :code:`2`.
 
         explicit : `bool` or `str`, keyword-only, optional
-            A flag indicating whether or not you want to include 
+            A flag indicating whether or not you want to include
             explicit content in your search results.
-            
+
             **Default**: :code:`"Yes"`.
 
         Returns
@@ -282,7 +282,7 @@ class SearchAPI:
 
         >>> itunes.search("jack johnson")
 
-        To search for all Jack Johnson audio and video content and 
+        To search for all Jack Johnson audio and video content and
         return only the first 25 items,
 
         >>> itunes.search("jack johnson", limit=25)
@@ -290,13 +290,13 @@ class SearchAPI:
         To search for only Jack Johnson music videos,
 
         >>> itunes.search("jack johnson", entity="musicVideo")
-        
-        To search for all Jim Jones audio and video content and return 
+
+        To search for all Jim Jones audio and video content and return
         only the results from the Canada iTunes Store,
 
         >>> itunes.search("jack johnson", country="ca")
 
-        To search for applications titled “Yelp” and return only the 
+        To search for applications titled “Yelp” and return only the
         results from the United States iTunes Store,
 
         >>> itunes.search("yelp", country="us", entity="software")
@@ -314,7 +314,7 @@ class SearchAPI:
                 "limit": limit,
                 "lang": lang,
                 "version": version,
-                "explicit": ("No", "Yes")[explicit] 
+                "explicit": ("No", "Yes")[explicit]
                             if isinstance(explicit, bool) else explicit
             }
         )
@@ -333,7 +333,7 @@ class SearchAPI:
 
         """
         Search for content based on iTunes IDs, AMG IDs, UPCs/EANs, or
-        ISBNs. ID-based lookups are faster and contain fewer 
+        ISBNs. ID-based lookups are faster and contain fewer
         false-positive results.
 
         Parameters
@@ -360,8 +360,8 @@ class SearchAPI:
             The 13-digit ISBN(s) to lookup.
 
         entity : `str` or `list`, keyword-only, optional
-            The type(s) of results you want returned. 
-            
+            The type(s) of results you want returned.
+
             .. seealso::
 
                For a list of available entities, see the `iTunes Store
@@ -375,8 +375,8 @@ class SearchAPI:
 
         limit : `int` or `str`, keyword-only, optional
             The number of search results you want the iTunes Store to
-            return. 
-            
+            return.
+
             **Valid values**: `limit` must be between 1 and 200.
 
             **Default**: :code:`50`.
@@ -436,7 +436,7 @@ class SearchAPI:
                       }
                     ]
                   }
-                  
+
         Examples
         --------
         Look up Jack Johnson by iTunes artist ID:
@@ -481,8 +481,8 @@ class SearchAPI:
 
         Look up an album by its AMG Album ID:
 
-        >>> itunes.lookup(amg_album_id=[15175, 15176, 15177, 15178, 
-        ...                             15183, 15184, 15187, 15190, 
+        >>> itunes.lookup(amg_album_id=[15175, 15176, 15177, 15178,
+        ...                             15183, 15184, 15187, 15190,
         ...                             15191, 15195, 15197, 15198])
 
         Look up a Movie by AMG Video ID:
@@ -504,28 +504,28 @@ class SearchAPI:
                 "id": id if id is None or isinstance(id, (int, str))
                       else ",".join(id if isinstance(id[0], str)
                                     else (str(i) for i in id)),
-                "amgArtistId": 
+                "amgArtistId":
                     amg_artist_id if amg_artist_id is None
                                      or isinstance(amg_artist_id, (int, str))
                     else ",".join(
                         amg_artist_id if isinstance(amg_artist_id[0], str)
                         else (str(i) for i in amg_artist_id)
                     ),
-                "amgAlbumId": 
+                "amgAlbumId":
                     amg_album_id if amg_album_id is None
                                     or isinstance(amg_album_id, (int, str))
                     else ",".join(
                         amg_album_id if isinstance(amg_album_id[0], str)
                         else (str(i) for i in amg_album_id)
                     ),
-                "amgVideoId": 
+                "amgVideoId":
                     amg_video_id if amg_video_id is None
                                     or isinstance(amg_video_id, (int, str))
                     else ",".join(
                         amg_video_id if isinstance(amg_video_id[0], str)
                         else (str(i) for i in amg_video_id)
                     ),
-                "bundleId": bundle_id 
+                "bundleId": bundle_id
                             if bundle_id is None or isinstance(bundle_id, str)
                             else ",".join(bundle_id),
                 "upc": upc if upc is None or isinstance(upc, (int, str))

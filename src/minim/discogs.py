@@ -19,7 +19,7 @@ import webbrowser
 
 import requests
 
-from . import (FOUND_FLASK, FOUND_PLAYWRIGHT, VERSION, REPOSITORY_URL, 
+from . import (FOUND_FLASK, FOUND_PLAYWRIGHT, VERSION, REPOSITORY_URL,
                DIR_HOME, DIR_TEMP, _config)
 if FOUND_FLASK:
     from flask import Flask, request
@@ -29,13 +29,13 @@ if FOUND_PLAYWRIGHT:
 __all__ = ["API"]
 
 class _DiscogsRedirectHandler(BaseHTTPRequestHandler):
-    
+
     """
     HTTP request handler for the Discogs OAuth 1.0a flow.
     """
 
     def do_GET(self):
-        
+
         """
         Handles an incoming GET request and parses the query string.
         """
@@ -48,7 +48,7 @@ class _DiscogsRedirectHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "text/html")
         self.end_headers()
-        status = "denied" if "denied" in self.server.response else "granted" 
+        status = "denied" if "denied" in self.server.response else "granted"
         self.wfile.write(
             f"Access {status}. You may close this page now.".encode()
         )
@@ -58,7 +58,7 @@ class API:
     """
     Discogs API client.
 
-    The Discogs API lets developers build their own Discogs-powered 
+    The Discogs API lets developers build their own Discogs-powered
     applications for the web, desktop, and mobile devices. It is a
     RESTful interface to Discogs data and enables accessing JSON-
     formatted information about artists, releases, and labels,
@@ -67,32 +67,32 @@ class API:
 
     .. seealso::
 
-       For more information, see the `Discogs API home page 
+       For more information, see the `Discogs API home page
        <https://www.discogs.com/developers>`_.
 
     The Discogs API can be accessed with or without authentication.
-    (client credentials, personal access token, or OAuth access token 
+    (client credentials, personal access token, or OAuth access token
     and access token secret). However, it is recommended that users at
-    least provide client credentials to enjoy higher rate limits and 
-    access to image URLs. The consumer key and consumer secret can 
-    either be provided to this class's constructor as keyword arguments 
-    or be stored as :code:`DISCOGS_CONSUMER_KEY` and 
-    :code:`DISCOGS_CONSUMER_SECRET` in the operating system's 
-    environment variables. 
-    
+    least provide client credentials to enjoy higher rate limits and
+    access to image URLs. The consumer key and consumer secret can
+    either be provided to this class's constructor as keyword arguments
+    or be stored as :code:`DISCOGS_CONSUMER_KEY` and
+    :code:`DISCOGS_CONSUMER_SECRET` in the operating system's
+    environment variables.
+
     .. seealso::
 
        To get client credentials, see the Registration section of the
        `Authentication page <https://www.discogs.com/developers
-       /#page:authentication>`_ of the Discogs API website. To take 
-       advantage of Minim's automatic access token retrieval 
+       /#page:authentication>`_ of the Discogs API website. To take
+       advantage of Minim's automatic access token retrieval
        functionality for the OAuth 1.0a flow, the redirect URI should be
-       in the form :code:`http://localhost:{port}/callback`, where 
+       in the form :code:`http://localhost:{port}/callback`, where
        :code:`{port}` is an open port on :code:`localhost`.
-    
+
     To view and make changes to account information and resources, users
-    must either provide a personal access token to this class's 
-    constructor as a keyword argument or undergo the OAuth 1.0a flow, 
+    must either provide a personal access token to this class's
+    constructor as a keyword argument or undergo the OAuth 1.0a flow,
     which require valid client credentials, using Minim. If an existing
     OAuth access token/secret pair is available, it can be provided to
     this class's constructor as keyword arguments to bypass the access
@@ -104,9 +104,9 @@ class API:
        at any time using :meth:`set_flow` and :meth:`set_access_token`,
        respectively.
 
-    Minim also stores and manages access tokens and their properties. 
-    When the OAuth 1.0a flow is used to acquire an access token/secret 
-    pair, it is automatically saved to the Minim configuration file to 
+    Minim also stores and manages access tokens and their properties.
+    When the OAuth 1.0a flow is used to acquire an access token/secret
+    pair, it is automatically saved to the Minim configuration file to
     be loaded on the next instantiation of this class. This behavior can
     be disabled if there are any security concerns, like if the computer
     being used is a shared device.
@@ -115,20 +115,20 @@ class API:
     ----------
     consumer_key : `str`, keyword-only, optional
         Consumer key. Required for the OAuth 1.0a flow, and can be used
-        in the Discogs authorization flow alongside a consumer secret. 
-        If it is not stored as :code:`DISCOGS_CONSUMER_KEY` in the 
+        in the Discogs authorization flow alongside a consumer secret.
+        If it is not stored as :code:`DISCOGS_CONSUMER_KEY` in the
         operating system's environment variables or found in the Minim
         configuration file, it can be provided here.
 
     consumer_secret : `str`, keyword-only, optional
         Consumer secret. Required for the OAuth 1.0a flow, and can be
         used in the Discogs authorization flow alongside a consumer key.
-        If it is not stored as :code:`DISCOGS_CONSUMER_SECRET` in the 
+        If it is not stored as :code:`DISCOGS_CONSUMER_SECRET` in the
         operating system's environment variables or found in the Minim
         configuration file, it can be provided here.
 
     flow : `str`, keyword-only, optional
-        Authorization flow. If :code:`None` and no access token is 
+        Authorization flow. If :code:`None` and no access token is
         provided, no user authentication will be performed and client
         credentials will not be attached to requests, even if found or
         provided.
@@ -143,13 +143,13 @@ class API:
 
     browser : `bool`, keyword-only, default: :code:`False`
         Determines whether a web browser is automatically opened for the
-        OAuth 1.0a flow. If :code:`False`, users will have to manually 
+        OAuth 1.0a flow. If :code:`False`, users will have to manually
         open the authorization URL and provide the full callback URI via
         the terminal.
 
     web_framework : `str`, keyword-only, optional
         Determines which web framework to use for the OAuth 1.0a flow.
-        
+
         .. container::
 
            **Valid values**:
@@ -157,22 +157,22 @@ class API:
            * :code:`"http.server"` for the built-in implementation of
              HTTP servers.
            * :code:`"flask"` for the Flask framework.
-           * :code:`"playwright"` for the Playwright framework by 
+           * :code:`"playwright"` for the Playwright framework by
              Microsoft.
 
     port : `int` or `str`, keyword-only, default: :code:`8888`
         Port on :code:`localhost` to use for the OAuth 1.0a flow with
-        the :code:`http.server` and Flask frameworks. Only used if 
+        the :code:`http.server` and Flask frameworks. Only used if
         `redirect_uri` is not specified.
 
     redirect_uri : `str`, keyword-only, optional
-        Redirect URI for the OAuth 1.0a flow. If not on 
+        Redirect URI for the OAuth 1.0a flow. If not on
         :code:`localhost`, the automatic request access token retrieval
         functionality is not available.
 
     access_token : `str`, keyword-only, optional
         Personal or OAuth access token. If provided here or found in the
-        Minim configuration file, the authentication process is 
+        Minim configuration file, the authentication process is
         bypassed.
 
     access_token_secret : `str`, keyword-only, optional
@@ -184,7 +184,7 @@ class API:
 
     save : `bool`, keyword-only, default: :code:`True`
         Determines whether newly obtained access tokens and their
-        associated properties are stored to the Minim configuration 
+        associated properties are stored to the Minim configuration
         file.
 
     Attributes
@@ -200,7 +200,7 @@ class API:
 
     REQUEST_TOKEN_URL : `str`
         URL for the OAuth 1.0a request token endpoint.
-        
+
     session : `requests.Session`
         Session used to send requests to the Discogs API.
     """
@@ -215,11 +215,11 @@ class API:
 
     def __init__(
             self, *, consumer_key: str = None, consumer_secret: str = None,
-            flow: str = None, browser: bool = False, web_framework: str = None, 
-            port: Union[int, str] = 8888, redirect_uri: str = None, 
-            access_token: str = None, access_token_secret: str = None, 
+            flow: str = None, browser: bool = False, web_framework: str = None,
+            port: Union[int, str] = 8888, redirect_uri: str = None,
+            access_token: str = None, access_token_secret: str = None,
             overwrite: bool = False, save: bool = True) -> None:
-        
+
         """
         Create a Discogs API client.
         """
@@ -227,7 +227,7 @@ class API:
         self.session = requests.Session()
         self.session.headers["User-Agent"] = f"Minim/{VERSION} +{REPOSITORY_URL}"
 
-        if (access_token is None and _config.has_section(self._NAME) 
+        if (access_token is None and _config.has_section(self._NAME)
                 and not overwrite):
             flow = _config.get(self._NAME, "flow")
             access_token = _config.get(self._NAME, "access_token")
@@ -239,7 +239,7 @@ class API:
 
         self.set_flow(
             flow, consumer_key=consumer_key, consumer_secret=consumer_secret,
-            browser=browser, web_framework=web_framework, port=port, 
+            browser=browser, web_framework=web_framework, port=port,
             redirect_uri=redirect_uri, save=save
         )
         self.set_access_token(access_token, access_token_secret)
@@ -262,8 +262,8 @@ class API:
         """
 
         if token and (
-                self._flow != "oauth" 
-                or self._flow == "discogs" 
+                self._flow != "oauth"
+                or self._flow == "discogs"
                    and "token" not in self.session.headers["Authorization"]
             ):
             emsg = (f"{self._NAME}.{endpoint}() requires user "
@@ -276,14 +276,14 @@ class API:
     def _get_json(self, url: str, **kwargs) -> dict:
 
         """
-        Send a GET request and return the JSON-encoded content of the 
+        Send a GET request and return the JSON-encoded content of the
         response.
 
         Parameters
         ----------
         url : `str`
             URL for the GET request.
-        
+
         **kwargs
             Keyword arguments to pass to :meth:`requests.request`.
 
@@ -296,7 +296,7 @@ class API:
         return self._request("get", url, **kwargs).json()
 
     def _request(
-            self, method: str, url: str, *, oauth: dict[str, Any] = None, 
+            self, method: str, url: str, *, oauth: dict[str, Any] = None,
             **kwargs) -> requests.Response:
 
         """
@@ -329,7 +329,7 @@ class API:
             if oauth is None:
                 oauth = {}
             oauth = self._oauth | {
-                "oauth_nonce": secrets.token_hex(32), 
+                "oauth_nonce": secrets.token_hex(32),
                 "oauth_timestamp": f"{time.time():.0f}"
             } | oauth
             kwargs["headers"]["Authorization"] = "OAuth " + ", ".join(
@@ -369,7 +369,7 @@ class API:
                     oauth["oauth_callback"] = self._redirect_uri
                 r = self._request(
                     "get",
-                    self.REQUEST_TOKEN_URL, 
+                    self.REQUEST_TOKEN_URL,
                     headers={
                         "Content-Type": "application/x-www-form-urlencoded"
                     },
@@ -380,13 +380,13 @@ class API:
 
                 if self._web_framework == "playwright":
                     har_file = DIR_TEMP / "minim_discogs.har"
-                    
+
                     with sync_playwright() as playwright:
                         browser = playwright.firefox.launch(headless=False)
                         context = browser.new_context(record_har_path=har_file)
                         page = context.new_page()
                         page.goto(auth_url, timeout=0)
-                        page.wait_for_url(f"{self._redirect_uri}*", 
+                        page.wait_for_url(f"{self._redirect_uri}*",
                                             wait_until="commit")
                         context.close()
                         browser.close()
@@ -395,7 +395,7 @@ class API:
                         oauth |= dict(
                             urllib.parse.parse_qsl(
                                 urllib.parse.urlparse(
-                                    re.search(fr'{self._redirect_uri}\?(.*?)"', 
+                                    re.search(fr'{self._redirect_uri}\?(.*?)"',
                                               f.read()).group(0)
                                 ).query
                             )
@@ -411,7 +411,7 @@ class API:
                               f"in your web browser:\n\n{auth_url}\n")
 
                     if self._web_framework == "http.server":
-                        httpd = HTTPServer(("", self._port), 
+                        httpd = HTTPServer(("", self._port),
                                            _DiscogsRedirectHandler)
                         httpd.handle_request()
                         oauth |= httpd.response
@@ -430,7 +430,7 @@ class API:
                             return ("Access granted. You may close "
                                     "this page now.")
 
-                        server = Process(target=app.run, 
+                        server = Process(target=app.run,
                                          args=("0.0.0.0", self._port))
                         server.start()
                         while not json_file.is_file():
@@ -474,7 +474,7 @@ class API:
                     }
                     with open(DIR_HOME / "minim.cfg", "w") as f:
                         _config.write(f)
-        
+
             self._oauth |= {
                 "oauth_token": access_token,
                 "oauth_signature": self._consumer_secret
@@ -493,9 +493,9 @@ class API:
             else:
                 self.session.headers["Authorization"] = \
                     f"Discogs token={access_token}"
-                
-        if (self._flow == "oauth" 
-                or self._flow == "discogs" 
+
+        if (self._flow == "oauth"
+                or self._flow == "discogs"
                    and "token" in self.session.headers["Authorization"]):
             identity = self.get_identity()
             self._username = identity["username"]
@@ -513,7 +513,7 @@ class API:
         ----------
         flow : `str`
             Authorization flow. If :code:`None`, no user authentication
-            will be performed and client credentials will not be 
+            will be performed and client credentials will not be
             attached to requests, even if found or provided.
 
             .. container::
@@ -533,10 +533,10 @@ class API:
 
         consumer_secret : `str`, keyword-only, optional
             Consumer secret. Required for the OAuth 1.0a flow, and can
-            be used in the Discogs authorization flow alongside a 
-            consumer key. If it is not stored as 
-            :code:`DISCOGS_CONSUMER_SECRET` in the operating system's 
-            environment variables or found in the Minim configuration 
+            be used in the Discogs authorization flow alongside a
+            consumer key. If it is not stored as
+            :code:`DISCOGS_CONSUMER_SECRET` in the operating system's
+            environment variables or found in the Minim configuration
             file, it can be provided here.
 
         browser : `bool`, keyword-only, default: :code:`False`
@@ -556,7 +556,7 @@ class API:
                * :code:`"http.server"` for the built-in implementation
                  of HTTP servers.
                * :code:`"flask"` for the Flask framework.
-               * :code:`"playwright"` for the Playwright framework by 
+               * :code:`"playwright"` for the Playwright framework by
                  Microsoft.
 
         port : `int` or `str`, keyword-only, default: :code:`8888`
@@ -565,9 +565,9 @@ class API:
             if `redirect_uri` is not specified.
 
         redirect_uri : `str`, keyword-only, optional
-            Redirect URI for the OAuth 1.0a flow. If not on 
-            :code:`localhost`, the automatic request access token 
-            retrieval functionality is not available. 
+            Redirect URI for the OAuth 1.0a flow. If not on
+            :code:`localhost`, the automatic request access token
+            retrieval functionality is not available.
 
         save : `bool`, keyword-only, default: :code:`True`
             Determines whether newly obtained access tokens and their
@@ -592,7 +592,7 @@ class API:
             if redirect_uri:
                 self._redirect_uri = redirect_uri
                 if "localhost" in redirect_uri:
-                    self._port = re.search(r"localhost:(\d+)", 
+                    self._port = re.search(r"localhost:(\d+)",
                                            redirect_uri).group(1)
                 elif web_framework:
                     wmsg = ("The redirect URI is not on localhost, "
@@ -607,8 +607,8 @@ class API:
                 self._port = self._redirect_uri = None
 
             self._web_framework = (
-                web_framework 
-                if web_framework is None 
+                web_framework
+                if web_framework is None
                    or web_framework == "http.server"
                    or globals()[f"FOUND_{web_framework.upper()}"]
                 else None
@@ -643,8 +643,8 @@ class API:
             Currency abbreviation for marketplace data. Defaults to the
             authenticated user's currency.
 
-            **Valid values**: :code:`"USD"`, :code:`"GBP"`, 
-            :code:`"EUR"`, :code:`"CAD"`, :code:`"AUD"`, :code:`"JPY"`, 
+            **Valid values**: :code:`"USD"`, :code:`"GBP"`,
+            :code:`"EUR"`, :code:`"CAD"`, :code:`"AUD"`, :code:`"JPY"`,
             :code:`"CHF"`, :code:`"MXN"`, :code:`"BRL"`, :code:`"NZD"`,
             :code:`"SEK"`, and :code:`"ZAR"`.
 
@@ -785,7 +785,7 @@ class API:
                     "year": <int>
                   }
         """
-        
+
         if curr_abbr and curr_abbr not in (
                 CURRENCIES := {
                     "USD", "GBP", "EUR", "CAD", "AUD", "JPY",
@@ -800,7 +800,7 @@ class API:
             f"{self.API_URL}/releases/{release_id}",
             params={"curr_abbr": curr_abbr}
         )
-    
+
     def get_user_release_rating(
             self, release_id: Union[int, str], username: str = None
         ) -> dict[str, Any]:
@@ -820,7 +820,7 @@ class API:
 
         username : `str`, optional
             The username of the user whose rating you are requesting. If
-            not specified, the username of the authenticated user is 
+            not specified, the username of the authenticated user is
             used.
 
             **Example**: :code:`"memory"`.
@@ -840,22 +840,22 @@ class API:
                     "release_id": <int>,
                     "rating": <int>
                   }
-        """ 
-        
+        """
+
         if username is None:
             if hasattr(self, "_username"):
                 username = self._username
             else:
                 raise ValueError("No username provided.")
-      
+
         return self._get_json(
             f"{self.API_URL}/releases/{release_id}/rating/{username}"
         )
 
     def update_user_release_rating(
-            self, release_id: Union[int, str], rating: int, 
+            self, release_id: Union[int, str], rating: int,
             username: str = None) -> dict[str, Any]:
-        
+
         """
         `Database > Release Rating By User > Update Release Rating By
         User <https://www.discogs.com/developers
@@ -864,7 +864,7 @@ class API:
 
         .. admonition:: User authentication
            :class: warning
-  
+
            Requires user authentication with a personal access token or
            via the OAuth 1.0a flow.
 
@@ -880,7 +880,7 @@ class API:
 
         username : `str`, optional
             The username of the user whose rating you are requesting. If
-            not specified, the username of the authenticated user is 
+            not specified, the username of the authenticated user is
             used.
 
             **Example**: :code:`"memory"`.
@@ -900,7 +900,7 @@ class API:
                     "release_id": <int>,
                     "rating": <int>
                   }
-        """ 
+        """
 
         self._check_authentication("update_user_release_rating")
 
@@ -927,7 +927,7 @@ class API:
 
         .. admonition:: User authentication
             :class: warning
-    
+
             Requires user authentication with a personal access token or
             via the OAuth 1.0a flow.
 
@@ -940,20 +940,20 @@ class API:
 
         username : `str`, optional
             The username of the user whose rating you are requesting. If
-            not specified, the username of the authenticated user is 
+            not specified, the username of the authenticated user is
             used.
 
             **Example**: :code:`"memory"`.
         """
 
         self._check_authentication("delete_user_release_rating")
-        
+
         if username is None:
             if hasattr(self, "_username"):
                 username = self._username
             else:
                 raise ValueError("No username provided.")
-      
+
         return self._request(
             "delete",
             f"{self.API_URL}/releases/{release_id}/rating/{username}"
@@ -961,7 +961,7 @@ class API:
 
     def get_community_release_rating(
             self, release_id: Union[int, str]) -> dict[str, Any]:
-        
+
         """
         `Database > Community Release Rating <https://www.discogs.com
         /developers/#page:database,header
@@ -993,7 +993,7 @@ class API:
                     "release_id": <int>
                   }
         """
-        
+
         return self._get_json(f"{self.API_URL}/releases/{release_id}/rating")
 
     def get_release_stats(self, release_id: Union[int, str]) -> dict[str, Any]:
@@ -1005,7 +1005,7 @@ class API:
 
         .. attention::
 
-           This endpoint does not appear to be working correctly. 
+           This endpoint does not appear to be working correctly.
            Currently, the response will be of the form
 
            .. code::
@@ -1036,7 +1036,7 @@ class API:
                     "num_want": <int>
                   }
         """
-        
+
         return self._get_json(f"{self.API_URL}/releases/{release_id}/stats")
 
     def get_master_release(self, master_id: Union[int, str]) -> dict[str, Any]:
@@ -1128,7 +1128,7 @@ class API:
                     "data_quality": <str>
                   }
         """
-        
+
         return self._get_json(f"{self.API_URL}/masters/{master_id}")
 
     def get_master_release_versions(
@@ -1136,7 +1136,7 @@ class API:
             format: str = None, label: str = None, released: str = None,
             page: int = None, per_page: int = None, sort: str = None,
             sort_order: str = None) -> dict[str, Any]:
-        
+
         """
         `Database > Master Release Versions <https://www.discogs.com
         /developers/#page:database,header
@@ -1183,8 +1183,8 @@ class API:
         sort : `str`, keyword-only, optional
             Sort items by this field.
 
-            **Valid values**: :code:`"released"`, :code:`"title"`, 
-            :code:`"format"`, :code:`"label"`, :code:`"catno"`, 
+            **Valid values**: :code:`"released"`, :code:`"title"`,
+            :code:`"format"`, :code:`"label"`, :code:`"catno"`,
             and :code:`"country"`.
 
         sort_order : `str`, keyword-only, optional
@@ -1195,7 +1195,7 @@ class API:
         Returns
         -------
         versions : `dict`
-            Discogs database information for all releases that are 
+            Discogs database information for all releases that are
             versions of the specified master.
 
             .. admonition:: Sample
@@ -1241,7 +1241,7 @@ class API:
                     ]
                   }
         """
-        
+
         return self._get_json(
             f"{self.API_URL}/masters/{master_id}/versions",
             params={
@@ -1255,7 +1255,7 @@ class API:
                 "sort_order": sort_order
             },
         )
-    
+
     def get_artist(self, artist_id: Union[int, str]) -> dict[str, Any]:
 
         """
@@ -1308,9 +1308,9 @@ class API:
                     ]
                   }
         """
-        
+
         return self._get_json(f"{self.API_URL}/artists/{artist_id}")
-    
+
     def get_artist_releases(
             self, artist_id: Union[int, str], *, page: int = None,
             per_page: int = None, sort: str = None, sort_order: str = None
@@ -1344,7 +1344,7 @@ class API:
             Sort results in a particular order.
 
             **Valid values**: :code:`"asc"` and :code:`"desc"`.
-        
+
         Returns
         -------
         releases : `dict`
@@ -1382,7 +1382,7 @@ class API:
                     ]
                   }
         """
-        
+
         return self._get_json(
             f"{self.API_URL}/artists/{artist_id}/releases",
             params={
@@ -1394,10 +1394,10 @@ class API:
         )
 
     def get_label(self, label_id: Union[int, str]) -> dict[str, Any]:
-        
+
         """
         `Database > Label <https://www.discogs.com/developers
-        /#page:database,header:database-label-get>`_: Get a label, 
+        /#page:database,header:database-label-get>`_: Get a label,
         company, recording studio, locxation, or other entity involved
         with artists and releases.
 
@@ -1449,7 +1449,7 @@ class API:
         """
 
         return self._get_json(f"{self.API_URL}/labels/{label_id}")
-    
+
     def get_label_releases(
             self, label_id: Union[int, str], *, page: int = None,
             per_page: int = None) -> dict[str, Any]:
@@ -1509,12 +1509,12 @@ class API:
                     ]
                   }
         """
-        
+
         return self._get_json(
             f"{self.API_URL}/labels/{label_id}/releases",
             params={"page": page, "per_page": per_page}
         )
-    
+
     def search(
             self, query: str = None, *, type: str = None, title: str = None,
             release_title: str = None, credit: str = None,
@@ -1523,7 +1523,7 @@ class API:
             year: str = None, format: str = None, catno: str = None,
             barcode: str = None, track: str = None, submitter: str = None,
             contributor: str = None) -> dict[str, Any]:
-        
+
         """
         `Database > Search <https://www.discogs.com/developers
         /#page:database,header:database-search-get>`_: Issue a search
@@ -1545,7 +1545,7 @@ class API:
         type : `str`, keyword-only, optional
             The type of item to search for.
 
-            **Valid values**: :code:`"release"`, :code:`"master"`, 
+            **Valid values**: :code:`"release"`, :code:`"master"`,
             :code:`"artist"`, and :code:`"label"`.
 
         title : `str`, keyword-only, optional
@@ -1588,7 +1588,7 @@ class API:
             Search styles.
 
             **Example**: :code:`"Grunge"`.
-        
+
         country : `str`, keyword-only, optional
             Search release country.
 
@@ -1675,7 +1675,7 @@ class API:
         """
 
         self._check_authentication("search", False)
-        
+
         return self._get_json(
             f"{self.API_URL}/database/search",
             params={
@@ -1716,9 +1716,9 @@ class API:
            :class: dropdown warning
 
            If you are authenticated as the inventory owner, additional
-           fields will be returned in the response, such as 
-           :code:`"weight"`, :code:`"format_quantity"`, 
-           :code:`"external_id"`, :code:`"location"`, and 
+           fields will be returned in the response, such as
+           :code:`"weight"`, :code:`"format_quantity"`,
+           :code:`"external_id"`, :code:`"location"`, and
            :code:`"quantity"`.
 
         Parameters
@@ -1731,7 +1731,7 @@ class API:
         status : `str`, keyword-only, optional
             The status of the listings to return.
 
-            **Valid values**: :code:`"For Sale"`, :code:`"Draft"`, 
+            **Valid values**: :code:`"For Sale"`, :code:`"Draft"`,
             :code:`"Expired"`, :code:`"Sold"`, and :code:`"Deleted"`.
 
         page : `str`, keyword-only, optional
@@ -1747,8 +1747,8 @@ class API:
         sort : `str`, keyword-only, optional
             Sort items by this field.
 
-            **Valid values**: :code:`"listed"`, :code:`"price"`, 
-            :code:`"item"`, :code:`"artist"`, :code:`"label"`, 
+            **Valid values**: :code:`"listed"`, :code:`"price"`,
+            :code:`"item"`, :code:`"artist"`, :code:`"label"`,
             :code:`"catno"`, :code:`"audio"`, :code:`"status"`, and
             :code:`"location"`.
 
@@ -1768,7 +1768,7 @@ class API:
                .. code::
 
                   {
-                  
+
                   }
         """
 
@@ -1777,48 +1777,48 @@ class API:
             params={"status": status, "page": page, "per_page": per_page,
                     "sort": sort, "sort_order": sort_order}
         )
-    
+
     def get_listing(
             self, listing_id: Union[int, str], *, curr_abbr: str = None
         ) -> dict[str, Any]:
 
         pass
-    
+
     def edit_listing(
             self, listing_id: Union[int, str], release_id: Union[int, str],
-            condition: str, price: float, status: str, *, 
-            sleeve_condition: str = None, comments: str = None, 
-            allow_offers: bool = None, external_id: str = None, 
-            location: str = None, weight: float = None, 
-            format_quantity: int = None) -> None: 
-      
+            condition: str, price: float, status: str, *,
+            sleeve_condition: str = None, comments: str = None,
+            allow_offers: bool = None, external_id: str = None,
+            location: str = None, weight: float = None,
+            format_quantity: int = None) -> None:
+
         pass
-    
+
     def delete_listing(self, listing_id: Union[int, str]) -> None:
 
         pass
-    
+
     def create_listing(
             self, release_id: Union[int, str], condition: str, price: float,
             status: str, *, sleeve_condition: str = None, comments: str = None,
             allow_offers: bool = None, external_id: str = None,
             location: str = None, weight: float = None,
             format_quantity: int = None) -> dict[str, Any]:
-        
+
         pass
 
     def get_order(self, order_id: Union[int, str]) -> dict[str, Any]:
-        
+
         pass
-    
+
     def edit_order(self, order_id: Union[int, str], status: str) -> None:
 
         pass
-                
+
     ### INVENTORY EXPORT ######################################################
-                
+
     ### INVENTORY UPLOAD ######################################################
-                
+
     ### USER IDENTITY #########################################################
 
     def get_identity(self) -> dict[str, Any]:
@@ -1834,11 +1834,11 @@ class API:
            Requires user authentication with a personal access token or
            via the OAuth 1.0a flow.
 
-        You can use this resource to find out who you're authenticated 
-        as, and it also doubles as a good sanity check to ensure that 
+        You can use this resource to find out who you're authenticated
+        as, and it also doubles as a good sanity check to ensure that
         you're using OAuth correctly.
 
-        For more detailed information, make another request for the 
+        For more detailed information, make another request for the
         user's profile using :meth:`get_profile`.
 
         Returns
@@ -1862,11 +1862,11 @@ class API:
         self._check_authentication("get_identity")
 
         return self._get_json(f"{self.API_URL}/oauth/identity")
-    
+
     def get_profile(self, username: str = None) -> dict[str, Any]:
 
         """
-        `User Identity > Profile > Get Profile 
+        `User Identity > Profile > Get Profile
         <https://www.discogs.com/developers
         /#page:user-identity,header:user-identity-profile-get>`_:
         Retrieve a user by username.
@@ -1875,8 +1875,8 @@ class API:
         will be visible, and the :code:`"num_lists"` count will include
         the user's private lists.
 
-        If authenticated as the requested user or the user's 
-        collection/wantlist is public, the 
+        If authenticated as the requested user or the user's
+        collection/wantlist is public, the
         :code:`"num_collection"`/:code:`"num_wantlist"` keys will be
         visible.
 
@@ -1939,21 +1939,21 @@ class API:
             else:
                 raise ValueError("No username provided.")
         return self._get_json(f"{self.API_URL}/users/{username}")
-    
+
     def edit_profile(
             self, *, name: str = None, home_page: str = None,
             location: str = None, profile: str = None,
             curr_abbr: str = None) -> dict[str, Any]:
-        
+
         """
-        `User Identity > Profile > Edit Profile 
+        `User Identity > Profile > Edit Profile
         <https://www.discogs.com/developers
         /#page:user-identity,header:user-identity-profile-post>`_:
         Edit a user's profile data.
 
         .. admonition:: User authentication
             :class: warning
-  
+
             Requires user authentication with a personal access token or
             via the OAuth 1.0a flow.
 
@@ -1982,8 +1982,8 @@ class API:
         curr_abbr : `str`, keyword-only, optional
             Currency abbreviation for marketplace data.
 
-            **Valid values**: :code:`"USD"`, :code:`"GBP"`, 
-            :code:`"EUR"`, :code:`"CAD"`, :code:`"AUD"`, :code:`"JPY"`, 
+            **Valid values**: :code:`"USD"`, :code:`"GBP"`,
+            :code:`"EUR"`, :code:`"CAD"`, :code:`"AUD"`, :code:`"JPY"`,
             :code:`"CHF"`, :code:`"MXN"`, :code:`"BRL"`, :code:`"NZD"`,
             :code:`"SEK"`, and :code:`"ZAR"`.
 
@@ -2043,7 +2043,7 @@ class API:
             raise ValueError(emsg)
 
         return self._request(
-            "post", 
+            "post",
             f"{self.API_URL}/users/{self._username}",
             json={
                 "name": name,
@@ -2055,7 +2055,7 @@ class API:
         ).json()
 
     def get_user_submissions(
-            self, username: str = None, *, page: int = None, 
+            self, username: str = None, *, page: int = None,
             per_page: int = None) -> dict[str, Any]:
 
         """
@@ -2068,8 +2068,8 @@ class API:
         Parameters
         ----------
         username : `str`, optional
-            The username of the submissions you are trying to fetch. If 
-            not specified, the username of the authenticated user is 
+            The username of the submissions you are trying to fetch. If
+            not specified, the username of the authenticated user is
             used.
 
             **Example**: :code:`"shooezgirl"`.
@@ -2220,16 +2220,16 @@ class API:
             f"{self.API_URL}/users/{username}/submissions",
             params={"page": page, "per_page": per_page}
         )
-    
+
     def get_user_contributions(
-            self, username: str = None, *, page: int = None, 
+            self, username: str = None, *, page: int = None,
             per_page: int = None, sort: str = None, sort_order: str = None
         ) -> dict[str, Any]:
-        
+
         """
         `User Identity > User Contributions <https://www.discogs.com
         /developers/#page:user-identity,header
-        :user-identity-user-contributions-get>`_: Retrieve a user's 
+        :user-identity-user-contributions-get>`_: Retrieve a user's
         contributions (releases, labels, artists) by username.
 
         Parameters
@@ -2258,7 +2258,7 @@ class API:
             Sort items in a particular order.
 
             **Valid values**: :code:`"asc"` and :code:`"desc"`.
-            
+
         Returns
         -------
         contributions : `dict`
@@ -2384,13 +2384,13 @@ class API:
         return self._get_json(
             f"{self.API_URL}/users/{username}/contributions",
             params={
-                "page": page, 
-                "per_page": per_page, 
+                "page": page,
+                "per_page": per_page,
                 "sort": sort,
                 "sort_order": sort_order
             }
         )
-    
+
     ### USER COLLECTION #######################################################
 
     ### USER WANTLIST #########################################################

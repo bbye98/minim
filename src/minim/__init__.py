@@ -8,7 +8,7 @@ import warnings
 
 __all__ = [
     "audio", "itunes", "qobuz", "spotify", "tidal", "utility",
-    "FOUND_FFMPEG", "FOUND_FLASK", "FOUND_PLAYWRIGHT", 
+    "FOUND_FFMPEG", "FOUND_FLASK", "FOUND_PLAYWRIGHT",
     "VERSION", "REPOSITORY_URL", "DIR_HOME", "DIR_TEMP", "ILLEGAL_CHARACTERS"
 ]
 

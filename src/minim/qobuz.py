@@ -36,15 +36,15 @@ def _parse_performers(
         from calling :meth:`get_track`.
 
     roles : `list` or `set`, keyword-only, optional
-        Role filter. The special :code:`"Composers"` filter will 
+        Role filter. The special :code:`"Composers"` filter will
         combine the :code:`"Composer"`, :code:`"ComposerLyricist"`,
         :code:`"Lyricist"`, and :code:`"Writer"` roles.
 
-        **Valid values**: :code:`"MainArtist"`, 
-        :code:`"FeaturedArtist"`, :code:`"Producer"`, 
-        :code:`"Co-Producer"`, :code:`"Mixer"`, 
-        :code:`"Composers"` (:code:`"Composer"`, 
-        :code:`"ComposerLyricist"`, :code:`"Lyricist"`, 
+        **Valid values**: :code:`"MainArtist"`,
+        :code:`"FeaturedArtist"`, :code:`"Producer"`,
+        :code:`"Co-Producer"`, :code:`"Mixer"`,
+        :code:`"Composers"` (:code:`"Composer"`,
+        :code:`"ComposerLyricist"`, :code:`"Lyricist"`,
         :code:`"Writer"`), :code:`"MusicPublisher"`, etc.
 
     Returns
@@ -53,7 +53,7 @@ def _parse_performers(
         A dictionary containing the track contributors, with their
         roles (in snake case) being the keys.
     """
-    
+
     people = {}
     for p in performers.split(" - "):
         if (regex := re.search(
@@ -61,16 +61,16 @@ def _parse_performers(
             p.rstrip()
         )):
             people[regex.groups()[0]] = regex.groups()[1].split(", ")
-    
+
     credits = {}
     if roles is None:
         roles = set(c for r in people.values() for c in r)
     elif "Composers" in roles:
         roles.remove("Composers")
         credits["composers"] = sorted({
-            p for cr in {"Composer", "ComposerLyricist", "Lyricist", 
+            p for cr in {"Composer", "ComposerLyricist", "Lyricist",
                          "Writer"}
-            for p, r in people.items() 
+            for p, r in people.items()
             if cr in r
         })
     for role in roles:
@@ -79,7 +79,7 @@ def _parse_performers(
                 re.findall(r"(?:[A-Z][a-z]+)(?:-[A-Z][a-z]+)?", role)
             ).lower()
         ] = [p for p, r in people.items() if role in r]
-    
+
     return credits
 
 class PrivateAPI:
@@ -88,14 +88,14 @@ class PrivateAPI:
     Private Qobuz API client.
 
     The private TIDAL API allows songs, collections (albums, playlists),
-    and performers to be queried, and information about them to be 
+    and performers to be queried, and information about them to be
     retrieved. As there is no available official documentation for the
-    private Qobuz API, its endpoints have been determined by watching 
+    private Qobuz API, its endpoints have been determined by watching
     HTTP network traffic.
 
     .. attention::
 
-       As the private Qobuz API is not designed to be publicly 
+       As the private Qobuz API is not designed to be publicly
        accessible, this class can be disabled or removed at any time to
        ensure compliance with the `Qobuz API Terms of Use
        <https://static.qobuz.com/apps/api/QobuzAPI-TermsofUse.pdf>`_.
@@ -103,32 +103,32 @@ class PrivateAPI:
     While authentication is not necessary to search for and retrieve
     data from public content, it is required to access personal content
     and stream media (with an active Qobuz subscription). In the latter
-    case, requests to the private Qobuz API endpoints must be 
+    case, requests to the private Qobuz API endpoints must be
     accompanied by a valid user authentication token in the header.
 
     Minim can obtain user authentication tokens via the password grant,
     but it is an inherently unsafe method of authentication since it has
-    no mechanisms for multifactor authentication or brute force attack 
+    no mechanisms for multifactor authentication or brute force attack
     detection. As such, it is highly encouraged that you obtain a user
     authentication token yourself through the Qobuz Web Player or the
     Android, iOS, macOS, and Windows applications, and then provide it
-    and its accompanying app ID and secret to this class's constructor 
+    and its accompanying app ID and secret to this class's constructor
     as keyword arguments. The app credentials can also be stored as
     :code:`QOBUZ_PRIVATE_APP_ID` and :code:`QOBUZ_PRIVATE_APP_SECRET`
-    in the operating system's environment variables, and they will 
+    in the operating system's environment variables, and they will
     automatically be retrieved.
-    
+
     .. tip::
 
        The app credentials and user authentication token can be changed
-       or updated at any time using :meth:`set_flow` and 
+       or updated at any time using :meth:`set_flow` and
        :meth:`set_auth_token`, respectively.
 
     Minim also stores and manages user authentication tokens and their
     properties. When the password grant is used to acquire a user
-    authentication token, it is automatically saved to the Minim 
-    configuration file to be loaded on the next instantiation of this 
-    class. This behavior can be disabled if there are any security 
+    authentication token, it is automatically saved to the Minim
+    configuration file to be loaded on the next instantiation of this
+    class. This behavior can be disabled if there are any security
     concerns, like if the computer being used is a shared device.
 
     Parameters
@@ -136,7 +136,7 @@ class PrivateAPI:
     app_id : `str`, keyword-only, optional
         App ID. Required if an user authentication token is provided in
         `auth_token`.
-    
+
     app_secret : `str`, keyword-only, optional
         App secret. Required if an user authentication token is provided
         in `auth_token`.
@@ -147,7 +147,7 @@ class PrivateAPI:
         .. container::
 
            **Valid values**:
-           
+
            * :code:`"password"` for the password flow.
            * :code:`None` for no authentication.
 
@@ -169,8 +169,8 @@ class PrivateAPI:
         not provided in `auth_token` and :code:`browser=False`.
 
     auth_token : `str`, keyword-only, optional
-        User authentication token. If provided here or found in the 
-        Minim configuration file, the authentication process is 
+        User authentication token. If provided here or found in the
+        Minim configuration file, the authentication process is
         bypassed.
 
     overwrite : `bool`, keyword-only, default: :code:`False`
@@ -179,7 +179,7 @@ class PrivateAPI:
 
     save : `bool`, keyword-only, default: :code:`True`
         Determines whether newly obtained user authentication tokens and
-        their associated properties are stored to the Minim 
+        their associated properties are stored to the Minim
         configuration file.
 
     Attributes
@@ -198,11 +198,11 @@ class PrivateAPI:
     WEB_URL = "https://play.qobuz.com"
 
     def __init__(
-            self, *, app_id: str = None, app_secret: str = None, 
+            self, *, app_id: str = None, app_secret: str = None,
             flow: str = None, browser: bool = False, user_agent: str = None,
-            email: str = None, password: str = None, auth_token: str = None, 
+            email: str = None, password: str = None, auth_token: str = None,
             overwrite: bool = False, save: bool = True) -> None:
-        
+
         """
         Create a private Qobuz API client.
         """
@@ -218,12 +218,12 @@ class PrivateAPI:
             app_id = _config.get(self._NAME, "app_id")
             app_secret = _config.get(self._NAME, "app_secret")
 
-        self.set_flow(flow, app_id=app_id, app_secret=app_secret, 
+        self.set_flow(flow, app_id=app_id, app_secret=app_secret,
                       auth_token=auth_token, browser=browser, save=save)
         self.set_auth_token(auth_token, email=email, password=password)
-   
+
     def _check_authentication(self, endpoint: str) -> None:
-        
+
         """
         Check if the user is authenticated for the desired endpoint.
 
@@ -241,14 +241,14 @@ class PrivateAPI:
     def _get_json(self, url: str, **kwargs) -> dict:
 
         """
-        Send a GET request and return the JSON-encoded content of the 
+        Send a GET request and return the JSON-encoded content of the
         response.
 
         Parameters
         ----------
         url : `str`
             URL for the GET request.
-        
+
         **kwargs
             Keyword arguments to pass to :meth:`requests.request`.
 
@@ -296,7 +296,7 @@ class PrivateAPI:
 
         if not app_id or not app_secret:
             js = re.search(
-                "/resources/.*/bundle.js", 
+                "/resources/.*/bundle.js",
                 self.session.get(f"{self.WEB_URL}/login").text
             ).group(0)
             bundle = self.session.get(f"{self.WEB_URL}{js}").text
@@ -304,13 +304,13 @@ class PrivateAPI:
                 '(?:production:{api:{appId:")(.*?)(?:",appSecret)', bundle
             ).group(1)
             app_secret = [
-                base64.b64decode("".join((s, *m.groups()))[:-44]).decode() 
+                base64.b64decode("".join((s, *m.groups()))[:-44]).decode()
                 for s, m in (
                     (s, re.search(f'(?:{c.capitalize()}",info:")(.*?)(?:",extras:")'
-                                  '(.*?)(?:"},{offset)', 
+                                  '(.*?)(?:"},{offset)',
                                   bundle))
                     for s, c in re.findall(r'(?:[a-z].initialSeed\(")(.*?)'
-                                           r'(?:",window.utimezone.)(.*?)\)', 
+                                           r'(?:",window.utimezone.)(.*?)\)',
                                            bundle)) if m
             ][1]
 
@@ -318,7 +318,7 @@ class PrivateAPI:
         self._app_secret = app_secret
 
     def set_auth_token(
-            self, auth_token: str = None, *, email: str = None, 
+            self, auth_token: str = None, *, email: str = None,
             password: str = None) -> None:
 
         """
@@ -339,7 +339,7 @@ class PrivateAPI:
         if auth_token is None:
             if not self._flow:
                 return
-            
+
             if self._flow == "password":
                 if email is None or password is None:
                     if self._browser:
@@ -352,7 +352,7 @@ class PrivateAPI:
                             )
                             page = context.new_page()
                             page.goto(f"{self.WEB_URL}/login", timeout=0)
-                            page.wait_for_url(f"{self.WEB_URL}/featured", 
+                            page.wait_for_url(f"{self.WEB_URL}/featured",
                                               wait_until="commit")
                             context.close()
                             browser.close()
@@ -373,7 +373,7 @@ class PrivateAPI:
                         raise ValueError(emsg)
                 else:
                     r = self._request(
-                        "post", f"{self.API_URL}/user/login", 
+                        "post", f"{self.API_URL}/user/login",
                         params={"email": email, "password": password}
                     ).json()
                     auth_token = r["user_auth_token"]
@@ -394,18 +394,18 @@ class PrivateAPI:
             me = self.get_profile()
             self._user_id = me["id"]
             self._sub = (
-                me["subscription"] is not None 
-                and datetime.datetime.now() 
+                me["subscription"] is not None
+                and datetime.datetime.now()
                 <= datetime.datetime.strptime(
                     me["subscription"]["end_date"], "%Y-%m-%d"
                 ) + datetime.timedelta(days=1)
             )
-    
+
     def set_flow(
-            self, flow: str, *, app_id: str = None, app_secret: str = None, 
+            self, flow: str, *, app_id: str = None, app_secret: str = None,
             auth_token: str = None, browser: bool = False, save: bool = True
         ) -> None:
-        
+
         """
         Set the authorization flow.
 
@@ -417,14 +417,14 @@ class PrivateAPI:
             .. container::
 
                **Valid values**:
-              
+
                * :code:`"password"` for the password flow.
                * :code:`None` for no authentication.
-            
+
         app_id : `str`, keyword-only, optional
             App ID. Required if an user authentication token is provided
             in `auth_token`.
-        
+
         app_secret : `str`, keyword-only, optional
             App secret. Required if an user authentication token is
             provided in `auth_token`.
@@ -436,10 +436,10 @@ class PrivateAPI:
             Determines whether a web browser is opened with the Qobuz login
             page using the Playwright framework by Microsoft to complete the
             password flow.
-            
+
         save : `bool`, keyword-only, default: :code:`True`
             Determines whether to save the newly obtained access tokens
-            and their associated properties to the Minim configuration 
+            and their associated properties to the Minim configuration
             file.
         """
 
@@ -464,7 +464,7 @@ class PrivateAPI:
         if (app_id is None or app_secret is None) and auth_token is not None:
             emsg = ("App credentials are required when an user "
                     "authentication token is provided.")
-            
+
         self._set_app_credentials(app_id, app_secret)
 
     ### ALBUMS ################################################################
@@ -641,7 +641,7 @@ class PrivateAPI:
 
         return self._get_json(f"{self.API_URL}/album/get",
                               params={"album_id": album_id})
-    
+
     def get_featured_albums(
             self, type: str = "new-releases", *, limit: int = None,
             offset: int = None) -> dict[str, Any]:
@@ -654,14 +654,14 @@ class PrivateAPI:
         type : `str`, default: :code:`"new-releases"`
             Feature type.
 
-            **Valid values**: :code:`"best-sellers"`, 
+            **Valid values**: :code:`"best-sellers"`,
             :code:`"editor-picks"`, :code:`"ideal-discography"`,
-            :code:`"most-featured"`, :code:`"most-streamed"`, 
+            :code:`"most-featured"`, :code:`"most-streamed"`,
             :code:`"new-releases"`, :code:`"new-releases-full"`,
-            :code:`"press-awards"`, :code:`"recent-releases"`, 
+            :code:`"press-awards"`, :code:`"recent-releases"`,
             :code:`"qobuzissims"`, :code:`"harmonia-mundi"`,
             :code:`"universal-classic"`, :code:`"universal-jazz"`,
-            :code:`"universal-jeunesse"`, and 
+            :code:`"universal-jeunesse"`, and
             :code:`"universal-chanson"`.
 
         limit : `int`, keyword-only, optional
@@ -764,8 +764,8 @@ class PrivateAPI:
 
         if type not in \
                 (ALBUM_FEATURE_TYPES := {
-                    "best-sellers", "editor-picks", "ideal-discography", 
-                    "most-featured", "most-streamed", "new-releases", 
+                    "best-sellers", "editor-picks", "ideal-discography",
+                    "most-featured", "most-streamed", "new-releases",
                     "new-releases-full", "press-awards", "recent-releases",
                     "qobuzissims", "harmonia-mundi", "universal-classic",
                     "universal-jazz", "universal-jeunesse", "universal-chanson"
@@ -775,14 +775,14 @@ class PrivateAPI:
             raise ValueError(emsg)
 
         return self._get_json(
-            f"{self.API_URL}/album/getFeatured", 
+            f"{self.API_URL}/album/getFeatured",
             params={"type": type, "limit": limit, "offset": offset}
         )
 
     ### ARTISTS ###############################################################
 
     def get_artist(
-            self, artist_id: Union[int, str], *, 
+            self, artist_id: Union[int, str], *,
             extras: Union[str, list[str]] = None,
             limit: int = None, offset: int = None) -> dict[str, Any]:
 
@@ -808,7 +808,7 @@ class PrivateAPI:
             **Default**: :code:`25`.
 
         offset : `int`, keyword-only, optional
-            The index of the first extra item to return. Use with 
+            The index of the first extra item to return. Use with
             `limit` to get the next page of extra items. Has no effect
             if :code:`extras=None`.
 
@@ -856,11 +856,11 @@ class PrivateAPI:
                 "artist_id": artist_id,
                 "extra": extras if extras is None or isinstance(extras, str)
                          else ",".join(extras),
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset
             }
         )
-    
+
     ### LABELS ################################################################
 
     def get_label(
@@ -882,14 +882,14 @@ class PrivateAPI:
             record label is returned.
 
         limit : `int`, keyword-only, optional
-            The maximum number of albums to return. Has no effect if 
+            The maximum number of albums to return. Has no effect if
             :code:`albums=False`.
 
             **Default**: :code:`25`.
 
         offset : `int`, keyword-only, optional
             The index of the first album to return. Use with `limit` to
-            get the next page of albums. Has no effect if 
+            get the next page of albums. Has no effect if
             :code:`albums=False`.
 
             **Default**: :code:`0`.
@@ -920,7 +920,7 @@ class PrivateAPI:
             params={
                 "label_id": label_id,
                 "extra": "albums" if albums else None,
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset
             }
         )
@@ -930,7 +930,7 @@ class PrivateAPI:
     def get_playlist(
             self, playlist_id: Union[int, str], *, tracks: bool = True,
             limit: int = None, offset: int = None) -> dict[str, Any]:
-        
+
         """
         Get Qobuz catalog information for a playlist.
 
@@ -946,14 +946,14 @@ class PrivateAPI:
             is returned.
 
         limit : `int`, keyword-only, optional
-            The maximum number of tracks to return. Has no effect if 
+            The maximum number of tracks to return. Has no effect if
             :code:`tracks=False`.
 
             **Default**: :code:`50`.
 
         offset : `int`, keyword-only, optional
             The index of the first track to return. Use with `limit` to
-            get the next page of tracks. Has no effect if 
+            get the next page of tracks. Has no effect if
             :code:`tracks=False`.
 
             **Default**: :code:`0`.
@@ -1127,15 +1127,15 @@ class PrivateAPI:
             params={
                 "playlist_id": playlist_id,
                 "extra": "tracks" if tracks else None,
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset
             }
         )
-    
+
     def get_featured_playlists(
             self, type: str = "editor-picks", *, limit: int = None,
             offset: int = None) -> dict[str, Any]:
-        
+
         """
         Get Qobuz catalog information for featured playlists.
 
@@ -1144,7 +1144,7 @@ class PrivateAPI:
         type : `str`, default: :code:`"editor-picks"`
             Feature type.
 
-            **Valid values**: :code:`"editor-picks"` and 
+            **Valid values**: :code:`"editor-picks"` and
             :code:`"last-created"`.
 
         limit : `int`, keyword-only, optional
@@ -1153,7 +1153,7 @@ class PrivateAPI:
             **Default**: :code:`50`.
 
         offset : `int`, keyword-only, optional
-            The index of the first playlist to return. Use with `limit` 
+            The index of the first playlist to return. Use with `limit`
             to get the next page of playlists.
 
             **Default**: :code:`0`.
@@ -1233,10 +1233,10 @@ class PrivateAPI:
             f"{self.API_URL}/playlist/getFeatured",
             params={"type": type, "limit": limit, "offset": offset}
         )["playlists"]
-    
+
     def get_user_playlists(
             self, *, limit: int = None, offset: int = None) -> dict[str, Any]:
-        
+
         """
         Get the current user's custom and favorite playlists.
 
@@ -1257,7 +1257,7 @@ class PrivateAPI:
             to get the next page of playlists.
 
             **Default**: :code:`0`.
-           
+
         Returns
         -------
         playlists : `dict`
@@ -1311,16 +1311,16 @@ class PrivateAPI:
         """
 
         self._check_authentication("get_user_playlists")
-        
+
         return self._get_json(
             f"{self.API_URL}/playlist/getUserPlaylists",
             params={"limit": limit, "offset": offset}
         )["playlists"]
-    
+
     def create_playlist(
             self, name: str, *, description: str = None, public: bool = True,
             collaborative: bool = False) -> dict[str, Any]:
-        
+
         """
         Create a user playlist.
 
@@ -1375,21 +1375,21 @@ class PrivateAPI:
 
         self._check_authentication("create_playlist")
 
-        data = {"name": name, "is_public": str(public).lower(), 
+        data = {"name": name, "is_public": str(public).lower(),
                 "is_collaborative": str(collaborative).lower()}
         if description:
             data["description"] = description
         return self._request(
             "post", f"{self.API_URL}/playlist/create", data=data
         ).json()
-    
+
     def update_playlist(
             self, playlist_id: Union[int, str], *, name: str = None,
-            description: str = None, public: bool = None, 
+            description: str = None, public: bool = None,
             collaborative: bool = None) -> dict[str, Any]:
-        
+
         """
-        Update the title, description, and/or privacy of a playlist 
+        Update the title, description, and/or privacy of a playlist
         owned by the current user.
 
         .. admonition:: User authentication
@@ -1457,13 +1457,13 @@ class PrivateAPI:
             data["is_public"] = str(public).lower()
         if collaborative is not None:
             data["is_collaborative"] = str(collaborative).lower()
-        return self._request("post", f"{self.API_URL}/playlist/update", 
+        return self._request("post", f"{self.API_URL}/playlist/update",
                              data=data).json()
 
     def update_playlist_position(
-            self, from_playlist_id: Union[int, str], 
+            self, from_playlist_id: Union[int, str],
             to_playlist_id: Union[int, str]) -> None:
-        
+
         """
         Organize a user's playlists.
 
@@ -1480,7 +1480,7 @@ class PrivateAPI:
             **Example**: :code:`17737508`.
 
         to_playlist_id : `int` or `str`
-            Qobuz user playlist ID of playlist to swap with that in 
+            Qobuz user playlist ID of playlist to swap with that in
             `from_playlist_id`.
 
             **Example**: :code:`17737509`.
@@ -1488,15 +1488,15 @@ class PrivateAPI:
 
         self._check_authentication("update_playlist_position")
 
-        self._request("post", 
+        self._request("post",
                       f"{self.API_URL}/playlist/updatePlaylistsPosition",
                       data={"playlist_ids": [from_playlist_id, to_playlist_id]})
 
     def add_playlist_tracks(
-            self, playlist_id: Union[int, str], 
+            self, playlist_id: Union[int, str],
             track_ids: Union[int, str, list[Union[int, str]]], *,
             duplicate: bool = False) -> dict[str, Any]:
-        
+
         """
         Add tracks to a user playlist.
 
@@ -1552,21 +1552,21 @@ class PrivateAPI:
         """
 
         self._check_authentication("add_playlist_tracks")
-        
+
         if isinstance(track_ids, list):
             track_ids = ",".join(str(t) for t in track_ids)
         return self._request(
             "post", f"{self.API_URL}/playlist/addTracks",
             data={
-                "playlist_id": playlist_id, 
+                "playlist_id": playlist_id,
                 "track_ids": track_ids,
                 "no_duplicate": str(not duplicate).lower()
             }
         ).json()
-    
+
     def move_playlist_tracks(
-            self, playlist_id: Union[int, str], 
-            playlist_track_ids: Union[int, str, list[Union[int, str]]], 
+            self, playlist_id: Union[int, str],
+            playlist_track_ids: Union[int, str, list[Union[int, str]]],
             insert_before: int) -> dict[str, Any]:
 
         """
@@ -1588,12 +1588,12 @@ class PrivateAPI:
             Qobuz playlist track ID(s).
 
             .. note::
-            
+
                Playlist track IDs are not the same as track IDs. To get
                playlist track IDs, use :meth:`get_playlist`.
 
         insert_before : `int`
-            Position to which to move the tracks specified in 
+            Position to which to move the tracks specified in
             `track_ids`.
 
         Returns
@@ -1632,14 +1632,14 @@ class PrivateAPI:
         return self._request(
             "post", f"{self.API_URL}/playlist/updateTracksPosition",
             data={
-                "playlist_id": playlist_id, 
+                "playlist_id": playlist_id,
                 "playlist_track_ids": playlist_track_ids,
                 "insert_before": insert_before
             }
         ).json()
 
     def delete_playlist_tracks(
-            self, playlist_id: Union[int, str], 
+            self, playlist_id: Union[int, str],
             playlist_track_ids: Union[int, str, list[Union[int, str]]]
         ) -> dict[str, Any]:
 
@@ -1665,7 +1665,7 @@ class PrivateAPI:
 
                Playlist track IDs are not the same as track IDs. To get
                playlist track IDs, use :meth:`get_playlist`.
-        
+
         Returns
         -------
         playlist : `str`
@@ -1702,10 +1702,10 @@ class PrivateAPI:
 
         return self._request(
             "post", f"{self.API_URL}/playlist/deleteTracks",
-            data={"playlist_id": playlist_id, 
+            data={"playlist_id": playlist_id,
                   "playlist_track_ids": playlist_track_ids}
         ).json()
-    
+
     def delete_playlist(self, playlist_id: Union[int, str]) -> None:
 
         """
@@ -1725,8 +1725,8 @@ class PrivateAPI:
         """
 
         self._check_authentication("delete_playlist")
-        
-        self._request("post", f"{self.API_URL}/playlist/delete", 
+
+        self._request("post", f"{self.API_URL}/playlist/delete",
                       data={"playlist_id": playlist_id})
 
     def favorite_playlist(self, playlist_id: Union[int, str]) -> None:
@@ -1748,8 +1748,8 @@ class PrivateAPI:
         """
 
         self._check_authentication("favorite_playlist")
-        
-        self._request("post", f"{self.API_URL}/playlist/subscribe", 
+
+        self._request("post", f"{self.API_URL}/playlist/subscribe",
                       data={"playlist_id": playlist_id})
 
     def unfavorite_playlist(self, playlist_id: Union[int, str]) -> None:
@@ -1771,17 +1771,17 @@ class PrivateAPI:
         """
 
         self._check_authentication("unfavorite_playlist")
-        
-        self._request("post", f"{self.API_URL}/playlist/unsubscribe", 
+
+        self._request("post", f"{self.API_URL}/playlist/unsubscribe",
                       data={"playlist_id": playlist_id})
 
     ### SEARCH ################################################################
 
     def search(
-            self, query: str, type: str = None, *, hi_res: bool = False, 
-            new_release: bool = False, strict: bool = False, limit: int = 10, 
+            self, query: str, type: str = None, *, hi_res: bool = False,
+            new_release: bool = False, strict: bool = False, limit: int = 10,
             offset: int = 0) -> dict[str, Any]:
-        
+
         """
         Search Qobuz for media and performers.
 
@@ -1791,11 +1791,11 @@ class PrivateAPI:
             Search query.
 
         type : `str`, keyword-only, optional
-            Category to search in. If specified, only matching releases 
+            Category to search in. If specified, only matching releases
             and tracks will be returned.
 
-            **Valid values**: :code:`"MainArtist"`, :code:`"Composer"`, 
-            :code:`"Performer"`, :code:`"ReleaseName"`, and 
+            **Valid values**: :code:`"MainArtist"`, :code:`"Composer"`,
+            :code:`"Performer"`, :code:`"ReleaseName"`, and
             :code:`"Label"`.
 
         hi_res : `bool`, keyword-only, :code:`False`
@@ -2141,7 +2141,7 @@ class PrivateAPI:
         """
 
         if type and type not in \
-                (SEARCH_TYPES := {"MainArtist", "Composer", "Performer", 
+                (SEARCH_TYPES := {"MainArtist", "Composer", "Performer",
                                   "ReleaseName", "Label"}):
             emsg = ("Invalid search type. Valid values: "
                     f"{', '.join(SEARCH_TYPES)}")
@@ -2336,7 +2336,7 @@ class PrivateAPI:
 
         """
         Get credits for a track.
-        
+
         .. note::
 
            This method is provided for convenience and is not a private
@@ -2354,15 +2354,15 @@ class PrivateAPI:
             from calling :meth:`get_track`.
 
         roles : `list` or `set`, keyword-only, optional
-            Role filter. The special :code:`"Composers"` filter will 
+            Role filter. The special :code:`"Composers"` filter will
             combine the :code:`"Composer"`, :code:`"ComposerLyricist"`,
             :code:`"Lyricist"`, and :code:`"Writer"` roles.
 
-            **Valid values**: :code:`"MainArtist"`, 
-            :code:`"FeaturedArtist"`, :code:`"Producer"`, 
-            :code:`"Co-Producer"`, :code:`"Mixer"`, 
-            :code:`"Composers"` (:code:`"Composer"`, 
-            :code:`"ComposerLyricist"`, :code:`"Lyricist"`, 
+            **Valid values**: :code:`"MainArtist"`,
+            :code:`"FeaturedArtist"`, :code:`"Producer"`,
+            :code:`"Co-Producer"`, :code:`"Mixer"`,
+            :code:`"Composers"` (:code:`"Composer"`,
+            :code:`"ComposerLyricist"`, :code:`"Lyricist"`,
             :code:`"Writer"`), :code:`"MusicPublisher"`, etc.
 
         Returns
@@ -2382,19 +2382,19 @@ class PrivateAPI:
 
         if performers is None:
             return {}
-        
+
         return _parse_performers(performers, roles=roles)
 
     def get_track_file_url(
             self, track_id: Union[int, str], format_id: Union[int, str] = 27
         ) -> dict[str, Any]:
-        
+
         """
         Get the file URL for a track.
 
         .. admonition:: Subscription
            :class: warning
-            
+
            Full track playback information and lossless and Hi-Res audio
            is only available with an active Qobuz subscription.
 
@@ -2416,7 +2416,7 @@ class PrivateAPI:
                * :code:`6` for CD-quality (16-bit, 44.1 kHz) FLAC.
                * :code:`7` for up to 24-bit, 96 kHz Hi-Res FLAC.
                * :code:`27` for up to 24-bit, 192 kHz Hi-Res FLAC.
-                 
+
         Returns
         -------
         url : `dict`
@@ -2444,7 +2444,7 @@ class PrivateAPI:
                   }
 
         """
-        
+
         if not self._flow or not self._sub:
             wmsg = ("No user authentication or Qobuz streaming plan "
                     "detected. The URL, if available, will lead to a "
@@ -2471,7 +2471,7 @@ class PrivateAPI:
                 "intent": "stream"
             }
         )
-    
+
     def get_curated_tracks(self) -> list[dict[str, Any]]:
 
         """
@@ -2490,7 +2490,7 @@ class PrivateAPI:
             **Default**: :code:`50`.
 
         offset : `int`, keyword-only, optional
-            The index of the first track to return. Use with `limit` 
+            The index of the first track to return. Use with `limit`
             to get the next page of tracks.
 
             **Default**: :code:`0`.
@@ -2641,13 +2641,13 @@ class PrivateAPI:
     def get_track_stream(
             self, track_id: Union[int, str], *, format_id: Union[int, str] = 27
         ) -> tuple[bytes, str]:
-        
+
         """
         Get the audio stream data for a track.
 
         .. admonition:: Subscription
            :class: warning
-            
+
            Full track playback information and lossless and Hi-Res audio
            is only available with an active Qobuz subscription.
 
@@ -2689,7 +2689,7 @@ class PrivateAPI:
             return r.content, file["mime_type"]
 
     def get_collection_streams(
-            self, id: Union[int, str], type: str, *, 
+            self, id: Union[int, str], type: str, *,
             format_id: Union[int, str] = 27) -> list[tuple[bytes, str]]:
 
         """
@@ -2697,7 +2697,7 @@ class PrivateAPI:
 
         .. admonition:: Subscription
            :class: warning
-            
+
            Full track playback information and lossless and Hi-Res audio
            is only available with an active Qobuz subscription.
 
@@ -2735,7 +2735,7 @@ class PrivateAPI:
         """
 
         if type not in (COLLECTION_TYPES := {"album", "playlist"}):
-            emsg = ("Invalid collection type. Valid values: " 
+            emsg = ("Invalid collection type. Valid values: "
                     f"{', '.join(COLLECTION_TYPES)}.")
             raise ValueError(emsg)
 
@@ -2762,7 +2762,7 @@ class PrivateAPI:
         Returns
         -------
         profile : `dict`
-            A dictionary containing the current user's profile 
+            A dictionary containing the current user's profile
             information.
 
             .. admonition:: Sample response
@@ -2844,7 +2844,7 @@ class PrivateAPI:
         return self._get_json(f"{self.API_URL}/user/get")
 
     def get_favorites(
-            self, type: str = None, *, limit: int = None, 
+            self, type: str = None, *, limit: int = None,
             offset: int = None) -> dict[str, dict]:
 
         """
@@ -2862,17 +2862,17 @@ class PrivateAPI:
             favorite items are returned.
 
             .. container::
-            
-               **Valid values**: :code:`"albums"`, :code:`"artists"`, 
+
+               **Valid values**: :code:`"albums"`, :code:`"artists"`,
                and :code:`"tracks"`.
-        
+
         limit : `int`, keyword-only, optional
             The maximum number of favorited items to return.
 
             **Default**: :code:`50`.
 
         offset : `int`, keyword-only, optional
-            The index of the first favorited item to return. Use with 
+            The index of the first favorited item to return. Use with
             `limit` to get the next page of favorited items.
 
             **Default**: :code:`0`.
@@ -2925,7 +2925,7 @@ class PrivateAPI:
         )
 
     def get_purchases(
-            self, type: str = "albums", *, limit: int = None, 
+            self, type: str = "albums", *, limit: int = None,
             offset: int = None) -> dict[str, Any]:
 
         """
@@ -2949,7 +2949,7 @@ class PrivateAPI:
             **Default**: :code:`50`.
 
         offset : `int`, keyword-only, optional
-            The index of the first album or track to return. Use with 
+            The index of the first album or track to return. Use with
             `limit` to get the next page of albums or tracks.
 
             **Default**: :code:`0`.
@@ -2974,7 +2974,7 @@ class PrivateAPI:
         """
 
         self._check_authentication("get_purchases")
-        
+
         if type not in (MEDIA_TYPES := {"albums", "tracks"}):
             emsg = ("Invalid media type. Valid values: "
                     f"{', '.join(MEDIA_TYPES)}.")
@@ -2984,9 +2984,9 @@ class PrivateAPI:
             f"{self.API_URL}/purchase/getUserPurchases",
             params={"type": type, "limit": limit, "offset": offset}
         )[type]
-    
+
     def favorite_items(
-            self, *, album_ids: Union[str, list[str]] = None, 
+            self, *, album_ids: Union[str, list[str]] = None,
             artist_ids: Union[int, str, list[Union[int, str]]] = None,
             track_ids: Union[int, str, list[Union[int, str]]] = None) -> None:
 
@@ -3032,12 +3032,12 @@ class PrivateAPI:
         self._request("post", f"{self.API_URL}/favorite/create", data=data)
 
     def unfavorite_items(
-            self, *, album_ids: Union[str, list[str]] = None, 
+            self, *, album_ids: Union[str, list[str]] = None,
             artist_ids: Union[int, str, list[Union[int, str]]] = None,
             track_ids: Union[int, str, list[Union[int, str]]] = None) -> None:
 
         """
-        Unfavorite albums, artists, and/or tracks. 
+        Unfavorite albums, artists, and/or tracks.
 
         .. admonition:: User authentication
            :class: warning

@@ -25,9 +25,9 @@ __all__ = ["format_multivalue", "gestalt_ratio", "levenshtein_ratio"]
 def format_multivalue(
         value: Any, multivalue: bool, *, primary: bool = False,
         sep: Union[str, tuple[str]] = (", ", " & ")) -> Union[str, list[Any]]:
-    
+
     """
-    Format a field value based on whether multivalue for that field is 
+    Format a field value based on whether multivalue for that field is
     supported.
 
     Parameters
@@ -36,7 +36,7 @@ def format_multivalue(
         Field value to format.
 
     multivalue : `bool`
-        Determines whether multivalue tags are supported. If 
+        Determines whether multivalue tags are supported. If
         :code:`False`, the items in `value` are concatenated using the
         separator(s) specified in `sep`.
 
@@ -45,11 +45,11 @@ def format_multivalue(
         `value` is a `list` and :code:`multivalue=False`.
 
     sep : `str` or `tuple`, keyword-only, default: :code:`(", ", " & ")`
-        Separator(s) to use to concatenate multivalue tags. If a 
+        Separator(s) to use to concatenate multivalue tags. If a
         :code:`str` is provided, it is used to concatenate all values.
         If a :code:`tuple` is provided, the first :code:`str` is used to
-        concatenate all values except the last, and the second 
-        :code:`str` is used to append the final value. 
+        concatenate all values except the last, and the second
+        :code:`str` is used to append the final value.
 
     Returns
     -------
@@ -74,7 +74,7 @@ def gestalt_ratio(
     ) -> Union[float, list[float], "np.ndarray[float]"]:
 
     """
-    Compute the Gestalt or Ratcliff–Obershelp ratios, a measure of 
+    Compute the Gestalt or Ratcliff–Obershelp ratios, a measure of
     similarity, for strings with respect to a reference string.
 
     Parameters
@@ -89,8 +89,8 @@ def gestalt_ratio(
     -------
     ratios : `float`, `list`, or `numpy.ndarray`
         Gestalt or Ratcliff–Obershelp ratios. If `strings` is a `str`, a
-        `float` is returned. If `strings` is a `list`, a `numpy.ndarray` 
-        is returned if NumPy is installed; otherwise, a `list` is 
+        `float` is returned. If `strings` is a `list`, a `numpy.ndarray`
+        is returned if NumPy is installed; otherwise, a `list` is
         returned.
     """
 
@@ -121,7 +121,7 @@ def levenshtein_ratio(
     -------
     ratios : `float`, `list`, or `numpy.ndarray`
         Levenshtein ratios. If `strings` is a `str`, a `float` is
-        returned. If `strings` is a `list`, a `numpy.ndarray` is 
+        returned. If `strings` is a `list`, a `numpy.ndarray` is
         returned if NumPy is installed; otherwise, a `list` is returned.
     """
 
@@ -129,7 +129,7 @@ def levenshtein_ratio(
         emsg = ("The Levenshtein module was not found, so "
                 "minim.utility.levenshtein_ratio() is unavailable.")
         raise ImportError(emsg)
-    
+
     if isinstance(strings, str):
         return Levenshtein.ratio(reference, strings)
     gen = (Levenshtein.ratio(reference, s) for s in strings)

@@ -73,7 +73,7 @@ class _ID3:
     }
 
     def __init__(self, filename: str, tags: id3.ID3) -> None:
-        
+
         """
         Create an ID3 tag handler.
         """
@@ -90,11 +90,11 @@ class _ID3:
 
         for field, (frame, base, _) in self._FIELDS.items():
             value = self._tags.getall(frame)
-            if value: 
+            if value:
                 value = ([sv for v in value for sv in getattr(v, base)]
                          if len(value) > 1 else getattr(value[0], base))
                 if list not in self._FIELDS_TYPES[field]:
-                    value = utility.format_multivalue(value, False, 
+                    value = utility.format_multivalue(value, False,
                                                       primary=True)
                     if not isinstance(value, self._FIELDS_TYPES[field]):
                         try:
@@ -105,7 +105,7 @@ class _ID3:
                 else:
                     if not isinstance(value[0], self._FIELDS_TYPES[field]):
                         try:
-                            value = [self._FIELDS_TYPES[field][0](v) 
+                            value = [self._FIELDS_TYPES[field][0](v)
                                      for v in value]
                         except ValueError:
                             continue
@@ -169,7 +169,7 @@ class _ID3:
                         **{base: func(value) if func else value}
                     )
                 )
-        
+
         if "TXXX:comment" in self._tags:
             self._tags.delall("TXXX:comment")
 
@@ -196,7 +196,7 @@ class _ID3:
                         else open(self.artwork, "rb") as f:
                     self.artwork = f.read()
             self._tags.add(
-                id3.APIC(data=self.artwork, 
+                id3.APIC(data=self.artwork,
                          mime=IMAGE_FORMATS[self._artwork_format])
             )
 
@@ -246,7 +246,7 @@ class _VorbisComment:
     }
 
     def __init__(self, filename: str, tags: id3.ID3) -> None:
-        
+
         """
         Create a Vorbis comment handler.
         """
@@ -265,7 +265,7 @@ class _VorbisComment:
             value = self._tags.get(key)
             if value:
                 if list not in self._FIELDS_TYPES[field]:
-                    value = utility.format_multivalue(value, False, 
+                    value = utility.format_multivalue(value, False,
                                                       primary=True)
                     if type(value) not in self._FIELDS_TYPES[field]:
                         try:
@@ -275,7 +275,7 @@ class _VorbisComment:
                 else:
                     if type(value[0]) not in self._FIELDS_TYPES[field]:
                         try:
-                            value = [self._FIELDS_TYPES[field][0](v) 
+                            value = [self._FIELDS_TYPES[field][0](v)
                                      for v in value]
                         except ValueError:
                             continue
@@ -287,7 +287,7 @@ class _VorbisComment:
 
         self.compilation = bool(int(self._tags.get("compilation")[0])) \
                            if "compilation" in self._tags else None
-        
+
         if "discnumber" in self._tags:
             disc_number = self._tags.get("discnumber")[0]
             if "/" in disc_number:
@@ -376,7 +376,7 @@ class Audio:
     Generic audio file handler.
 
     Subclasses for specific audio containers or formats include
-      
+
     * :class:`FLACAudio` for audio encoded using the Free
       Lossless Audio Codec (FLAC),
     * :class:`MP3Audio` for audio encoded and stored in the MPEG Audio
@@ -387,7 +387,7 @@ class Audio:
       container,
     * :class:`OggAudio` for Opus or Vorbis audio stored in an Ogg file,
       and
-    * :class:`WAVEAudio` for audio encoded using linear pulse-code 
+    * :class:`WAVEAudio` for audio encoded using linear pulse-code
       modulation (LPCM) and in the Waveform Audio File Format (WAVE).
 
     .. note::
@@ -397,14 +397,14 @@ class Audio:
        there may be instances when this detection fails, especially when
        the audio codec and format combination is rarely seen. As such,
        it is always best to directly use one of the subclasses above to
-       create a file handler for your audio file when its audio codec 
+       create a file handler for your audio file when its audio codec
        and format are known.
 
     Parameters
     ----------
     file : `str` or `pathlib.Path`
         Audio filename or path.
-      
+
     pattern : `tuple`, keyword-only, optional
         Regular expression search pattern and the corresponding metadata
         field(s).
@@ -412,16 +412,16 @@ class Audio:
         .. container::
 
            **Valid values**:
-           
+
            The supported metadata fields are
 
            * :code:`"artist"` for the track artist,
-           * :code:`"title"` for the track title, and 
+           * :code:`"title"` for the track title, and
            * :code:`"track_number"` for the track number.
 
            **Examples**:
 
-           * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
+           * :code:`("(.*) - (.*)", ("artist", "title"))` matches
              filenames like "Taylor Swift - Cruel Summer.flac".
            * :code:`("(\\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "04 - The Man.m4a".
@@ -429,12 +429,12 @@ class Audio:
              filenames like "13 You Need to Calm Down.mp3".
 
     multivalue : `bool`
-        Determines whether multivalue tags are supported. If 
+        Determines whether multivalue tags are supported. If
         :code:`False`, the items in `value` are concatenated using the
         separator(s) specified in `sep`.
 
     sep : `str` or `tuple`, keyword-only, default: :code:`(", ", " & ")`
-        Separator(s) to use to concatenate multivalue tags. If a 
+        Separator(s) to use to concatenate multivalue tags. If a
         :code:`str` is provided, it is used to concatenate all values.
         If a :code:`tuple` is provided, the first :code:`str` is used to
         concatenate the first :math:`n - 1` values, and the second
@@ -444,13 +444,13 @@ class Audio:
     ----------
     album : `str`
         Album title.
-    
+
     album_artist : `str` or `list`
         Album artist(s).
-    
+
     artist : `str` or `list`
         Artist(s).
-    
+
     artwork : `bytes` or `str`
         Byte-representation of, URL leading to, or filename of file
         containing the cover artwork.
@@ -466,7 +466,7 @@ class Audio:
 
     codec : `str`
         Audio codec.
-    
+
     comment : `str`
         Comment(s).
 
@@ -493,7 +493,7 @@ class Audio:
 
     isrc : `str`
         International Standard Recording Code (ISRC).
-    
+
     lyrics : `str`
         Lyrics.
 
@@ -536,7 +536,7 @@ class Audio:
     }
 
     def __init__(
-            self, file: Union[str, pathlib.Path], *, 
+            self, file: Union[str, pathlib.Path], *,
             pattern: tuple[str, tuple[str]] = None, multivalue: bool = False,
             sep: Union[str, list[str]] = (", ", " & ")) -> None:
 
@@ -567,13 +567,13 @@ class Audio:
             file = pathlib.Path(file)
             if not file.is_file():
                 raise FileNotFoundError(f"'{file}' not found.")
-            
+
             ext = file.suffix[1:].lower()
             for a in Audio.__subclasses__():
                 if ext in a._EXTENSIONS:
                     return a(*args, **kwargs)
             raise TypeError(f"'{file}' has an unsupported audio format.")
-        
+
         return super(Audio, cls).__new__(cls)
 
     def _from_filename(self) -> None:
@@ -586,7 +586,7 @@ class Audio:
             groups = re.findall(self._pattern[0], self._file.stem)
             if groups:
                 missing = tuple(k in {"artist", "title", "track_number"}
-                                and getattr(self, k) is None 
+                                and getattr(self, k) is None
                                 for k in self._pattern[1])
                 for flag, attr, val in zip(missing, self._pattern[1], groups[0]):
                     if flag:
@@ -597,12 +597,12 @@ class Audio:
             filename: str = None, preserve: bool = True) -> None:
 
         """
-        Convert the current audio file to another format. 
+        Convert the current audio file to another format.
 
         .. admonition:: Software dependency
 
            Requires `FFmpeg <https://ffmpeg.org/>`_.
-        
+
         .. note::
 
            The audio file handler is automatically updated to reflect
@@ -620,22 +620,22 @@ class Audio:
 
                **Valid values**:
 
-               * :code:`"aac"`, :code:`"m4a"`, :code:`"mp4"`, or 
+               * :code:`"aac"`, :code:`"m4a"`, :code:`"mp4"`, or
                  :code:`"mp4a"` for lossy AAC audio.
                * :code:`"alac"` for lossless ALAC audio.
                * :code:`"flac"` for lossless FLAC audio.
                * :code:`"mp3"` for lossy MP3 audio.
                * :code:`"ogg"` or :code:`"opus"` for lossy Opus audio
                * :code:`"vorbis"` for lossy Vorbis audio.
-               * :code:`"lpcm"`, :code:`"wav"`, or :code:`"wave"` for 
+               * :code:`"lpcm"`, :code:`"wav"`, or :code:`"wave"` for
                  lossless LPCM audio.
 
         container : `str`, optional
-            New audio file container. If not specified, the best 
+            New audio file container. If not specified, the best
             container is determined based on `codec`.
 
             .. container::
-               
+
                **Valid values**:
 
                * :code:`"flac"` for a FLAC audio container, which only
@@ -647,12 +647,12 @@ class Audio:
                  supports MP3 audio.
                * :code:`"ogg"` for an Ogg audio container, which
                  supports FLAC, Opus, and Vorbis audio.
-               * :code:`"wav"` or :code:`"wave"` for an WAVE audio 
+               * :code:`"wav"` or :code:`"wave"` for an WAVE audio
                  container, which only supports LPCM audio.
 
         options : `str`, optional
-            FFmpeg command-line options, excluding the input and output 
-            files, the :code:`-y` flag (to overwrite files), and the 
+            FFmpeg command-line options, excluding the input and output
+            files, the :code:`-y` flag (to overwrite files), and the
             :code:`-c:v copy` argument (to preserve cover art for
             containers that support it).
 
@@ -660,24 +660,24 @@ class Audio:
 
                **Defaults**:
 
-               * AAC audio: :code:`"-c:a aac -b:a 256k"` (or 
+               * AAC audio: :code:`"-c:a aac -b:a 256k"` (or
                  :code:`"-c:a libfdk_aac -b:a 256k"` if FFmpeg was
                  compiled with :code:`--enable-libfdk-aac`)
                * ALAC audio: :code:`"-c:a alac"`
                * FLAC audio: :code:`"-c:a flac"`
                * MP3 audio: :code:`"-c:a libmp3lame -q:a 0"`
                * Opus audio: :code:`"-c:a libopus -b:a 256k -vn"`
-               * Vorbis audio: 
-                 :code:`"-c:a vorbis -strict experimental -vn"` (or 
-                 :code:`"-c:a libvorbis -vn"` if FFmpeg was compiled 
+               * Vorbis audio:
+                 :code:`"-c:a vorbis -strict experimental -vn"` (or
+                 :code:`"-c:a libvorbis -vn"` if FFmpeg was compiled
                  with :code:`--enable-libvorbis`)
-               * WAVE audio: :code:`"-c:a pcm_s16le"` or 
+               * WAVE audio: :code:`"-c:a pcm_s16le"` or
                  :code:`"-c:a pcm_s24le"`, depending on the bit depth of
                  the original audio file.
 
         filename : `str`, keyword-only, optional
             Filename of the converted audio file. If not provided, the
-            filename of the original audio file, but with the 
+            filename of the original audio file, but with the
             appropriate new extension appended, is used.
 
         preserve : `bool`, keyword-only, default: :code:`True`
@@ -698,7 +698,7 @@ class Audio:
             codec = "opus"
         elif codec in "wave":
             codec = "lpcm"
-        
+
         if container:
             container = container.lower()
             if container == "m4a":
@@ -707,8 +707,8 @@ class Audio:
                 container = "wav"
 
             try:
-                acls = next(a for a in Audio.__subclasses__() 
-                            if codec in a._CODECS 
+                acls = next(a for a in Audio.__subclasses__()
+                            if codec in a._CODECS
                             and container in a._EXTENSIONS)
             except StopIteration:
                 emsg = (f"{_codec} audio is incompatible with "
@@ -716,12 +716,12 @@ class Audio:
                 raise RuntimeError(emsg)
         else:
             try:
-                acls = next(a for a in Audio.__subclasses__() 
+                acls = next(a for a in Audio.__subclasses__()
                             if codec in a._CODECS)
                 container = acls._EXTENSIONS[0]
             except StopIteration:
                 raise RuntimeError(f"The '{_codec}' codec is not supported.")
-        
+
         if ("mp4" if codec == "aac" else codec) in self.codec \
                 and isinstance(self, acls):
             wmsg = (f"'{self._file}' already has {_codec} "
@@ -763,12 +763,12 @@ class Audio:
         obj = acls(filename)
         self.__class__ = obj.__class__
         self.__dict__ = obj.__dict__ | {
-            key: value for (key, value) in self.__dict__.items() 
+            key: value for (key, value) in self.__dict__.items()
             if key in self._FIELDS_TYPES
         }
 
     def set_metadata_using_itunes(
-            self, data: dict[str, Any], *, album_data: dict[str, Any] = None, 
+            self, data: dict[str, Any], *, album_data: dict[str, Any] = None,
             artwork_size: Union[int, str] = 1400, artwork_format: str = "jpg",
             overwrite: bool = False) -> None:
 
@@ -779,15 +779,15 @@ class Audio:
         ----------
         data : `dict`
             Information about the track in JSON format obtained using
-            the iTunes Search API via 
+            the iTunes Search API via
             :meth:`minim.itunes.SearchAPI.search` or
             :meth:`minim.itunes.SearchAPI.lookup`.
 
         album_data : `dict`, keyword-only, optional
             Information about the track's album in JSON format obtained
-            using the iTunes Search API via 
-            :meth:`minim.itunes.SearchAPI.search` or 
-            :meth:`minim.itunes.SearchAPI.lookup`. If not provided, 
+            using the iTunes Search API via
+            :meth:`minim.itunes.SearchAPI.search` or
+            :meth:`minim.itunes.SearchAPI.lookup`. If not provided,
             album artist and copyright information is unavailable.
 
         artwork_size : `int` or `str`, keyword-only, default: :code:`1400`
@@ -852,7 +852,7 @@ class Audio:
             self.disc_number = data["discNumber"]
         if self.disc_count is None or overwrite:
             self.disc_count = data["discCount"]
-        if self.genre is None or overwrite:    
+        if self.genre is None or overwrite:
             self.genre = data["primaryGenreName"]
         if self.title is None or overwrite:
             self.title = max(data["trackName"], data["trackCensoredName"])
@@ -926,7 +926,7 @@ class Audio:
                 self.album_artist = data["album"]["artist"]["name"]
 
         credits = _parse_performers(
-            data["performers"], 
+            data["performers"],
             roles=["MainArtist", "FeaturedArtist", "Composers"]
         )
         if self.artist is None or overwrite:
@@ -943,8 +943,8 @@ class Audio:
             self.comment = comment
         if self.composer is None or overwrite:
             self.composer = (
-                credits.get("composers") 
-                or (data["composer"]["name"] if hasattr(data, "composer") 
+                credits.get("composers")
+                or (data["composer"]["name"] if hasattr(data, "composer")
                     else None)
             )
         if self.copyright is None or overwrite:
@@ -955,11 +955,11 @@ class Audio:
                 else datetime.datetime.strptime(dt, "%Y-%m-%d") if isinstance(dt, str)
                 else datetime.datetime.max for dt in (
                     data.get(k) for k in {
-                        "release_date_original", 
-                        "release_date_download", 
-                        "release_date_stream", 
+                        "release_date_original",
+                        "release_date_download",
+                        "release_date_stream",
                         "release_date_purchase",
-                        "purchasable_at", 
+                        "purchasable_at",
                         "streamable_at"
                     }
                 )
@@ -982,7 +982,7 @@ class Audio:
                     utility.format_multivalue(feat_artist, False)
                 )
             if data["version"]:
-                self.title += (" [{}]" if "(" in self.title 
+                self.title += (" [{}]" if "(" in self.title
                                else " ({})").format(data['version'])
             self.title = self.title.replace("  ", " ")
         if self.track_number is None or overwrite:
@@ -998,10 +998,10 @@ class Audio:
             )
 
     def set_metadata_using_spotify(
-            self, data: dict[str, Any], *, 
-            audio_features: dict[str, Any] = None, 
+            self, data: dict[str, Any], *,
+            audio_features: dict[str, Any] = None,
             lyrics: Union[str, dict[str, Any]] = None, overwrite: bool = False
-        ) -> None: 
+        ) -> None:
 
         """
         Populate tags using data retrieved from the Spotify Web API
@@ -1011,7 +1011,7 @@ class Audio:
         ----------
         data : `dict`
             Information about the track in JSON format obtained using
-            the Spotify Web API via 
+            the Spotify Web API via
             :meth:`minim.spotify.WebAPI.get_track`.
 
         audio_features : `dict`, keyword-only, optional
@@ -1022,7 +1022,7 @@ class Audio:
 
         lyrics : `str` or `dict`, keyword-only
             Information about the track's formatted or time-synced
-            lyrics obtained using the Spotify Lyrics service via 
+            lyrics obtained using the Spotify Lyrics service via
             :meth:`minim.spotify.PrivateLyricsService.get_lyrics`. If not
             provided, lyrics are unavailable.
 
@@ -1052,7 +1052,7 @@ class Audio:
             self.isrc = data["external_ids"]["isrc"]
         if (self.lyrics is None or overwrite) and lyrics:
             self.lyrics = lyrics if isinstance(lyrics, str) \
-                          else "\n".join(line["words"] 
+                          else "\n".join(line["words"]
                                          for line in lyrics["lyrics"]["lines"])
         if (self.tempo is None or overwrite) and audio_features:
             self.tempo = round(audio_features["tempo"])
@@ -1087,22 +1087,22 @@ class Audio:
             using the TIDAL API via :meth:`minim.tidal.API.get_album`,
             :meth:`minim.tidal.API.search`,
             :meth:`minim.tidal.PrivateAPI.get_album`, or
-            :meth:`minim.tidal.PrivateAPI.search`. If not provided, 
-            album artist and disc and track numbering information is 
+            :meth:`minim.tidal.PrivateAPI.search`. If not provided,
+            album artist and disc and track numbering information is
             unavailable.
 
         artwork_size : `int`, keyword-only, default: :code:`1280`
             Maximum artwork size in pixels.
 
-            **Valid values**: `artwork_size` should be between 
+            **Valid values**: `artwork_size` should be between
             :code:`80` and :code:`1280`.
-        
+
         composers : `str`, `list`, or `dict`, keyword-only, optional
-            Information about the track's composers in a formatted 
+            Information about the track's composers in a formatted
             `str`, a `list`, or a `dict` obtained using the TIDAL API
             via :meth:`minim.tidal.PrivateAPI.get_track_composers`,
             :meth:`minim.tidal.PrivateAPI.get_track_contributors`, or
-            :meth:`minim.tidal.PrivateAPI.get_track_credits`. If not 
+            :meth:`minim.tidal.PrivateAPI.get_track_credits`. If not
             provided, songwriting credits are unavailable.
 
         lyrics : `str` or `dict`, keyword-only, optional
@@ -1125,7 +1125,7 @@ class Audio:
         if (self.composer is None or overwrite) and composers:
             COMPOSER_TYPES = {"Composer", "Lyricist", "Writer"}
             if isinstance(composers, dict):
-                self.composer = sorted({c["name"] for c in composers["items"] 
+                self.composer = sorted({c["name"] for c in composers["items"]
                                         if c["role"] in COMPOSER_TYPES})
             elif isinstance(composers[0], dict):
                 self.composer = sorted({
@@ -1155,19 +1155,19 @@ class Audio:
                 image_urls = sorted(data["album"]["imageCover"],
                                     key=lambda x: x["width"], reverse=True)
                 self.artwork = (
-                    image_urls[-1]["url"] 
+                    image_urls[-1]["url"]
                     if artwork_size < image_urls[-1]["width"]
-                    else next(u["url"] for u in image_urls 
+                    else next(u["url"] for u in image_urls
                               if u["width"] <= artwork_size)
                 )
                 self._artwork_format = pathlib.Path(self.artwork).suffix[1:]
         else:
             if self.artist is None or overwrite:
-                self.artist = [a["name"] for a in data["artists"] 
+                self.artist = [a["name"] for a in data["artists"]
                                if a["type"] == "MAIN"]
             if self.artwork is None or overwrite:
                 artwork_size = (
-                    80 if artwork_size < 80 
+                    80 if artwork_size < 80
                     else next(s for s in [1280, 1080, 750, 640, 320, 160, 80]
                               if s <= artwork_size)
                 )
@@ -1188,14 +1188,14 @@ class Audio:
 
             if "barcodeId" in album_data:
                 if self.album_artist is None or overwrite:
-                    self.album_artist = [a["name"] for a in album_data["artists"] 
+                    self.album_artist = [a["name"] for a in album_data["artists"]
                                          if a["main"]]
                 if self.date is None or overwrite:
                     self.date = f"{album_data['releaseDate']}T00:00:00Z"
             else:
                 if self.album_artist is None or overwrite:
                     self.album_artist = [
-                        a["name"] for a in album_data["artists"] 
+                        a["name"] for a in album_data["artists"]
                         if a["type"] == "MAIN"
                     ]
 
@@ -1206,7 +1206,7 @@ class FLACAudio(Audio, _VorbisComment):
 
     .. seealso::
 
-       For a full list of attributes and their descriptions, see 
+       For a full list of attributes and their descriptions, see
        :class:`Audio`.
 
     Parameters
@@ -1221,16 +1221,16 @@ class FLACAudio(Audio, _VorbisComment):
         .. container::
 
            **Valid values**:
-           
+
            The supported metadata fields are
 
            * :code:`"artist"` for the track artist,
-           * :code:`"title"` for the track title, and 
+           * :code:`"title"` for the track title, and
            * :code:`"track_number"` for the track number.
 
            **Examples**:
 
-           * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
+           * :code:`("(.*) - (.*)", ("artist", "title"))` matches
              filenames like "Taylor Swift - Fearless.flac".
            * :code:`("(\\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "03 - Love Story.flac".
@@ -1238,12 +1238,12 @@ class FLACAudio(Audio, _VorbisComment):
              filenames like "06 You Belong with Me.flac".
 
     multivalue : `bool`
-        Determines whether multivalue tags are supported. If 
+        Determines whether multivalue tags are supported. If
         :code:`False`, the items in `value` are concatenated using the
         separator(s) specified in `sep`.
 
     sep : `str` or `tuple`, keyword-only, default: :code:`(", ", " & ")`
-        Separator(s) to use to concatenate multivalue tags. If a 
+        Separator(s) to use to concatenate multivalue tags. If a
         :code:`str` is provided, it is used to concatenate all values.
         If a :code:`tuple` is provided, the first :code:`str` is used to
         concatenate the first :math:`n - 1` values, and the second
@@ -1254,7 +1254,7 @@ class FLACAudio(Audio, _VorbisComment):
     _EXTENSIONS = ["flac"]
 
     def __init__(
-            self, file: Union[str, pathlib.Path], *, 
+            self, file: Union[str, pathlib.Path], *,
             pattern: tuple[str, tuple[str]] = None, multivalue: bool = False,
             sep: Union[str, list[str]] = (", ", " & ")) -> None:
 
@@ -1262,7 +1262,7 @@ class FLACAudio(Audio, _VorbisComment):
         Create a FLAC audio file handler.
         """
 
-        Audio.__init__(self, file, pattern=pattern, multivalue=multivalue, 
+        Audio.__init__(self, file, pattern=pattern, multivalue=multivalue,
                        sep=sep)
         self._handle = flac.FLAC(file)
         if self._handle.tags is None:
@@ -1283,7 +1283,7 @@ class MP3Audio(Audio, _ID3):
 
     .. seealso::
 
-       For a full list of attributes and their descriptions, see 
+       For a full list of attributes and their descriptions, see
        :class:`Audio`.
 
     Parameters
@@ -1298,16 +1298,16 @@ class MP3Audio(Audio, _ID3):
         .. container::
 
            **Valid values**:
-           
+
            The supported metadata fields are
 
            * :code:`"artist"` for the track artist,
-           * :code:`"title"` for the track title, and 
+           * :code:`"title"` for the track title, and
            * :code:`"track_number"` for the track number.
 
            **Examples**:
 
-           * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
+           * :code:`("(.*) - (.*)", ("artist", "title"))` matches
              filenames like "Taylor Swift - Red.mp3".
            * :code:`("(\\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "04 - I Knew You Were Trouble.mp3".
@@ -1315,12 +1315,12 @@ class MP3Audio(Audio, _ID3):
              filenames like "06 22.mp3".
 
     multivalue : `bool`
-        Determines whether multivalue tags are supported. If 
+        Determines whether multivalue tags are supported. If
         :code:`False`, the items in `value` are concatenated using the
         separator(s) specified in `sep`.
 
     sep : `str` or `tuple`, keyword-only, default: :code:`(", ", " & ")`
-        Separator(s) to use to concatenate multivalue tags. If a 
+        Separator(s) to use to concatenate multivalue tags. If a
         :code:`str` is provided, it is used to concatenate all values.
         If a :code:`tuple` is provided, the first :code:`str` is used to
         concatenate the first :math:`n - 1` values, and the second
@@ -1331,7 +1331,7 @@ class MP3Audio(Audio, _ID3):
     _EXTENSIONS = ["mp3"]
 
     def __init__(
-            self, file: Union[str, pathlib.Path], *, 
+            self, file: Union[str, pathlib.Path], *,
             pattern: tuple[str, tuple[str]] = None, multivalue: bool = False,
             sep: Union[str, list[str]] = (", ", " & ")) -> None:
 
@@ -1359,7 +1359,7 @@ class MP4Audio(Audio):
 
     .. seealso::
 
-       For a full list of attributes and their descriptions, see 
+       For a full list of attributes and their descriptions, see
        :class:`Audio`.
 
     Parameters
@@ -1374,16 +1374,16 @@ class MP4Audio(Audio):
         .. container::
 
            **Valid values**:
-           
+
            The supported metadata fields are
 
            * :code:`"artist"` for the track artist,
-           * :code:`"title"` for the track title, and 
+           * :code:`"title"` for the track title, and
            * :code:`"track_number"` for the track number.
 
            **Examples**:
 
-           * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
+           * :code:`("(.*) - (.*)", ("artist", "title"))` matches
              filenames like "Taylor Swift - Mine.m4a".
            * :code:`("(\\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "04 - Speak Now.m4a".
@@ -1391,12 +1391,12 @@ class MP4Audio(Audio):
              filenames like "07 The Story of Us.m4a".
 
     multivalue : `bool`
-        Determines whether multivalue tags are supported. If 
+        Determines whether multivalue tags are supported. If
         :code:`False`, the items in `value` are concatenated using the
         separator(s) specified in `sep`.
 
     sep : `str` or `tuple`, keyword-only, default: :code:`(", ", " & ")`
-        Separator(s) to use to concatenate multivalue tags. If a 
+        Separator(s) to use to concatenate multivalue tags. If a
         :code:`str` is provided, it is used to concatenate all values.
         If a :code:`tuple` is provided, the first :code:`str` is used to
         concatenate the first :math:`n - 1` values, and the second
@@ -1428,14 +1428,14 @@ class MP4Audio(Audio):
     ) | dict.fromkeys(["png", 14], mp4.MP4Cover.FORMAT_PNG)
 
     def __init__(
-            self, file: Union[str, pathlib.Path], *, 
+            self, file: Union[str, pathlib.Path], *,
             pattern: tuple[str, tuple[str]] = None, multivalue: bool = False,
             sep: Union[str, list[str]] = (", ", " & ")) -> None:
-        
+
         """
         Create a MP4 audio file handler.
         """
-        
+
         super().__init__(file, pattern=pattern, multivalue=multivalue, sep=sep)
 
         self._handle = mp4.MP4(file)
@@ -1460,7 +1460,7 @@ class MP4Audio(Audio):
             value = self._handle.get(key)
             if value:
                 if list not in self._FIELDS_TYPES[field]:
-                    value = utility.format_multivalue(value, False, 
+                    value = utility.format_multivalue(value, False,
                                                       primary=True)
                     if type(value) not in self._FIELDS_TYPES[field]:
                         try:
@@ -1470,7 +1470,7 @@ class MP4Audio(Audio):
                 else:
                     if type(value[0]) not in self._FIELDS_TYPES[field]:
                         try:
-                            value = [self._FIELDS_TYPES[field][0](v) 
+                            value = [self._FIELDS_TYPES[field][0](v)
                                      for v in value]
                         except ValueError:
                             continue
@@ -1487,14 +1487,14 @@ class MP4Audio(Audio):
             self.disc_number, self.disc_count = self._handle.get("disk")[0]
         else:
             self.disc_number = self.disc_count = None
-            
+
         if "trkn" in self._handle:
             self.track_number, self.track_count = self._handle.get("trkn")[0]
         else:
             self.track_number = self.track_count = None
 
         if "covr" in self._handle:
-            self.artwork = utility.format_multivalue(self._handle.get("covr"), 
+            self.artwork = utility.format_multivalue(self._handle.get("covr"),
                                                      False, primary=True)
             self._artwork_format = str(
                 self._IMAGE_FORMATS[self.artwork.imageformat]
@@ -1524,12 +1524,12 @@ class MP4Audio(Audio):
             self._handle["----:com.apple.iTunes:ISRC"] = self.isrc.encode()
 
         if self.disc_number or self.disc_count:
-            self._handle["disk"] = [(self.disc_number or 0, 
+            self._handle["disk"] = [(self.disc_number or 0,
                                      self.disc_count or 0)]
         if self.track_number or self.track_count:
-            self._handle["trkn"] = [(self.track_number or 0, 
+            self._handle["trkn"] = [(self.track_number or 0,
                                      self.track_count or 0)]
-        
+
         if self.artwork:
             if isinstance(self.artwork, str):
                 with urllib.request.urlopen(self.artwork) \
@@ -1538,7 +1538,7 @@ class MP4Audio(Audio):
                     self.artwork = f.read()
             self._handle["covr"] = [
                 mp4.MP4Cover(
-                    self.artwork, 
+                    self.artwork,
                     imageformat=self._IMAGE_FORMATS[self._artwork_format]
                 )
             ]
@@ -1552,7 +1552,7 @@ class OggAudio(Audio, _VorbisComment):
 
     .. seealso::
 
-       For a full list of attributes and their descriptions, see 
+       For a full list of attributes and their descriptions, see
        :class:`Audio`.
 
     Parameters
@@ -1561,7 +1561,7 @@ class OggAudio(Audio, _VorbisComment):
         Ogg audio filename or path.
 
     codec : `str`, optional
-        Audio codec. If not specified, it will be determined 
+        Audio codec. If not specified, it will be determined
         automatically.
 
         **Valid values**: :code:`"flac"`, :code:`"opus"`, or
@@ -1574,16 +1574,16 @@ class OggAudio(Audio, _VorbisComment):
         .. container::
 
            **Valid values**:
-           
+
            The supported metadata fields are
 
            * :code:`"artist"` for the track artist,
-           * :code:`"title"` for the track title, and 
+           * :code:`"title"` for the track title, and
            * :code:`"track_number"` for the track number.
 
            **Examples**:
 
-           * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
+           * :code:`("(.*) - (.*)", ("artist", "title"))` matches
              filenames like "Taylor Swift - Blank Space.ogg".
            * :code:`("(\\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "03 - Style.ogg".
@@ -1591,12 +1591,12 @@ class OggAudio(Audio, _VorbisComment):
              filenames like "06 Shake It Off.ogg".
 
     multivalue : `bool`
-        Determines whether multivalue tags are supported. If 
+        Determines whether multivalue tags are supported. If
         :code:`False`, the items in `value` are concatenated using the
         separator(s) specified in `sep`.
 
     sep : `str` or `tuple`, keyword-only, default: :code:`(", ", " & ")`
-        Separator(s) to use to concatenate multivalue tags. If a 
+        Separator(s) to use to concatenate multivalue tags. If a
         :code:`str` is provided, it is used to concatenate all values.
         If a :code:`tuple` is provided, the first :code:`str` is used to
         concatenate the first :math:`n - 1` values, and the second
@@ -1604,18 +1604,18 @@ class OggAudio(Audio, _VorbisComment):
     """
 
     _CODECS = {"flac": {"ffmpeg": "-c:a flac", "mutagen": oggflac.OggFLAC},
-               "opus": {"ffmpeg": "-b:a 256k -c:a libopus -vn", 
+               "opus": {"ffmpeg": "-b:a 256k -c:a libopus -vn",
                         "mutagen": oggopus.OggOpus},
                "vorbis": {"ffmpeg": f"-c:a {FFMPEG_CODECS['vorbis']} -vn",
                           "mutagen": oggvorbis.OggVorbis}}
     _EXTENSIONS = ["ogg", "oga", "opus"]
 
     def __init__(
-            self, file: Union[str, pathlib.Path], codec: str = None, *, 
+            self, file: Union[str, pathlib.Path], codec: str = None, *,
             pattern: tuple[str, tuple[str]] = None, multivalue: bool = False,
             sep: Union[str, list[str]] = (", ", " & ")) -> None:
-        
-        Audio.__init__(self, file, pattern=pattern, multivalue=multivalue, 
+
+        Audio.__init__(self, file, pattern=pattern, multivalue=multivalue,
                        sep=sep)
 
         if codec and codec in self._CODECS:
@@ -1638,7 +1638,7 @@ class OggAudio(Audio, _VorbisComment):
         self.channel_count = self._handle.info.channels
         if self.codec == "flac":
             self.bit_depth = self._handle.info.bits_per_sample
-            self.sample_rate = self._handle.info.sample_rate 
+            self.sample_rate = self._handle.info.sample_rate
             self.bitrate = self.bit_depth * self.channel_count \
                            * self.sample_rate
         elif self.codec == "opus":
@@ -1655,7 +1655,7 @@ class WAVEAudio(Audio, _ID3):
 
     .. seealso::
 
-       For a full list of attributes and their descriptions, see 
+       For a full list of attributes and their descriptions, see
        :class:`Audio`.
 
     Parameters
@@ -1670,16 +1670,16 @@ class WAVEAudio(Audio, _ID3):
         .. container::
 
            **Valid values**:
-           
+
            The supported metadata fields are
 
            * :code:`"artist"` for the track artist,
-           * :code:`"title"` for the track title, and 
+           * :code:`"title"` for the track title, and
            * :code:`"track_number"` for the track number.
 
            **Examples**:
 
-           * :code:`("(.*) - (.*)", ("artist", "title"))` matches 
+           * :code:`("(.*) - (.*)", ("artist", "title"))` matches
              filenames like "Taylor Swift - Don't Blame Me.wav".
            * :code:`("(\\d*) - (.*)", ("track_number", "title"))` matches
              filenames like "05 - Delicate.wav".
@@ -1687,12 +1687,12 @@ class WAVEAudio(Audio, _ID3):
              filenames like "06 Look What You Made Me Do.wav".
 
     multivalue : `bool`
-        Determines whether multivalue tags are supported. If 
+        Determines whether multivalue tags are supported. If
         :code:`False`, the items in `value` are concatenated using the
         separator(s) specified in `sep`.
 
     sep : `str` or `tuple`, keyword-only, default: :code:`(", ", " & ")`
-        Separator(s) to use to concatenate multivalue tags. If a 
+        Separator(s) to use to concatenate multivalue tags. If a
         :code:`str` is provided, it is used to concatenate all values.
         If a :code:`tuple` is provided, the first :code:`str` is used to
         concatenate the first :math:`n - 1` values, and the second
@@ -1703,7 +1703,7 @@ class WAVEAudio(Audio, _ID3):
     _EXTENSIONS = ["wav"]
 
     def __init__(
-            self, file: Union[str, pathlib.Path], *, 
+            self, file: Union[str, pathlib.Path], *,
             pattern: tuple[str, tuple[str]] = None, multivalue: bool = False,
             sep: Union[str, list[str]] = (", ", " & ")) -> None:
 
