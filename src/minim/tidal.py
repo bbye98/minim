@@ -34,11 +34,11 @@ if FOUND_PLAYWRIGHT:
 __all__ = ["API", "PrivateAPI"]
 
 class API:
-    
+
     """
     TIDAL API client.
 
-    The TIDAL API exposes TIDAL functionality and data, making it 
+    The TIDAL API exposes TIDAL functionality and data, making it
     possible to build applications that can search for and retrieve
     metadata from the TIDAL catalog.
 
@@ -48,12 +48,12 @@ class API:
        <https://developer.tidal.com/apiref>`_.
 
     Requests to the TIDAL API endpoints must be accompanied by a valid
-    access token in the header. Minim can obtain client-only access 
+    access token in the header. Minim can obtain client-only access
     tokens via the client credentials flow, which requires valid client
     credentials (client ID and client secret) to either be provided to
-    this class's constructor as keyword arguments or be stored as 
-    :code:`TIDAL_CLIENT_ID` and :code:`TIDAL_CLIENT_SECRET` in the 
-    operating system's environment variables. 
+    this class's constructor as keyword arguments or be stored as
+    :code:`TIDAL_CLIENT_ID` and :code:`TIDAL_CLIENT_SECRET` in the
+    operating system's environment variables.
 
     .. seealso::
 
@@ -62,20 +62,20 @@ class API:
        /dashboard/dashboard-client-credentials>`_.
 
     If an existing access token is available, it and its expiry time can
-    be provided to this class's constructor as keyword arguments to 
+    be provided to this class's constructor as keyword arguments to
     bypass the access token retrieval process. It is recommended that
-    all other authentication-related keyword arguments be specified so 
-    that a new access token can be obtained when the existing one 
+    all other authentication-related keyword arguments be specified so
+    that a new access token can be obtained when the existing one
     expires.
 
     .. tip::
 
        The authorization flow and access token can be changed or updated
-       at any time using :meth:`set_auflow` and :meth:`set_access_token`, 
+       at any time using :meth:`set_auflow` and :meth:`set_access_token`,
        respectively.
 
-    Minim also stores and manages access tokens and their properties. 
-    When an access token is acquired, it is automatically saved to the 
+    Minim also stores and manages access tokens and their properties.
+    When an access token is acquired, it is automatically saved to the
     Minim configuration file to be loaded on the next instantiation of
     this class. This behavior can be disabled if there are any security
     concerns, like if the computer being used is a shared device.
@@ -83,15 +83,15 @@ class API:
     Parameters
     ----------
     client_id : `str`, keyword-only, optional
-        Client ID. Required for the client credentials flow. If it is 
+        Client ID. Required for the client credentials flow. If it is
         not stored as :code:`TIDAL_CLIENT_ID` in the operating system's
         environment variables or found in the Minim configuration file,
         it must be provided here.
 
     client_secret : `str`, keyword-only, optional
         Client secret. Required for the client credentials flow. If it
-        is not stored as :code:`TIDAL_CLIENT_SECRET` in the operating 
-        system's environment variables or found in the Minim 
+        is not stored as :code:`TIDAL_CLIENT_SECRET` in the operating
+        system's environment variables or found in the Minim
         configuration file, it must be provided here.
 
     flow : `str`, keyword-only, optional
@@ -100,20 +100,20 @@ class API:
         .. container::
 
            **Valid values**:
-           
-           * :code:`"client_credentials"` for the client credentials 
+
+           * :code:`"client_credentials"` for the client credentials
              flow.
 
     access_token : `str`, keyword-only, optional
-        Access token. If provided here or found in the Minim 
-        configuration file, the authentication process is bypassed. In 
+        Access token. If provided here or found in the Minim
+        configuration file, the authentication process is bypassed. In
         the former case, all other relevant keyword arguments should be
-        specified to automatically refresh the access token when it 
+        specified to automatically refresh the access token when it
         expires.
 
     expiry : `datetime.datetime` or `str`, keyword-only, optional
         Expiry time of `access_token` in the ISO 8601 format
-        :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be 
+        :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be
         reauthenticated using the specified authorization flow (if
         possible) when `access_token` expires.
 
@@ -123,7 +123,7 @@ class API:
 
     save : `bool`, keyword-only, default: :code:`True`
         Determines whether newly obtained access tokens and their
-        associated properties are stored to the Minim configuration 
+        associated properties are stored to the Minim configuration
         file.
 
     Attributes
@@ -145,10 +145,10 @@ class API:
 
     def __init__(
             self, *, client_id: str = None, client_secret: str = None,
-            flow: str = "client_credentials", access_token: str = None, 
-            expiry: Union[datetime.datetime, str] = None, 
+            flow: str = "client_credentials", access_token: str = None,
+            expiry: Union[datetime.datetime, str] = None,
             overwrite: bool = False, save: bool = True) -> None:
-        
+
         """
         Create a TIDAL API client.
         """
@@ -156,7 +156,7 @@ class API:
         self.session = requests.Session()
         self.session.headers["Content-Type"] = "application/vnd.tidal.v1+json"
 
-        if (access_token is None and _config.has_section(self._NAME) 
+        if (access_token is None and _config.has_section(self._NAME)
                 and not overwrite):
             flow = _config.get(self._NAME, "flow")
             access_token = _config.get(self._NAME, "access_token")
@@ -171,14 +171,14 @@ class API:
     def _get_json(self, url: str, **kwargs) -> dict:
 
         """
-        Send a GET request and return the JSON-encoded content of the 
+        Send a GET request and return the JSON-encoded content of the
         response.
 
         Parameters
         ----------
         url : `str`
             URL for the GET request.
-        
+
         **kwargs
             Keyword arguments to pass to :meth:`requests.request`.
 
@@ -226,9 +226,9 @@ class API:
         return r
 
     def set_access_token(
-            self, access_token: str = None, *, 
+            self, access_token: str = None, *,
             expiry: Union[str, datetime.datetime] = None) -> None:
-        
+
         """
         Set the TIDAL API access token.
 
@@ -248,7 +248,7 @@ class API:
         if access_token is None:
             if not self._client_id or not self._client_secret:
                 raise ValueError("TIDAL API client credentials not provided.")
-            
+
             if self._flow == "client_credentials":
                 client_b64 = base64.urlsafe_b64encode(
                     f"{self._client_id}:{self._client_secret}".encode()
@@ -261,7 +261,7 @@ class API:
                 access_token = r["access_token"]
                 expiry = (datetime.datetime.now()
                           + datetime.timedelta(0, r["expires_in"]))
-                
+
             if self._save:
                 _config[self._NAME] = {
                     "flow": self._flow,
@@ -275,14 +275,14 @@ class API:
 
         self.session.headers["Authorization"] = f"Bearer {access_token}"
         self._expiry = (
-            datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ") 
+            datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ")
             if isinstance(expiry, str) else expiry
         )
 
     def set_flow(
-            self, flow: str, *, client_id: str = None, 
+            self, flow: str, *, client_id: str = None,
             client_secret: str = None, save: bool = True) -> None:
-        
+
         """
         Set the authorization flow.
 
@@ -294,10 +294,10 @@ class API:
             .. container::
 
                **Valid values**:
-           
-               * :code:`"client_credentials"` for the client credentials 
+
+               * :code:`"client_credentials"` for the client credentials
                  flow.
-            
+
         client_id : `str`, keyword-only, optional
             Client ID. Required for all authorization flows.
 
@@ -306,7 +306,7 @@ class API:
 
         save : `bool`, keyword-only, default: :code:`True`
             Determines whether to save the newly obtained access tokens
-            and their associated properties to the Minim configuration 
+            and their associated properties to the Minim configuration
             file.
         """
 
@@ -314,10 +314,10 @@ class API:
             emsg = (f"Invalid authorization flow ({flow=}). "
                     f"Valid values: {', '.join(self._FLOWS)}.")
             raise ValueError(emsg)
-        
+
         self._flow = flow
         self._save = save
-        
+
         if flow == "client_credentials":
             self._client_id = client_id or os.environ.get("TIDAL_CLIENT_ID")
             self._client_secret = (client_secret
@@ -328,7 +328,7 @@ class API:
     def get_album(
             self, album_id: Union[int, str], country_code: str
         ) -> dict[str, Any]:
-        
+
         """
         `Album API > Get single album
         <https://developer.tidal.com/apiref?ref=get-album>`_: Retrieve
@@ -403,17 +403,17 @@ class API:
                     }
                   }
         """
-        
+
         return self._get_json(f"{self.API_URL}/albums/{album_id}",
                               params={"countryCode": country_code})["resource"]
-    
+
     def get_albums(
-            self, album_ids: Union[int, str, list[Union[int, str]]], 
+            self, album_ids: Union[int, str, list[Union[int, str]]],
             country_code: str) -> list[dict[str, Any]]:
-        
+
         """
         `Album API > Get multiple albums
-        <https://developer.tidal.com/apiref?ref=get-albums-by-ids>`_: 
+        <https://developer.tidal.com/apiref?ref=get-albums-by-ids>`_:
         Retrieve a list of album details by TIDAL album IDs.
 
         Parameters
@@ -421,7 +421,7 @@ class API:
         album_ids : `int`, `str`, or `list`
             TIDAL album ID(s).
 
-            **Examples**: :code:`"251380836,275646830"` or 
+            **Examples**: :code:`"251380836,275646830"` or
             :code:`[251380836, 275646830]`.
 
         country_code : `str`
@@ -432,7 +432,7 @@ class API:
         Returns
         -------
         albums : `dict`
-            A dictionary containing TIDAL catalog information for 
+            A dictionary containing TIDAL catalog information for
             multiple albums and metadata for the returned results.
 
             .. admonition:: Sample response
@@ -506,15 +506,15 @@ class API:
             f"{self.API_URL}/albums/byIds",
             params={"ids": album_ids, "countryCode": country_code}
         )
-    
+
     def get_album_items(
             self, album_id: Union[int, str], country_code: str, *,
             limit: int = None, offset: int = None) -> dict[str, Any]:
-        
+
         """
         `Album API > Get album items
-        <https://developer.tidal.com/apiref?ref=get-album-items>`_: 
-        Retrieve a list of album items (tracks and videos) by TIDAL 
+        <https://developer.tidal.com/apiref?ref=get-album-items>`_:
+        Retrieve a list of album items (tracks and videos) by TIDAL
         album ID.
 
         Parameters
@@ -537,12 +537,12 @@ class API:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         Returns
         -------
         items : `dict`
-            A dictionary containing TIDAL catalog information for 
+            A dictionary containing TIDAL catalog information for
             tracks and videos in the specified album and metadata for
             the returned results.
 
@@ -606,7 +606,7 @@ class API:
                     }
                   }
         """
-        
+
         return self._get_json(
             f"{self.API_URL}/albums/{album_id}/items",
             params={
@@ -615,13 +615,13 @@ class API:
                 "offset": offset
             }
         )
-    
+
     def get_album_by_barcode_id(
             self, barcode_id: Union[int, str], country_code: str
-        ) -> dict[str, Any]: 
+        ) -> dict[str, Any]:
 
         """
-        `Album API > Get album by barcode ID 
+        `Album API > Get album by barcode ID
         <https://developer.tidal.com
         /apiref?ref=get-albums-by-barcode-id>`_: Retrieve a list of album
         details by barcode ID.
@@ -708,7 +708,7 @@ class API:
                       "failure": 0
                     }
                   }
-            
+
         """
 
         return self._get_json(
@@ -717,12 +717,12 @@ class API:
         )
 
     def get_similar_albums(
-            self, album_id: Union[int, str], country_code: str, *, 
+            self, album_id: Union[int, str], country_code: str, *,
             limit: int = None, offset: int = None) -> dict[str, Any]:
-        
+
         """
         `Album API > Get similar albums for the given album
-        <https://developer.tidal.com/apiref?ref=get-similar-albums>`_: 
+        <https://developer.tidal.com/apiref?ref=get-similar-albums>`_:
         Retrieve a list of albums similar to the given album.
 
         Parameters
@@ -745,7 +745,7 @@ class API:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         Returns
         -------
@@ -775,7 +775,7 @@ class API:
         return self._get_json(
             f"{self.API_URL}/albums/{album_id}/similar",
             params={
-                "countryCode": country_code, 
+                "countryCode": country_code,
                 "limit": limit,
                 "offset": offset
             }
@@ -786,9 +786,9 @@ class API:
     def get_artist(
             self, artist_id: Union[int, str], country_code: str
         ) -> dict[str, Any]:
-        
+
         """
-        `Artist API > Get single artist 
+        `Artist API > Get single artist
         <https://developer.tidal.com/apiref?ref=get-artist>`_: Retrieve
         artist details by TIDAL artist ID.
 
@@ -826,16 +826,16 @@ class API:
                     ]
                   }
         """
-        
+
         return self._get_json(f"{self.API_URL}/artists/{artist_id}",
                               params={"countryCode": country_code})["resource"]
 
     def get_artists(
-            self, artist_ids: Union[int, str, list[Union[int, str]]], 
+            self, artist_ids: Union[int, str, list[Union[int, str]]],
             country_code: str) -> dict[str, Any]:
 
         """
-        `Artist API > Get multiple artists 
+        `Artist API > Get multiple artists
         <https://developer.tidal.com/apiref?ref=get-artists-by-ids>`_:
         Retrieve a list of artist details by TIDAL artist IDs.
 
@@ -854,7 +854,7 @@ class API:
         Returns
         -------
         artists : `dict`
-            A dictionary containing TIDAL catalog information for 
+            A dictionary containing TIDAL catalog information for
             multiple artists and metadata for the returned results.
 
             .. admonition:: Sample response
@@ -900,7 +900,7 @@ class API:
 
         """
         `Artist API > Get albums by artist
-        <https://developer.tidal.com/apiref?ref=get-artist-albums>`_: 
+        <https://developer.tidal.com/apiref?ref=get-artist-albums>`_:
         Retrieve a list of albums by TIDAL artist ID.
 
         Parameters
@@ -929,7 +929,7 @@ class API:
         -------
         albums : `dict`
             A dictionary containing TIDAL catalog information for
-            albums by the specified artist and metadata for the 
+            albums by the specified artist and metadata for the
             returned results.
 
             .. admonition:: Sample response
@@ -1005,14 +1005,134 @@ class API:
                 "offset": offset
             }
         )
-    
+
+    def get_artist_tracks(
+            self, artist_id: Union[int, str], country_code: str,
+            limit: int = None, offset: int = None) -> dict[str, Any]:
+
+        """
+        `Track API > Get tracks by artist
+        <https://developer.tidal.com/apiref?ref=get-tracks-by-artist>`_:
+        Retrieve a list of tracks made by the specified artist.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`
+            TIDAL artist ID.
+
+            **Example**: :code:`1566`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        limit : `int`, keyword-only, optional
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, keyword-only, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`.
+
+        Returns
+        -------
+        tracks : `dict`
+            A dictionary containing TIDAL catalog information for tracks
+            by the specified artist and metadata for the returned results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "resource": {
+                          "properties": {
+                            "content": <str>
+                          },
+                          "id": <str>,
+                          "version": <str>,
+                          "duration": <int>,
+                          "album": {
+                            "id": <str>,
+                            "title": <str>,
+                            "imageCover": [
+                              {
+                                "url": <str>,
+                                "width": <int>,
+                                "height": <int>
+                              }
+                            ],
+                            "videoCover": [
+                              {
+                                "url": <str>,
+                                "width": <int>,
+                                "height": <int>
+                              }
+                            ]
+                          },
+                          "title": <str>,
+                          "copyright": <str>,
+                          "artists": [
+                            {
+                              "id": <str>,
+                              "name": <str>,
+                              "picture": [
+                                {
+                                  "url": <str>,
+                                  "width": <int>,
+                                  "height": <int>
+                                }
+                              ],
+                              "main": <bool>
+                            }
+                          ],
+                          "popularity": <float>,
+                          "isrc": <str>,
+                          "trackNumber": <int>,
+                          "volumeNumber": <int>,
+                          "tidalUrl": <str>,
+                          "providerInfo": {
+                            "providerId": <str>,
+                            "providerName": <str>
+                          },
+                          "artifactType": <str>,
+                          "mediaMetadata": {
+                            "tags": <str>
+                          }
+                        },
+                        "id": <str>,
+                        "status": <int>,
+                        "message": <str>
+                      }
+                    ],
+                    "metadata": {
+                      "total": <int>
+                    }
+                  }
+        """
+
+        return self._get_json(
+            f"{self.API_URL}/artists/{artist_id}/tracks",
+            params={
+                "countryCode": country_code,
+                "limit": limit,
+                "offset": offset
+            }
+        )
+
     def get_similar_artists(
             self, artist_id: Union[int, str], country_code: str, *,
             limit: int = None, offset: int = None) -> dict[str, Any]:
-        
+
         """
         `Artist API > Get similar artists for the given artist
-        <https://developer.tidal.com/apiref?ref=get-similar-artists>`_: 
+        <https://developer.tidal.com/apiref?ref=get-similar-artists>`_:
         Retrieve a list of artists similar to the given artist.
 
         Parameters
@@ -1075,10 +1195,10 @@ class API:
 
     def get_track(
             self, track_id: Union[int, str], country_code: str
-        ) -> dict[str, Any]: 
-        
+        ) -> dict[str, Any]:
+
         """
-        `Track API > Get single track 
+        `Track API > Get single track
         <https://developer.tidal.com/apiref?ref=get-track>`_: Retrieve
         track details by TIDAL track ID.
 
@@ -1153,17 +1273,17 @@ class API:
                       }
                     }
         """
-        
+
         return self._get_json(f"{self.API_URL}/tracks/{track_id}",
                               params={"countryCode": country_code})["resource"]
 
     def get_tracks(
-            self, track_ids: Union[int, str, list[Union[int, str]]], 
+            self, track_ids: Union[int, str, list[Union[int, str]]],
             country_code: str) -> dict[str, Any]:
-        
+
         """
         `Album API > Get multiple tracks
-        <https://developer.tidal.com/apiref?ref=get-tracks-by-ids>`_: 
+        <https://developer.tidal.com/apiref?ref=get-tracks-by-ids>`_:
         Retrieve a list of track details by TIDAL track IDs.
 
         Parameters
@@ -1171,7 +1291,7 @@ class API:
         track_ids : `int`, `str`, or `list`
             TIDAL track ID(s).
 
-            **Examples**: :code:`"251380837,251380838"` or 
+            **Examples**: :code:`"251380837,251380838"` or
             :code:`[251380837, 251380838]`.
 
         country_code : `str`
@@ -1182,7 +1302,7 @@ class API:
         Returns
         -------
         tracks : `dict`
-            A dictionary containing TIDAL catalog information for 
+            A dictionary containing TIDAL catalog information for
             multiple tracks and metadata for the returned results.
 
             .. admonition:: Sample response
@@ -1213,7 +1333,7 @@ class API:
                           ],
                           "album": {
                             "id": <str>,
-                            "title": <str>, 
+                            "title": <str>,
                             "imageCover": [
                               {
                                 "url": <str>,
@@ -1259,17 +1379,19 @@ class API:
             params={"ids": track_ids, "countryCode": country_code}
         )
 
-    def get_track_by_isrc(self, isrc: str, country_code: str) -> dict[str, Any]:
-        
+    def get_tracks_by_isrc(
+            self, isrc: str, country_code: str, limit: int = None,
+            offset: int = None) -> dict[str, Any]:
+
         """
-        `Track API > Get tracks by ISRC 
+        `Track API > Get tracks by ISRC
         <https://developer.tidal.com/apiref?ref=get-tracks-by-isrc>`_:
         Retrieve a list of track details by ISRC.
 
         Parameters
         ----------
         isrc : `str`
-            Valid ISRC code (usually comprises 12 alphanumeric 
+            Valid ISRC code (usually comprises 12 alphanumeric
             characters).
 
             **Example**: :code:`"USSM12209515"`.
@@ -1278,6 +1400,16 @@ class API:
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
+
+        limit : `int`, optional
+            Page size.
+
+            **Example**: :code:`10`.
+
+        offset : `int`, optional
+            Pagination offset (in number of items).
+
+            **Example**: :code:`0`.
 
         Returns
         -------
@@ -1314,7 +1446,7 @@ class API:
                           ],
                           "album": {
                             "id": <str>,
-                            "title": <str>, 
+                            "title": <str>,
                             "imageCover": [
                               {
                                 "url": <str>,
@@ -1357,13 +1489,18 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/tracks/byIsrc",
-            params={"isrc": isrc, "countryCode": country_code}
+            params={
+                "isrc": isrc,
+                "countryCode": country_code,
+                "limit": limit,
+                "offset": offset
+            }
         )
 
     def get_similar_tracks(
             self, track_id: Union[int, str], country_code: str, *,
             limit: int = None, offset: int = None) -> dict[str, Any]:
-        
+
         """
         `Track API > Get similar tracks for the given track
         <https://developer.tidal.com/apiref?ref=get-similar-tracks>`_:
@@ -1424,13 +1561,13 @@ class API:
                 "offset": offset
             }
         )
-    
+
     ### VIDEO API #############################################################
 
     def get_video(
             self, video_id: Union[int, str], country_code: str
         ) -> dict[str, Any]:
-        
+
         """
         `Video API > Get single video
         <https://developer.tidal.com/apiref?ref=get-video>`_: Retrieve
@@ -1493,17 +1630,17 @@ class API:
                     }
                   }
         """
-        
+
         return self._get_json(f"{self.API_URL}/videos/{video_id}",
                               params={"countryCode": country_code})["resource"]
 
     def get_videos(
-            self, video_ids: Union[int, str, list[Union[int, str]]], 
+            self, video_ids: Union[int, str, list[Union[int, str]]],
             country_code: str) -> list[dict[str, Any]]:
-        
+
         """
         `Album API > Get multiple videos
-        <https://developer.tidal.com/apiref?ref=get-videos-by-ids>`_: 
+        <https://developer.tidal.com/apiref?ref=get-videos-by-ids>`_:
         Retrieve a list of video details by TIDAL video IDs.
 
         Parameters
@@ -1511,7 +1648,7 @@ class API:
         video_ids : `int`, `str`, or `list`
             TIDAL video ID(s).
 
-            **Examples**: :code:`"59727844,75623239"` or 
+            **Examples**: :code:`"59727844,75623239"` or
             :code:`[59727844, 75623239]`.
 
         country_code : `str`
@@ -1522,7 +1659,7 @@ class API:
         Returns
         -------
         videos : `dict`
-            A dictionary containing TIDAL catalog information for 
+            A dictionary containing TIDAL catalog information for
             multiple videos and metadata for the returned results.
 
             .. admonition:: Sample response
@@ -1583,12 +1720,12 @@ class API:
     ### SEARCH API ############################################################
 
     def search(
-            self, query: str, country_code: str, *, type: str = None, 
+            self, query: str, country_code: str, *, type: str = None,
             limit: int = None, offset: int = None, popularity: str = None
-        ) -> dict[str, list[dict[str, Any]]]: 
+        ) -> dict[str, list[dict[str, Any]]]:
 
         """
-        `Search API > Search for catalog items 
+        `Search API > Search for catalog items
         <https://developer.tidal.com/apiref?ref=search>`_: Search for
         albums, artists, tracks, and videos.
 
@@ -1607,7 +1744,7 @@ class API:
         type : `str`, keyword-only, optional
             Target search type. Searches for all types if not specified.
 
-            **Valid values**: :code:`"ALBUMS"`, :code:`"ARTISTS"`, 
+            **Valid values**: :code:`"ALBUMS"`, :code:`"ARTISTS"`,
             :code:`"TRACKS"`, :code:`"VIDEOS"`.
 
         limit : `int`, keyword-only, optional
@@ -1732,7 +1869,7 @@ class API:
                           ],
                           "album": {
                             "id": <str>,
-                            "title": <str>, 
+                            "title": <str>,
                             "imageCover": [
                               {
                                 "url": <str>,
@@ -1814,9 +1951,9 @@ class API:
             f"{self.API_URL}/search",
             params={
                 "query": query,
-                "countryCode": country_code, 
+                "countryCode": country_code,
                 "type": type,
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset,
                 "popularity": popularity
             }
@@ -1827,15 +1964,15 @@ class PrivateAPI:
     """
     Private TIDAL API client.
 
-    The private TIDAL API allows media (tracks, videos), collections 
-    (albums, playlists), and performers to be queried, and information 
-    about them to be retrieved. As there is no available official 
-    documentation for the private TIDAL API, its endpoints have been 
+    The private TIDAL API allows media (tracks, videos), collections
+    (albums, playlists), and performers to be queried, and information
+    about them to be retrieved. As there is no available official
+    documentation for the private TIDAL API, its endpoints have been
     determined by watching HTTP network traffic.
 
     .. attention::
 
-       As the private TIDAL API is not designed to be publicly 
+       As the private TIDAL API is not designed to be publicly
        accessible, this class can be disabled or removed at any time to
        ensure compliance with the `TIDAL Developer Terms of Service
        <https://developer.tidal.com/documentation/guidelines
@@ -1844,17 +1981,17 @@ class PrivateAPI:
     While authentication is not necessary to search for and retrieve
     data from public content, it is required to access personal content
     and stream media (with an active TIDAL subscription). In the latter
-    case, requests to the private TIDAL API endpoints must be 
+    case, requests to the private TIDAL API endpoints must be
     accompanied by a valid user access token in the header.
 
     Minim can obtain user access tokens via the authorization code with
-    proof key for code exchange (PKCE) and device code flows. These 
-    OAuth 2.0 authorization flows require valid client credentials 
+    proof key for code exchange (PKCE) and device code flows. These
+    OAuth 2.0 authorization flows require valid client credentials
     (client ID and client secret) to either be provided to this class's
-    constructor as keyword arguments or be stored as 
-    :code:`TIDAL_PRIVATE_CLIENT_ID` and 
-    :code:`TIDAL_PRIVATE_CLIENT_SECRET` in the operating system's 
-    environment variables. 
+    constructor as keyword arguments or be stored as
+    :code:`TIDAL_PRIVATE_CLIENT_ID` and
+    :code:`TIDAL_PRIVATE_CLIENT_SECRET` in the operating system's
+    environment variables.
 
     .. hint::
 
@@ -1876,9 +2013,9 @@ class PrivateAPI:
        The authorization flow and access token can be changed or updated
        at any time using :meth:`set_flow` and :meth:`set_access_token`,
        respectively.
-    
-    Minim also stores and manages access tokens and their properties. 
-    When an access token is acquired, it is automatically saved to the 
+
+    Minim also stores and manages access tokens and their properties.
+    When an access token is acquired, it is automatically saved to the
     Minim configuration file to be loaded on the next instantiation of
     this class. This behavior can be disabled if there are any security
     concerns, like if the computer being used is a shared device.
@@ -1886,14 +2023,14 @@ class PrivateAPI:
     Parameters
     ----------
     client_id : `str`, keyword-only, optional
-        Client ID. If it is not stored as 
-        :code:`TIDAL_PRIVATE_CLIENT_ID` in the operating system's 
+        Client ID. If it is not stored as
+        :code:`TIDAL_PRIVATE_CLIENT_ID` in the operating system's
         environment variables or found in the Minim configuration file,
         it must be provided here.
-    
+
     client_secret : `str`, keyword-only, optional
-        Client secret. Required for the authorization code and device 
-        code flows. If it is not stored as 
+        Client secret. Required for the authorization code and device
+        code flows. If it is not stored as
         :code:`TIDAL_PRIVATE_CLIENT_SECRET` in the operating system's
         environment variables or found in the Minim configuration file,
         it must be provided here.
@@ -1905,17 +2042,17 @@ class PrivateAPI:
         .. container::
 
            **Valid values**:
-           
+
            * :code:`"pkce"` for the authorization code with proof key
              for code exchange (PKCE) flow.
            * :code:`"device_code"` for the device code flow.
-    
+
     browser : `bool`, keyword-only, default: :code:`False`
         Determines whether a web browser is automatically opened for the
-        authorization code with PKCE or device code flows. If 
-        :code:`False`, users will have to manually open the 
+        authorization code with PKCE or device code flows. If
+        :code:`False`, users will have to manually open the
         authorization URL, and for the authorization code flow, provide
-        the full callback URI via the terminal. For the authorization 
+        the full callback URI via the terminal. For the authorization
         code with PKCE flow, the Playwright framework by Microsoft is
         used.
 
@@ -1928,27 +2065,27 @@ class PrivateAPI:
 
     user_agent : `str`, keyword-only, optional
         User agent information to send in the header of HTTP requests.
-        
+
         .. note::
-        
+
            If not specified, TIDAL may temporarily block your IP address
            if you are making requests too quickly.
-    
+
     access_token : `str`, keyword-only, optional
-        Access token. If provided here or found in the Minim 
-        configuration file, the authentication process is bypassed. In 
+        Access token. If provided here or found in the Minim
+        configuration file, the authentication process is bypassed. In
         the former case, all other relevant keyword arguments should be
-        specified to automatically refresh the access token when it 
+        specified to automatically refresh the access token when it
         expires.
-    
+
     refresh_token : `str`, keyword-only, optional
         Refresh token accompanying `access_token`. If not provided,
-        the user will be reauthenticated using the specified 
+        the user will be reauthenticated using the specified
         authorization flow when `access_token` expires.
-        
+
     expiry : `datetime.datetime` or `str`, keyword-only, optional
         Expiry time of `access_token` in the ISO 8601 format
-        :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be 
+        :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be
         reauthenticated using `refresh_token` (if available) or the
         specified authorization flow (if possible) when `access_token`
         expires.
@@ -1959,7 +2096,7 @@ class PrivateAPI:
 
     save : `bool`, keyword-only, default: :code:`True`
         Determines whether newly obtained access tokens and their
-        associated properties are stored to the Minim configuration 
+        associated properties are stored to the Minim configuration
         file.
 
     Attributes
@@ -1978,7 +2115,7 @@ class PrivateAPI:
 
     RESOURCES_URL : `str`
         URL for cover art and image requests.
-        
+
     TOKEN_URL : `str`
         URL for access token requests.
 
@@ -2001,16 +2138,16 @@ class PrivateAPI:
 
     def __init__(
             self, *, client_id: str = None, client_secret: str = None,
-            flow: str = None, browser: bool = False, 
+            flow: str = None, browser: bool = False,
             scopes: Union[str, list[str]] = "r_usr", user_agent: str = None,
             access_token: str = None, refresh_token: str = None,
-            expiry: datetime.datetime = None, overwrite: bool = False, 
+            expiry: datetime.datetime = None, overwrite: bool = False,
             save: bool = True) -> None:
-        
+
         """
         Create a private TIDAL API client.
         """
-        
+
         self.session = requests.Session()
         if user_agent:
             self.session.headers["User-Agent"] = user_agent
@@ -2029,9 +2166,9 @@ class PrivateAPI:
                       browser=browser, scopes=scopes, save=save)
         self.set_access_token(access_token, refresh_token=refresh_token,
                               expiry=expiry)
-  
+
     def _check_scope(
-            self, endpoint: str, scope: str = None, *, 
+            self, endpoint: str, scope: str = None, *,
             flows: Union[str, list[set], set[str]] = None,
             require_authentication: bool = True) -> None:
 
@@ -2054,7 +2191,7 @@ class PrivateAPI:
 
         require_authentication : `bool`, keyword-only, default: :code:`True`
             Specifies whether the endpoint requires user authentication.
-            Some endpoints can be used without authentication but require 
+            Some endpoints can be used without authentication but require
             specific scopes when user authentication has been performed.
         """
 
@@ -2089,7 +2226,7 @@ class PrivateAPI:
         ----------
         code_challenge : `str`, optional
             Code challenge for the authorization code with PKCE flow.
-        
+
         Returns
         -------
         auth_code : `str`
@@ -2116,12 +2253,12 @@ class PrivateAPI:
                 context = browser.new_context(
                     locale="en-US",
                     timezone_id="America/Los_Angeles",
-                    record_har_path=har_file, 
+                    record_har_path=har_file,
                     **playwright.devices["Desktop Firefox HiDPI"]
                 )
                 page = context.new_page()
                 page.goto(auth_url, timeout=0)
-                page.wait_for_url(f"{self.REDIRECT_URI}*", 
+                page.wait_for_url(f"{self.REDIRECT_URI}*",
                                   wait_until="commit")
                 context.close()
                 browser.close()
@@ -2130,7 +2267,7 @@ class PrivateAPI:
                 queries = dict(
                     urllib.parse.parse_qsl(
                         urllib.parse.urlparse(
-                            re.search(fr'{self.REDIRECT_URI}\?(.*?)"', 
+                            re.search(fr'{self.REDIRECT_URI}\?(.*?)"',
                                       f.read()).group(0)
                         ).query
                     )
@@ -2147,13 +2284,13 @@ class PrivateAPI:
             queries = dict(
                 urllib.parse.parse_qsl(urllib.parse.urlparse(uri).query)
             )
-        
+
         if "code" not in queries:
             raise RuntimeError("Authorization failed.")
         return queries["code"]
 
     def _get_country_code(self, country_code: str = None) -> str:
-        
+
         """
         Get the ISO 3166-1 alpha-2 country code to use for requests.
 
@@ -2165,7 +2302,7 @@ class PrivateAPI:
             session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
-        
+
         Returns
         -------
         country_code : `str`
@@ -2178,14 +2315,14 @@ class PrivateAPI:
     def _get_json(self, url: str, **kwargs) -> dict:
 
         """
-        Send a GET request and return the JSON-encoded content of the 
+        Send a GET request and return the JSON-encoded content of the
         response.
 
         Parameters
         ----------
         url : `str`
             URL for the GET request.
-        
+
         **kwargs
             Keyword arguments to pass to :meth:`requests.request`.
 
@@ -2207,11 +2344,11 @@ class PrivateAPI:
                 or not self._client_id \
                 or (self._flow == "device_code" and not self._client_secret):
             self.set_access_token()
-        else:  
+        else:
             r = requests.post(
                 f"{self.LOGIN_URL}/oauth2/token",
                 data={
-                    "client_id": self._client_id, 
+                    "client_id": self._client_id,
                     "client_secret": self._client_secret,
                     "grant_type": "refresh_token",
                     "refresh_token": self._refresh_token
@@ -2222,7 +2359,7 @@ class PrivateAPI:
             self._expiry = (datetime.datetime.now()
                             + datetime.timedelta(0, r["expires_in"]))
             self._scopes = r["scope"]
-            
+
             if self._save:
                 _config[self._NAME].update({
                     "access_token": r["access_token"],
@@ -2286,12 +2423,12 @@ class PrivateAPI:
                 return self._request(method, url, False, **kwargs)
             else:
                 raise RuntimeError(emsg)
-        return r 
+        return r
 
     def set_access_token(
             self, access_token: str = None, *, refresh_token: str = None,
             expiry: Union[str, datetime.datetime] = None) -> None:
-        
+
         """
         Set the private TIDAL API access token.
 
@@ -2308,8 +2445,8 @@ class PrivateAPI:
         expiry : `str` or `datetime.datetime`, keyword-only, optional
             Access token expiry timestamp in the ISO 8601 format
             :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be
-            reauthenticated using the refresh token (if available) or 
-            the default authorization flow (if possible) when 
+            reauthenticated using the refresh token (if available) or
+            the default authorization flow (if possible) when
             `access_token` expires.
         """
 
@@ -2337,13 +2474,13 @@ class PrivateAPI:
                             ).digest()
                         ).decode().rstrip("=")
                     )
-                    r = requests.post(f"{self.LOGIN_URL}/oauth2/token", 
+                    r = requests.post(f"{self.LOGIN_URL}/oauth2/token",
                                       json=data).json()
                 elif self._flow == "device_code":
                     if not self._client_id:
                         emsg = "Private TIDAL API client secret not provided."
                         raise ValueError(emsg)
-                    
+
                     data = {"client_id": self._client_id}
                     if self._scopes:
                         data["scope"] = self._scopes
@@ -2366,7 +2503,7 @@ class PrivateAPI:
                     while True:
                         time.sleep(2)
                         r = requests.post(
-                            f"{self.AUTH_URL}/token", 
+                            f"{self.AUTH_URL}/token",
                             auth=(self._client_id, self._client_secret),
                             data=data
                         ).json()
@@ -2379,7 +2516,7 @@ class PrivateAPI:
                 refresh_token = r["refresh_token"]
                 expiry = (datetime.datetime.now()
                           + datetime.timedelta(0, r["expires_in"]))
-                
+
                 if self._save:
                     _config[self._NAME] = {
                         "flow": self._flow,
@@ -2394,11 +2531,11 @@ class PrivateAPI:
                             = self._client_secret
                     with open(DIR_HOME / "minim.cfg", "w") as f:
                         _config.write(f)
-                    
+
         self.session.headers["Authorization"] = f"Bearer {access_token}"
         self._refresh_token = refresh_token
         self._expiry = (
-            datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ") 
+            datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ")
             if isinstance(expiry, str) else expiry
         )
 
@@ -2409,7 +2546,7 @@ class PrivateAPI:
 
     def set_flow(
             self, flow: str, client_id: str, *, client_secret: str = None,
-            browser: bool = False, scopes: Union[str, list[str]] = "", 
+            browser: bool = False, scopes: Union[str, list[str]] = "",
             save: bool = True) -> None:
 
         """
@@ -2424,25 +2561,25 @@ class PrivateAPI:
             .. container::
 
                **Valid values**:
-           
-               * :code:`"pkce"` for the authorization code with proof 
+
+               * :code:`"pkce"` for the authorization code with proof
                  key for code exchange (PKCE) flow.
-               * :code:`"client_credentials"` for the client credentials 
+               * :code:`"client_credentials"` for the client credentials
                  flow.
-            
+
         client_id : `str`
             Client ID.
 
         client_secret : `str`, keyword-only, optional
-            Client secret. Required for all OAuth 2.0 authorization 
+            Client secret. Required for all OAuth 2.0 authorization
             flows.
 
         browser : `bool`, keyword-only, default: :code:`False`
             Determines whether a web browser is automatically opened for
-            the authorization code with PKCE or device code flows. If 
-            :code:`False`, users will have to manually open the 
-            authorization URL, and for the authorization code flow, 
-            provide the full callback URI via the terminal. For the 
+            the authorization code with PKCE or device code flows. If
+            :code:`False`, users will have to manually open the
+            authorization URL, and for the authorization code flow,
+            provide the full callback URI via the terminal. For the
             authorization code with PKCE flow, the Playwright framework
             by Microsoft is used.
 
@@ -2455,7 +2592,7 @@ class PrivateAPI:
 
         save : `bool`, keyword-only, default: :code:`True`
             Determines whether to save the newly obtained access tokens
-            and their associated properties to the Minim configuration 
+            and their associated properties to the Minim configuration
             file.
         """
 
@@ -2463,7 +2600,7 @@ class PrivateAPI:
             emsg = (f"Invalid authorization flow ({flow=}). "
                     f"Valid values: {', '.join(self._FLOWS)}.")
             raise ValueError(emsg)
-        
+
         self._flow = flow
         self._save = save
         self._client_id = client_id or os.environ.get("TIDAL_PRIVATE_CLIENT_ID")
@@ -2480,7 +2617,7 @@ class PrivateAPI:
                         "not available.")
                 warnings.warn(wmsg)
 
-            self._client_secret = (client_secret 
+            self._client_secret = (client_secret
                                    or os.environ.get("TIDAL_PRIVATE_CLIENT_SECRET"))
             self._scopes = " ".join(scopes) if isinstance(scopes, list) \
                            else scopes
@@ -2499,7 +2636,7 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -2588,12 +2725,12 @@ class PrivateAPI:
         ) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for items (tracks and videos) in 
+        Get TIDAL catalog information for items (tracks and videos) in
         an album.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -2619,15 +2756,15 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         credits : `bool`, keyword-only, default: :code:`False`
             Determines whether credits for each item is returned.
-            
+
         Returns
         -------
         items : `dict`
-            A dictionary containing TIDAL catalog information for 
+            A dictionary containing TIDAL catalog information for
             tracks and videos in the specified album and metadata for
             the returned results.
 
@@ -2724,7 +2861,7 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -2782,7 +2919,7 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -2803,7 +2940,7 @@ class PrivateAPI:
         Returns
         -------
         review : `dict`
-            A dictionary containing a review of or a synopsis for an 
+            A dictionary containing a review of or a synopsis for an
             album and its source.
 
             .. admonition:: Sample response
@@ -2821,7 +2958,7 @@ class PrivateAPI:
 
         self._check_scope("get_album_review", "r_usr", flows={"device_code"},
                           require_authentication=False)
-        
+
         return self._get_json(
             f"{self.API_URL}/v1/albums/{album_id}/review",
             params={"countryCode": self._get_country_code(country_code)}
@@ -2830,14 +2967,14 @@ class PrivateAPI:
     def get_similar_albums(
             self, album_id: Union[int, str], country_code: str = None
         ) -> dict[str, Any]:
-        
+
         """
         Get TIDAL catalog information for albums similar to the
         specified album.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -2930,21 +3067,21 @@ class PrivateAPI:
 
     def get_favorite_albums(
             self, country_code: str = None, *, limit: int = 50,
-            offset: int = None, order: str = "DATE", 
+            offset: int = None, order: str = "DATE",
             order_direction: str = "DESC") -> None:
-        
+
         """
         Get TIDAL catalog information for albums in the current user's
         collection.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
-        ----------          
+        ----------
         country_code : `str`, optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country code associated with the user account in the current
@@ -2960,8 +3097,8 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
-            
+            **Example**: :code:`0`.
+
         order : `str`, keyword-only, default: :code:`"DATE"`
             Sorting order.
 
@@ -2976,7 +3113,7 @@ class PrivateAPI:
         -------
         albums : `dict`
             A dictionary containing TIDAL catalog information for albums
-            in the current user's collection and metadata for the 
+            in the current user's collection and metadata for the
             returned results.
 
             .. admonition:: Sample response
@@ -3041,22 +3178,22 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_favorite_albums", "r_usr", 
+        self._check_scope("get_favorite_albums", "r_usr",
                           flows={"device_code"})
 
         return self._get_json(
-            f"{self.API_URL}/v1/users/{self._user_id}/favorites/albums", 
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/albums",
             params={
                 "countryCode": self._get_country_code(country_code),
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset,
-                "order": order, 
-                "orderDirection": order_direction, 
+                "order": order,
+                "orderDirection": order_direction,
             }
         )
 
     def favorite_albums(
-            self, album_ids: Union[int, str, list[Union[int, str]]], 
+            self, album_ids: Union[int, str, list[Union[int, str]]],
             country_code: str = None, *, on_artifact_not_found: str = "FAIL"
         ) -> None:
 
@@ -3065,8 +3202,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -3074,7 +3211,7 @@ class PrivateAPI:
         album_ids : `int`, `str`, or `list`
             TIDAL album ID(s).
 
-            **Examples**: :code:`"251380836,275646830"` or 
+            **Examples**: :code:`"251380836,275646830"` or
             :code:`[251380836, 275646830]`.
 
         country_code : `str`, optional
@@ -3093,12 +3230,12 @@ class PrivateAPI:
         self._check_scope("favorite_albums", "r_usr", flows={"device_code"})
 
         self._request(
-            "post", 
+            "post",
             f"{self.API_URL}/v1/users/{self._user_id}/favorites/albums",
             params={"countryCode": self._get_country_code(country_code)},
             data={
-                "albumIds": ",".join(map(str, album_ids)) 
-                            if isinstance(album_ids, list) else album_ids, 
+                "albumIds": ",".join(map(str, album_ids))
+                            if isinstance(album_ids, list) else album_ids,
                 "onArtifactNotFound": on_artifact_not_found
             }
         )
@@ -3111,8 +3248,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -3120,15 +3257,15 @@ class PrivateAPI:
         album_ids : `int`, `str`, or `list`
             TIDAL album ID(s).
 
-            **Examples**: :code:`"251380836,275646830"` or 
+            **Examples**: :code:`"251380836,275646830"` or
             :code:`[251380836, 275646830]`.
         """
 
         self._check_scope("unfavorite_albums", "r_usr", flows={"device_code"})
-        
+
         if isinstance(album_ids, list):
             album_ids = ",".join(map(str, album_ids))
-        self._request("delete", 
+        self._request("delete",
                       f"{self.API_URL}/v1/users/{self._user_id}"
                       f"/favorites/albums/{album_ids}")
 
@@ -3143,7 +3280,7 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -3192,14 +3329,14 @@ class PrivateAPI:
 
         self._check_scope("get_artist", "r_usr", flows={"device_code"},
                           require_authentication=False)
-        
+
         return self._get_json(
             f"{self.API_URL}/v1/artists/{artist_id}",
             params={"countryCode": self._get_country_code(country_code)}
         )
 
     def get_artist_albums(
-            self, artist_id: Union[int, str], country_code: str = None, *, 
+            self, artist_id: Union[int, str], country_code: str = None, *,
             filter: str = None, limit: int = 100, offset: int = None
         ) -> dict[str, Any]:
 
@@ -3208,10 +3345,10 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
-        
+
         Parameters
         ----------
         artist_id : `int` or `str`
@@ -3228,8 +3365,8 @@ class PrivateAPI:
 
         filter : `str`, keyword-only, optional
             Subset of albums to retrieve.
-        
-            **Valid values**: :code:`"EPSANDSINGLES"` and 
+
+            **Valid values**: :code:`"EPSANDSINGLES"` and
             :code:`"COMPILATIONS"`.
 
         limit : `int`, keyword-only, default: :code:`100`
@@ -3240,13 +3377,13 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         Returns
         -------
         albums : `dict`
             A dictionary containing TIDAL catalog information for
-            albums by the specified artist and metadata for the 
+            albums by the specified artist and metadata for the
             returned results.
 
             .. admonition:: Sample response
@@ -3316,7 +3453,7 @@ class PrivateAPI:
             params={
                 "countryCode": self._get_country_code(country_code),
                 "filter": filter,
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset
             }
         )
@@ -3330,7 +3467,7 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -3356,7 +3493,7 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         Returns
         -------
@@ -3430,14 +3567,14 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_artist_top_tracks", "r_usr", 
+        self._check_scope("get_artist_top_tracks", "r_usr",
                           flows={"device_code"}, require_authentication=False)
 
         return self._get_json(
             f"{self.API_URL}/v1/artists/{artist_id}/toptracks",
             params={
                 "countryCode": self._get_country_code(country_code),
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset
             }
         )
@@ -3451,7 +3588,7 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -3477,7 +3614,7 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         Returns
         -------
@@ -3544,21 +3681,21 @@ class PrivateAPI:
             f"{self.API_URL}/v1/artists/{artist_id}/videos",
             params={
                 "countryCode": self._get_country_code(country_code),
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset
             }
         )
 
     def get_artist_mix_id(
             self, artist_id: Union[int, str], country_code: str = None) -> str:
-        
+
         """
-        Get the ID of a curated mix of tracks based on an artist's 
+        Get the ID of a curated mix of tracks based on an artist's
         works.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -3602,14 +3739,14 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
         .. note::
 
-           This method is functionally identical to first getting the 
-           artist mix ID using :meth:`get_artist_mix_id` and then 
+           This method is functionally identical to first getting the
+           artist mix ID using :meth:`get_artist_mix_id` and then
            retrieving TIDAL catalog information for the items in the mix
            using :meth:`get_mix_items`.
 
@@ -3635,8 +3772,8 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
-            
+            **Example**: :code:`0`.
+
         Returns
         -------
         tracks : `dict`
@@ -3731,7 +3868,7 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -3768,7 +3905,7 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_artist_biography", "r_usr", 
+        self._check_scope("get_artist_biography", "r_usr",
                           flows={"device_code"}, require_authentication=False)
 
         return self._get_json(
@@ -3785,7 +3922,7 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -3811,7 +3948,7 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         Returns
         -------
@@ -3838,29 +3975,29 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_artist_links", "r_usr", 
+        self._check_scope("get_artist_links", "r_usr",
                           flows={"device_code"}, require_authentication=False)
 
         return self._get_json(
             f"{self.API_URL}/v1/artists/{artist_id}/links",
             params={
                 "countryCode": self._get_country_code(country_code),
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset
             }
         )
 
     def get_similar_artists(
-            self, artist_id: str, country_code: str = None, *, 
+            self, artist_id: str, country_code: str = None, *,
             limit: int = None, offset: int = None) -> dict[str, Any]:
-        
+
         """
         Get TIDAL catalog information for artists similar to a specified
         artist.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -3886,12 +4023,12 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         Returns
         -------
         artists : `dict`
-            A dictionary containing TIDAL catalog information for 
+            A dictionary containing TIDAL catalog information for
             artists similar to the specified artist and metadata for the
             returned results.
 
@@ -3922,8 +4059,8 @@ class PrivateAPI:
                     "source": "TIDAL"
                   }
         """
-        
-        self._check_scope("get_similar_artists", "r_usr", 
+
+        self._check_scope("get_similar_artists", "r_usr",
                           flows={"device_code"}, require_authentication=False)
 
         return self._get_json(
@@ -3936,18 +4073,18 @@ class PrivateAPI:
         )
 
     def get_favorite_artists(
-            self, country_code: str = None, *, limit: int = 50, 
-            offset: int = None, order: str = "DATE", 
+            self, country_code: str = None, *, limit: int = 50,
+            offset: int = None, order: str = "DATE",
             order_direction: str = "DESC") -> None:
-        
+
         """
         Get TIDAL catalog information for artists in the current user's
         collection.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -3967,7 +4104,7 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         order : `str`, keyword-only, default: :code:`"DATE"`
             Sorting order.
@@ -3982,8 +4119,8 @@ class PrivateAPI:
         Returns
         -------
         artists : `dict`
-            A dictionary containing TIDAL catalog information for 
-            artists in the current user's collection and metadata for 
+            A dictionary containing TIDAL catalog information for
+            artists in the current user's collection and metadata for
             the returned results.
 
             .. admonition:: Sample response
@@ -4020,22 +4157,22 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_favorite_artists", "r_usr", 
+        self._check_scope("get_favorite_artists", "r_usr",
                           flows={"device_code"})
 
         return self._get_json(
-            f"{self.API_URL}/v1/users/{self._user_id}/favorites/artists", 
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/artists",
             params={
                 "countryCode": self._get_country_code(country_code),
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset,
-                "order": order, 
+                "order": order,
                 "orderDirection": order_direction
             }
         )
 
     def favorite_artists(
-            self, artist_ids: Union[int, str, list[Union[int, str]]], 
+            self, artist_ids: Union[int, str, list[Union[int, str]]],
             country_code: str = None, *, on_artifact_not_found: str = "FAIL"
         ) -> None:
 
@@ -4044,8 +4181,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -4071,12 +4208,12 @@ class PrivateAPI:
         self._check_scope("favorite_artists", "r_usr", flows={"device_code"})
 
         self._request(
-            "post", 
+            "post",
             f"{self.API_URL}/v1/users/{self._user_id}/favorites/artists",
             params={"countryCode": self._get_country_code(country_code)},
             data={
-                "artistIds": ",".join(map(str, artist_ids)) 
-                             if isinstance(artist_ids, list) else artist_ids, 
+                "artistIds": ",".join(map(str, artist_ids))
+                             if isinstance(artist_ids, list) else artist_ids,
                 "onArtifactNotFound": on_artifact_not_found
             }
         )
@@ -4089,8 +4226,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -4102,10 +4239,10 @@ class PrivateAPI:
         """
 
         self._check_scope("unfavorite_artists", "r_usr", flows={"device_code"})
-        
+
         if isinstance(artist_ids, list):
             artist_ids = ",".join(map(str, artist_ids))
-        self._request("delete", 
+        self._request("delete",
                       f"{self.API_URL}/v1/users/{self._user_id}"
                       f"/favorites/artists/{artist_ids}")
 
@@ -4113,13 +4250,13 @@ class PrivateAPI:
             self, *, limit: int = 50, offset: int = None) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for the current user's blocked 
+        Get TIDAL catalog information for the current user's blocked
         artists.
-        
+
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -4132,7 +4269,7 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         Returns
         -------
@@ -4178,7 +4315,7 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_blocked_artists", "r_usr", 
+        self._check_scope("get_blocked_artists", "r_usr",
                           flows={"device_code"})
 
         return self._get_json(
@@ -4190,11 +4327,11 @@ class PrivateAPI:
 
         """
         Block an artist from appearing in mixes and the radio.
-        
+
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -4217,11 +4354,11 @@ class PrivateAPI:
 
         """
         Unblock an artist from appearing in mixes and the radio.
-        
+
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -4258,15 +4395,15 @@ class PrivateAPI:
     ### IMAGES ################################################################
 
     def get_image(
-            self, uuid: str, type: str = None, animated: bool = False, *, 
-            width: int = None, height: int = None, 
+            self, uuid: str, type: str = None, animated: bool = False, *,
+            width: int = None, height: int = None,
             filename: Union[str, pathlib.Path] = None) -> bytes:
 
         """
         Get (animated) cover art or image for a TIDAL item.
 
         .. note::
-        
+
            This method is provided for convenience and is not a private
            TIDAL API endpoint.
 
@@ -4288,7 +4425,7 @@ class PrivateAPI:
             Specifies whether the image is animated.
 
         width : `int`, keyword-only, optional
-            Valid image width for the item type. If not specified, the 
+            Valid image width for the item type. If not specified, the
             default size for the item type is used.
 
         height : `int`, keyword-only, optional
@@ -4302,11 +4439,11 @@ class PrivateAPI:
         Returns
         -------
         image : `bytes`
-            Image data. If :code:`save=True`, the stream data is saved 
-            to an image or video file and its filename is returned 
+            Image data. If :code:`save=True`, the stream data is saved
+            to an image or video file and its filename is returned
             instead.
         """
-       
+
         IMAGE_SIZES = {
             "artist": (750, 750),
             "album": (1280, 1280),
@@ -4335,7 +4472,7 @@ class PrivateAPI:
                               f"/{uuid.replace('-', '/')}"
                               f"/{width}x{height}.{extension}") as r:
             image = r.content
-            
+
         if filename:
             if not isinstance(filename, pathlib.Path):
                 filename = pathlib.Path(filename)
@@ -4352,12 +4489,12 @@ class PrivateAPI:
             self, mix_id: str, country_code: str = None) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for items (tracks and videos) in 
+        Get TIDAL catalog information for items (tracks and videos) in
         a mix.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -4378,7 +4515,7 @@ class PrivateAPI:
         Returns
         -------
         items : `dict`
-            A dictionary containing TIDAL catalog information for 
+            A dictionary containing TIDAL catalog information for
             tracks and videos in the specified mix and metadata for
             the returned results.
 
@@ -4463,20 +4600,20 @@ class PrivateAPI:
         ) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for or IDs of mixes in the 
+        Get TIDAL catalog information for or IDs of mixes in the
         current user's collection.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
         ----------
         ids : `bool`, keyword-only, default: :code:`False`
             Determine whether TIDAL catalog information about the mixes
-            (:code:`False`) or the mix IDs (:code:`True`) are 
+            (:code:`False`) or the mix IDs (:code:`True`) are
             returned.
 
         limit : `int`, keyword-only, default: :code:`50`
@@ -4492,7 +4629,7 @@ class PrivateAPI:
         -------
         mixes : `dict`
             A dictionary containing the TIDAL catalog information for or
-            IDs of the mixes in the current user's collection and the 
+            IDs of the mixes in the current user's collection and the
             cursor position.
 
             .. admonition:: Sample response
@@ -4567,7 +4704,7 @@ class PrivateAPI:
         return self._get_json(url, params={"limit": limit, "cursor": cursor})
 
     def favorite_mixes(
-            self, mix_ids: Union[str, list[str]], *, 
+            self, mix_ids: Union[str, list[str]], *,
             on_artifact_not_found: str = "FAIL") -> None:
 
         """
@@ -4575,8 +4712,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -4598,10 +4735,10 @@ class PrivateAPI:
         self._check_scope("favorite_mixes", "r_usr", flows={"device_code"})
 
         self._request(
-            "put", 
+            "put",
             f"{self.API_URL}/v2/favorites/mixes/add",
             data={
-                "mixIds": mix_ids, 
+                "mixIds": mix_ids,
                 "onArtifactNotFound": on_artifact_not_found
             }
         )
@@ -4613,8 +4750,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -4638,13 +4775,13 @@ class PrivateAPI:
     def get_album_page(
             self, album_id: Union[int, str], country_code: str = None,
             *, device_type: str = "BROWSER") -> dict[str, Any]:
-    
+
         """
         Get the TIDAL page for an album.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -4692,7 +4829,7 @@ class PrivateAPI:
         return self._get_json(
             f"{self.API_URL}/v1/pages/album",
             params={
-                "albumId": album_id, 
+                "albumId": album_id,
                 "countryCode": self._get_country_code(country_code),
                 "deviceType": device_type,
             }
@@ -4701,13 +4838,13 @@ class PrivateAPI:
     def get_artist_page(
             self, artist_id: Union[int, str], country_code: str = None,
             *, device_type: str = "BROWSER") -> dict[str, Any]:
-    
+
         """
         Get the TIDAL page for an artist.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -4755,22 +4892,22 @@ class PrivateAPI:
         return self._get_json(
             f"{self.API_URL}/v1/pages/artist",
             params={
-                "artistID": artist_id, 
+                "artistID": artist_id,
                 "countryCode": self._get_country_code(country_code),
                 "deviceType": device_type
             }
         )
-    
+
     def get_mix_page(
             self, mix_id: str, country_code: str = None,
             *, device_type: str = "BROWSER") -> dict[str, Any]:
-    
+
         """
         Get the TIDAL page for a mix.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -4818,22 +4955,22 @@ class PrivateAPI:
         return self._get_json(
             f"{self.API_URL}/v1/pages/mix",
             params={
-                "mixId": mix_id, 
+                "mixId": mix_id,
                 "countryCode": self._get_country_code(country_code),
                 "deviceType": device_type,
             }
         )
-    
+
     def get_video_page(
             self, video_id: Union[int, str], country_code: str = None,
             *, device_type: str = "BROWSER") -> dict[str, Any]:
-    
+
         """
         Get the TIDAL page for a video.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -4881,7 +5018,7 @@ class PrivateAPI:
         return self._get_json(
             f"{self.API_URL}/v1/pages/videos",
             params={
-                "videoId": video_id, 
+                "videoId": video_id,
                 "countryCode": self._get_country_code(country_code),
                 "deviceType": device_type
             }
@@ -4892,13 +5029,13 @@ class PrivateAPI:
     def get_playlist(
             self, playlist_uuid: str, country_code: str = None
         ) -> dict[str, Any]:
-        
+
         """
         Get TIDAL catalog information for a playlist.
-        
+
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -4958,7 +5095,7 @@ class PrivateAPI:
 
         self._check_scope("get_playlist", "r_usr", flows={"device_code"},
                           require_authentication=False)
-                
+
         return self._get_json(
             f"{self.API_URL}/v1/playlists/{playlist_uuid}",
             params={"countryCode": self._get_country_code(country_code)}
@@ -4972,7 +5109,7 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -5007,23 +5144,23 @@ class PrivateAPI:
                           require_authentication=False)
 
         r = self._request(
-            "get", 
-            f"{self.API_URL}/v1/playlists/{playlist_uuid}", 
+            "get",
+            f"{self.API_URL}/v1/playlists/{playlist_uuid}",
             params={"countryCode": self._get_country_code(country_code)}
         )
         return r.headers["ETag"].replace('"', "")
 
     def get_playlist_items(
-            self, playlist_uuid: str, country_code: str = None, *, 
+            self, playlist_uuid: str, country_code: str = None, *,
             limit: int = 100, offset: int = None) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for items (tracks and videos) in 
+        Get TIDAL catalog information for items (tracks and videos) in
         a playlist.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -5049,12 +5186,12 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         Returns
         -------
         items : `dict`
-            A dictionary containing TIDAL catalog information for 
+            A dictionary containing TIDAL catalog information for
             tracks and videos in the specified playlist and metadata for
             the returned results.
 
@@ -5134,13 +5271,13 @@ class PrivateAPI:
             f"{self.API_URL}/v1/playlists/{playlist_uuid}/items",
             params={
                 "countryCode": self._get_country_code(country_code),
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset
             }
         )
 
     def get_playlist_recommendations(
-            self, playlist_uuid: str, country_code: str = None, *, 
+            self, playlist_uuid: str, country_code: str = None, *,
             limit: int = None, offset: int = None) -> dict[str, Any]:
 
         """
@@ -5149,8 +5286,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5175,12 +5312,12 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         Returns
         -------
         items : `dict`
-            A dictionary containing TIDAL catalog information for 
+            A dictionary containing TIDAL catalog information for
             recommended tracks and videos and metadata for the returned
             results.
 
@@ -5253,7 +5390,7 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_playlist_recommendations", "r_usr", 
+        self._check_scope("get_playlist_recommendations", "r_usr",
                           flows={"device_code"})
 
         return self._get_json(
@@ -5261,22 +5398,22 @@ class PrivateAPI:
             "/recommendations/items",
             params={
                 "countryCode": self._get_country_code(country_code),
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset
             }
         )
 
     def favorite_playlists(
-            self, playlist_uuids: Union[str, list[str]], *, 
+            self, playlist_uuids: Union[str, list[str]], *,
             folder_id: str = "root") -> None:
-        
+
         """
         Add playlists to the current user's collection.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5288,13 +5425,13 @@ class PrivateAPI:
             "4261748a-4287-4758-aaab-6d5be3e99e52"]`.
 
         folder_id : `str`, keyword-only, default: :code:`"root"`
-            ID of the folder to move the playlist into. To place a 
-            playlist directly under "My Playlists", use 
+            ID of the folder to move the playlist into. To place a
+            playlist directly under "My Playlists", use
             :code:`folder_id="root"`.
         """
 
         self._check_scope("favorite_playlists", "r_usr", flow={"device_code"})
-        
+
         self._request(
             "put",
             f"{self.API_URL}/v2/my-collection/playlists/folders/add-favorites",
@@ -5308,8 +5445,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5320,8 +5457,8 @@ class PrivateAPI:
             **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
 
         folder_id : `str`
-            ID of the folder to move the playlist into. To place a 
-            playlist directly under "My Playlists", use 
+            ID of the folder to move the playlist into. To place a
+            playlist directly under "My Playlists", use
             :code:`folder_id="root"`.
         """
 
@@ -5343,8 +5480,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5355,7 +5492,7 @@ class PrivateAPI:
             **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
         """
 
-        self._check_scope("unfavorite_playlist", "r_usr", 
+        self._check_scope("unfavorite_playlist", "r_usr",
                           flows={"device_code"})
 
         self._request(
@@ -5371,8 +5508,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5441,7 +5578,7 @@ class PrivateAPI:
         )
 
     def get_user_playlists(
-            self, user_id: Union[int, str] = None, *, limit: int = 50, 
+            self, user_id: Union[int, str] = None, *, limit: int = 50,
             cursor: str = None) -> dict[str, Any]:
 
         """
@@ -5450,13 +5587,13 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
         ----------
-        user_id : `str` 
+        user_id : `str`
             TIDAL user ID. If not specified, the ID associated with the
             user account in the current session is used.
 
@@ -5537,7 +5674,7 @@ class PrivateAPI:
         )
 
     def get_personal_playlists(
-            self, country_code: str = None, *, limit: int = 50, 
+            self, country_code: str = None, *, limit: int = 50,
             offset: int = None) -> dict[str, Any]:
 
         """
@@ -5546,8 +5683,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5610,29 +5747,29 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_personal_playlists", "r_usr", 
+        self._check_scope("get_personal_playlists", "r_usr",
                           flows={"device_code"})
 
         return self._get_json(
             f"{self.API_URL}/v1/users/{self._user_id}/playlists",
             params={
                 "countryCode": self._get_country_code(country_code),
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset
             }
         )
 
     def create_playlist(
-            self, name: str, *, description: str = None, 
+            self, name: str, *, description: str = None,
             folder_uuid: str = "root", public: bool = None) -> dict[str, Any]:
-        
+
         """
         Create a user playlist.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5642,10 +5779,10 @@ class PrivateAPI:
 
         description : `str`, keyword-only, optional
             Brief playlist description.
-        
+
         folder_uuid : `str`, keyword-only, default: :code:`"root"`
-            UUID of the folder the new playlist will be placed in. To 
-            place a playlist directly under "My Playlists", use 
+            UUID of the folder the new playlist will be placed in. To
+            place a playlist directly under "My Playlists", use
             :code:`folder_id="root"`.
 
         public : `bool`, keyword-only, optional
@@ -5707,14 +5844,14 @@ class PrivateAPI:
             f"{self.API_URL}/v2/my-collection/playlists/folders/create-playlist",
             params={
                 "name": name,
-                "description": description, 
-                "folderId": folder_uuid, 
+                "description": description,
+                "folderId": folder_uuid,
                 "isPublic": public
             }
         ).json()
 
     def update_playlist(
-            self, playlist_uuid: str, *, title: str = None, 
+            self, playlist_uuid: str, *, title: str = None,
             description: str = None) -> None:
 
         """
@@ -5723,8 +5860,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5747,13 +5884,13 @@ class PrivateAPI:
             wmsg = "No changes were specified or made to the playlist."
             warnings.warn(wmsg)
             return
-        
+
         data = {}
         if title is not None:
             data["title"] = title
         if description is not None:
             data["description"] = description
-        self._request("post", f"{self.API_URL}/v1/playlists/{playlist_uuid}", 
+        self._request("post", f"{self.API_URL}/v1/playlists/{playlist_uuid}",
                       data=data)
 
     def set_playlist_privacy(self, playlist_uuid: str, public: bool) -> None:
@@ -5763,8 +5900,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5779,7 +5916,7 @@ class PrivateAPI:
             private (:code:`False`).
         """
 
-        self._check_scope("set_playlist_privacy", "r_usr", 
+        self._check_scope("set_playlist_privacy", "r_usr",
                           flows={"device_code"})
 
         self._request(
@@ -5789,18 +5926,18 @@ class PrivateAPI:
         )
 
     def add_playlist_items(
-            self, playlist_uuid: str, 
-            items: Union[int, str, list[Union[int, str]]] = None, *, 
-            from_playlist_uuid: str = None, on_duplicate: str = "FAIL", 
+            self, playlist_uuid: str,
+            items: Union[int, str, list[Union[int, str]]] = None, *,
+            from_playlist_uuid: str = None, on_duplicate: str = "FAIL",
             on_artifact_not_found: str = "FAIL") -> None:
-        
+
         """
         Add items to a playlist owned by the current user.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5811,22 +5948,22 @@ class PrivateAPI:
             **Example**: :code:`"e09ab9ce-2e87-41b8-b404-3cd712bf706e"`.
 
         items : `int`, `str`, or `list`, optional
-            Items to add to the playlist. If not specified, 
-            `from_playlist_uuid` must be provided. 
-            
+            Items to add to the playlist. If not specified,
+            `from_playlist_uuid` must be provided.
+
             .. note::
-                
+
                If both `items` and `from_playlist_uuid` are specified,
                only the items in `items` will be added to the playlist.
 
         from_playlist_uuid : `str`, keyword-only, optional
             TIDAL playlist from which to copy items.
-        
+
         on_duplicate : `str`, keyword-only, default: :code:`"FAIL"`
-            Behavior when the item to be added is already in the 
+            Behavior when the item to be added is already in the
             playlist.
 
-            **Valid values**: :code:`"ADD"`, :code:`"SKIP"`, and 
+            **Valid values**: :code:`"ADD"`, :code:`"SKIP"`, and
             :code:`"FAIL"`.
 
         on_artifact_not_found : `str`, keyword-only, default: :code:`"FAIL"`
@@ -5841,9 +5978,9 @@ class PrivateAPI:
             wmsg = "No changes were specified or made to the playlist."
             warnings.warn(wmsg)
             return
-        
+
         data = {
-            "onArtifactNotFound": on_artifact_not_found, 
+            "onArtifactNotFound": on_artifact_not_found,
             "onDuplicate": on_duplicate
         }
         if items:
@@ -5851,23 +5988,23 @@ class PrivateAPI:
         else:
             data |= {"fromPlaylistUuid": from_playlist_uuid}
         self._request(
-            "post", 
+            "post",
             f"{self.API_URL}/v1/playlists/{playlist_uuid}/items",
             data=data,
             headers={"If-None-Match": self.get_playlist_etag(playlist_uuid)}
         )
 
     def move_playlist_item(
-            self, playlist_uuid: str, from_index: Union[int, str], 
+            self, playlist_uuid: str, from_index: Union[int, str],
             to_index: Union[int, str]) -> None:
-        
+
         """
         Move an item in a playlist owned by the current user.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5883,7 +6020,7 @@ class PrivateAPI:
         to_index : `int` or `str`
             Desired item index.
         """
-        
+
         self._check_scope("move_playlist_item", "r_usr", flows={"device_code"})
 
         self._request(
@@ -5895,14 +6032,14 @@ class PrivateAPI:
 
     def delete_playlist_item(
             self, playlist_uuid: str, index: Union[int, str]) -> None:
-        
+
         """
         Delete an item from a playlist owned by the current user.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5916,7 +6053,7 @@ class PrivateAPI:
             Item index.
         """
 
-        self._check_scope("delete_playlist_item", "r_usr", 
+        self._check_scope("delete_playlist_item", "r_usr",
                           flows={"device_code"})
 
         self._request(
@@ -5932,8 +6069,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -5958,16 +6095,16 @@ class PrivateAPI:
             order_direction: str = "DESC") -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for a playlist folder (and 
+        Get TIDAL catalog information for a playlist folder (and
         optionally, playlists and other playlist folders in it) created
         by the current user.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
-        
+
         Parameters
         ----------
         folder_uuid : `str`, optional
@@ -5981,7 +6118,7 @@ class PrivateAPI:
         include_only : `str`, keyword-only, optional
             Type of playlist-related item to return.
 
-            **Valid values**: :code:`"FAVORITE_PLAYLIST"`, 
+            **Valid values**: :code:`"FAVORITE_PLAYLIST"`,
             :code:`"FOLDER"`, and :code:`"PLAYLIST"`.
 
         limit : `int`, keyword-only, default: :code:`50`
@@ -5992,7 +6129,7 @@ class PrivateAPI:
         order : `str`, keyword-only, default: :code:`"DATE"`
             Sorting order.
 
-            **Valid values**: :code:`"DATE"`, :code:`"DATE_UPDATED"`, 
+            **Valid values**: :code:`"DATE"`, :code:`"DATE_UPDATED"`,
             and :code:`"NAME"`.
 
         order_direction : `str`, keyword-only, default: :code:`"DESC"`
@@ -6037,11 +6174,11 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_personal_playlist_folders", "r_usr", 
+        self._check_scope("get_personal_playlist_folders", "r_usr",
                           flows={"device_code"})
-        
+
         if include_only and include_only not in \
-                (ALLOWED_INCLUDES := {"FAVORITE_PLAYLIST", "FOLDER", 
+                (ALLOWED_INCLUDES := {"FAVORITE_PLAYLIST", "FOLDER",
                                       "PLAYLIST"}):
             emsg = ("Invalid include type. Valid values: "
                     f"{', '.join(ALLOWED_INCLUDES)}.")
@@ -6069,8 +6206,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -6079,14 +6216,14 @@ class PrivateAPI:
             Playlist folder name.
 
         folder_uuid : `str`, keyword-only, default: :code:`"root"`
-            UUID of the folder in which the new playlist folder should 
-            be created in. To create a folder directly under "My 
+            UUID of the folder in which the new playlist folder should
+            be created in. To create a folder directly under "My
             Playlists", use :code:`folder_id="root"`.
         """
 
-        self._check_scope("create_playlist_folder", "r_usr", 
+        self._check_scope("create_playlist_folder", "r_usr",
                           flows={"device_code"})
-        
+
         self._request(
             "put",
             f"{self.API_URL}/v2/my-collection/playlists/folders/create-folder",
@@ -6100,8 +6237,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -6112,9 +6249,9 @@ class PrivateAPI:
             **Example**: :code:`"92b3c1ea-245a-4e5a-a5a4-c215f7a65b9f"`.
         """
 
-        self._check_scope("delete_playlist_folder", "r_usr", 
+        self._check_scope("delete_playlist_folder", "r_usr",
                           flows={"device_code"})
-        
+
         self._request(
             "put",
             f"{self.API_URL}/v2/my-collection/playlists/folders/remove",
@@ -6124,15 +6261,15 @@ class PrivateAPI:
     ### SEARCH ################################################################
 
     def search(
-            self, query: str, country_code: str = None, *, type: str = None, 
+            self, query: str, country_code: str = None, *, type: str = None,
             limit: int = None, offset: int = None) -> dict[str, Any]:
-    
+
         """
         Search for albums, artists, tracks, and videos.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -6153,7 +6290,7 @@ class PrivateAPI:
         type : `str`, keyword-only, optional
             Target search type. Searches for all types if not specified.
 
-            **Valid values**: :code:`"ALBUMS"`, :code:`"ARTISTS"`, 
+            **Valid values**: :code:`"ALBUMS"`, :code:`"ARTISTS"`,
             :code:`"TRACKS"`, :code:`"VIDEOS"`.
 
         limit : `int`, keyword-only, optional
@@ -6407,7 +6544,7 @@ class PrivateAPI:
         url = f"{self.API_URL}/v1/search"
         if type:
             if type not in \
-                    (TYPES := {"artist", "album", "playlist", "track", 
+                    (TYPES := {"artist", "album", "playlist", "track",
                                "userProfile", "video"}):
                 emsg = ("Invalid target search type. Valid values: "
                         f"{', '.join(TYPES)}.")
@@ -6419,7 +6556,7 @@ class PrivateAPI:
             params={
                 "query": query,
                 "type": type,
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset,
                 "countryCode": self._get_country_code(country_code)
             }
@@ -6428,9 +6565,9 @@ class PrivateAPI:
     ### STREAMS ###############################################################
 
     def get_collection_streams(
-            self, collection_id: Union[int, str], type: str, *, 
-            audio_quality: str = "HI_RES", video_quality: str = "HIGH", 
-            max_resolution: int = 2160, playback_mode: str = "STREAM", 
+            self, collection_id: Union[int, str], type: str, *,
+            audio_quality: str = "HI_RES", video_quality: str = "HIGH",
+            max_resolution: int = 2160, playback_mode: str = "STREAM",
             asset_presentation: str = "FULL", streaming_session_id: str = None
         ) -> list[tuple[bytes, str]]:
 
@@ -6438,24 +6575,24 @@ class PrivateAPI:
         Get audio and video stream data for items (tracks and videos) in
         an album, mix, or playlist.
 
-        .. admonition:: User authentication, authorization scope, and 
+        .. admonition:: User authentication, authorization scope, and
                         subscription
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
            Full track and video playback information and lossless audio
-           is only available with user authentication and an active 
+           is only available with user authentication and an active
            TIDAL subscription.
 
-           High-resolution and immersive audio is only available with 
+           High-resolution and immersive audio is only available with
            the HiFi Plus plan and when the current client credentials
            are from a supported device.
 
            .. seealso::
 
-              For more information on audio quality availability, see 
+              For more information on audio quality availability, see
               the `Download TIDAL <https://offer.tidal.com/download>`_,
               `TIDAL Pricing <https://tidal.com/pricing>`_, and
               `Dolby Atmos <https://support.tidal.com/hc/en-us/articles
@@ -6474,7 +6611,7 @@ class PrivateAPI:
         type : `str`
             Collection type.
 
-            **Valid values**: :code:`"album"`, :code:`"mix"`, and 
+            **Valid values**: :code:`"album"`, :code:`"mix"`, and
             :code:`"playlist"`.
 
         audio_quality : `str`, keyword-only, default: :code:`"HI-RES"`
@@ -6484,12 +6621,12 @@ class PrivateAPI:
 
                **Valid values**:
 
-               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user 
+               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user
                  authentication or 96 kbps AAC with user authentication.
                * :code:`"HIGH"` for 320 kbps AAC.
-               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
+               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC
                  or FLAC.
-               * :code:`"HI_RES"` for up to 9216 kbps (24-bit, 96 kHz) 
+               * :code:`"HI_RES"` for up to 9216 kbps (24-bit, 96 kHz)
                  MQA-encoded FLAC.
 
         video_quality : `str`, keyword-only, default: :code:`"HIGH"`
@@ -6512,9 +6649,9 @@ class PrivateAPI:
             .. container::
 
                **Valid values**:
-            
+
                * :code:`"FULL"`: Full track or video.
-               * :code:`"PREVIEW"`: 30-second preview of the track or 
+               * :code:`"PREVIEW"`: 30-second preview of the track or
                  video.
 
         streaming_session_id : `str`, keyword-only, optional
@@ -6527,7 +6664,7 @@ class PrivateAPI:
         """
 
         if type not in (COLLECTION_TYPES := {"album", "mix", "playlist"}):
-            emsg = ("Invalid collection type. Valid values: " 
+            emsg = ("Invalid collection type. Valid values: "
                     f"{', '.join(COLLECTION_TYPES)}.")
             raise ValueError(emsg)
 
@@ -6542,18 +6679,18 @@ class PrivateAPI:
         for item in items:
             if item["type"] == "track":
                 stream = self.get_track_stream(
-                    item["item"]["id"], 
-                    audio_quality=audio_quality, 
-                    playback_mode=playback_mode, 
+                    item["item"]["id"],
+                    audio_quality=audio_quality,
+                    playback_mode=playback_mode,
                     asset_presentation=asset_presentation,
                     streaming_session_id=streaming_session_id
                 )
             elif item["type"] == "video":
                 stream = self.get_video_stream(
-                    item["item"]["id"], 
+                    item["item"]["id"],
                     video_quality=video_quality,
                     max_resolution=max_resolution,
-                    playback_mode=playback_mode, 
+                    playback_mode=playback_mode,
                     asset_presentation=asset_presentation,
                     streaming_session_id=streaming_session_id
                 )
@@ -6561,31 +6698,31 @@ class PrivateAPI:
         return streams
 
     def get_track_stream(
-            self, track_id: Union[int, str], *, audio_quality: str = "HI_RES", 
+            self, track_id: Union[int, str], *, audio_quality: str = "HI_RES",
             playback_mode: str = "STREAM", asset_presentation: str = "FULL",
             streaming_session_id: str = None) -> Union[bytes, str]:
 
         """
         Get the audio stream data for a track.
 
-        .. admonition:: User authentication, authorization scope, and 
+        .. admonition:: User authentication, authorization scope, and
                         subscription
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
-           Full track playback information and lossless audio is only 
-           available with user authentication and an active TIDAL 
+           Full track playback information and lossless audio is only
+           available with user authentication and an active TIDAL
            subscription.
 
-           High-resolution and immersive audio is only available with 
+           High-resolution and immersive audio is only available with
            the HiFi Plus plan and when the current client credentials
            are from a supported device.
 
            .. seealso::
 
-              For more information on audio quality availability, see 
+              For more information on audio quality availability, see
               the `Download TIDAL <https://offer.tidal.com/download>`_,
               `TIDAL Pricing <https://tidal.com/pricing>`_, and
               `Dolby Atmos <https://support.tidal.com/hc/en-us/articles
@@ -6595,7 +6732,7 @@ class PrivateAPI:
 
            This method is provided for convenience and is not a private
            TIDAL API endpoint.
-           
+
         Parameters
         ----------
         track_id : `int` or `str`
@@ -6610,12 +6747,12 @@ class PrivateAPI:
 
                **Valid values**:
 
-               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user 
+               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user
                  authentication or 96 kbps AAC with user authentication.
                * :code:`"HIGH"` for 320 kbps AAC.
-               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
+               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC
                  or FLAC.
-               * :code:`"HI_RES"` for up to 9216 kbps (24-bit, 96 kHz) 
+               * :code:`"HI_RES"` for up to 9216 kbps (24-bit, 96 kHz)
                  MQA-encoded FLAC.
 
         playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
@@ -6629,7 +6766,7 @@ class PrivateAPI:
             .. container::
 
                **Valid values**:
-            
+
                * :code:`"FULL"`: Full track.
                * :code:`"PREVIEW"`: 30-second preview of the track.
 
@@ -6647,9 +6784,9 @@ class PrivateAPI:
 
         manifest = base64.b64decode(
             self.get_track_playback_info(
-                track_id, 
-                audio_quality=audio_quality, 
-                playback_mode=playback_mode, 
+                track_id,
+                audio_quality=audio_quality,
+                playback_mode=playback_mode,
                 asset_presentation=asset_presentation,
                 streaming_session_id=streaming_session_id
             )["manifest"]
@@ -6666,7 +6803,7 @@ class PrivateAPI:
                 ) as r:
                 stream.extend(r.content)
             for i in range(1, sum(int(tl.getAttribute("r") or 1)
-                                  for tl in 
+                                  for tl in
                                   segment.getElementsByTagName("S")) + 2):
                 with self.session.get(
                         segment.getAttribute("media").replace(
@@ -6696,17 +6833,17 @@ class PrivateAPI:
 
     def get_video_stream(
             self, video_id: Union[int, str], *, video_quality: str = "HIGH",
-            max_resolution: int = 2160, playback_mode: str = "STREAM", 
+            max_resolution: int = 2160, playback_mode: str = "STREAM",
             asset_presentation: str = "FULL", streaming_session_id: str = None
         ) -> tuple[bytes, str]:
 
         """
         Get the video stream data for a music video.
 
-        .. admonition:: User authentication, authorization scope, and 
+        .. admonition:: User authentication, authorization scope, and
                         subscription
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -6717,7 +6854,7 @@ class PrivateAPI:
 
            This method is provided for convenience and is not a private
            TIDAL API endpoint.
-           
+
         Parameters
         ----------
         video_id : `int` or `str`
@@ -6745,7 +6882,7 @@ class PrivateAPI:
             .. container::
 
                **Valid values**:
-            
+
                * :code:`"FULL"`: Full video.
                * :code:`"PREVIEW"`: 30-second preview of the video.
 
@@ -6763,9 +6900,9 @@ class PrivateAPI:
 
         manifest = base64.b64decode(
             self.get_video_playback_info(
-                video_id, 
-                video_quality=video_quality, 
-                playback_mode=playback_mode, 
+                video_id,
+                video_quality=video_quality,
+                playback_mode=playback_mode,
                 asset_presentation=asset_presentation,
                 streaming_session_id=streaming_session_id
             )["manifest"]
@@ -6773,7 +6910,7 @@ class PrivateAPI:
 
         codec, playlist = next(
             (c, pl) for c, res, pl in re.findall(
-                r'(?<=CODECS=")(.*)",(?:RESOLUTION=)\d+x(\d+)\n(http.*)', 
+                r'(?<=CODECS=")(.*)",(?:RESOLUTION=)\d+x(\d+)\n(http.*)',
                 self.session.get(
                     json.loads(manifest)["urls"][0]
                 ).content.decode("utf-8")
@@ -6782,7 +6919,7 @@ class PrivateAPI:
 
         stream = bytearray()
         for ts in re.findall(
-                "(?<=\n).*(http.*)", 
+                "(?<=\n).*(http.*)",
                 self.session.get(playlist).content.decode("utf-8")
             ):
             with self.session.get(ts) as r:
@@ -6794,13 +6931,13 @@ class PrivateAPI:
     def get_track(
             self, track_id: Union[int, str], country_code: str = None
         ) -> dict[str, Any]:
-        
+
         """
         Get TIDAL catalog information for a track.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -6899,7 +7036,7 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -6925,12 +7062,12 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         Returns
         -------
         contributors : `dict`
-            A dictionary containing a track's contributors and their 
+            A dictionary containing a track's contributors and their
             roles, and metadata for the returned results.
 
             .. admonition:: Sample response
@@ -6951,14 +7088,14 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_track_contributors", "r_usr", 
+        self._check_scope("get_track_contributors", "r_usr",
                           flows={"device_code"}, require_authentication=False)
 
         return self._get_json(
             f"{self.API_URL}/v1/tracks/{track_id}/contributors",
             params={
                 "countryCode": self._get_country_code(country_code),
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset
             }
         )
@@ -6969,10 +7106,10 @@ class PrivateAPI:
 
         """
         Get credits for a track.
-        
+
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -7025,10 +7162,10 @@ class PrivateAPI:
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
-        
+
         .. note::
 
            This method is provided for convenience and is not a private
@@ -7040,18 +7177,18 @@ class PrivateAPI:
             TIDAL track ID.
 
             **Example**: :code:`251380837`.
-        
+
         Returns
         -------
         composers : `list`
             Composers, lyricists, and/or songwriters of the track.
 
-            **Example**: :code:`['Tommy Wright III', 'Beyoncé', 
-            'Kelman Duran', 'Terius "The-Dream" G...de-Diamant', 
+            **Example**: :code:`['Tommy Wright III', 'Beyoncé',
+            'Kelman Duran', 'Terius "The-Dream" G...de-Diamant',
             'Mike Dean']`
         """
 
-        return sorted({c["name"] 
+        return sorted({c["name"]
                        for c in self.get_track_contributors(track_id)["items"]
                        if c["role"] in {"Composer", "Lyricist", "Writer"}})
 
@@ -7064,8 +7201,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and subscription
            :class: warning
-        
-           Requires user authentication via an OAuth 2.0 authorization 
+
+           Requires user authentication via an OAuth 2.0 authorization
            flow and an active TIDAL subscription.
 
         Parameters
@@ -7086,7 +7223,7 @@ class PrivateAPI:
         -------
         lyrics : `dict`
             A dictionary containing formatted and time-synced lyrics (if
-            available) in the `"lyrics"` and `"subtitles"` keys, 
+            available) in the `"lyrics"` and `"subtitles"` keys,
             respectively.
 
             .. admonition:: Sample response
@@ -7116,16 +7253,16 @@ class PrivateAPI:
             logging.warning("Either lyrics are not available for this track "
                             "or the current account does not have an active "
                             "TIDAL subscription.")
-        
+
     def get_track_mix_id(
             self, tidal_id: Union[int, str], country_code: str = None) -> str:
-        
+
         """
         Get the curated mix of tracks based on a track.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -7160,31 +7297,31 @@ class PrivateAPI:
         )["id"]
 
     def get_track_playback_info(
-            self, track_id: Union[int, str], *, audio_quality: str = "HI_RES", 
+            self, track_id: Union[int, str], *, audio_quality: str = "HI_RES",
             playback_mode: str = "STREAM", asset_presentation: str = "FULL",
             streaming_session_id: str = None) -> dict[str, Any]:
-        
+
         """
         Get playback information for a track.
 
-        .. admonition:: User authentication, authorization scope, and 
+        .. admonition:: User authentication, authorization scope, and
                         subscription
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
-           Full track playback information and lossless audio is only 
-           available with user authentication and an active TIDAL 
+           Full track playback information and lossless audio is only
+           available with user authentication and an active TIDAL
            subscription.
 
-           High-resolution and immersive audio is only available with 
+           High-resolution and immersive audio is only available with
            the HiFi Plus plan and when the current client credentials
            are from a supported device.
 
            .. seealso::
 
-              For more information on audio quality availability, see 
+              For more information on audio quality availability, see
               the `Download TIDAL <https://offer.tidal.com/download>`_,
               `TIDAL Pricing <https://tidal.com/pricing>`_, and
               `Dolby Atmos <https://support.tidal.com/hc/en-us/articles
@@ -7204,12 +7341,12 @@ class PrivateAPI:
 
                **Valid values**:
 
-               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user 
+               * :code:`"LOW"` for 64 kbps (22.05 kHz) MP3 without user
                  authentication or 96 kbps AAC with user authentication.
                * :code:`"HIGH"` for 320 kbps AAC.
-               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC 
+               * :code:`"LOSSLESS"` for 1411 kbps (16-bit, 44.1 kHz) ALAC
                  or FLAC.
-               * :code:`"HI_RES"` for up to 9216 kbps (24-bit, 96 kHz) 
+               * :code:`"HI_RES"` for up to 9216 kbps (24-bit, 96 kHz)
                  MQA-encoded FLAC.
 
         playback_mode : `str`, keyword-only, default: :code:`"STREAM"`
@@ -7223,7 +7360,7 @@ class PrivateAPI:
             .. container::
 
                **Valid values**:
-            
+
                * :code:`"FULL"`: Full track.
                * :code:`"PREVIEW"`: 30-second preview of the track.
 
@@ -7255,7 +7392,7 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_track_playback_info", "r_usr", 
+        self._check_scope("get_track_playback_info", "r_usr",
                           flows={"device_code"}, require_authentication=False)
 
         if audio_quality not in \
@@ -7274,7 +7411,7 @@ class PrivateAPI:
                     "presentations are "
                     f"{', '.join(ASSET_PRESENTATIONS)}.")
             raise ValueError(emsg)
-        
+
         url = f"{self.API_URL}/v1/tracks/{track_id}/playbackinfo"
         url += "postpaywall" if self._flow else "prepaywall"
         return self._get_json(
@@ -7292,13 +7429,13 @@ class PrivateAPI:
             limit: int = None, offset = None) -> dict[str, Any]:
 
         """
-        Get TIDAL catalog information for a track's recommended 
+        Get TIDAL catalog information for a track's recommended
         tracks and videos.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -7314,7 +7451,7 @@ class PrivateAPI:
             session or the current IP address will be used instead.
 
             **Example**: :code:`"US"`.
-            
+
         limit : `int`, keyword-only, optional
             Page size.
 
@@ -7323,7 +7460,7 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
+            **Example**: :code:`0`.
 
         Returns
         -------
@@ -7400,9 +7537,9 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_track_recommendations", "r_usr", 
+        self._check_scope("get_track_recommendations", "r_usr",
                           flows={"device_code"})
-        
+
         return self._get_json(
             f"{self.API_URL}/v1/tracks/{track_id}/recommendations",
             params={
@@ -7413,18 +7550,18 @@ class PrivateAPI:
         )
 
     def get_favorite_tracks(
-            self, country_code: str = None, *, limit: int = 50, 
+            self, country_code: str = None, *, limit: int = 50,
             offset: int = None, order: str = "DATE",
             order_direction: str = "DESC"):
-        
+
         """
         Get TIDAL catalog information for tracks in the current user's
         collection.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -7444,8 +7581,8 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
-            
+            **Example**: :code:`0`.
+
         order : `str`, keyword-only, default: :code:`"DATE"`
             Sorting order.
 
@@ -7460,7 +7597,7 @@ class PrivateAPI:
         -------
         tracks : `dict`
             A dictionary containing TIDAL catalog information for tracks
-            in the current user's collection and metadata for the 
+            in the current user's collection and metadata for the
             returned results.
 
             .. admonition:: Sample response
@@ -7531,23 +7668,23 @@ class PrivateAPI:
                     ]
                   }
         """
-        
-        self._check_scope("get_favorite_tracks", "r_usr", 
+
+        self._check_scope("get_favorite_tracks", "r_usr",
                           flows={"device_code"})
 
         return self._get_json(
-            f"{self.API_URL}/v1/users/{self._user_id}/favorites/tracks", 
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/tracks",
             params={
                 "countryCode": self._get_country_code(country_code),
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset,
-                "order": order, 
+                "order": order,
                 "orderDirection": order_direction
             }
         )
 
     def favorite_tracks(
-            self, track_ids: Union[int, str, list[Union[int, str]]], 
+            self, track_ids: Union[int, str, list[Union[int, str]]],
             country_code: str = None, *, on_artifact_not_found: str = "FAIL"
         ) -> None:
 
@@ -7556,8 +7693,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -7565,7 +7702,7 @@ class PrivateAPI:
         track_ids : `int`, `str`, or `list`
             TIDAL track ID(s).
 
-            **Examples**: :code:`"251380837,251380838"` or 
+            **Examples**: :code:`"251380837,251380838"` or
             :code:`[251380837, 251380838]`.
 
         country_code : `str`, optional
@@ -7584,12 +7721,12 @@ class PrivateAPI:
         self._check_scope("favorite_tracks", "r_usr", flows={"device_code"})
 
         self._request(
-            "post", 
+            "post",
             f"{self.API_URL}/v1/users/{self._user_id}/favorites/tracks",
             params={"countryCode": self._get_country_code(country_code)},
             data={
-                "trackIds": ",".join(map(str, track_ids)) 
-                            if isinstance(track_ids, list) else track_ids, 
+                "trackIds": ",".join(map(str, track_ids))
+                            if isinstance(track_ids, list) else track_ids,
                 "onArtifactNotFound": on_artifact_not_found
             }
         )
@@ -7602,8 +7739,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -7611,15 +7748,15 @@ class PrivateAPI:
         track_ids : `int`, `str`, or `list`
             TIDAL track ID(s).
 
-            **Examples**: :code:`"251380837,251380838"` or 
+            **Examples**: :code:`"251380837,251380838"` or
             :code:`[251380837, 251380838]`.
         """
 
         self._check_scope("unfavorite_tracks", "r_usr", flows={"device_code"})
-        
+
         if isinstance(track_ids, list):
             track_ids = ",".join(map(str, track_ids))
-        self._request("delete", 
+        self._request("delete",
                       f"{self.API_URL}/v1/users/{self._user_id}"
                       f"/favorites/tracks/{track_ids}")
 
@@ -7632,14 +7769,14 @@ class PrivateAPI:
 
         .. admonition:: User authentication
            :class: warning
-        
-           Requires user authentication via an OAuth 2.0 authorization 
+
+           Requires user authentication via an OAuth 2.0 authorization
            flow.
-        
+
         Returns
         -------
         profile : `dict`
-            A dictionary containing the current user's profile 
+            A dictionary containing the current user's profile
             information.
 
             .. admonition:: Sample response
@@ -7687,8 +7824,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Returns
@@ -7718,19 +7855,19 @@ class PrivateAPI:
         """
 
         self._check_scope("get_session", "r_usr", flows={"device_code"})
-        
+
         return self._get_json(f"{self.API_URL}/v1/sessions")
 
     def get_favorite_ids(self) -> dict[str, list[str]]:
 
         """
-        Get TIDAL IDs or UUIDs of the albums, artists, playlists, 
+        Get TIDAL IDs or UUIDs of the albums, artists, playlists,
         tracks, and videos in the current user's collection.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Returns
@@ -7766,13 +7903,13 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
         ----------
-        user_id : `int` or `str` 
+        user_id : `int` or `str`
             TIDAL user ID.
 
             **Example**: :code:`172311284`.
@@ -7818,24 +7955,24 @@ class PrivateAPI:
         return self._get_json(f"{self.API_URL}/v2/profiles/{user_id}")
 
     def get_user_followers(
-            self, user_id: Union[int, str] = None, *, limit: int = 500, 
+            self, user_id: Union[int, str] = None, *, limit: int = 500,
             cursor: str = None) -> dict[str, Any]:
 
         """
         Get a TIDAL user's followers.
-        
+
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
         ----------
-        user_id : `str` 
+        user_id : `str`
             TIDAL user ID. If not specified, the ID associated with the
             user account in the current session is used.
-        
+
             **Example**: :code:`172311284`.
 
         limit : `int`, keyword-only, default: :code:`500`
@@ -7867,19 +8004,19 @@ class PrivateAPI:
 
         """
         Get the people (artists, users, etc.) a TIDAL user follows.
-        
+
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
         ----------
-        user_id : `str` 
+        user_id : `str`
             TIDAL user ID. If not specified, the ID associated with the
             user account in the current session is used.
-        
+
             **Example**: :code:`172311284`.
 
         include_only : `str`, keyword-only, optional
@@ -7935,8 +8072,8 @@ class PrivateAPI:
         return self._get_json(
             f"{self.API_URL}/v2/profiles/{user_id}/following",
             params={
-                "includeOnly": include_only, 
-                "limit": limit, 
+                "includeOnly": include_only,
+                "limit": limit,
                 "cursor": cursor
             }
         )
@@ -7948,13 +8085,13 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
         ----------
-        user_id : `int` or `str` 
+        user_id : `int` or `str`
             TIDAL user ID.
 
             **Example**: :code:`172311284`.
@@ -7962,7 +8099,7 @@ class PrivateAPI:
 
         self._check_scope("follow_user", "r_usr", flows={"device_code"})
 
-        self._request("put", f"{self.API_URL}/v2/follow", 
+        self._request("put", f"{self.API_URL}/v2/follow",
                       params={"trn": f"trn:user:{user_id}"})
 
     def unfollow_user(self, user_id: Union[int, str]) -> None:
@@ -7972,13 +8109,13 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
         ----------
-        user_id : `int` or `str` 
+        user_id : `int` or `str`
             TIDAL user ID.
 
             **Example**: :code:`172311284`.
@@ -7986,7 +8123,7 @@ class PrivateAPI:
 
         self._check_scope("unfollow_user", "r_usr", flows={"device_code"})
 
-        self._request("delete", f"{self.API_URL}/v2/follow", 
+        self._request("delete", f"{self.API_URL}/v2/follow",
                       params={"trn": f"trn:user:{user_id}"})
 
     def get_blocked_users(
@@ -7994,11 +8131,11 @@ class PrivateAPI:
 
         """
         Get users blocked by the current user.
-        
+
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -8016,12 +8153,12 @@ class PrivateAPI:
         Returns
         -------
         users : `dict`
-            A dictionary containing the users blocked by the current 
+            A dictionary containing the users blocked by the current
             user and the number of results.
         """
 
         self._check_scope("get_blocked_users", "r_usr", flows={"device_code"})
-        
+
         return self._get_json(f"{self.API_URL}/v2/profiles/blocked-profiles",
                               params={"limit": limit, "offset": offset})
 
@@ -8032,13 +8169,13 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
         ----------
-        user_id : `int` or `str` 
+        user_id : `int` or `str`
             TIDAL user ID.
 
             **Example**: :code:`172311284`.
@@ -8055,13 +8192,13 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
         ----------
-        user_id : `int` or `str` 
+        user_id : `int` or `str`
             TIDAL user ID.
 
             **Example**: :code:`172311284`.
@@ -8076,13 +8213,13 @@ class PrivateAPI:
     def get_video(
             self, video_id: Union[int, str], country_code: str = None
         ) -> dict[str, Any]:
-        
+
         """
         Get TIDAL catalog information for a video.
 
         .. admonition:: Authorization scope
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -8152,24 +8289,24 @@ class PrivateAPI:
 
         self._check_scope("get_video", "r_usr", flows={"device_code"},
                           require_authentication=False)
-                
+
         return self._get_json(
             f"{self.API_URL}/v1/videos/{video_id}",
             params={"countryCode": self._get_country_code(country_code)}
         )
 
     def get_video_playback_info(
-            self, video_id: Union[int, str], *, video_quality: str = "HIGH", 
+            self, video_id: Union[int, str], *, video_quality: str = "HIGH",
             playback_mode: str = "STREAM", asset_presentation: str = "FULL",
             streaming_session_id: str = None) -> dict[str, Any]:
-        
+
         """
         Get playback information for a video.
 
-        .. admonition:: User authentication, authorization scope, and 
+        .. admonition:: User authentication, authorization scope, and
                         subscription
            :class: dropdown warning
-        
+
            Requires the :code:`r_usr` authorization scope if the device
            code flow was used.
 
@@ -8200,7 +8337,7 @@ class PrivateAPI:
             .. container::
 
                **Valid values**:
-            
+
                * :code:`"FULL"`: Full video.
                * :code:`"PREVIEW"`: 30-second preview of the video.
 
@@ -8228,7 +8365,7 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_video_playback_info", "r_usr", 
+        self._check_scope("get_video_playback_info", "r_usr",
                           flows={"device_code"}, require_authentication=False)
 
         if video_quality not in \
@@ -8246,7 +8383,7 @@ class PrivateAPI:
                     "presentations are "
                     f"{', '.join(ASSET_PRESENTATIONS)}.")
             raise ValueError(emsg)
-        
+
         url = f"{self.API_URL}/v1/videos/{video_id}/playbackinfo"
         url += "postpaywall" if self._flow else "prepaywall"
         return self._get_json(
@@ -8260,18 +8397,18 @@ class PrivateAPI:
         )
 
     def get_favorite_videos(
-            self, country_code: str = None, *, limit: int = 50, 
+            self, country_code: str = None, *, limit: int = 50,
             offset: int = None, order: str = "DATE",
             order_direction: str = "DESC"):
-        
+
         """
         Get TIDAL catalog information for videos in the current user's
         collection.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -8291,8 +8428,8 @@ class PrivateAPI:
         offset : `int`, keyword-only, optional
             Pagination offset (in number of items).
 
-            **Example**: :code:`0`. 
-            
+            **Example**: :code:`0`.
+
         order : `str`, keyword-only, default: :code:`"DATE"`
             Sorting order.
 
@@ -8307,7 +8444,7 @@ class PrivateAPI:
         -------
         videos : `dict`
             A dictionary containing TIDAL catalog information for videos
-            in the current user's collection and metadata for the 
+            in the current user's collection and metadata for the
             returned results.
 
             .. admonition:: Sample response
@@ -8364,23 +8501,23 @@ class PrivateAPI:
                     ]
                   }
         """
-        
-        self._check_scope("get_favorite_videos", "r_usr", 
+
+        self._check_scope("get_favorite_videos", "r_usr",
                           flows={"device_code"})
 
         return self._get_json(
-            f"{self.API_URL}/v1/users/{self._user_id}/favorites/videos", 
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/videos",
             params={
                 "countryCode": self._get_country_code(country_code),
-                "limit": limit, 
+                "limit": limit,
                 "offset": offset,
-                "order": order, 
+                "order": order,
                 "orderDirection": order_direction
             }
         )
 
     def favorite_videos(
-            self, video_ids: Union[int, str, list[Union[int, str]]], 
+            self, video_ids: Union[int, str, list[Union[int, str]]],
             country_code: str = None, *, on_artifact_not_found: str = "FAIL"
         ) -> None:
 
@@ -8389,8 +8526,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -8398,7 +8535,7 @@ class PrivateAPI:
         video_ids : `int`, `str`, or `list`
             TIDAL video ID(s).
 
-            **Examples**: :code:`"59727844,75623239"` or 
+            **Examples**: :code:`"59727844,75623239"` or
             :code:`[59727844, 75623239]`.
 
         country_code : `str`, optional
@@ -8417,12 +8554,12 @@ class PrivateAPI:
         self._check_scope("favorite_videos", "r_usr", flows={"device_code"})
 
         self._request(
-            "post", 
+            "post",
             f"{self.API_URL}/v1/users/{self._user_id}/favorites/videos",
             params={"countryCode": self._get_country_code(country_code)},
             data={
-                "videoIds": ",".join(map(str, video_ids)) 
-                            if isinstance(video_ids, list) else video_ids, 
+                "videoIds": ",".join(map(str, video_ids))
+                            if isinstance(video_ids, list) else video_ids,
                 "onArtifactNotFound": on_artifact_not_found
             }
         )
@@ -8435,8 +8572,8 @@ class PrivateAPI:
 
         .. admonition:: User authentication and authorization scope
            :class: warning
-        
-           Requires user authentication and the :code:`r_usr` 
+
+           Requires user authentication and the :code:`r_usr`
            authorization scope if the device code flow was used.
 
         Parameters
@@ -8444,14 +8581,14 @@ class PrivateAPI:
         video_ids : `int`, `str`, or `list`
             TIDAL video ID(s).
 
-            **Examples**: :code:`"59727844,75623239"` or 
+            **Examples**: :code:`"59727844,75623239"` or
             :code:`[59727844, 75623239]`.
         """
 
         self._check_scope("unfavorite_videos", "r_usr", flows={"device_code"})
-        
+
         if isinstance(video_ids, list):
             video_ids = ",".join(map(str, video_ids))
-        self._request("delete", 
+        self._request("delete",
                       f"{self.API_URL}/v1/users/{self._user_id}"
                       f"/favorites/videos/{video_ids}")
