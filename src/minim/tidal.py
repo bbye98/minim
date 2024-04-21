@@ -2532,17 +2532,21 @@ class PrivateAPI:
                     with open(DIR_HOME / "minim.cfg", "w") as f:
                         _config.write(f)
 
-        self.session.headers["Authorization"] = f"Bearer {access_token}"
-        self._refresh_token = refresh_token
-        self._expiry = (
-            datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ")
-            if isinstance(expiry, str) else expiry
-        )
+        if len(access_token) == 16:
+            self.session.headers["x-tidal-token"] = access_token
+            self._refresh_token = self._expiry = None
+        else:
+            self.session.headers["Authorization"] = f"Bearer {access_token}"
+            self._refresh_token = refresh_token
+            self._expiry = (
+                datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ")
+                if isinstance(expiry, str) else expiry
+            )
 
-        if self._flow is not None:
-            me = self.get_profile()
-            self._country_code = me["countryCode"]
-            self._user_id = me["userId"]
+            if self._flow is not None:
+                me = self.get_profile()
+                self._country_code = me["countryCode"]
+                self._user_id = me["userId"]
 
     def set_flow(
             self, flow: str, client_id: str, *, client_secret: str = None,
@@ -7413,6 +7417,8 @@ class PrivateAPI:
             raise ValueError(emsg)
 
         url = f"{self.API_URL}/v1/tracks/{track_id}/playbackinfo"
+        # if self._flow:
+        #     url += "postpaywall"
         url += "postpaywall" if self._flow else "prepaywall"
         return self._get_json(
             url,
