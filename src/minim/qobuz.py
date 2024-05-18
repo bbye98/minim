@@ -359,14 +359,14 @@ class PrivateAPI:
 
                         with open(har_file, "r") as f:
                             regex = re.search(
-                                '"X-User-Auth-Token", "value": "(.*?)"',
+                                '(?<=")https://www.qobuz.com/api.json/0.2/oauth/callback?(.*)(?=")',
                                 f.read()
                             )
                         har_file.unlink()
 
                         if regex is None:
                             raise RuntimeError("Authentication failed.")
-                        auth_token = regex.group(1)
+                        auth_token = self._request("get", regex.group(0)).json()["token"]
                     else:
                         emsg = ("No account email or password provided "
                                 "for the password flow.")
