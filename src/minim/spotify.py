@@ -92,7 +92,7 @@ class PrivateLyricsService:
     If an existing access token is available, it and its expiry time can
     be provided to this class's constructor as keyword arguments to
     bypass the access token exchange process. It is recommended that all
-    other authentication-related keyword arguments be specified so that
+    other authorization-related keyword arguments be specified so that
     a new access token can be obtained when the existing one expires.
 
     .. tip::
@@ -117,7 +117,7 @@ class PrivateLyricsService:
 
     access_token : `str`, keyword-only, optional
         Access token. If provided here or found in the Minim
-        configuration file, the authentication process is bypassed. In
+        configuration file, the authorization process is bypassed. In
         the former case, all other relevant keyword arguments should be
         specified to automatically refresh the access token when it
         expires.
@@ -425,7 +425,7 @@ class WebAPI:
     information (refresh token and expiry time) can be provided to this
     class's constructor as keyword arguments to bypass the access token
     retrieval process. It is recommended that all other
-    authentication-related keyword arguments be specified so that a new
+    authorization-related keyword arguments be specified so that a new
     access token can be obtained when the existing one expires.
 
     .. tip::
@@ -521,7 +521,7 @@ class WebAPI:
 
     access_token : `str`, keyword-only, optional
         Access token. If provided here or found in the Minim
-        configuration file, the authentication process is bypassed. In
+        configuration file, the authorization process is bypassed. In
         the former case, all other relevant keyword arguments should be
         specified to automatically refresh the access token when it
         expires.

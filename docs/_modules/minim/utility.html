@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
         <title>minim.utility - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
@@ -173,6 +173,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.FLACAudio.html">FLACAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP3Audio.html">MP3Audio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.MP4Audio.html">MP4Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.OggAudio.html">OggAudio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/minim.audio.WAVEAudio.html">WAVEAudio</a></li>
 </ul>
 </li>
@@ -269,9 +270,9 @@
 <span class="k">def</span> <span class="nf">format_multivalue</span><span class="p">(</span>
         <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">multivalue</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">primary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">sep</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">,</span> <span class="s2">&quot; &amp; &quot;</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Format a field value based on whether multivalue for that field is </span>
+<span class="sd">    Format a field value based on whether multivalue for that field is</span>
 <span class="sd">    supported.</span>
 
 <span class="sd">    Parameters</span>
@@ -280,7 +281,7 @@
 <span class="sd">        Field value to format.</span>
 
 <span class="sd">    multivalue : `bool`</span>
-<span class="sd">        Determines whether multivalue tags are supported. If </span>
+<span class="sd">        Determines whether multivalue tags are supported. If</span>
 <span class="sd">        :code:`False`, the items in `value` are concatenated using the</span>
 <span class="sd">        separator(s) specified in `sep`.</span>
 
@@ -289,11 +290,11 @@
 <span class="sd">        `value` is a `list` and :code:`multivalue=False`.</span>
 
 <span class="sd">    sep : `str` or `tuple`, keyword-only, default: :code:`(&quot;, &quot;, &quot; &amp; &quot;)`</span>
-<span class="sd">        Separator(s) to use to concatenate multivalue tags. If a </span>
+<span class="sd">        Separator(s) to use to concatenate multivalue tags. If a</span>
 <span class="sd">        :code:`str` is provided, it is used to concatenate all values.</span>
 <span class="sd">        If a :code:`tuple` is provided, the first :code:`str` is used to</span>
-<span class="sd">        concatenate all values except the last, and the second </span>
-<span class="sd">        :code:`str` is used to append the final value. </span>
+<span class="sd">        concatenate all values except the last, and the second</span>
+<span class="sd">        :code:`str` is used to append the final value.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -321,7 +322,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="s2">&quot;np.ndarray[float]&quot;</span><span class="p">]:</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the Gestalt or Ratcliff–Obershelp ratios, a measure of </span>
+<span class="sd">    Compute the Gestalt or Ratcliff–Obershelp ratios, a measure of</span>
 <span class="sd">    similarity, for strings with respect to a reference string.</span>
 
 <span class="sd">    Parameters</span>
@@ -336,8 +337,8 @@
 <span class="sd">    -------</span>
 <span class="sd">    ratios : `float`, `list`, or `numpy.ndarray`</span>
 <span class="sd">        Gestalt or Ratcliff–Obershelp ratios. If `strings` is a `str`, a</span>
-<span class="sd">        `float` is returned. If `strings` is a `list`, a `numpy.ndarray` </span>
-<span class="sd">        is returned if NumPy is installed; otherwise, a `list` is </span>
+<span class="sd">        `float` is returned. If `strings` is a `list`, a `numpy.ndarray`</span>
+<span class="sd">        is returned if NumPy is installed; otherwise, a `list` is</span>
 <span class="sd">        returned.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -371,7 +372,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    ratios : `float`, `list`, or `numpy.ndarray`</span>
 <span class="sd">        Levenshtein ratios. If `strings` is a `str`, a `float` is</span>
-<span class="sd">        returned. If `strings` is a `list`, a `numpy.ndarray` is </span>
+<span class="sd">        returned. If `strings` is a `list`, a `numpy.ndarray` is</span>
 <span class="sd">        returned if NumPy is installed; otherwise, a `list` is returned.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -379,7 +380,7 @@
         <span class="n">emsg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The Levenshtein module was not found, so &quot;</span>
                 <span class="s2">&quot;minim.utility.levenshtein_ratio() is unavailable.&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
-    
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Levenshtein</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">strings</span><span class="p">)</span>
     <span class="n">gen</span> <span class="o">=</span> <span class="p">(</span><span class="n">Levenshtein</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">)</span>
@@ -399,7 +400,7 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2023, Benjamin Ye
+                Copyright &#169; 2023–2024 Benjamin Ye
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             

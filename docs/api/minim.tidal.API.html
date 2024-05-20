@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="PrivateAPI" href="minim.tidal.PrivateAPI.html" /><link rel="prev" title="tidal" href="minim.tidal.html" />
 
-    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
         <title>API - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -271,7 +271,7 @@ TIDAL application</a>.</p>
 <p>If an existing access token is available, it and its expiry time can
 be provided to this class’s constructor as keyword arguments to
 bypass the access token retrieval process. It is recommended that
-all other authentication-related keyword arguments be specified so
+all other authorization-related keyword arguments be specified so
 that a new access token can be obtained when the existing one
 expires.</p>
 <div class="admonition tip">
@@ -308,7 +308,7 @@ flow.</p></li>
 </div>
 </dd>
 <dt><strong>access_token</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Access token. If provided here or found in the Minim
-configuration file, the authentication process is bypassed. In
+configuration file, the authorization process is bypassed. In
 the former case, all other relevant keyword arguments should be
 specified to automatically refresh the access token when it
 expires.</p>
@@ -360,94 +360,48 @@ file.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.get_artist_albums" title="minim.tidal.API.get_artist_albums"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_artist_albums</span></code></a></p></td>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-artist-albums">Artist API &gt; Get albums by artist</a>: Retrieve a list of albums by TIDAL artist ID.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.get_artists" title="minim.tidal.API.get_artists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_artists</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.get_artist_tracks" title="minim.tidal.API.get_artist_tracks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_artist_tracks</span></code></a></p></td>
+<td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-tracks-by-artist">Track API &gt; Get tracks by artist</a>: Retrieve a list of tracks made by the specified artist.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.get_artists" title="minim.tidal.API.get_artists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_artists</span></code></a></p></td>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-artists-by-ids">Artist API &gt; Get multiple artists</a>: Retrieve a list of artist details by TIDAL artist IDs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.get_similar_albums" title="minim.tidal.API.get_similar_albums"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_similar_albums</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.get_similar_albums" title="minim.tidal.API.get_similar_albums"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_similar_albums</span></code></a></p></td>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-similar-albums">Album API &gt; Get similar albums for the given album</a>: Retrieve a list of albums similar to the given album.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.get_similar_artists" title="minim.tidal.API.get_similar_artists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_similar_artists</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.get_similar_artists" title="minim.tidal.API.get_similar_artists"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_similar_artists</span></code></a></p></td>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-similar-artists">Artist API &gt; Get similar artists for the given artist</a>: Retrieve a list of artists similar to the given artist.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.get_similar_tracks" title="minim.tidal.API.get_similar_tracks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_similar_tracks</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.get_similar_tracks" title="minim.tidal.API.get_similar_tracks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_similar_tracks</span></code></a></p></td>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-similar-tracks">Track API &gt; Get similar tracks for the given track</a>: Retrieve a list of tracks similar to the given track.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.get_track" title="minim.tidal.API.get_track"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.get_track" title="minim.tidal.API.get_track"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track</span></code></a></p></td>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-track">Track API &gt; Get single track</a>: Retrieve track details by TIDAL track ID.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.get_track_by_isrc" title="minim.tidal.API.get_track_by_isrc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_track_by_isrc</span></code></a></p></td>
-<td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-tracks-by-isrc">Track API &gt; Get tracks by ISRC</a>: Retrieve a list of track details by ISRC.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.get_tracks" title="minim.tidal.API.get_tracks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tracks</span></code></a></p></td>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-tracks-by-ids">Album API &gt; Get multiple tracks</a>: Retrieve a list of track details by TIDAL track IDs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.get_video" title="minim.tidal.API.get_video"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_video</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.get_tracks_by_isrc" title="minim.tidal.API.get_tracks_by_isrc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tracks_by_isrc</span></code></a></p></td>
+<td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-tracks-by-isrc">Track API &gt; Get tracks by ISRC</a>: Retrieve a list of track details by ISRC.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.get_video" title="minim.tidal.API.get_video"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_video</span></code></a></p></td>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-video">Video API &gt; Get single video</a>: Retrieve video details by TIDAL video ID.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.get_videos" title="minim.tidal.API.get_videos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_videos</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.get_videos" title="minim.tidal.API.get_videos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_videos</span></code></a></p></td>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-videos-by-ids">Album API &gt; Get multiple videos</a>: Retrieve a list of video details by TIDAL video IDs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.search" title="minim.tidal.API.search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.search" title="minim.tidal.API.search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search</span></code></a></p></td>
 <td><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=search">Search API &gt; Search for catalog items</a>: Search for albums, artists, tracks, and videos.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.set_access_token" title="minim.tidal.API.set_access_token"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_access_token</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.set_access_token" title="minim.tidal.API.set_access_token"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_access_token</span></code></a></p></td>
 <td><p>Set the TIDAL API access token.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.tidal.API.set_flow" title="minim.tidal.API.set_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flow</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.tidal.API.set_flow" title="minim.tidal.API.set_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flow</span></code></a></p></td>
 <td><p>Set the authorization flow.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<dl class="py method">
-<dt class="sig sig-object py" id="minim.tidal.API.set_access_token">
-<span class="sig-name descname"><span class="pre">set_access_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><span class="pre">datetime</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.set_access_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.set_access_token" title="Link to this definition">#</a></dt>
-<dd><p>Set the TIDAL API access token.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>access_token</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>Access token. If not provided, an access token is obtained
-using an OAuth 2.0 authorization flow.</p>
-</dd>
-<dt><strong>expiry</strong><span class="classifier"><cite>str</cite> or <cite>datetime.datetime</cite>, keyword-only, optional</span></dt><dd><p>Access token expiry timestamp in the ISO 8601 format
-<code class="code docutils literal notranslate"><span class="pre">%Y-%m-%dT%H:%M:%SZ</span></code>. If provided, the user will be
-reauthenticated using the default authorization flow (if
-possible) when <cite>access_token</cite> expires.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="minim.tidal.API.set_flow">
-<span class="sig-name descname"><span class="pre">set_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_secret</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.set_flow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.set_flow" title="Link to this definition">#</a></dt>
-<dd><p>Set the authorization flow.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>flow</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>Authorization flow.</p>
-<div class="docutils container">
-<p><strong>Valid values</strong>:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;client_credentials&quot;</span></code> for the client credentials
-flow.</p></li>
-</ul>
-</div>
-</dd>
-<dt><strong>client_id</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Client ID. Required for all authorization flows.</p>
-</dd>
-<dt><strong>client_secret</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Client secret. Required for all authorization flows.</p>
-</dd>
-<dt><strong>save</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Determines whether to save the newly obtained access tokens
-and their associated properties to the Minim configuration
-file.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.tidal.API.get_album">
 <span class="sig-name descname"><span class="pre">get_album</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">album_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_album"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_album" title="Link to this definition">#</a></dt>
@@ -525,16 +479,15 @@ album details by TIDAL album ID.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="minim.tidal.API.get_albums">
-<span class="sig-name descname"><span class="pre">get_albums</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">album_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_albums"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_albums" title="Link to this definition">#</a></dt>
-<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-albums-by-ids">Album API &gt; Get multiple albums</a>:
-Retrieve a list of album details by TIDAL album IDs.</p>
+<dt class="sig sig-object py" id="minim.tidal.API.get_album_by_barcode_id">
+<span class="sig-name descname"><span class="pre">get_album_by_barcode_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">barcode_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_album_by_barcode_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_album_by_barcode_id" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-albums-by-barcode-id">Album API &gt; Get album by barcode ID</a>: Retrieve a list of album
+details by barcode ID.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>album_ids</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite></span></dt><dd><p>TIDAL album ID(s).</p>
-<p><strong>Examples</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;251380836,275646830&quot;</span></code> or
-<code class="code docutils literal notranslate"><span class="pre">[251380836,</span> <span class="pre">275646830]</span></code>.</p>
+<dt><strong>barcode_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>Barcode ID in EAN-13 or UPC-A format.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">196589525444</span></code>.</p>
 </dd>
 <dt><strong>country_code</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>ISO 3166-1 alpha-2 country code.</p>
 <p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;US&quot;</span></code>.</p>
@@ -543,8 +496,7 @@ Retrieve a list of album details by TIDAL album IDs.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>albums</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>A dictionary containing TIDAL catalog information for
-multiple albums and metadata for the returned results.</p>
+<dt><strong>album</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>TIDAL catalog information for a single album.</p>
 <div class="dropdown admonition">
 <p class="admonition-title">Sample response</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -602,9 +554,9 @@ multiple albums and metadata for the returned results.</p>
     <span class="p">}</span>
   <span class="p">],</span>
   <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s2">&quot;requested&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="s2">&quot;failure&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+    <span class="s2">&quot;requested&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;failure&quot;</span><span class="p">:</span> <span class="mi">0</span>
   <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -710,15 +662,16 @@ the returned results.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="minim.tidal.API.get_album_by_barcode_id">
-<span class="sig-name descname"><span class="pre">get_album_by_barcode_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">barcode_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_album_by_barcode_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_album_by_barcode_id" title="Link to this definition">#</a></dt>
-<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-albums-by-barcode-id">Album API &gt; Get album by barcode ID</a>: Retrieve a list of album
-details by barcode ID.</p>
+<dt class="sig sig-object py" id="minim.tidal.API.get_albums">
+<span class="sig-name descname"><span class="pre">get_albums</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">album_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_albums"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_albums" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-albums-by-ids">Album API &gt; Get multiple albums</a>:
+Retrieve a list of album details by TIDAL album IDs.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>barcode_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>Barcode ID in EAN-13 or UPC-A format.</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">196589525444</span></code>.</p>
+<dt><strong>album_ids</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite></span></dt><dd><p>TIDAL album ID(s).</p>
+<p><strong>Examples</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;251380836,275646830&quot;</span></code> or
+<code class="code docutils literal notranslate"><span class="pre">[251380836,</span> <span class="pre">275646830]</span></code>.</p>
 </dd>
 <dt><strong>country_code</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>ISO 3166-1 alpha-2 country code.</p>
 <p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;US&quot;</span></code>.</p>
@@ -727,7 +680,8 @@ details by barcode ID.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
-<dt><strong>album</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>TIDAL catalog information for a single album.</p>
+<dt><strong>albums</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>A dictionary containing TIDAL catalog information for
+multiple albums and metadata for the returned results.</p>
 <div class="dropdown admonition">
 <p class="admonition-title">Sample response</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -785,58 +739,9 @@ details by barcode ID.</p>
     <span class="p">}</span>
   <span class="p">],</span>
   <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s2">&quot;requested&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="s2">&quot;failure&quot;</span><span class="p">:</span> <span class="mi">0</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="minim.tidal.API.get_similar_albums">
-<span class="sig-name descname"><span class="pre">get_similar_albums</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">album_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_similar_albums"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_similar_albums" title="Link to this definition">#</a></dt>
-<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-similar-albums">Album API &gt; Get similar albums for the given album</a>:
-Retrieve a list of albums similar to the given album.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>album_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>TIDAL album ID.</p>
-<p><strong>Examples</strong>: <code class="code docutils literal notranslate"><span class="pre">251380836</span></code>.</p>
-</dd>
-<dt><strong>country_code</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>ISO 3166-1 alpha-2 country code.</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;US&quot;</span></code>.</p>
-</dd>
-<dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Page size.</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">10</span></code>.</p>
-</dd>
-<dt><strong>offset</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Pagination offset (in number of items).</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl>
-<dt><strong>album_ids</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>A dictionary containing TIDAL album IDs for similar albums
-and metadata for the returned results.</p>
-<div class="dropdown admonition">
-<p class="admonition-title">Sample response</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-      <span class="s2">&quot;resource&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">],</span>
-  <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+    <span class="s2">&quot;requested&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;failure&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
   <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -879,62 +784,6 @@ artist details by TIDAL artist ID.</p>
       <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
     <span class="p">}</span>
   <span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="minim.tidal.API.get_artists">
-<span class="sig-name descname"><span class="pre">get_artists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artist_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_artists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_artists" title="Link to this definition">#</a></dt>
-<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-artists-by-ids">Artist API &gt; Get multiple artists</a>:
-Retrieve a list of artist details by TIDAL artist IDs.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>artist_ids</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite></span></dt><dd><p>TIDAL artist ID(s).</p>
-<p><strong>Examples</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;1566,7804&quot;</span></code> or <code class="code docutils literal notranslate"><span class="pre">[1566,</span> <span class="pre">7804]</span></code>.</p>
-</dd>
-<dt><strong>country_code</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>ISO 3166-1 alpha-2 country code.</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;US&quot;</span></code>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl>
-<dt><strong>artists</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>A dictionary containing TIDAL catalog information for
-multiple artists and metadata for the returned results.</p>
-<div class="dropdown admonition">
-<p class="admonition-title">Sample response</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-      <span class="s2">&quot;resource&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-        <span class="s2">&quot;picture&quot;</span><span class="p">:</span> <span class="p">[</span>
-          <span class="p">{</span>
-            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
-            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
-          <span class="p">}</span>
-        <span class="p">]</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
-      <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
-      <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span>
-    <span class="p">}</span>
-  <span class="p">],</span>
-  <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s2">&quot;requested&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="s2">&quot;failure&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
-  <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1042,6 +891,215 @@ returned results.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="minim.tidal.API.get_artist_tracks">
+<span class="sig-name descname"><span class="pre">get_artist_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artist_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_artist_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_artist_tracks" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-tracks-by-artist">Track API &gt; Get tracks by artist</a>:
+Retrieve a list of tracks made by the specified artist.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>artist_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>TIDAL artist ID.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">1566</span></code>.</p>
+</dd>
+<dt><strong>country_code</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>ISO 3166-1 alpha-2 country code.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;US&quot;</span></code>.</p>
+</dd>
+<dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Page size.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">10</span></code>.</p>
+</dd>
+<dt><strong>offset</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Pagination offset (in number of items).</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>tracks</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>A dictionary containing TIDAL catalog information for tracks
+by the specified artist and metadata for the returned results.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample response</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;resource&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;album&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;imageCover&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+              <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+              <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+              <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+            <span class="p">}</span>
+          <span class="p">],</span>
+          <span class="s2">&quot;videoCover&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+              <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+              <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+              <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+            <span class="p">}</span>
+          <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;copyright&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;artists&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;picture&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="p">{</span>
+                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+                <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+              <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;main&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">bool</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;popularity&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">float</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;isrc&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;trackNumber&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;volumeNumber&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;tidalUrl&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;providerInfo&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;providerId&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+          <span class="s2">&quot;providerName&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;artifactType&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;mediaMetadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.tidal.API.get_artists">
+<span class="sig-name descname"><span class="pre">get_artists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artist_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_artists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_artists" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-artists-by-ids">Artist API &gt; Get multiple artists</a>:
+Retrieve a list of artist details by TIDAL artist IDs.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>artist_ids</strong><span class="classifier"><cite>int</cite>, <cite>str</cite>, or <cite>list</cite></span></dt><dd><p>TIDAL artist ID(s).</p>
+<p><strong>Examples</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;1566,7804&quot;</span></code> or <code class="code docutils literal notranslate"><span class="pre">[1566,</span> <span class="pre">7804]</span></code>.</p>
+</dd>
+<dt><strong>country_code</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>ISO 3166-1 alpha-2 country code.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;US&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>artists</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>A dictionary containing TIDAL catalog information for
+multiple artists and metadata for the returned results.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample response</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;resource&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;picture&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">]</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+      <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;requested&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;failure&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.tidal.API.get_similar_albums">
+<span class="sig-name descname"><span class="pre">get_similar_albums</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">album_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_similar_albums"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_similar_albums" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-similar-albums">Album API &gt; Get similar albums for the given album</a>:
+Retrieve a list of albums similar to the given album.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>album_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>TIDAL album ID.</p>
+<p><strong>Examples</strong>: <code class="code docutils literal notranslate"><span class="pre">251380836</span></code>.</p>
+</dd>
+<dt><strong>country_code</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>ISO 3166-1 alpha-2 country code.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;US&quot;</span></code>.</p>
+</dd>
+<dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Page size.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">10</span></code>.</p>
+</dd>
+<dt><strong>offset</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Pagination offset (in number of items).</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>album_ids</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>A dictionary containing TIDAL album IDs for similar albums
+and metadata for the returned results.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample response</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;resource&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="minim.tidal.API.get_similar_artists">
 <span class="sig-name descname"><span class="pre">get_similar_artists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artist_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_similar_artists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_similar_artists" title="Link to this definition">#</a></dt>
 <dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-similar-artists">Artist API &gt; Get similar artists for the given artist</a>:
@@ -1066,6 +1124,55 @@ Retrieve a list of artists similar to the given artist.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl>
 <dt><strong>artist_ids</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>A dictionary containing TIDAL artist IDs for similar albums
+and metadata for the returned results.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample response</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;resource&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.tidal.API.get_similar_tracks">
+<span class="sig-name descname"><span class="pre">get_similar_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_similar_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_similar_tracks" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-similar-tracks">Track API &gt; Get similar tracks for the given track</a>:
+Retrieve a list of tracks similar to the given track.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>track_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>TIDAL track ID.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">251380837</span></code>.</p>
+</dd>
+<dt><strong>country_code</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>ISO 3166-1 alpha-2 country code.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;US&quot;</span></code>.</p>
+</dd>
+<dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Page size.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">10</span></code>.</p>
+</dd>
+<dt><strong>offset</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Pagination offset (in number of items).</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>track_ids</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>A dictionary containing TIDAL track IDs for similar albums
 and metadata for the returned results.</p>
 <div class="dropdown admonition">
 <p class="admonition-title">Sample response</p>
@@ -1263,8 +1370,8 @@ multiple tracks and metadata for the returned results.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="minim.tidal.API.get_track_by_isrc">
-<span class="sig-name descname"><span class="pre">get_track_by_isrc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isrc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_track_by_isrc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_track_by_isrc" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="minim.tidal.API.get_tracks_by_isrc">
+<span class="sig-name descname"><span class="pre">get_tracks_by_isrc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isrc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_tracks_by_isrc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_tracks_by_isrc" title="Link to this definition">#</a></dt>
 <dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-tracks-by-isrc">Track API &gt; Get tracks by ISRC</a>:
 Retrieve a list of track details by ISRC.</p>
 <dl class="field-list">
@@ -1276,6 +1383,12 @@ characters).</p>
 </dd>
 <dt><strong>country_code</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>ISO 3166-1 alpha-2 country code.</p>
 <p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;US&quot;</span></code>.</p>
+</dd>
+<dt><strong>limit</strong><span class="classifier"><cite>int</cite>, optional</span></dt><dd><p>Page size.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">10</span></code>.</p>
+</dd>
+<dt><strong>offset</strong><span class="classifier"><cite>int</cite>, optional</span></dt><dd><p>Pagination offset (in number of items).</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -1346,55 +1459,6 @@ returned results.</p>
     <span class="s2">&quot;requested&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
     <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
     <span class="s2">&quot;failure&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="minim.tidal.API.get_similar_tracks">
-<span class="sig-name descname"><span class="pre">get_similar_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">country_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.get_similar_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.get_similar_tracks" title="Link to this definition">#</a></dt>
-<dd><p><a class="reference external" href="https://developer.tidal.com/apiref?ref=get-similar-tracks">Track API &gt; Get similar tracks for the given track</a>:
-Retrieve a list of tracks similar to the given track.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>track_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>TIDAL track ID.</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">251380837</span></code>.</p>
-</dd>
-<dt><strong>country_code</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>ISO 3166-1 alpha-2 country code.</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;US&quot;</span></code>.</p>
-</dd>
-<dt><strong>limit</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Page size.</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">10</span></code>.</p>
-</dd>
-<dt><strong>offset</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Pagination offset (in number of items).</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">0</span></code>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl>
-<dt><strong>track_ids</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>A dictionary containing TIDAL track IDs for similar albums
-and metadata for the returned results.</p>
-<div class="dropdown admonition">
-<p class="admonition-title">Sample response</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-      <span class="s2">&quot;resource&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">],</span>
-  <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
   <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -1755,6 +1819,55 @@ query, and metadata for the returned results.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.tidal.API.set_access_token">
+<span class="sig-name descname"><span class="pre">set_access_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><span class="pre">datetime</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.set_access_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.set_access_token" title="Link to this definition">#</a></dt>
+<dd><p>Set the TIDAL API access token.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>access_token</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>Access token. If not provided, an access token is obtained
+using an OAuth 2.0 authorization flow.</p>
+</dd>
+<dt><strong>expiry</strong><span class="classifier"><cite>str</cite> or <cite>datetime.datetime</cite>, keyword-only, optional</span></dt><dd><p>Access token expiry timestamp in the ISO 8601 format
+<code class="code docutils literal notranslate"><span class="pre">%Y-%m-%dT%H:%M:%SZ</span></code>. If provided, the user will be
+reauthenticated using the default authorization flow (if
+possible) when <cite>access_token</cite> expires.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.tidal.API.set_flow">
+<span class="sig-name descname"><span class="pre">set_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_secret</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/tidal.html#API.set_flow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.tidal.API.set_flow" title="Link to this definition">#</a></dt>
+<dd><p>Set the authorization flow.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>flow</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>Authorization flow.</p>
+<div class="docutils container">
+<p><strong>Valid values</strong>:</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;client_credentials&quot;</span></code> for the client credentials
+flow.</p></li>
+</ul>
+</div>
+</dd>
+<dt><strong>client_id</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Client ID. Required for all authorization flows.</p>
+</dd>
+<dt><strong>client_secret</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Client secret. Required for all authorization flows.</p>
+</dd>
+<dt><strong>save</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Determines whether to save the newly obtained access tokens
+and their associated properties to the Minim configuration
+file.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -1816,24 +1929,25 @@ query, and metadata for the returned results.</p>
             <ul>
 <li><a class="reference internal" href="#">API</a><ul>
 <li><a class="reference internal" href="#minim.tidal.API"><code class="docutils literal notranslate"><span class="pre">API</span></code></a><ul>
-<li><a class="reference internal" href="#minim.tidal.API.set_access_token"><code class="docutils literal notranslate"><span class="pre">set_access_token()</span></code></a></li>
-<li><a class="reference internal" href="#minim.tidal.API.set_flow"><code class="docutils literal notranslate"><span class="pre">set_flow()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.get_album"><code class="docutils literal notranslate"><span class="pre">get_album()</span></code></a></li>
-<li><a class="reference internal" href="#minim.tidal.API.get_albums"><code class="docutils literal notranslate"><span class="pre">get_albums()</span></code></a></li>
-<li><a class="reference internal" href="#minim.tidal.API.get_album_items"><code class="docutils literal notranslate"><span class="pre">get_album_items()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.get_album_by_barcode_id"><code class="docutils literal notranslate"><span class="pre">get_album_by_barcode_id()</span></code></a></li>
-<li><a class="reference internal" href="#minim.tidal.API.get_similar_albums"><code class="docutils literal notranslate"><span class="pre">get_similar_albums()</span></code></a></li>
+<li><a class="reference internal" href="#minim.tidal.API.get_album_items"><code class="docutils literal notranslate"><span class="pre">get_album_items()</span></code></a></li>
+<li><a class="reference internal" href="#minim.tidal.API.get_albums"><code class="docutils literal notranslate"><span class="pre">get_albums()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.get_artist"><code class="docutils literal notranslate"><span class="pre">get_artist()</span></code></a></li>
-<li><a class="reference internal" href="#minim.tidal.API.get_artists"><code class="docutils literal notranslate"><span class="pre">get_artists()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.get_artist_albums"><code class="docutils literal notranslate"><span class="pre">get_artist_albums()</span></code></a></li>
+<li><a class="reference internal" href="#minim.tidal.API.get_artist_tracks"><code class="docutils literal notranslate"><span class="pre">get_artist_tracks()</span></code></a></li>
+<li><a class="reference internal" href="#minim.tidal.API.get_artists"><code class="docutils literal notranslate"><span class="pre">get_artists()</span></code></a></li>
+<li><a class="reference internal" href="#minim.tidal.API.get_similar_albums"><code class="docutils literal notranslate"><span class="pre">get_similar_albums()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.get_similar_artists"><code class="docutils literal notranslate"><span class="pre">get_similar_artists()</span></code></a></li>
+<li><a class="reference internal" href="#minim.tidal.API.get_similar_tracks"><code class="docutils literal notranslate"><span class="pre">get_similar_tracks()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.get_track"><code class="docutils literal notranslate"><span class="pre">get_track()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.get_tracks"><code class="docutils literal notranslate"><span class="pre">get_tracks()</span></code></a></li>
-<li><a class="reference internal" href="#minim.tidal.API.get_track_by_isrc"><code class="docutils literal notranslate"><span class="pre">get_track_by_isrc()</span></code></a></li>
-<li><a class="reference internal" href="#minim.tidal.API.get_similar_tracks"><code class="docutils literal notranslate"><span class="pre">get_similar_tracks()</span></code></a></li>
+<li><a class="reference internal" href="#minim.tidal.API.get_tracks_by_isrc"><code class="docutils literal notranslate"><span class="pre">get_tracks_by_isrc()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.get_video"><code class="docutils literal notranslate"><span class="pre">get_video()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.get_videos"><code class="docutils literal notranslate"><span class="pre">get_videos()</span></code></a></li>
 <li><a class="reference internal" href="#minim.tidal.API.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li><a class="reference internal" href="#minim.tidal.API.set_access_token"><code class="docutils literal notranslate"><span class="pre">set_access_token()</span></code></a></li>
+<li><a class="reference internal" href="#minim.tidal.API.set_flow"><code class="docutils literal notranslate"><span class="pre">set_flow()</span></code></a></li>
 </ul>
 </li>
 </ul>

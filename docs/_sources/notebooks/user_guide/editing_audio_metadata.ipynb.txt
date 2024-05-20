@@ -60,8 +60,8 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "audio_files = [f for f in (Path().resolve().parents[3] \n",
-    "                           / \"tests/data/previews\").glob(\"**/*\") \n",
+    "audio_files = [f for f in (Path().resolve().parents[3]\n",
+    "                           / \"tests/data/previews\").glob(\"**/*\")\n",
     "               if f.suffix == \".flac\"]"
    ]
   },
@@ -86,7 +86,7 @@
     "            if field in {\"artwork\", \"lyrics\"}:\n",
     "                if value:\n",
     "                    value = type(value)\n",
-    "            field = (field.upper() if field == \"isrc\" \n",
+    "            field = (field.upper() if field == \"isrc\"\n",
     "                     else field.replace(\"_\", \" \").capitalize())\n",
     "            print(f\"{field}: {value}\")"
    ]
@@ -325,14 +325,14 @@
     "itunes_track = itunes_results[\n",
     "    np.argmax(\n",
     "        utility.levenshtein_ratio(\n",
-    "            query, \n",
-    "            [f\"{r['artistName']} {r['trackName']}\".lower() \n",
+    "            query,\n",
+    "            [f\"{r['artistName']} {r['trackName']}\".lower()\n",
     "             for r in itunes_results]\n",
     "        )\n",
     "    )\n",
     "]\n",
     "itunes_album = client_itunes.lookup(itunes_track[\"collectionId\"])[\"results\"][0]\n",
-    "audio_file.set_metadata_using_itunes(itunes_track, album_data=itunes_album, \n",
+    "audio_file.set_metadata_using_itunes(itunes_track, album_data=itunes_album,\n",
     "                                     overwrite=True)\n",
     "print_metadata(audio_file)"
    ]
@@ -401,14 +401,14 @@
     "spotify_track = spotify_results[\n",
     "    np.argmax(\n",
     "        utility.levenshtein_ratio(\n",
-    "            query, \n",
-    "            [f\"{r['artists'][0]['name']} {r['name']}\".lower() \n",
+    "            query,\n",
+    "            [f\"{r['artists'][0]['name']} {r['name']}\".lower()\n",
     "             for r in spotify_results]\n",
     "        )\n",
     "    )\n",
     "]\n",
     "audio_file.set_metadata_using_spotify(\n",
-    "    spotify_track, \n",
+    "    spotify_track,\n",
     "    audio_features=client_spotify.get_track_audio_features(spotify_track[\"id\"])\n",
     ")\n",
     "print_metadata(audio_file)"
@@ -422,7 +422,7 @@
     "\n",
     "* searching for the track on TIDAL via `minim.tidal.PrivateAPI.search()`,\n",
     "* selecting the correct result by matching the ISRC,\n",
-    "* getting the track's composers and lyrics using `minim.tidal.PrivateAPI.get_track_composers()` and `minim.tidal.PrivateAPI.get_track_lyrics()`, respectively, and\n",
+    "* getting the track's composers using `minim.tidal.PrivateAPI.get_track_composers()`, and\n",
     "* populating the file handler's metadata with the JSON results using `minim.audio.FLACAudio.set_metadata_using_tidal()`."
    ]
   },
@@ -469,8 +469,7 @@
     "tidal_results = client_tidal.search(query)[\"tracks\"][\"items\"]\n",
     "tidal_track = next((r for r in tidal_results if r[\"isrc\"] == audio_file.isrc), None)\n",
     "tidal_composers = client_tidal.get_track_composers(tidal_track[\"id\"])\n",
-    "tidal_lyrics = client_tidal.get_track_lyrics(tidal_track[\"id\"])\n",
-    "audio_file.set_metadata_using_tidal(tidal_track, composers=tidal_composers, lyrics=tidal_lyrics)\n",
+    "audio_file.set_metadata_using_tidal(tidal_track, composers=tidal_composers)\n",
     "print_metadata(audio_file)"
    ]
   },
@@ -478,7 +477,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "The metadata for the track is now complete. (For this example, TIDAL did not have songwriting credits for the track. This happens sometimes when the track is not very popular.)\n",
+    "The metadata for the track is now practically complete. Lyrics are available through either `minim.spotify.PrivateLyricsService.get_lyrics()` or `minim.tidal.PrivateAPI.get_track_lyrics()` with active subscriptions. (For this example, TIDAL did not have songwriting credits for the track. This happens sometimes when the track is not very popular.)\n",
     "\n",
     "Don't forget to write the changes to file using `minim.audio.FLACAudio.write()`!"
    ]
@@ -604,7 +603,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "The file has a poorly formatted copyright string and is missing lyrics, tempo, and cover art information. We can fix this by querying the three APIs as we did in the previous example, and overwrite the existing metadata:"
+    "The file has a poorly formatted copyright string and is missing tempo and cover art information. We can fix this by querying the three APIs as we did in the previous example, and overwrite the existing metadata:"
    ]
   },
   {
@@ -620,14 +619,14 @@
     "itunes_track = itunes_results[\n",
     "    np.argmax(\n",
     "        utility.levenshtein_ratio(\n",
-    "            query, \n",
-    "            [f\"{r['artistName']} {r['trackName']}\".lower() \n",
+    "            query,\n",
+    "            [f\"{r['artistName']} {r['trackName']}\".lower()\n",
     "             for r in itunes_results]\n",
     "        )\n",
     "    )\n",
     "]\n",
     "itunes_album = client_itunes.lookup(itunes_track[\"collectionId\"])[\"results\"][0]\n",
-    "audio_file.set_metadata_using_itunes(itunes_track, album_data=itunes_album, \n",
+    "audio_file.set_metadata_using_itunes(itunes_track, album_data=itunes_album,\n",
     "                                     overwrite=True)\n",
     "\n",
     "# Spotify Web API\n",
@@ -635,25 +634,23 @@
     "spotify_track = spotify_results[\n",
     "    np.argmax(\n",
     "        utility.levenshtein_ratio(\n",
-    "            query, \n",
-    "            [f\"{r['artists'][0]['name']} {r['name']}\".lower() \n",
+    "            query,\n",
+    "            [f\"{r['artists'][0]['name']} {r['name']}\".lower()\n",
     "             for r in spotify_results]\n",
     "        )\n",
     "    )\n",
     "]\n",
     "audio_file.set_metadata_using_spotify(\n",
-    "    spotify_track, \n",
+    "    spotify_track,\n",
     "    audio_features=client_spotify.get_track_audio_features(spotify_track[\"id\"])\n",
     ")\n",
     "\n",
     "# Private TIDAL API\n",
     "tidal_results = client_tidal.search(query)[\"tracks\"][\"items\"]\n",
-    "tidal_track = next((r for r in tidal_results if r[\"isrc\"] == audio_file.isrc), \n",
+    "tidal_track = next((r for r in tidal_results if r[\"isrc\"] == audio_file.isrc),\n",
     "                   None)\n",
     "tidal_composers = client_tidal.get_track_composers(tidal_track[\"id\"])\n",
-    "tidal_lyrics = client_tidal.get_track_lyrics(tidal_track[\"id\"])\n",
-    "audio_file.set_metadata_using_tidal(tidal_track, composers=tidal_composers, \n",
-    "                                    lyrics=tidal_lyrics)"
+    "audio_file.set_metadata_using_tidal(tidal_track, composers=tidal_composers)"
    ]
   },
   {

@@ -7,7 +7,7 @@ import tempfile
 import warnings
 
 __all__ = [
-    "audio", "itunes", "qobuz", "spotify", "tidal", "utility",
+    "audio", "discogs", "itunes", "qobuz", "spotify", "tidal", "utility",
     "FOUND_FFMPEG", "FOUND_FLASK", "FOUND_PLAYWRIGHT",
     "VERSION", "REPOSITORY_URL", "DIR_HOME", "DIR_TEMP", "ILLEGAL_CHARACTERS"
 ]
@@ -46,4 +46,4 @@ if not _config.has_section("minim"):
     with open(DIR_HOME / "minim.cfg", "w") as f:
         _config.write(f)
 
-from . import audio, itunes, qobuz, spotify, tidal, utility # noqa: E402
+from . import audio, discogs, itunes, qobuz, spotify, tidal, utility # noqa: E402

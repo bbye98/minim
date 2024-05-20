@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="WebAPI" href="minim.spotify.WebAPI.html" /><link rel="prev" title="spotify" href="minim.spotify.html" />
 
-    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
         <title>PrivateLyricsService - Minim 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
@@ -274,7 +274,7 @@ of your web browser after you log into Spotify.</p>
 <p>If an existing access token is available, it and its expiry time can
 be provided to this class’s constructor as keyword arguments to
 bypass the access token exchange process. It is recommended that all
-other authentication-related keyword arguments be specified so that
+other authorization-related keyword arguments be specified so that
 a new access token can be obtained when the existing one expires.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
@@ -296,7 +296,7 @@ variables or found in the Minim configuration file, it must be
 provided here.</p>
 </dd>
 <dt><strong>access_token</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Access token. If provided here or found in the Minim
-configuration file, the authentication process is bypassed. In
+configuration file, the authorization process is bypassed. In
 the former case, all other relevant keyword arguments should be
 specified to automatically refresh the access token when it
 expires.</p>
@@ -338,44 +338,6 @@ file.</p>
 </tbody>
 </table>
 </div>
-<dl class="py method">
-<dt class="sig sig-object py" id="minim.spotify.PrivateLyricsService.set_sp_dc">
-<span class="sig-name descname"><span class="pre">set_sp_dc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp_dc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/spotify.html#PrivateLyricsService.set_sp_dc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.PrivateLyricsService.set_sp_dc" title="Link to this definition">#</a></dt>
-<dd><p>Set the Spotify Web Player <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>sp_dc</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>Spotify Web Player <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie.</p>
-</dd>
-<dt><strong>save</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Determines whether to save the newly obtained access tokens
-and their associated properties to the Minim configuration
-file.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="minim.spotify.PrivateLyricsService.set_access_token">
-<span class="sig-name descname"><span class="pre">set_access_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><span class="pre">datetime</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/spotify.html#PrivateLyricsService.set_access_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.PrivateLyricsService.set_access_token" title="Link to this definition">#</a></dt>
-<dd><p>Set the Spotify Lyrics service access token.</p>
-<dl class="field-list">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl>
-<dt><strong>access_token</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>Access token. If not provided, an access token is obtained
-from the Spotify Web Player using the <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie.</p>
-</dd>
-<dt><strong>expiry</strong><span class="classifier"><cite>str</cite> or <cite>datetime.datetime</cite>, keyword-only, optional</span></dt><dd><p>Access token expiry timestamp in the ISO 8601 format
-<code class="code docutils literal notranslate"><span class="pre">%Y-%m-%dT%H:%M:%SZ</span></code>. If provided, the user will be
-reauthenticated (if <cite>sp_dc</cite> is found or provided) when the
-<cite>access_token</cite> expires.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.spotify.PrivateLyricsService.get_lyrics">
 <span class="sig-name descname"><span class="pre">get_lyrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/spotify.html#PrivateLyricsService.get_lyrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.PrivateLyricsService.get_lyrics" title="Link to this definition">#</a></dt>
@@ -425,6 +387,44 @@ reauthenticated (if <cite>sp_dc</cite> is found or provided) when the
 </pre></div>
 </div>
 </div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.spotify.PrivateLyricsService.set_access_token">
+<span class="sig-name descname"><span class="pre">set_access_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.12)"><span class="pre">datetime</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/spotify.html#PrivateLyricsService.set_access_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.PrivateLyricsService.set_access_token" title="Link to this definition">#</a></dt>
+<dd><p>Set the Spotify Lyrics service access token.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>access_token</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>Access token. If not provided, an access token is obtained
+from the Spotify Web Player using the <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie.</p>
+</dd>
+<dt><strong>expiry</strong><span class="classifier"><cite>str</cite> or <cite>datetime.datetime</cite>, keyword-only, optional</span></dt><dd><p>Access token expiry timestamp in the ISO 8601 format
+<code class="code docutils literal notranslate"><span class="pre">%Y-%m-%dT%H:%M:%SZ</span></code>. If provided, the user will be
+reauthenticated (if <cite>sp_dc</cite> is found or provided) when the
+<cite>access_token</cite> expires.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.spotify.PrivateLyricsService.set_sp_dc">
+<span class="sig-name descname"><span class="pre">set_sp_dc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp_dc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/spotify.html#PrivateLyricsService.set_sp_dc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.spotify.PrivateLyricsService.set_sp_dc" title="Link to this definition">#</a></dt>
+<dd><p>Set the Spotify Web Player <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>sp_dc</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>Spotify Web Player <code class="code docutils literal notranslate"><span class="pre">sp_dc</span></code> cookie.</p>
+</dd>
+<dt><strong>save</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Determines whether to save the newly obtained access tokens
+and their associated properties to the Minim configuration
+file.</p>
 </dd>
 </dl>
 </dd>
@@ -492,9 +492,9 @@ reauthenticated (if <cite>sp_dc</cite> is found or provided) when the
             <ul>
 <li><a class="reference internal" href="#">PrivateLyricsService</a><ul>
 <li><a class="reference internal" href="#minim.spotify.PrivateLyricsService"><code class="docutils literal notranslate"><span class="pre">PrivateLyricsService</span></code></a><ul>
-<li><a class="reference internal" href="#minim.spotify.PrivateLyricsService.set_sp_dc"><code class="docutils literal notranslate"><span class="pre">set_sp_dc()</span></code></a></li>
-<li><a class="reference internal" href="#minim.spotify.PrivateLyricsService.set_access_token"><code class="docutils literal notranslate"><span class="pre">set_access_token()</span></code></a></li>
 <li><a class="reference internal" href="#minim.spotify.PrivateLyricsService.get_lyrics"><code class="docutils literal notranslate"><span class="pre">get_lyrics()</span></code></a></li>
+<li><a class="reference internal" href="#minim.spotify.PrivateLyricsService.set_access_token"><code class="docutils literal notranslate"><span class="pre">set_access_token()</span></code></a></li>
+<li><a class="reference internal" href="#minim.spotify.PrivateLyricsService.set_sp_dc"><code class="docutils literal notranslate"><span class="pre">set_sp_dc()</span></code></a></li>
 </ul>
 </li>
 </ul>

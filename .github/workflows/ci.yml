@@ -12,32 +12,31 @@ env:
   TIDAL_PRIVATE_CLIENT_SECRET: ${{ secrets.TIDAL_PRIVATE_CLIENT_SECRET }}
 jobs:
   build:
-    name: Continuous integration (Python ${{ matrix.python-version }})
+    name: continuous-integration-${{ matrix.os }}-python-${{ matrix.python-version }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest]
         python-version: ["3.9", "3.10", "3.11"]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: bash -el {0}
     timeout-minutes: 60
-    steps:      
+    steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - uses: FedericoCarboni/setup-ffmpeg@v2
         id: setup-ffmpeg
-      - name: Install required dependencies using pip
-        run: |
-          python3 -m pip install -r requirements_minimal.txt
-      - name: Lint with ruff
+      - name: pip-install-dependencies
+        run: python3 -m pip install -r requirements_minimal.txt
+      - name: ruff-lint
         run: |
           python3 -m pip install ruff
-          ruff --target-version=py39 .
+          ruff check --target-version=py39 .
         continue-on-error: true
-      - name: Test with coverage and pytest
+      - name: pytest-test
         run: |
-          python3 -m pip install coverage pytest
-          coverage run -m pytest
+          python3 -m pip install pytest
+          pytest

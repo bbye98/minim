@@ -2,6 +2,8 @@
 Discogs
 =======
 .. moduleauthor:: Benjamin Ye <GitHub: bbye98>
+
+This module contains a complete implementation of the Discogs API.
 """
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -1134,8 +1136,8 @@ class API:
     def get_master_release_versions(
             self, master_id: Union[int, str], *, country: str = None,
             format: str = None, label: str = None, released: str = None,
-            page: int = None, per_page: int = None, sort: str = None,
-            sort_order: str = None) -> dict[str, Any]:
+            page: Union[int, str] = None, per_page: Union[int, str] = None,
+            sort: str = None, sort_order: str = None) -> dict[str, Any]:
 
         """
         `Database > Master Release Versions <https://www.discogs.com
@@ -1170,12 +1172,12 @@ class API:
 
             **Example**: :code:`"1992"`.
 
-        page : `int`, keyword-only, optional
+        page : `int` or `str`, keyword-only, optional
             The page you want to request.
 
             **Example**: :code:`3`.
 
-        per_page : `int`, keyword-only, optional
+        per_page : `int` or `str`, keyword-only, optional
             The number of items per page.
 
             **Example**: :code:`25`.
@@ -1312,9 +1314,9 @@ class API:
         return self._get_json(f"{self.API_URL}/artists/{artist_id}")
 
     def get_artist_releases(
-            self, artist_id: Union[int, str], *, page: int = None,
-            per_page: int = None, sort: str = None, sort_order: str = None
-        ) -> dict[str, Any]:
+            self, artist_id: Union[int, str], *, page: Union[int, str] = None,
+            per_page: Union[int, str] = None, sort: str = None,
+            sort_order: str = None) -> dict[str, Any]:
 
         """
         `Database > Artist Releases <https://www.discogs.com/developers
@@ -1328,10 +1330,10 @@ class API:
 
             **Example**: :code:`108713`.
 
-        page : `int`, keyword-only, optional
+        page : `int` or `str`, keyword-only, optional
             Page of results to fetch.
 
-        per_page : `int`, keyword-only, optional
+        per_page : `int` or `str`, keyword-only, optional
             Number of results per page.
 
         sort : `str`, keyword-only, optional
@@ -1451,8 +1453,8 @@ class API:
         return self._get_json(f"{self.API_URL}/labels/{label_id}")
 
     def get_label_releases(
-            self, label_id: Union[int, str], *, page: int = None,
-            per_page: int = None) -> dict[str, Any]:
+            self, label_id: Union[int, str], *, page: Union[int, str] = None,
+            per_page: Union[int, str] = None) -> dict[str, Any]:
 
         """
         `Database > Label Releases <https://www.discogs.com/developers
@@ -1466,10 +1468,10 @@ class API:
 
             **Example**: :code:`1`.
 
-        page : `int`, keyword-only, optional
+        page : `int` or `str`, keyword-only, optional
             Page of results to fetch.
 
-        per_page : `int`, keyword-only, optional
+        per_page : `int` or `str`, keyword-only, optional
             Number of results per page.
 
         Returns
@@ -1532,8 +1534,8 @@ class API:
         .. admonition:: Authentication
            :class: warning
 
-            Requires authentication with consumer credentials, with a
-            personal access token, or via the OAuth 1.0a flow.
+           Requires authentication with consumer credentials, with a
+           personal access token, or via the OAuth 1.0a flow.
 
         Parameters
         ----------
@@ -1703,9 +1705,9 @@ class API:
     ### MARKETPLACE ###########################################################
 
     def get_inventory(
-            self, username: str, *, status: str = None, page: str = None,
-            per_page: str = None, sort: str = None, sort_order: str = None
-        ) -> dict[str, Any]:
+            self, username: str = None, *, status: str = None,
+            page: Union[int, str] = None, per_page: Union[int, str] = None,
+            sort: str = None, sort_order: str = None) -> dict[str, Any]:
 
         """
         `Marketplace > Inventory <https://www.discogs.com/developers
@@ -1724,7 +1726,8 @@ class API:
         Parameters
         ----------
         username : `str`
-            The username of the inventory owner.
+            The username of the inventory owner. If not specified, the
+            username of the authenticated user is used.
 
             **Example**: :code:`"360vinyl"`.
 
@@ -1734,12 +1737,12 @@ class API:
             **Valid values**: :code:`"For Sale"`, :code:`"Draft"`,
             :code:`"Expired"`, :code:`"Sold"`, and :code:`"Deleted"`.
 
-        page : `str`, keyword-only, optional
+        page : `int` or `str`, keyword-only, optional
             The page you want to request.
 
             **Example**: :code:`3`.
 
-        per_page : `str`, keyword-only, optional
+        per_page : `int` or `str`, keyword-only, optional
             The number of items per page.
 
             **Example**: :code:`25`.
@@ -1768,9 +1771,56 @@ class API:
                .. code::
 
                   {
-
+                    "pagination": {
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "items": <int>,
+                      "urls": {}
+                    },
+                    "listings": [
+                      {
+                        "status": <str>,
+                        "price": {
+                          "currency": <str>,
+                          "value": <float>
+                        },
+                        "allow_offers": <bool>,
+                        "sleeve_condition": <str>,
+                        "id": <int>,
+                        "condition": <str>,
+                        "posted": <str>,
+                        "ships_from": <str>,
+                        "uri": <str>,
+                        "comments": <str>,
+                        "seller": {
+                          "username": <str>,
+                          "resource_url": <str>,
+                          "id": <int>
+                        },
+                        "release": {
+                          "catalog_number": <str>,
+                          "resource_url": <str>,
+                          "year": <int>,
+                          "id": <int>,
+                          "description": <str>,
+                          "artist": <str>,
+                          "title": <str>,
+                          "format": <str>,
+                          "thumbnail": <str>
+                        },
+                        "resource_url": <str>,
+                        "audio": <bool>
+                      }
+                    ]
                   }
         """
+
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
 
         return self._get_json(
             f"{self.API_URL}/users/{username}/inventory",
@@ -1782,42 +1832,1091 @@ class API:
             self, listing_id: Union[int, str], *, curr_abbr: str = None
         ) -> dict[str, Any]:
 
-        pass
+        """
+        `Marketplace > Listing <https://www.discogs.com/developers
+        /#page:marketplace,header:marketplace-listing-get>`_: View
+        marketplace listings.
+
+        Parameters
+        ----------
+        listing_id : `int` or `str`
+            The ID of the listing you are fetching.
+
+            **Example**: :code:`172723812`.
+
+        curr_abbr : `str`, keyword-only, optional
+            Currency abbreviation for marketplace listings. Defaults to
+            the authenticated user's currency.
+
+            **Valid values**: :code:`"USD"`, :code:`"GBP"`, :code:`"EUR"`,
+            :code:`"CAD"`, :code:`"AUD"`, :code:`"JPY"`, :code:`"CHF"`,
+            :code:`"MXN"`, :code:`"BRL"`, :code:`"NZD"`, :code:`"SEK"`,
+            and :code:`"ZAR"`.
+
+        Returns
+        -------
+        listing : `dict`
+            The marketplace listing.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "status": <str>,
+                    "price": {
+                      "currency": <str>,
+                      "value": <int>
+                    },
+                    "original_price": {
+                      "curr_abbr": <str>,
+                      "curr_id": <int>,
+                      "formatted": <str>,
+                      "value": <float>
+                    },
+                    "allow_offers": <bool>,
+                    "sleeve_condition": <str>,
+                    "id": <int>,
+                    "condition": <str>,
+                    "posted": <str>,
+                    "ships_from": <str>,
+                    "uri": <str>,
+                    "comments": <str>,
+                    "seller": {
+                      "username": <str>,
+                      "avatar_url": <str>,
+                      "resource_url": <str>,
+                      "url": <str>,
+                      "id": <int>,
+                      "shipping": <str>,
+                      "payment": <str>,
+                      "stats": {
+                        "rating": <str>,
+                        "stars": <float>,
+                        "total": <int>
+                      }
+                    },
+                    "shipping_price": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "original_shipping_price": {
+                      "curr_abbr": <str>,
+                      "curr_id": <int>,
+                      "formatted": <str>,
+                      "value": <float>
+                    },
+                    "release": {
+                      "catalog_number": <str>,
+                      "resource_url": <str>,
+                      "year": <int>,
+                      "id": <int>,
+                      "description": <str>,
+                      "thumbnail": <str>,
+                    },
+                    "resource_url": <str>,
+                    "audio": <bool>
+                  }
+        """
+
+        return self._get_json(
+            f"{self.API_URL}/marketplace/listings/{listing_id}",
+            params={"curr_abbr": curr_abbr}
+        )
+
+    def create_listing(
+            self, release_id: Union[int, str], condition: str, price: float,
+            status: str = "For Sale", *, sleeve_condition: str = None,
+            comments: str = None, allow_offers: bool = None,
+            external_id: str = None, location: str = None, weight: float = None,
+            format_quantity: int = None) -> dict[str, Any]:
+
+        """
+        `Marketplace > New Listing <https://www.discogs.com/developers
+        /#page:marketplace,header:marketplace-new-listing>`_: Create a
+        marketplace listing.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        release_id : `int` or `str`
+            The ID of the release you are posting.
+
+            **Example**: :code:`249504`.
+
+        condition : `str`
+            The condition of the release you are posting.
+
+            **Valid values**: :code:`"Mint (M)"`,
+            :code:`"Near Mint (NM or M-)"`,
+            :code:`"Very Good Plus (VG+)"`,
+            :code:`"Very Good (VG)"`, :code:`"Good Plus (G+)"`,
+            :code:`"Good (G)"`, :code:`"Fair (F)"`, and
+            :code:`"Poor (P)"`.
+
+        price : `float`
+            The price of the item (in the seller's currency).
+
+            **Example**: :code:`10.00`.
+
+        status : `str`, default: :code:`"For Sale"`
+            The status of the listing.
+
+            **Valid values**: :code:`"For Sale"` (the listing is ready
+            to be shwon on the marketplace) and :code:`"Draft"` (the
+            listing is not ready for public display).
+
+        sleeve_condition : `str`, optional
+            The condition of the sleeve of the item you are posting.
+
+            **Valid values**: :code:`"Mint (M)"`,
+            :code:`"Near Mint (NM or M-)"`,
+            :code:`"Very Good Plus (VG+)"`,
+            :code:`"Very Good (VG)"`, :code:`"Good Plus (G+)"`,
+            :code:`"Good (G)"`, :code:`"Fair (F)"`, and
+            :code:`"Poor (P)"`.
+
+        comments : `str`, optional
+            Any remarks about the item that will be displated to buyers.
+
+        allow_offers : `bool`, optional
+            Whether or not to allow buyers to make offers on the item.
+
+            **Default**: :code:`False`.
+
+        external_id : `str`, optional
+            A freeform field that can be used for the seller's own
+            reference. Information stored here will not be displayed to
+            anyone other than the seller. This field is called “Private
+            Comments” on the Discogs website.
+
+        location : `str`, optional
+            A freeform field that is intended to help identify an item's
+            physical storage location. Information stored here will not
+            be displayed to anyone other than the seller. This field
+            will be visible on the inventory management page and will be
+            available in inventory exports via the website.
+
+        weight : `float`, optional
+            The weight, in grams, of this listing, for the purpose of
+            calculating shipping. Set this field to :code:`"auto"` to
+            have the weight automatically estimated for you.
+
+        format_quantity : `int`, optional
+            The number of items this listing counts as, for the purpose
+            of calculating shipping. This field is called "Counts As" on
+            the Discogs website. Set this field to :code:`"auto"` to
+            have the quantity automatically estimated for you.
+        """
+
+        return self._request(
+            "post",
+            f"{self.API_URL}/marketplace/listings",
+            params={
+                "release_id": release_id,
+                "condition": condition,
+                "price": price,
+                "status": status,
+                "sleeve_condition": sleeve_condition,
+                "comments": comments,
+                "allow_offers": allow_offers,
+                "external_id": external_id,
+                "location": location,
+                "weight": weight,
+                "format_quantity": format_quantity
+            }
+        ).json()
 
     def edit_listing(
             self, listing_id: Union[int, str], release_id: Union[int, str],
-            condition: str, price: float, status: str, *,
+            condition: str, price: float, status: str = "For Sale", *,
             sleeve_condition: str = None, comments: str = None,
             allow_offers: bool = None, external_id: str = None,
             location: str = None, weight: float = None,
             format_quantity: int = None) -> None:
 
-        pass
+        """
+        `Marketplace > Listing > Edit Listing <https://www.discogs.com
+        /developers/#page:marketplace,header:marketplace-listing-post>`_:
+        Edit the data associated with a listing.
+
+        If the listing's status is not :code:`"For Sale"`,
+        :code:`"Draft"`, or :code:`"Expired"`, it cannot be
+        modified—only deleted. To re-list a :code:`"Sold"` listing, a
+        new listing must be created.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        listing_id : `int` or `str`
+            The ID of the listing you are fetching.
+
+            **Example**: :code:`172723812`.
+
+        release_id : `int` or `str`
+            The ID of the release you are posting.
+
+            **Example**: :code:`249504`.
+
+        condition : `str`
+            The condition of the release you are posting.
+
+            **Valid values**: :code:`"Mint (M)"`,
+            :code:`"Near Mint (NM or M-)"`,
+            :code:`"Very Good Plus (VG+)"`,
+            :code:`"Very Good (VG)"`, :code:`"Good Plus (G+)"`,
+            :code:`"Good (G)"`, :code:`"Fair (F)"`, and
+            :code:`"Poor (P)"`.
+
+        price : `float`
+            The price of the item (in the seller's currency).
+
+            **Example**: :code:`10.00`.
+
+        status : `str`, default: :code:`"For Sale"`
+            The status of the listing.
+
+            **Valid values**: :code:`"For Sale"` (the listing is ready
+            to be shwon on the marketplace) and :code:`"Draft"` (the
+            listing is not ready for public display).
+
+        sleeve_condition : `str`, optional
+            The condition of the sleeve of the item you are posting.
+
+            **Valid values**: :code:`"Mint (M)"`,
+            :code:`"Near Mint (NM or M-)"`,
+            :code:`"Very Good Plus (VG+)"`,
+            :code:`"Very Good (VG)"`, :code:`"Good Plus (G+)"`,
+            :code:`"Good (G)"`, :code:`"Fair (F)"`, and
+            :code:`"Poor (P)"`.
+
+        comments : `str`, optional
+            Any remarks about the item that will be displated to buyers.
+
+        allow_offers : `bool`, optional
+            Whether or not to allow buyers to make offers on the item.
+
+            **Default**: :code:`False`.
+
+        external_id : `str`, optional
+            A freeform field that can be used for the seller's own
+            reference. Information stored here will not be displayed to
+            anyone other than the seller. This field is called “Private
+            Comments” on the Discogs website.
+
+        location : `str`, optional
+            A freeform field that is intended to help identify an item's
+            physical storage location. Information stored here will not
+            be displayed to anyone other than the seller. This field
+            will be visible on the inventory management page and will be
+            available in inventory exports via the website.
+
+        weight : `float`, optional
+            The weight, in grams, of this listing, for the purpose of
+            calculating shipping. Set this field to :code:`"auto"` to
+            have the weight automatically estimated for you.
+
+        format_quantity : `int`, optional
+            The number of items this listing counts as, for the purpose
+            of calculating shipping. This field is called "Counts As" on
+            the Discogs website. Set this field to :code:`"auto"` to
+            have the quantity automatically estimated for you.
+        """
+
+        self._check_authentication("edit_listing")
+
+        self._request(
+            "post",
+            f"{self.API_URL}/marketplace/listings/{listing_id}",
+            json={
+                "release_id": release_id,
+                "condition": condition,
+                "price": price,
+                "status": status,
+                "sleeve_condition": sleeve_condition,
+                "comments": comments,
+                "allow_offers": allow_offers,
+                "external_id": external_id,
+                "location": location,
+                "weight": weight,
+                "format_quantity": format_quantity
+            }
+        )
 
     def delete_listing(self, listing_id: Union[int, str]) -> None:
 
-        pass
+        """
+        `Marketplace > Listing > Delete Listing <https://www.discogs.com
+        /developers/#page:marketplace,header
+        :marketplace-listing-delete>`_: Permanently remove a listing
+        from the marketplace.
 
-    def create_listing(
-            self, release_id: Union[int, str], condition: str, price: float,
-            status: str, *, sleeve_condition: str = None, comments: str = None,
-            allow_offers: bool = None, external_id: str = None,
-            location: str = None, weight: float = None,
-            format_quantity: int = None) -> dict[str, Any]:
+        .. admonition:: User authentication
+           :class: warning
 
-        pass
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
 
-    def get_order(self, order_id: Union[int, str]) -> dict[str, Any]:
+        Parameters
+        ----------
+        listing_id : `int` or `str`
+            The ID of the listing you are fetching.
 
-        pass
+            **Example**: :code:`172723812`.
+        """
 
-    def edit_order(self, order_id: Union[int, str], status: str) -> None:
+        self._check_authentication("delete_listing")
 
-        pass
+        self._request("delete",
+                      f"{self.API_URL}/marketplace/listings/{listing_id}")
+
+    def get_order(self, order_id: str) -> dict[str, Any]:
+
+        """
+        `Marketplace > Order > Get Order <https://www.discogs.com/developers
+        #page:marketplace,header:marketplace-order-get>`_: View the data
+        associated with an order.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        order_id : `str`
+            The ID of the order you are fetching.
+
+            **Example**: :code:`1-1`.
+
+        Returns
+        -------
+        order : `dict`
+            The marketplace order.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "id": <str>,
+                    "resource_url": <str>,
+                    "messages_url": <str>,
+                    "uri": <str>,
+                    "status": <str>,
+                    "next_status": [<str>],
+                    "fee": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "created": <str>,
+                    "items": [
+                      {
+                        "release": {
+                          "id": <int>,
+                          "description": <str>,
+                        },
+                        "price": {
+                          "currency": <str>,
+                          "value": <int>
+                        },
+                        "media_condition": <str>,
+                        "sleeve_condition": <str>,
+                        "id": <int>
+                      }
+                    ],
+                    "shipping": {
+                      "currency": <str>,
+                      "method": <str>,
+                      "value": <int>
+                    },
+                    "shipping_address": <str>,
+                    "additional_instructions": <str>,
+                    "archived": <bool>,
+                    "seller": {
+                      "resource_url": <str>,
+                      "username": <str>,
+                      "id": <int>
+                    },
+                    "last_activity": <str>,
+                    "buyer": {
+                      "resource_url": <str>,
+                      "username": <str>,
+                      "id": <int>
+                    },
+                    "total": {
+                      "currency": <str>,
+                      "value": <int>
+                    }
+                  }
+        """
+
+        self._check_authentication("get_order")
+
+        return self._get_json(f"{self.API_URL}/marketplace/orders/{order_id}")
+
+    def edit_order(
+            self, order_id: str, status: str, *, shipping: float = None
+        ) -> dict[str, Any]:
+
+        """
+        `Marketplace > Order > Edit Order <https://www.discogs.com/developers
+        #page:marketplace,header:marketplace-order-post>`_: Edit the data
+        associated with an order.
+
+        The response contains a :code:`"next_status"` key—an array of
+        valid next statuses for this order.
+
+        Changing the order status using this resource will always message
+        the buyer with
+
+            Seller changed status from [...] to [...]
+
+        and does not provide a facility for including a custom message
+        along with the change. For more fine-grained control, use the
+        :meth:`add_order_message` method, which allows you to
+        simultaneously add a message and change the order status. If the
+        order status is not :code:`"Cancelled"`,
+        :code:`"Payment Received"`, or :code:`"Shipped"`, you can change
+        the shipping. Doing so will send an invoice to the buyer and set
+        the order status to :code:`"Invoice Sent"`. (For that reason,
+        you cannot set the shipping and the order status in the same
+        request.)
+
+        .. admonition:: User authentication
+          :class: warning
+
+          Requires user authentication with a personal access token or
+          via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        order_id : `str`
+            The ID of the order you are fetching.
+
+            **Example**: :code:`1-1`.
+
+        status : `str`
+            The status of the order you are updating. The new status must
+            be present in the order's :code:`"next_status"` list.
+
+            **Valid values**: :code:`"New Order"`,
+            :code:`"Buyer Contacted"`, :code:`"Invoice Sent"`,
+            :code:`"Payment Pending"`, :code:`"Payment Received"`,
+            :code:`"In Progress"`, :code:`"Shipped"`,
+            :code:`"Refund Sent"`, :code:`"Cancelled (Non-Paying Buyer)"`,
+            :code:`"Cancelled (Item Unavailable)"`, and
+            :code:`"Cancelled (Per Buyer's Request)"`.
+
+        shipping : `float`, optional
+            The order shipping amount. As a side effect of setting this
+            value, the buyer is invoiced and the order status is set to
+            :code:`"Invoice Sent"`.
+
+            **Example**: :code:`5.00`.
+
+        Returns
+        -------
+        order : `dict`
+            The marketplace order.
+
+            .. admonition:: Sample
+                :class: dropdown
+
+                .. code::
+
+                  {
+                    "id": <str>,
+                    "resource_url": <str>,
+                    "messages_url": <str>,
+                    "uri": <str>,
+                    "status": <str>,
+                    "next_status": [<str>],
+                    "fee": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "created": <str>,
+                    "items": [
+                      {
+                        "release": {
+                          "id": <int>,
+                          "description": <str>,
+                        },
+                        "price": {
+                          "currency": <str>,
+                          "value": <int>
+                        },
+                        "media_condition": <str>,
+                        "sleeve_condition": <str>,
+                        "id": <int>
+                      }
+                    ],
+                    "shipping": {
+                      "currency": <str>,
+                      "method": <str>,
+                      "value": <int>
+                    },
+                    "shipping_address": <str>,
+                    "additional_instructions": <str>,
+                    "archived": <bool>,
+                    "seller": {
+                      "resource_url": <str>,
+                      "username": <str>,
+                      "id": <int>
+                    },
+                    "last_activity": <str>,
+                    "buyer": {
+                      "resource_url": <str>,
+                      "username": <str>,
+                      "id": <int>
+                    },
+                    "total": {
+                      "currency": <str>,
+                      "value": <int>
+                    }
+                  }
+        """
+
+        self._check_authentication("edit_order")
+
+        return self._request(
+            "post",
+            f"{self.API_URL}/marketplace/orders/{order_id}",
+            json={"status": status, "shipping": shipping}
+        ).json()
+
+    def get_user_orders(
+            self, *, status: str = None, created_after: str = None,
+            created_before: str = None, archived: bool = None,
+            page: Union[int, str] = None, per_page: Union[int, str] = None,
+            sort: str = None, sort_order: str = None) -> dict[str, Any]:
+
+        """
+        `Marketplace > List Orders <https://www.discogs.com/developers
+        /#page:marketplace,header:marketplace-list-orders-get>`_:
+        Returns a list of the authenticated user's orders.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        status : `str`, keyword-only, optional
+            Only show orders with this status.
+
+            **Valid values**: :code:`"All"`, :code:`"New Order"`,
+            :code:`"Buyer Contacted"`, :code:`"Invoice Sent"`,
+            :code:`"Payment Pending"`, :code:`"Payment Received"`,
+            :code:`"In Progress"`, :code:`"Shipped"`,
+            :code:`"Merged"`, :code:`"Order Changed"`,
+            :code:`"Refund Sent"`, :code:`"Cancelled"`,
+            :code:`"Cancelled (Non-Paying Buyer)"`,
+            :code:`"Cancelled (Item Unavailable)"`,
+            :code:`"Cancelled (Per Buyer's Request)"`, and
+            :code:`"Cancelled (Refund Received)"`.
+
+        created_after : `str`, keyword-only, optional
+            Only show orders created after this ISO 8601 timestamp.
+
+            **Example**: :code:`"2019-06-24T20:58:58Z"`.
+
+        created_before : `str`, keyword-only, optional
+            Only show orders created before this ISO 8601 timestamp.
+
+            **Example**: :code:`"2019-06-24T20:58:58Z"`.
+
+        archived : `bool`, keyword-only, optional
+            Only show orders with a specific archived status. If no key
+            is provided, both statuses are returned.
+
+        page : `int` or `str`, keyword-only, optional
+            The page you want to request.
+
+            **Example**: :code:`3`.
+
+        per_page : `int`, keyword-only, optional
+            The number of items per page.
+
+            **Example**: :code:`25`.
+
+        sort : `str`, keyword-only, optional
+            Sort items by this field.
+
+            **Valid values**: :code:`"id"`, :code:`"buyer"`,
+            :code:`"created"`, :code:`"status"`, and
+            :code:`"last_activity"`.
+
+        sort_order : `str`, keyword-only, optional
+            Sort items in a particular order.
+
+            **Valid values**: :code:`"asc"` and :code:`"desc"`.
+
+        Returns
+        -------
+        orders : `dict`
+            The authenticated user's orders.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "page": <int>,
+                      "pages": <int>,
+                      "per_page": <int>,
+                      "items": <int>,
+                      "urls": {}
+                    },
+                    "orders": [
+                      {
+                        "id": <str>,
+                        "resource_url": <str>,
+                        "messages_url": <str>,
+                        "uri": <str>,
+                        "status": <str>,
+                        "next_status": [<str>],
+                        "fee": {
+                          "currency": <str>,
+                          "value": <float>
+                        },
+                        "created": <str>,
+                        "items": [
+                          {
+                            "release": {
+                              "id": <int>,
+                              "description": <str>,
+                            },
+                            "price": {
+                              "currency": <str>,
+                              "value": <int>
+                            },
+                            "media_condition": <str>,
+                            "sleeve_condition": <str>,
+                            "id": <int>
+                          }
+                        ],
+                        "shipping": {
+                          "currency": <str>,
+                          "method": <str>,
+                          "value": <int>
+                        },
+                        "shipping_address": <str>,
+                        "additional_instructions": <str>,
+                        "archived": <bool>,
+                        "seller": {
+                          "resource_url": <str>,
+                          "username": <str>,
+                          "id": <int>
+                        },
+                        "last_activity": <str>,
+                        "buyer": {
+                          "resource_url": <str>,
+                          "username": <str>,
+                          "id": <int>
+                        },
+                        "total": {
+                          "currency": <str>,
+                          "value": <int>
+                        }
+                      }
+                    ]
+                  }
+        """
+
+        self._check_authentication("get_user_orders")
+
+        return self._get_json(
+            f"{self.API_URL}/marketplace/orders",
+            params={
+                "status": status,
+                "created_after": created_after,
+                "created_before": created_before,
+                "archived": archived,
+                "page": page,
+                "per_page": per_page,
+                "sort": sort,
+                "sort_order": sort_order,
+            }
+        )
+
+    def get_order_messages(
+            self, order_id: str, *, page: Union[int, str] = None,
+            per_page: Union[int, str] = None) -> dict[str, Any]:
+
+        """
+        `Marketplace > List Order Messages > List Order Messages
+        <https://www.discogs.com/developers/
+        #page:marketplace,header:marketplace-list-order-messages-get>`_:
+        Returns a list of the order's messages with the most recent
+        first.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        order_id : `str`
+            The ID of the order you are fetching.
+
+            **Example**: :code:`1-1`.
+
+        page : `int` or `str`, keyword-only, optional
+            The page you want to request.
+
+            **Example**: :code:`3`.
+
+        per_page : `int` or `str`, keyword-only, optional
+            The number of items per page.
+
+            **Example**: :code:`25`.
+
+        Returns
+        -------
+        messages : `dict`
+            The order's messages.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "per_page": <int>,
+                      "items": <int>,
+                      "page": <int>,
+                      "urls": {},
+                      "pages": <int>
+                    },
+                    "messages": [
+                      {
+                        "refund": {
+                          "amount": <int>,
+                          "order": {
+                            "resource_url": <str>,
+                            "id": <str>
+                          }
+                        },
+                        "timestamp": <str>,
+                        "message": <str>,
+                        "type": <str>,
+                        "order": {
+                          "resource_url": <str>,
+                          "id": <str>,
+                        },
+                        "subject": <str>
+                      }
+                    ]
+                  }
+        """
+
+        self._check_authentication("get_order_messages")
+
+        return self._get_json(
+            f"{self.API_URL}/marketplace/orders/{order_id}/messages",
+            params={"page": page, "per_page": per_page}
+        )
+
+    def add_order_message(
+            self, order_id: str, message: str = None, status: str = None
+        ) -> dict[str, Any]:
+
+        """
+        `Marketplace > List Order Messages > Add New Message
+        <https://www.discogs.com/developers/
+        #page:marketplace,header:marketplace-list-order-messages-post>`_:
+        Adds a new message to the order's message log.
+
+        When posting a new message, you can simultaneously change the
+        order status. IF you do, the message will automatically be
+        prepended with:
+
+            Seller changed status from [...] to [...]
+
+        While `message` and `status` are each optional, one or both
+        must be present.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        order_id : `str`
+            The ID of the order you are fetching.
+
+            **Example**: :code:`1-1`.
+
+        message : `str`, optional
+            The message you are posting.
+
+            **Example**: :code:`"hello world"`
+
+        status : `str`, optional
+            The status of the order you are updating.
+
+            **Valid values**: :code:`"New Order"`,
+            :code:`"Buyer Contacted"`, :code:`"Invoice Sent"`,
+            :code:`"Payment Pending"`, :code:`"Payment Received"`,
+            :code:`"In Progress"`, :code:`"Shipped"`,
+            :code:`"Refund Sent"`, :code:`"Cancelled (Non-Paying Buyer)"`,
+            :code:`"Cancelled (Item Unavailable)"`, and
+            :code:`"Cancelled (Per Buyer's Request)"`.
+
+        Returns
+        -------
+        message : `dict`
+            The order's message.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "from": {
+                      "username": <str>,
+                      "resource_url": <str>
+                    },
+                    "message": <str>,
+                    "order": {
+                      "resource_url": <str>,
+                      "id": <str>
+                    },
+                    "timestamp": <str>,
+                    "subject": <str>
+                  }
+        """
+
+        self._check_authentication("add_order_message")
+
+        if message is None and status is None:
+            emsg = "Either 'message' or 'status' must be provided."
+            raise ValueError(emsg)
+
+        return self._request(
+            "post",
+            f"{self.API_URL}/marketplace/orders/{order_id}/messages",
+            json={"message": message, "status": status}
+        ).json()
+
+    def get_fee(self, price: float, *, currency: str = "USD") -> dict[str, Any]:
+
+        """
+        `Marketplace > Fee with currency
+        <https://www.discogs.com/developers/#page:marketplace,header
+        :marketplace-fee-with-currency-get>`_: Calculates the fee for
+        selling an item on the marketplace given a particular currency.
+
+        Parameters
+        ----------
+        price : `float`
+            The price of the item (in the seller's currency).
+
+            **Example**: :code:`10.00`.
+
+        currency : `str`, keyword-only, default: :code:`"USD"`
+            The currency abbreviation for the fee calculation.
+
+            **Valid values**: :code:`"USD"`, :code:`"GBP"`, :code:`"EUR"`,
+            :code:`"CAD"`, :code:`"AUD"`, :code:`"JPY"`, :code:`"CHF"`,
+            :code:`"MXN"`, :code:`"BRL"`, :code:`"NZD"`, :code:`"SEK"`,
+            and :code:`"ZAR"`.
+
+        Returns
+        -------
+        fee : `dict`
+            The fee for selling an item on the marketplace.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "value": <float>,
+                    "currency": <str>,
+                  }
+        """
+
+        return self._get_json(
+            f"{self.API_URL}/marketplace/fee/{price}/{currency}"
+        )
+
+    def get_price_suggestions(
+            self, release_id: Union[int, str]) -> dict[str, Any]:
+
+        """
+        `Marketplace > Price Suggestions <https://www.discogs.com
+        /developers/#page:marketplace,header
+        :marketplace-price-suggestions>`_: Retrieve price suggestions in
+        the user's selling currency for the provided release ID.
+
+        If no suggestions are available, an empty object will be
+        returned.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        release_id : `int` or `str`
+            The ID of the release you are fetching.
+
+            **Example**: :code:`249504`.
+
+        Returns
+        -------
+        prices : `dict`
+            The price suggestions for the release.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "Very Good (VG)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Good Plus (G+)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Near Mint (NM or M-)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Good (G)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Very Good Plus (VG+)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Mint (M)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Fair (F)": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "Poor (P)": {
+                      "currency": <str>,
+                      "value": <float>
+                    }
+                  }
+        """
+
+        self._check_authentication("get_price_suggestions")
+
+        return self._get_json(
+            f"{self.API_URL}/marketplace/price_suggestions/{release_id}"
+        )
+
+    def get_release_marketplace_stats(
+            self, release_id: Union[int, str], *, curr_abbr: str = None
+        ) -> dict[str, Any]:
+
+        """
+        `Marketplace > Release Statistics <https://www.discogs.com
+        /developers/#page:marketplace,header
+        :marketplace-release-statistics-get>`_: Retrieve marketplace
+        statistics for the provided release ID.
+
+        These statistics reflect the state of the release in the
+        marketplace currently, and include the number of items currently
+        for sale, lowest listed price of any item for sale, and whether
+        the item is blocked for sale in the marketplace.
+
+        Authentication is optional. Authenticated users will by default
+        have the lowest currency expressed in their own buyer currency,
+        configurable in buyer settings, in the absence of the
+        `curr_abbr` query parameter to specify the currency.
+        Unauthenticated users will have the price expressed in US
+        Dollars, if no `curr_abbr` is provided.
+
+        Releases that have no items or are blocked for sale in the
+        marketplace will return a body with null data in the
+        :code:`"lowest_price"` and :code:`"num_for_sale"` keys.
+
+        Parameters
+        ----------
+        release_id : `int` or `str`
+            The ID of the release you are fetching.
+
+            **Example**: :code:`249504`.
+
+        curr_abbr : `str`, keyword-only, optional
+            Currency abbreviation for marketplace data.
+
+            **Valid values**: :code:`"USD"`, :code:`"GBP"`,
+            :code:`"EUR"`, :code:`"CAD"`, :code:`"AUD"`, :code:`"JPY"`,
+            :code:`"CHF"`, :code:`"MXN"`, :code:`"BRL"`, :code:`"NZD"`,
+            :code:`"SEK"`, and :code:`"ZAR"`.
+
+        Returns
+        -------
+        stats : `dict`
+            The marketplace statistics for the release.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "lowest_price": {
+                      "currency": <str>,
+                      "value": <float>
+                    },
+                    "num_for_sale": <int>,
+                    "blocked_from_sale": <bool>
+                  }
+        """
+
+        return self._get_json(
+            f"{self.API_URL}/marketplace/stats/{release_id}",
+            params={"curr_abbr": curr_abbr}
+        )
 
     ### INVENTORY EXPORT ######################################################
 
+
+
     ### INVENTORY UPLOAD ######################################################
+
+
 
     ### USER IDENTITY #########################################################
 
@@ -2055,8 +3154,8 @@ class API:
         ).json()
 
     def get_user_submissions(
-            self, username: str = None, *, page: int = None,
-            per_page: int = None) -> dict[str, Any]:
+            self, username: str = None, *, page: Union[int, str] = None,
+            per_page: Union[int, str] = None) -> dict[str, Any]:
 
         """
         `User Identity > User Submissions <https://www.discogs.com
@@ -2074,10 +3173,10 @@ class API:
 
             **Example**: :code:`"shooezgirl"`.
 
-        page : `int`, keyword-only, optional
+        page : `int` or `str`, keyword-only, optional
             Page of results to fetch.
 
-        per_page : `int`, keyword-only, optional
+        per_page : `int` or `str`, keyword-only, optional
             Number of results per page.
 
         Returns
@@ -2222,8 +3321,8 @@ class API:
         )
 
     def get_user_contributions(
-            self, username: str = None, *, page: int = None,
-            per_page: int = None, sort: str = None, sort_order: str = None
+            self, username: str = None, *, page: Union[int, str] = None,
+            per_page: Union[int, str] = None, sort: str = None, sort_order: str = None
         ) -> dict[str, Any]:
 
         """
@@ -2241,10 +3340,10 @@ class API:
 
             **Example**: :code:`"shooezgirl"`.
 
-        page : `int`, keyword-only, optional
+        page : `int` or `str`, keyword-only, optional
             Page of results to fetch.
 
-        per_page : `int`, keyword-only, optional
+        per_page : `int` or `str`, keyword-only, optional
             Number of results per page.
 
         sort : `str`, keyword-only, optional
@@ -2393,6 +3492,11 @@ class API:
 
     ### USER COLLECTION #######################################################
 
+
+
     ### USER WANTLIST #########################################################
 
+
+
     ### USER LISTS ############################################################
+
