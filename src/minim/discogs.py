@@ -3322,8 +3322,8 @@ class API:
 
     def get_user_contributions(
             self, username: str = None, *, page: Union[int, str] = None,
-            per_page: Union[int, str] = None, sort: str = None, sort_order: str = None
-        ) -> dict[str, Any]:
+            per_page: Union[int, str] = None, sort: str = None,
+            sort_order: str = None) -> dict[str, Any]:
 
         """
         `User Identity > User Contributions <https://www.discogs.com
@@ -3499,4 +3499,5 @@ class API:
 
 
     ### USER LISTS ############################################################
+
 
