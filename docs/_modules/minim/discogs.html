@@ -585,7 +585,11 @@
 
         <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">299</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="n">emsg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">j</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="s2">&quot;detail&quot;</span> <span class="ow">in</span> <span class="n">j</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]:</span>
+                <span class="n">emsg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">],</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">emsg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">r</span>
 
 <div class="viewcode-block" id="API.set_access_token">
@@ -1190,10 +1194,10 @@
 <span class="sd">        Deletes the release&#39;s rating for a given user.</span>
 
 <span class="sd">        .. admonition:: User authentication</span>
-<span class="sd">            :class: warning</span>
+<span class="sd">           :class: warning</span>
 
-<span class="sd">            Requires user authentication with a personal access token or</span>
-<span class="sd">            via the OAuth 1.0a flow.</span>
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -2006,7 +2010,7 @@
 <span class="sd">        /#page:marketplace,header:marketplace-inventory-get&gt;`_:</span>
 <span class="sd">        Get a seller&#39;s inventory.</span>
 
-<span class="sd">        .. admonition:: Authentication</span>
+<span class="sd">        .. admonition:: User authentication</span>
 <span class="sd">           :class: dropdown warning</span>
 
 <span class="sd">           If you are authenticated as the inventory owner, additional</span>
@@ -2246,7 +2250,7 @@
 <span class="sd">        release_id : `int` or `str`</span>
 <span class="sd">            The ID of the release you are posting.</span>
 
-<span class="sd">            **Example**: :code:`1`.</span>
+<span class="sd">            **Example**: :code:`249504`.</span>
 
 <span class="sd">        condition : `str`</span>
 <span class="sd">            The condition of the release you are posting.</span>
@@ -2368,7 +2372,7 @@
 <span class="sd">        release_id : `int` or `str`</span>
 <span class="sd">            The ID of the release you are posting.</span>
 
-<span class="sd">            **Example**: :code:`1`.</span>
+<span class="sd">            **Example**: :code:`249504`.</span>
 
 <span class="sd">        condition : `str`</span>
 <span class="sd">            The condition of the release you are posting.</span>
@@ -2607,10 +2611,10 @@
 <span class="sd">        request.)</span>
 
 <span class="sd">        .. admonition:: User authentication</span>
-<span class="sd">          :class: warning</span>
+<span class="sd">           :class: warning</span>
 
-<span class="sd">          Requires user authentication with a personal access token or</span>
-<span class="sd">          via the OAuth 1.0a flow.</span>
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -2923,7 +2927,10 @@
 <span class="sd">                      &quot;per_page&quot;: &lt;int&gt;,</span>
 <span class="sd">                      &quot;items&quot;: &lt;int&gt;,</span>
 <span class="sd">                      &quot;page&quot;: &lt;int&gt;,</span>
-<span class="sd">                      &quot;urls&quot;: {},</span>
+<span class="sd">                      &quot;urls&quot;: {</span>
+<span class="sd">                        &quot;last&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;next&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
 <span class="sd">                      &quot;pages&quot;: &lt;int&gt;</span>
 <span class="sd">                    },</span>
 <span class="sd">                    &quot;messages&quot;: [</span>
@@ -3115,7 +3122,7 @@
 <span class="sd">        release_id : `int` or `str`</span>
 <span class="sd">            The ID of the release you are fetching.</span>
 
-<span class="sd">            **Example**: :code:`1`.</span>
+<span class="sd">            **Example**: :code:`249504`.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -3198,15 +3205,15 @@
 <span class="sd">           default have the lowest currency expressed in their own buyer</span>
 <span class="sd">           currency, configurable in buyer settings, in the absence of</span>
 <span class="sd">           the `curr_abbr` query parameter to specify the currency.</span>
-<span class="sd">           Unauthenticated users will have the price expressed in</span>
-<span class="sd">           US Dollars, if no `curr_abbr` is provided.</span>
+<span class="sd">           Unauthenticated users will have the price expressed in US</span>
+<span class="sd">           Dollars, if no `curr_abbr` is provided.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        release_id : `int` or `str`</span>
 <span class="sd">            The ID of the release you are fetching.</span>
 
-<span class="sd">            **Example**: :code:`1`.</span>
+<span class="sd">            **Example**: :code:`249504`.</span>
 
 <span class="sd">        curr_abbr : `str`, keyword-only, optional</span>
 <span class="sd">            Currency abbreviation for marketplace data.</span>
@@ -3244,7 +3251,245 @@
 
     <span class="c1">### INVENTORY EXPORT ######################################################</span>
 
+<div class="viewcode-block" id="API.export_inventory">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.export_inventory">[docs]</a>
+    <span class="k">def</span> <span class="nf">export_inventory</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Inventory Export &gt; Export Your Inventory &lt;https://www.discogs.com</span>
+<span class="sd">        /developers/#page:inventory-export,header</span>
+<span class="sd">        :inventory-export-export-your-inventory-post&gt;`_: Request an</span>
+<span class="sd">        export of your inventory as a CSV.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: warning</span>
+
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        download : `bool`, keyword-only, default: :code:`True`</span>
+<span class="sd">            Specifies whether to download the CSV file. If</span>
+<span class="sd">            :code:`False`, the export ID is returned.</span>
+
+<span class="sd">        filename : `str`, optional</span>
+<span class="sd">            Filename of the exported CSV file. A :code:`.csv` extension</span>
+<span class="sd">            will be appended if not present. If not specified, the CSV</span>
+<span class="sd">            file is saved as</span>
+<span class="sd">            :code:`&lt;username&gt;-inventory-&lt;date&gt;-&lt;number&gt;.csv`.</span>
+
+<span class="sd">        path : `str`, optional</span>
+<span class="sd">            Path to save the exported CSV file. If not specified, the</span>
+<span class="sd">            file is saved in the current working directory.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        path_or_id : `str`</span>
+<span class="sd">            Full path to the exported CSV file (:code:`download=True`)</span>
+<span class="sd">            or the export ID (:code:`download=False`).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;export_inventory&quot;</span><span class="p">)</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span><span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/inventory/export&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">download</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_inventory_export</span><span class="p">(</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Location&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">path</span><span class="o">=</span><span class="n">path</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Location&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="API.get_inventory_exports">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_inventory_exports">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_inventory_exports</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">per_page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Inventory Export &gt; Get Recent Exports &lt;https://www.discogs.com</span>
+<span class="sd">        /developers/#page:inventory-export,header</span>
+<span class="sd">        :inventory-export-get-recent-exports-get&gt;`_: Get all recent</span>
+<span class="sd">        exports of your inventory.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: warning</span>
+
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        page : `int`, keyword-only, optional</span>
+<span class="sd">            The page you want to request.</span>
+
+<span class="sd">            **Example**: :code:`3`.</span>
+
+<span class="sd">        per_page : `int`, keyword-only, optional</span>
+<span class="sd">            The number of items per page.</span>
+
+<span class="sd">            **Example**: :code:`25`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        exports : `dict`</span>
+<span class="sd">            The authenticated user&#39;s inventory exports.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;items&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;status&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;created_ts&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;finished_ts&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;download_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;filename&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ],</span>
+<span class="sd">                    &quot;pagination&quot;: {</span>
+<span class="sd">                      &quot;per_page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;items&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;urls&quot;: {</span>
+<span class="sd">                        &quot;last&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;next&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                      &quot;pages&quot;: &lt;int&gt;</span>
+<span class="sd">                    }</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;get_inventory_exports&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/inventory/export&quot;</span><span class="p">,</span>
+                              <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span> <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="n">per_page</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="API.get_inventory_export">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_inventory_export">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_inventory_export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Inventory Export &gt; Get An Export &lt;https://www.discogs.com</span>
+<span class="sd">        /developers/#page:inventory-export,header</span>
+<span class="sd">        :inventory-export-get-an-export-get&gt;`_: Get details about the</span>
+<span class="sd">        status of an inventory export.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: warning</span>
+
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        export_id : `int`</span>
+<span class="sd">            ID of the export.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        export : `dict`</span>
+<span class="sd">            Details about the status of the inventory export.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;status&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;created_ts&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;finished_ts&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;download_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;filename&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;get_inventory_export&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/inventory/export/</span><span class="si">{</span><span class="n">export_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.download_inventory_export">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.download_inventory_export">[docs]</a>
+    <span class="k">def</span> <span class="nf">download_inventory_export</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">export_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `Inventory Export &gt; Download An Export &lt;https://www.discogs.com</span>
+<span class="sd">        /developers/#page:inventory-export,header</span>
+<span class="sd">        :inventory-export-download-an-export-get&gt;`_: Download the</span>
+<span class="sd">        results of an inventory export.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: warning</span>
+
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        export_id : `int`</span>
+<span class="sd">            ID of the export.</span>
+
+<span class="sd">        filename : `str`, optional</span>
+<span class="sd">            Filename of the exported CSV file. A :code:`.csv` extension</span>
+<span class="sd">            will be appended if not present. If not specified, the CSV</span>
+<span class="sd">            file is saved as</span>
+<span class="sd">            :code:`&lt;username&gt;-inventory-&lt;date&gt;-&lt;number&gt;.csv`.</span>
+
+<span class="sd">        path : `str`, optional</span>
+<span class="sd">            Path to save the exported CSV file. If not specified, the</span>
+<span class="sd">            file is saved in the current working directory.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        path : `str`</span>
+<span class="sd">            Full path to the exported CSV file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;download_inventory_export&quot;</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_inventory_export</span><span class="p">(</span><span class="n">export_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;success&quot;</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="s2">&quot;get&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/inventory/export/</span><span class="si">{</span><span class="n">export_id</span><span class="si">}</span><span class="s2">/download&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Content-Disposition&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.csv&quot;</span><span class="p">):</span>
+                <span class="n">filename</span> <span class="o">+=</span> <span class="s2">&quot;.csv&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
+                <span class="n">path</span> <span class="o">:=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">filename</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">path</span></div>
+
+
     <span class="c1">### INVENTORY UPLOAD ######################################################</span>
+
+   <span class="c1"># TODO</span>
 
     <span class="c1">### USER IDENTITY #########################################################</span>
 
@@ -3303,14 +3548,17 @@
 <span class="sd">        /#page:user-identity,header:user-identity-profile-get&gt;`_:</span>
 <span class="sd">        Retrieve a user by username.</span>
 
-<span class="sd">        If authenticated as the requested user, the :code:`&quot;email&quot;` key</span>
-<span class="sd">        will be visible, and the :code:`&quot;num_lists&quot;` count will include</span>
-<span class="sd">        the user&#39;s private lists.</span>
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: dropdown warning</span>
 
-<span class="sd">        If authenticated as the requested user or the user&#39;s</span>
-<span class="sd">        collection/wantlist is public, the</span>
-<span class="sd">        :code:`&quot;num_collection&quot;`/:code:`&quot;num_wantlist&quot;` keys will be</span>
-<span class="sd">        visible.</span>
+<span class="sd">           If authenticated as the requested user, the :code:`&quot;email&quot;`</span>
+<span class="sd">           key will be visible, and the :code:`&quot;num_lists&quot;` count will</span>
+<span class="sd">           include the user&#39;s private lists.</span>
+
+<span class="sd">           If authenticated as the requested user or the user&#39;s</span>
+<span class="sd">           collection/wantlist is public, the</span>
+<span class="sd">           :code:`&quot;num_collection&quot;`/:code:`&quot;num_wantlist&quot;` keys will be</span>
+<span class="sd">           visible.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3664,8 +3912,8 @@
 <a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_user_contributions">[docs]</a>
     <span class="k">def</span> <span class="nf">get_user_contributions</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">per_page</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+            <span class="n">per_page</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">sort_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        `User Identity &gt; User Contributions &lt;https://www.discogs.com</span>
@@ -3831,47 +4079,923 @@
                 <span class="s2">&quot;sort_order&quot;</span><span class="p">:</span> <span class="n">sort_order</span>
             <span class="p">}</span>
         <span class="p">)</span></div>
-</div>
 
 
     <span class="c1">### USER COLLECTION #######################################################</span>
 
-    <span class="c1"># def get_user_collection_folders(</span>
-    <span class="c1">#         self, username: str = None) -&gt; dict[str, Any]:</span>
+<div class="viewcode-block" id="API.get_collection_folders">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_collection_folders">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_collection_folders</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 
-    <span class="c1">#     &quot;&quot;&quot;</span>
-    <span class="c1">#     `User Collection &gt; Collection Folders &lt;https://www.discogs.com</span>
-    <span class="c1">#     /developers/#page:user-collection,header</span>
-    <span class="c1">#     :user-collection-collection-get&gt;`_: Retrieve a list of folders</span>
-    <span class="c1">#     in a user&#39;s collection.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Collection &gt; Get Collection Folders</span>
+<span class="sd">        &lt;https://www.discogs.com/developers/#page:user-collection,header</span>
+<span class="sd">        :user-collection-collection-get&gt;`_: Retrieve a list of folders</span>
+<span class="sd">        in a user&#39;s collection.</span>
 
-    <span class="c1">#     If the collection has been made private by its owner,</span>
-    <span class="c1">#     authentication as the collection owner is required. If you are</span>
-    <span class="c1">#     not authenticated as the collection owner, only folder ID 0 (the</span>
-    <span class="c1">#     &quot;All&quot; folder) will be visible (if the requested user&#39;s</span>
-    <span class="c1">#     collection is public).</span>
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: dropdown warning</span>
 
-    <span class="c1">#     &quot;&quot;&quot;</span>
+<span class="sd">           If the collection has been made private by its owner,</span>
+<span class="sd">           authentication as the collection owner is required. If you</span>
+<span class="sd">           are not authenticated as the collection owner, only folder ID</span>
+<span class="sd">           :code:`0` (the &quot;All&quot; folder) will be visible (if the</span>
+<span class="sd">           requested user&#39;s collection is public).</span>
 
-    <span class="c1">#     if username is None:</span>
-    <span class="c1">#         if hasattr(self, &quot;_username&quot;):</span>
-    <span class="c1">#             username = self._username</span>
-    <span class="c1">#         else:</span>
-    <span class="c1">#             raise ValueError(&quot;No username provided.&quot;)</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : `str`, optional</span>
+<span class="sd">            The username of the collection you are trying to fetch. If</span>
+<span class="sd">            not specified, the username of the authenticated user is</span>
+<span class="sd">            used.</span>
 
-    <span class="c1">#     return self._get_json(</span>
-    <span class="c1">#         f&quot;{self.API_URL}/users/{username}/collection/folders&quot;</span>
-    <span class="c1">#     )</span>
+<span class="sd">            **Example**: :code:`&quot;rodneyfool&quot;`.</span>
 
-    <span class="c1"># def create_user_collection_folder():</span>
-    <span class="c1">#     pass</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        folders : `list`</span>
+<span class="sd">            A list of folders in the user&#39;s collection.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  [</span>
+<span class="sd">                    {</span>
+<span class="sd">                      &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;count&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;resource_url&quot;: &lt;str&gt;</span>
+<span class="sd">                    }</span>
+<span class="sd">                  ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_username&quot;</span><span class="p">):</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_username</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No username provided.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">/collection/folders&quot;</span>
+        <span class="p">)[</span><span class="s2">&quot;folders&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="API.create_collection_folder">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.create_collection_folder">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_collection_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Collection &gt; Create Folder</span>
+<span class="sd">        &lt;https://www.discogs.com/developers/#page:user-collection,header</span>
+<span class="sd">        :user-collection-collection-post&gt;`_: Create a new folder in a</span>
+<span class="sd">        user&#39;s collection.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: warning</span>
+
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : `str`</span>
+<span class="sd">            The name of the newly-created folder.</span>
+
+<span class="sd">            **Example**: :code:`&quot;My favorites&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        folder : `dict`</span>
+<span class="sd">            Information about the newly-created folder.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;count&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;resource_url&quot;: &lt;str&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;create_collection_folder&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="s2">&quot;post&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_username</span><span class="si">}</span><span class="s2">/collection/folders&quot;</span><span class="p">,</span>
+            <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="API.get_collection_folder">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_collection_folder">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_collection_folder</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Collection Folder &gt; Get Folders</span>
+<span class="sd">        &lt;https://www.discogs.com/developers/#page:user-collection,header</span>
+<span class="sd">        :user-collection-collection-folder-get&gt;`_: Retrieve metadata</span>
+<span class="sd">        about a folder in a user&#39;s collection.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: dropdown warning</span>
+
+<span class="sd">           If `folder_id` is not :code:`0`, authentication as the</span>
+<span class="sd">           collection owner is required.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        folder_id : `int`</span>
+<span class="sd">            The ID of the folder to request.</span>
+
+<span class="sd">            **Example**: :code:`3`.</span>
+
+<span class="sd">        username : `str`, keyword-only, optional</span>
+<span class="sd">            The username of the collection you are trying to request. If</span>
+<span class="sd">            not specified, the username of the authenticated user is</span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;rodneyfool&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        folder : `dict`</span>
+<span class="sd">            Metadata about the folder.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;count&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;resource_url&quot;: &lt;str&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_username&quot;</span><span class="p">):</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_username</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No username provided.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">folder_id</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;get_collection_folder&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_username</span><span class="si">}</span><span class="s2">&quot;</span>
+                              <span class="sa">f</span><span class="s2">&quot;/collection/folders/</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.rename_collection_folder">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.rename_collection_folder">[docs]</a>
+    <span class="k">def</span> <span class="nf">rename_collection_folder</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+            <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Collection Folder &gt; Edit Folder</span>
+<span class="sd">        &lt;https://www.discogs.com/developers/#page:user-collection,header</span>
+<span class="sd">        :user-collection-collection-folder-post&gt;`_: Rename a folder.</span>
+
+<span class="sd">        Folders :code:`0` and :code:`1` cannot be renamed.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: warning</span>
+
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        folder_id : `int`</span>
+<span class="sd">            The ID of the folder to modify.</span>
+
+<span class="sd">            **Example**: :code:`3`.</span>
+
+<span class="sd">        name : `str`</span>
+<span class="sd">            The new name of the folder.</span>
+
+<span class="sd">            **Example**: :code:`&quot;My favorites&quot;`.</span>
+
+<span class="sd">        username : `str`, keyword-only, optional</span>
+<span class="sd">            The username of the collection you are trying to modify. If</span>
+<span class="sd">            not specified, the username of the authenticated user is</span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;rodneyfool&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        folder : `dict`</span>
+<span class="sd">            Information about the edited folder.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;count&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;resource_url&quot;: &lt;str&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;rename_collection_folder&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="s2">&quot;post&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_username</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;/collection/folders/</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="API.delete_collection_folder">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.delete_collection_folder">[docs]</a>
+    <span class="k">def</span> <span class="nf">delete_collection_folder</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Collection Folder &gt; Delete Folder</span>
+<span class="sd">        &lt;https://www.discogs.com/developers/#page:user-collection,header</span>
+<span class="sd">        :user-collection-collection-folder-delete&gt;`_: Delete a folder</span>
+<span class="sd">        from a user&#39;s collection.</span>
+
+<span class="sd">        A folder must be empty before it can be deleted.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: warning</span>
+
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        folder_id : `int`</span>
+<span class="sd">            The ID of the folder to delete.</span>
+
+<span class="sd">            **Example**: :code:`3`.</span>
+
+<span class="sd">        username : `str`, keyword-only, optional</span>
+<span class="sd">            The username of the collection you are trying to delete. If</span>
+<span class="sd">            not specified, the username of the authenticated user is</span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;rodneyfool&quot;`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;delete_collection_folder&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="s2">&quot;delete&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_username</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;/collection/folders/</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.get_collection_folders_by_release">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_collection_folders_by_release">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_collection_folders_by_release</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Collection Items By Release</span>
+<span class="sd">        &lt;https://www.discogs.com/developers/#page:user-collection,header</span>
+<span class="sd">        :user-collection-collection-items-by-release-get&gt;`_: View the</span>
+<span class="sd">        user&#39;s collection folders which contain a specified release.</span>
+<span class="sd">        This will also show information about each release instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        release_id : `int` or `str`</span>
+<span class="sd">            The ID of the release to request.</span>
+
+<span class="sd">            **Example**: :code:`7781525`.</span>
+
+<span class="sd">        username : `str`, keyword-only, optional</span>
+<span class="sd">            The username of the collection you are trying to view. If</span>
+<span class="sd">            not specified, the username of the authenticated user is</span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;susan.salkeld&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        releases : `list`</span>
+<span class="sd">            A list of releases and their folders.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;pagination&quot;: {</span>
+<span class="sd">                      &quot;per_page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;items&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;urls&quot;: {</span>
+<span class="sd">                        &quot;last&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;next&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                      &quot;pages&quot;: &lt;int&gt;</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;releases&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;instance_id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;rating&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;basic_information&quot;: {</span>
+<span class="sd">                          &quot;labels&quot;: [</span>
+<span class="sd">                            {</span>
+<span class="sd">                              &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;entity_type&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;catno&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                              &quot;entity_type_name&quot;: &lt;str&gt;</span>
+<span class="sd">                            }</span>
+<span class="sd">                          ],</span>
+<span class="sd">                          &quot;formats&quot;: [</span>
+<span class="sd">                            {</span>
+<span class="sd">                              &quot;descriptions&quot;: [&lt;str&gt;],</span>
+<span class="sd">                              &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;qty&quot;: &lt;str&gt;</span>
+<span class="sd">                            }</span>
+<span class="sd">                          ],</span>
+<span class="sd">                          &quot;thumb&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;title&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;artists&quot;: [</span>
+<span class="sd">                            {</span>
+<span class="sd">                              &quot;join&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;anv&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;tracks&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;role&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;id&quot;: &lt;int&gt;</span>
+<span class="sd">                            }</span>
+<span class="sd">                          ],</span>
+<span class="sd">                          &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;year&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;folder_id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;date_added&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ]</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_username</span><span class="si">}</span><span class="s2">/collection&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;/releases/</span><span class="si">{</span><span class="n">release_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)[</span><span class="s2">&quot;folders&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="API.get_collection_folder_releases">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_collection_folder_releases">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_collection_folder_releases</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">per_page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">sort_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Collection Items By Folder</span>
+<span class="sd">        &lt;https://www.discogs.com/developers/#page:user-collection,header</span>
+<span class="sd">        :user-collection-collection-items-by-folder&gt;`_: Returns the items</span>
+<span class="sd">        in a folder in a user&#39;s collection.</span>
+
+<span class="sd">        Basic information about each release is provided, suitable for</span>
+<span class="sd">        display in a list. For detailed information, make another call</span>
+<span class="sd">        to fetch the corresponding release.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: dropdown warning</span>
+
+<span class="sd">           If `folder_id` is not :code:`0` or the collection has been</span>
+<span class="sd">           made private by its owner, authentication as the collection</span>
+<span class="sd">           owner is required.</span>
+
+<span class="sd">           If you are not authenticated as the collection owner, only</span>
+<span class="sd">           the public notes fields will be visible.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        folder_id : `int`</span>
+<span class="sd">            The ID of the folder to request.</span>
+
+<span class="sd">            **Example**: :code:`3`.</span>
+
+<span class="sd">        username : `str`, keyword-only, optional</span>
+<span class="sd">            The username of the collection you are trying to request. If</span>
+<span class="sd">            not specified, the username of the authenticated user is</span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;rodneyfool&quot;`.</span>
+
+<span class="sd">        page : `int`, keyword-only, optional</span>
+<span class="sd">            Page of results to fetch.</span>
+
+<span class="sd">        per_page : `int`, keyword-only, optional</span>
+<span class="sd">            Number of results per page.</span>
+
+<span class="sd">        sort : `str`, keyword-only, optional</span>
+<span class="sd">            Sort items by this field.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;label&quot;`, :code:`&quot;artist&quot;`,</span>
+<span class="sd">            :code:`&quot;title&quot;`, :code:`&quot;catno&quot;`, :code:`&quot;format&quot;`,</span>
+<span class="sd">            :code:`&quot;rating&quot;`, :code:`&quot;year&quot;`, and :code:`&quot;added&quot;`.</span>
+
+<span class="sd">        sort_order : `str`, keyword-only, optional</span>
+<span class="sd">            Sort items in a particular order.</span>
+
+<span class="sd">            **Valid values**: :code:`&quot;asc&quot;` and :code:`&quot;desc&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        items : `dict`</span>
+<span class="sd">            Items in the folder.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;pagination&quot;: {</span>
+<span class="sd">                      &quot;per_page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;items&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;page&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;urls&quot;: {</span>
+<span class="sd">                        &quot;last&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;next&quot;: &lt;str&gt;</span>
+<span class="sd">                      },</span>
+<span class="sd">                      &quot;pages&quot;: &lt;int&gt;</span>
+<span class="sd">                    },</span>
+<span class="sd">                    &quot;releases&quot;: [</span>
+<span class="sd">                      {</span>
+<span class="sd">                        &quot;instance_id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;rating&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;basic_information&quot;: {</span>
+<span class="sd">                          &quot;labels&quot;: [</span>
+<span class="sd">                            {</span>
+<span class="sd">                              &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;entity_type&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;catno&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                              &quot;entity_type_name&quot;: &lt;str&gt;</span>
+<span class="sd">                            }</span>
+<span class="sd">                          ],</span>
+<span class="sd">                          &quot;formats&quot;: [</span>
+<span class="sd">                            {</span>
+<span class="sd">                              &quot;descriptions&quot;: [&lt;str&gt;],</span>
+<span class="sd">                              &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;qty&quot;: &lt;str&gt;</span>
+<span class="sd">                            }</span>
+<span class="sd">                          ],</span>
+<span class="sd">                          &quot;thumb&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;title&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;artists&quot;: [</span>
+<span class="sd">                            {</span>
+<span class="sd">                              &quot;join&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;anv&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;tracks&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;role&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                              &quot;id&quot;: &lt;int&gt;</span>
+<span class="sd">                            }</span>
+<span class="sd">                          ],</span>
+<span class="sd">                          &quot;resource_url&quot;: &lt;str&gt;,</span>
+<span class="sd">                          &quot;year&quot;: &lt;int&gt;,</span>
+<span class="sd">                          &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;folder_id&quot;: &lt;int&gt;,</span>
+<span class="sd">                        &quot;date_added&quot;: &lt;str&gt;,</span>
+<span class="sd">                        &quot;id&quot;: &lt;int&gt;</span>
+<span class="sd">                      }</span>
+<span class="sd">                    ]</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_username&quot;</span><span class="p">):</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_username</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No username provided.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">folder_id</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;get_collection_folder_releases&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">/collection&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;/folders/</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">/releases&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span> <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="n">per_page</span><span class="p">,</span> <span class="s2">&quot;sort&quot;</span><span class="p">:</span> <span class="n">sort</span><span class="p">,</span>
+                    <span class="s2">&quot;sort_order&quot;</span><span class="p">:</span> <span class="n">sort_order</span><span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.add_collection_folder_release">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.add_collection_folder_release">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_collection_folder_release</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Add To Collection Folder</span>
+<span class="sd">        &lt;https://www.discogs.com/developers/#page:user-collection,header</span>
+<span class="sd">        :user-collection-add-to-collection-folder-post&gt;`_: Add a release</span>
+<span class="sd">        to a folder in a user&#39;s collection.</span>
+
+<span class="sd">        The `folder_id` must be non-zero. You can use :code:`1` for</span>
+<span class="sd">        &quot;Uncategorized&quot;.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">            :class: warning</span>
+
+<span class="sd">            Requires user authentication with a personal access token or</span>
+<span class="sd">            via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        folder_id : `int`</span>
+<span class="sd">            The ID of the folder to modify.</span>
+
+<span class="sd">            **Example**: :code:`3`.</span>
+
+<span class="sd">        release_id : `int`</span>
+<span class="sd">            The ID of the release you are adding.</span>
+
+<span class="sd">            **Example**: :code:`130076`.</span>
+
+<span class="sd">        username : `str`, keyword-only, optional</span>
+<span class="sd">            The username of the collection you are trying to modify. If</span>
+<span class="sd">            not specified, the username of the authenticated user is</span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;rodneyfool&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        folder : `dict`</span>
+<span class="sd">            Information about the folder.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;instance_id&quot;: &lt;int&gt;,</span>
+<span class="sd">                    &quot;resource_url&quot;: &lt;str&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_username&quot;</span><span class="p">):</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_username</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No username provided.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="s2">&quot;post&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">/collection&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;/folders/</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">/releases/</span><span class="si">{</span><span class="n">release_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="API.edit_collection_folder_release">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.edit_collection_folder_release">[docs]</a>
+    <span class="k">def</span> <span class="nf">edit_collection_folder_release</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">instance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">new_folder_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">rating</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Change Rating Of Release</span>
+<span class="sd">        &lt;https://www.discogs.com/developers#page:user-collection,header</span>
+<span class="sd">        :user-collection-change-rating-of-release-post&gt;`_: Change the</span>
+<span class="sd">        rating on a release and/or move the instance to another folder.</span>
+
+<span class="sd">        This endpoint potentially takes two folder ID parameters:</span>
+<span class="sd">        `folder_id` (which is the folder you are requesting, and is</span>
+<span class="sd">        required), and `new_folder_id` (representing the folder you want</span>
+<span class="sd">        to move the instance to, which is optional).</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">            :class: warning</span>
+
+<span class="sd">            Requires user authentication with a personal access token or</span>
+<span class="sd">            via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        folder_id : `int`</span>
+<span class="sd">            The ID of the folder to modify.</span>
+
+<span class="sd">            **Example**: :code:`3`.</span>
+
+<span class="sd">        release_id : `int`</span>
+<span class="sd">            The ID of the release you are modifying.</span>
+
+<span class="sd">            **Example**: :code:`130076`.</span>
+
+<span class="sd">        instance_id : `int`</span>
+<span class="sd">            The ID of the instance.</span>
+
+<span class="sd">            **Example**: :code:`1`.</span>
+
+<span class="sd">        username : `str`, keyword-only, optional</span>
+<span class="sd">            The username of the collection you are trying to modify. If</span>
+<span class="sd">            not specified, the username of the authenticated user is</span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;rodneyfool&quot;`.</span>
+
+<span class="sd">        new_folder_id : `int`</span>
+<span class="sd">            The ID of the folder to move the instance to.</span>
+
+<span class="sd">            **Example**: :code:`4`.</span>
+
+<span class="sd">        rating : `int`, keyword-only, optional</span>
+<span class="sd">            The rating of the instance you are supplying.</span>
+
+<span class="sd">            **Example**: :code:`5`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="s2">&quot;post&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">/collection/folders&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">/releases/</span><span class="si">{</span><span class="n">release_id</span><span class="si">}</span><span class="s2">/instances/</span><span class="si">{</span><span class="n">instance_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;folder_id&quot;</span><span class="p">:</span> <span class="n">new_folder_id</span><span class="p">,</span> <span class="s2">&quot;rating&quot;</span><span class="p">:</span> <span class="n">rating</span><span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.delete_collection_folder_release">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.delete_collection_folder_release">[docs]</a>
+    <span class="k">def</span> <span class="nf">delete_collection_folder_release</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">instance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Delete Instance From Folder</span>
+<span class="sd">        &lt;https://www.discogs.com/developers/#page:user-collection,header</span>
+<span class="sd">        :user-collection-delete-instance-from-folder-delete&gt;`_: Remove an</span>
+<span class="sd">        instance of a release from a user&#39;s collection folder.</span>
+
+<span class="sd">        To move the release to the &quot;Uncategorized&quot; folder instead, use</span>
+<span class="sd">        the :meth:`edit_collection_folder_release` method.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: warning</span>
+
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        folder_id : `int`</span>
+<span class="sd">            The ID of the folder to modify.</span>
+
+<span class="sd">            **Example**: :code:`3`.</span>
+
+<span class="sd">        release_id : `int`</span>
+<span class="sd">            The ID of the release you are modifying.</span>
+
+<span class="sd">            **Example**: :code:`130076`.</span>
+
+<span class="sd">        instance_id : `int`</span>
+<span class="sd">            The ID of the instance.</span>
+
+<span class="sd">            **Example**: :code:`1`.</span>
+
+<span class="sd">        username : `str`, keyword-only, optional</span>
+<span class="sd">            The username of the collection you are trying to modify. If</span>
+<span class="sd">            not specified, the username of the authenticated user is</span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;rodneyfool&quot;`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="s2">&quot;delete&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">/collection/folders&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">/releases/</span><span class="si">{</span><span class="n">release_id</span><span class="si">}</span><span class="s2">/instances/</span><span class="si">{</span><span class="n">instance_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.get_collection_fields">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_collection_fields">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_collection_fields</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Collection Fields</span>
+<span class="sd">        &lt;https://www.discogs.com/developers/#page:user-collection,header</span>
+<span class="sd">        :user-collection-list-custom-fields-get&gt;`_: Retrieve a list of</span>
+<span class="sd">        user-defined collection notes fields.</span>
+
+<span class="sd">        These fields are available on every release in the collection.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: dropdown warning</span>
+
+<span class="sd">           If the collection has been made private by its owner,</span>
+<span class="sd">           authentication as the collection owner is required.</span>
+
+<span class="sd">           If you are not authenticated as the collection owner, only</span>
+<span class="sd">           fields with public set to true will be visible.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : `str`, optional</span>
+<span class="sd">            The username of the collection you are trying to fetch. If</span>
+<span class="sd">            not specified, the username of the authenticated user is</span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;rodneyfool&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fields : `list`</span>
+<span class="sd">            A list of user-defined collection fields.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  [</span>
+<span class="sd">                    {</span>
+<span class="sd">                      &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;options&quot;: [&lt;str&gt;],</span>
+<span class="sd">                      &quot;public&quot;: &lt;bool&gt;,</span>
+<span class="sd">                      &quot;position&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;type&quot;: &quot;dropdown&quot;</span>
+<span class="sd">                    },</span>
+<span class="sd">                    {</span>
+<span class="sd">                      &quot;id&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;name&quot;: &lt;str&gt;,</span>
+<span class="sd">                      &quot;lines&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;public&quot;: &lt;bool&gt;,</span>
+<span class="sd">                      &quot;position&quot;: &lt;int&gt;,</span>
+<span class="sd">                      &quot;type&quot;: &quot;textarea&quot;</span>
+<span class="sd">                    }</span>
+<span class="sd">                  ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_username&quot;</span><span class="p">):</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_username</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No username provided.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">/collection/fields&quot;</span>
+        <span class="p">)[</span><span class="s2">&quot;fields&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="API.edit_collection_release_field">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.edit_collection_release_field">[docs]</a>
+    <span class="k">def</span> <span class="nf">edit_collection_release_field</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">folder_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">release_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">instance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">field_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Edit Fields Instance</span>
+<span class="sd">        &lt;https://www.discogs.com/developers/#page:user-collection,header</span>
+<span class="sd">        :user-collection-edit-fields-instance-post&gt;`_: Change the value</span>
+<span class="sd">        of a notes field on a particular instance.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: dropdown warning</span>
+
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        folder_id : `int`</span>
+<span class="sd">            The ID of the folder to modify.</span>
+
+<span class="sd">            **Example**: :code:`3`.</span>
+
+<span class="sd">        release_id : `int`</span>
+<span class="sd">            The ID of the release you are modifying.</span>
+
+<span class="sd">            **Example**: :code:`130076`.</span>
+
+<span class="sd">        instance_id : `int`</span>
+<span class="sd">            The ID of the instance.</span>
+
+<span class="sd">            **Example**: :code:`1`.</span>
+
+<span class="sd">        field_id : `int`</span>
+<span class="sd">            The ID of the field you are modifying.</span>
+
+<span class="sd">            **Example**: :code:`1`.</span>
+
+<span class="sd">        value : `str`</span>
+<span class="sd">            The new value of the field. If the field&#39;s type is</span>
+<span class="sd">            :code:`&quot;dropdown&quot;`, `value` must match one of the values in</span>
+<span class="sd">            the field&#39;s list of options.</span>
+
+<span class="sd">        username : `str`, keyword-only, optional</span>
+<span class="sd">            The username of the collection you are trying to modify. If</span>
+<span class="sd">            not specified, the username of the authenticated user is</span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;rodneyfool&quot;`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_authentication</span><span class="p">(</span><span class="s2">&quot;edit_collection_fields&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_request</span><span class="p">(</span>
+            <span class="s2">&quot;post&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">/collection/folders&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">folder_id</span><span class="si">}</span><span class="s2">/releases/</span><span class="si">{</span><span class="n">release_id</span><span class="si">}</span><span class="s2">/instances/</span><span class="si">{</span><span class="n">instance_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;/fields/</span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="API.get_collection_value">
+<a class="viewcode-back" href="../../api/minim.discogs.API.html#minim.discogs.API.get_collection_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_collection_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `User Collection &gt; Collection Value</span>
+<span class="sd">        &lt;https://www.discogs.com/developers/#page:user-collection,header</span>
+<span class="sd">        :user-collection-collection-value-get&gt;`_: Returns the minimum,</span>
+<span class="sd">        median, and maximum value of a user&#39;s collection.</span>
+
+<span class="sd">        .. admonition:: User authentication</span>
+<span class="sd">           :class: warning</span>
+
+<span class="sd">           Requires user authentication with a personal access token or</span>
+<span class="sd">           via the OAuth 1.0a flow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        username : `str`, optional</span>
+<span class="sd">            The username of the collection you are trying to fetch. If</span>
+<span class="sd">            not specified, the username of the authenticated user is</span>
+<span class="sd">            used.</span>
+
+<span class="sd">            **Example**: :code:`&quot;rodneyfool&quot;`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        value : `dict`</span>
+<span class="sd">            The total minimum value of the user&#39;s collection.</span>
+
+<span class="sd">            .. admonition:: Sample</span>
+<span class="sd">               :class: dropdown</span>
+
+<span class="sd">               .. code::</span>
+
+<span class="sd">                  {</span>
+<span class="sd">                    &quot;maximum&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;median&quot;: &lt;str&gt;,</span>
+<span class="sd">                    &quot;minimum&quot;: &lt;str&gt;</span>
+<span class="sd">                  }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_username&quot;</span><span class="p">):</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_username</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No username provided.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_URL</span><span class="si">}</span><span class="s2">/users/</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">/collection/value&quot;</span>
+        <span class="p">)</span></div>
+</div>
+
 
     <span class="c1">### USER WANTLIST #########################################################</span>
 
-
+    <span class="c1"># TODO</span>
 
     <span class="c1">### USER LISTS ############################################################</span>
 
+    <span class="c1"># TODO</span>
 </pre></div>
         </article>
       </div>

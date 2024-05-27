@@ -340,7 +340,11 @@ class API:
 
         r = self.session.request(method, url, **kwargs)
         if r.status_code not in range(200, 299):
-            raise RuntimeError(f"{r.status_code}: {r.json()['message']}")
+            j = r.json()
+            emsg = f"{r.status_code}: {j['message']}"
+            if "detail" in j["message"]:
+                emsg += f"\n{json.dumps(j['detail'], indent=2)}"
+            raise RuntimeError(emsg)
         return r
 
     def set_access_token(
@@ -928,10 +932,10 @@ class API:
         Deletes the release's rating for a given user.
 
         .. admonition:: User authentication
-            :class: warning
+           :class: warning
 
-            Requires user authentication with a personal access token or
-            via the OAuth 1.0a flow.
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
 
         Parameters
         ----------
@@ -1714,7 +1718,7 @@ class API:
         /#page:marketplace,header:marketplace-inventory-get>`_:
         Get a seller's inventory.
 
-        .. admonition:: Authentication
+        .. admonition:: User authentication
            :class: dropdown warning
 
            If you are authenticated as the inventory owner, additional
@@ -2297,10 +2301,10 @@ class API:
         request.)
 
         .. admonition:: User authentication
-          :class: warning
+           :class: warning
 
-          Requires user authentication with a personal access token or
-          via the OAuth 1.0a flow.
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
 
         Parameters
         ----------
@@ -2607,7 +2611,10 @@ class API:
                       "per_page": <int>,
                       "items": <int>,
                       "page": <int>,
-                      "urls": {},
+                      "urls": {
+                        "last": <str>,
+                        "next": <str>
+                      },
                       "pages": <int>
                     },
                     "messages": [
@@ -2859,16 +2866,19 @@ class API:
         for sale, lowest listed price of any item for sale, and whether
         the item is blocked for sale in the marketplace.
 
-        Authentication is optional. Authenticated users will by default
-        have the lowest currency expressed in their own buyer currency,
-        configurable in buyer settings, in the absence of the
-        `curr_abbr` query parameter to specify the currency.
-        Unauthenticated users will have the price expressed in US
-        Dollars, if no `curr_abbr` is provided.
-
         Releases that have no items or are blocked for sale in the
         marketplace will return a body with null data in the
         :code:`"lowest_price"` and :code:`"num_for_sale"` keys.
+
+        .. admonition:: User authentication
+           :class: dropdown warning
+
+           Authentication is optional. Authenticated users will by
+           default have the lowest currency expressed in their own buyer
+           currency, configurable in buyer settings, in the absence of
+           the `curr_abbr` query parameter to specify the currency.
+           Unauthenticated users will have the price expressed in US
+           Dollars, if no `curr_abbr` is provided.
 
         Parameters
         ----------
@@ -2912,11 +2922,233 @@ class API:
 
     ### INVENTORY EXPORT ######################################################
 
+    def export_inventory(
+            self, *, download: bool = True, filename: str = None,
+            path: str = None) -> str:
 
+        """
+        `Inventory Export > Export Your Inventory <https://www.discogs.com
+        /developers/#page:inventory-export,header
+        :inventory-export-export-your-inventory-post>`_: Request an
+        export of your inventory as a CSV.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        download : `bool`, keyword-only, default: :code:`True`
+            Specifies whether to download the CSV file. If
+            :code:`False`, the export ID is returned.
+
+        filename : `str`, optional
+            Filename of the exported CSV file. A :code:`.csv` extension
+            will be appended if not present. If not specified, the CSV
+            file is saved as
+            :code:`<username>-inventory-<date>-<number>.csv`.
+
+        path : `str`, optional
+            Path to save the exported CSV file. If not specified, the
+            file is saved in the current working directory.
+
+        Returns
+        -------
+        path_or_id : `str`
+            Full path to the exported CSV file (:code:`download=True`)
+            or the export ID (:code:`download=False`).
+        """
+
+        self._check_authentication("export_inventory")
+
+        r = self._request("post", f"{self.API_URL}/inventory/export")
+        if download:
+            return self.download_inventory_export(
+                r.headers["Location"].split("/")[-1],
+                filename=filename,
+                path=path
+            )
+        return r.headers["Location"]
+
+    def get_inventory_exports(
+            self, *, page: int = None, per_page: int = None) -> dict[str, Any]:
+
+        """
+        `Inventory Export > Get Recent Exports <https://www.discogs.com
+        /developers/#page:inventory-export,header
+        :inventory-export-get-recent-exports-get>`_: Get all recent
+        exports of your inventory.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        page : `int`, keyword-only, optional
+            The page you want to request.
+
+            **Example**: :code:`3`.
+
+        per_page : `int`, keyword-only, optional
+            The number of items per page.
+
+            **Example**: :code:`25`.
+
+        Returns
+        -------
+        exports : `dict`
+            The authenticated user's inventory exports.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "status": <str>,
+                        "created_ts": <str>,
+                        "url": <str>,
+                        "finished_ts": <str>,
+                        "download_url": <str>,
+                        "filename": <str>,
+                        "id": <int>
+                      }
+                    ],
+                    "pagination": {
+                      "per_page": <int>,
+                      "items": <int>,
+                      "page": <int>,
+                      "urls": {
+                        "last": <str>,
+                        "next": <str>
+                      },
+                      "pages": <int>
+                    }
+                  }
+        """
+
+        self._check_authentication("get_inventory_exports")
+
+        return self._get_json(f"{self.API_URL}/inventory/export",
+                              json={"page": page, "per_page": per_page})
+
+    def get_inventory_export(self, export_id: int) -> dict[str, Union[int, str]]:
+
+        """
+        `Inventory Export > Get An Export <https://www.discogs.com
+        /developers/#page:inventory-export,header
+        :inventory-export-get-an-export-get>`_: Get details about the
+        status of an inventory export.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        export_id : `int`
+            ID of the export.
+
+        Returns
+        -------
+        export : `dict`
+            Details about the status of the inventory export.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "status": <str>,
+                    "created_ts": <str>,
+                    "url": <str>,
+                    "finished_ts": <str>,
+                    "download_url": <str>,
+                    "filename": <str>,
+                    "id": <int>
+                  }
+        """
+
+        self._check_authentication("get_inventory_export")
+
+        return self._get_json(f"{self.API_URL}/inventory/export/{export_id}")
+
+    def download_inventory_export(
+            self, export_id: int, *, filename: str = None, path: str = None
+        ) -> str:
+
+        """
+        `Inventory Export > Download An Export <https://www.discogs.com
+        /developers/#page:inventory-export,header
+        :inventory-export-download-an-export-get>`_: Download the
+        results of an inventory export.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        export_id : `int`
+            ID of the export.
+
+        filename : `str`, optional
+            Filename of the exported CSV file. A :code:`.csv` extension
+            will be appended if not present. If not specified, the CSV
+            file is saved as
+            :code:`<username>-inventory-<date>-<number>.csv`.
+
+        path : `str`, optional
+            Path to save the exported CSV file. If not specified, the
+            file is saved in the current working directory.
+
+        Returns
+        -------
+        path : `str`
+            Full path to the exported CSV file.
+        """
+
+        self._check_authentication("download_inventory_export")
+
+        while True:
+            r = self.get_inventory_export(export_id)
+            if r["status"] == "success":
+                break
+            time.sleep(1)
+
+        r = self._request(
+            "get",
+            f"{self.API_URL}/inventory/export/{export_id}/download"
+        )
+
+        if filename is None:
+            filename = r.headers["Content-Disposition"].split("=")[1]
+        else:
+            if not filename.endswith(".csv"):
+                filename += ".csv"
+
+        with open(
+                path := os.path.join(path or os.getcwd(), filename), "w"
+            ) as f:
+            f.write(r.text)
+
+        return path
 
     ### INVENTORY UPLOAD ######################################################
 
-
+   # TODO
 
     ### USER IDENTITY #########################################################
 
@@ -2970,14 +3202,17 @@ class API:
         /#page:user-identity,header:user-identity-profile-get>`_:
         Retrieve a user by username.
 
-        If authenticated as the requested user, the :code:`"email"` key
-        will be visible, and the :code:`"num_lists"` count will include
-        the user's private lists.
+        .. admonition:: User authentication
+           :class: dropdown warning
 
-        If authenticated as the requested user or the user's
-        collection/wantlist is public, the
-        :code:`"num_collection"`/:code:`"num_wantlist"` keys will be
-        visible.
+           If authenticated as the requested user, the :code:`"email"`
+           key will be visible, and the :code:`"num_lists"` count will
+           include the user's private lists.
+
+           If authenticated as the requested user or the user's
+           collection/wantlist is public, the
+           :code:`"num_collection"`/:code:`"num_wantlist"` keys will be
+           visible.
 
         Parameters
         ----------
@@ -3492,12 +3727,876 @@ class API:
 
     ### USER COLLECTION #######################################################
 
+    def get_collection_folders(
+            self, username: str = None) -> list[dict[str, Any]]:
 
+        """
+        `User Collection > Collection > Get Collection Folders
+        <https://www.discogs.com/developers/#page:user-collection,header
+        :user-collection-collection-get>`_: Retrieve a list of folders
+        in a user's collection.
+
+        .. admonition:: User authentication
+           :class: dropdown warning
+
+           If the collection has been made private by its owner,
+           authentication as the collection owner is required. If you
+           are not authenticated as the collection owner, only folder ID
+           :code:`0` (the "All" folder) will be visible (if the
+           requested user's collection is public).
+
+        Parameters
+        ----------
+        username : `str`, optional
+            The username of the collection you are trying to fetch. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        folders : `list`
+            A list of folders in the user's collection.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "id": <int>,
+                      "name": <str>,
+                      "count": <int>,
+                      "resource_url": <str>
+                    }
+                  ]
+        """
+
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        return self._get_json(
+            f"{self.API_URL}/users/{username}/collection/folders"
+        )["folders"]
+
+    def create_collection_folder(self, name: str) -> dict[str, Union[int, str]]:
+
+        """
+        `User Collection > Collection > Create Folder
+        <https://www.discogs.com/developers/#page:user-collection,header
+        :user-collection-collection-post>`_: Create a new folder in a
+        user's collection.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        name : `str`
+            The name of the newly-created folder.
+
+            **Example**: :code:`"My favorites"`.
+
+        Returns
+        -------
+        folder : `dict`
+            Information about the newly-created folder.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "id": <int>,
+                    "name": <str>,
+                    "count": <int>,
+                    "resource_url": <str>
+                  }
+        """
+
+        self._check_authentication("create_collection_folder")
+
+        return self._request(
+            "post",
+            f"{self.API_URL}/users/{self._username}/collection/folders",
+            json={"name": name}
+        ).json()
+
+    def get_collection_folder(
+            self, folder_id: int, *, username: str = None
+        ) -> dict[str, Union[int, str]]:
+
+        """
+        `User Collection > Collection Folder > Get Folders
+        <https://www.discogs.com/developers/#page:user-collection,header
+        :user-collection-collection-folder-get>`_: Retrieve metadata
+        about a folder in a user's collection.
+
+        .. admonition:: User authentication
+           :class: dropdown warning
+
+           If `folder_id` is not :code:`0`, authentication as the
+           collection owner is required.
+
+        Parameters
+        ----------
+        folder_id : `int`
+            The ID of the folder to request.
+
+            **Example**: :code:`3`.
+
+        username : `str`, keyword-only, optional
+            The username of the collection you are trying to request. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        folder : `dict`
+            Metadata about the folder.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "id": <int>,
+                    "name": <str>,
+                    "count": <int>,
+                    "resource_url": <str>
+                  }
+        """
+
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        if folder_id != 0:
+            self._check_authentication("get_collection_folder")
+
+        return self._get_json(f"{self.API_URL}/users/{self._username}"
+                              f"/collection/folders/{folder_id}")
+
+    def rename_collection_folder(
+            self, folder_id: int, name: str, *,
+            username: str = None) -> dict[str, Union[int, str]]:
+
+        """
+        `User Collection > Collection Folder > Edit Folder
+        <https://www.discogs.com/developers/#page:user-collection,header
+        :user-collection-collection-folder-post>`_: Rename a folder.
+
+        Folders :code:`0` and :code:`1` cannot be renamed.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        folder_id : `int`
+            The ID of the folder to modify.
+
+            **Example**: :code:`3`.
+
+        name : `str`
+            The new name of the folder.
+
+            **Example**: :code:`"My favorites"`.
+
+        username : `str`, keyword-only, optional
+            The username of the collection you are trying to modify. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        folder : `dict`
+            Information about the edited folder.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "id": <int>,
+                    "name": <str>,
+                    "count": <int>,
+                    "resource_url": <str>
+                  }
+        """
+
+        self._check_authentication("rename_collection_folder")
+
+        return self._request(
+            "post",
+            f"{self.API_URL}/users/{self._username}"
+            f"/collection/folders/{folder_id}",
+            json={"name": name}
+        ).json()
+
+    def delete_collection_folder(
+            self, folder_id: int, *, username: str = None) -> None:
+
+        """
+        `User Collection > Collection Folder > Delete Folder
+        <https://www.discogs.com/developers/#page:user-collection,header
+        :user-collection-collection-folder-delete>`_: Delete a folder
+        from a user's collection.
+
+        A folder must be empty before it can be deleted.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        folder_id : `int`
+            The ID of the folder to delete.
+
+            **Example**: :code:`3`.
+
+        username : `str`, keyword-only, optional
+            The username of the collection you are trying to delete. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+        """
+
+        self._check_authentication("delete_collection_folder")
+
+        self._request(
+            "delete",
+            f"{self.API_URL}/users/{self._username}"
+            f"/collection/folders/{folder_id}"
+        )
+
+    def get_collection_folders_by_release(
+            self, release_id: Union[int, str], *, username: str = None
+        ) -> dict[str, Any]:
+
+        """
+        `User Collection > Collection Items By Release
+        <https://www.discogs.com/developers/#page:user-collection,header
+        :user-collection-collection-items-by-release-get>`_: View the
+        user's collection folders which contain a specified release.
+        This will also show information about each release instance.
+
+        Parameters
+        ----------
+        release_id : `int` or `str`
+            The ID of the release to request.
+
+            **Example**: :code:`7781525`.
+
+        username : `str`, keyword-only, optional
+            The username of the collection you are trying to view. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"susan.salkeld"`.
+
+        Returns
+        -------
+        releases : `list`
+            A list of releases and their folders.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "per_page": <int>,
+                      "items": <int>,
+                      "page": <int>,
+                      "urls": {
+                        "last": <str>,
+                        "next": <str>
+                      },
+                      "pages": <int>
+                    },
+                    "releases": [
+                      {
+                        "instance_id": <int>,
+                        "rating": <int>,
+                        "basic_information": {
+                          "labels": [
+                            {
+                              "name": <str>,
+                              "entity_type": <str>,
+                              "catno": <str>,
+                              "resource_url": <str>,
+                              "id": <int>,
+                              "entity_type_name": <str>
+                            }
+                          ],
+                          "formats": [
+                            {
+                              "descriptions": [<str>],
+                              "name": <str>,
+                              "qty": <str>
+                            }
+                          ],
+                          "thumb": <str>,
+                          "title": <str>,
+                          "artists": [
+                            {
+                              "join": <str>,
+                              "name": <str>,
+                              "anv": <str>,
+                              "tracks": <str>,
+                              "role": <str>,
+                              "resource_url": <str>,
+                              "id": <int>
+                            }
+                          ],
+                          "resource_url": <str>,
+                          "year": <int>,
+                          "id": <int>,
+                        },
+                        "folder_id": <int>,
+                        "date_added": <str>,
+                        "id": <int>
+                      }
+                    ]
+                  }
+        """
+
+        return self._get_json(
+            f"{self.API_URL}/users/{self._username}/collection"
+            f"/releases/{release_id}"
+        )["folders"]
+
+    def get_collection_folder_releases(
+            self, folder_id: int, *, username: str = None,
+            page: int = None, per_page: int = None, sort: str = None,
+            sort_order: str = None) -> dict[str, Any]:
+
+        """
+        `User Collection > Collection Items By Folder
+        <https://www.discogs.com/developers/#page:user-collection,header
+        :user-collection-collection-items-by-folder>`_: Returns the items
+        in a folder in a user's collection.
+
+        Basic information about each release is provided, suitable for
+        display in a list. For detailed information, make another call
+        to fetch the corresponding release.
+
+        .. admonition:: User authentication
+           :class: dropdown warning
+
+           If `folder_id` is not :code:`0` or the collection has been
+           made private by its owner, authentication as the collection
+           owner is required.
+
+           If you are not authenticated as the collection owner, only
+           the public notes fields will be visible.
+
+        Parameters
+        ----------
+        folder_id : `int`
+            The ID of the folder to request.
+
+            **Example**: :code:`3`.
+
+        username : `str`, keyword-only, optional
+            The username of the collection you are trying to request. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        page : `int`, keyword-only, optional
+            Page of results to fetch.
+
+        per_page : `int`, keyword-only, optional
+            Number of results per page.
+
+        sort : `str`, keyword-only, optional
+            Sort items by this field.
+
+            **Valid values**: :code:`"label"`, :code:`"artist"`,
+            :code:`"title"`, :code:`"catno"`, :code:`"format"`,
+            :code:`"rating"`, :code:`"year"`, and :code:`"added"`.
+
+        sort_order : `str`, keyword-only, optional
+            Sort items in a particular order.
+
+            **Valid values**: :code:`"asc"` and :code:`"desc"`.
+
+        Returns
+        -------
+        items : `dict`
+            Items in the folder.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "pagination": {
+                      "per_page": <int>,
+                      "items": <int>,
+                      "page": <int>,
+                      "urls": {
+                        "last": <str>,
+                        "next": <str>
+                      },
+                      "pages": <int>
+                    },
+                    "releases": [
+                      {
+                        "instance_id": <int>,
+                        "rating": <int>,
+                        "basic_information": {
+                          "labels": [
+                            {
+                              "name": <str>,
+                              "entity_type": <str>,
+                              "catno": <str>,
+                              "resource_url": <str>,
+                              "id": <int>,
+                              "entity_type_name": <str>
+                            }
+                          ],
+                          "formats": [
+                            {
+                              "descriptions": [<str>],
+                              "name": <str>,
+                              "qty": <str>
+                            }
+                          ],
+                          "thumb": <str>,
+                          "title": <str>,
+                          "artists": [
+                            {
+                              "join": <str>,
+                              "name": <str>,
+                              "anv": <str>,
+                              "tracks": <str>,
+                              "role": <str>,
+                              "resource_url": <str>,
+                              "id": <int>
+                            }
+                          ],
+                          "resource_url": <str>,
+                          "year": <int>,
+                          "id": <int>,
+                        },
+                        "folder_id": <int>,
+                        "date_added": <str>,
+                        "id": <int>
+                      }
+                    ]
+                  }
+        """
+
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        if folder_id != 0:
+            self._check_authentication("get_collection_folder_releases")
+
+        return self._get_json(
+            f"{self.API_URL}/users/{username}/collection"
+            f"/folders/{folder_id}/releases",
+            params={"page": page, "per_page": per_page, "sort": sort,
+                    "sort_order": sort_order}
+        )
+
+    def add_collection_folder_release(
+            self, folder_id: int, release_id: int, *, username: str = None
+        ) -> dict[str, Union[int, str]]:
+
+        """
+        `User Collection > Add To Collection Folder
+        <https://www.discogs.com/developers/#page:user-collection,header
+        :user-collection-add-to-collection-folder-post>`_: Add a release
+        to a folder in a user's collection.
+
+        The `folder_id` must be non-zero. You can use :code:`1` for
+        "Uncategorized".
+
+        .. admonition:: User authentication
+            :class: warning
+
+            Requires user authentication with a personal access token or
+            via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        folder_id : `int`
+            The ID of the folder to modify.
+
+            **Example**: :code:`3`.
+
+        release_id : `int`
+            The ID of the release you are adding.
+
+            **Example**: :code:`130076`.
+
+        username : `str`, keyword-only, optional
+            The username of the collection you are trying to modify. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        folder : `dict`
+            Information about the folder.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "instance_id": <int>,
+                    "resource_url": <str>
+                  }
+        """
+
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        return self._request(
+            "post",
+            f"{self.API_URL}/users/{username}/collection"
+            f"/folders/{folder_id}/releases/{release_id}"
+        ).json()
+
+    def edit_collection_folder_release(
+            self, folder_id: int, release_id: int, instance_id: int,
+            *, username: str = None, new_folder_id: int, rating: int = None
+        ) -> None:
+
+        """
+        `User Collection > Change Rating Of Release
+        <https://www.discogs.com/developers#page:user-collection,header
+        :user-collection-change-rating-of-release-post>`_: Change the
+        rating on a release and/or move the instance to another folder.
+
+        This endpoint potentially takes two folder ID parameters:
+        `folder_id` (which is the folder you are requesting, and is
+        required), and `new_folder_id` (representing the folder you want
+        to move the instance to, which is optional).
+
+        .. admonition:: User authentication
+            :class: warning
+
+            Requires user authentication with a personal access token or
+            via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        folder_id : `int`
+            The ID of the folder to modify.
+
+            **Example**: :code:`3`.
+
+        release_id : `int`
+            The ID of the release you are modifying.
+
+            **Example**: :code:`130076`.
+
+        instance_id : `int`
+            The ID of the instance.
+
+            **Example**: :code:`1`.
+
+        username : `str`, keyword-only, optional
+            The username of the collection you are trying to modify. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        new_folder_id : `int`
+            The ID of the folder to move the instance to.
+
+            **Example**: :code:`4`.
+
+        rating : `int`, keyword-only, optional
+            The rating of the instance you are supplying.
+
+            **Example**: :code:`5`.
+        """
+
+        self._request(
+            "post",
+            f"{self.API_URL}/users/{username}/collection/folders"
+            f"/{folder_id}/releases/{release_id}/instances/{instance_id}",
+            json={"folder_id": new_folder_id, "rating": rating}
+        )
+
+    def delete_collection_folder_release(
+            self, folder_id: int, release_id: int, instance_id: int,
+            *, username: str = None) -> None:
+
+        """
+        `User Collection > Delete Instance From Folder
+        <https://www.discogs.com/developers/#page:user-collection,header
+        :user-collection-delete-instance-from-folder-delete>`_: Remove an
+        instance of a release from a user's collection folder.
+
+        To move the release to the "Uncategorized" folder instead, use
+        the :meth:`edit_collection_folder_release` method.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        folder_id : `int`
+            The ID of the folder to modify.
+
+            **Example**: :code:`3`.
+
+        release_id : `int`
+            The ID of the release you are modifying.
+
+            **Example**: :code:`130076`.
+
+        instance_id : `int`
+            The ID of the instance.
+
+            **Example**: :code:`1`.
+
+        username : `str`, keyword-only, optional
+            The username of the collection you are trying to modify. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+        """
+
+        self._request(
+            "delete",
+            f"{self.API_URL}/users/{username}/collection/folders"
+            f"/{folder_id}/releases/{release_id}/instances/{instance_id}"
+        )
+
+    def get_collection_fields(
+            self, username: str = None) -> list[dict[str, Any]]:
+
+        """
+        `User Collection > Collection Fields
+        <https://www.discogs.com/developers/#page:user-collection,header
+        :user-collection-list-custom-fields-get>`_: Retrieve a list of
+        user-defined collection notes fields.
+
+        These fields are available on every release in the collection.
+
+        .. admonition:: User authentication
+           :class: dropdown warning
+
+           If the collection has been made private by its owner,
+           authentication as the collection owner is required.
+
+           If you are not authenticated as the collection owner, only
+           fields with public set to true will be visible.
+
+        Parameters
+        ----------
+        username : `str`, optional
+            The username of the collection you are trying to fetch. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        fields : `list`
+            A list of user-defined collection fields.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "id": <int>,
+                      "name": <str>,
+                      "options": [<str>],
+                      "public": <bool>,
+                      "position": <int>,
+                      "type": "dropdown"
+                    },
+                    {
+                      "id": <int>,
+                      "name": <str>,
+                      "lines": <int>,
+                      "public": <bool>,
+                      "position": <int>,
+                      "type": "textarea"
+                    }
+                  ]
+        """
+
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        return self._get_json(
+            f"{self.API_URL}/users/{username}/collection/fields"
+        )["fields"]
+
+    def edit_collection_release_field(
+            self, folder_id: int, release_id: int, instance_id: int,
+            field_id: int, value: str, *, username: str = None) -> None:
+
+        """
+        `User Collection > Edit Fields Instance
+        <https://www.discogs.com/developers/#page:user-collection,header
+        :user-collection-edit-fields-instance-post>`_: Change the value
+        of a notes field on a particular instance.
+
+        .. admonition:: User authentication
+           :class: dropdown warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        folder_id : `int`
+            The ID of the folder to modify.
+
+            **Example**: :code:`3`.
+
+        release_id : `int`
+            The ID of the release you are modifying.
+
+            **Example**: :code:`130076`.
+
+        instance_id : `int`
+            The ID of the instance.
+
+            **Example**: :code:`1`.
+
+        field_id : `int`
+            The ID of the field you are modifying.
+
+            **Example**: :code:`1`.
+
+        value : `str`
+            The new value of the field. If the field's type is
+            :code:`"dropdown"`, `value` must match one of the values in
+            the field's list of options.
+
+        username : `str`, keyword-only, optional
+            The username of the collection you are trying to modify. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+        """
+
+        self._check_authentication("edit_collection_fields")
+
+        self._request(
+            "post",
+            f"{self.API_URL}/users/{username}/collection/folders"
+            f"/{folder_id}/releases/{release_id}/instances/{instance_id}"
+            f"/fields/{field_id}",
+            params={"value": value}
+        )
+
+    def get_collection_value(self, username: str = None) -> dict[str, Any]:
+
+        """
+        `User Collection > Collection Value
+        <https://www.discogs.com/developers/#page:user-collection,header
+        :user-collection-collection-value-get>`_: Returns the minimum,
+        median, and maximum value of a user's collection.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication with a personal access token or
+           via the OAuth 1.0a flow.
+
+        Parameters
+        ----------
+        username : `str`, optional
+            The username of the collection you are trying to fetch. If
+            not specified, the username of the authenticated user is
+            used.
+
+            **Example**: :code:`"rodneyfool"`.
+
+        Returns
+        -------
+        value : `dict`
+            The total minimum value of the user's collection.
+
+            .. admonition:: Sample
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "maximum": <str>,
+                    "median": <str>,
+                    "minimum": <str>
+                  }
+        """
+
+        if username is None:
+            if hasattr(self, "_username"):
+                username = self._username
+            else:
+                raise ValueError("No username provided.")
+
+        return self._get_json(
+            f"{self.API_URL}/users/{username}/collection/value"
+        )
 
     ### USER WANTLIST #########################################################
 
-
+    # TODO
 
     ### USER LISTS ############################################################
 
-
+    # TODO

@@ -383,11 +383,23 @@ file.</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.add_order_message" title="minim.discogs.API.add_order_message"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_order_message</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.add_collection_folder_release" title="minim.discogs.API.add_collection_folder_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_collection_folder_release</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-add-to-collection-folder-post">User Collection &gt; Add To Collection Folder</a>: Add a release to a folder in a user's collection.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.add_order_message" title="minim.discogs.API.add_order_message"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_order_message</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:marketplace,header:marketplace-list-order-messages-post">Marketplace &gt; List Order Messages &gt; Add New Message</a>: Adds a new message to the order's message log.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.create_collection_folder" title="minim.discogs.API.create_collection_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_collection_folder</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-post">User Collection &gt; Collection &gt; Create Folder</a>: Create a new folder in a user's collection.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.create_listing" title="minim.discogs.API.create_listing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_listing</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:marketplace,header:marketplace-new-listing">Marketplace &gt; New Listing</a>: Create a marketplace listing.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.delete_collection_folder" title="minim.discogs.API.delete_collection_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_collection_folder</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-folder-delete">User Collection &gt; Collection Folder &gt; Delete Folder</a>: Delete a folder from a user's collection.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.delete_collection_folder_release" title="minim.discogs.API.delete_collection_folder_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_collection_folder_release</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-delete-instance-from-folder-delete">User Collection &gt; Delete Instance From Folder</a>: Remove an instance of a release from a user's collection folder.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.delete_listing" title="minim.discogs.API.delete_listing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_listing</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:marketplace,header:marketplace-listing-delete">Marketplace &gt; Listing &gt; Delete Listing</a>: Permanently remove a listing from the marketplace.</p></td>
@@ -395,20 +407,50 @@ file.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.delete_user_release_rating" title="minim.discogs.API.delete_user_release_rating"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_user_release_rating</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-rating-by-user-delete">Database &gt; Release Rating By User &gt; Delete Release Rating By User</a>: Deletes the release's rating for a given user.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.edit_listing" title="minim.discogs.API.edit_listing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_listing</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.download_inventory_export" title="minim.discogs.API.download_inventory_export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_inventory_export</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:inventory-export,header:inventory-export-download-an-export-get">Inventory Export &gt; Download An Export</a>: Download the results of an inventory export.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.edit_collection_folder_release" title="minim.discogs.API.edit_collection_folder_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_collection_folder_release</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers#page:user-collection,header:user-collection-change-rating-of-release-post">User Collection &gt; Change Rating Of Release</a>: Change the rating on a release and/or move the instance to another folder.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.edit_collection_release_field" title="minim.discogs.API.edit_collection_release_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_collection_release_field</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-edit-fields-instance-post">User Collection &gt; Edit Fields Instance</a>: Change the value of a notes field on a particular instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.edit_listing" title="minim.discogs.API.edit_listing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_listing</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:marketplace,header:marketplace-listing-post">Marketplace &gt; Listing &gt; Edit Listing</a>: Edit the data associated with a listing.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.edit_order" title="minim.discogs.API.edit_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_order</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.edit_order" title="minim.discogs.API.edit_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_order</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers#page:marketplace,header:marketplace-order-post">Marketplace &gt; Order &gt; Edit Order</a>: Edit the data associated with an order.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.edit_profile" title="minim.discogs.API.edit_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_profile</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.edit_profile" title="minim.discogs.API.edit_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edit_profile</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-profile-post">User Identity &gt; Profile &gt; Edit Profile</a>: Edit a user's profile data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.export_inventory" title="minim.discogs.API.export_inventory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export_inventory</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:inventory-export,header:inventory-export-export-your-inventory-post">Inventory Export &gt; Export Your Inventory</a>: Request an export of your inventory as a CSV.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_artist" title="minim.discogs.API.get_artist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_artist</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-artist-get">Database &gt; Artist</a>: Get an artist.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_artist_releases" title="minim.discogs.API.get_artist_releases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_artist_releases</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-artist-releases-get">Database &gt; Artist Releases</a>: Get an artist's releases and masters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_collection_fields" title="minim.discogs.API.get_collection_fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_collection_fields</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-list-custom-fields-get">User Collection &gt; Collection Fields</a>: Retrieve a list of user-defined collection notes fields.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_collection_folder" title="minim.discogs.API.get_collection_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_collection_folder</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-folder-get">User Collection &gt; Collection Folder &gt; Get Folders</a>: Retrieve metadata about a folder in a user's collection.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_collection_folder_releases" title="minim.discogs.API.get_collection_folder_releases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_collection_folder_releases</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-items-by-folder">User Collection &gt; Collection Items By Folder</a>: Returns the items in a folder in a user's collection.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_collection_folders" title="minim.discogs.API.get_collection_folders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_collection_folders</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-get">User Collection &gt; Collection &gt; Get Collection Folders</a>: Retrieve a list of folders in a user's collection.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_collection_folders_by_release" title="minim.discogs.API.get_collection_folders_by_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_collection_folders_by_release</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-items-by-release-get">User Collection &gt; Collection Items By Release</a>: View the user's collection folders which contain a specified release.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_collection_value" title="minim.discogs.API.get_collection_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_collection_value</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-value-get">User Collection &gt; Collection Value</a>: Returns the minimum, median, and maximum value of a user's collection.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_community_release_rating" title="minim.discogs.API.get_community_release_rating"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_community_release_rating</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-community-release-rating-get">Database &gt; Community Release Rating</a>: Retrieves the community release rating average and count.</p></td>
@@ -421,6 +463,12 @@ file.</p>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_inventory" title="minim.discogs.API.get_inventory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_inventory</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:marketplace,header:marketplace-inventory-get">Marketplace &gt; Inventory</a>: Get a seller's inventory.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_inventory_export" title="minim.discogs.API.get_inventory_export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_inventory_export</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:inventory-export,header:inventory-export-get-an-export-get">Inventory Export &gt; Get An Export</a>: Get details about the status of an inventory export.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_inventory_exports" title="minim.discogs.API.get_inventory_exports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_inventory_exports</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:inventory-export,header:inventory-export-get-recent-exports-get">Inventory Export &gt; Get Recent Exports</a>: Get all recent exports of your inventory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.get_label" title="minim.discogs.API.get_label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_label</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-label-get">Database &gt; Label</a>: Get a label, company, recording studio, locxation, or other entity involved with artists and releases.</p></td>
@@ -470,21 +518,70 @@ file.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.get_user_submissions" title="minim.discogs.API.get_user_submissions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_submissions</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-user-submissions-get">User Identity &gt; User Submissions</a>: Retrieve a user's submissions (edits made to releases, labels, and artists) by username.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.search" title="minim.discogs.API.search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.rename_collection_folder" title="minim.discogs.API.rename_collection_folder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rename_collection_folder</span></code></a></p></td>
+<td><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-folder-post">User Collection &gt; Collection Folder &gt; Edit Folder</a>: Rename a folder.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.search" title="minim.discogs.API.search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-search-get">Database &gt; Search</a>: Issue a search query to the Discogs database.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.set_access_token" title="minim.discogs.API.set_access_token"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_access_token</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.set_access_token" title="minim.discogs.API.set_access_token"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_access_token</span></code></a></p></td>
 <td><p>Set the Discogs API personal or OAuth access token (and secret).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.set_flow" title="minim.discogs.API.set_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flow</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.set_flow" title="minim.discogs.API.set_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flow</span></code></a></p></td>
 <td><p>Set the authorization flow.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#minim.discogs.API.update_user_release_rating" title="minim.discogs.API.update_user_release_rating"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_user_release_rating</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#minim.discogs.API.update_user_release_rating" title="minim.discogs.API.update_user_release_rating"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_user_release_rating</span></code></a></p></td>
 <td><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-release-rating-by-user-put">Database &gt; Release Rating By User &gt; Update Release Rating By User</a>: Updates the release's rating for a given user.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.add_collection_folder_release">
+<span class="sig-name descname"><span class="pre">add_collection_folder_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">release_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.add_collection_folder_release"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.add_collection_folder_release" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-add-to-collection-folder-post">User Collection &gt; Add To Collection Folder</a>: Add a release
+to a folder in a user’s collection.</p>
+<p>The <cite>folder_id</cite> must be non-zero. You can use <code class="code docutils literal notranslate"><span class="pre">1</span></code> for
+“Uncategorized”.</p>
+<div class="warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>folder_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the folder to modify.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">3</span></code>.</p>
+</dd>
+<dt><strong>release_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the release you are adding.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">130076</span></code>.</p>
+</dd>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The username of the collection you are trying to modify. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;rodneyfool&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>folder</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Information about the folder.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;instance_id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="minim.discogs.API.add_order_message">
 <span class="sig-name descname"><span class="pre">add_order_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.add_order_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.add_order_message" title="Link to this definition">#</a></dt>
@@ -551,6 +648,44 @@ via the OAuth 1.0a flow.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.create_collection_folder">
+<span class="sig-name descname"><span class="pre">create_collection_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.create_collection_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.create_collection_folder" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-post">User Collection &gt; Collection &gt; Create Folder</a>: Create a new folder in a
+user’s collection.</p>
+<div class="warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>name</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>The name of the newly-created folder.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;My</span> <span class="pre">favorites&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>folder</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Information about the newly-created folder.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="minim.discogs.API.create_listing">
 <span class="sig-name descname"><span class="pre">create_listing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">release_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'For</span> <span class="pre">Sale'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sleeve_condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_offers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_quantity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.create_listing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.create_listing" title="Link to this definition">#</a></dt>
 <dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:marketplace,header:marketplace-new-listing">Marketplace &gt; New Listing</a>: Create a
@@ -564,7 +699,7 @@ via the OAuth 1.0a flow.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>release_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>The ID of the release you are posting.</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">249504</span></code>.</p>
 </dd>
 <dt><strong>condition</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>The condition of the release you are posting.</p>
 <p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;Mint</span> <span class="pre">(M)&quot;</span></code>,
@@ -621,6 +756,67 @@ have the quantity automatically estimated for you.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.delete_collection_folder">
+<span class="sig-name descname"><span class="pre">delete_collection_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.delete_collection_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.delete_collection_folder" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-folder-delete">User Collection &gt; Collection Folder &gt; Delete Folder</a>: Delete a folder
+from a user’s collection.</p>
+<p>A folder must be empty before it can be deleted.</p>
+<div class="warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>folder_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the folder to delete.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">3</span></code>.</p>
+</dd>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The username of the collection you are trying to delete. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;rodneyfool&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.delete_collection_folder_release">
+<span class="sig-name descname"><span class="pre">delete_collection_folder_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">release_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.delete_collection_folder_release"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.delete_collection_folder_release" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-delete-instance-from-folder-delete">User Collection &gt; Delete Instance From Folder</a>: Remove an
+instance of a release from a user’s collection folder.</p>
+<p>To move the release to the “Uncategorized” folder instead, use
+the <a class="reference internal" href="#minim.discogs.API.edit_collection_folder_release" title="minim.discogs.API.edit_collection_folder_release"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edit_collection_folder_release()</span></code></a> method.</p>
+<div class="warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>folder_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the folder to modify.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">3</span></code>.</p>
+</dd>
+<dt><strong>release_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the release you are modifying.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">130076</span></code>.</p>
+</dd>
+<dt><strong>instance_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the instance.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</dd>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The username of the collection you are trying to modify. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;rodneyfool&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="minim.discogs.API.delete_listing">
 <span class="sig-name descname"><span class="pre">delete_listing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listing_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.delete_listing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.delete_listing" title="Link to this definition">#</a></dt>
 <dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:marketplace,header:marketplace-listing-delete">Marketplace &gt; Listing &gt; Delete Listing</a>: Permanently remove a listing
@@ -669,6 +865,121 @@ used.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.download_inventory_export">
+<span class="sig-name descname"><span class="pre">download_inventory_export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">export_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.download_inventory_export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.download_inventory_export" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:inventory-export,header:inventory-export-download-an-export-get">Inventory Export &gt; Download An Export</a>: Download the
+results of an inventory export.</p>
+<div class="warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>export_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>ID of the export.</p>
+</dd>
+<dt><strong>filename</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>Filename of the exported CSV file. A <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> extension
+will be appended if not present. If not specified, the CSV
+file is saved as
+<code class="code docutils literal notranslate"><span class="pre">&lt;username&gt;-inventory-&lt;date&gt;-&lt;number&gt;.csv</span></code>.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>Path to save the exported CSV file. If not specified, the
+file is saved in the current working directory.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>path</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>Full path to the exported CSV file.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.edit_collection_folder_release">
+<span class="sig-name descname"><span class="pre">edit_collection_folder_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">release_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_folder_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rating</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.edit_collection_folder_release"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.edit_collection_folder_release" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers#page:user-collection,header:user-collection-change-rating-of-release-post">User Collection &gt; Change Rating Of Release</a>: Change the
+rating on a release and/or move the instance to another folder.</p>
+<p>This endpoint potentially takes two folder ID parameters:
+<cite>folder_id</cite> (which is the folder you are requesting, and is
+required), and <cite>new_folder_id</cite> (representing the folder you want
+to move the instance to, which is optional).</p>
+<div class="warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>folder_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the folder to modify.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">3</span></code>.</p>
+</dd>
+<dt><strong>release_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the release you are modifying.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">130076</span></code>.</p>
+</dd>
+<dt><strong>instance_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the instance.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</dd>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The username of the collection you are trying to modify. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;rodneyfool&quot;</span></code>.</p>
+</dd>
+<dt><strong>new_folder_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the folder to move the instance to.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">4</span></code>.</p>
+</dd>
+<dt><strong>rating</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The rating of the instance you are supplying.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">5</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.edit_collection_release_field">
+<span class="sig-name descname"><span class="pre">edit_collection_release_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">release_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.edit_collection_release_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.edit_collection_release_field" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-edit-fields-instance-post">User Collection &gt; Edit Fields Instance</a>: Change the value
+of a notes field on a particular instance.</p>
+<div class="dropdown warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>folder_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the folder to modify.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">3</span></code>.</p>
+</dd>
+<dt><strong>release_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the release you are modifying.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">130076</span></code>.</p>
+</dd>
+<dt><strong>instance_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the instance.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</dd>
+<dt><strong>field_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the field you are modifying.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</dd>
+<dt><strong>value</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>The new value of the field. If the field’s type is
+<code class="code docutils literal notranslate"><span class="pre">&quot;dropdown&quot;</span></code>, <cite>value</cite> must match one of the values in
+the field’s list of options.</p>
+</dd>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The username of the collection you are trying to modify. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;rodneyfool&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="minim.discogs.API.edit_listing">
 <span class="sig-name descname"><span class="pre">edit_listing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listing_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">release_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'For</span> <span class="pre">Sale'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sleeve_condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_offers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_quantity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.edit_listing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.edit_listing" title="Link to this definition">#</a></dt>
 <dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:marketplace,header:marketplace-listing-post">Marketplace &gt; Listing &gt; Edit Listing</a>:
@@ -689,7 +1000,7 @@ via the OAuth 1.0a flow.</p>
 <p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">172723812</span></code>.</p>
 </dd>
 <dt><strong>release_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>The ID of the release you are posting.</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">249504</span></code>.</p>
 </dd>
 <dt><strong>condition</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>The condition of the release you are posting.</p>
 <p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;Mint</span> <span class="pre">(M)&quot;</span></code>,
@@ -933,6 +1244,42 @@ via the OAuth 1.0a flow.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.export_inventory">
+<span class="sig-name descname"><span class="pre">export_inventory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.export_inventory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.export_inventory" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:inventory-export,header:inventory-export-export-your-inventory-post">Inventory Export &gt; Export Your Inventory</a>: Request an
+export of your inventory as a CSV.</p>
+<div class="warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>download</strong><span class="classifier"><cite>bool</cite>, keyword-only, default: <code class="code docutils literal notranslate"><span class="pre">True</span></code></span></dt><dd><p>Specifies whether to download the CSV file. If
+<code class="code docutils literal notranslate"><span class="pre">False</span></code>, the export ID is returned.</p>
+</dd>
+<dt><strong>filename</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>Filename of the exported CSV file. A <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> extension
+will be appended if not present. If not specified, the CSV
+file is saved as
+<code class="code docutils literal notranslate"><span class="pre">&lt;username&gt;-inventory-&lt;date&gt;-&lt;number&gt;.csv</span></code>.</p>
+</dd>
+<dt><strong>path</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>Path to save the exported CSV file. If not specified, the
+file is saved in the current working directory.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>path_or_id</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>Full path to the exported CSV file (<code class="code docutils literal notranslate"><span class="pre">download=True</span></code>)
+or the export ID (<code class="code docutils literal notranslate"><span class="pre">download=False</span></code>).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="minim.discogs.API.get_artist">
 <span class="sig-name descname"><span class="pre">get_artist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artist_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_artist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_artist" title="Link to this definition">#</a></dt>
 <dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-artist-get">Database &gt; Artist</a>: Get an artist.</p>
@@ -1040,6 +1387,388 @@ specified artist.</p>
       <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
     <span class="p">}</span>
   <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.get_collection_fields">
+<span class="sig-name descname"><span class="pre">get_collection_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_collection_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_collection_fields" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-list-custom-fields-get">User Collection &gt; Collection Fields</a>: Retrieve a list of
+user-defined collection notes fields.</p>
+<p>These fields are available on every release in the collection.</p>
+<div class="dropdown warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>If the collection has been made private by its owner,
+authentication as the collection owner is required.</p>
+<p>If you are not authenticated as the collection owner, only
+fields with public set to true will be visible.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>The username of the collection you are trying to fetch. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;rodneyfool&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>fields</strong><span class="classifier"><cite>list</cite></span></dt><dd><p>A list of user-defined collection fields.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+    <span class="s2">&quot;public&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">bool</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;dropdown&quot;</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;lines&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;public&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">bool</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;textarea&quot;</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.get_collection_folder">
+<span class="sig-name descname"><span class="pre">get_collection_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_collection_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_collection_folder" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-folder-get">User Collection &gt; Collection Folder &gt; Get Folders</a>: Retrieve metadata
+about a folder in a user’s collection.</p>
+<div class="dropdown warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>If <cite>folder_id</cite> is not <code class="code docutils literal notranslate"><span class="pre">0</span></code>, authentication as the
+collection owner is required.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>folder_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the folder to request.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">3</span></code>.</p>
+</dd>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The username of the collection you are trying to request. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;rodneyfool&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>folder</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Metadata about the folder.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.get_collection_folder_releases">
+<span class="sig-name descname"><span class="pre">get_collection_folder_releases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_collection_folder_releases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_collection_folder_releases" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-items-by-folder">User Collection &gt; Collection Items By Folder</a>: Returns the items
+in a folder in a user’s collection.</p>
+<p>Basic information about each release is provided, suitable for
+display in a list. For detailed information, make another call
+to fetch the corresponding release.</p>
+<div class="dropdown warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>If <cite>folder_id</cite> is not <code class="code docutils literal notranslate"><span class="pre">0</span></code> or the collection has been
+made private by its owner, authentication as the collection
+owner is required.</p>
+<p>If you are not authenticated as the collection owner, only
+the public notes fields will be visible.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>folder_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the folder to request.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">3</span></code>.</p>
+</dd>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The username of the collection you are trying to request. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;rodneyfool&quot;</span></code>.</p>
+</dd>
+<dt><strong>page</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Page of results to fetch.</p>
+</dd>
+<dt><strong>per_page</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>Number of results per page.</p>
+</dd>
+<dt><strong>sort</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Sort items by this field.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;label&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;artist&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;title&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;catno&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;format&quot;</span></code>,
+<code class="code docutils literal notranslate"><span class="pre">&quot;rating&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;year&quot;</span></code>, and <code class="code docutils literal notranslate"><span class="pre">&quot;added&quot;</span></code>.</p>
+</dd>
+<dt><strong>sort_order</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Sort items in a particular order.</p>
+<p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;asc&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;desc&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>items</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Items in the folder.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;pagination&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;urls&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;last&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;next&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;pages&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;releases&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;instance_id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;rating&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;basic_information&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;catno&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;entity_type_name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;formats&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;descriptions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;thumb&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;artists&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;join&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;anv&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;tracks&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;folder_id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;date_added&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.get_collection_folders">
+<span class="sig-name descname"><span class="pre">get_collection_folders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_collection_folders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_collection_folders" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-get">User Collection &gt; Collection &gt; Get Collection Folders</a>: Retrieve a list of folders
+in a user’s collection.</p>
+<div class="dropdown warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>If the collection has been made private by its owner,
+authentication as the collection owner is required. If you
+are not authenticated as the collection owner, only folder ID
+<code class="code docutils literal notranslate"><span class="pre">0</span></code> (the “All” folder) will be visible (if the
+requested user’s collection is public).</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>The username of the collection you are trying to fetch. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;rodneyfool&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>folders</strong><span class="classifier"><cite>list</cite></span></dt><dd><p>A list of folders in the user’s collection.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.get_collection_folders_by_release">
+<span class="sig-name descname"><span class="pre">get_collection_folders_by_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">release_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_collection_folders_by_release"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_collection_folders_by_release" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-items-by-release-get">User Collection &gt; Collection Items By Release</a>: View the
+user’s collection folders which contain a specified release.
+This will also show information about each release instance.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>release_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>The ID of the release to request.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">7781525</span></code>.</p>
+</dd>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The username of the collection you are trying to view. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;susan.salkeld&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>releases</strong><span class="classifier"><cite>list</cite></span></dt><dd><p>A list of releases and their folders.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;pagination&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;urls&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;last&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;next&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;pages&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;releases&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;instance_id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;rating&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;basic_information&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;catno&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;entity_type_name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;formats&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;descriptions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">],</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;qty&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;thumb&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;artists&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="s2">&quot;join&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;anv&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;tracks&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;folder_id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;date_added&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.get_collection_value">
+<span class="sig-name descname"><span class="pre">get_collection_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_collection_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_collection_value" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-value-get">User Collection &gt; Collection Value</a>: Returns the minimum,
+median, and maximum value of a user’s collection.</p>
+<div class="warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, optional</span></dt><dd><p>The username of the collection you are trying to fetch. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;rodneyfool&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>value</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>The total minimum value of the user’s collection.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;maximum&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;median&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;minimum&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1163,7 +1892,7 @@ user’s profile using <a class="reference internal" href="#minim.discogs.API.ge
 <dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:marketplace,header:marketplace-inventory-get">Marketplace &gt; Inventory</a>:
 Get a seller’s inventory.</p>
 <div class="dropdown warning admonition">
-<p class="admonition-title">Authentication</p>
+<p class="admonition-title">User authentication</p>
 <p>If you are authenticated as the inventory owner, additional
 fields will be returned in the response, such as
 <code class="code docutils literal notranslate"><span class="pre">&quot;weight&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;format_quantity&quot;</span></code>,
@@ -1246,6 +1975,104 @@ username of the authenticated user is used.</p>
       <span class="s2">&quot;audio&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">bool</span><span class="o">&gt;</span>
     <span class="p">}</span>
   <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.get_inventory_export">
+<span class="sig-name descname"><span class="pre">get_inventory_export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">export_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_inventory_export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_inventory_export" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:inventory-export,header:inventory-export-get-an-export-get">Inventory Export &gt; Get An Export</a>: Get details about the
+status of an inventory export.</p>
+<div class="warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>export_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>ID of the export.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>export</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Details about the status of the inventory export.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;created_ts&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;finished_ts&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;download_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.get_inventory_exports">
+<span class="sig-name descname"><span class="pre">get_inventory_exports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_page</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_inventory_exports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_inventory_exports" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:inventory-export,header:inventory-export-get-recent-exports-get">Inventory Export &gt; Get Recent Exports</a>: Get all recent
+exports of your inventory.</p>
+<div class="warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>page</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The page you want to request.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">3</span></code>.</p>
+</dd>
+<dt><strong>per_page</strong><span class="classifier"><cite>int</cite>, keyword-only, optional</span></dt><dd><p>The number of items per page.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">25</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>exports</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>The authenticated user’s inventory exports.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;created_ts&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;finished_ts&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;download_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;pagination&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="s2">&quot;urls&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;last&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;next&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;pages&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
+  <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1758,7 +2585,10 @@ via the OAuth 1.0a flow.</p>
     <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
     <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
     <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="s2">&quot;urls&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s2">&quot;urls&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;last&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+      <span class="s2">&quot;next&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+    <span class="p">},</span>
     <span class="s2">&quot;pages&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span>
   <span class="p">},</span>
   <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span>
@@ -1806,7 +2636,7 @@ via the OAuth 1.0a flow.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>release_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>The ID of the release you are fetching.</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">249504</span></code>.</p>
 </dd>
 </dl>
 </dd>
@@ -1863,13 +2693,16 @@ via the OAuth 1.0a flow.</p>
 <span class="sig-name descname"><span class="pre">get_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.get_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.get_profile" title="Link to this definition">#</a></dt>
 <dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-identity,header:user-identity-profile-get">User Identity &gt; Profile &gt; Get Profile</a>:
 Retrieve a user by username.</p>
-<p>If authenticated as the requested user, the <code class="code docutils literal notranslate"><span class="pre">&quot;email&quot;</span></code> key
-will be visible, and the <code class="code docutils literal notranslate"><span class="pre">&quot;num_lists&quot;</span></code> count will include
-the user’s private lists.</p>
+<div class="dropdown warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>If authenticated as the requested user, the <code class="code docutils literal notranslate"><span class="pre">&quot;email&quot;</span></code>
+key will be visible, and the <code class="code docutils literal notranslate"><span class="pre">&quot;num_lists&quot;</span></code> count will
+include the user’s private lists.</p>
 <p>If authenticated as the requested user or the user’s
 collection/wantlist is public, the
 <code class="code docutils literal notranslate"><span class="pre">&quot;num_collection&quot;</span></code>/<code class="code docutils literal notranslate"><span class="pre">&quot;num_wantlist&quot;</span></code> keys will be
 visible.</p>
+</div>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
@@ -2105,14 +2938,14 @@ marketplace will return a body with null data in the
 default have the lowest currency expressed in their own buyer
 currency, configurable in buyer settings, in the absence of
 the <cite>curr_abbr</cite> query parameter to specify the currency.
-Unauthenticated users will have the price expressed in
-US Dollars, if no <cite>curr_abbr</cite> is provided.</p>
+Unauthenticated users will have the price expressed in US
+Dollars, if no <cite>curr_abbr</cite> is provided.</p>
 </div>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>release_id</strong><span class="classifier"><cite>int</cite> or <cite>str</cite></span></dt><dd><p>The ID of the release you are fetching.</p>
-<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">249504</span></code>.</p>
 </dd>
 <dt><strong>curr_abbr</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>Currency abbreviation for marketplace data.</p>
 <p><strong>Valid values</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;USD&quot;</span></code>, <code class="code docutils literal notranslate"><span class="pre">&quot;GBP&quot;</span></code>,
@@ -2646,6 +3479,52 @@ used.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="minim.discogs.API.rename_collection_folder">
+<span class="sig-name descname"><span class="pre">rename_collection_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.rename_collection_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.rename_collection_folder" title="Link to this definition">#</a></dt>
+<dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:user-collection,header:user-collection-collection-folder-post">User Collection &gt; Collection Folder &gt; Edit Folder</a>: Rename a folder.</p>
+<p>Folders <code class="code docutils literal notranslate"><span class="pre">0</span></code> and <code class="code docutils literal notranslate"><span class="pre">1</span></code> cannot be renamed.</p>
+<div class="warning admonition">
+<p class="admonition-title">User authentication</p>
+<p>Requires user authentication with a personal access token or
+via the OAuth 1.0a flow.</p>
+</div>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>folder_id</strong><span class="classifier"><cite>int</cite></span></dt><dd><p>The ID of the folder to modify.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">3</span></code>.</p>
+</dd>
+<dt><strong>name</strong><span class="classifier"><cite>str</cite></span></dt><dd><p>The new name of the folder.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;My</span> <span class="pre">favorites&quot;</span></code>.</p>
+</dd>
+<dt><strong>username</strong><span class="classifier"><cite>str</cite>, keyword-only, optional</span></dt><dd><p>The username of the collection you are trying to modify. If
+not specified, the username of the authenticated user is
+used.</p>
+<p><strong>Example</strong>: <code class="code docutils literal notranslate"><span class="pre">&quot;rodneyfool&quot;</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt><strong>folder</strong><span class="classifier"><cite>dict</cite></span></dt><dd><p>Information about the edited folder.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">Sample</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s2">&quot;resource_url&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">str</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="minim.discogs.API.search">
 <span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">release_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">credit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genre</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">country</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">catno</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">barcode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">submitter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contributor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/minim/discogs.html#API.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#minim.discogs.API.search" title="Link to this definition">#</a></dt>
 <dd><p><a class="reference external" href="https://www.discogs.com/developers/#page:database,header:database-search-get">Database &gt; Search</a>: Issue a search
@@ -2952,19 +3831,35 @@ used.</p>
             <ul>
 <li><a class="reference internal" href="#">API</a><ul>
 <li><a class="reference internal" href="#minim.discogs.API"><code class="docutils literal notranslate"><span class="pre">API</span></code></a><ul>
+<li><a class="reference internal" href="#minim.discogs.API.add_collection_folder_release"><code class="docutils literal notranslate"><span class="pre">add_collection_folder_release()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.add_order_message"><code class="docutils literal notranslate"><span class="pre">add_order_message()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.create_collection_folder"><code class="docutils literal notranslate"><span class="pre">create_collection_folder()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.create_listing"><code class="docutils literal notranslate"><span class="pre">create_listing()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.delete_collection_folder"><code class="docutils literal notranslate"><span class="pre">delete_collection_folder()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.delete_collection_folder_release"><code class="docutils literal notranslate"><span class="pre">delete_collection_folder_release()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.delete_listing"><code class="docutils literal notranslate"><span class="pre">delete_listing()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.delete_user_release_rating"><code class="docutils literal notranslate"><span class="pre">delete_user_release_rating()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.download_inventory_export"><code class="docutils literal notranslate"><span class="pre">download_inventory_export()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.edit_collection_folder_release"><code class="docutils literal notranslate"><span class="pre">edit_collection_folder_release()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.edit_collection_release_field"><code class="docutils literal notranslate"><span class="pre">edit_collection_release_field()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.edit_listing"><code class="docutils literal notranslate"><span class="pre">edit_listing()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.edit_order"><code class="docutils literal notranslate"><span class="pre">edit_order()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.edit_profile"><code class="docutils literal notranslate"><span class="pre">edit_profile()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.export_inventory"><code class="docutils literal notranslate"><span class="pre">export_inventory()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_artist"><code class="docutils literal notranslate"><span class="pre">get_artist()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_artist_releases"><code class="docutils literal notranslate"><span class="pre">get_artist_releases()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.get_collection_fields"><code class="docutils literal notranslate"><span class="pre">get_collection_fields()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.get_collection_folder"><code class="docutils literal notranslate"><span class="pre">get_collection_folder()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.get_collection_folder_releases"><code class="docutils literal notranslate"><span class="pre">get_collection_folder_releases()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.get_collection_folders"><code class="docutils literal notranslate"><span class="pre">get_collection_folders()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.get_collection_folders_by_release"><code class="docutils literal notranslate"><span class="pre">get_collection_folders_by_release()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.get_collection_value"><code class="docutils literal notranslate"><span class="pre">get_collection_value()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_community_release_rating"><code class="docutils literal notranslate"><span class="pre">get_community_release_rating()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_fee"><code class="docutils literal notranslate"><span class="pre">get_fee()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_identity"><code class="docutils literal notranslate"><span class="pre">get_identity()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_inventory"><code class="docutils literal notranslate"><span class="pre">get_inventory()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.get_inventory_export"><code class="docutils literal notranslate"><span class="pre">get_inventory_export()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.get_inventory_exports"><code class="docutils literal notranslate"><span class="pre">get_inventory_exports()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_label"><code class="docutils literal notranslate"><span class="pre">get_label()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_label_releases"><code class="docutils literal notranslate"><span class="pre">get_label_releases()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_listing"><code class="docutils literal notranslate"><span class="pre">get_listing()</span></code></a></li>
@@ -2981,6 +3876,7 @@ used.</p>
 <li><a class="reference internal" href="#minim.discogs.API.get_user_orders"><code class="docutils literal notranslate"><span class="pre">get_user_orders()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_user_release_rating"><code class="docutils literal notranslate"><span class="pre">get_user_release_rating()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.get_user_submissions"><code class="docutils literal notranslate"><span class="pre">get_user_submissions()</span></code></a></li>
+<li><a class="reference internal" href="#minim.discogs.API.rename_collection_folder"><code class="docutils literal notranslate"><span class="pre">rename_collection_folder()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.set_access_token"><code class="docutils literal notranslate"><span class="pre">set_access_token()</span></code></a></li>
 <li><a class="reference internal" href="#minim.discogs.API.set_flow"><code class="docutils literal notranslate"><span class="pre">set_flow()</span></code></a></li>
