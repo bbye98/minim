@@ -773,8 +773,10 @@ class WebAPI:
                 context = browser.new_context(record_har_path=har_file)
                 page = context.new_page()
                 page.goto(auth_url, timeout=0)
-                page.wait_for_url(f"{self._redirect_uri}*",
-                                  wait_until="commit")
+                with page.expect_request(
+                        "https://accounts.spotify.com/*/authorize/accept*"
+                    ) as _:
+                    pass # blocking call
                 context.close()
                 browser.close()
 
@@ -782,7 +784,7 @@ class WebAPI:
                 queries = dict(
                     urllib.parse.parse_qsl(
                         urllib.parse.urlparse(
-                            re.search(f'{self._redirect_uri}\?(.*?)"',
+                            re.search(fr'{self._redirect_uri}\?(.*?)"',
                                       f.read()).group(0)
                         ).query
                     )
@@ -1150,7 +1152,7 @@ class WebAPI:
                 if redirect_uri:
                     self._redirect_uri = redirect_uri
                     if "localhost" in redirect_uri:
-                        self._port = re.search("localhost:(\d+)",
+                        self._port = re.search(r"localhost:(\d+)",
                                                redirect_uri).group(1)
                     elif web_framework:
                         wmsg = ("The redirect URI is not on localhost, "
