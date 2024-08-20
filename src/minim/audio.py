@@ -26,7 +26,8 @@ from .qobuz import _parse_performers
 
 if FOUND_FFMPEG:
     from . import FFMPEG_CODECS
-FOUND_PILLOW = find_spec("PIL") is not None
+if (FOUND_PILLOW = find_spec("PIL") is not None):
+    from PIL import Image
 
 __all__ = ["Audio", "FLACAudio", "MP3Audio", "MP4Audio", "OggAudio", "WAVEAudio"]
 

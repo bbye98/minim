@@ -10,8 +10,10 @@ from difflib import SequenceMatcher
 from importlib.util import find_spec
 from typing import Any, Union
 
-FOUND_LEVENSHTEIN = find_spec("Levenshtein") is not None
-FOUND_NUMPY = find_spec("numpy") is not None
+if (FOUND_LEVENSHTEIN := find_spec("Levenshtein") is not None):
+    import Levenshtein
+if (FOUND_NUMPY := find_spec("numpy") is not None):
+    import numpy as np
 
 __all__ = ["format_multivalue", "gestalt_ratio", "levenshtein_ratio"]
 
