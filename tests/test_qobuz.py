@@ -2,7 +2,8 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, f"{Path(__file__).parents[1].resolve()}/src")
-from minim import qobuz # noqa: E402
+from minim import qobuz  # noqa: E402
+
 
 class TestPrivateAPI:
 
@@ -32,8 +33,9 @@ class TestPrivateAPI:
         assert self.obj.get_playlist(self.PLAYLIST_ID)["id"] == self.PLAYLIST_ID
 
     def test_get_featured_playlists(self):
-        assert all("is_collaborative" in p 
-                   for p in self.obj.get_featured_playlists()["items"])
+        assert all(
+            "is_collaborative" in p for p in self.obj.get_featured_playlists()["items"]
+        )
 
     def test_search(self):
         query = "zedd true colors"

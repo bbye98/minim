@@ -17,15 +17,16 @@ from typing import Any, Union
 import requests
 
 from . import FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, _config
+
 if FOUND_PLAYWRIGHT:
     from playwright.sync_api import sync_playwright
 
 __all__ = ["PrivateAPI"]
 
-def _parse_performers(
-        performers: str, roles: Union[list[str], set[str]] = None
-    ) -> dict[str, list]:
 
+def _parse_performers(
+    performers: str, roles: Union[list[str], set[str]] = None
+) -> dict[str, list]:
     """
     Parse a string containing credits for a track.
 
@@ -56,10 +57,9 @@ def _parse_performers(
 
     people = {}
     for p in performers.split(" - "):
-        if (regex := re.search(
-            r"(^.*[A-Za-z]\.|^.*&.*|[\d\s\w].*?)(?:, )(.*)",
-            p.rstrip()
-        )):
+        if regex := re.search(
+            r"(^.*[A-Za-z]\.|^.*&.*|[\d\s\w].*?)(?:, )(.*)", p.rstrip()
+        ):
             people[regex.groups()[0]] = regex.groups()[1].split(", ")
 
     credits = {}
@@ -67,23 +67,23 @@ def _parse_performers(
         roles = set(c for r in people.values() for c in r)
     elif "Composers" in roles:
         roles.remove("Composers")
-        credits["composers"] = sorted({
-            p for cr in {"Composer", "ComposerLyricist", "Lyricist",
-                         "Writer"}
-            for p, r in people.items()
-            if cr in r
-        })
+        credits["composers"] = sorted(
+            {
+                p
+                for cr in {"Composer", "ComposerLyricist", "Lyricist", "Writer"}
+                for p, r in people.items()
+                if cr in r
+            }
+        )
     for role in roles:
         credits[
-            "_".join(
-                re.findall(r"(?:[A-Z][a-z]+)(?:-[A-Z][a-z]+)?", role)
-            ).lower()
+            "_".join(re.findall(r"(?:[A-Z][a-z]+)(?:-[A-Z][a-z]+)?", role)).lower()
         ] = [p for p, r in people.items() if role in r]
 
     return credits
 
-class PrivateAPI:
 
+class PrivateAPI:
     """
     Private Qobuz API client.
 
@@ -198,11 +198,19 @@ class PrivateAPI:
     WEB_URL = "https://play.qobuz.com"
 
     def __init__(
-            self, *, app_id: str = None, app_secret: str = None,
-            flow: str = None, browser: bool = False, user_agent: str = None,
-            email: str = None, password: str = None, auth_token: str = None,
-            overwrite: bool = False, save: bool = True) -> None:
-
+        self,
+        *,
+        app_id: str = None,
+        app_secret: str = None,
+        flow: str = None,
+        browser: bool = False,
+        user_agent: str = None,
+        email: str = None,
+        password: str = None,
+        auth_token: str = None,
+        overwrite: bool = False,
+        save: bool = True,
+    ) -> None:
         """
         Create a private Qobuz API client.
         """
@@ -211,19 +219,23 @@ class PrivateAPI:
         if user_agent:
             self.session.headers["User-Agent"] = user_agent
 
-        if (auth_token is None and _config.has_section(self._NAME)
-                and not overwrite):
+        if auth_token is None and _config.has_section(self._NAME) and not overwrite:
             flow = _config.get(self._NAME, "flow") or None
             auth_token = _config.get(self._NAME, "auth_token")
             app_id = _config.get(self._NAME, "app_id")
             app_secret = _config.get(self._NAME, "app_secret")
 
-        self.set_flow(flow, app_id=app_id, app_secret=app_secret,
-                      auth_token=auth_token, browser=browser, save=save)
+        self.set_flow(
+            flow,
+            app_id=app_id,
+            app_secret=app_secret,
+            auth_token=auth_token,
+            browser=browser,
+            save=save,
+        )
         self.set_auth_token(auth_token, email=email, password=password)
 
     def _check_authentication(self, endpoint: str) -> None:
-
         """
         Check if the user is authenticated for the desired endpoint.
 
@@ -234,12 +246,10 @@ class PrivateAPI:
         """
 
         if not self._flow:
-            emsg = (f"{self._NAME}.{endpoint}() requires user "
-                    "authentication.")
+            emsg = f"{self._NAME}.{endpoint}() requires user " "authentication."
             raise RuntimeError(emsg)
 
     def _get_json(self, url: str, **kwargs) -> dict:
-
         """
         Send a GET request and return the JSON-encoded content of the
         response.
@@ -261,7 +271,6 @@ class PrivateAPI:
         return self._request("get", url, **kwargs).json()
 
     def _request(self, method: str, url: str, **kwargs) -> requests.Response:
-
         """
         Construct and send a request with status code checking.
 
@@ -289,7 +298,6 @@ class PrivateAPI:
         return r
 
     def _set_app_credentials(self, app_id: str, app_secret: str) -> None:
-
         """
         Set the Qobuz app ID and secret.
         """
@@ -297,7 +305,7 @@ class PrivateAPI:
         if not app_id or not app_secret:
             js = re.search(
                 "/resources/.*/bundle.js",
-                self.session.get(f"{self.WEB_URL}/login").text
+                self.session.get(f"{self.WEB_URL}/login").text,
             ).group(0)
             bundle = self.session.get(f"{self.WEB_URL}{js}").text
             app_id = re.search(
@@ -306,21 +314,29 @@ class PrivateAPI:
             app_secret = [
                 base64.b64decode("".join((s, *m.groups()))[:-44]).decode()
                 for s, m in (
-                    (s, re.search(f'(?:{c.capitalize()}",info:")(.*?)(?:",extras:")'
-                                  '(.*?)(?:"},{offset)',
-                                  bundle))
-                    for s, c in re.findall(r'(?:[a-z].initialSeed\(")(.*?)'
-                                           r'(?:",window.utimezone.)(.*?)\)',
-                                           bundle)) if m
+                    (
+                        s,
+                        re.search(
+                            f'(?:{c.capitalize()}",info:")(.*?)(?:",extras:")'
+                            '(.*?)(?:"},{offset)',
+                            bundle,
+                        ),
+                    )
+                    for s, c in re.findall(
+                        r'(?:[a-z].initialSeed\(")(.*?)'
+                        r'(?:",window.utimezone.)(.*?)\)',
+                        bundle,
+                    )
+                )
+                if m
             ][1]
 
         self.session.headers["X-App-Id"] = app_id
         self._app_secret = app_secret
 
     def set_auth_token(
-            self, auth_token: str = None, *, email: str = None,
-            password: str = None) -> None:
-
+        self, auth_token: str = None, *, email: str = None, password: str = None
+    ) -> None:
         """
         Set the private Qobuz API user authentication token.
 
@@ -347,34 +363,38 @@ class PrivateAPI:
 
                         with sync_playwright() as playwright:
                             browser = playwright.firefox.launch(headless=False)
-                            context = browser.new_context(
-                                record_har_path=har_file
-                            )
+                            context = browser.new_context(record_har_path=har_file)
                             page = context.new_page()
                             page.goto(f"{self.WEB_URL}/login", timeout=0)
-                            page.wait_for_url(f"{self.WEB_URL}/featured",
-                                              wait_until="commit")
+                            page.wait_for_url(
+                                f"{self.WEB_URL}/featured", wait_until="commit"
+                            )
                             context.close()
                             browser.close()
 
                         with open(har_file, "r") as f:
                             regex = re.search(
                                 '(?<=")https://www.qobuz.com/api.json/0.2/oauth/callback?(.*)(?=")',
-                                f.read()
+                                f.read(),
                             )
                         har_file.unlink()
 
                         if regex is None:
                             raise RuntimeError("Authentication failed.")
-                        auth_token = self._request("get", regex.group(0)).json()["token"]
+                        auth_token = self._request("get", regex.group(0)).json()[
+                            "token"
+                        ]
                     else:
-                        emsg = ("No account email or password provided "
-                                "for the password flow.")
+                        emsg = (
+                            "No account email or password provided "
+                            "for the password flow."
+                        )
                         raise ValueError(emsg)
                 else:
                     r = self._request(
-                        "post", f"{self.API_URL}/user/login",
-                        params={"email": email, "password": password}
+                        "post",
+                        f"{self.API_URL}/user/login",
+                        params={"email": email, "password": password},
                     ).json()
                     auth_token = r["user_auth_token"]
 
@@ -383,7 +403,7 @@ class PrivateAPI:
                     "flow": self._flow,
                     "auth_token": auth_token,
                     "app_id": self.session.headers["X-App-Id"],
-                    "app_secret": self._app_secret
+                    "app_secret": self._app_secret,
                 }
                 with open(DIR_HOME / "minim.cfg", "w") as f:
                     _config.write(f)
@@ -393,19 +413,24 @@ class PrivateAPI:
         if self._flow:
             me = self.get_profile()
             self._user_id = me["id"]
-            self._sub = (
-                me["subscription"] is not None
-                and datetime.datetime.now()
-                <= datetime.datetime.strptime(
-                    me["subscription"]["end_date"], "%Y-%m-%d"
-                ) + datetime.timedelta(days=1)
+            self._sub = me[
+                "subscription"
+            ] is not None and datetime.datetime.now() <= datetime.datetime.strptime(
+                me["subscription"]["end_date"], "%Y-%m-%d"
+            ) + datetime.timedelta(
+                days=1
             )
 
     def set_flow(
-            self, flow: str, *, app_id: str = None, app_secret: str = None,
-            auth_token: str = None, browser: bool = False, save: bool = True
-        ) -> None:
-
+        self,
+        flow: str,
+        *,
+        app_id: str = None,
+        app_secret: str = None,
+        auth_token: str = None,
+        browser: bool = False,
+        save: bool = True,
+    ) -> None:
         """
         Set the authorization flow.
 
@@ -444,8 +469,10 @@ class PrivateAPI:
         """
 
         if flow and flow not in self._FLOWS:
-            emsg = (f"Invalid authorization flow ({flow=}). "
-                    f"Valid values: {', '.join(self._FLOWS)}.")
+            emsg = (
+                f"Invalid authorization flow ({flow=}). "
+                f"Valid values: {', '.join(self._FLOWS)}."
+            )
             raise ValueError(emsg)
 
         self._flow = flow
@@ -462,15 +489,16 @@ class PrivateAPI:
         app_id = app_id or os.environ.get("QOBUZ_PRIVATE_APP_ID")
         app_secret = app_secret or os.environ.get("QOBUZ_PRIVATE_APP_SECRET")
         if (app_id is None or app_secret is None) and auth_token is not None:
-            emsg = ("App credentials are required when an user "
-                    "authentication token is provided.")
+            emsg = (
+                "App credentials are required when an user "
+                "authentication token is provided."
+            )
 
         self._set_app_credentials(app_id, app_secret)
 
     ### ALBUMS ################################################################
 
     def get_album(self, album_id: str) -> dict[str, Any]:
-
         """
         Get Qobuz catalog information for a single album.
 
@@ -639,13 +667,13 @@ class PrivateAPI:
                   }
         """
 
-        return self._get_json(f"{self.API_URL}/album/get",
-                              params={"album_id": album_id})
+        return self._get_json(
+            f"{self.API_URL}/album/get", params={"album_id": album_id}
+        )
 
     def get_featured_albums(
-            self, type: str = "new-releases", *, limit: int = None,
-            offset: int = None) -> dict[str, Any]:
-
+        self, type: str = "new-releases", *, limit: int = None, offset: int = None
+    ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for featured albums.
 
@@ -762,30 +790,46 @@ class PrivateAPI:
                   }
         """
 
-        if type not in \
-                (ALBUM_FEATURE_TYPES := {
-                    "best-sellers", "editor-picks", "ideal-discography",
-                    "most-featured", "most-streamed", "new-releases",
-                    "new-releases-full", "press-awards", "recent-releases",
-                    "qobuzissims", "harmonia-mundi", "universal-classic",
-                    "universal-jazz", "universal-jeunesse", "universal-chanson"
-                }):
-            emsg = ("Invalid feature type. Valid values: "
-                    f"types are {', '.join(ALBUM_FEATURE_TYPES)}.")
+        if type not in (
+            ALBUM_FEATURE_TYPES := {
+                "best-sellers",
+                "editor-picks",
+                "ideal-discography",
+                "most-featured",
+                "most-streamed",
+                "new-releases",
+                "new-releases-full",
+                "press-awards",
+                "recent-releases",
+                "qobuzissims",
+                "harmonia-mundi",
+                "universal-classic",
+                "universal-jazz",
+                "universal-jeunesse",
+                "universal-chanson",
+            }
+        ):
+            emsg = (
+                "Invalid feature type. Valid values: "
+                f"types are {', '.join(ALBUM_FEATURE_TYPES)}."
+            )
             raise ValueError(emsg)
 
         return self._get_json(
             f"{self.API_URL}/album/getFeatured",
-            params={"type": type, "limit": limit, "offset": offset}
+            params={"type": type, "limit": limit, "offset": offset},
         )
 
     ### ARTISTS ###############################################################
 
     def get_artist(
-            self, artist_id: Union[int, str], *,
-            extras: Union[str, list[str]] = None,
-            limit: int = None, offset: int = None) -> dict[str, Any]:
-
+        self,
+        artist_id: Union[int, str],
+        *,
+        extras: Union[str, list[str]] = None,
+        limit: int = None,
+        offset: int = None,
+    ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for a single artist.
 
@@ -854,19 +898,26 @@ class PrivateAPI:
             f"{self.API_URL}/artist/get",
             params={
                 "artist_id": artist_id,
-                "extra": extras if extras is None or isinstance(extras, str)
-                         else ",".join(extras),
+                "extra": (
+                    extras
+                    if extras is None or isinstance(extras, str)
+                    else ",".join(extras)
+                ),
                 "limit": limit,
-                "offset": offset
-            }
+                "offset": offset,
+            },
         )
 
     ### LABELS ################################################################
 
     def get_label(
-            self, label_id: Union[int, str], *, albums: bool = False,
-            limit: int = None, offset: int = None) -> dict[str, Any]:
-
+        self,
+        label_id: Union[int, str],
+        *,
+        albums: bool = False,
+        limit: int = None,
+        offset: int = None,
+    ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for a record label.
 
@@ -921,16 +972,20 @@ class PrivateAPI:
                 "label_id": label_id,
                 "extra": "albums" if albums else None,
                 "limit": limit,
-                "offset": offset
-            }
+                "offset": offset,
+            },
         )
 
     ### PLAYLISTS #############################################################
 
     def get_playlist(
-            self, playlist_id: Union[int, str], *, tracks: bool = True,
-            limit: int = None, offset: int = None) -> dict[str, Any]:
-
+        self,
+        playlist_id: Union[int, str],
+        *,
+        tracks: bool = True,
+        limit: int = None,
+        offset: int = None,
+    ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for a playlist.
 
@@ -1128,14 +1183,13 @@ class PrivateAPI:
                 "playlist_id": playlist_id,
                 "extra": "tracks" if tracks else None,
                 "limit": limit,
-                "offset": offset
-            }
+                "offset": offset,
+            },
         )
 
     def get_featured_playlists(
-            self, type: str = "editor-picks", *, limit: int = None,
-            offset: int = None) -> dict[str, Any]:
-
+        self, type: str = "editor-picks", *, limit: int = None, offset: int = None
+    ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for featured playlists.
 
@@ -1223,20 +1277,21 @@ class PrivateAPI:
                   }
         """
 
-        if type not in \
-                (PLAYLIST_FEATURE_TYPES := {"editor-picks", "last-created"}):
-            emsg = ("Invalid feature type. Valid types: "
-                    f"{', '.join(PLAYLIST_FEATURE_TYPES)}.")
+        if type not in (PLAYLIST_FEATURE_TYPES := {"editor-picks", "last-created"}):
+            emsg = (
+                "Invalid feature type. Valid types: "
+                f"{', '.join(PLAYLIST_FEATURE_TYPES)}."
+            )
             raise ValueError(emsg)
 
         return self._get_json(
             f"{self.API_URL}/playlist/getFeatured",
-            params={"type": type, "limit": limit, "offset": offset}
+            params={"type": type, "limit": limit, "offset": offset},
         )["playlists"]
 
     def get_user_playlists(
-            self, *, limit: int = None, offset: int = None) -> dict[str, Any]:
-
+        self, *, limit: int = None, offset: int = None
+    ) -> dict[str, Any]:
         """
         Get the current user's custom and favorite playlists.
 
@@ -1314,13 +1369,17 @@ class PrivateAPI:
 
         return self._get_json(
             f"{self.API_URL}/playlist/getUserPlaylists",
-            params={"limit": limit, "offset": offset}
+            params={"limit": limit, "offset": offset},
         )["playlists"]
 
     def create_playlist(
-            self, name: str, *, description: str = None, public: bool = True,
-            collaborative: bool = False) -> dict[str, Any]:
-
+        self,
+        name: str,
+        *,
+        description: str = None,
+        public: bool = True,
+        collaborative: bool = False,
+    ) -> dict[str, Any]:
         """
         Create a user playlist.
 
@@ -1375,8 +1434,11 @@ class PrivateAPI:
 
         self._check_authentication("create_playlist")
 
-        data = {"name": name, "is_public": str(public).lower(),
-                "is_collaborative": str(collaborative).lower()}
+        data = {
+            "name": name,
+            "is_public": str(public).lower(),
+            "is_collaborative": str(collaborative).lower(),
+        }
         if description:
             data["description"] = description
         return self._request(
@@ -1384,10 +1446,14 @@ class PrivateAPI:
         ).json()
 
     def update_playlist(
-            self, playlist_id: Union[int, str], *, name: str = None,
-            description: str = None, public: bool = None,
-            collaborative: bool = None) -> dict[str, Any]:
-
+        self,
+        playlist_id: Union[int, str],
+        *,
+        name: str = None,
+        description: str = None,
+        public: bool = None,
+        collaborative: bool = None,
+    ) -> dict[str, Any]:
         """
         Update the title, description, and/or privacy of a playlist
         owned by the current user.
@@ -1457,13 +1523,13 @@ class PrivateAPI:
             data["is_public"] = str(public).lower()
         if collaborative is not None:
             data["is_collaborative"] = str(collaborative).lower()
-        return self._request("post", f"{self.API_URL}/playlist/update",
-                             data=data).json()
+        return self._request(
+            "post", f"{self.API_URL}/playlist/update", data=data
+        ).json()
 
     def update_playlist_position(
-            self, from_playlist_id: Union[int, str],
-            to_playlist_id: Union[int, str]) -> None:
-
+        self, from_playlist_id: Union[int, str], to_playlist_id: Union[int, str]
+    ) -> None:
         """
         Organize a user's playlists.
 
@@ -1488,15 +1554,19 @@ class PrivateAPI:
 
         self._check_authentication("update_playlist_position")
 
-        self._request("post",
-                      f"{self.API_URL}/playlist/updatePlaylistsPosition",
-                      data={"playlist_ids": [from_playlist_id, to_playlist_id]})
+        self._request(
+            "post",
+            f"{self.API_URL}/playlist/updatePlaylistsPosition",
+            data={"playlist_ids": [from_playlist_id, to_playlist_id]},
+        )
 
     def add_playlist_tracks(
-            self, playlist_id: Union[int, str],
-            track_ids: Union[int, str, list[Union[int, str]]], *,
-            duplicate: bool = False) -> dict[str, Any]:
-
+        self,
+        playlist_id: Union[int, str],
+        track_ids: Union[int, str, list[Union[int, str]]],
+        *,
+        duplicate: bool = False,
+    ) -> dict[str, Any]:
         """
         Add tracks to a user playlist.
 
@@ -1556,19 +1626,21 @@ class PrivateAPI:
         if isinstance(track_ids, list):
             track_ids = ",".join(str(t) for t in track_ids)
         return self._request(
-            "post", f"{self.API_URL}/playlist/addTracks",
+            "post",
+            f"{self.API_URL}/playlist/addTracks",
             data={
                 "playlist_id": playlist_id,
                 "track_ids": track_ids,
-                "no_duplicate": str(not duplicate).lower()
-            }
+                "no_duplicate": str(not duplicate).lower(),
+            },
         ).json()
 
     def move_playlist_tracks(
-            self, playlist_id: Union[int, str],
-            playlist_track_ids: Union[int, str, list[Union[int, str]]],
-            insert_before: int) -> dict[str, Any]:
-
+        self,
+        playlist_id: Union[int, str],
+        playlist_track_ids: Union[int, str, list[Union[int, str]]],
+        insert_before: int,
+    ) -> dict[str, Any]:
         """
         Move tracks in a user playlist.
 
@@ -1630,19 +1702,20 @@ class PrivateAPI:
         if isinstance(playlist_track_ids, list):
             playlist_track_ids = ",".join(str(t) for t in playlist_track_ids)
         return self._request(
-            "post", f"{self.API_URL}/playlist/updateTracksPosition",
+            "post",
+            f"{self.API_URL}/playlist/updateTracksPosition",
             data={
                 "playlist_id": playlist_id,
                 "playlist_track_ids": playlist_track_ids,
-                "insert_before": insert_before
-            }
+                "insert_before": insert_before,
+            },
         ).json()
 
     def delete_playlist_tracks(
-            self, playlist_id: Union[int, str],
-            playlist_track_ids: Union[int, str, list[Union[int, str]]]
-        ) -> dict[str, Any]:
-
+        self,
+        playlist_id: Union[int, str],
+        playlist_track_ids: Union[int, str, list[Union[int, str]]],
+    ) -> dict[str, Any]:
         """
         Delete tracks from a user playlist.
 
@@ -1701,13 +1774,12 @@ class PrivateAPI:
             playlist_track_ids = ",".join(str(t) for t in playlist_track_ids)
 
         return self._request(
-            "post", f"{self.API_URL}/playlist/deleteTracks",
-            data={"playlist_id": playlist_id,
-                  "playlist_track_ids": playlist_track_ids}
+            "post",
+            f"{self.API_URL}/playlist/deleteTracks",
+            data={"playlist_id": playlist_id, "playlist_track_ids": playlist_track_ids},
         ).json()
 
     def delete_playlist(self, playlist_id: Union[int, str]) -> None:
-
         """
         Delete a user playlist.
 
@@ -1726,11 +1798,11 @@ class PrivateAPI:
 
         self._check_authentication("delete_playlist")
 
-        self._request("post", f"{self.API_URL}/playlist/delete",
-                      data={"playlist_id": playlist_id})
+        self._request(
+            "post", f"{self.API_URL}/playlist/delete", data={"playlist_id": playlist_id}
+        )
 
     def favorite_playlist(self, playlist_id: Union[int, str]) -> None:
-
         """
         Subscribe to a playlist.
 
@@ -1749,11 +1821,13 @@ class PrivateAPI:
 
         self._check_authentication("favorite_playlist")
 
-        self._request("post", f"{self.API_URL}/playlist/subscribe",
-                      data={"playlist_id": playlist_id})
+        self._request(
+            "post",
+            f"{self.API_URL}/playlist/subscribe",
+            data={"playlist_id": playlist_id},
+        )
 
     def unfavorite_playlist(self, playlist_id: Union[int, str]) -> None:
-
         """
         Unsubscribe from a playlist.
 
@@ -1772,16 +1846,25 @@ class PrivateAPI:
 
         self._check_authentication("unfavorite_playlist")
 
-        self._request("post", f"{self.API_URL}/playlist/unsubscribe",
-                      data={"playlist_id": playlist_id})
+        self._request(
+            "post",
+            f"{self.API_URL}/playlist/unsubscribe",
+            data={"playlist_id": playlist_id},
+        )
 
     ### SEARCH ################################################################
 
     def search(
-            self, query: str, type: str = None, *, hi_res: bool = False,
-            new_release: bool = False, strict: bool = False, limit: int = 10,
-            offset: int = 0) -> dict[str, Any]:
-
+        self,
+        query: str,
+        type: str = None,
+        *,
+        hi_res: bool = False,
+        new_release: bool = False,
+        strict: bool = False,
+        limit: int = 10,
+        offset: int = 0,
+    ) -> dict[str, Any]:
         """
         Search Qobuz for media and performers.
 
@@ -2140,11 +2223,16 @@ class PrivateAPI:
                   }
         """
 
-        if type and type not in \
-                (SEARCH_TYPES := {"MainArtist", "Composer", "Performer",
-                                  "ReleaseName", "Label"}):
-            emsg = ("Invalid search type. Valid values: "
-                    f"{', '.join(SEARCH_TYPES)}")
+        if type and type not in (
+            SEARCH_TYPES := {
+                "MainArtist",
+                "Composer",
+                "Performer",
+                "ReleaseName",
+                "Label",
+            }
+        ):
+            emsg = "Invalid search type. Valid values: " f"{', '.join(SEARCH_TYPES)}"
             raise ValueError(emsg)
 
         if strict:
@@ -2158,13 +2246,12 @@ class PrivateAPI:
 
         return self._get_json(
             f"{self.API_URL}/catalog/search",
-            params={"query": query, "limit": limit, "offset": offset}
+            params={"query": query, "limit": limit, "offset": offset},
         )
 
     ### TRACKS ################################################################
 
     def get_track(self, track_id: Union[int, str]) -> dict[str, Any]:
-
         """
         Get Qobuz catalog information for a track.
 
@@ -2327,13 +2414,17 @@ class PrivateAPI:
                   }
         """
 
-        return self._get_json(f"{self.API_URL}/track/get",
-                              params={"track_id": track_id})
+        return self._get_json(
+            f"{self.API_URL}/track/get", params={"track_id": track_id}
+        )
 
     def get_track_performers(
-            self, track_id: Union[int, str] = None, *, performers: str = None,
-            roles: Union[list[str], set[str]] = None) -> dict[str, list]:
-
+        self,
+        track_id: Union[int, str] = None,
+        *,
+        performers: str = None,
+        roles: Union[list[str], set[str]] = None,
+    ) -> dict[str, list]:
         """
         Get credits for a track.
 
@@ -2374,9 +2465,11 @@ class PrivateAPI:
 
         if performers is None:
             if track_id is None:
-                emsg = ("Either a Qobuz track ID or an unformatted "
-                        "string containing the track credits must be "
-                        "provided.")
+                emsg = (
+                    "Either a Qobuz track ID or an unformatted "
+                    "string containing the track credits must be "
+                    "provided."
+                )
                 raise ValueError(emsg)
             performers = self.get_track(track_id)["performers"]
 
@@ -2386,9 +2479,8 @@ class PrivateAPI:
         return _parse_performers(performers, roles=roles)
 
     def get_track_file_url(
-            self, track_id: Union[int, str], format_id: Union[int, str] = 27
-        ) -> dict[str, Any]:
-
+        self, track_id: Union[int, str], format_id: Union[int, str] = 27
+    ) -> dict[str, Any]:
         """
         Get the file URL for a track.
 
@@ -2446,14 +2538,15 @@ class PrivateAPI:
         """
 
         if not self._flow or not self._sub:
-            wmsg = ("No user authentication or Qobuz streaming plan "
-                    "detected. The URL, if available, will lead to a "
-                    "30-second preview of the track.")
+            wmsg = (
+                "No user authentication or Qobuz streaming plan "
+                "detected. The URL, if available, will lead to a "
+                "30-second preview of the track."
+            )
             logging.warning(wmsg)
 
         if int(format_id) not in (FORMAT_IDS := {5, 6, 7, 27}):
-            emsg = ("Invalid format ID. Valid values: "
-                    f"{', '.join(FORMAT_IDS)}.")
+            emsg = "Invalid format ID. Valid values: " f"{', '.join(FORMAT_IDS)}."
             raise ValueError(emsg)
 
         timestamp = datetime.datetime.now().timestamp()
@@ -2462,18 +2555,19 @@ class PrivateAPI:
             params={
                 "request_ts": timestamp,
                 "request_sig": hashlib.md5(
-                    (f"trackgetFileUrlformat_id{format_id}"
-                     f"intentstreamtrack_id{track_id}"
-                     f"{timestamp}{self._app_secret}").encode()
+                    (
+                        f"trackgetFileUrlformat_id{format_id}"
+                        f"intentstreamtrack_id{track_id}"
+                        f"{timestamp}{self._app_secret}"
+                    ).encode()
                 ).hexdigest(),
                 "track_id": track_id,
                 "format_id": format_id,
-                "intent": "stream"
-            }
+                "intent": "stream",
+            },
         )
 
     def get_curated_tracks(self) -> list[dict[str, Any]]:
-
         """
         Get weekly curated tracks for the user.
 
@@ -2633,15 +2727,15 @@ class PrivateAPI:
 
         self._check_authentication("get_curated_tracks")
 
-        return self._get_json(f"{self.API_URL}/dynamic-tracks/get",
-                              params={"type": "weekly"})
+        return self._get_json(
+            f"{self.API_URL}/dynamic-tracks/get", params={"type": "weekly"}
+        )
 
     ### STREAMS ###############################################################
 
     def get_track_stream(
-            self, track_id: Union[int, str], *, format_id: Union[int, str] = 27
-        ) -> tuple[bytes, str]:
-
+        self, track_id: Union[int, str], *, format_id: Union[int, str] = 27
+    ) -> tuple[bytes, str]:
         """
         Get the audio stream data for a track.
 
@@ -2689,9 +2783,8 @@ class PrivateAPI:
             return r.content, file["mime_type"]
 
     def get_collection_streams(
-            self, id: Union[int, str], type: str, *,
-            format_id: Union[int, str] = 27) -> list[tuple[bytes, str]]:
-
+        self, id: Union[int, str], type: str, *, format_id: Union[int, str] = 27
+    ) -> list[tuple[bytes, str]]:
         """
         Get audio stream data for all tracks in an album or a playlist.
 
@@ -2735,22 +2828,28 @@ class PrivateAPI:
         """
 
         if type not in (COLLECTION_TYPES := {"album", "playlist"}):
-            emsg = ("Invalid collection type. Valid values: "
-                    f"{', '.join(COLLECTION_TYPES)}.")
+            emsg = (
+                "Invalid collection type. Valid values: "
+                f"{', '.join(COLLECTION_TYPES)}."
+            )
             raise ValueError(emsg)
 
         if type == "album":
             data = self.get_album(id)
         elif type == "playlist":
             data = self.get_playlist(id, limit=500)
-        return [self.get_track_stream(track["id"], format_id=format_id)
-                if track["streamable"] else None
-                for track in data["tracks"]["items"]]
+        return [
+            (
+                self.get_track_stream(track["id"], format_id=format_id)
+                if track["streamable"]
+                else None
+            )
+            for track in data["tracks"]["items"]
+        ]
 
     ### USER ##################################################################
 
     def get_profile(self) -> dict[str, Any]:
-
         """
         Get the current user's profile information.
 
@@ -2844,9 +2943,8 @@ class PrivateAPI:
         return self._get_json(f"{self.API_URL}/user/get")
 
     def get_favorites(
-            self, type: str = None, *, limit: int = None,
-            offset: int = None) -> dict[str, dict]:
-
+        self, type: str = None, *, limit: int = None, offset: int = None
+    ) -> dict[str, dict]:
         """
         Get the current user's favorite albums, artists, and tracks.
 
@@ -2905,8 +3003,7 @@ class PrivateAPI:
         self._check_authentication("get_favorites")
 
         if type and type not in (MEDIA_TYPES := {"albums", "artists", "tracks"}):
-            emsg = ("Invalid media type. Valid values: "
-                    f"{', '.join(MEDIA_TYPES)}.")
+            emsg = "Invalid media type. Valid values: " f"{', '.join(MEDIA_TYPES)}."
             raise ValueError(emsg)
 
         timestamp = datetime.datetime.now().timestamp()
@@ -2915,19 +3012,19 @@ class PrivateAPI:
             params={
                 "request_ts": timestamp,
                 "request_sig": hashlib.md5(
-                    (f"favoritegetUserFavorites{timestamp}"
-                     f"{self._app_secret}").encode()
+                    (
+                        f"favoritegetUserFavorites{timestamp}" f"{self._app_secret}"
+                    ).encode()
                 ).hexdigest(),
                 "type": type,
                 "limit": limit,
-                "offset": offset
-            }
+                "offset": offset,
+            },
         )
 
     def get_purchases(
-            self, type: str = "albums", *, limit: int = None,
-            offset: int = None) -> dict[str, Any]:
-
+        self, type: str = "albums", *, limit: int = None, offset: int = None
+    ) -> dict[str, Any]:
         """
         Get the current user's purchases.
 
@@ -2976,20 +3073,21 @@ class PrivateAPI:
         self._check_authentication("get_purchases")
 
         if type not in (MEDIA_TYPES := {"albums", "tracks"}):
-            emsg = ("Invalid media type. Valid values: "
-                    f"{', '.join(MEDIA_TYPES)}.")
+            emsg = "Invalid media type. Valid values: " f"{', '.join(MEDIA_TYPES)}."
             raise ValueError(emsg)
 
         return self._get_json(
             f"{self.API_URL}/purchase/getUserPurchases",
-            params={"type": type, "limit": limit, "offset": offset}
+            params={"type": type, "limit": limit, "offset": offset},
         )[type]
 
     def favorite_items(
-            self, *, album_ids: Union[str, list[str]] = None,
-            artist_ids: Union[int, str, list[Union[int, str]]] = None,
-            track_ids: Union[int, str, list[Union[int, str]]] = None) -> None:
-
+        self,
+        *,
+        album_ids: Union[str, list[str]] = None,
+        artist_ids: Union[int, str, list[Union[int, str]]] = None,
+        track_ids: Union[int, str, list[Union[int, str]]] = None,
+    ) -> None:
         """
         Favorite albums, artists, and/or tracks.
 
@@ -3018,24 +3116,32 @@ class PrivateAPI:
 
         data = {}
         if album_ids:
-            data["album_ids"] = ",".join(str(a) for a in album_ids) \
-                                if isinstance(album_ids, list) \
-                                else album_ids
+            data["album_ids"] = (
+                ",".join(str(a) for a in album_ids)
+                if isinstance(album_ids, list)
+                else album_ids
+            )
         if artist_ids:
-            data["artist_ids"] = ",".join(str(a) for a in artist_ids) \
-                                 if isinstance(artist_ids, list) \
-                                 else artist_ids
+            data["artist_ids"] = (
+                ",".join(str(a) for a in artist_ids)
+                if isinstance(artist_ids, list)
+                else artist_ids
+            )
         if track_ids:
-            data["track_ids"] = ",".join(str(a) for a in track_ids) \
-                                if isinstance(track_ids, list) \
-                                else track_ids
+            data["track_ids"] = (
+                ",".join(str(a) for a in track_ids)
+                if isinstance(track_ids, list)
+                else track_ids
+            )
         self._request("post", f"{self.API_URL}/favorite/create", data=data)
 
     def unfavorite_items(
-            self, *, album_ids: Union[str, list[str]] = None,
-            artist_ids: Union[int, str, list[Union[int, str]]] = None,
-            track_ids: Union[int, str, list[Union[int, str]]] = None) -> None:
-
+        self,
+        *,
+        album_ids: Union[str, list[str]] = None,
+        artist_ids: Union[int, str, list[Union[int, str]]] = None,
+        track_ids: Union[int, str, list[Union[int, str]]] = None,
+    ) -> None:
         """
         Unfavorite albums, artists, and/or tracks.
 
@@ -3064,15 +3170,21 @@ class PrivateAPI:
 
         data = {}
         if album_ids:
-            data["album_ids"] = ",".join(str(a) for a in album_ids) \
-                                if isinstance(album_ids, list) \
-                                else album_ids
+            data["album_ids"] = (
+                ",".join(str(a) for a in album_ids)
+                if isinstance(album_ids, list)
+                else album_ids
+            )
         if artist_ids:
-            data["artist_ids"] = ",".join(str(a) for a in artist_ids) \
-                                 if isinstance(artist_ids, list) \
-                                 else artist_ids
+            data["artist_ids"] = (
+                ",".join(str(a) for a in artist_ids)
+                if isinstance(artist_ids, list)
+                else artist_ids
+            )
         if track_ids:
-            data["track_ids"] = ",".join(str(a) for a in track_ids) \
-                                if isinstance(track_ids, list) \
-                                else track_ids
+            data["track_ids"] = (
+                ",".join(str(a) for a in track_ids)
+                if isinstance(track_ids, list)
+                else track_ids
+            )
         self._request("post", f"{self.API_URL}/favorite/delete", data=data)

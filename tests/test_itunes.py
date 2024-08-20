@@ -2,7 +2,8 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, f"{Path(__file__).parents[1].resolve()}/src")
-from minim import itunes # noqa: E402
+from minim import itunes  # noqa: E402
+
 
 class TestSearchAPI:
 
@@ -12,32 +13,35 @@ class TestSearchAPI:
 
     def test_search(self):
         term = "Jack Johnson"
-        assert any(any(term in v for v in r.values() if isinstance(v, str))
-                   for r in self.obj.search(term)["results"])
+        assert any(
+            any(term in v for v in r.values() if isinstance(v, str))
+            for r in self.obj.search(term)["results"]
+        )
 
     def test_search_limit(self):
         limit = 25
-        assert (self.obj.search("Jack Johnson", limit=limit)["resultCount"] 
-                <= limit)
+        assert self.obj.search("Jack Johnson", limit=limit)["resultCount"] <= limit
 
     def test_search_entity(self):
-        assert all(r["kind"] == "music-video"
-                   for r in self.obj.search("Jack Johnson",
-                                            entity="musicVideo")["results"])
+        assert all(
+            r["kind"] == "music-video"
+            for r in self.obj.search("Jack Johnson", entity="musicVideo")["results"]
+        )
 
     def test_search_country(self):
-        assert all(r["country"] == "CAN"
-                   for r in self.obj.search("Jim Jones", 
-                                            country="CA")["results"])
+        assert all(
+            r["country"] == "CAN"
+            for r in self.obj.search("Jim Jones", country="CA")["results"]
+        )
 
     def test_search_country_entity(self):
-        assert all(r["kind"] == "software" and r["currency"] == "USD"
-                   for r in self.obj.search("Yelp", country="US",
-                                            entity="software")["results"])
+        assert all(
+            r["kind"] == "software" and r["currency"] == "USD"
+            for r in self.obj.search("Yelp", country="US", entity="software")["results"]
+        )
 
     def test_lookup_artist(self):
-        assert (self.obj.lookup(909253)["results"][0]["artistName"] 
-                == "Jack Johnson")
+        assert self.obj.lookup(909253)["results"][0]["artistName"] == "Jack Johnson"
 
     def test_lookup_app(self):
         assert "Yelp" in self.obj.lookup(284910350)["results"][0]["trackName"]
@@ -60,8 +64,9 @@ class TestSearchAPI:
         )
 
     def test_lookup_amg_artists_entity_limit_sort(self):
-        r = self.obj.lookup(amg_artist_id="468749,5723", entity="album", 
-                            limit=5, sort="recent")
+        r = self.obj.lookup(
+            amg_artist_id="468749,5723", entity="album", limit=5, sort="recent"
+        )
         assert (
             r["results"][0]["wrapperType"] == "artist"
             and r["results"][6]["wrapperType"] == "artist"
@@ -89,5 +94,9 @@ class TestSearchAPI:
         )
 
     def test_lookup_bundle(self):
-        assert ("Yelp" in self.obj.lookup(bundle_id="com.yelp.yelpiphone")
-                ["results"][0]["trackName"])
+        assert (
+            "Yelp"
+            in self.obj.lookup(bundle_id="com.yelp.yelpiphone")["results"][0][
+                "trackName"
+            ]
+        )

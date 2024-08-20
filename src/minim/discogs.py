@@ -21,8 +21,16 @@ import webbrowser
 
 import requests
 
-from . import (FOUND_FLASK, FOUND_PLAYWRIGHT, VERSION, REPOSITORY_URL,
-               DIR_HOME, DIR_TEMP, _config)
+from . import (
+    FOUND_FLASK,
+    FOUND_PLAYWRIGHT,
+    VERSION,
+    REPOSITORY_URL,
+    DIR_HOME,
+    DIR_TEMP,
+    _config,
+)
+
 if FOUND_FLASK:
     from flask import Flask, request
 if FOUND_PLAYWRIGHT:
@@ -30,33 +38,28 @@ if FOUND_PLAYWRIGHT:
 
 __all__ = ["API"]
 
-class _DiscogsRedirectHandler(BaseHTTPRequestHandler):
 
+class _DiscogsRedirectHandler(BaseHTTPRequestHandler):
     """
     HTTP request handler for the Discogs OAuth 1.0a flow.
     """
 
     def do_GET(self):
-
         """
         Handles an incoming GET request and parses the query string.
         """
 
         self.server.response = dict(
-            urllib.parse.parse_qsl(
-                urllib.parse.urlparse(f"{self.path}").query
-            )
+            urllib.parse.parse_qsl(urllib.parse.urlparse(f"{self.path}").query)
         )
         self.send_response(200)
         self.send_header("Content-Type", "text/html")
         self.end_headers()
         status = "denied" if "denied" in self.server.response else "granted"
-        self.wfile.write(
-            f"Access {status}. You may close this page now.".encode()
-        )
+        self.wfile.write(f"Access {status}. You may close this page now.".encode())
+
 
 class API:
-
     """
     Discogs API client.
 
@@ -216,12 +219,20 @@ class API:
     REQUEST_TOKEN_URL = f"{API_URL}/oauth/request_token"
 
     def __init__(
-            self, *, consumer_key: str = None, consumer_secret: str = None,
-            flow: str = None, browser: bool = False, web_framework: str = None,
-            port: Union[int, str] = 8888, redirect_uri: str = None,
-            access_token: str = None, access_token_secret: str = None,
-            overwrite: bool = False, save: bool = True) -> None:
-
+        self,
+        *,
+        consumer_key: str = None,
+        consumer_secret: str = None,
+        flow: str = None,
+        browser: bool = False,
+        web_framework: str = None,
+        port: Union[int, str] = 8888,
+        redirect_uri: str = None,
+        access_token: str = None,
+        access_token_secret: str = None,
+        overwrite: bool = False,
+        save: bool = True,
+    ) -> None:
         """
         Create a Discogs API client.
         """
@@ -229,8 +240,7 @@ class API:
         self.session = requests.Session()
         self.session.headers["User-Agent"] = f"Minim/{VERSION} +{REPOSITORY_URL}"
 
-        if (access_token is None and _config.has_section(self._NAME)
-                and not overwrite):
+        if access_token is None and _config.has_section(self._NAME) and not overwrite:
             flow = _config.get(self._NAME, "flow")
             access_token = _config.get(self._NAME, "access_token")
             access_token_secret = _config.get(self._NAME, "access_token_secret")
@@ -240,15 +250,18 @@ class API:
             flow = "discogs" if access_token_secret is None else "oauth"
 
         self.set_flow(
-            flow, consumer_key=consumer_key, consumer_secret=consumer_secret,
-            browser=browser, web_framework=web_framework, port=port,
-            redirect_uri=redirect_uri, save=save
+            flow,
+            consumer_key=consumer_key,
+            consumer_secret=consumer_secret,
+            browser=browser,
+            web_framework=web_framework,
+            port=port,
+            redirect_uri=redirect_uri,
+            save=save,
         )
         self.set_access_token(access_token, access_token_secret)
 
-    def _check_authentication(
-            self, endpoint: str, token: bool = True) -> None:
-
+    def _check_authentication(self, endpoint: str, token: bool = True) -> None:
         """
         Check if the user is authenticated for the desired endpoint.
 
@@ -264,19 +277,17 @@ class API:
         """
 
         if token and (
-                self._flow != "oauth"
-                or self._flow == "discogs"
-                   and "token" not in self.session.headers["Authorization"]
-            ):
-            emsg = (f"{self._NAME}.{endpoint}() requires user "
-                    "authentication.")
+            self._flow != "oauth"
+            or self._flow == "discogs"
+            and "token" not in self.session.headers["Authorization"]
+        ):
+            emsg = f"{self._NAME}.{endpoint}() requires user " "authentication."
             raise RuntimeError(emsg)
         elif self._flow is None:
             emsg = f"{self._NAME}.{endpoint}() requires client credentials."
             raise RuntimeError(emsg)
 
     def _get_json(self, url: str, **kwargs) -> dict:
-
         """
         Send a GET request and return the JSON-encoded content of the
         response.
@@ -298,9 +309,8 @@ class API:
         return self._request("get", url, **kwargs).json()
 
     def _request(
-            self, method: str, url: str, *, oauth: dict[str, Any] = None,
-            **kwargs) -> requests.Response:
-
+        self, method: str, url: str, *, oauth: dict[str, Any] = None, **kwargs
+    ) -> requests.Response:
         """
         Construct and send a request with status code checking.
 
@@ -330,10 +340,14 @@ class API:
         if self._flow == "oauth" and "Authorization" not in kwargs["headers"]:
             if oauth is None:
                 oauth = {}
-            oauth = self._oauth | {
-                "oauth_nonce": secrets.token_hex(32),
-                "oauth_timestamp": f"{time.time():.0f}"
-            } | oauth
+            oauth = (
+                self._oauth
+                | {
+                    "oauth_nonce": secrets.token_hex(32),
+                    "oauth_timestamp": f"{time.time():.0f}",
+                }
+                | oauth
+            )
             kwargs["headers"]["Authorization"] = "OAuth " + ", ".join(
                 f'{k}="{v}"' for k, v in oauth.items()
             )
@@ -348,9 +362,8 @@ class API:
         return r
 
     def set_access_token(
-            self, access_token: str = None, access_token_secret: str = None
-        ) -> None:
-
+        self, access_token: str = None, access_token_secret: str = None
+    ) -> None:
         """
         Set the Discogs API personal or OAuth access token (and secret).
 
@@ -366,7 +379,7 @@ class API:
         if self._flow == "oauth":
             self._oauth = {
                 "oauth_consumer_key": self._consumer_key,
-                "oauth_signature_method": "PLAINTEXT"
+                "oauth_signature_method": "PLAINTEXT",
             }
 
             if access_token is None:
@@ -376,10 +389,8 @@ class API:
                 r = self._request(
                     "get",
                     self.REQUEST_TOKEN_URL,
-                    headers={
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    oauth=oauth
+                    headers={"Content-Type": "application/x-www-form-urlencoded"},
+                    oauth=oauth,
                 )
                 auth_url = f"{self.AUTH_URL}?{r.text}"
                 oauth = dict(urllib.parse.parse_qsl(r.text))
@@ -392,8 +403,7 @@ class API:
                         context = browser.new_context(record_har_path=har_file)
                         page = context.new_page()
                         page.goto(auth_url, timeout=0)
-                        page.wait_for_url(f"{self._redirect_uri}*",
-                                            wait_until="commit")
+                        page.wait_for_url(f"{self._redirect_uri}*", wait_until="commit")
                         context.close()
                         browser.close()
 
@@ -401,8 +411,9 @@ class API:
                         oauth |= dict(
                             urllib.parse.parse_qsl(
                                 urllib.parse.urlparse(
-                                    re.search(fr'{self._redirect_uri}\?(.*?)"',
-                                              f.read()).group(0)
+                                    re.search(
+                                        rf'{self._redirect_uri}\?(.*?)"', f.read()
+                                    ).group(0)
                                 ).query
                             )
                         )
@@ -412,13 +423,14 @@ class API:
                     if self._browser:
                         webbrowser.open(auth_url)
                     else:
-                        print("To grant Minim access to Discogs data "
-                              "and features, open the following link "
-                              f"in your web browser:\n\n{auth_url}\n")
+                        print(
+                            "To grant Minim access to Discogs data "
+                            "and features, open the following link "
+                            f"in your web browser:\n\n{auth_url}\n"
+                        )
 
                     if self._web_framework == "http.server":
-                        httpd = HTTPServer(("", self._port),
-                                           _DiscogsRedirectHandler)
+                        httpd = HTTPServer(("", self._port), _DiscogsRedirectHandler)
                         httpd.handle_request()
                         oauth |= httpd.response
 
@@ -429,15 +441,12 @@ class API:
                         @app.route("/callback", methods=["GET"])
                         def _callback() -> str:
                             if "error" in request.args:
-                                return ("Access denied. You may close "
-                                        "this page now.")
+                                return "Access denied. You may close " "this page now."
                             with open(json_file, "w") as f:
                                 json.dump(request.args, f)
-                            return ("Access granted. You may close "
-                                    "this page now.")
+                            return "Access granted. You may close " "this page now."
 
-                        server = Process(target=app.run,
-                                         args=("0.0.0.0", self._port))
+                        server = Process(target=app.run, args=("0.0.0.0", self._port))
                         server.start()
                         while not json_file.is_file():
                             time.sleep(0.1)
@@ -457,18 +466,18 @@ class API:
                 if "denied" in oauth:
                     raise RuntimeError("Authorization failed.")
 
-                oauth["oauth_signature"] = (f"{self._consumer_secret}"
-                                            f"&{oauth['oauth_token_secret']}")
+                oauth["oauth_signature"] = (
+                    f"{self._consumer_secret}" f"&{oauth['oauth_token_secret']}"
+                )
                 r = self._request(
                     "post",
                     self.ACCESS_TOKEN_URL,
-                    headers={
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    oauth=oauth
+                    headers={"Content-Type": "application/x-www-form-urlencoded"},
+                    oauth=oauth,
                 )
-                access_token, access_token_secret = \
-                    dict(urllib.parse.parse_qsl(r.text)).values()
+                access_token, access_token_secret = dict(
+                    urllib.parse.parse_qsl(r.text)
+                ).values()
 
                 if self._save:
                     _config[self._NAME] = {
@@ -476,15 +485,14 @@ class API:
                         "access_token": access_token,
                         "access_token_secret": access_token_secret,
                         "consumer_key": self._consumer_key,
-                        "consumer_secret": self._consumer_secret
+                        "consumer_secret": self._consumer_secret,
                     }
                     with open(DIR_HOME / "minim.cfg", "w") as f:
                         _config.write(f)
 
             self._oauth |= {
                 "oauth_token": access_token,
-                "oauth_signature": self._consumer_secret
-                                   + f"&{access_token_secret}"
+                "oauth_signature": self._consumer_secret + f"&{access_token_secret}",
             }
 
         elif self._flow == "discogs":
@@ -497,21 +505,28 @@ class API:
                     f"secret={self._consumer_secret}"
                 )
             else:
-                self.session.headers["Authorization"] = \
-                    f"Discogs token={access_token}"
+                self.session.headers["Authorization"] = f"Discogs token={access_token}"
 
-        if (self._flow == "oauth"
-                or self._flow == "discogs"
-                   and "token" in self.session.headers["Authorization"]):
+        if (
+            self._flow == "oauth"
+            or self._flow == "discogs"
+            and "token" in self.session.headers["Authorization"]
+        ):
             identity = self.get_identity()
             self._username = identity["username"]
 
     def set_flow(
-            self, flow: str, *, consumer_key: str = None,
-            consumer_secret: str = None, browser: bool = False,
-            web_framework: str = None, port: Union[int, str] = 8888,
-            redirect_uri: str = None, save: bool = True) -> None:
-
+        self,
+        flow: str,
+        *,
+        consumer_key: str = None,
+        consumer_secret: str = None,
+        browser: bool = False,
+        web_framework: str = None,
+        port: Union[int, str] = 8888,
+        redirect_uri: str = None,
+        save: bool = True,
+    ) -> None:
         """
         Set the authorization flow.
 
@@ -582,28 +597,31 @@ class API:
         """
 
         if flow and flow not in self._FLOWS:
-            emsg = (f"Invalid authorization flow ({flow=}). "
-                    f"Valid values: {', '.join(self._FLOWS)}.")
+            emsg = (
+                f"Invalid authorization flow ({flow=}). "
+                f"Valid values: {', '.join(self._FLOWS)}."
+            )
             raise ValueError(emsg)
         self._flow = flow
         self._save = save
 
-        self._consumer_key = \
-            consumer_key or os.environ.get("DISCOGS_CONSUMER_KEY")
-        self._consumer_secret = \
-            consumer_secret or os.environ.get("DISCOGS_CONSUMER_SECRET")
+        self._consumer_key = consumer_key or os.environ.get("DISCOGS_CONSUMER_KEY")
+        self._consumer_secret = consumer_secret or os.environ.get(
+            "DISCOGS_CONSUMER_SECRET"
+        )
 
         if flow == "oauth":
             self._browser = browser
             if redirect_uri:
                 self._redirect_uri = redirect_uri
                 if "localhost" in redirect_uri:
-                    self._port = re.search(r"localhost:(\d+)",
-                                           redirect_uri).group(1)
+                    self._port = re.search(r"localhost:(\d+)", redirect_uri).group(1)
                 elif web_framework:
-                    wmsg = ("The redirect URI is not on localhost, "
-                            "so automatic authorization code "
-                            "retrieval is not available.")
+                    wmsg = (
+                        "The redirect URI is not on localhost, "
+                        "so automatic authorization code "
+                        "retrieval is not available."
+                    )
                     logging.warning(wmsg)
                     web_framework = None
             elif port:
@@ -615,23 +633,24 @@ class API:
             self._web_framework = (
                 web_framework
                 if web_framework is None
-                   or web_framework == "http.server"
-                   or globals()[f"FOUND_{web_framework.upper()}"]
+                or web_framework == "http.server"
+                or globals()[f"FOUND_{web_framework.upper()}"]
                 else None
             )
             if self._web_framework is None and web_framework:
-                wmsg = (f"The {web_framework.capitalize()} web "
-                        "framework was not found, so automatic "
-                        "authorization code retrieval is not "
-                        "available.")
+                wmsg = (
+                    f"The {web_framework.capitalize()} web "
+                    "framework was not found, so automatic "
+                    "authorization code retrieval is not "
+                    "available."
+                )
                 warnings.warn(wmsg)
 
     ### DATABASE ##############################################################
 
     def get_release(
-            self, release_id: Union[int, str], *, curr_abbr: str = None
-        ) -> dict[str, Any]:
-
+        self, release_id: Union[int, str], *, curr_abbr: str = None
+    ) -> dict[str, Any]:
         """
         `Database > Release <https://www.discogs.com
         /developers/#page:database,header:database-release-get>`_:
@@ -793,24 +812,34 @@ class API:
         """
 
         if curr_abbr and curr_abbr not in (
-                CURRENCIES := {
-                    "USD", "GBP", "EUR", "CAD", "AUD", "JPY",
-                    "CHF", "MXN", "BRL", "NZD", "SEK", "ZAR"
-                }
-            ):
-            emsg = (f"Invalid currency abbreviation ({curr_abbr=}). "
-                    f"Valid values: {', '.join(CURRENCIES)}.")
+            CURRENCIES := {
+                "USD",
+                "GBP",
+                "EUR",
+                "CAD",
+                "AUD",
+                "JPY",
+                "CHF",
+                "MXN",
+                "BRL",
+                "NZD",
+                "SEK",
+                "ZAR",
+            }
+        ):
+            emsg = (
+                f"Invalid currency abbreviation ({curr_abbr=}). "
+                f"Valid values: {', '.join(CURRENCIES)}."
+            )
             raise ValueError(emsg)
 
         return self._get_json(
-            f"{self.API_URL}/releases/{release_id}",
-            params={"curr_abbr": curr_abbr}
+            f"{self.API_URL}/releases/{release_id}", params={"curr_abbr": curr_abbr}
         )
 
     def get_user_release_rating(
-            self, release_id: Union[int, str], username: str = None
-        ) -> dict[str, Any]:
-
+        self, release_id: Union[int, str], username: str = None
+    ) -> dict[str, Any]:
         """
         `Database > Release Rating By User > Get Release Rating By User
         <https://www.discogs.com/developers
@@ -854,14 +883,11 @@ class API:
             else:
                 raise ValueError("No username provided.")
 
-        return self._get_json(
-            f"{self.API_URL}/releases/{release_id}/rating/{username}"
-        )
+        return self._get_json(f"{self.API_URL}/releases/{release_id}/rating/{username}")
 
     def update_user_release_rating(
-            self, release_id: Union[int, str], rating: int,
-            username: str = None) -> dict[str, Any]:
-
+        self, release_id: Union[int, str], rating: int, username: str = None
+    ) -> dict[str, Any]:
         """
         `Database > Release Rating By User > Update Release Rating By
         User <https://www.discogs.com/developers
@@ -919,12 +945,12 @@ class API:
         return self._request(
             "put",
             f"{self.API_URL}/releases/{release_id}/rating/{username}",
-            json={"rating": rating}
+            json={"rating": rating},
         )
 
     def delete_user_release_rating(
-            self, release_id: Union[int, str], username: str = None) -> None:
-
+        self, release_id: Union[int, str], username: str = None
+    ) -> None:
         """
         `Database > Release Rating By User > Delete Release Rating By
         User <https://www.discogs.com/developers
@@ -961,13 +987,12 @@ class API:
                 raise ValueError("No username provided.")
 
         return self._request(
-            "delete",
-            f"{self.API_URL}/releases/{release_id}/rating/{username}"
+            "delete", f"{self.API_URL}/releases/{release_id}/rating/{username}"
         )
 
     def get_community_release_rating(
-            self, release_id: Union[int, str]) -> dict[str, Any]:
-
+        self, release_id: Union[int, str]
+    ) -> dict[str, Any]:
         """
         `Database > Community Release Rating <https://www.discogs.com
         /developers/#page:database,header
@@ -1003,7 +1028,6 @@ class API:
         return self._get_json(f"{self.API_URL}/releases/{release_id}/rating")
 
     def get_release_stats(self, release_id: Union[int, str]) -> dict[str, Any]:
-
         """
         `Database > Release Stats <https://www.discogs.com/developers
         /#page:database,header:database-release-stats-get>`_: Retrieves
@@ -1046,7 +1070,6 @@ class API:
         return self._get_json(f"{self.API_URL}/releases/{release_id}/stats")
 
     def get_master_release(self, master_id: Union[int, str]) -> dict[str, Any]:
-
         """
         `Database > Master Release <https://www.discogs.com/developers
         /#page:database,header:database-master-release-get>`_: Get a
@@ -1138,11 +1161,18 @@ class API:
         return self._get_json(f"{self.API_URL}/masters/{master_id}")
 
     def get_master_release_versions(
-            self, master_id: Union[int, str], *, country: str = None,
-            format: str = None, label: str = None, released: str = None,
-            page: Union[int, str] = None, per_page: Union[int, str] = None,
-            sort: str = None, sort_order: str = None) -> dict[str, Any]:
-
+        self,
+        master_id: Union[int, str],
+        *,
+        country: str = None,
+        format: str = None,
+        label: str = None,
+        released: str = None,
+        page: Union[int, str] = None,
+        per_page: Union[int, str] = None,
+        sort: str = None,
+        sort_order: str = None,
+    ) -> dict[str, Any]:
         """
         `Database > Master Release Versions <https://www.discogs.com
         /developers/#page:database,header
@@ -1258,12 +1288,11 @@ class API:
                 "page": page,
                 "per_page": per_page,
                 "sort": sort,
-                "sort_order": sort_order
+                "sort_order": sort_order,
             },
         )
 
     def get_artist(self, artist_id: Union[int, str]) -> dict[str, Any]:
-
         """
         `Database > Artist <https://www.discogs.com/developers
         /#page:database,header:database-artist-get>`_: Get an artist.
@@ -1318,10 +1347,14 @@ class API:
         return self._get_json(f"{self.API_URL}/artists/{artist_id}")
 
     def get_artist_releases(
-            self, artist_id: Union[int, str], *, page: Union[int, str] = None,
-            per_page: Union[int, str] = None, sort: str = None,
-            sort_order: str = None) -> dict[str, Any]:
-
+        self,
+        artist_id: Union[int, str],
+        *,
+        page: Union[int, str] = None,
+        per_page: Union[int, str] = None,
+        sort: str = None,
+        sort_order: str = None,
+    ) -> dict[str, Any]:
         """
         `Database > Artist Releases <https://www.discogs.com/developers
         /#page:database,header:database-artist-releases-get>`_: Get an
@@ -1395,12 +1428,11 @@ class API:
                 "page": page,
                 "per_page": per_page,
                 "sort": sort,
-                "sort_order": sort_order
-            }
+                "sort_order": sort_order,
+            },
         )
 
     def get_label(self, label_id: Union[int, str]) -> dict[str, Any]:
-
         """
         `Database > Label <https://www.discogs.com/developers
         /#page:database,header:database-label-get>`_: Get a label,
@@ -1457,9 +1489,12 @@ class API:
         return self._get_json(f"{self.API_URL}/labels/{label_id}")
 
     def get_label_releases(
-            self, label_id: Union[int, str], *, page: Union[int, str] = None,
-            per_page: Union[int, str] = None) -> dict[str, Any]:
-
+        self,
+        label_id: Union[int, str],
+        *,
+        page: Union[int, str] = None,
+        per_page: Union[int, str] = None,
+    ) -> dict[str, Any]:
         """
         `Database > Label Releases <https://www.discogs.com/developers
         /#page:database,header:database-all-label-releases-get>`_: Get a
@@ -1518,18 +1553,31 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/labels/{label_id}/releases",
-            params={"page": page, "per_page": per_page}
+            params={"page": page, "per_page": per_page},
         )
 
     def search(
-            self, query: str = None, *, type: str = None, title: str = None,
-            release_title: str = None, credit: str = None,
-            artist: str = None, anv: str = None, label: str = None,
-            genre: str = None, style: str = None, country: str = None,
-            year: str = None, format: str = None, catno: str = None,
-            barcode: str = None, track: str = None, submitter: str = None,
-            contributor: str = None) -> dict[str, Any]:
-
+        self,
+        query: str = None,
+        *,
+        type: str = None,
+        title: str = None,
+        release_title: str = None,
+        credit: str = None,
+        artist: str = None,
+        anv: str = None,
+        label: str = None,
+        genre: str = None,
+        style: str = None,
+        country: str = None,
+        year: str = None,
+        format: str = None,
+        catno: str = None,
+        barcode: str = None,
+        track: str = None,
+        submitter: str = None,
+        contributor: str = None,
+    ) -> dict[str, Any]:
         """
         `Database > Search <https://www.discogs.com/developers
         /#page:database,header:database-search-get>`_: Issue a search
@@ -1702,17 +1750,22 @@ class API:
                 "barcode": barcode,
                 "track": track,
                 "submitter": submitter,
-                "contributor": contributor
-            }
+                "contributor": contributor,
+            },
         )
 
     ### MARKETPLACE ###########################################################
 
     def get_inventory(
-            self, username: str = None, *, status: str = None,
-            page: Union[int, str] = None, per_page: Union[int, str] = None,
-            sort: str = None, sort_order: str = None) -> dict[str, Any]:
-
+        self,
+        username: str = None,
+        *,
+        status: str = None,
+        page: Union[int, str] = None,
+        per_page: Union[int, str] = None,
+        sort: str = None,
+        sort_order: str = None,
+    ) -> dict[str, Any]:
         """
         `Marketplace > Inventory <https://www.discogs.com/developers
         /#page:marketplace,header:marketplace-inventory-get>`_:
@@ -1828,14 +1881,18 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/users/{username}/inventory",
-            params={"status": status, "page": page, "per_page": per_page,
-                    "sort": sort, "sort_order": sort_order}
+            params={
+                "status": status,
+                "page": page,
+                "per_page": per_page,
+                "sort": sort,
+                "sort_order": sort_order,
+            },
         )
 
     def get_listing(
-            self, listing_id: Union[int, str], *, curr_abbr: str = None
-        ) -> dict[str, Any]:
-
+        self, listing_id: Union[int, str], *, curr_abbr: str = None
+    ) -> dict[str, Any]:
         """
         `Marketplace > Listing <https://www.discogs.com/developers
         /#page:marketplace,header:marketplace-listing-get>`_: View
@@ -1926,16 +1983,24 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/marketplace/listings/{listing_id}",
-            params={"curr_abbr": curr_abbr}
+            params={"curr_abbr": curr_abbr},
         )
 
     def create_listing(
-            self, release_id: Union[int, str], condition: str, price: float,
-            status: str = "For Sale", *, sleeve_condition: str = None,
-            comments: str = None, allow_offers: bool = None,
-            external_id: str = None, location: str = None, weight: float = None,
-            format_quantity: int = None) -> dict[str, Any]:
-
+        self,
+        release_id: Union[int, str],
+        condition: str,
+        price: float,
+        status: str = "For Sale",
+        *,
+        sleeve_condition: str = None,
+        comments: str = None,
+        allow_offers: bool = None,
+        external_id: str = None,
+        location: str = None,
+        weight: float = None,
+        format_quantity: int = None,
+    ) -> dict[str, Any]:
         """
         `Marketplace > New Listing <https://www.discogs.com/developers
         /#page:marketplace,header:marketplace-new-listing>`_: Create a
@@ -2033,18 +2098,26 @@ class API:
                 "external_id": external_id,
                 "location": location,
                 "weight": weight,
-                "format_quantity": format_quantity
-            }
+                "format_quantity": format_quantity,
+            },
         ).json()
 
     def edit_listing(
-            self, listing_id: Union[int, str], release_id: Union[int, str],
-            condition: str, price: float, status: str = "For Sale", *,
-            sleeve_condition: str = None, comments: str = None,
-            allow_offers: bool = None, external_id: str = None,
-            location: str = None, weight: float = None,
-            format_quantity: int = None) -> None:
-
+        self,
+        listing_id: Union[int, str],
+        release_id: Union[int, str],
+        condition: str,
+        price: float,
+        status: str = "For Sale",
+        *,
+        sleeve_condition: str = None,
+        comments: str = None,
+        allow_offers: bool = None,
+        external_id: str = None,
+        location: str = None,
+        weight: float = None,
+        format_quantity: int = None,
+    ) -> None:
         """
         `Marketplace > Listing > Edit Listing <https://www.discogs.com
         /developers/#page:marketplace,header:marketplace-listing-post>`_:
@@ -2154,12 +2227,11 @@ class API:
                 "external_id": external_id,
                 "location": location,
                 "weight": weight,
-                "format_quantity": format_quantity
-            }
+                "format_quantity": format_quantity,
+            },
         )
 
     def delete_listing(self, listing_id: Union[int, str]) -> None:
-
         """
         `Marketplace > Listing > Delete Listing <https://www.discogs.com
         /developers/#page:marketplace,header
@@ -2182,11 +2254,9 @@ class API:
 
         self._check_authentication("delete_listing")
 
-        self._request("delete",
-                      f"{self.API_URL}/marketplace/listings/{listing_id}")
+        self._request("delete", f"{self.API_URL}/marketplace/listings/{listing_id}")
 
     def get_order(self, order_id: str) -> dict[str, Any]:
-
         """
         `Marketplace > Order > Get Order <https://www.discogs.com/developers
         #page:marketplace,header:marketplace-order-get>`_: View the data
@@ -2273,9 +2343,8 @@ class API:
         return self._get_json(f"{self.API_URL}/marketplace/orders/{order_id}")
 
     def edit_order(
-            self, order_id: str, status: str, *, shipping: float = None
-        ) -> dict[str, Any]:
-
+        self, order_id: str, status: str, *, shipping: float = None
+    ) -> dict[str, Any]:
         """
         `Marketplace > Order > Edit Order <https://www.discogs.com/developers
         #page:marketplace,header:marketplace-order-post>`_: Edit the data
@@ -2400,15 +2469,21 @@ class API:
         return self._request(
             "post",
             f"{self.API_URL}/marketplace/orders/{order_id}",
-            json={"status": status, "shipping": shipping}
+            json={"status": status, "shipping": shipping},
         ).json()
 
     def get_user_orders(
-            self, *, status: str = None, created_after: str = None,
-            created_before: str = None, archived: bool = None,
-            page: Union[int, str] = None, per_page: Union[int, str] = None,
-            sort: str = None, sort_order: str = None) -> dict[str, Any]:
-
+        self,
+        *,
+        status: str = None,
+        created_after: str = None,
+        created_before: str = None,
+        archived: bool = None,
+        page: Union[int, str] = None,
+        per_page: Union[int, str] = None,
+        sort: str = None,
+        sort_order: str = None,
+    ) -> dict[str, Any]:
         """
         `Marketplace > List Orders <https://www.discogs.com/developers
         /#page:marketplace,header:marketplace-list-orders-get>`_:
@@ -2559,13 +2634,16 @@ class API:
                 "per_page": per_page,
                 "sort": sort,
                 "sort_order": sort_order,
-            }
+            },
         )
 
     def get_order_messages(
-            self, order_id: str, *, page: Union[int, str] = None,
-            per_page: Union[int, str] = None) -> dict[str, Any]:
-
+        self,
+        order_id: str,
+        *,
+        page: Union[int, str] = None,
+        per_page: Union[int, str] = None,
+    ) -> dict[str, Any]:
         """
         `Marketplace > List Order Messages > List Order Messages
         <https://www.discogs.com/developers/
@@ -2643,13 +2721,12 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/marketplace/orders/{order_id}/messages",
-            params={"page": page, "per_page": per_page}
+            params={"page": page, "per_page": per_page},
         )
 
     def add_order_message(
-            self, order_id: str, message: str = None, status: str = None
-        ) -> dict[str, Any]:
-
+        self, order_id: str, message: str = None, status: str = None
+    ) -> dict[str, Any]:
         """
         `Marketplace > List Order Messages > Add New Message
         <https://www.discogs.com/developers/
@@ -2728,11 +2805,10 @@ class API:
         return self._request(
             "post",
             f"{self.API_URL}/marketplace/orders/{order_id}/messages",
-            json={"message": message, "status": status}
+            json={"message": message, "status": status},
         ).json()
 
     def get_fee(self, price: float, *, currency: str = "USD") -> dict[str, Any]:
-
         """
         `Marketplace > Fee with currency
         <https://www.discogs.com/developers/#page:marketplace,header
@@ -2770,13 +2846,9 @@ class API:
                   }
         """
 
-        return self._get_json(
-            f"{self.API_URL}/marketplace/fee/{price}/{currency}"
-        )
+        return self._get_json(f"{self.API_URL}/marketplace/fee/{price}/{currency}")
 
-    def get_price_suggestions(
-            self, release_id: Union[int, str]) -> dict[str, Any]:
-
+    def get_price_suggestions(self, release_id: Union[int, str]) -> dict[str, Any]:
         """
         `Marketplace > Price Suggestions <https://www.discogs.com
         /developers/#page:marketplace,header
@@ -2852,9 +2924,8 @@ class API:
         )
 
     def get_release_marketplace_stats(
-            self, release_id: Union[int, str], *, curr_abbr: str = None
-        ) -> dict[str, Any]:
-
+        self, release_id: Union[int, str], *, curr_abbr: str = None
+    ) -> dict[str, Any]:
         """
         `Marketplace > Release Statistics <https://www.discogs.com
         /developers/#page:marketplace,header
@@ -2917,15 +2988,14 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/marketplace/stats/{release_id}",
-            params={"curr_abbr": curr_abbr}
+            params={"curr_abbr": curr_abbr},
         )
 
     ### INVENTORY EXPORT ######################################################
 
     def export_inventory(
-            self, *, download: bool = True, filename: str = None,
-            path: str = None) -> str:
-
+        self, *, download: bool = True, filename: str = None, path: str = None
+    ) -> str:
         """
         `Inventory Export > Export Your Inventory <https://www.discogs.com
         /developers/#page:inventory-export,header
@@ -2966,15 +3036,13 @@ class API:
         r = self._request("post", f"{self.API_URL}/inventory/export")
         if download:
             return self.download_inventory_export(
-                r.headers["Location"].split("/")[-1],
-                filename=filename,
-                path=path
+                r.headers["Location"].split("/")[-1], filename=filename, path=path
             )
         return r.headers["Location"]
 
     def get_inventory_exports(
-            self, *, page: int = None, per_page: int = None) -> dict[str, Any]:
-
+        self, *, page: int = None, per_page: int = None
+    ) -> dict[str, Any]:
         """
         `Inventory Export > Get Recent Exports <https://www.discogs.com
         /developers/#page:inventory-export,header
@@ -3036,11 +3104,12 @@ class API:
 
         self._check_authentication("get_inventory_exports")
 
-        return self._get_json(f"{self.API_URL}/inventory/export",
-                              json={"page": page, "per_page": per_page})
+        return self._get_json(
+            f"{self.API_URL}/inventory/export",
+            json={"page": page, "per_page": per_page},
+        )
 
     def get_inventory_export(self, export_id: int) -> dict[str, Union[int, str]]:
-
         """
         `Inventory Export > Get An Export <https://www.discogs.com
         /developers/#page:inventory-export,header
@@ -3084,9 +3153,8 @@ class API:
         return self._get_json(f"{self.API_URL}/inventory/export/{export_id}")
 
     def download_inventory_export(
-            self, export_id: int, *, filename: str = None, path: str = None
-        ) -> str:
-
+        self, export_id: int, *, filename: str = None, path: str = None
+    ) -> str:
         """
         `Inventory Export > Download An Export <https://www.discogs.com
         /developers/#page:inventory-export,header
@@ -3129,8 +3197,7 @@ class API:
             time.sleep(1)
 
         r = self._request(
-            "get",
-            f"{self.API_URL}/inventory/export/{export_id}/download"
+            "get", f"{self.API_URL}/inventory/export/{export_id}/download"
         )
 
         if filename is None:
@@ -3139,21 +3206,18 @@ class API:
             if not filename.endswith(".csv"):
                 filename += ".csv"
 
-        with open(
-                path := os.path.join(path or os.getcwd(), filename), "w"
-            ) as f:
+        with open(path := os.path.join(path or os.getcwd(), filename), "w") as f:
             f.write(r.text)
 
         return path
 
     ### INVENTORY UPLOAD ######################################################
 
-   # TODO
+    # TODO
 
     ### USER IDENTITY #########################################################
 
     def get_identity(self) -> dict[str, Any]:
-
         """
         `User Identity > Identity <https://www.discogs.com/developers
         /#page:user-identity,header:user-identity-identity-get>`_:
@@ -3195,7 +3259,6 @@ class API:
         return self._get_json(f"{self.API_URL}/oauth/identity")
 
     def get_profile(self, username: str = None) -> dict[str, Any]:
-
         """
         `User Identity > Profile > Get Profile
         <https://www.discogs.com/developers
@@ -3275,10 +3338,14 @@ class API:
         return self._get_json(f"{self.API_URL}/users/{username}")
 
     def edit_profile(
-            self, *, name: str = None, home_page: str = None,
-            location: str = None, profile: str = None,
-            curr_abbr: str = None) -> dict[str, Any]:
-
+        self,
+        *,
+        name: str = None,
+        home_page: str = None,
+        location: str = None,
+        profile: str = None,
+        curr_abbr: str = None,
+    ) -> dict[str, Any]:
         """
         `User Identity > Profile > Edit Profile
         <https://www.discogs.com/developers
@@ -3360,20 +3427,37 @@ class API:
 
         self._check_authentication("edit_profile")
 
-        if name is None and home_page is None and location is None \
-                and profile is None and curr_abbr is None:
+        if (
+            name is None
+            and home_page is None
+            and location is None
+            and profile is None
+            and curr_abbr is None
+        ):
             wmsg = "No changes were specified or made to the user profile."
             warnings.warn(wmsg)
             return
 
         if curr_abbr and curr_abbr not in (
-                CURRENCIES := {
-                    "USD", "GBP", "EUR", "CAD", "AUD", "JPY",
-                    "CHF", "MXN", "BRL", "NZD", "SEK", "ZAR"
-                }
-            ):
-            emsg = (f"Invalid currency abbreviation ({curr_abbr=}). "
-                    f"Valid values: {', '.join(CURRENCIES)}.")
+            CURRENCIES := {
+                "USD",
+                "GBP",
+                "EUR",
+                "CAD",
+                "AUD",
+                "JPY",
+                "CHF",
+                "MXN",
+                "BRL",
+                "NZD",
+                "SEK",
+                "ZAR",
+            }
+        ):
+            emsg = (
+                f"Invalid currency abbreviation ({curr_abbr=}). "
+                f"Valid values: {', '.join(CURRENCIES)}."
+            )
             raise ValueError(emsg)
 
         return self._request(
@@ -3384,14 +3468,17 @@ class API:
                 "home_page": home_page,
                 "location": location,
                 "profile": profile,
-                "curr_abbr": curr_abbr
-            }
+                "curr_abbr": curr_abbr,
+            },
         ).json()
 
     def get_user_submissions(
-            self, username: str = None, *, page: Union[int, str] = None,
-            per_page: Union[int, str] = None) -> dict[str, Any]:
-
+        self,
+        username: str = None,
+        *,
+        page: Union[int, str] = None,
+        per_page: Union[int, str] = None,
+    ) -> dict[str, Any]:
         """
         `User Identity > User Submissions <https://www.discogs.com
         /developers/#page:user-identity,header
@@ -3552,14 +3639,18 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/users/{username}/submissions",
-            params={"page": page, "per_page": per_page}
+            params={"page": page, "per_page": per_page},
         )
 
     def get_user_contributions(
-            self, username: str = None, *, page: Union[int, str] = None,
-            per_page: Union[int, str] = None, sort: str = None,
-            sort_order: str = None) -> dict[str, Any]:
-
+        self,
+        username: str = None,
+        *,
+        page: Union[int, str] = None,
+        per_page: Union[int, str] = None,
+        sort: str = None,
+        sort_order: str = None,
+    ) -> dict[str, Any]:
         """
         `User Identity > User Contributions <https://www.discogs.com
         /developers/#page:user-identity,header
@@ -3721,15 +3812,13 @@ class API:
                 "page": page,
                 "per_page": per_page,
                 "sort": sort,
-                "sort_order": sort_order
-            }
+                "sort_order": sort_order,
+            },
         )
 
     ### USER COLLECTION #######################################################
 
-    def get_collection_folders(
-            self, username: str = None) -> list[dict[str, Any]]:
-
+    def get_collection_folders(self, username: str = None) -> list[dict[str, Any]]:
         """
         `User Collection > Collection > Get Collection Folders
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -3780,12 +3869,11 @@ class API:
             else:
                 raise ValueError("No username provided.")
 
-        return self._get_json(
-            f"{self.API_URL}/users/{username}/collection/folders"
-        )["folders"]
+        return self._get_json(f"{self.API_URL}/users/{username}/collection/folders")[
+            "folders"
+        ]
 
     def create_collection_folder(self, name: str) -> dict[str, Union[int, str]]:
-
         """
         `User Collection > Collection > Create Folder
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -3828,13 +3916,12 @@ class API:
         return self._request(
             "post",
             f"{self.API_URL}/users/{self._username}/collection/folders",
-            json={"name": name}
+            json={"name": name},
         ).json()
 
     def get_collection_folder(
-            self, folder_id: int, *, username: str = None
-        ) -> dict[str, Union[int, str]]:
-
+        self, folder_id: int, *, username: str = None
+    ) -> dict[str, Union[int, str]]:
         """
         `User Collection > Collection Folder > Get Folders
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -3888,13 +3975,13 @@ class API:
         if folder_id != 0:
             self._check_authentication("get_collection_folder")
 
-        return self._get_json(f"{self.API_URL}/users/{self._username}"
-                              f"/collection/folders/{folder_id}")
+        return self._get_json(
+            f"{self.API_URL}/users/{self._username}" f"/collection/folders/{folder_id}"
+        )
 
     def rename_collection_folder(
-            self, folder_id: int, name: str, *,
-            username: str = None) -> dict[str, Union[int, str]]:
-
+        self, folder_id: int, name: str, *, username: str = None
+    ) -> dict[str, Union[int, str]]:
         """
         `User Collection > Collection Folder > Edit Folder
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -3949,14 +4036,11 @@ class API:
 
         return self._request(
             "post",
-            f"{self.API_URL}/users/{self._username}"
-            f"/collection/folders/{folder_id}",
-            json={"name": name}
+            f"{self.API_URL}/users/{self._username}" f"/collection/folders/{folder_id}",
+            json={"name": name},
         ).json()
 
-    def delete_collection_folder(
-            self, folder_id: int, *, username: str = None) -> None:
-
+    def delete_collection_folder(self, folder_id: int, *, username: str = None) -> None:
         """
         `User Collection > Collection Folder > Delete Folder
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -3990,14 +4074,12 @@ class API:
 
         self._request(
             "delete",
-            f"{self.API_URL}/users/{self._username}"
-            f"/collection/folders/{folder_id}"
+            f"{self.API_URL}/users/{self._username}" f"/collection/folders/{folder_id}",
         )
 
     def get_collection_folders_by_release(
-            self, release_id: Union[int, str], *, username: str = None
-        ) -> dict[str, Any]:
-
+        self, release_id: Union[int, str], *, username: str = None
+    ) -> dict[str, Any]:
         """
         `User Collection > Collection Items By Release
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -4093,10 +4175,15 @@ class API:
         )["folders"]
 
     def get_collection_folder_releases(
-            self, folder_id: int, *, username: str = None,
-            page: int = None, per_page: int = None, sort: str = None,
-            sort_order: str = None) -> dict[str, Any]:
-
+        self,
+        folder_id: int,
+        *,
+        username: str = None,
+        page: int = None,
+        per_page: int = None,
+        sort: str = None,
+        sort_order: str = None,
+    ) -> dict[str, Any]:
         """
         `User Collection > Collection Items By Folder
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -4229,14 +4316,17 @@ class API:
         return self._get_json(
             f"{self.API_URL}/users/{username}/collection"
             f"/folders/{folder_id}/releases",
-            params={"page": page, "per_page": per_page, "sort": sort,
-                    "sort_order": sort_order}
+            params={
+                "page": page,
+                "per_page": per_page,
+                "sort": sort,
+                "sort_order": sort_order,
+            },
         )
 
     def add_collection_folder_release(
-            self, folder_id: int, release_id: int, *, username: str = None
-        ) -> dict[str, Union[int, str]]:
-
+        self, folder_id: int, release_id: int, *, username: str = None
+    ) -> dict[str, Union[int, str]]:
         """
         `User Collection > Add To Collection Folder
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -4296,14 +4386,19 @@ class API:
         return self._request(
             "post",
             f"{self.API_URL}/users/{username}/collection"
-            f"/folders/{folder_id}/releases/{release_id}"
+            f"/folders/{folder_id}/releases/{release_id}",
         ).json()
 
     def edit_collection_folder_release(
-            self, folder_id: int, release_id: int, instance_id: int,
-            *, username: str = None, new_folder_id: int, rating: int = None
-        ) -> None:
-
+        self,
+        folder_id: int,
+        release_id: int,
+        instance_id: int,
+        *,
+        username: str = None,
+        new_folder_id: int,
+        rating: int = None,
+    ) -> None:
         """
         `User Collection > Change Rating Of Release
         <https://www.discogs.com/developers#page:user-collection,header
@@ -4360,13 +4455,12 @@ class API:
             "post",
             f"{self.API_URL}/users/{username}/collection/folders"
             f"/{folder_id}/releases/{release_id}/instances/{instance_id}",
-            json={"folder_id": new_folder_id, "rating": rating}
+            json={"folder_id": new_folder_id, "rating": rating},
         )
 
     def delete_collection_folder_release(
-            self, folder_id: int, release_id: int, instance_id: int,
-            *, username: str = None) -> None:
-
+        self, folder_id: int, release_id: int, instance_id: int, *, username: str = None
+    ) -> None:
         """
         `User Collection > Delete Instance From Folder
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -4410,12 +4504,10 @@ class API:
         self._request(
             "delete",
             f"{self.API_URL}/users/{username}/collection/folders"
-            f"/{folder_id}/releases/{release_id}/instances/{instance_id}"
+            f"/{folder_id}/releases/{release_id}/instances/{instance_id}",
         )
 
-    def get_collection_fields(
-            self, username: str = None) -> list[dict[str, Any]]:
-
+    def get_collection_fields(self, username: str = None) -> list[dict[str, Any]]:
         """
         `User Collection > Collection Fields
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -4478,14 +4570,20 @@ class API:
             else:
                 raise ValueError("No username provided.")
 
-        return self._get_json(
-            f"{self.API_URL}/users/{username}/collection/fields"
-        )["fields"]
+        return self._get_json(f"{self.API_URL}/users/{username}/collection/fields")[
+            "fields"
+        ]
 
     def edit_collection_release_field(
-            self, folder_id: int, release_id: int, instance_id: int,
-            field_id: int, value: str, *, username: str = None) -> None:
-
+        self,
+        folder_id: int,
+        release_id: int,
+        instance_id: int,
+        field_id: int,
+        value: str,
+        *,
+        username: str = None,
+    ) -> None:
         """
         `User Collection > Edit Fields Instance
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -4540,11 +4638,10 @@ class API:
             f"{self.API_URL}/users/{username}/collection/folders"
             f"/{folder_id}/releases/{release_id}/instances/{instance_id}"
             f"/fields/{field_id}",
-            params={"value": value}
+            params={"value": value},
         )
 
     def get_collection_value(self, username: str = None) -> dict[str, Any]:
-
         """
         `User Collection > Collection Value
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -4589,9 +4686,7 @@ class API:
             else:
                 raise ValueError("No username provided.")
 
-        return self._get_json(
-            f"{self.API_URL}/users/{username}/collection/value"
-        )
+        return self._get_json(f"{self.API_URL}/users/{username}/collection/value")
 
     ### USER WANTLIST #########################################################
 

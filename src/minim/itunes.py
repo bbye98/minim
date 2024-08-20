@@ -12,8 +12,8 @@ from typing import Any, Union
 
 __all__ = ["SearchAPI"]
 
-class SearchAPI:
 
+class SearchAPI:
     """
     iTunes Search API client.
 
@@ -39,7 +39,6 @@ class SearchAPI:
     API_URL = "https://itunes.apple.com"
 
     def __init__(self) -> None:
-
         """
         Create a iTunes Search API client.
         """
@@ -47,7 +46,6 @@ class SearchAPI:
         self.session = requests.Session()
 
     def _get_json(self, url: str, **kwargs) -> dict:
-
         """
         Send a GET request and return the JSON-encoded content of the
         response.
@@ -68,10 +66,7 @@ class SearchAPI:
 
         return self._request("get", url, **kwargs).json()
 
-    def _request(
-            self, method: str, url: str, **kwargs
-        ) -> requests.Response:
-
+    def _request(self, method: str, url: str, **kwargs) -> requests.Response:
         """
         Construct and send a request, but with status code checking.
 
@@ -98,12 +93,18 @@ class SearchAPI:
         return r
 
     def search(
-            self, term: str, *, country: str = None, media: str = None,
-            entity: Union[str, list[str]] = None, attribute: str = None,
-            limit: Union[int, str] = None, lang: str = None,
-            version: Union[int, str] = None, explicit: Union[bool, str] = None
-        ) -> dict[str, Any]:
-
+        self,
+        term: str,
+        *,
+        country: str = None,
+        media: str = None,
+        entity: Union[str, list[str]] = None,
+        attribute: str = None,
+        limit: Union[int, str] = None,
+        lang: str = None,
+        version: Union[int, str] = None,
+        explicit: Union[bool, str] = None,
+    ) -> dict[str, Any]:
         """
         Search for content using the iTunes Search API.
 
@@ -308,29 +309,35 @@ class SearchAPI:
                 "term": term,
                 "country": country,
                 "media": media,
-                "entity": entity if entity is None or isinstance(entity, str)
-                          else ",".join(entity),
+                "entity": (
+                    entity
+                    if entity is None or isinstance(entity, str)
+                    else ",".join(entity)
+                ),
                 "attribute": attribute,
                 "limit": limit,
                 "lang": lang,
                 "version": version,
-                "explicit": ("No", "Yes")[explicit]
-                            if isinstance(explicit, bool) else explicit
-            }
+                "explicit": (
+                    ("No", "Yes")[explicit] if isinstance(explicit, bool) else explicit
+                ),
+            },
         )
 
     def lookup(
-            self, id: Union[int, str, list[Union[int, str]]] = None, *,
-            amg_artist_id: Union[int, str, list[Union[int, str]]] = None,
-            amg_album_id: Union[int, str, list[Union[int, str]]] = None,
-            amg_video_id: Union[int, str, list[Union[int, str]]] = None,
-            bundle_id: Union[str, list[str]] = None,
-            upc: Union[int, str, list[Union[int, str]]] = None,
-            isbn: Union[int, str, list[Union[int, str]]] = None,
-            entity: Union[str, list[str]] = None,
-            limit: Union[int, str] = None, sort: str = None
-        ) -> dict[str, Any]:
-
+        self,
+        id: Union[int, str, list[Union[int, str]]] = None,
+        *,
+        amg_artist_id: Union[int, str, list[Union[int, str]]] = None,
+        amg_album_id: Union[int, str, list[Union[int, str]]] = None,
+        amg_video_id: Union[int, str, list[Union[int, str]]] = None,
+        bundle_id: Union[str, list[str]] = None,
+        upc: Union[int, str, list[Union[int, str]]] = None,
+        isbn: Union[int, str, list[Union[int, str]]] = None,
+        entity: Union[str, list[str]] = None,
+        limit: Union[int, str] = None,
+        sort: str = None,
+    ) -> dict[str, Any]:
         """
         Search for content based on iTunes IDs, AMG IDs, UPCs/EANs, or
         ISBNs. ID-based lookups are faster and contain fewer
@@ -501,42 +508,65 @@ class SearchAPI:
         return self._get_json(
             f"{self.API_URL}/lookup",
             params={
-                "id": id if id is None or isinstance(id, (int, str))
-                      else ",".join(id if isinstance(id[0], str)
-                                    else (str(i) for i in id)),
-                "amgArtistId":
-                    amg_artist_id if amg_artist_id is None
-                                     or isinstance(amg_artist_id, (int, str))
+                "id": (
+                    id
+                    if id is None or isinstance(id, (int, str))
                     else ",".join(
-                        amg_artist_id if isinstance(amg_artist_id[0], str)
+                        id if isinstance(id[0], str) else (str(i) for i in id)
+                    )
+                ),
+                "amgArtistId": (
+                    amg_artist_id
+                    if amg_artist_id is None or isinstance(amg_artist_id, (int, str))
+                    else ",".join(
+                        amg_artist_id
+                        if isinstance(amg_artist_id[0], str)
                         else (str(i) for i in amg_artist_id)
-                    ),
-                "amgAlbumId":
-                    amg_album_id if amg_album_id is None
-                                    or isinstance(amg_album_id, (int, str))
+                    )
+                ),
+                "amgAlbumId": (
+                    amg_album_id
+                    if amg_album_id is None or isinstance(amg_album_id, (int, str))
                     else ",".join(
-                        amg_album_id if isinstance(amg_album_id[0], str)
+                        amg_album_id
+                        if isinstance(amg_album_id[0], str)
                         else (str(i) for i in amg_album_id)
-                    ),
-                "amgVideoId":
-                    amg_video_id if amg_video_id is None
-                                    or isinstance(amg_video_id, (int, str))
+                    )
+                ),
+                "amgVideoId": (
+                    amg_video_id
+                    if amg_video_id is None or isinstance(amg_video_id, (int, str))
                     else ",".join(
-                        amg_video_id if isinstance(amg_video_id[0], str)
+                        amg_video_id
+                        if isinstance(amg_video_id[0], str)
                         else (str(i) for i in amg_video_id)
-                    ),
-                "bundleId": bundle_id
-                            if bundle_id is None or isinstance(bundle_id, str)
-                            else ",".join(bundle_id),
-                "upc": upc if upc is None or isinstance(upc, (int, str))
-                       else ",".join(upc if isinstance(upc[0], str)
-                                     else (str(u) for u in upc)),
-                "isbn": isbn if isbn is None or isinstance(isbn, (int, str))
-                        else ",".join(isbn if isinstance(isbn[0], str)
-                                      else (str(i) for i in isbn)),
-                "entity": entity if entity is None or isinstance(entity, str)
-                          else ",".join(entity),
+                    )
+                ),
+                "bundleId": (
+                    bundle_id
+                    if bundle_id is None or isinstance(bundle_id, str)
+                    else ",".join(bundle_id)
+                ),
+                "upc": (
+                    upc
+                    if upc is None or isinstance(upc, (int, str))
+                    else ",".join(
+                        upc if isinstance(upc[0], str) else (str(u) for u in upc)
+                    )
+                ),
+                "isbn": (
+                    isbn
+                    if isbn is None or isinstance(isbn, (int, str))
+                    else ",".join(
+                        isbn if isinstance(isbn[0], str) else (str(i) for i in isbn)
+                    )
+                ),
+                "entity": (
+                    entity
+                    if entity is None or isinstance(entity, str)
+                    else ",".join(entity)
+                ),
                 "limit": limit,
-                "sort": sort
-            }
+                "sort": sort,
+            },
         )

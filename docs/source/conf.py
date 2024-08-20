@@ -3,7 +3,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, f"{Path(__file__).resolve().parents[2]}/src")
-from minim import VERSION # noqa: E402
+from minim import VERSION  # noqa: E402
 
 now = datetime.now()
 
@@ -34,7 +34,7 @@ extensions = [
     "sphinx.ext.githubpages",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
-    "sphinx.ext.viewcode"
+    "sphinx.ext.viewcode",
 ]
 exclude_patterns = ["_build"]
 templates_path = ["_templates"]
@@ -45,7 +45,7 @@ autosummary_generate = True
 intersphinx_mapping = {
     "mutagen": ("https://mutagen.readthedocs.io/en/latest/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
-    "python": ("https://docs.python.org/3/", None)
+    "python": ("https://docs.python.org/3/", None),
 }
 myst_enable_extensions = ["colon_fence"]
 myst_heading_anchors = 3

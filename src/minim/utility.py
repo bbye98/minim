@@ -7,25 +7,22 @@ This module contains a collection of utility functions.
 """
 
 from difflib import SequenceMatcher
+from importlib.util import find_spec
 from typing import Any, Union
 
-try:
-    import Levenshtein
-    FOUND_LEVENSHTEIN = True
-except ModuleNotFoundError:
-    FOUND_LEVENSHTEIN = False
-try:
-    import numpy as np
-    FOUND_NUMPY = True
-except ModuleNotFoundError:
-    FOUND_NUMPY = False
+FOUND_LEVENSHTEIN = find_spec("Levenshtein") is not None
+FOUND_NUMPY = find_spec("numpy") is not None
 
 __all__ = ["format_multivalue", "gestalt_ratio", "levenshtein_ratio"]
 
-def format_multivalue(
-        value: Any, multivalue: bool, *, primary: bool = False,
-        sep: Union[str, tuple[str]] = (", ", " & ")) -> Union[str, list[Any]]:
 
+def format_multivalue(
+    value: Any,
+    multivalue: bool,
+    *,
+    primary: bool = False,
+    sep: Union[str, tuple[str]] = (", ", " & "),
+) -> Union[str, list[Any]]:
     """
     Format a field value based on whether multivalue for that field is
     supported.
@@ -69,10 +66,10 @@ def format_multivalue(
         return [value]
     return value
 
-def gestalt_ratio(
-        reference: str, strings: Union[str, list[str]]
-    ) -> Union[float, list[float], "np.ndarray[float]"]:
 
+def gestalt_ratio(
+    reference: str, strings: Union[str, list[str]]
+) -> Union[float, list[float], "np.ndarray[float]"]:
     """
     Compute the Gestalt or Ratcliff–Obershelp ratios, a measure of
     similarity, for strings with respect to a reference string.
@@ -101,10 +98,10 @@ def gestalt_ratio(
         return np.fromiter(gen, dtype=float, count=len(strings))
     return list(gen)
 
-def levenshtein_ratio(
-        reference: str, strings: Union[str, list[str]]
-    ) -> Union[float, list[float], "np.ndarray[float]"]:
 
+def levenshtein_ratio(
+    reference: str, strings: Union[str, list[str]]
+) -> Union[float, list[float], "np.ndarray[float]"]:
     """
     Compute the Levenshtein ratios, a measure of similarity, for
     strings with respect to a reference string.
@@ -126,8 +123,10 @@ def levenshtein_ratio(
     """
 
     if not FOUND_LEVENSHTEIN:
-        emsg = ("The Levenshtein module was not found, so "
-                "minim.utility.levenshtein_ratio() is unavailable.")
+        emsg = (
+            "The Levenshtein module was not found, so "
+            "minim.utility.levenshtein_ratio() is unavailable."
+        )
         raise ImportError(emsg)
 
     if isinstance(strings, str):

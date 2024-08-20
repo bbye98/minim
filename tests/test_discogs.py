@@ -2,7 +2,8 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, f"{Path(__file__).parents[1]}/src")
-from minim import discogs # noqa: E402
+from minim import discogs  # noqa: E402
+
 
 class TestAPI:
 
@@ -20,24 +21,28 @@ class TestAPI:
         assert self.obj.get_release(self.RELEASE_ID)["id"] == self.RELEASE_ID
 
     def test_get_user_release_rating(self):
-        assert self.obj.get_user_release_rating(
-            self.RELEASE_ID, 
-            self.USERNAME
-        )["release_id"] == self.RELEASE_ID
+        assert (
+            self.obj.get_user_release_rating(self.RELEASE_ID, self.USERNAME)[
+                "release_id"
+            ]
+            == self.RELEASE_ID
+        )
 
     def test_get_community_release_rating(self):
-        assert self.obj.get_community_release_rating(
-            self.RELEASE_ID
-        )["release_id"] == self.RELEASE_ID
+        assert (
+            self.obj.get_community_release_rating(self.RELEASE_ID)["release_id"]
+            == self.RELEASE_ID
+        )
 
     # def test_get_release_stats(self):
     #     r = self.obj.get_release_stats(self.RELEASE_ID)
     #     assert "num_have" in r and "num_want" in r
-        
+
     def test_get_master_release(self):
-        assert self.obj.get_master_release(
-            self.MASTER_RELEASE_ID
-        )["id"] == self.MASTER_RELEASE_ID
+        assert (
+            self.obj.get_master_release(self.MASTER_RELEASE_ID)["id"]
+            == self.MASTER_RELEASE_ID
+        )
 
     def test_get_master_release_versions(self):
         assert "versions" in self.obj.get_master_release_versions(
