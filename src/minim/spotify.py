@@ -952,7 +952,9 @@ class WebAPI:
         r = self.session.request(method, url, **kwargs)
         if r.status_code not in range(200, 299):
             error = r.json()["error"]
-            emsg = f"{error['status']} {error['message']}"
+            emsg = f"{error['status']}"
+            if "message" in error:
+                emsg += f" {error['message']}"
             if r.status_code == 401 and retry:
                 logging.warning(emsg)
                 self._refresh_access_token()
