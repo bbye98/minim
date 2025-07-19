@@ -72,7 +72,7 @@ class API:
     .. tip::
 
        The authorization flow and access token can be changed or updated
-       at any time using :meth:`set_auflow` and :meth:`set_access_token`,
+       at any time using :meth:`set_flow` and :meth:`set_access_token`,
        respectively.
 
     Minim also stores and manages access tokens and their properties.
@@ -162,14 +162,20 @@ class API:
         self.session = requests.Session()
         self.session.headers["Content-Type"] = "application/vnd.tidal.v1+json"
 
-        if access_token is None and _config.has_section(self._NAME) and not overwrite:
+        if (
+            access_token is None
+            and _config.has_section(self._NAME)
+            and not overwrite
+        ):
             flow = _config.get(self._NAME, "flow")
             access_token = _config.get(self._NAME, "access_token")
             expiry = _config.get(self._NAME, "expiry")
             client_id = _config.get(self._NAME, "client_id")
             client_secret = _config.get(self._NAME, "client_secret")
 
-        self.set_flow(flow, client_id=client_id, client_secret=client_secret, save=save)
+        self.set_flow(
+            flow, client_id=client_id, client_secret=client_secret, save=save
+        )
         self.set_access_token(access_token, expiry=expiry)
 
     def _get_json(self, url: str, **kwargs) -> dict:
@@ -228,7 +234,10 @@ class API:
         return r
 
     def set_access_token(
-        self, access_token: str = None, *, expiry: Union[str, datetime.datetime] = None
+        self,
+        access_token: str = None,
+        *,
+        expiry: Union[str, datetime.datetime] = None,
     ) -> None:
         """
         Set the TIDAL API access token.
@@ -329,11 +338,15 @@ class API:
 
         if flow == "client_credentials":
             self._client_id = client_id or os.environ.get("TIDAL_CLIENT_ID")
-            self._client_secret = client_secret or os.environ.get("TIDAL_CLIENT_SECRET")
+            self._client_secret = client_secret or os.environ.get(
+                "TIDAL_CLIENT_SECRET"
+            )
 
     ### ALBUM API #############################################################
 
-    def get_album(self, album_id: Union[int, str], country_code: str) -> dict[str, Any]:
+    def get_album(
+        self, album_id: Union[int, str], country_code: str
+    ) -> dict[str, Any]:
         """
         `Album API > Get single album
         <https://developer.tidal.com/apiref?ref=get-album>`_: Retrieve
@@ -410,11 +423,14 @@ class API:
         """
 
         return self._get_json(
-            f"{self.API_URL}/albums/{album_id}", params={"countryCode": country_code}
+            f"{self.API_URL}/albums/{album_id}",
+            params={"countryCode": country_code},
         )["resource"]
 
     def get_albums(
-        self, album_ids: Union[int, str, list[Union[int, str]]], country_code: str
+        self,
+        album_ids: Union[int, str, list[Union[int, str]]],
+        country_code: str,
     ) -> list[dict[str, Any]]:
         """
         `Album API > Get multiple albums
@@ -618,7 +634,11 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/albums/{album_id}/items",
-            params={"countryCode": country_code, "limit": limit, "offset": offset},
+            params={
+                "countryCode": country_code,
+                "limit": limit,
+                "offset": offset,
+            },
         )
 
     def get_album_by_barcode_id(
@@ -782,7 +802,11 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/albums/{album_id}/similar",
-            params={"countryCode": country_code, "limit": limit, "offset": offset},
+            params={
+                "countryCode": country_code,
+                "limit": limit,
+                "offset": offset,
+            },
         )
 
     ### ARTIST API ############################################################
@@ -831,11 +855,14 @@ class API:
         """
 
         return self._get_json(
-            f"{self.API_URL}/artists/{artist_id}", params={"countryCode": country_code}
+            f"{self.API_URL}/artists/{artist_id}",
+            params={"countryCode": country_code},
         )["resource"]
 
     def get_artists(
-        self, artist_ids: Union[int, str, list[Union[int, str]]], country_code: str
+        self,
+        artist_ids: Union[int, str, list[Union[int, str]]],
+        country_code: str,
     ) -> dict[str, Any]:
         """
         `Artist API > Get multiple artists
@@ -1006,7 +1033,11 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/artists/{artist_id}/albums",
-            params={"countryCode": country_code, "limit": limit, "offset": offset},
+            params={
+                "countryCode": country_code,
+                "limit": limit,
+                "offset": offset,
+            },
         )
 
     def get_artist_tracks(
@@ -1125,7 +1156,11 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/artists/{artist_id}/tracks",
-            params={"countryCode": country_code, "limit": limit, "offset": offset},
+            params={
+                "countryCode": country_code,
+                "limit": limit,
+                "offset": offset,
+            },
         )
 
     def get_similar_artists(
@@ -1190,12 +1225,18 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/artists/{artist_id}/similar",
-            params={"countryCode": country_code, "limit": limit, "offset": offset},
+            params={
+                "countryCode": country_code,
+                "limit": limit,
+                "offset": offset,
+            },
         )
 
     ### TRACK API #############################################################
 
-    def get_track(self, track_id: Union[int, str], country_code: str) -> dict[str, Any]:
+    def get_track(
+        self, track_id: Union[int, str], country_code: str
+    ) -> dict[str, Any]:
         """
         `Track API > Get single track
         <https://developer.tidal.com/apiref?ref=get-track>`_: Retrieve
@@ -1274,11 +1315,14 @@ class API:
         """
 
         return self._get_json(
-            f"{self.API_URL}/tracks/{track_id}", params={"countryCode": country_code}
+            f"{self.API_URL}/tracks/{track_id}",
+            params={"countryCode": country_code},
         )["resource"]
 
     def get_tracks(
-        self, track_ids: Union[int, str, list[Union[int, str]]], country_code: str
+        self,
+        track_ids: Union[int, str, list[Union[int, str]]],
+        country_code: str,
     ) -> dict[str, Any]:
         """
         `Album API > Get multiple tracks
@@ -1379,7 +1423,11 @@ class API:
         )
 
     def get_tracks_by_isrc(
-        self, isrc: str, country_code: str, limit: int = None, offset: int = None
+        self,
+        isrc: str,
+        country_code: str,
+        limit: int = None,
+        offset: int = None,
     ) -> dict[str, Any]:
         """
         `Track API > Get tracks by ISRC
@@ -1557,12 +1605,18 @@ class API:
 
         return self._get_json(
             f"{self.API_URL}/tracks/{track_id}/similar",
-            params={"countryCode": country_code, "limit": limit, "offset": offset},
+            params={
+                "countryCode": country_code,
+                "limit": limit,
+                "offset": offset,
+            },
         )
 
     ### VIDEO API #############################################################
 
-    def get_video(self, video_id: Union[int, str], country_code: str) -> dict[str, Any]:
+    def get_video(
+        self, video_id: Union[int, str], country_code: str
+    ) -> dict[str, Any]:
         """
         `Video API > Get single video
         <https://developer.tidal.com/apiref?ref=get-video>`_: Retrieve
@@ -1627,11 +1681,14 @@ class API:
         """
 
         return self._get_json(
-            f"{self.API_URL}/videos/{video_id}", params={"countryCode": country_code}
+            f"{self.API_URL}/videos/{video_id}",
+            params={"countryCode": country_code},
         )["resource"]
 
     def get_videos(
-        self, video_ids: Union[int, str, list[Union[int, str]]], country_code: str
+        self,
+        video_ids: Union[int, str, list[Union[int, str]]],
+        country_code: str,
     ) -> list[dict[str, Any]]:
         """
         `Album API > Get multiple videos
@@ -1941,8 +1998,12 @@ class API:
                   }
         """
 
-        if type and type not in (TYPES := {"ALBUMS", "ARTISTS", "TRACKS", "VIDEOS"}):
-            emsg = "Invalid target search type. Valid values: " f"{', '.join(TYPES)}."
+        if type and type not in (
+            TYPES := {"ALBUMS", "ARTISTS", "TRACKS", "VIDEOS"}
+        ):
+            emsg = (
+                f"Invalid target search type. Valid values: {', '.join(TYPES)}."
+            )
             raise ValueError(emsg)
 
         return self._get_json(
@@ -2157,7 +2218,11 @@ class PrivateAPI:
         if user_agent:
             self.session.headers["User-Agent"] = user_agent
 
-        if access_token is None and _config.has_section(self._NAME) and not overwrite:
+        if (
+            access_token is None
+            and _config.has_section(self._NAME)
+            and not overwrite
+        ):
             flow = _config.get(self._NAME, "flow")
             access_token = _config.get(self._NAME, "access_token")
             refresh_token = _config.get(self._NAME, "refresh_token")
@@ -2174,7 +2239,9 @@ class PrivateAPI:
             scopes=scopes,
             save=save,
         )
-        self.set_access_token(access_token, refresh_token=refresh_token, expiry=expiry)
+        self.set_access_token(
+            access_token, refresh_token=refresh_token, expiry=expiry
+        )
 
     def _check_scope(
         self,
@@ -2212,7 +2279,9 @@ class PrivateAPI:
 
         if require_authentication:
             if self._flow is None:
-                emsg = f"{self._NAME}.{endpoint}() requires user " "authentication."
+                emsg = (
+                    f"{self._NAME}.{endpoint}() requires user authentication."
+                )
             elif self._flow in flows and scope and scope not in self._scopes:
                 emsg = (
                     f"{self._NAME}.{endpoint}() requires the '{scope}' "
@@ -2256,7 +2325,9 @@ class PrivateAPI:
         }
         if self._scopes:
             params["scope"] = self._scopes
-        auth_url = f"{self.LOGIN_URL}/authorize?" f"{urllib.parse.urlencode(params)}"
+        auth_url = (
+            f"{self.LOGIN_URL}/authorize?{urllib.parse.urlencode(params)}"
+        )
 
         if self._browser:
             har_file = DIR_TEMP / "minim_tidal_private.har"
@@ -2279,9 +2350,9 @@ class PrivateAPI:
                 queries = dict(
                     urllib.parse.parse_qsl(
                         urllib.parse.urlparse(
-                            re.search(rf'{self.REDIRECT_URI}\?(.*?)"', f.read()).group(
-                                0
-                            )
+                            re.search(
+                                rf'{self.REDIRECT_URI}\?(.*?)"', f.read()
+                            ).group(0)
                         ).query
                     )
                 )
@@ -2298,7 +2369,9 @@ class PrivateAPI:
                 "your behalf, copy and paste the URI beginning "
                 f"with '{self.REDIRECT_URI}' below.\n\nURI: "
             )
-            queries = dict(urllib.parse.parse_qsl(urllib.parse.urlparse(uri).query))
+            queries = dict(
+                urllib.parse.parse_qsl(urllib.parse.urlparse(uri).query)
+            )
 
         if "code" not in queries:
             raise RuntimeError("Authorization failed.")
@@ -2373,7 +2446,9 @@ class PrivateAPI:
                 },
             ).json()
 
-            self.session.headers["Authorization"] = f"Bearer {r['access_token']}"
+            self.session.headers["Authorization"] = (
+                f"Bearer {r['access_token']}"
+            )
             self._expiry = datetime.datetime.now() + datetime.timedelta(
                 0, r["expires_in"]
             )
@@ -2427,7 +2502,9 @@ class PrivateAPI:
                 substatus = (
                     error["subStatus"]
                     if "subStatus" in error
-                    else error["sub_status"] if "sub_status" in error else ""
+                    else error["sub_status"]
+                    if "sub_status" in error
+                    else ""
                 )
                 description = (
                     error["userMessage"]
@@ -2503,7 +2580,9 @@ class PrivateAPI:
                     }
                     data["code"] = self._get_authorization_code(
                         base64.urlsafe_b64encode(
-                            hashlib.sha256(data["code_verifier"].encode()).digest()
+                            hashlib.sha256(
+                                data["code_verifier"].encode()
+                            ).digest()
                         )
                         .decode()
                         .rstrip("=")
@@ -2529,7 +2608,9 @@ class PrivateAPI:
                         )
                         raise ValueError(emsg)
                     data["device_code"] = r["deviceCode"]
-                    data["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code"
+                    data["grant_type"] = (
+                        "urn:ietf:params:oauth:grant-type:device_code"
+                    )
 
                     verification_uri = f"http://{r['verificationUriComplete']}"
                     if self._browser:
@@ -2570,7 +2651,9 @@ class PrivateAPI:
                         "scopes": self._scopes,
                     }
                     if hasattr(self, "_client_secret"):
-                        _config[self._NAME]["client_secret"] = self._client_secret
+                        _config[self._NAME]["client_secret"] = (
+                            self._client_secret
+                        )
                     with open(DIR_HOME / "minim.cfg", "w") as f:
                         _config.write(f)
 
@@ -2676,7 +2759,9 @@ class PrivateAPI:
             self._client_secret = client_secret or os.environ.get(
                 "TIDAL_PRIVATE_CLIENT_SECRET"
             )
-            self._scopes = " ".join(scopes) if isinstance(scopes, list) else scopes
+            self._scopes = (
+                " ".join(scopes) if isinstance(scopes, list) else scopes
+            )
         else:
             self.session.headers["x-tidal-token"] = self._client_id
             self._scopes = ""
@@ -2767,7 +2852,10 @@ class PrivateAPI:
         """
 
         self._check_scope(
-            "get_album", "r_usr", flows={"device_code"}, require_authentication=False
+            "get_album",
+            "r_usr",
+            flows={"device_code"},
+            require_authentication=False,
         )
 
         return self._get_json(
@@ -3348,7 +3436,8 @@ class PrivateAPI:
             album_ids = ",".join(map(str, album_ids))
         self._request(
             "delete",
-            f"{self.API_URL}/v1/users/{self._user_id}" f"/favorites/albums/{album_ids}",
+            f"{self.API_URL}/v1/users/{self._user_id}"
+            f"/favorites/albums/{album_ids}",
         )
 
     ### ARTISTS ###############################################################
@@ -3409,7 +3498,10 @@ class PrivateAPI:
         """
 
         self._check_scope(
-            "get_artist", "r_usr", flows={"device_code"}, require_authentication=False
+            "get_artist",
+            "r_usr",
+            flows={"device_code"},
+            require_authentication=False,
         )
 
         return self._get_json(
@@ -4298,7 +4390,9 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_favorite_artists", "r_usr", flows={"device_code"})
+        self._check_scope(
+            "get_favorite_artists", "r_usr", flows={"device_code"}
+        )
 
         return self._get_json(
             f"{self.API_URL}/v1/users/{self._user_id}/favorites/artists",
@@ -4517,7 +4611,8 @@ class PrivateAPI:
 
         self._request(
             "delete",
-            f"{self.API_URL}/v1/users/{self._user_id}" f"/blocks/artists/{artist_id}",
+            f"{self.API_URL}/v1/users/{self._user_id}"
+            f"/blocks/artists/{artist_id}",
         )
 
     ### COUNTRY ###############################################################
@@ -4638,7 +4733,9 @@ class PrivateAPI:
 
     ### MIXES #################################################################
 
-    def get_mix_items(self, mix_id: str, country_code: str = None) -> dict[str, Any]:
+    def get_mix_items(
+        self, mix_id: str, country_code: str = None
+    ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for items (tracks and videos) in
         a mix.
@@ -4859,7 +4956,10 @@ class PrivateAPI:
         return self._get_json(url, params={"limit": limit, "cursor": cursor})
 
     def favorite_mixes(
-        self, mix_ids: Union[str, list[str]], *, on_artifact_not_found: str = "FAIL"
+        self,
+        mix_ids: Union[str, list[str]],
+        *,
+        on_artifact_not_found: str = "FAIL",
     ) -> None:
         """
         Add mixes to the current user's collection.
@@ -4891,7 +4991,10 @@ class PrivateAPI:
         self._request(
             "put",
             f"{self.API_URL}/v2/favorites/mixes/add",
-            data={"mixIds": mix_ids, "onArtifactNotFound": on_artifact_not_found},
+            data={
+                "mixIds": mix_ids,
+                "onArtifactNotFound": on_artifact_not_found,
+            },
         )
 
     def unfavorite_mixes(self, mix_ids: Union[str, list[str]]) -> None:
@@ -4918,7 +5021,9 @@ class PrivateAPI:
         self._check_scope("unfavorite_mixes", "r_usr", flows={"device_code"})
 
         self._request(
-            "put", f"{self.API_URL}/v2/favorites/mixes/remove", data={"mixIds": mix_ids}
+            "put",
+            f"{self.API_URL}/v2/favorites/mixes/remove",
+            data={"mixIds": mix_ids},
         )
 
     ### PAGES #################################################################
@@ -4978,8 +5083,12 @@ class PrivateAPI:
             require_authentication=False,
         )
 
-        if device_type not in (DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}):
-            emsg = "Invalid device type. Valid values: " f"{', '.join(DEVICE_TYPES)}."
+        if device_type not in (
+            DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}
+        ):
+            emsg = (
+                f"Invalid device type. Valid values: {', '.join(DEVICE_TYPES)}."
+            )
             raise ValueError(emsg)
 
         return self._get_json(
@@ -5046,8 +5155,12 @@ class PrivateAPI:
             require_authentication=False,
         )
 
-        if device_type not in (DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}):
-            emsg = "Invalid device type. Valid values: " f"{', '.join(DEVICE_TYPES)}."
+        if device_type not in (
+            DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}
+        ):
+            emsg = (
+                f"Invalid device type. Valid values: {', '.join(DEVICE_TYPES)}."
+            )
             raise ValueError(emsg)
 
         return self._get_json(
@@ -5060,7 +5173,11 @@ class PrivateAPI:
         )
 
     def get_mix_page(
-        self, mix_id: str, country_code: str = None, *, device_type: str = "BROWSER"
+        self,
+        mix_id: str,
+        country_code: str = None,
+        *,
+        device_type: str = "BROWSER",
     ) -> dict[str, Any]:
         """
         Get the TIDAL page for a mix.
@@ -5104,11 +5221,18 @@ class PrivateAPI:
         """
 
         self._check_scope(
-            "get_mix_page", "r_usr", flows={"device_code"}, require_authentication=False
+            "get_mix_page",
+            "r_usr",
+            flows={"device_code"},
+            require_authentication=False,
         )
 
-        if device_type not in (DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}):
-            emsg = "Invalid device type. Valid values: " f"{', '.join(DEVICE_TYPES)}."
+        if device_type not in (
+            DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}
+        ):
+            emsg = (
+                f"Invalid device type. Valid values: {', '.join(DEVICE_TYPES)}."
+            )
             raise ValueError(emsg)
 
         return self._get_json(
@@ -5175,8 +5299,12 @@ class PrivateAPI:
             require_authentication=False,
         )
 
-        if device_type not in (DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}):
-            emsg = "Invalid device type. Valid values: " f"{', '.join(DEVICE_TYPES)}."
+        if device_type not in (
+            DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}
+        ):
+            emsg = (
+                f"Invalid device type. Valid values: {', '.join(DEVICE_TYPES)}."
+            )
             raise ValueError(emsg)
 
         return self._get_json(
@@ -5257,7 +5385,10 @@ class PrivateAPI:
         """
 
         self._check_scope(
-            "get_playlist", "r_usr", flows={"device_code"}, require_authentication=False
+            "get_playlist",
+            "r_usr",
+            flows={"device_code"},
+            require_authentication=False,
         )
 
         return self._get_json(
@@ -5265,7 +5396,9 @@ class PrivateAPI:
             params={"countryCode": self._get_country_code(country_code)},
         )
 
-    def get_playlist_etag(self, playlist_uuid: str, country_code: str = None) -> str:
+    def get_playlist_etag(
+        self, playlist_uuid: str, country_code: str = None
+    ) -> str:
         """
         Get the entity tag (ETag) for a playlist.
 
@@ -5573,7 +5706,8 @@ class PrivateAPI:
         )
 
         return self._get_json(
-            f"{self.API_URL}/v1/playlists/{playlist_uuid}" "/recommendations/items",
+            f"{self.API_URL}/v1/playlists/{playlist_uuid}"
+            "/recommendations/items",
             params={
                 "countryCode": self._get_country_code(country_code),
                 "limit": limit,
@@ -5643,7 +5777,10 @@ class PrivateAPI:
         self._request(
             "put",
             f"{self.API_URL}/v2/my-collection/playlists/folders/move",
-            params={"folderId": folder_id, "trns": f"trn:playlist:{playlist_uuid}"},
+            params={
+                "folderId": folder_id,
+                "trns": f"trn:playlist:{playlist_uuid}",
+            },
         )
 
     def unfavorite_playlist(self, playlist_uuid: str) -> None:
@@ -5743,10 +5880,16 @@ class PrivateAPI:
 
         self._check_scope("get_user_playlist", "r_usr", flows={"device_code"})
 
-        return self._get_json(f"{self.API_URL}/v2/user-playlists/{playlist_uuid}")
+        return self._get_json(
+            f"{self.API_URL}/v2/user-playlists/{playlist_uuid}"
+        )
 
     def get_user_playlists(
-        self, user_id: Union[int, str] = None, *, limit: int = 50, cursor: str = None
+        self,
+        user_id: Union[int, str] = None,
+        *,
+        limit: int = 50,
+        cursor: str = None,
     ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for playlists created by a TIDAL
@@ -5913,7 +6056,9 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_personal_playlists", "r_usr", flows={"device_code"})
+        self._check_scope(
+            "get_personal_playlists", "r_usr", flows={"device_code"}
+        )
 
         return self._get_json(
             f"{self.API_URL}/v1/users/{self._user_id}/playlists",
@@ -6058,7 +6203,9 @@ class PrivateAPI:
             data["title"] = title
         if description is not None:
             data["description"] = description
-        self._request("post", f"{self.API_URL}/v1/playlists/{playlist_uuid}", data=data)
+        self._request(
+            "post", f"{self.API_URL}/v1/playlists/{playlist_uuid}", data=data
+        )
 
     def set_playlist_privacy(self, playlist_uuid: str, public: bool) -> None:
         """
@@ -6082,7 +6229,9 @@ class PrivateAPI:
             private (:code:`False`).
         """
 
-        self._check_scope("set_playlist_privacy", "r_usr", flows={"device_code"})
+        self._check_scope(
+            "set_playlist_privacy", "r_usr", flows={"device_code"}
+        )
 
         self._request(
             "put",
@@ -6163,7 +6312,10 @@ class PrivateAPI:
         )
 
     def move_playlist_item(
-        self, playlist_uuid: str, from_index: Union[int, str], to_index: Union[int, str]
+        self,
+        playlist_uuid: str,
+        from_index: Union[int, str],
+        to_index: Union[int, str],
     ) -> None:
         """
         Move an item in a playlist owned by the current user.
@@ -6197,7 +6349,9 @@ class PrivateAPI:
             headers={"If-None-Match": self.get_playlist_etag(playlist_uuid)},
         )
 
-    def delete_playlist_item(self, playlist_uuid: str, index: Union[int, str]) -> None:
+    def delete_playlist_item(
+        self, playlist_uuid: str, index: Union[int, str]
+    ) -> None:
         """
         Delete an item from a playlist owned by the current user.
 
@@ -6218,7 +6372,9 @@ class PrivateAPI:
             Item index.
         """
 
-        self._check_scope("delete_playlist_item", "r_usr", flows={"device_code"})
+        self._check_scope(
+            "delete_playlist_item", "r_usr", flows={"device_code"}
+        )
 
         self._request(
             "delete",
@@ -6350,7 +6506,8 @@ class PrivateAPI:
             ALLOWED_INCLUDES := {"FAVORITE_PLAYLIST", "FOLDER", "PLAYLIST"}
         ):
             emsg = (
-                "Invalid include type. Valid values: " f"{', '.join(ALLOWED_INCLUDES)}."
+                "Invalid include type. Valid values: "
+                f"{', '.join(ALLOWED_INCLUDES)}."
             )
             raise ValueError(emsg)
 
@@ -6368,7 +6525,9 @@ class PrivateAPI:
             },
         )
 
-    def create_playlist_folder(self, name: str, *, folder_uuid: str = "root") -> None:
+    def create_playlist_folder(
+        self, name: str, *, folder_uuid: str = "root"
+    ) -> None:
         """
         Create a user playlist folder.
 
@@ -6389,7 +6548,9 @@ class PrivateAPI:
             Playlists", use :code:`folder_id="root"`.
         """
 
-        self._check_scope("create_playlist_folder", "r_usr", flows={"device_code"})
+        self._check_scope(
+            "create_playlist_folder", "r_usr", flows={"device_code"}
+        )
 
         self._request(
             "put",
@@ -6415,7 +6576,9 @@ class PrivateAPI:
             **Example**: :code:`"92b3c1ea-245a-4e5a-a5a4-c215f7a65b9f"`.
         """
 
-        self._check_scope("delete_playlist_folder", "r_usr", flows={"device_code"})
+        self._check_scope(
+            "delete_playlist_folder", "r_usr", flows={"device_code"}
+        )
 
         self._request(
             "put",
@@ -6709,7 +6872,10 @@ class PrivateAPI:
         """
 
         self._check_scope(
-            "search", "r_usr", flows={"device_code"}, require_authentication=False
+            "search",
+            "r_usr",
+            flows={"device_code"},
+            require_authentication=False,
         )
 
         url = f"{self.API_URL}/v1/search"
@@ -6725,7 +6891,8 @@ class PrivateAPI:
                 }
             ):
                 emsg = (
-                    "Invalid target search type. Valid values: " f"{', '.join(TYPES)}."
+                    "Invalid target search type. Valid values: "
+                    f"{', '.join(TYPES)}."
                 )
                 raise ValueError(emsg)
             url += f"/{type}s"
@@ -6984,9 +7151,9 @@ class PrivateAPI:
 
         if b"urn:mpeg:dash" in manifest:
             manifest = minidom.parseString(manifest)
-            codec = manifest.getElementsByTagName("Representation")[0].getAttribute(
-                "codecs"
-            )
+            codec = manifest.getElementsByTagName("Representation")[
+                0
+            ].getAttribute("codecs")
             segment = manifest.getElementsByTagName("SegmentTemplate")[0]
             stream = bytearray()
             with self.session.get(segment.getAttribute("initialization")) as r:
@@ -7022,7 +7189,10 @@ class PrivateAPI:
                     .update(key_id[16:])
                 )
                 stream = (
-                    Cipher(algorithms.AES(key_nonce[:16]), modes.CTR(key_nonce[16:32]))
+                    Cipher(
+                        algorithms.AES(key_nonce[:16]),
+                        modes.CTR(key_nonce[16:32]),
+                    )
                     .decryptor()
                     .update(stream)
                 )
@@ -7115,16 +7285,17 @@ class PrivateAPI:
             (c, pl)
             for c, res, pl in re.findall(
                 r'(?<=CODECS=")(.*)",(?:RESOLUTION=)\d+x(\d+)\n(http.*)',
-                self.session.get(json.loads(manifest)["urls"][0]).content.decode(
-                    "utf-8"
-                ),
+                self.session.get(
+                    json.loads(manifest)["urls"][0]
+                ).content.decode("utf-8"),
             )[::-1]
             if int(res) < max_resolution
         )
 
         stream = bytearray()
         for ts in re.findall(
-            "(?<=\n).*(http.*)", self.session.get(playlist).content.decode("utf-8")
+            "(?<=\n).*(http.*)",
+            self.session.get(playlist).content.decode("utf-8"),
         ):
             with self.session.get(ts) as r:
                 stream.extend(r.content)
@@ -7223,7 +7394,10 @@ class PrivateAPI:
         """
 
         self._check_scope(
-            "get_track", "r_usr", flows={"device_code"}, require_authentication=False
+            "get_track",
+            "r_usr",
+            flows={"device_code"},
+            require_authentication=False,
         )
 
         return self._get_json(
@@ -7640,7 +7814,9 @@ class PrivateAPI:
                 f"modes are {', '.join(PLAYBACK_MODES)}."
             )
             raise ValueError(emsg)
-        if asset_presentation not in (ASSET_PRESENTATIONS := {"FULL", "PREVIEW"}):
+        if asset_presentation not in (
+            ASSET_PRESENTATIONS := {"FULL", "PREVIEW"}
+        ):
             emsg = (
                 "Invalid asset presentation. Valid values: "
                 "presentations are "
@@ -7779,7 +7955,9 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_track_recommendations", "r_usr", flows={"device_code"})
+        self._check_scope(
+            "get_track_recommendations", "r_usr", flows={"device_code"}
+        )
 
         return self._get_json(
             f"{self.API_URL}/v1/tracks/{track_id}/recommendations",
@@ -8007,7 +8185,8 @@ class PrivateAPI:
             track_ids = ",".join(map(str, track_ids))
         self._request(
             "delete",
-            f"{self.API_URL}/v1/users/{self._user_id}" f"/favorites/tracks/{track_ids}",
+            f"{self.API_URL}/v1/users/{self._user_id}"
+            f"/favorites/tracks/{track_ids}",
         )
 
     ### USERS #################################################################
@@ -8139,7 +8318,9 @@ class PrivateAPI:
 
         self._check_scope("get_favorite_ids", "r_usr", flows={"device_code"})
 
-        return self._get_json(f"{self.API_URL}/v1/users/{self._user_id}/favorites/ids")
+        return self._get_json(
+            f"{self.API_URL}/v1/users/{self._user_id}/favorites/ids"
+        )
 
     def get_user_profile(self, user_id: Union[int, str]) -> dict[str, Any]:
         """
@@ -8199,7 +8380,11 @@ class PrivateAPI:
         return self._get_json(f"{self.API_URL}/v2/profiles/{user_id}")
 
     def get_user_followers(
-        self, user_id: Union[int, str] = None, *, limit: int = 500, cursor: str = None
+        self,
+        user_id: Union[int, str] = None,
+        *,
+        limit: int = 500,
+        cursor: str = None,
     ) -> dict[str, Any]:
         """
         Get a TIDAL user's followers.
@@ -8314,7 +8499,8 @@ class PrivateAPI:
             ALLOWED_INCLUDES := {"ARTIST", "USER"}
         ):
             emsg = (
-                "Invalid include type. Valid values: " f"{', '.join(ALLOWED_INCLUDES)}."
+                "Invalid include type. Valid values: "
+                f"{', '.join(ALLOWED_INCLUDES)}."
             )
             raise ValueError(emsg)
 
@@ -8322,7 +8508,11 @@ class PrivateAPI:
             user_id = self._user_id
         return self._get_json(
             f"{self.API_URL}/v2/profiles/{user_id}/following",
-            params={"includeOnly": include_only, "limit": limit, "cursor": cursor},
+            params={
+                "includeOnly": include_only,
+                "limit": limit,
+                "cursor": cursor,
+            },
         )
 
     def follow_user(self, user_id: Union[int, str]) -> None:
@@ -8346,7 +8536,9 @@ class PrivateAPI:
         self._check_scope("follow_user", "r_usr", flows={"device_code"})
 
         self._request(
-            "put", f"{self.API_URL}/v2/follow", params={"trn": f"trn:user:{user_id}"}
+            "put",
+            f"{self.API_URL}/v2/follow",
+            params={"trn": f"trn:user:{user_id}"},
         )
 
     def unfollow_user(self, user_id: Union[int, str]) -> None:
@@ -8370,7 +8562,9 @@ class PrivateAPI:
         self._check_scope("unfollow_user", "r_usr", flows={"device_code"})
 
         self._request(
-            "delete", f"{self.API_URL}/v2/follow", params={"trn": f"trn:user:{user_id}"}
+            "delete",
+            f"{self.API_URL}/v2/follow",
+            params={"trn": f"trn:user:{user_id}"},
         )
 
     def get_blocked_users(
@@ -8534,7 +8728,10 @@ class PrivateAPI:
         """
 
         self._check_scope(
-            "get_video", "r_usr", flows={"device_code"}, require_authentication=False
+            "get_video",
+            "r_usr",
+            flows={"device_code"},
+            require_authentication=False,
         )
 
         return self._get_json(
@@ -8637,7 +8834,9 @@ class PrivateAPI:
                 f"modes are {', '.join(PLAYBACK_MODES)}."
             )
             raise ValueError(emsg)
-        if asset_presentation not in (ASSET_PRESENTATIONS := {"FULL", "PREVIEW"}):
+        if asset_presentation not in (
+            ASSET_PRESENTATIONS := {"FULL", "PREVIEW"}
+        ):
             emsg = (
                 "Invalid asset presentation. Valid values: "
                 "presentations are "
@@ -8860,5 +9059,6 @@ class PrivateAPI:
             video_ids = ",".join(map(str, video_ids))
         self._request(
             "delete",
-            f"{self.API_URL}/v1/users/{self._user_id}" f"/favorites/videos/{video_ids}",
+            f"{self.API_URL}/v1/users/{self._user_id}"
+            f"/favorites/videos/{video_ids}",
         )

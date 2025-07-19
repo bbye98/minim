@@ -56,7 +56,9 @@ class _DiscogsRedirectHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/html")
         self.end_headers()
         status = "denied" if "denied" in self.server.response else "granted"
-        self.wfile.write(f"Access {status}. You may close this page now.".encode())
+        self.wfile.write(
+            f"Access {status}. You may close this page now.".encode()
+        )
 
 
 class API:
@@ -238,9 +240,15 @@ class API:
         """
 
         self.session = requests.Session()
-        self.session.headers["User-Agent"] = f"Minim/{VERSION} +{REPOSITORY_URL}"
+        self.session.headers["User-Agent"] = (
+            f"Minim/{VERSION} +{REPOSITORY_URL}"
+        )
 
-        if access_token is None and _config.has_section(self._NAME) and not overwrite:
+        if (
+            access_token is None
+            and _config.has_section(self._NAME)
+            and not overwrite
+        ):
             flow = _config.get(self._NAME, "flow")
             access_token = _config.get(self._NAME, "access_token")
             access_token_secret = _config.get(self._NAME, "access_token_secret")
@@ -281,7 +289,7 @@ class API:
             or self._flow == "discogs"
             and "token" not in self.session.headers["Authorization"]
         ):
-            emsg = f"{self._NAME}.{endpoint}() requires user " "authentication."
+            emsg = f"{self._NAME}.{endpoint}() requires user authentication."
             raise RuntimeError(emsg)
         elif self._flow is None:
             emsg = f"{self._NAME}.{endpoint}() requires client credentials."
@@ -389,7 +397,9 @@ class API:
                 r = self._request(
                     "get",
                     self.REQUEST_TOKEN_URL,
-                    headers={"Content-Type": "application/x-www-form-urlencoded"},
+                    headers={
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
                     oauth=oauth,
                 )
                 auth_url = f"{self.AUTH_URL}?{r.text}"
@@ -403,7 +413,9 @@ class API:
                         context = browser.new_context(record_har_path=har_file)
                         page = context.new_page()
                         page.goto(auth_url, timeout=0)
-                        page.wait_for_url(f"{self._redirect_uri}*", wait_until="commit")
+                        page.wait_for_url(
+                            f"{self._redirect_uri}*", wait_until="commit"
+                        )
                         context.close()
                         browser.close()
 
@@ -412,7 +424,8 @@ class API:
                             urllib.parse.parse_qsl(
                                 urllib.parse.urlparse(
                                     re.search(
-                                        rf'{self._redirect_uri}\?(.*?)"', f.read()
+                                        rf'{self._redirect_uri}\?(.*?)"',
+                                        f.read(),
                                     ).group(0)
                                 ).query
                             )
@@ -430,7 +443,9 @@ class API:
                         )
 
                     if self._web_framework == "http.server":
-                        httpd = HTTPServer(("", self._port), _DiscogsRedirectHandler)
+                        httpd = HTTPServer(
+                            ("", self._port), _DiscogsRedirectHandler
+                        )
                         httpd.handle_request()
                         oauth |= httpd.response
 
@@ -441,12 +456,19 @@ class API:
                         @app.route("/callback", methods=["GET"])
                         def _callback() -> str:
                             if "error" in request.args:
-                                return "Access denied. You may close " "this page now."
+                                return (
+                                    "Access denied. You may close "
+                                    "this page now."
+                                )
                             with open(json_file, "w") as f:
                                 json.dump(request.args, f)
-                            return "Access granted. You may close " "this page now."
+                            return (
+                                "Access granted. You may close this page now."
+                            )
 
-                        server = Process(target=app.run, args=("0.0.0.0", self._port))
+                        server = Process(
+                            target=app.run, args=("0.0.0.0", self._port)
+                        )
                         server.start()
                         while not json_file.is_file():
                             time.sleep(0.1)
@@ -467,12 +489,14 @@ class API:
                     raise RuntimeError("Authorization failed.")
 
                 oauth["oauth_signature"] = (
-                    f"{self._consumer_secret}" f"&{oauth['oauth_token_secret']}"
+                    f"{self._consumer_secret}&{oauth['oauth_token_secret']}"
                 )
                 r = self._request(
                     "post",
                     self.ACCESS_TOKEN_URL,
-                    headers={"Content-Type": "application/x-www-form-urlencoded"},
+                    headers={
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
                     oauth=oauth,
                 )
                 access_token, access_token_secret = dict(
@@ -492,7 +516,8 @@ class API:
 
             self._oauth |= {
                 "oauth_token": access_token,
-                "oauth_signature": self._consumer_secret + f"&{access_token_secret}",
+                "oauth_signature": self._consumer_secret
+                + f"&{access_token_secret}",
             }
 
         elif self._flow == "discogs":
@@ -505,7 +530,9 @@ class API:
                     f"secret={self._consumer_secret}"
                 )
             else:
-                self.session.headers["Authorization"] = f"Discogs token={access_token}"
+                self.session.headers["Authorization"] = (
+                    f"Discogs token={access_token}"
+                )
 
         if (
             self._flow == "oauth"
@@ -605,7 +632,9 @@ class API:
         self._flow = flow
         self._save = save
 
-        self._consumer_key = consumer_key or os.environ.get("DISCOGS_CONSUMER_KEY")
+        self._consumer_key = consumer_key or os.environ.get(
+            "DISCOGS_CONSUMER_KEY"
+        )
         self._consumer_secret = consumer_secret or os.environ.get(
             "DISCOGS_CONSUMER_SECRET"
         )
@@ -615,7 +644,9 @@ class API:
             if redirect_uri:
                 self._redirect_uri = redirect_uri
                 if "localhost" in redirect_uri:
-                    self._port = re.search(r"localhost:(\d+)", redirect_uri).group(1)
+                    self._port = re.search(
+                        r"localhost:(\d+)", redirect_uri
+                    ).group(1)
                 elif web_framework:
                     wmsg = (
                         "The redirect URI is not on localhost, "
@@ -834,7 +865,8 @@ class API:
             raise ValueError(emsg)
 
         return self._get_json(
-            f"{self.API_URL}/releases/{release_id}", params={"curr_abbr": curr_abbr}
+            f"{self.API_URL}/releases/{release_id}",
+            params={"curr_abbr": curr_abbr},
         )
 
     def get_user_release_rating(
@@ -883,7 +915,9 @@ class API:
             else:
                 raise ValueError("No username provided.")
 
-        return self._get_json(f"{self.API_URL}/releases/{release_id}/rating/{username}")
+        return self._get_json(
+            f"{self.API_URL}/releases/{release_id}/rating/{username}"
+        )
 
     def update_user_release_rating(
         self, release_id: Union[int, str], rating: int, username: str = None
@@ -2254,7 +2288,9 @@ class API:
 
         self._check_authentication("delete_listing")
 
-        self._request("delete", f"{self.API_URL}/marketplace/listings/{listing_id}")
+        self._request(
+            "delete", f"{self.API_URL}/marketplace/listings/{listing_id}"
+        )
 
     def get_order(self, order_id: str) -> dict[str, Any]:
         """
@@ -2846,9 +2882,13 @@ class API:
                   }
         """
 
-        return self._get_json(f"{self.API_URL}/marketplace/fee/{price}/{currency}")
+        return self._get_json(
+            f"{self.API_URL}/marketplace/fee/{price}/{currency}"
+        )
 
-    def get_price_suggestions(self, release_id: Union[int, str]) -> dict[str, Any]:
+    def get_price_suggestions(
+        self, release_id: Union[int, str]
+    ) -> dict[str, Any]:
         """
         `Marketplace > Price Suggestions <https://www.discogs.com
         /developers/#page:marketplace,header
@@ -3036,7 +3076,9 @@ class API:
         r = self._request("post", f"{self.API_URL}/inventory/export")
         if download:
             return self.download_inventory_export(
-                r.headers["Location"].split("/")[-1], filename=filename, path=path
+                r.headers["Location"].split("/")[-1],
+                filename=filename,
+                path=path,
             )
         return r.headers["Location"]
 
@@ -3109,7 +3151,9 @@ class API:
             json={"page": page, "per_page": per_page},
         )
 
-    def get_inventory_export(self, export_id: int) -> dict[str, Union[int, str]]:
+    def get_inventory_export(
+        self, export_id: int
+    ) -> dict[str, Union[int, str]]:
         """
         `Inventory Export > Get An Export <https://www.discogs.com
         /developers/#page:inventory-export,header
@@ -3206,7 +3250,9 @@ class API:
             if not filename.endswith(".csv"):
                 filename += ".csv"
 
-        with open(path := os.path.join(path or os.getcwd(), filename), "w") as f:
+        with open(
+            path := os.path.join(path or os.getcwd(), filename), "w"
+        ) as f:
             f.write(r.text)
 
         return path
@@ -3818,7 +3864,9 @@ class API:
 
     ### USER COLLECTION #######################################################
 
-    def get_collection_folders(self, username: str = None) -> list[dict[str, Any]]:
+    def get_collection_folders(
+        self, username: str = None
+    ) -> list[dict[str, Any]]:
         """
         `User Collection > Collection > Get Collection Folders
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -3869,9 +3917,9 @@ class API:
             else:
                 raise ValueError("No username provided.")
 
-        return self._get_json(f"{self.API_URL}/users/{username}/collection/folders")[
-            "folders"
-        ]
+        return self._get_json(
+            f"{self.API_URL}/users/{username}/collection/folders"
+        )["folders"]
 
     def create_collection_folder(self, name: str) -> dict[str, Union[int, str]]:
         """
@@ -3976,7 +4024,8 @@ class API:
             self._check_authentication("get_collection_folder")
 
         return self._get_json(
-            f"{self.API_URL}/users/{self._username}" f"/collection/folders/{folder_id}"
+            f"{self.API_URL}/users/{self._username}"
+            f"/collection/folders/{folder_id}"
         )
 
     def rename_collection_folder(
@@ -4036,11 +4085,14 @@ class API:
 
         return self._request(
             "post",
-            f"{self.API_URL}/users/{self._username}" f"/collection/folders/{folder_id}",
+            f"{self.API_URL}/users/{self._username}"
+            f"/collection/folders/{folder_id}",
             json={"name": name},
         ).json()
 
-    def delete_collection_folder(self, folder_id: int, *, username: str = None) -> None:
+    def delete_collection_folder(
+        self, folder_id: int, *, username: str = None
+    ) -> None:
         """
         `User Collection > Collection Folder > Delete Folder
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -4074,7 +4126,8 @@ class API:
 
         self._request(
             "delete",
-            f"{self.API_URL}/users/{self._username}" f"/collection/folders/{folder_id}",
+            f"{self.API_URL}/users/{self._username}"
+            f"/collection/folders/{folder_id}",
         )
 
     def get_collection_folders_by_release(
@@ -4459,7 +4512,12 @@ class API:
         )
 
     def delete_collection_folder_release(
-        self, folder_id: int, release_id: int, instance_id: int, *, username: str = None
+        self,
+        folder_id: int,
+        release_id: int,
+        instance_id: int,
+        *,
+        username: str = None,
     ) -> None:
         """
         `User Collection > Delete Instance From Folder
@@ -4507,7 +4565,9 @@ class API:
             f"/{folder_id}/releases/{release_id}/instances/{instance_id}",
         )
 
-    def get_collection_fields(self, username: str = None) -> list[dict[str, Any]]:
+    def get_collection_fields(
+        self, username: str = None
+    ) -> list[dict[str, Any]]:
         """
         `User Collection > Collection Fields
         <https://www.discogs.com/developers/#page:user-collection,header
@@ -4570,9 +4630,9 @@ class API:
             else:
                 raise ValueError("No username provided.")
 
-        return self._get_json(f"{self.API_URL}/users/{username}/collection/fields")[
-            "fields"
-        ]
+        return self._get_json(
+            f"{self.API_URL}/users/{username}/collection/fields"
+        )["fields"]
 
     def edit_collection_release_field(
         self,
@@ -4686,7 +4746,9 @@ class API:
             else:
                 raise ValueError("No username provided.")
 
-        return self._get_json(f"{self.API_URL}/users/{username}/collection/value")
+        return self._get_json(
+            f"{self.API_URL}/users/{username}/collection/value"
+        )
 
     ### USER WANTLIST #########################################################
 

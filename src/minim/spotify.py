@@ -53,7 +53,9 @@ class _SpotifyRedirectHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/html")
         self.end_headers()
         status = "denied" if "error" in self.server.response else "granted"
-        self.wfile.write(f"Access {status}. You may close this page now.".encode())
+        self.wfile.write(
+            f"Access {status}. You may close this page now.".encode()
+        )
 
 
 class PrivateLyricsService:
@@ -249,7 +251,9 @@ class PrivateLyricsService:
         self._save = save
 
     def set_access_token(
-        self, access_token: str = None, expiry: Union[datetime.datetime, str] = None
+        self,
+        access_token: str = None,
+        expiry: Union[datetime.datetime, str] = None,
     ) -> None:
         """
         Set the Spotify Lyrics service access token.
@@ -670,11 +674,16 @@ class WebAPI:
             if categories == "all":
                 return " ".join(s for scopes in SCOPES.values() for s in scopes)
             return " ".join(
-                s for scopes in SCOPES.values() for s in scopes if categories in s
+                s
+                for scopes in SCOPES.values()
+                for s in scopes
+                if categories in s
             )
 
         return " ".join(
-            s for scopes in (self.get_scopes[c] for c in categories) for s in scopes
+            s
+            for scopes in (self.get_scopes[c] for c in categories)
+            for s in scopes
         )
 
     def __init__(
@@ -701,14 +710,24 @@ class WebAPI:
 
         self.session = requests.Session()
 
-        if access_token is None and _config.has_section(self._NAME) and not overwrite:
+        if (
+            access_token is None
+            and _config.has_section(self._NAME)
+            and not overwrite
+        ):
             flow = _config.get(self._NAME, "flow")
             access_token = _config.get(self._NAME, "access_token")
-            refresh_token = _config.get(self._NAME, "refresh_token", fallback=None)
+            refresh_token = _config.get(
+                self._NAME, "refresh_token", fallback=None
+            )
             expiry = _config.get(self._NAME, "expiry", fallback=None)
             client_id = _config.get(self._NAME, "client_id")
-            client_secret = _config.get(self._NAME, "client_secret", fallback=None)
-            redirect_uri = _config.get(self._NAME, "redirect_uri", fallback=None)
+            client_secret = _config.get(
+                self._NAME, "client_secret", fallback=None
+            )
+            redirect_uri = _config.get(
+                self._NAME, "redirect_uri", fallback=None
+            )
             scopes = _config.get(self._NAME, "scopes")
             sp_dc = _config.get(self._NAME, "sp_dc", fallback=None)
 
@@ -724,7 +743,9 @@ class WebAPI:
             sp_dc=sp_dc,
             save=save,
         )
-        self.set_access_token(access_token, refresh_token=refresh_token, expiry=expiry)
+        self.set_access_token(
+            access_token, refresh_token=refresh_token, expiry=expiry
+        )
 
     def _check_scope(self, endpoint: str, scope: str) -> None:
         """
@@ -795,9 +816,9 @@ class WebAPI:
                 queries = dict(
                     urllib.parse.parse_qsl(
                         urllib.parse.urlparse(
-                            re.search(rf'{self._redirect_uri}\?(.*?)"', f.read()).group(
-                                0
-                            )
+                            re.search(
+                                rf'{self._redirect_uri}\?(.*?)"', f.read()
+                            ).group(0)
                         ).query
                     )
                 )
@@ -846,10 +867,14 @@ class WebAPI:
                     "your behalf, copy and paste the URI beginning "
                     f"with '{self._redirect_uri}' below.\n\nURI: "
                 )
-                queries = dict(urllib.parse.parse_qsl(urllib.parse.urlparse(uri).query))
+                queries = dict(
+                    urllib.parse.parse_qsl(urllib.parse.urlparse(uri).query)
+                )
 
         if "error" in queries:
-            raise RuntimeError(f"Authorization failed. Error: {queries['error']}")
+            raise RuntimeError(
+                f"Authorization failed. Error: {queries['error']}"
+            )
         if params["state"] != queries["state"]:
             raise RuntimeError("Authorization failed due to state mismatch.")
         return queries["code"]
@@ -900,7 +925,9 @@ class WebAPI:
                 headers={"Authorization": f"Basic {client_b64}"},
             ).json()
 
-            self.session.headers["Authorization"] = f"Bearer {r['access_token']}"
+            self.session.headers["Authorization"] = (
+                f"Bearer {r['access_token']}"
+            )
             self._refresh_token = r["refresh_token"]
             self._expiry = datetime.datetime.now() + datetime.timedelta(
                 0, r["expires_in"]
@@ -993,8 +1020,12 @@ class WebAPI:
 
         if access_token is None:
             if self._flow == "web_player":
-                headers = {"cookie": f"sp_dc={self._sp_dc}"} if self._sp_dc else {}
-                r = requests.get(self.WEB_PLAYER_TOKEN_URL, headers=headers).json()
+                headers = (
+                    {"cookie": f"sp_dc={self._sp_dc}"} if self._sp_dc else {}
+                )
+                r = requests.get(
+                    self.WEB_PLAYER_TOKEN_URL, headers=headers
+                ).json()
                 self._client_id = r["clientId"]
                 access_token = r["accessToken"]
                 expiry = datetime.datetime.fromtimestamp(
@@ -1033,7 +1064,9 @@ class WebAPI:
                         data["code_verifier"] = secrets.token_urlsafe(96)
                         data["code"] = self._get_authorization_code(
                             base64.urlsafe_b64encode(
-                                hashlib.sha256(data["code_verifier"].encode()).digest()
+                                hashlib.sha256(
+                                    data["code_verifier"].encode()
+                                ).digest()
                             )
                             .decode()
                             .replace("=", "")
@@ -1063,7 +1096,9 @@ class WebAPI:
                     _config[self._NAME]["refresh_token"] = refresh_token
                 for attr in ("client_secret", "redirect_uri", "sp_dc"):
                     if hasattr(self, f"_{attr}"):
-                        _config[self._NAME][attr] = getattr(self, f"_{attr}") or ""
+                        _config[self._NAME][attr] = (
+                            getattr(self, f"_{attr}") or ""
+                        )
                 with open(DIR_HOME / "minim.cfg", "w") as f:
                     _config.write(f)
 
@@ -1181,14 +1216,16 @@ class WebAPI:
             )
             if flow in {"authorization_code", "pkce"}:
                 self._browser = browser
-                self._scopes = " ".join(scopes) if isinstance(scopes, list) else scopes
+                self._scopes = (
+                    " ".join(scopes) if isinstance(scopes, list) else scopes
+                )
 
                 if redirect_uri:
                     self._redirect_uri = redirect_uri
                     if "localhost" in redirect_uri:
-                        self._port = re.search(r"localhost:(\d+)", redirect_uri).group(
-                            1
-                        )
+                        self._port = re.search(
+                            r"localhost:(\d+)", redirect_uri
+                        ).group(1)
                     elif web_framework:
                         wmsg = (
                             "The redirect URI is not on localhost, "
@@ -1378,7 +1415,9 @@ class WebAPI:
                   }
         """
 
-        return self._get_json(f"{self.API_URL}/albums/{id}", params={"market": market})
+        return self._get_json(
+            f"{self.API_URL}/albums/{id}", params={"market": market}
+        )
 
     def get_albums(
         self, ids: Union[str, list[str]], *, market: str = None
@@ -1553,7 +1592,12 @@ class WebAPI:
         )["albums"]
 
     def get_album_tracks(
-        self, id: str, *, limit: int = None, market: str = None, offset: int = None
+        self,
+        id: str,
+        *,
+        limit: int = None,
+        market: str = None,
+        offset: int = None,
     ) -> dict[str, Any]:
         """
         `Albums > Get Album Tracks <https://developer.spotify.com/
@@ -1888,7 +1932,9 @@ class WebAPI:
         self._check_scope("save_albums", "user-library-modify")
 
         if isinstance(ids, str):
-            self._request("put", f"{self.API_URL}/me/albums", params={"ids": ids})
+            self._request(
+                "put", f"{self.API_URL}/me/albums", params={"ids": ids}
+            )
         elif isinstance(ids, list):
             self._request("put", f"{self.API_URL}/me/albums", json={"ids": ids})
 
@@ -1918,9 +1964,13 @@ class WebAPI:
         self._check_scope("remove_saved_albums", "user-library-modify")
 
         if isinstance(ids, str):
-            self._request("delete", f"{self.API_URL}/me/albums", params={"ids": ids})
+            self._request(
+                "delete", f"{self.API_URL}/me/albums", params={"ids": ids}
+            )
         elif isinstance(ids, list):
-            self._request("delete", f"{self.API_URL}/me/albums", json={"ids": ids})
+            self._request(
+                "delete", f"{self.API_URL}/me/albums", json={"ids": ids}
+            )
 
     def check_saved_albums(self, ids: Union[str, list[str]]) -> list[bool]:
         """
@@ -2553,7 +2603,9 @@ class WebAPI:
                   ]
         """
 
-        return self._get_json(f"{self.API_URL}/artists/{id}/related-artists")["artists"]
+        return self._get_json(f"{self.API_URL}/artists/{id}/related-artists")[
+            "artists"
+        ]
 
     ### AUDIOBOOKS ############################################################
 
@@ -2844,7 +2896,12 @@ class WebAPI:
         )["audiobooks"]
 
     def get_audiobook_chapters(
-        self, id: str, *, limit: int = None, market: str = None, offset: int = None
+        self,
+        id: str,
+        *,
+        limit: int = None,
+        market: str = None,
+        offset: int = None,
     ) -> dict[str, Any]:
         """
         `Audiobooks > Get Audiobook Chapters
@@ -3054,7 +3111,8 @@ class WebAPI:
         self._check_scope("get_saved_audiobooks", "user-library-read")
 
         return self._get_json(
-            f"{self.API_URL}/me/audiobooks", params={"limit": limit, "offset": offset}
+            f"{self.API_URL}/me/audiobooks",
+            params={"limit": limit, "offset": offset},
         )
 
     def save_audiobooks(self, ids: Union[str, list[str]]) -> None:
@@ -3991,9 +4049,13 @@ class WebAPI:
         self._check_scope("save_episodes", "user-library-modify")
 
         if isinstance(ids, str):
-            self._request("put", f"{self.API_URL}/me/episodes", params={"ids": ids})
+            self._request(
+                "put", f"{self.API_URL}/me/episodes", params={"ids": ids}
+            )
         elif isinstance(ids, list):
-            self._request("put", f"{self.API_URL}/me/episodes", json={"ids": ids})
+            self._request(
+                "put", f"{self.API_URL}/me/episodes", json={"ids": ids}
+            )
 
     def remove_saved_episodes(self, ids: Union[str, list[str]]) -> None:
         """
@@ -4021,9 +4083,13 @@ class WebAPI:
         self._check_scope("remove_saved_episodes", "user-library-modify")
 
         if isinstance(ids, str):
-            self._request("delete", f"{self.API_URL}/me/episodes", params={"ids": ids})
+            self._request(
+                "delete", f"{self.API_URL}/me/episodes", params={"ids": ids}
+            )
         elif isinstance(ids, list):
-            self._request("delete", f"{self.API_URL}/me/episodes", json={"ids": ids})
+            self._request(
+                "delete", f"{self.API_URL}/me/episodes", json={"ids": ids}
+            )
 
     def check_saved_episodes(self, ids: Union[str, list[str]]) -> list[bool]:
         """
@@ -4083,9 +4149,9 @@ class WebAPI:
             **Example**: :code:`["acoustic", "afrobeat", ...]`.
         """
 
-        return self._get_json(f"{self.API_URL}/recommendations/available-genre-seeds")[
-            "genres"
-        ]
+        return self._get_json(
+            f"{self.API_URL}/recommendations/available-genre-seeds"
+        )["genres"]
 
     ### MARKETS ###############################################################
 
@@ -4349,7 +4415,9 @@ class WebAPI:
         self._check_scope("transfer_playback", "user-modify-playback-state")
 
         json = {
-            "device_ids": [device_ids] if isinstance(device_ids, str) else device_ids
+            "device_ids": [device_ids]
+            if isinstance(device_ids, str)
+            else device_ids
         }
         if play is not None:
             json["play"] = play
@@ -4595,7 +4663,9 @@ class WebAPI:
                   }
         """
 
-        self._check_scope("get_currently_playing_item", "user-read-currently-playing")
+        self._check_scope(
+            "get_currently_playing_item", "user-read-currently-playing"
+        )
 
         self._get_json(
             f"{self.API_URL}/me/player/currently-playing",
@@ -4715,7 +4785,9 @@ class WebAPI:
         self._check_scope("pause_playback", "user-modify-playback-state")
 
         self._request(
-            "put", f"{self.API_URL}/me/player/pause", params={"device_id": device_id}
+            "put",
+            f"{self.API_URL}/me/player/pause",
+            params={"device_id": device_id},
         )
 
     def skip_to_next(self, *, device_id: str = None) -> None:
@@ -4743,7 +4815,9 @@ class WebAPI:
         self._check_scope("skip_to_next", "user-modify-playback-state")
 
         self._request(
-            "post", f"{self.API_URL}/me/player/next", params={"device_id": device_id}
+            "post",
+            f"{self.API_URL}/me/player/next",
+            params={"device_id": device_id},
         )
 
     def skip_to_previous(self, *, device_id: str = None) -> None:
@@ -4776,7 +4850,9 @@ class WebAPI:
             params={"device_id": device_id},
         )
 
-    def seek_to_position(self, position_ms: int, *, device_id: str = None) -> None:
+    def seek_to_position(
+        self, position_ms: int, *, device_id: str = None
+    ) -> None:
         """
         `Player > Seek To Position <https://developer.spotify.com/
         documentation/web-api/reference/
@@ -4897,7 +4973,9 @@ class WebAPI:
             params={"volume_percent": volume_percent, "device_id": device_id},
         )
 
-    def toggle_playback_shuffle(self, state: bool, *, device_id: str = None) -> None:
+    def toggle_playback_shuffle(
+        self, state: bool, *, device_id: str = None
+    ) -> None:
         """
         `Player > Toggle Playback Shuffle
         <https://developer.spotify.com/documentation/web-api/reference/
@@ -4922,7 +5000,9 @@ class WebAPI:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
 
-        self._check_scope("toggle_playback_shuffle", "user-modify-playback-state")
+        self._check_scope(
+            "toggle_playback_shuffle", "user-modify-playback-state"
+        )
 
         self._request(
             "put",
@@ -5112,7 +5192,9 @@ class WebAPI:
                   }
         """
 
-        self._check_scope("get_recently_played_tracks", "user-read-recently-played")
+        self._check_scope(
+            "get_recently_played_tracks", "user-read-recently-played"
+        )
 
         return self._get_json(
             f"{self.API_URL}/me/player/recently-played",
@@ -5656,7 +5738,8 @@ class WebAPI:
             params={
                 "additional_types": (
                     additional_types
-                    if additional_types is None or isinstance(additional_types, str)
+                    if additional_types is None
+                    or isinstance(additional_types, str)
                     else ",".join(additional_types)
                 ),
                 "fields": (
@@ -5724,7 +5807,11 @@ class WebAPI:
         self._check_scope(
             "change_playlist_details",
             "playlist-modify-"
-            + ("public" if self.get_playlist(playlist_id)["public"] else "private"),
+            + (
+                "public"
+                if self.get_playlist(playlist_id)["public"]
+                else "private"
+            ),
         )
 
         json = {}
@@ -5736,7 +5823,9 @@ class WebAPI:
             json["collaborative"] = collaborative
         if description is not None:
             json["description"] = description
-        self._request("put", f"{self.API_URL}/playlists/{playlist_id}", json=json)
+        self._request(
+            "put", f"{self.API_URL}/playlists/{playlist_id}", json=json
+        )
 
     def get_playlist_items(
         self,
@@ -5980,7 +6069,8 @@ class WebAPI:
             params={
                 "additional_types": (
                     additional_types
-                    if additional_types is None or isinstance(additional_types, str)
+                    if additional_types is None
+                    or isinstance(additional_types, str)
                     else ",".join(additional_types)
                 ),
                 "fields": (
@@ -5995,7 +6085,11 @@ class WebAPI:
         )
 
     def add_playlist_items(
-        self, playlist_id: str, uris: Union[str, list[str]], *, position: int = None
+        self,
+        playlist_id: str,
+        uris: Union[str, list[str]],
+        *,
+        position: int = None,
     ) -> str:
         """
         `Playlists > Add Items to Playlist
@@ -6055,7 +6149,11 @@ class WebAPI:
         self._check_scope(
             "add_playlist_details",
             "playlist-modify-"
-            + ("public" if self.get_playlist(playlist_id)["public"] else "private"),
+            + (
+                "public"
+                if self.get_playlist(playlist_id)["public"]
+                else "private"
+            ),
         )
 
         if isinstance(uris, str):
@@ -6069,7 +6167,9 @@ class WebAPI:
             if position is not None:
                 json["position"] = position
             self._request(
-                "post", f"{self.API_URL}/playlists/{playlist_id}/tracks", json=json
+                "post",
+                f"{self.API_URL}/playlists/{playlist_id}/tracks",
+                json=json,
             ).json()["snapshot_id"]
 
     def update_playlist_items(
@@ -6172,7 +6272,11 @@ class WebAPI:
         self._check_scope(
             "update_playlist_details",
             "playlist-modify-"
-            + ("public" if self.get_playlist(playlist_id)["public"] else "private"),
+            + (
+                "public"
+                if self.get_playlist(playlist_id)["public"]
+                else "private"
+            ),
         )
 
         json = {}
@@ -6187,7 +6291,9 @@ class WebAPI:
             if range_length is not None:
                 json["range_length"] = range_length
             return self._request(
-                "put", f"{self.API_URL}/playlists/{playlist_id}/tracks", json=json
+                "put",
+                f"{self.API_URL}/playlists/{playlist_id}/tracks",
+                json=json,
             ).json()["snapshot_id"]
 
         elif isinstance(uris, str):
@@ -6251,14 +6357,20 @@ class WebAPI:
         self._check_scope(
             "remove_playlist_items",
             "playlist-modify-"
-            + ("public" if self.get_playlist(playlist_id)["public"] else "private"),
+            + (
+                "public"
+                if self.get_playlist(playlist_id)["public"]
+                else "private"
+            ),
         )
 
         json = {"tracks": tracks}
         if snapshot_id is not None:
             json["snapshot_id"] = snapshot_id
         return self._request(
-            "delete", f"{self.API_URL}/playlists/{playlist_id}/tracks", json=json
+            "delete",
+            f"{self.API_URL}/playlists/{playlist_id}/tracks",
+            json=json,
         ).json()["snapshot_id"]
 
     def get_personal_playlists(
@@ -6354,10 +6466,13 @@ class WebAPI:
         """
 
         self._check_scope("get_current_user_playlists", "playlist-read-private")
-        self._check_scope("get_current_user_playlists", "playlist-read-collaborative")
+        self._check_scope(
+            "get_current_user_playlists", "playlist-read-collaborative"
+        )
 
         return self._get_json(
-            f"{self.API_URL}/me/playlists", params={"limit": limit, "offset": offset}
+            f"{self.API_URL}/me/playlists",
+            params={"limit": limit, "offset": offset},
         )
 
     def get_user_playlists(
@@ -6705,7 +6820,8 @@ class WebAPI:
         """
 
         self._check_scope(
-            "create_playlist", "playlist-modify-" + ("public" if public else "private")
+            "create_playlist",
+            "playlist-modify-" + ("public" if public else "private"),
         )
 
         json = {"name": name, "public": public}
@@ -7004,7 +7120,9 @@ class WebAPI:
                   }
         """
 
-        return self._get_json(f"{self.API_URL}/playlists/{playlist_id}/images")[0]
+        return self._get_json(f"{self.API_URL}/playlists/{playlist_id}/images")[
+            0
+        ]
 
     def add_playlist_cover_image(self, playlist_id: str, image: bytes) -> None:
         """
@@ -7036,7 +7154,11 @@ class WebAPI:
         self._check_scope(
             "get_categories",
             "playlist-modify-"
-            + ("public" if self.get_playlist(playlist_id)["public"] else "private"),
+            + (
+                "public"
+                if self.get_playlist(playlist_id)["public"]
+                else "private"
+            ),
         )
 
         self._request(
@@ -7690,7 +7812,9 @@ class WebAPI:
                   }
         """
 
-        return self._get_json(f"{self.API_URL}/shows/{id}", params={"market": market})
+        return self._get_json(
+            f"{self.API_URL}/shows/{id}", params={"market": market}
+        )
 
     def get_shows(
         self, ids: Union[str, list[str]], *, market: str = None
@@ -7781,7 +7905,12 @@ class WebAPI:
         )["shows"]
 
     def get_show_episodes(
-        self, id: str, *, limit: int = None, market: str = None, offset: int = None
+        self,
+        id: str,
+        *,
+        limit: int = None,
+        market: str = None,
+        offset: int = None,
     ) -> dict[str, Any]:
         """
         `Shows > Get Show Episodes <https://developer.spotify.com/
@@ -7984,7 +8113,8 @@ class WebAPI:
         self._check_scope("get_saved_shows", "user-library-read")
 
         return self._get_json(
-            f"{self.API_URL}/me/shows", params={"limit": limit, "offset": offset}
+            f"{self.API_URL}/me/shows",
+            params={"limit": limit, "offset": offset},
         )
 
     def save_shows(self, ids: Union[str, list[str]]) -> None:
@@ -8251,7 +8381,9 @@ class WebAPI:
                   }
         """
 
-        return self._get_json(f"{self.API_URL}/tracks/{id}", params={"market": market})
+        return self._get_json(
+            f"{self.API_URL}/tracks/{id}", params={"market": market}
+        )
 
     def get_tracks(
         self, ids: Union[int, str, list[Union[int, str]]], *, market: str = None
@@ -8625,7 +8757,9 @@ class WebAPI:
         self._check_scope("save_tracks", "user-library-modify")
 
         if isinstance(ids, str):
-            self._request("put", f"{self.API_URL}/me/tracks", params={"ids": ids})
+            self._request(
+                "put", f"{self.API_URL}/me/tracks", params={"ids": ids}
+            )
         elif isinstance(ids, list):
             self._request("put", f"{self.API_URL}/me/tracks", json={"ids": ids})
 
@@ -8655,9 +8789,13 @@ class WebAPI:
         self._check_scope("remove_saved_tracks", "user-library-modify")
 
         if isinstance(ids, str):
-            self._request("delete", f"{self.API_URL}/me/tracks", params={"ids": ids})
+            self._request(
+                "delete", f"{self.API_URL}/me/tracks", params={"ids": ids}
+            )
         elif isinstance(ids, list):
-            self._request("delete", f"{self.API_URL}/me/tracks", json={"ids": ids})
+            self._request(
+                "delete", f"{self.API_URL}/me/tracks", json={"ids": ids}
+            )
 
     def check_saved_tracks(self, ids: Union[str, list[str]]) -> list[bool]:
         """
@@ -9331,7 +9469,8 @@ class WebAPI:
 
         if type not in (TYPES := {"artists", "tracks"}):
             raise ValueError(
-                f"Invalid entity type ({type=}). " f"Valid values: {', '.join(TYPES)}."
+                f"Invalid entity type ({type=}). "
+                f"Valid values: {', '.join(TYPES)}."
             )
 
         self._check_scope("get_top_items", "user-top-read")
@@ -9411,7 +9550,9 @@ class WebAPI:
 
         self._check_scope("follow_playlist", "playlist-modify-private")
 
-        self._request("put", f"{self.API_URL}/playlists/{playlist_id}/followers")
+        self._request(
+            "put", f"{self.API_URL}/playlists/{playlist_id}/followers"
+        )
 
     def unfollow_playlist(self, playlist_id: str) -> None:
         """
@@ -9435,7 +9576,9 @@ class WebAPI:
 
         self._check_scope("unfollow_playlist", "playlist-modify-private")
 
-        self._request("delete", f"{self.API_URL}/playlists/{playlist_id}/followers")
+        self._request(
+            "delete", f"{self.API_URL}/playlists/{playlist_id}/followers"
+        )
 
     def get_followed_artists(
         self, *, after: str = None, limit: int = None
@@ -9551,7 +9694,9 @@ class WebAPI:
 
         if isinstance(ids, str):
             self._request(
-                "put", f"{self.API_URL}/me/following", params={"ids": ids, "type": type}
+                "put",
+                f"{self.API_URL}/me/following",
+                params={"ids": ids, "type": type},
             )
         elif isinstance(ids, list):
             self._request(

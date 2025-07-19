@@ -319,7 +319,9 @@ class SearchAPI:
                 "lang": lang,
                 "version": version,
                 "explicit": (
-                    ("No", "Yes")[explicit] if isinstance(explicit, bool) else explicit
+                    ("No", "Yes")[explicit]
+                    if isinstance(explicit, bool)
+                    else explicit
                 ),
             },
         )
@@ -517,7 +519,8 @@ class SearchAPI:
                 ),
                 "amgArtistId": (
                     amg_artist_id
-                    if amg_artist_id is None or isinstance(amg_artist_id, (int, str))
+                    if amg_artist_id is None
+                    or isinstance(amg_artist_id, (int, str))
                     else ",".join(
                         amg_artist_id
                         if isinstance(amg_artist_id[0], str)
@@ -526,7 +529,8 @@ class SearchAPI:
                 ),
                 "amgAlbumId": (
                     amg_album_id
-                    if amg_album_id is None or isinstance(amg_album_id, (int, str))
+                    if amg_album_id is None
+                    or isinstance(amg_album_id, (int, str))
                     else ",".join(
                         amg_album_id
                         if isinstance(amg_album_id[0], str)
@@ -535,7 +539,8 @@ class SearchAPI:
                 ),
                 "amgVideoId": (
                     amg_video_id
-                    if amg_video_id is None or isinstance(amg_video_id, (int, str))
+                    if amg_video_id is None
+                    or isinstance(amg_video_id, (int, str))
                     else ",".join(
                         amg_video_id
                         if isinstance(amg_video_id[0], str)
@@ -551,14 +556,18 @@ class SearchAPI:
                     upc
                     if upc is None or isinstance(upc, (int, str))
                     else ",".join(
-                        upc if isinstance(upc[0], str) else (str(u) for u in upc)
+                        upc
+                        if isinstance(upc[0], str)
+                        else (str(u) for u in upc)
                     )
                 ),
                 "isbn": (
                     isbn
                     if isbn is None or isinstance(isbn, (int, str))
                     else ",".join(
-                        isbn if isinstance(isbn[0], str) else (str(i) for i in isbn)
+                        isbn
+                        if isinstance(isbn[0], str)
+                        else (str(i) for i in isbn)
                     )
                 ),
                 "entity": (

@@ -26,10 +26,17 @@ from .qobuz import _parse_performers
 
 if FOUND_FFMPEG:
     from . import FFMPEG_CODECS
-if (FOUND_PILLOW := find_spec("PIL") is not None):
+if FOUND_PILLOW := find_spec("PIL") is not None:
     from PIL import Image
 
-__all__ = ["Audio", "FLACAudio", "MP3Audio", "MP4Audio", "OggAudio", "WAVEAudio"]
+__all__ = [
+    "Audio",
+    "FLACAudio",
+    "MP3Audio",
+    "MP4Audio",
+    "OggAudio",
+    "WAVEAudio",
+]
 
 
 class _ID3:
@@ -91,7 +98,9 @@ class _ID3:
                     else getattr(value[0], base)
                 )
                 if list not in self._FIELDS_TYPES[field]:
-                    value = utility.format_multivalue(value, False, primary=True)
+                    value = utility.format_multivalue(
+                        value, False, primary=True
+                    )
                     if not isinstance(value, self._FIELDS_TYPES[field]):
                         try:
                             value = self._FIELDS_TYPES[field][0](value)
@@ -101,7 +110,9 @@ class _ID3:
                 else:
                     if not isinstance(value[0], self._FIELDS_TYPES[field]):
                         try:
-                            value = [self._FIELDS_TYPES[field][0](v) for v in value]
+                            value = [
+                                self._FIELDS_TYPES[field][0](v) for v in value
+                            ]
                         except ValueError:
                             continue
                     if len(value) == 1:
@@ -159,7 +170,9 @@ class _ID3:
                     value, self._multivalue, sep=self._sep
                 )
                 self._tags.add(
-                    getattr(id3, frame)(**{base: func(value) if func else value})
+                    getattr(id3, frame)(
+                        **{base: func(value) if func else value}
+                    )
                 )
 
         if "TXXX:comment" in self._tags:
@@ -190,7 +203,9 @@ class _ID3:
                 ) as f:
                     self.artwork = f.read()
             self._tags.add(
-                id3.APIC(data=self.artwork, mime=IMAGE_FORMATS[self._artwork_format])
+                id3.APIC(
+                    data=self.artwork, mime=IMAGE_FORMATS[self._artwork_format]
+                )
             )
 
         self._tags.save()
@@ -256,7 +271,9 @@ class _VorbisComment:
             value = self._tags.get(key)
             if value:
                 if list not in self._FIELDS_TYPES[field]:
-                    value = utility.format_multivalue(value, False, primary=True)
+                    value = utility.format_multivalue(
+                        value, False, primary=True
+                    )
                     if type(value) not in self._FIELDS_TYPES[field]:
                         try:
                             value = self._FIELDS_TYPES[field][0](value)
@@ -265,7 +282,9 @@ class _VorbisComment:
                 else:
                     if type(value[0]) not in self._FIELDS_TYPES[field]:
                         try:
-                            value = [self._FIELDS_TYPES[field][0](v) for v in value]
+                            value = [
+                                self._FIELDS_TYPES[field][0](v) for v in value
+                            ]
                         except ValueError:
                             continue
                     if len(value) == 1:
@@ -584,7 +603,9 @@ class Audio:
                     and getattr(self, k) is None
                     for k in self._pattern[1]
                 )
-                for flag, attr, val in zip(missing, self._pattern[1], groups[0]):
+                for flag, attr, val in zip(
+                    missing, self._pattern[1], groups[0]
+                ):
                     if flag:
                         setattr(self, attr, self._FIELDS_TYPES[attr][0](val))
 
@@ -686,10 +707,14 @@ class Audio:
         """
 
         if not FOUND_FFMPEG:
-            emsg = "Audio conversion is unavailable because FFmpeg " "was not found."
+            emsg = (
+                "Audio conversion is unavailable because FFmpeg was not found."
+            )
             raise RuntimeError(emsg)
 
-        _codec = codec.capitalize() if codec in {"opus", "vorbis"} else codec.upper()
+        _codec = (
+            codec.capitalize() if codec in {"opus", "vorbis"} else codec.upper()
+        )
         codec = codec.lower()
         if codec in {"m4a", "mp4", "mp4a"}:
             codec = "aac"
@@ -719,7 +744,9 @@ class Audio:
                 raise RuntimeError(emsg)
         else:
             try:
-                acls = next(a for a in Audio.__subclasses__() if codec in a._CODECS)
+                acls = next(
+                    a for a in Audio.__subclasses__() if codec in a._CODECS
+                )
                 container = acls._EXTENSIONS[0]
             except StopIteration:
                 raise RuntimeError(f"The '{_codec}' codec is not supported.")
@@ -914,21 +941,27 @@ class Audio:
             self.album = data["album"]["title"]
             if album_artists := data["album"].get("artists"):
                 album_feat_artist = [
-                    a["name"] for a in album_artists if "featured-artist" in a["roles"]
+                    a["name"]
+                    for a in album_artists
+                    if "featured-artist" in a["roles"]
                 ]
                 if album_feat_artist and "feat." not in self.album:
                     self.album += (
                         " [feat. {}]" if "(" in self.album else " (feat. {})"
-                    ).format(utility.format_multivalue(album_feat_artist, False))
+                    ).format(
+                        utility.format_multivalue(album_feat_artist, False)
+                    )
             if data["album"]["version"]:
-                self.album += (" [{}]" if "(" in self.album else " ({})").format(
-                    data["album"]["version"]
-                )
+                self.album += (
+                    " [{}]" if "(" in self.album else " ({})"
+                ).format(data["album"]["version"])
             self.album = self.album.replace("  ", " ")
         if self.album_artist is None or overwrite:
             if album_artists := data["album"].get("artists"):
                 album_artist = [
-                    a["name"] for a in album_artists if "main-artist" in a["roles"]
+                    a["name"]
+                    for a in album_artists
+                    if "main-artist" in a["roles"]
                 ]
                 album_main_artist = data["album"]["artist"]["name"]
                 if album_main_artist in album_artist:
@@ -947,12 +980,17 @@ class Audio:
                 self.album_artist = data["album"]["artist"]["name"]
 
         credits = _parse_performers(
-            data["performers"], roles=["MainArtist", "FeaturedArtist", "Composers"]
+            data["performers"],
+            roles=["MainArtist", "FeaturedArtist", "Composers"],
         )
         if self.artist is None or overwrite:
-            self.artist = credits.get("main_artist") or data["performer"]["name"]
+            self.artist = (
+                credits.get("main_artist") or data["performer"]["name"]
+            )
         if self.artwork is None or overwrite:
-            if artwork_size not in (ARTWORK_SIZES := {"large", "small", "thumbnail"}):
+            if artwork_size not in (
+                ARTWORK_SIZES := {"large", "small", "thumbnail"}
+            ):
                 emsg = (
                     f"Invalid artwork size '{artwork_size}'. "
                     f"Valid values: {ARTWORK_SIZES}."
@@ -1008,16 +1046,19 @@ class Audio:
                     " [feat. {}]" if "(" in self.title else " (feat. {})"
                 ).format(utility.format_multivalue(feat_artist, False))
             if data["version"]:
-                self.title += (" [{}]" if "(" in self.title else " ({})").format(
-                    data["version"]
-                )
+                self.title += (
+                    " [{}]" if "(" in self.title else " ({})"
+                ).format(data["version"])
             self.title = self.title.replace("  ", " ")
         if self.track_number is None or overwrite:
             self.track_number = data["track_number"]
         if self.track_count is None or overwrite:
             self.track_count = data["album"]["tracks_count"]
 
-        if data["album"].get("release_type") == "single" and self.album == self.title:
+        if (
+            data["album"].get("release_type") == "single"
+            and self.album == self.title
+        ):
             self.album += " - Single"
             self.album_artist = self.artist = max(
                 self.artist, self.album_artist, key=len
@@ -1082,7 +1123,9 @@ class Audio:
             self.lyrics = (
                 lyrics
                 if isinstance(lyrics, str)
-                else "\n".join(line["words"] for line in lyrics["lyrics"]["lines"])
+                else "\n".join(
+                    line["words"] for line in lyrics["lyrics"]["lines"]
+                )
             )
         if (self.tempo is None or overwrite) and audio_features:
             self.tempo = round(audio_features["tempo"])
@@ -1184,7 +1227,9 @@ class Audio:
         if self.isrc is None or overwrite:
             self.isrc = data["isrc"]
         if (self.lyrics is None or overwrite) and lyrics:
-            self.lyrics = lyrics if isinstance(lyrics, str) else lyrics["lyrics"]
+            self.lyrics = (
+                lyrics if isinstance(lyrics, str) else lyrics["lyrics"]
+            )
         if self.title is None or overwrite:
             self.title = data["title"]
         if self.track_number is None or overwrite:
@@ -1195,13 +1240,17 @@ class Audio:
                 self.artist = [a["name"] for a in data["artists"] if a["main"]]
             if self.artwork is None or overwrite:
                 image_urls = sorted(
-                    data["album"]["imageCover"], key=lambda x: x["width"], reverse=True
+                    data["album"]["imageCover"],
+                    key=lambda x: x["width"],
+                    reverse=True,
                 )
                 self.artwork = (
                     image_urls[-1]["url"]
                     if artwork_size < image_urls[-1]["width"]
                     else next(
-                        u["url"] for u in image_urls if u["width"] <= artwork_size
+                        u["url"]
+                        for u in image_urls
+                        if u["width"] <= artwork_size
                     )
                 )
                 self._artwork_format = pathlib.Path(self.artwork).suffix[1:]
@@ -1247,7 +1296,9 @@ class Audio:
             else:
                 if self.album_artist is None or overwrite:
                     self.album_artist = [
-                        a["name"] for a in album_data["artists"] if a["type"] == "MAIN"
+                        a["name"]
+                        for a in album_data["artists"]
+                        if a["type"] == "MAIN"
                     ]
 
 
@@ -1316,7 +1367,9 @@ class FLACAudio(Audio, _VorbisComment):
         Create a FLAC audio file handler.
         """
 
-        Audio.__init__(self, file, pattern=pattern, multivalue=multivalue, sep=sep)
+        Audio.__init__(
+            self, file, pattern=pattern, multivalue=multivalue, sep=sep
+        )
         self._handle = flac.FLAC(file)
         if self._handle.tags is None:
             self._handle.add_tags()
@@ -1397,7 +1450,9 @@ class MP3Audio(Audio, _ID3):
 
         _handle = mp3.MP3(file)
         _handle.tags.filename = str(file)
-        Audio.__init__(self, file, pattern=pattern, multivalue=multivalue, sep=sep)
+        Audio.__init__(
+            self, file, pattern=pattern, multivalue=multivalue, sep=sep
+        )
         _ID3.__init__(self, self._file.name, _handle.tags)
         self._from_filename()
 
@@ -1459,7 +1514,7 @@ class MP4Audio(Audio):
     """
 
     _CODECS = {
-        "aac": {"ffmpeg": f"-b:a 256k -c:a {FFMPEG_CODECS['aac']} " "-c:v copy"},
+        "aac": {"ffmpeg": f"-b:a 256k -c:a {FFMPEG_CODECS['aac']} -c:v copy"},
         "alac": {"ffmpeg": "-c:a alac -c:v copy"},
     }
     _EXTENSIONS = ["m4a", "aac", "mp4"]
@@ -1479,7 +1534,8 @@ class MP4Audio(Audio):
         "title": "\xa9nam",
     }
     _IMAGE_FORMATS = dict.fromkeys(
-        ["jpg", "jpeg", "jpe", "jif", "jfif", "jfi", 13], mp4.MP4Cover.FORMAT_JPEG
+        ["jpg", "jpeg", "jpe", "jif", "jfif", "jfi", 13],
+        mp4.MP4Cover.FORMAT_JPEG,
     ) | dict.fromkeys(["png", 14], mp4.MP4Cover.FORMAT_PNG)
 
     def __init__(
@@ -1517,7 +1573,9 @@ class MP4Audio(Audio):
             value = self._handle.get(key)
             if value:
                 if list not in self._FIELDS_TYPES[field]:
-                    value = utility.format_multivalue(value, False, primary=True)
+                    value = utility.format_multivalue(
+                        value, False, primary=True
+                    )
                     if type(value) not in self._FIELDS_TYPES[field]:
                         try:
                             value = self._FIELDS_TYPES[field][0](value)
@@ -1526,7 +1584,9 @@ class MP4Audio(Audio):
                 else:
                     if type(value[0]) not in self._FIELDS_TYPES[field]:
                         try:
-                            value = [self._FIELDS_TYPES[field][0](v) for v in value]
+                            value = [
+                                self._FIELDS_TYPES[field][0](v) for v in value
+                            ]
                         except ValueError:
                             continue
                     if len(value) == 1:
@@ -1556,7 +1616,9 @@ class MP4Audio(Audio):
                 self._handle.get("covr"), False, primary=True
             )
             self._artwork_format = (
-                str(self._IMAGE_FORMATS[self.artwork.imageformat]).split(".")[1].lower()
+                str(self._IMAGE_FORMATS[self.artwork.imageformat])
+                .split(".")[1]
+                .lower()
             )
             self.artwork = bytes(self.artwork)
         else:
@@ -1582,9 +1644,13 @@ class MP4Audio(Audio):
             self._handle["----:com.apple.iTunes:ISRC"] = self.isrc.encode()
 
         if self.disc_number or self.disc_count:
-            self._handle["disk"] = [(self.disc_number or 0, self.disc_count or 0)]
+            self._handle["disk"] = [
+                (self.disc_number or 0, self.disc_count or 0)
+            ]
         if self.track_number or self.track_count:
-            self._handle["trkn"] = [(self.track_number or 0, self.track_count or 0)]
+            self._handle["trkn"] = [
+                (self.track_number or 0, self.track_count or 0)
+            ]
 
         if self.artwork:
             if isinstance(self.artwork, str):
@@ -1596,7 +1662,8 @@ class MP4Audio(Audio):
                     self.artwork = f.read()
             self._handle["covr"] = [
                 mp4.MP4Cover(
-                    self.artwork, imageformat=self._IMAGE_FORMATS[self._artwork_format]
+                    self.artwork,
+                    imageformat=self._IMAGE_FORMATS[self._artwork_format],
                 )
             ]
 
@@ -1662,7 +1729,10 @@ class OggAudio(Audio, _VorbisComment):
 
     _CODECS = {
         "flac": {"ffmpeg": "-c:a flac", "mutagen": oggflac.OggFLAC},
-        "opus": {"ffmpeg": "-b:a 256k -c:a libopus -vn", "mutagen": oggopus.OggOpus},
+        "opus": {
+            "ffmpeg": "-b:a 256k -c:a libopus -vn",
+            "mutagen": oggopus.OggOpus,
+        },
         "vorbis": {
             "ffmpeg": f"-c:a {FFMPEG_CODECS['vorbis']} -vn",
             "mutagen": oggvorbis.OggVorbis,
@@ -1679,8 +1749,9 @@ class OggAudio(Audio, _VorbisComment):
         multivalue: bool = False,
         sep: Union[str, list[str]] = (", ", " & "),
     ) -> None:
-
-        Audio.__init__(self, file, pattern=pattern, multivalue=multivalue, sep=sep)
+        Audio.__init__(
+            self, file, pattern=pattern, multivalue=multivalue, sep=sep
+        )
 
         if codec and codec in self._CODECS:
             self.codec = codec
@@ -1703,7 +1774,9 @@ class OggAudio(Audio, _VorbisComment):
         if self.codec == "flac":
             self.bit_depth = self._handle.info.bits_per_sample
             self.sample_rate = self._handle.info.sample_rate
-            self.bitrate = self.bit_depth * self.channel_count * self.sample_rate
+            self.bitrate = (
+                self.bit_depth * self.channel_count * self.sample_rate
+            )
         elif self.codec == "opus":
             self.bit_depth = self.bitrate = self.sample_rate = None
         elif self.codec == "vorbis":
@@ -1781,7 +1854,9 @@ class WAVEAudio(Audio, _ID3):
         if _handle.tags is None:
             _handle.add_tags()
             _handle.tags.filename = str(file)
-        Audio.__init__(self, file, pattern=pattern, multivalue=multivalue, sep=sep)
+        Audio.__init__(
+            self, file, pattern=pattern, multivalue=multivalue, sep=sep
+        )
         _ID3.__init__(self, self._file.name, _handle.tags)
         self._from_filename()
 
