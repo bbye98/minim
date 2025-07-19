@@ -77,7 +77,9 @@ def _parse_performers(
         )
     for role in roles:
         credits[
-            "_".join(re.findall(r"(?:[A-Z][a-z]+)(?:-[A-Z][a-z]+)?", role)).lower()
+            "_".join(
+                re.findall(r"(?:[A-Z][a-z]+)(?:-[A-Z][a-z]+)?", role)
+            ).lower()
         ] = [p for p, r in people.items() if role in r]
 
     return credits
@@ -219,7 +221,11 @@ class PrivateAPI:
         if user_agent:
             self.session.headers["User-Agent"] = user_agent
 
-        if auth_token is None and _config.has_section(self._NAME) and not overwrite:
+        if (
+            auth_token is None
+            and _config.has_section(self._NAME)
+            and not overwrite
+        ):
             flow = _config.get(self._NAME, "flow") or None
             auth_token = _config.get(self._NAME, "auth_token")
             app_id = _config.get(self._NAME, "app_id")
@@ -246,7 +252,7 @@ class PrivateAPI:
         """
 
         if not self._flow:
-            emsg = f"{self._NAME}.{endpoint}() requires user " "authentication."
+            emsg = f"{self._NAME}.{endpoint}() requires user authentication."
             raise RuntimeError(emsg)
 
     def _get_json(self, url: str, **kwargs) -> dict:
@@ -269,6 +275,37 @@ class PrivateAPI:
         """
 
         return self._request("get", url, **kwargs).json()
+
+    def _get_json_secret(self, url: str, signature: str, **kwargs) -> dict:
+        """
+        Send a GET request with a timestamp and a signature containing
+        the app secret, and return the JSON-encoded content of the
+        response.
+
+        Parameters
+        ----------
+        url : `str`
+            URL for the GET request.
+
+        signature : `str`
+            Signature for the request, up to the timestamp and app secret.
+
+        **kwargs
+            Keyword arguments to pass to :meth:`requests.request`.
+
+        Returns
+        -------
+        resp : `dict`
+            JSON-encoded content of the response.
+        """
+
+        params = kwargs.pop("params", {})
+        timestamp = datetime.datetime.now().timestamp()
+        params["request_ts"] = timestamp
+        params["request_sig"] = hashlib.md5(
+            f"{signature}{timestamp}{self._app_secret}".encode()
+        ).hexdigest()
+        return self._get_json(url, params=params, **kwargs)
 
     def _request(self, method: str, url: str, **kwargs) -> requests.Response:
         """
@@ -294,7 +331,7 @@ class PrivateAPI:
         r = self.session.request(method, url, **kwargs)
         if r.status_code not in range(200, 299):
             error = r.json()
-            raise RuntimeError(f'{error["code"]} {error["message"]}')
+            raise RuntimeError(f"{error['code']} {error['message']}")
         return r
 
     def _set_app_credentials(self, app_id: str, app_secret: str) -> None:
@@ -308,10 +345,10 @@ class PrivateAPI:
                 self.session.get(f"{self.WEB_URL}/login").text,
             ).group(0)
             bundle = self.session.get(f"{self.WEB_URL}{js}").text
-            app_id = re.search(
+            self.session.headers["X-App-Id"] = re.search(
                 '(?:production:{api:{appId:")(.*?)(?:",appSecret)', bundle
             ).group(1)
-            app_secret = [
+            app_secrets = [
                 base64.b64decode("".join((s, *m.groups()))[:-44]).decode()
                 for s, m in (
                     (
@@ -329,10 +366,24 @@ class PrivateAPI:
                     )
                 )
                 if m
-            ][1]
-
-        self.session.headers["X-App-Id"] = app_id
-        self._app_secret = app_secret
+            ]
+            self._sub = False
+            logger = logging.getLogger()
+            logging_level = logger.getEffectiveLevel()
+            logger.setLevel(logging.CRITICAL)
+            for app_secret in app_secrets:
+                try:
+                    self._app_secret = app_secret
+                    self.get_track_file_url(24393138, 5)
+                    break
+                except RuntimeError:
+                    continue
+            else:
+                raise RuntimeError("No valid app secret could be found.")
+            logger.setLevel(logging_level)
+        else:
+            self._app_secret = app_secret
+            self.session.headers["X-App-Id"] = app_id
 
     def set_auth_token(
         self, auth_token: str = None, *, email: str = None, password: str = None
@@ -363,7 +414,9 @@ class PrivateAPI:
 
                         with sync_playwright() as playwright:
                             browser = playwright.firefox.launch(headless=False)
-                            context = browser.new_context(record_har_path=har_file)
+                            context = browser.new_context(
+                                record_har_path=har_file
+                            )
                             page = context.new_page()
                             page.goto(f"{self.WEB_URL}/login", timeout=0)
                             page.wait_for_url(
@@ -381,9 +434,9 @@ class PrivateAPI:
 
                         if regex is None:
                             raise RuntimeError("Authentication failed.")
-                        auth_token = self._request("get", regex.group(0)).json()[
-                            "token"
-                        ]
+                        auth_token = self._request(
+                            "get", regex.group(0)
+                        ).json()["token"]
                     else:
                         emsg = (
                             "No account email or password provided "
@@ -413,13 +466,16 @@ class PrivateAPI:
         if self._flow:
             me = self.get_profile()
             self._user_id = me["id"]
-            self._sub = me[
-                "subscription"
-            ] is not None and datetime.datetime.now() <= datetime.datetime.strptime(
-                me["subscription"]["end_date"], "%Y-%m-%d"
-            ) + datetime.timedelta(
-                days=1
+            self._sub = (
+                me["subscription"] is not None
+                and datetime.datetime.now()
+                <= datetime.datetime.strptime(
+                    me["subscription"]["end_date"], "%Y-%m-%d"
+                )
+                + datetime.timedelta(days=1)
             )
+        else:
+            self._sub = None
 
     def set_flow(
         self,
@@ -672,7 +728,11 @@ class PrivateAPI:
         )
 
     def get_featured_albums(
-        self, type: str = "new-releases", *, limit: int = None, offset: int = None
+        self,
+        type: str = "new-releases",
+        *,
+        limit: int = None,
+        offset: int = None,
     ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for featured albums.
@@ -1188,7 +1248,11 @@ class PrivateAPI:
         )
 
     def get_featured_playlists(
-        self, type: str = "editor-picks", *, limit: int = None, offset: int = None
+        self,
+        type: str = "editor-picks",
+        *,
+        limit: int = None,
+        offset: int = None,
     ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for featured playlists.
@@ -1277,7 +1341,9 @@ class PrivateAPI:
                   }
         """
 
-        if type not in (PLAYLIST_FEATURE_TYPES := {"editor-picks", "last-created"}):
+        if type not in (
+            PLAYLIST_FEATURE_TYPES := {"editor-picks", "last-created"}
+        ):
             emsg = (
                 "Invalid feature type. Valid types: "
                 f"{', '.join(PLAYLIST_FEATURE_TYPES)}."
@@ -1776,7 +1842,10 @@ class PrivateAPI:
         return self._request(
             "post",
             f"{self.API_URL}/playlist/deleteTracks",
-            data={"playlist_id": playlist_id, "playlist_track_ids": playlist_track_ids},
+            data={
+                "playlist_id": playlist_id,
+                "playlist_track_ids": playlist_track_ids,
+            },
         ).json()
 
     def delete_playlist(self, playlist_id: Union[int, str]) -> None:
@@ -1799,7 +1868,9 @@ class PrivateAPI:
         self._check_authentication("delete_playlist")
 
         self._request(
-            "post", f"{self.API_URL}/playlist/delete", data={"playlist_id": playlist_id}
+            "post",
+            f"{self.API_URL}/playlist/delete",
+            data={"playlist_id": playlist_id},
         )
 
     def favorite_playlist(self, playlist_id: Union[int, str]) -> None:
@@ -2232,7 +2303,9 @@ class PrivateAPI:
                 "Label",
             }
         ):
-            emsg = "Invalid search type. Valid values: " f"{', '.join(SEARCH_TYPES)}"
+            emsg = (
+                f"Invalid search type. Valid values: {', '.join(SEARCH_TYPES)}"
+            )
             raise ValueError(emsg)
 
         if strict:
@@ -2546,21 +2619,14 @@ class PrivateAPI:
             logging.warning(wmsg)
 
         if int(format_id) not in (FORMAT_IDS := {5, 6, 7, 27}):
-            emsg = "Invalid format ID. Valid values: " f"{', '.join(FORMAT_IDS)}."
+            emsg = f"Invalid format ID. Valid values: {', '.join(FORMAT_IDS)}."
             raise ValueError(emsg)
 
-        timestamp = datetime.datetime.now().timestamp()
-        return self._get_json(
+        return self._get_json_secret(
             f"{self.API_URL}/track/getFileUrl",
+            f"trackgetFileUrlformat_id{format_id}"
+            f"intentstreamtrack_id{track_id}",
             params={
-                "request_ts": timestamp,
-                "request_sig": hashlib.md5(
-                    (
-                        f"trackgetFileUrlformat_id{format_id}"
-                        f"intentstreamtrack_id{track_id}"
-                        f"{timestamp}{self._app_secret}"
-                    ).encode()
-                ).hexdigest(),
                 "track_id": track_id,
                 "format_id": format_id,
                 "intent": "stream",
@@ -3002,24 +3068,18 @@ class PrivateAPI:
 
         self._check_authentication("get_favorites")
 
-        if type and type not in (MEDIA_TYPES := {"albums", "artists", "tracks"}):
-            emsg = "Invalid media type. Valid values: " f"{', '.join(MEDIA_TYPES)}."
+        if type and type not in (
+            MEDIA_TYPES := {"albums", "artists", "tracks"}
+        ):
+            emsg = (
+                f"Invalid media type. Valid values: {', '.join(MEDIA_TYPES)}."
+            )
             raise ValueError(emsg)
 
-        timestamp = datetime.datetime.now().timestamp()
-        return self._get_json(
+        return self._get_json_secret(
             f"{self.API_URL}/favorite/getUserFavorites",
-            params={
-                "request_ts": timestamp,
-                "request_sig": hashlib.md5(
-                    (
-                        f"favoritegetUserFavorites{timestamp}" f"{self._app_secret}"
-                    ).encode()
-                ).hexdigest(),
-                "type": type,
-                "limit": limit,
-                "offset": offset,
-            },
+            "favoritegetUserFavorites",
+            params={"type": type, "limit": limit, "offset": offset},
         )
 
     def get_purchases(
@@ -3073,7 +3133,9 @@ class PrivateAPI:
         self._check_authentication("get_purchases")
 
         if type not in (MEDIA_TYPES := {"albums", "tracks"}):
-            emsg = "Invalid media type. Valid values: " f"{', '.join(MEDIA_TYPES)}."
+            emsg = (
+                f"Invalid media type. Valid values: {', '.join(MEDIA_TYPES)}."
+            )
             raise ValueError(emsg)
 
         return self._get_json(
