@@ -11,8 +11,10 @@ TIDAL API.
 import base64
 import datetime
 import hashlib
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 import logging
+from multiprocessing import Process
 import os
 import pathlib
 import re
@@ -27,12 +29,36 @@ from xml.dom import minidom
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import requests
 
-from . import FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, _config
+from . import FOUND_FLASK, FOUND_PLAYWRIGHT, DIR_HOME, DIR_TEMP, _config
 
+if FOUND_FLASK:
+    from flask import Flask, request
 if FOUND_PLAYWRIGHT:
     from playwright.sync_api import sync_playwright
 
 __all__ = ["API", "PrivateAPI"]
+
+
+class _TIDALRedirectHandler(BaseHTTPRequestHandler):
+    """
+    HTTP request handler for the TIDAL authorization code flow.
+    """
+
+    def do_GET(self):
+        """
+        Handles an incoming GET request and parses the query string.
+        """
+
+        self.server.response = dict(
+            urllib.parse.parse_qsl(urllib.parse.urlparse(f"{self.path}").query)
+        )
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html")
+        self.end_headers()
+        status = "denied" if "error" in self.server.response else "granted"
+        self.wfile.write(
+            f"Access {status}. You may close this page now.".encode()
+        )
 
 
 class API:
@@ -104,6 +130,46 @@ class API:
 
            * :code:`"client_credentials"` for the client credentials
              flow.
+           * :code:`"pkce"` for the authorization code with proof
+             key for code exchange (PKCE) flow.
+
+    browser : `bool`, keyword-only, default: :code:`False`
+        Determines whether a web browser is automatically opened for the
+        authorization code (with PKCE) flow. If :code:`False`, users
+        will have to manually open the authorization URL. Not applicable
+        when `web_framework="playwright"`.
+
+    web_framework : `str`, keyword-only, optional
+        Determines which web framework to use for the authorization code
+        (with PKCE) flow.
+
+        .. container::
+
+           **Valid values**:
+
+           * :code:`"http.server"` for the built-in implementation of
+             HTTP servers.
+           * :code:`"flask"` for the Flask framework.
+           * :code:`"playwright"` for the Playwright framework by
+             Microsoft.
+
+    port : `int` or `str`, keyword-only, default: :code:`8888`
+        Port on :code:`localhost` to use for the authorization code
+        flow with the :code:`http.server` and Flask frameworks. Only
+        used if `redirect_uri` is not specified.
+
+    redirect_uri : `str`, keyword-only, optional
+        Redirect URI for the authorization code flow. If not on
+        :code:`localhost`, the automatic authorization code retrieval
+        functionality is not available.
+
+    scopes : `str` or `list`, keyword-only, optional
+        Authorization scopes to request user access for in the
+        authorization code flow.
+
+        .. seealso::
+
+           See :meth:`get_scopes` for the complete list of scopes.
 
     access_token : `str`, keyword-only, optional
         Access token. If provided here or found in the Minim
@@ -135,14 +201,93 @@ class API:
     API_URL : `str`
         Base URL for the TIDAL API.
 
+    AUTH_URL : `str`
+        URL for TIDAL API authorization code requests.
+
     TOKEN_URL : `str`
         URL for the TIDAL API token endpoint.
     """
 
-    _FLOWS = {"client_credentials"}
+    _FLOWS = {"client_credentials", "pkce"}
     _NAME = f"{__module__}.{__qualname__}"
-    API_URL = "https://openapi.tidal.com"
+    API_URL = "https://openapi.tidal.com/v2"
+    AUTH_URL = "https://login.tidal.com/authorize"
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
+
+    @classmethod
+    def get_scopes(self, categories: Union[str, list[str]]) -> str:
+        """
+        Get TIDAL API authorization scopes for the specified categories.
+
+        Parameters
+        ----------
+        categories : `str` or `list`
+            Categories of authorization scopes to get.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`"collections"` for scopes related to user
+                 collections, such as :code:`collection.read` and
+                 :code:`collection.write`.
+               * :code:`"entitlements"` for scopes related to user
+                 entitlements, such as :code:`entitlements.read`.
+               * :code:`"playback"` for scopes related to playback
+                 control, such as :code:`playback`.
+               * :code:`"playlists"` for scopes related to playlists,
+                 such as :code:`playlists.read` and
+                 :code:`playlists.write`.
+               * :code:`"recommendations"` for scopes related to user
+                 recommendations, such as :code:`recommendations.read`.
+               * :code:`"search"` for scopes related to search
+                 functionality, such as :code:`search.read` and
+                 :code:`search.write`.
+               * :code:`"user"` for scopes related to user information,
+                 such as :code:`user.read`.
+               * :code:`"all"` for all scopes above.
+               * A substring to match in the possible scopes, such as
+
+                 * :code:`"read"` for all scopes above that grant read
+                   access, i.e., scopes with :code:`read` in the name, or
+                 * :code:`"write"` for all scopes above that grant
+                   write access, i.e., scopes with :code:`write` in
+                   the name.
+
+            .. seealso::
+
+               For the endpoints that the scopes allow access to, see the
+               `TIDAL API Reference
+               <https://tidal-music.github.io/tidal-api-reference/>`_.
+        """
+
+        SCOPES = {
+            "collection": ["collection.read", "collection.write"],
+            "entitlements": ["entitlements.read"],
+            "playback": ["playback"],
+            "playlists": ["playlists.read", "playlists.write"],
+            "recommendations": ["recommendations.read"],
+            "search": ["search.read", "search.write"],
+            "user": ["user.read"],
+        }
+
+        if isinstance(categories, str):
+            if categories in SCOPES.keys():
+                return SCOPES[categories]
+            if categories == "all":
+                return " ".join(s for scopes in SCOPES.values() for s in scopes)
+            return " ".join(
+                s
+                for scopes in SCOPES.values()
+                for s in scopes
+                if categories in s
+            )
+
+        return " ".join(
+            s
+            for scopes in (self.get_scopes[c] for c in categories)
+            for s in scopes
+        )
 
     def __init__(
         self,
@@ -150,7 +295,13 @@ class API:
         client_id: str = None,
         client_secret: str = None,
         flow: str = "client_credentials",
+        browser: bool = False,
+        web_framework: str = None,
+        port: Union[int, str] = 8888,
+        redirect_uri: str = None,
+        scopes: Union[str, list[str]] = "",
         access_token: str = None,
+        refresh_token: str = None,
         expiry: Union[datetime.datetime, str] = None,
         overwrite: bool = False,
         save: bool = True,
@@ -160,7 +311,9 @@ class API:
         """
 
         self.session = requests.Session()
-        self.session.headers["Content-Type"] = "application/vnd.tidal.v1+json"
+        self.session.headers["accept"] = self.session.headers[
+            "Content-Type"
+        ] = "application/vnd.tidal.v1+json"
 
         if (
             access_token is None
@@ -169,14 +322,165 @@ class API:
         ):
             flow = _config.get(self._NAME, "flow")
             access_token = _config.get(self._NAME, "access_token")
+            refresh_token = _config.get(
+                self._NAME, "refresh_token", fallback=None
+            )
             expiry = _config.get(self._NAME, "expiry")
             client_id = _config.get(self._NAME, "client_id")
-            client_secret = _config.get(self._NAME, "client_secret")
+            client_secret = _config.get(
+                self._NAME, "client_secret", fallback=None
+            )
+            redirect_uri = _config.get(
+                self._NAME, "redirect_uri", fallback=None
+            )
+            scopes = _config.get(self._NAME, "scopes")
 
         self.set_flow(
-            flow, client_id=client_id, client_secret=client_secret, save=save
+            flow,
+            client_id=client_id,
+            client_secret=client_secret,
+            browser=browser,
+            web_framework=web_framework,
+            port=port,
+            redirect_uri=redirect_uri,
+            scopes=scopes,
+            save=save,
         )
-        self.set_access_token(access_token, expiry=expiry)
+        self.set_access_token(
+            access_token, refresh_token=refresh_token, expiry=expiry
+        )
+
+    def _check_scope(self, endpoint: str, scope: str) -> None:
+        """
+        Check if the user has granted the appropriate authorization
+        scope for the desired endpoint.
+
+        Parameters
+        ----------
+        endpoint : `str`
+            Spotify Web API endpoint.
+
+        scope : `str`
+            Required scope for `endpoint`.
+        """
+
+        if scope not in self._scopes:
+            emsg = (
+                f"{self._NAME}.{endpoint}() requires the '{scope}' "
+                "authorization scope."
+            )
+            raise RuntimeError(emsg)
+
+    def _get_authorization_code(self, code_challenge: str = None) -> str:
+        """
+        Get an authorization code to be exchanged for an access token in
+        the authorization code flow.
+
+        Parameters
+        ----------
+        code_challenge : `str`, optional
+            Code challenge for the authorization code with PKCE flow.
+
+        Returns
+        -------
+        auth_code : `str`
+            Authorization code.
+        """
+
+        params = {
+            "client_id": self._client_id,
+            "redirect_uri": self._redirect_uri,
+            "response_type": "code",
+            "state": secrets.token_urlsafe(),
+        }
+        if self._scopes:
+            params["scope"] = self._scopes
+        if code_challenge is not None:
+            params["code_challenge"] = code_challenge
+            params["code_challenge_method"] = "S256"
+        auth_url = f"{self.AUTH_URL}?{urllib.parse.urlencode(params)}"
+
+        if self._web_framework == "playwright":
+            har_file = DIR_TEMP / "minim_tidal.har"
+
+            with sync_playwright() as playwright:
+                browser = playwright.firefox.launch(headless=False)
+                context = browser.new_context(record_har_path=har_file)
+                page = context.new_page()
+                page.goto(auth_url, timeout=0)
+                with page.expect_request(
+                    "https://login.tidal.com/*/authorize/accept*"
+                ) as _:
+                    pass  # blocking call
+                context.close()
+                browser.close()
+
+            with open(har_file, "r") as f:
+                queries = dict(
+                    urllib.parse.parse_qsl(
+                        urllib.parse.urlparse(
+                            re.search(
+                                rf'{self._redirect_uri}\?(.*?)"', f.read()
+                            ).group(0)
+                        ).query
+                    )
+                )
+            har_file.unlink()
+
+        else:
+            if self._browser:
+                webbrowser.open(auth_url)
+            else:
+                print(
+                    "To grant Minim access to TIDAL data and "
+                    "features, open the following link in your web "
+                    f"browser:\n\n{auth_url}\n"
+                )
+
+            if self._web_framework == "http.server":
+                httpd = HTTPServer(("", self._port), _TIDALRedirectHandler)
+                httpd.handle_request()
+                queries = httpd.response
+
+            elif self._web_framework == "flask":
+                app = Flask(__name__)
+                json_file = DIR_TEMP / "minim_tidal.json"
+
+                @app.route("/callback", methods=["GET"])
+                def _callback() -> str:
+                    if "error" in request.args:
+                        return "Access denied. You may close this page now."
+                    with open(json_file, "w") as f:
+                        json.dump(request.args, f)
+                    return "Access granted. You may close this page now."
+
+                server = Process(target=app.run, args=("0.0.0.0", self._port))
+                server.start()
+                while not json_file.is_file():
+                    time.sleep(0.1)
+                server.terminate()
+
+                with open(json_file, "rb") as f:
+                    queries = json.load(f)
+                json_file.unlink()
+
+            else:
+                uri = input(
+                    "After authorizing Minim to access TIDAL on "
+                    "your behalf, copy and paste the URI beginning "
+                    f"with '{self._redirect_uri}' below.\n\nURI: "
+                )
+                queries = dict(
+                    urllib.parse.parse_qsl(urllib.parse.urlparse(uri).query)
+                )
+
+        if "error" in queries:
+            raise RuntimeError(
+                f"Authorization failed. Error: {queries['error']}"
+            )
+        if params["state"] != queries["state"]:
+            raise RuntimeError("Authorization failed due to state mismatch.")
+        return queries["code"]
 
     def _get_json(self, url: str, **kwargs) -> dict:
         """
@@ -198,6 +502,47 @@ class API:
         """
 
         return self._request("get", url, **kwargs).json()
+
+    def _refresh_access_token(self) -> None:
+        """
+        Refresh the expired excess token.
+        """
+
+        if self._flow == "client_credentials":
+            self.set_access_token()
+        else:
+            client_b64 = base64.urlsafe_b64encode(
+                f"{self._client_id}:{self._client_secret}".encode()
+            ).decode()
+            r = requests.post(
+                self.TOKEN_URL,
+                data={
+                    "grant_type": "refresh_token",
+                    "refresh_token": self._refresh_token,
+                },
+                headers={"Authorization": f"Basic {client_b64}"},
+            ).json()
+
+            self.session.headers["Authorization"] = (
+                f"Bearer {r['access_token']}"
+            )
+            self._refresh_token = r["refresh_token"]
+            self._expiry = datetime.datetime.now() + datetime.timedelta(
+                0, r["expires_in"]
+            )
+            self._scopes = r["scope"]
+
+            if self._save:
+                _config[self._NAME].update(
+                    {
+                        "access_token": r["access_token"],
+                        "refresh_token": self._refresh_token,
+                        "expiry": self._expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                        "scopes": self._scopes,
+                    }
+                )
+                with open(DIR_HOME / "minim.cfg", "w") as f:
+                    _config.write(f)
 
     def _request(self, method: str, url: str, **kwargs) -> requests.Response:
         """
@@ -221,7 +566,7 @@ class API:
         """
 
         if self._expiry is not None and datetime.datetime.now() > self._expiry:
-            self.set_access_token()
+            self._refresh_access_token()
 
         r = self.session.request(method, url, **kwargs)
         if r.status_code not in range(200, 299):
@@ -237,6 +582,7 @@ class API:
         self,
         access_token: str = None,
         *,
+        refresh_token: str = None,
         expiry: Union[str, datetime.datetime] = None,
     ) -> None:
         """
@@ -248,11 +594,15 @@ class API:
             Access token. If not provided, an access token is obtained
             using an OAuth 2.0 authorization flow.
 
+        refresh_token : `str`, keyword-only, optional
+            Refresh token accompanying `access_token`.
+
         expiry : `str` or `datetime.datetime`, keyword-only, optional
             Access token expiry timestamp in the ISO 8601 format
             :code:`%Y-%m-%dT%H:%M:%SZ`. If provided, the user will be
-            reauthenticated using the default authorization flow (if
-            possible) when `access_token` expires.
+            reauthenticated using the refresh token (if available) or
+            the default authorization flow (if possible) when
+            `access_token` expires.
         """
 
         if access_token is None:
@@ -268,28 +618,66 @@ class API:
                     data={"grant_type": "client_credentials"},
                     headers={"Authorization": f"Basic {client_b64}"},
                 ).json()
-                access_token = r["access_token"]
-                expiry = datetime.datetime.now() + datetime.timedelta(
-                    0, r["expires_in"]
-                )
+            else:
+                client_b64 = base64.urlsafe_b64encode(
+                    f"{self._client_id}:{self._client_secret}".encode()
+                ).decode()
+                data = {
+                    "grant_type": "authorization_code",
+                    "redirect_uri": self._redirect_uri,
+                }
+                if self._flow == "pkce":
+                    data["client_id"] = self._client_id
+                    data["code_verifier"] = secrets.token_urlsafe(96)
+                    data["code"] = self._get_authorization_code(
+                        base64.urlsafe_b64encode(
+                            hashlib.sha256(
+                                data["code_verifier"].encode()
+                            ).digest()
+                        )
+                        .decode()
+                        .replace("=", "")
+                    )
+                else:
+                    data["code"] = self._get_authorization_code()
+                r = requests.post(
+                    self.TOKEN_URL,
+                    data=data,
+                    headers={"Authorization": f"Basic {client_b64}"},
+                ).json()
+                refresh_token = r["refresh_token"]
+            access_token = r["access_token"]
+            expiry = datetime.datetime.now() + datetime.timedelta(
+                0, r["expires_in"]
+            )
 
             if self._save:
                 _config[self._NAME] = {
                     "flow": self._flow,
                     "client_id": self._client_id,
-                    "client_secret": self._client_secret,
                     "access_token": access_token,
                     "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "scopes": self._scopes,
                 }
+                if refresh_token:
+                    _config[self._NAME]["refresh_token"] = refresh_token
+                for attr in ("client_secret", "redirect_uri"):
+                    if hasattr(self, f"_{attr}"):
+                        _config[self._NAME][attr] = (
+                            getattr(self, f"_{attr}") or ""
+                        )
                 with open(DIR_HOME / "minim.cfg", "w") as f:
                     _config.write(f)
 
         self.session.headers["Authorization"] = f"Bearer {access_token}"
+        self._refresh_token = refresh_token
         self._expiry = (
             datetime.datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ")
             if isinstance(expiry, str)
             else expiry
         )
+
+        # TODO: Get user profile if flow == "pkce".
 
     def set_flow(
         self,
@@ -297,6 +685,11 @@ class API:
         *,
         client_id: str = None,
         client_secret: str = None,
+        browser: bool = False,
+        web_framework: str = None,
+        port: Union[int, str] = 8888,
+        redirect_uri: str = None,
+        scopes: Union[str, list[str]] = "",
         save: bool = True,
     ) -> None:
         """
@@ -320,6 +713,37 @@ class API:
         client_secret : `str`, keyword-only, optional
             Client secret. Required for all authorization flows.
 
+        browser : `bool`, keyword-only, default: :code:`False`
+            Determines whether a web browser is automatically opened for
+            the authorization code (with PKCE) flow. If :code:`False`,
+            users will have to manually open the authorization URL.
+            Not applicable when `web_framework="playwright"`.
+
+        web_framework : `str`, keyword-only, optional
+            Web framework used to automatically complete the
+            authorization code (with PKCE) flow.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`"http.server"` for the built-in implementation of
+                 HTTP servers.
+               * :code:`"flask"` for the Flask framework.
+               * :code:`"playwright"` for the Playwright framework.
+
+        port : `int` or `str`, keyword-only, default: :code:`8888`
+            Port on :code:`localhost` to use for the authorization code
+            flow with the :code:`http.server` and Flask frameworks.
+
+        redirect_uri : `str`, keyword-only, optional
+            Redirect URI for the authorization code flow. If not
+            specified, an open port on :code:`localhost` will be used.
+
+        scopes : `str` or `list`, keyword-only, optional
+            Authorization scopes to request access to in the
+            authorization code flow.
+
         save : `bool`, keyword-only, default: :code:`True`
             Determines whether to save the newly obtained access tokens
             and their associated properties to the Minim configuration
@@ -336,11 +760,53 @@ class API:
         self._flow = flow
         self._save = save
 
-        if flow == "client_credentials":
-            self._client_id = client_id or os.environ.get("TIDAL_CLIENT_ID")
-            self._client_secret = client_secret or os.environ.get(
-                "TIDAL_CLIENT_SECRET"
+        self._client_id = client_id or os.environ.get("TIDAL_CLIENT_ID")
+        self._client_secret = client_secret or os.environ.get(
+            "TIDAL_CLIENT_SECRET"
+        )
+        if flow == "pkce":
+            self._browser = browser
+            self._scopes = (
+                " ".join(scopes) if isinstance(scopes, list) else scopes
             )
+
+            if redirect_uri:
+                self._redirect_uri = redirect_uri
+                if "localhost" in redirect_uri:
+                    self._port = re.search(
+                        r"localhost:(\d+)", redirect_uri
+                    ).group(1)
+                elif web_framework:
+                    wmsg = (
+                        "The redirect URI is not on localhost, "
+                        "so automatic authorization code "
+                        "retrieval is not available."
+                    )
+                    logging.warning(wmsg)
+                    web_framework = None
+            elif port:
+                self._port = port
+                self._redirect_uri = f"http://localhost:{port}/callback"
+            else:
+                self._port = self._redirect_uri = None
+
+            self._web_framework = (
+                web_framework
+                if web_framework in {None, "http.server"}
+                or globals()[f"FOUND_{web_framework.upper()}"]
+                else None
+            )
+            if self._web_framework is None and web_framework:
+                wmsg = (
+                    f"The {web_framework.capitalize()} web "
+                    "framework was not found, so automatic "
+                    "authorization code retrieval is not "
+                    "available."
+                )
+                warnings.warn(wmsg)
+
+        elif flow == "client_credentials":
+            self._scopes = ""
 
     ### ALBUM API #############################################################
 
