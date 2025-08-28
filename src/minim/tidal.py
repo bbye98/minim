@@ -365,7 +365,7 @@ class API:
         Parameters
         ----------
         endpoint : `str`
-            Spotify Web API endpoint.
+            TIDAL API endpoint.
 
         scope : `str`
             Required scope for `endpoint`.
@@ -3020,8 +3020,7 @@ class PrivateAPI:
         ----------
         access_token : `str`, optional
             Access token. If not provided, an access token is obtained
-            using an OAuth 2.0 authorization flow or from the Spotify
-            Web Player.
+            using an OAuth 2.0 authorization flow.
 
         refresh_token : `str`, keyword-only, optional
             Refresh token accompanying `access_token`.
