@@ -75,12 +75,19 @@ class API:
        <https://developer.tidal.com/apiref>`_.
 
     Requests to the TIDAL API endpoints must be accompanied by a valid
-    access token in the header. Minim can obtain client-only access
-    tokens via the client credentials flow, which requires valid client
-    credentials (client ID and client secret) to either be provided to
-    this class's constructor as keyword arguments or be stored as
-    :code:`TIDAL_CLIENT_ID` and :code:`TIDAL_CLIENT_SECRET` in the
-    operating system's environment variables.
+    access token in the header. An access token can be obtained
+    with or without user authentication. While authentication is not
+    necessary to search for and retrieve data from public content, it
+    is required to access personal content and control playback.
+
+    Minim can obtain client-only access tokens via the client
+    credentials flow and user access tokens via the authorization code
+    with proof key for code exchange (PKCE) flows. These OAuth 2.0
+    authorization flows require valid client credentials (client ID and
+    client secret) to either be provided to this class's constructor as
+    keyword arguments or be stored as :code:`TIDAL_CLIENT_ID` and
+    :code:`TIDAL_CLIENT_SECRET` in the operating system's environment
+    variables.
 
     .. seealso::
 
@@ -88,12 +95,12 @@ class API:
        TIDAL application <https://developer.tidal.com/documentation
        /dashboard/dashboard-client-credentials>`_.
 
-    If an existing access token is available, it and its expiry time can
-    be provided to this class's constructor as keyword arguments to
-    bypass the access token retrieval process. It is recommended that
-    all other authorization-related keyword arguments be specified so
-    that a new access token can be obtained when the existing one
-    expires.
+    If an existing access token is available, it and its accompanying
+    information (refresh token and expiry time) can be provided to this
+    class's constructor as keyword arguments to bypass the access token
+    retrieval process. It is recommended that all other
+    authorization-related keyword arguments be specified so that a new
+    access token can be obtained when the existing one expires.
 
     .. tip::
 
