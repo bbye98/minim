@@ -82,7 +82,7 @@ class API:
 
     Minim can obtain client-only access tokens via the client
     credentials flow and user access tokens via the authorization code
-    with proof key for code exchange (PKCE) flows. These OAuth 2.0
+    with proof key for code exchange (PKCE) flow. These OAuth 2.0
     authorization flows require valid client credentials (client ID and
     client secret) to either be provided to this class's constructor as
     keyword arguments or be stored as :code:`TIDAL_CLIENT_ID` and
@@ -320,7 +320,7 @@ class API:
         self.session = requests.Session()
         self.session.headers["accept"] = self.session.headers[
             "Content-Type"
-        ] = "application/vnd.tidal.v1+json"
+        ] = "application/vnd.api+json"
 
         if (
             access_token is None
@@ -356,6 +356,20 @@ class API:
         self.set_access_token(
             access_token, refresh_token=refresh_token, expiry=expiry
         )
+
+    def _check_authentication(self, endpoint: str) -> None:
+        """
+        Check if the user is authenticated for the desired endpoint.
+
+        Parameters
+        ----------
+        endpoint : `str`
+            TIDAL API endpoint.
+        """
+
+        if self._flow != "pkce":
+            emsg = f"{self._NAME}.{endpoint}() requires user authentication."
+            raise RuntimeError(emsg)
 
     def _check_scope(self, endpoint: str, scope: str) -> None:
         """
@@ -533,7 +547,6 @@ class API:
             self.session.headers["Authorization"] = (
                 f"Bearer {r['access_token']}"
             )
-            self._refresh_token = r["refresh_token"]
             self._expiry = datetime.datetime.now() + datetime.timedelta(
                 0, r["expires_in"]
             )
@@ -578,8 +591,12 @@ class API:
         r = self.session.request(method, url, **kwargs)
         if r.status_code not in range(200, 299):
             try:
-                error = r.json()["errors"][0]
-                emsg = f"{r.status_code} {error['code']}: {error['detail']}"
+                error = r.json()
+                if "errors" in error:
+                    error = error["errors"][0]
+                    emsg = f"{r.status_code} {error['code']}: {error['detail']}"
+                else:
+                    emsg = f"{r.status_code} {r.reason}: {error['detail']}"
             except requests.exceptions.JSONDecodeError:
                 emsg = f"{r.status_code} {r.reason}"
             raise RuntimeError(emsg)
@@ -684,7 +701,8 @@ class API:
             else expiry
         )
 
-        # TODO: Get user profile if flow == "pkce".
+        if self._flow == "pkce":
+            self._user_id = self.get_me()["data"]["id"]
 
     def set_flow(
         self,
@@ -815,19 +833,24 @@ class API:
         elif flow == "client_credentials":
             self._scopes = ""
 
-    ### ALBUM API #############################################################
+    ### ALBUMS ################################################################
 
     def get_album(
-        self, album_id: Union[int, str], country_code: str
+        self,
+        album_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        include: Union[str, list[str], None] = None,
     ) -> dict[str, Any]:
         """
-        `Album API > Get single album
-        <https://developer.tidal.com/apiref?ref=get-album>`_: Retrieve
-        album details by TIDAL album ID.
+        `Albums > Get single album <https://tidal-music.github.io
+        /tidal-api-reference/#/albums/get_albums__id_>`_: Retrieve a
+        single album by ID.
 
         Parameters
         ----------
-        album_id : `int` or `str`
+        album_id : `int` or `str`, positional-only
             TIDAL album ID.
 
             **Example**: :code:`251380836`.
@@ -837,1658 +860,3361 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid values**: :code:`"artists"`, :code:`"coverArt"`,
+            :code:`"genres"`, :code:`"items"`, :code:`"owners"`,
+            :code:`"providers"`, and :code:`"similarAlbums"`.
+
+            **Examples**: :code:`"artists"`, :code:`"artists,coverArt"`, and
+            :code:`["artists", "coverArt"]`.
+
         Returns
         -------
         album : `dict`
-            TIDAL catalog information for a single album.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "id": <str>,
-                    "barcodeId": <str>,
-                    "title": <str>,
-                    "artists": [
-                      {
-                        "id": <str>,
-                        "name": <str>,
-                        "picture": [
-                          {
-                            "url": <str>,
-                            "width": <int>,
-                            "height": <int>
-                          }
-                        ],
-                        "main": <bool>
-                      }
-                    ],
-                    "duration": <int>,
-                    "releaseDate": <str>,
-                    "imageCover": [
-                      {
-                        "url": <str>,
-                        "width": <int>,
-                        "height": <int>
-                      }
-                    ],
-                    "videoCover": [
-                      {
-                        "url": <str>,
-                        "width": <int>,
-                        "height": <int>
-                      }
-                    ],
-                    "numberOfVolumes": <int>,
-                    "numberOfTracks": <int>,
-                    "numberOfVideos": <int>,
-                    "type": "ALBUM",
-                    "copyright": <str>,
-                    "mediaMetadata": {
-                      "tags": [<str>]
-                    },
-                    "properties": {
-                      "content": [<str>]
-                    }
-                  }
+            TIDAL catalog information and related resources for a single album.
         """
-
+        if isinstance(include, str) and "," in include:
+            include = include.split(",")
         return self._get_json(
             f"{self.API_URL}/albums/{album_id}",
-            params={"countryCode": country_code},
-        )["resource"]
+            params={"countryCode": country_code, "include": include},
+        )
 
     def get_albums(
         self,
-        album_ids: Union[int, str, list[Union[int, str]]],
         country_code: str,
-    ) -> list[dict[str, Any]]:
+        *,
+        album_ids: Union[int, str, list[Union[int, str]], None] = None,
+        barcode_ids: Union[int, str, list[Union[int, str]], None] = None,
+        user_ids: Union[int, str, list[Union[int, str]], None] = None,
+        include: Union[str, list[str], None] = None,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
         """
-        `Album API > Get multiple albums
-        <https://developer.tidal.com/apiref?ref=get-albums-by-ids>`_:
-        Retrieve a list of album details by TIDAL album IDs.
+        `Albums > Get multiple albums <https://tidal-music.github.io
+        /tidal-api-reference/#/albums/get_albums>`_: Retrieve multiple
+        albums using available filters.
 
         Parameters
         ----------
-        album_ids : `int`, `str`, or `list`
-            TIDAL album ID(s).
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
 
-            **Examples**: :code:`"251380836,275646830"` or
-            :code:`[251380836, 275646830]`.
+            **Example**: :code:`"US"`.
+
+        album_ids : `int`, `str`, or `list`, keyword-only, optional
+            TIDAL album ID(s). Only optional if either `barcode_ids` or
+            `user_ids` is provided.
+
+            **Examples**: :code:`251380836`, :code:`"251380836"`,
+            :code:`"251380836,275646830"`,
+            :code:`[251380836, 275646830]`, and
+            :code:`["251380836", "275646830"]`.
+
+        barcode_ids : `int`, `str`, or `list`, keyword-only, optional
+            TIDAL album barcode ID(s). Only optional if either
+            `album_ids` or `user_ids` is provided.
+
+            **Examples**: :code:`196589525444`, :code:`"196589525444"`,
+            :code:`"196589525444,075679933652"`,
+            :code:`[196589525444, 075679933652]`, and
+            :code:`["196589525444", "075679933652"]`
+
+        user_ids : `int`, `str`, or `list`, keyword-only, optional
+            TIDAL user ID(s). Only optional if either `album_ids` or
+            `barcode_ids` is provided.
+
+            **Examples**: :code:`123456`, :code:`"123456"`,
+            :code:`"123456,789012"`, :code:`[123456, 789012]`, and
+            :code:`["123456, 789012"]`.
+
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid values**: :code:`"artists"`, :code:`"coverArt"`,
+            :code:`"genres"`, :code:`"items"`, :code:`"owners"`,
+            :code:`"providers"`, and :code:`"similarAlbums"`.
+
+            **Examples**: :code:`"artists"`, :code:`"artists,coverArt"`,
+            and :code:`["artists", "coverArt"]`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor. If not specified, the first page of
+            results will be returned.
+
+        Returns
+        -------
+        albums : `dict`
+            A dictionary containing TIDAL catalog information and
+            related resources for multiple albums.
+        """
+        if isinstance(include, str) and "," in include:
+            include = include.split(",")
+        if isinstance(user_ids, str) and "," in user_ids:
+            user_ids = user_ids.split(",")
+        if isinstance(album_ids, str) and "," in album_ids:
+            album_ids = album_ids.split(",")
+        if isinstance(barcode_ids, str) and "," in barcode_ids:
+            barcode_ids = barcode_ids.split(",")
+        return self._get_json(
+            f"{self.API_URL}/albums",
+            params={
+                "countryCode": country_code,
+                "page[cursor]": cursor,
+                "include": include,
+                "filter[r.owners.id]": user_ids,
+                "filter[id]": album_ids,
+                "filter[barcodeId]": barcode_ids,
+            },
+        )
+
+    def get_album_relationship(
+        self,
+        album_id: Union[int, str],
+        relationship: str,
+        /,
+        *,
+        cursor: Union[int, str, None] = None,
+        **kwargs,
+    ) -> dict[str, Any]:
+        """
+        Retrieve information related to an album.
+
+        .. note::
+
+           This method is provided for convenience and is not a TIDAL API
+           endpoint.
+
+        Parameters
+        ----------
+        album_id : `int` or `str`, positional-only
+            TIDAL album ID.
+
+            **Examples**: :code:`251380836` and :code:`"251380836"`.
+
+        relationship : `str`, positional-only
+            Relationship type.
+
+            **Valid values**: :code:`"artists"`, :code:`"coverArt"`,
+            :code:`"items"`, :code:`"owners"`, :code:`"providers"`, or
+            :code:`"similarAlbums"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        album_relationship : `dict`
+            A dictionary containing TIDAL catalog information for the
+            specified album relationship.
+        """
+        return self._get_json(
+            f"{self.API_URL}/albums/{album_id}/relationships/{relationship}",
+            params={"page[cursor]": cursor, "include": relationship, **kwargs},
+        )
+
+    def get_album_artists(
+        self,
+        album_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Albums > Get album artists <https://tidal-music.github.io
+        /tidal-api-reference/#/albums
+        /get_albums__id__relationships_artists>`_: Retrieve main artists
+        associated with an album.
+
+        Parameters
+        ----------
+        album_id : `int` or `str`, positional-only
+            TIDAL album ID.
+
+            **Examples**: :code:`251380836` and :code:`"251380836"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
         Returns
         -------
-        albums : `dict`
-            A dictionary containing TIDAL catalog information for
-            multiple albums and metadata for the returned results.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "resource": {
-                          "id": <str>,
-                          "barcodeId": <str>,
-                          "title": <str>,
-                          "artists": [
-                            {
-                              "id": <str>,
-                              "name": <str>,
-                              "picture": [
-                                {
-                                  "url": <str>,
-                                  "width": <int>,
-                                  "height": <int>
-                                }
-                              ],
-                              "main": <bool>
-                            }
-                          ],
-                          "duration": <int>,
-                          "releaseDate": <str>,
-                          "imageCover": [
-                            {
-                              "url": <str>,
-                              "width": <int>,
-                              "height": <int>
-                            }
-                          ],
-                          "videoCover": [
-                            {
-                              "url": <str>,
-                              "width": <int>,
-                              "height": <int>
-                            }
-                          ],
-                          "numberOfVolumes": <int>,
-                          "numberOfTracks": <int>,
-                          "numberOfVideos": <int>,
-                          "type": "ALBUM",
-                          "copyright": <str>,
-                          "mediaMetadata": {
-                            "tags": [<str>]
-                          },
-                          "properties": {
-                            "content": [<str>]
-                          }
-                        },
-                        "id": <str>,
-                        "status": 200,
-                        "message": "success"
-                      }
-                    ],
-                    "metadata": {
-                      "requested": <int>,
-                      "success": <int>,
-                      "failure": <int>
-                    }
-                  }
+        artists : `dict`
+            A dictionary containing TIDAL catalog information for the
+            main artists associated with the album.
         """
+        return self.get_album_relationship(
+            album_id,
+            "artists",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
+        )
 
-        return self._get_json(
-            f"{self.API_URL}/albums/byIds",
-            params={"ids": album_ids, "countryCode": country_code},
+    def get_album_cover_art(
+        self,
+        album_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Albums > Get album cover art <https://tidal-music.github.io
+        /tidal-api-reference/#/albums
+        /get_albums__id__relationships_coverArt>`_: Retrieve cover
+        artwork associated with an album.
+
+        Parameters
+        ----------
+        album_id : `int` or `str`, positional-only
+            TIDAL album ID.
+
+            **Examples**: :code:`251380836` and :code:`"251380836"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        cover_art : `dict`
+            A dictionary containing TIDAL catalog information for the
+            cover artwork associated with the album.
+        """
+        return self.get_album_relationship(
+            album_id,
+            "coverArt",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
         )
 
     def get_album_items(
         self,
         album_id: Union[int, str],
+        /,
         country_code: str,
         *,
-        limit: int = None,
-        offset: int = None,
+        cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
-        `Album API > Get album items
-        <https://developer.tidal.com/apiref?ref=get-album-items>`_:
-        Retrieve a list of album items (tracks and videos) by TIDAL
-        album ID.
+        `Albums > Get album items <https://tidal-music.github.io
+        /tidal-api-reference/#/albums
+        /get_albums__id__relationships_items>`_: Retrieve items in an
+        album.
 
         Parameters
         ----------
-        album_id : `int` or `str`
+        album_id : `int` or `str`, positional-only
             TIDAL album ID.
 
-            **Examples**: :code:`251380836`.
+            **Examples**: :code:`251380836` and :code:`"251380836"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        limit : `int`, keyword-only, optional
-            Page size.
-
-            **Example**: :code:`10`.
-
-        offset : `int`, keyword-only, optional
-            Pagination offset (in number of items).
-
-            **Example**: :code:`0`.
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
 
         Returns
         -------
-        items : `dict`
-            A dictionary containing TIDAL catalog information for
-            tracks and videos in the specified album and metadata for
-            the returned results.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "resource": {
-                          "artifactType": <str>,
-                          "id": <str>,
-                          "title": str>,
-                          "artists": [
-                            {
-                              "id": <str>,
-                              "name": <str>,
-                              "picture": [
-                                {
-                                  "url": <str>,
-                                  "width": <int>,
-                                  "height": <int>
-                                }
-                              ],
-                              "main": <bool>
-                            }
-                          ],
-                          "album": {
-                            "id": <str>,
-                            "title": <str>,
-                            "imageCover": [
-                              {
-                                "url": <str>,
-                                "width": <int>,
-                                "height": <int>
-                              }
-                            ],
-                            "videoCover": []
-                          },
-                          "duration": <int>,
-                          "trackNumber": <int>,
-                          "volumeNumber": <int>,
-                          "isrc": <str>,
-                          "copyright": <str>,
-                          "mediaMetadata": {
-                            "tags": [<str>]
-                          },
-                          "properties": {
-                            "content": [<str>]
-                          }
-                        },
-                        "id": <str>,
-                        "status": 200,
-                        "message": "success"
-                      }
-                    ],
-                    "metadata": {
-                      "total": <int>
-                    }
-                  }
+        album_items : `dict`
+            A dictionary containing TIDAL catalog information for the
+            items in the album.
         """
-
-        return self._get_json(
-            f"{self.API_URL}/albums/{album_id}/items",
-            params={
-                "countryCode": country_code,
-                "limit": limit,
-                "offset": offset,
-            },
+        return self.get_album_relationship(
+            album_id,
+            "items",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
         )
 
-    def get_album_by_barcode_id(
-        self, barcode_id: Union[int, str], country_code: str
+    def get_album_owners(
+        self,
+        album_id: Union[int, str],
+        /,
+        *,
+        cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
-        `Album API > Get album by barcode ID
-        <https://developer.tidal.com
-        /apiref?ref=get-albums-by-barcode-id>`_: Retrieve a list of album
-        details by barcode ID.
+        `Albums > Get album owners <https://tidal-music.github.io
+        /tidal-api-reference/#/albums
+        /get_albums__id__relationships_owners>`_: Retrieve TIDAL catalog
+        entries that contain an album.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the authorization code flow.
 
         Parameters
         ----------
-        barcode_id : `int` or `str`
-            Barcode ID in EAN-13 or UPC-A format.
+        album_id : `int` or `str`, positional-only
+            TIDAL album ID.
 
-            **Example**: :code:`196589525444`.
+            **Examples**: :code:`251380836` and :code:`"251380836"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        owners : `dict`
+            A dictionary containing TIDAL catalog information for the
+            owners of the album.
+        """
+        self._check_authentication("get_album_owners")
+        return self.get_album_relationship(
+            album_id, "owners", **{"page[cursor]": cursor}
+        )
+
+    def get_album_providers(
+        self,
+        album_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Albums > Get album providers <https://tidal-music.github.io
+        /tidal-api-reference/#/albums
+        /get_albums__id__relationships_providers>`_: Retrieve providers of an
+        album.
+
+        Parameters
+        ----------
+        album_id : `int` or `str`, positional-only
+            TIDAL album ID.
+
+            **Examples**: :code:`251380836` and :code:`"251380836"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
         Returns
         -------
-        album : `dict`
-            TIDAL catalog information for a single album.
-
-            .. admonition:: Sample response
-                :class: dropdown
-
-                .. code::
-
-                  {
-                    "data": [
-                      {
-                        "resource": {
-                          "id": <str>,
-                          "barcodeId": <str>,
-                          "title": <str>,
-                          "artists": [
-                            {
-                              "id": <str>,
-                              "name": <str>,
-                              "picture": [
-                                {
-                                  "url": <str>,
-                                  "width": <int>,
-                                  "height": <int>
-                                }
-                              ],
-                              "main": <bool>
-                            }
-                          ],
-                          "duration": <int>,
-                          "releaseDate": <str>,
-                          "imageCover": [
-                            {
-                              "url": <str>,
-                              "width": <int>,
-                              "height": <int>
-                            }
-                          ],
-                          "videoCover": [
-                            {
-                              "url": <str>,
-                              "width": <int>,
-                              "height": <int>
-                            }
-                          ],
-                          "numberOfVolumes": <int>,
-                          "numberOfTracks": <int>,
-                          "numberOfVideos": <int>,
-                          "type": "ALBUM",
-                          "copyright": <str>,
-                          "mediaMetadata": {
-                            "tags": [<str>]
-                          },
-                          "properties": {
-                            "content": [<str>]
-                          }
-                        },
-                        "id": <str>,
-                        "status": 200,
-                        "message": "success"
-                      }
-                    ],
-                    "metadata": {
-                      "requested": 1,
-                      "success": 1,
-                      "failure": 0
-                    }
-                  }
-
+        providers : `dict`
+            A dictionary containing TIDAL catalog information for the
+            providers of the album.
         """
-
-        return self._get_json(
-            f"{self.API_URL}/albums/byBarcodeId",
-            params={"barcodeId": barcode_id, "countryCode": country_code},
+        return self.get_album_relationship(
+            album_id,
+            "providers",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
         )
 
     def get_similar_albums(
         self,
         album_id: Union[int, str],
+        /,
         country_code: str,
         *,
-        limit: int = None,
-        offset: int = None,
+        cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
-        `Album API > Get similar albums for the given album
-        <https://developer.tidal.com/apiref?ref=get-similar-albums>`_:
-        Retrieve a list of albums similar to the given album.
+        `Albums > Get similar albums <https://tidal-music.github.io
+        /tidal-api-reference/#/albums
+        /get_albums__id__relationships_similarAlbums>`_: Retrieve albums
+        similar to a given album.
 
         Parameters
         ----------
-        album_id : `int` or `str`
+        album_id : `int` or `str`, positional-only
             TIDAL album ID.
 
-            **Examples**: :code:`251380836`.
+            **Examples**: :code:`251380836` and :code:`"251380836"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        limit : `int`, keyword-only, optional
-            Page size.
-
-            **Example**: :code:`10`.
-
-        offset : `int`, keyword-only, optional
-            Pagination offset (in number of items).
-
-            **Example**: :code:`0`.
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
 
         Returns
         -------
-        album_ids : `dict`
-            A dictionary containing TIDAL album IDs for similar albums
-            and metadata for the returned results.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "resource": {
-                          "id": <str>
-                        }
-                      }
-                    ],
-                    "metadata": {
-                      "total": <int>
-                    }
-                  }
+        similar_albums : `dict`
+            A dictionary containing TIDAL catalog information for the
+            similar albums.
         """
-
-        return self._get_json(
-            f"{self.API_URL}/albums/{album_id}/similar",
-            params={
-                "countryCode": country_code,
-                "limit": limit,
-                "offset": offset,
-            },
+        return self.get_album_relationship(
+            album_id,
+            "similar",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
         )
 
-    ### ARTIST API ############################################################
+    ### ARTIST ROLES ##########################################################
 
-    def get_artist(
-        self, artist_id: Union[int, str], country_code: str
-    ) -> dict[str, Any]:
+    def get_artist_role(self, artist_id: Union[int, str], /) -> dict[str, Any]:
         """
-        `Artist API > Get single artist
-        <https://developer.tidal.com/apiref?ref=get-artist>`_: Retrieve
-        artist details by TIDAL artist ID.
+        `Artist Roles > Get single artist role
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /artist-roles/get_artist_roles__id_>`_: Retrieves the role of a
+        single artist.
 
         Parameters
         ----------
         artist_id : `int` or `str`
             TIDAL artist ID.
 
-            **Example**: :code:`1566`.
-
-        country_code : `str`
-            ISO 3166-1 alpha-2 country code.
-
-            **Example**: :code:`"US"`.
+            **Examples**: :code:`1` and :code:`"1"`.
 
         Returns
         -------
-        artist : `dict`
-            TIDAL catalog information for a single artist.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "id": <str>,
-                    "name": <str>,
-                    "picture": [
-                      {
-                        "url": <str>,
-                        "width": <int>,
-                        "height": <int>
-                      }
-                    ]
-                  }
+        artist_role : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artist role.
         """
+        return self.session.get(f"{self.API_URL}/artistRoles/{artist_id}")
 
-        return self._get_json(
-            f"{self.API_URL}/artists/{artist_id}",
-            params={"countryCode": country_code},
-        )["resource"]
-
-    def get_artists(
+    def get_artists_roles(
         self,
         artist_ids: Union[int, str, list[Union[int, str]]],
-        country_code: str,
     ) -> dict[str, Any]:
         """
-        `Artist API > Get multiple artists
-        <https://developer.tidal.com/apiref?ref=get-artists-by-ids>`_:
-        Retrieve a list of artist details by TIDAL artist IDs.
+        `Artist Roles > Get multiple artists' roles
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /artist-roles/get_artist_roles>`_: Retrieves the roles of
+        multiple artists.
 
         Parameters
         ----------
         artist_ids : `int`, `str`, or `list`
             TIDAL artist ID(s).
 
-            **Examples**: :code:`"1566,7804"` or :code:`[1566, 7804]`.
+            **Examples**: :code:`1`, :code:`"1"`, :code:`"1,2"`,
+            :code:`[1, 2]`, and :code:`["1", "2"]`.
+
+        Returns
+        -------
+        artists_roles : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artists' roles.
+        """
+        if isinstance(artist_ids, str) and "," in artist_ids:
+            artist_ids = artist_ids.split(",")
+        return self.session.get(
+            f"{self.API_URL}/artistRoles", params={"filter[id]": artist_ids}
+        )
+
+    ### ARTISTS ###############################################################
+
+    def get_artist(
+        self,
+        artist_id: str,
+        /,
+        country_code: str,
+        *,
+        include: Union[str, list[str], None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get single artist <https://tidal-music.github.io
+        /tidal-api-reference/#/artists/get_artists__id_>`_: Retrieves a
+        single artist.
+
+        Parameters
+        ----------
+        artist_id : `str`, positional-only
+            TIDAL artist ID.
+
+            **Examples**: :code:`1566` and :code:`"1566"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid values**: :code:`"albums"`, :code:`"biography"`,
+            :code:`"owners"`, :code:`"profileArt"`, :code:`"radio"`,
+            :code:`"roles"`, :code:`"similarArtists"`,
+            :code:`"trackProviders"`, :code:`"tracks"`,
+            and :code:`"videos"`.
+
+            **Examples**: :code:`"albums"`, :code:`"albums,biography"`,
+            and :code:`["albums", "biography"]`.
+
+        Returns
+        -------
+        artist : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artist.
+        """
+        if isinstance(include, str) and "," in include:
+            include = include.split(",")
+        return self.session.get(
+            f"{self.API_URL}/artists/{artist_id}",
+            params={"country": country_code, "include": include},
+        )
+
+    def get_artists(
+        self,
+        country_code: str,
+        *,
+        include: Union[str, list[str], None] = None,
+        artist_ids: Union[int, str, list[Union[int, str]], None] = None,
+        artist_handles: Union[str, list[str], None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get multiple artists <https://tidal-music.github.io
+        /tidal-api-reference/#/artists/get_artists>`_: Retrieves multiple
+        artists using available filters.
+
+        Parameters
+        ----------
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid values**: :code:`"albums"`, :code:`"biography"`,
+            :code:`"owners"`, :code:`"profileArt"`, :code:`"radio"`,
+            :code:`"roles"`, :code:`"similarArtists"`,
+            :code:`"trackProviders"`, :code:`"tracks"`,
+            and :code:`"videos"`.
+
+            **Examples**: :code:`"albums"`, :code:`"albums,biography"`,
+            and :code:`["albums", "biography"]`.
+
+        artist_ids : `int`, `str`, or `list`, keyword-only, optional
+            TIDAL artist ID(s). Only optional if `artist_handles` is
+            provided.
+
+            **Examples**: :code:`1`, :code:`"1"`, :code:`"1,2"`,
+            :code:`[1, 2]`, and :code:`["1", "2"]`.
+
+        artist_handles : `str` or `list`, keyword-only, optional
+            TIDAL artist handle(s). Only optional if `artist_ids` is
+            provided.
+
+            **Examples**: :code:`"artist_handle"` and
+            :code:`["artist_handle"]`.
+
         Returns
         -------
         artists : `dict`
-            A dictionary containing TIDAL catalog information for
-            multiple artists and metadata for the returned results.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                {
-                  "data": [
-                    {
-                      "resource": {
-                        "id": <str>,
-                        "name": <str>,
-                        "picture": [
-                          {
-                            "url": <str>,
-                            "width": <int>,
-                            "height": <int>
-                          }
-                        ]
-                      },
-                      "id": <str>,
-                      "status": 200,
-                      "message": "success"
-                    }
-                  ],
-                  "metadata": {
-                    "requested": <int>,
-                    "success": <int>,
-                    "failure": <int>
-                  }
-                }
+            A dictionary containing TIDAL catalog information for the
+            artists.
         """
-
-        return self._get_json(
+        if isinstance(include, str) and "," in include:
+            include = include.split(",")
+        if isinstance(artist_ids, str) and "," in artist_ids:
+            artist_ids = artist_ids.split(",")
+        if isinstance(artist_handles, str) and "," in artist_handles:
+            artist_handles = artist_handles.split(",")
+        return self.session.get(
             f"{self.API_URL}/artists",
-            params={"ids": artist_ids, "countryCode": country_code},
+            params={
+                "country": country_code,
+                "include": include,
+                "filter[handle]": artist_handles,
+                "filter[id]": artist_ids,
+            },
+        )
+
+    def get_artist_relationship(
+        self, artist_id: Union[int, str], relationship: str, /, **kwargs
+    ) -> dict[str, Any]:
+        """
+        Retrieve information related to an artist.
+
+        .. note::
+
+           This method is provided for convenience and is not a TIDAL API
+           endpoint.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`, positional-only
+            TIDAL artist ID.
+
+            **Examples**: :code:`1566` and :code:`"1566"`.
+
+        relationship : `str`, positional-only
+            Relationship type.
+
+            **Valid values**: :code:`"albums"`, :code:`"biography"`,
+            :code:`"owners"`, :code:`"profileArt"`, :code:`"radio"`,
+            :code:`"roles"`, :code:`"similarArtists"`,
+            :code:`"trackProviders"`, :code:`"tracks"`, or
+            :code:`"videos"`.
+
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        album_relationship : `dict`
+            A dictionary containing TIDAL catalog information for the
+            specified album relationship.
+        """
+        return self._get_json(
+            f"{self.API_URL}/artists/{artist_id}/relationships/{relationship}",
+            params={"include": relationship, **kwargs},
         )
 
     def get_artist_albums(
         self,
         artist_id: Union[int, str],
+        /,
         country_code: str,
         *,
-        limit: int = None,
-        offset: int = None,
+        cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
-        `Artist API > Get albums by artist
-        <https://developer.tidal.com/apiref?ref=get-artist-albums>`_:
-        Retrieve a list of albums by TIDAL artist ID.
+        `Artists > Get artist's albums <https://tidal-music.github.io
+        /tidal-api-reference/#/artists
+        /get_artists__id__relationships_albums>`_: Retrieve an artist's
+        albums.
 
         Parameters
         ----------
-        artist_id : `int` or `str`
+        artist_id : `int` or `str`, positional-only
             TIDAL artist ID.
 
-            **Example**: :code:`1566`.
+            **Examples**: :code:`1566` and :code:`"1566"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        limit : `int`, keyword-only, optional
-            Page size.
-
-            **Example**: :code:`10`.
-
-        offset : `int`, keyword-only, optional
-            Pagination offset (in number of items).
-
-            **Example**: :code:`0`.
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
 
         Returns
         -------
         albums : `dict`
-            A dictionary containing TIDAL catalog information for
-            albums by the specified artist and metadata for the
-            returned results.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "resource": {
-                          "id": <str>,
-                          "barcodeId": <str>,
-                          "title": <str>,
-                          "artists": [
-                            {
-                              "id": <str>,
-                              "name": <str>,
-                              "picture": [
-                                {
-                                  "url": <str>,
-                                  "width": <int>,
-                                  "height": <int>
-                                }
-                              ],
-                              "main": <bool>
-                            }
-                          ],
-                          "duration": <int>,
-                          "releaseDate": <str>,
-                          "imageCover": [
-                            {
-                              "url": <str>,
-                              "width": <int>,
-                              "height": <int>
-                            }
-                          ],
-                          "videoCover": [
-                            {
-                              "url": <str>,
-                              "width": <int>,
-                              "height": <int>
-                            }
-                          ],
-                          "numberOfVolumes": <int>,
-                          "numberOfTracks": <int>,
-                          "numberOfVideos": <int>,
-                          "type": "ALBUM",
-                          "copyright": <str>,
-                          "mediaMetadata": {
-                            "tags": <str>
-                          },
-                          "properties": {
-                            "content": <str>
-                          }
-                        },
-                        "id": <str>,
-                        "status": 200,
-                        "message": "success"
-                      }
-                    ],
-                    "metadata": {
-                      "total": <int>
-                    }
-                  }
+            A dictionary containing TIDAL catalog information for the
+            artist's albums.
         """
-
-        return self._get_json(
-            f"{self.API_URL}/artists/{artist_id}/albums",
-            params={
-                "countryCode": country_code,
-                "limit": limit,
-                "offset": offset,
-            },
+        return self.get_artist_relationship(
+            artist_id,
+            "albums",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
         )
 
-    def get_artist_tracks(
-        self,
-        artist_id: Union[int, str],
-        country_code: str,
-        limit: int = None,
-        offset: int = None,
+    def get_artist_biography(
+        self, artist_id: Union[int, str], /, country_code: str
     ) -> dict[str, Any]:
         """
-        `Track API > Get tracks by artist
-        <https://developer.tidal.com/apiref?ref=get-tracks-by-artist>`_:
-        Retrieve a list of tracks made by the specified artist.
+        `Artists > Get artist's biography <https://tidal-music.github.io
+        /tidal-api-reference/#/artists
+        /get_artists__id__relationships_biography>`_: Retrieve an
+        artist's biography.
 
         Parameters
         ----------
-        artist_id : `int` or `str`
+        artist_id : `int` or `str`, positional-only
             TIDAL artist ID.
 
-            **Example**: :code:`1566`.
+            **Examples**: :code:`1566` and :code:`"1566"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        limit : `int`, keyword-only, optional
-            Page size.
+        Returns
+        -------
+        biography : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artist's biography.
+        """
+        return self.get_artist_relationship(
+            artist_id, "biography", countryCode=country_code
+        )
 
-            **Example**: :code:`10`.
+    def get_artist_owners(
+        self,
+        artist_id: Union[int, str],
+        /,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get artist's owners <https://tidal-music.github.io
+        /tidal-api-reference/#/artists
+        /get_artists__id__relationships_owners>`_: Retrieve TIDAL catalog
+        entries that contain an artist.
 
-        offset : `int`, keyword-only, optional
-            Pagination offset (in number of items).
+        .. admonition:: User authentication
+           :class: warning
 
-            **Example**: :code:`0`.
+           Requires user authentication via the authorization code flow.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`, positional-only
+            TIDAL artist ID.
+
+            **Examples**: :code:`1566` and :code:`"1566"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
 
         Returns
         -------
-        tracks : `dict`
-            A dictionary containing TIDAL catalog information for tracks
-            by the specified artist and metadata for the returned results.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "resource": {
-                          "properties": {
-                            "content": <str>
-                          },
-                          "id": <str>,
-                          "version": <str>,
-                          "duration": <int>,
-                          "album": {
-                            "id": <str>,
-                            "title": <str>,
-                            "imageCover": [
-                              {
-                                "url": <str>,
-                                "width": <int>,
-                                "height": <int>
-                              }
-                            ],
-                            "videoCover": [
-                              {
-                                "url": <str>,
-                                "width": <int>,
-                                "height": <int>
-                              }
-                            ]
-                          },
-                          "title": <str>,
-                          "copyright": <str>,
-                          "artists": [
-                            {
-                              "id": <str>,
-                              "name": <str>,
-                              "picture": [
-                                {
-                                  "url": <str>,
-                                  "width": <int>,
-                                  "height": <int>
-                                }
-                              ],
-                              "main": <bool>
-                            }
-                          ],
-                          "popularity": <float>,
-                          "isrc": <str>,
-                          "trackNumber": <int>,
-                          "volumeNumber": <int>,
-                          "tidalUrl": <str>,
-                          "providerInfo": {
-                            "providerId": <str>,
-                            "providerName": <str>
-                          },
-                          "artifactType": <str>,
-                          "mediaMetadata": {
-                            "tags": <str>
-                          }
-                        },
-                        "id": <str>,
-                        "status": <int>,
-                        "message": <str>
-                      }
-                    ],
-                    "metadata": {
-                      "total": <int>
-                    }
-                  }
+        owners : `dict`
+            A dictionary containing TIDAL catalog information for the
+            owners of the artist.
         """
+        self._check_authentication("get_artist_owners")
+        return self.get_artist_relationship(
+            artist_id, "owners", **{"page[cursor]": cursor}
+        )
 
-        return self._get_json(
-            f"{self.API_URL}/artists/{artist_id}/tracks",
-            params={
-                "countryCode": country_code,
-                "limit": limit,
-                "offset": offset,
-            },
+    def get_artist_profile_art(
+        self,
+        artist_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get artist's profile artwork
+        <https://tidal-music.github.io/tidal-api-reference/#/artists
+        /get_artists__id__relationships_profileArt>`_: Retrieve an
+        artist's profile artwork.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`, positional-only
+            TIDAL artist ID.
+
+            **Examples**: :code:`1566` and :code:`"1566"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        profile_art : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artist's profile artwork.
+        """
+        return self.get_artist_relationship(
+            artist_id,
+            "profile_art",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
+        )
+
+    def get_artist_radio(
+        self,
+        artist_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get artist's radio <https://tidal-music.github.io
+        /tidal-api-reference/#/artists
+        /get_artists__id__relationships_radio>`_: Retrieve an artist's
+        radio.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`, positional-only
+            TIDAL artist ID.
+
+            **Examples**: :code:`1566` and :code:`"1566"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        radio : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artist's radio.
+        """
+        return self.get_artist_relationship(
+            artist_id,
+            "radio",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
+        )
+
+    def get_artist_roles(
+        self,
+        artist_id: Union[int, str],
+        /,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get artist's roles <https://tidal-music.github.io
+        /tidal-api-reference/#/artists
+        /get_artists__id__relationships_roles>`_: Retrieve an artist's
+        roles.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`, positional-only
+            TIDAL artist ID.
+
+            **Examples**: :code:`1566` and :code:`"1566"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        roles : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artist's roles.
+        """
+        return self.get_artist_relationship(
+            artist_id, "roles", **{"page[cursor]": cursor}
         )
 
     def get_similar_artists(
         self,
         artist_id: Union[int, str],
+        /,
         country_code: str,
         *,
-        limit: int = None,
-        offset: int = None,
+        cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
-        `Artist API > Get similar artists for the given artist
-        <https://developer.tidal.com/apiref?ref=get-similar-artists>`_:
-        Retrieve a list of artists similar to the given artist.
+        `Artists > Get similar artists <https://tidal-music.github.io
+        /tidal-api-reference/#/artists
+        /get_artists__id__relationships_similarArtists>`_: Retrieve
+        similar artists for a given artist.
 
         Parameters
         ----------
-        artist_id : `int` or `str`
+        artist_id : `int` or `str`, positional-only
             TIDAL artist ID.
 
-            **Example**: :code:`1566`.
+            **Examples**: :code:`1566` and :code:`"1566"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        limit : `int`, keyword-only, optional
-            Page size.
-
-            **Example**: :code:`10`.
-
-        offset : `int`, keyword-only, optional
-            Pagination offset (in number of items).
-
-            **Example**: :code:`0`.
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
 
         Returns
         -------
-        artist_ids : `dict`
-            A dictionary containing TIDAL artist IDs for similar albums
-            and metadata for the returned results.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "resource": {
-                          "id": <str>
-                        }
-                      }
-                    ],
-                    "metadata": {
-                      "total": <int>
-                    }
-                  }
+        similar_artists : `dict`
+            A dictionary containing TIDAL catalog information for similar
+            artists.
         """
-
-        return self._get_json(
-            f"{self.API_URL}/artists/{artist_id}/similar",
-            params={
-                "countryCode": country_code,
-                "limit": limit,
-                "offset": offset,
-            },
+        return self.get_artist_relationship(
+            artist_id,
+            "similar",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
         )
 
-    ### TRACK API #############################################################
-
-    def get_track(
-        self, track_id: Union[int, str], country_code: str
+    def get_artist_track_providers(
+        self,
+        artist_id: Union[int, str],
+        /,
+        *,
+        cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
-        `Track API > Get single track
-        <https://developer.tidal.com/apiref?ref=get-track>`_: Retrieve
-        track details by TIDAL track ID.
+        `Artists > Get artist's track providers
+        <https://tidal-music.github.io/tidal-api-reference/#/artists
+        /get_artists__id__relationships_trackProviders>`_: Retrieve an
+        artist's track providers.
 
         Parameters
         ----------
-        track_id : `int` or `str`
-            TIDAL track ID.
+        artist_id : `int` or `str`, positional-only
+            TIDAL artist ID.
 
-            **Example**: :code:`251380837`.
+            **Examples**: :code:`1566` and :code:`"1566"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        track_providers : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artist's track providers.
+        """
+        return self.get_artist_relationship(
+            artist_id, "trackProviders", **{"page[cursor]": cursor}
+        )
+
+    def get_artist_tracks(
+        self,
+        artist_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        collapse_by: str = "ID",
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get artist's tracks <https://tidal-music.github.io
+        /tidal-api-reference/#/artists
+        /get_artists__id__relationships_tracks>`_: Retrieve an artist's
+        tracks.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`, positional-only
+            TIDAL artist ID.
+
+            **Examples**: :code:`1566` and :code:`"1566"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
+
+        collapse_by : `str`, keyword-only, default: :code:`"ID"`
+            Collapse-by option.
+
+            **Valid values**: :code:`"FINGERPRINT"` to collapse similar
+            tracks based on entry fingerprints, or :code:`"ID"` to
+            always return all available items.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        tracks : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artist's tracks.
+        """
+        return self.get_artist_relationship(
+            artist_id,
+            "tracks",
+            countryCode=country_code,
+            collapseBy=collapse_by,
+            **{"page[cursor]": cursor},
+        )
+
+    def get_artist_videos(
+        self,
+        artist_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get artist's videos <https://tidal-music.github.io
+        /tidal-api-reference/#/artists
+        /get_artists__id__relationships_videos>`_: Retrieve an artist's
+        videos.
+
+        Parameters
+        ----------
+        artist_id : `int` or `str`, positional-only
+            TIDAL artist ID.
+
+            **Examples**: :code:`1566` and :code:`"1566"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        videos : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artist's videos.
+        """
+        return self.get_artist_relationship(
+            artist_id,
+            "videos",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
+        )
+
+    ### ARTWORKS ##############################################################
+
+    def get_artwork(
+        self,
+        artwork_id: str,
+        /,
+        country_code: str,
+        *,
+        include: Union[str, list[str]] = None,
+    ) -> dict[str, Any]:
+        """
+        `Artworks > Get single artwork <https://tidal-music.github.io
+        /tidal-api-reference/#/artworks/get_artworks__id_>`_: Retrieve a
+        single artwork.
+
+        Parameters
+        ----------
+        artwork_id : `str`, positional-only
+            TIDAL artwork ID.
+
+            **Example**: :code:`"a468bee88def"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid value**: :code:`"owners"`.
+
+        Returns
+        -------
+        artwork : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artwork.
+        """
+        if isinstance(include, str) and "," in include:
+            include = include.split(",")
+        return self._get_json(
+            f"{self.API_URL}/artworks/{artwork_id}",
+            params={"countryCode": country_code, "include": include},
+        )
+
+    def get_artworks(
+        self,
+        artwork_ids: Union[str, list[str]],
+        /,
+        country_code: str,
+        *,
+        include: Union[str, list[str], None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Artworks > Get multiple artworks <https://tidal-music.github.io
+        /tidal-api-reference/#/artworks/get_artworks>`_: Retrieve
+        multiple artworks.
+
+        Parameters
+        ----------
+        artwork_ids : `str` or `list`, positional-only
+            TIDAL artwork ID(s).
+
+            **Example**: :code:`"a468bee88def"`,
+            :code:`"a468bee88def,9344c45a869c"`, or
+            :code:`["a468bee88def", "9344c45a869c"]`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid value**: :code:`"owners"`.
+
+        Returns
+        -------
+        artworks : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artworks.
+        """
+        if isinstance(include, str) and "," in include:
+            include = include.split(",")
+        return self._get_json(
+            f"{self.API_URL}/artworks",
+            params={
+                "countryCode": country_code,
+                "include": include,
+                "filter[id]": artwork_ids,
+            },
+        )
+
+    def get_artwork_owners(
+        self, artwork_id: str, /, *, cursor: Union[int, str, None]
+    ) -> dict[str, Any]:
+        """
+        `Artworks > Get artwork owners <https://tidal-music.github.io
+        /tidal-api-reference/#/artworks
+        /get_artworks__id__relationships_owners>`_: Retrieve the owners
+        of an artwork.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the authorization code flow.
+
+        Parameters
+        ----------
+        artwork_id : `str`, positional-only
+            TIDAL artwork ID.
+
+            **Example**: :code:`"a468bee88def"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        owners : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artwork owners.
+        """
+        self._check_authentication("get_artwork_owners")
+        return self._get_json(
+            f"{self.API_URL}/artworks/{artwork_id}/relationships/owners",
+            params={"include": "owners", "page[cursor]": cursor},
+        )
+
+    ### PLAYLISTS #############################################################
+
+    def get_playlist(
+        self,
+        playlist_uuid: str,
+        /,
+        country_code: str,
+        *,
+        include: Union[str, list[str], None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Playlists > Get single playlist <https://tidal-music.github.io
+        /tidal-api-reference/#/playlists/get_playlists__id_>`_: Retrieve
+        a single playlist.
+
+        Parameters
+        ----------
+        playlist_uuid : `str`, positional-only
+            TIDAL playlist UUID.
+
+            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid values**: :code:`"coverArt"`, :code:`"items"`, or
+            :code:`"owners"`.
+
+        Returns
+        -------
+        playlist : `dict`
+            A dictionary containing TIDAL catalog information for the
+            playlist.
+        """
+        if isinstance(include, str) and "," in include:
+            include = include.split(",")
+        return self._get_json(
+            f"{self.API_URL}/playlists/{playlist_uuid}",
+            params={
+                "countryCode": country_code,
+                "include": include,
+            },
+        )
+
+    def get_playlists(
+        self,
+        country_code: str,
+        *,
+        playlist_uuids: Union[int, str, list[Union[int, str]], None] = None,
+        user_ids: Union[int, str, list[Union[int, str]], None] = None,
+        include: Union[str, list[str], None] = None,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Playlists > Get multiple playlists <https://tidal-music.github.io
+        /tidal-api-reference/#/playlists/get_playlists>`_: Retrieve
+        multiple playlists.
+
+        .. admonition:: Authorization scope
+           :class: warning
+
+           Requires the :code:`playlists.read` scope.
+
+        Parameters
+        ----------
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        playlist_uuids : `int`, `str`, or `list`, keyword-only, optional
+            TIDAL playlist UUID(s). Only optional if `user_ids` is
+            provided.
+
+            **Examples**: :code:`"550e8400-e29b-41d4-a716-446655440000"`
+            and :code:`["550e8400-e29b-41d4-a716-446655440000",
+            "4261748a-4287-4758-aaab-6d5be3e99e52"]`.
+
+        user_ids : `int`, `str`, or `list`, keyword-only, optional
+            TIDAL user ID(s). Only optional if `playlist_uuids`
+            is provided.
+
+            **Examples**: :code:`123456`, :code:`"123456"`,
+            :code:`"123456,789012"`, :code:`[123456, 789012]`, and
+            :code:`["123456, 789012"]`.
+
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid values**: :code:`"coverArt"`, :code:`"items"`, or
+            :code:`"owners"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor. If not specified, the first page of
+            results will be returned.
+
+        Returns
+        -------
+        playlists : `dict`
+            A dictionary containing TIDAL catalog information for the
+            playlists.
+        """
+        self._check_scope("get_playlists", "playlists.read")
+        if isinstance(include, str) and "," in include:
+            include = include.split(",")
+        if isinstance(user_ids, str) and "," in user_ids:
+            user_ids = user_ids.split(",")
+        if isinstance(playlist_uuids, str) and "," in playlist_uuids:
+            playlist_uuids = playlist_uuids.split(",")
+        return self._get_json(
+            f"{self.API_URL}/playlists",
+            params={
+                "countryCode": country_code,
+                "page[cursor]": cursor,
+                "include": include,
+                "filter[r.owners.id]": user_ids,
+                "filter[id]": playlist_uuids,
+            },
+        )
+
+    def create_playlist(
+        self,
+        name: str,
+        /,
+        *,
+        description: Union[str, None] = None,
+        public: bool = True,
+    ) -> dict[str, Any]:
+        """
+        `Playlists > Create single playlist
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /post_playlist>`_: Create a new playlist.
+
+        .. admonition:: Authorization scope
+           :class: warning
+
+           Requires the :code:`playlists.write` scope.
+
+        Parameters
+        ----------
+        name : `str`, positional-only
+            Playlist name.
+
+        description : `str`, keyword-only, optional
+            Playlist description.
+
+        public : `bool`, keyword-only, default: :code:`True`
+            Specifies whether the playlist is public.
+
+        Returns
+        -------
+        playlist : `dict`
+            A dictionary containing the created playlist's information.
+        """
+        self._check_scope("create_playlist", "playlists.write")
+        attributes = {
+            "name": name,
+            "accessType": "PUBLIC" if public else "UNLISTED",
+        }
+        if description is not None:
+            attributes["description"] = description
+        return self._request(
+            "post",
+            f"{self.API_URL}/playlists",
+            json={"data": {"attributes": attributes, "type": "playlists"}},
+        )
+
+    def update_playlist(
+        self,
+        playlist_uuid: str,
+        /,
+        *,
+        name: Union[str, None] = None,
+        description: Union[str, None] = None,
+        public: Union[bool, None] = None,
+    ) -> None:
+        """
+        `Playlists > Update single playlist
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /patch_playlists__id_>`_: Update an existing playlist.
+
+        .. admonition:: Authorization scope
+           :class: warning
+
+           Requires the :code:`playlists.write` scope.
+
+        Parameters
+        ----------
+        playlist_uuid : `str`, positional-only
+            TIDAL playlist UUID.
+
+        name : `str`, keyword-only, optional
+            New name for the playlist.
+
+        description : `str`, keyword-only, optional
+            New description for the playlist.
+
+        public : `bool`, keyword-only, optional
+            Specifies whether the playlist is public.
+        """
+        self._check_scope("create_playlist", "playlists.write")
+        attributes = {}
+        if name is not None:
+            attributes["name"] = name
+        if description is not None:
+            attributes["description"] = description
+        if public is not None:
+            attributes["accessType"] = "PUBLIC" if public else "UNLISTED"
+        self._request(
+            "patch",
+            f"{self.API_URL}/playlists/{playlist_uuid}",
+            json={
+                "data": {
+                    "attributes": attributes,
+                    "id": playlist_uuid,
+                    "type": "playlists",
+                }
+            },
+        )
+
+    def delete_playlist(self, playlist_uuid: str, /) -> None:
+        """
+        `Playlists > Delete single playlist
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /delete_playlists__id_>`_: Delete an existing playlist.
+
+        .. admonition:: Authorization scope
+           :class: warning
+
+           Requires the :code:`playlists.write` scope.
+
+        Parameters
+        ----------
+        playlist_uuid : `str`, positional-only
+            TIDAL playlist UUID.
+        """
+        self._check_scope("create_playlist", "playlists.write")
+        self._request("delete", f"{self.API_URL}/playlists/{playlist_uuid}")
+
+    def get_playlist_relationship(
+        self,
+        playlist_uuid: str,
+        relationship: str,
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        Retrieve information related to a playlist.
+
+        .. note::
+
+           This method is provided for convenience and is not a TIDAL API
+           endpoint.
+
+        Parameters
+        ----------
+        playlist_uuid : `str`, positional-only
+            TIDAL playlist UUID.
+
+            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+
+        relationship : `str`, positional-only
+            Relationship type.
+
+            **Valid values**: :code:`"coverArt"`, :code:`"items"`, or
+            :code:`"owners"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        album_relationship : `dict`
+            A dictionary containing TIDAL catalog information for the
+            specified album relationship.
+        """
+        return self._get_json(
+            f"{self.API_URL}/playlists/{playlist_uuid}/relationships/{relationship}",
+            params={
+                "countryCode": country_code,
+                "include": relationship,
+                "page[cursor]": cursor,
+            },
+        )
+
+    def get_playlist_cover_art(
+        self,
+        playlist_uuid: str,
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Playlists > Get playlist cover art
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /get_playlists__id__relationships_coverArt>`_: Retrieve the
+        cover art for a playlist.
+
+        Parameters
+        ----------
+        playlist_uuid : `str`, positional-only
+            TIDAL playlist UUID.
+
+            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor. If not specified, the first page of
+            results will be returned.
+
+        Returns
+        -------
+        cover_art : `dict`
+            A dictionary containing TIDAL catalog information for the
+            cover artwork associated with the playlist.
+        """
+        return self.get_playlist_relationship(
+            playlist_uuid, "coverArt", country_code, cursor=cursor
+        )
+
+    def get_playlist_items(
+        self,
+        playlist_uuid: str,
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Playlists > Get playlist items
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /get_playlists__id__relationships_items>`_: Retrieve the
+        items in a playlist.
+
+        Parameters
+        ----------
+        playlist_uuid : `str`, positional-only
+            TIDAL playlist UUID.
+
+            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor. If not specified, the first page of
+            results will be returned.
+
+        Returns
+        -------
+        owners : `dict`
+            A dictionary containing TIDAL catalog information for the
+            items in the playlist.
+        """
+        return self.get_playlist_relationship(
+            playlist_uuid, "items", country_code, cursor=cursor
+        )
+
+    def add_playlist_items(
+        self,
+        playlist_uuid: str,
+        items: list[tuple[Union[int, str], str], dict[str, str]],
+        before_item_uuid: Union[int, str] = None,
+    ) -> None:
+        """
+        `Playlists > Add playlist items
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /post_playlists__id__relationships_items>`_: Add items to a
+        playlist.
+
+        .. admonition:: Authorization scope
+           :class: warning
+
+           Requires the :code:`playlists.write` scope.
+
+        Parameters
+        ----------
+        playlist_uuid : `str`
+            TIDAL playlist UUID.
+
+            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+
+        items : `list`
+            A list of items to add to the playlist. Each item can be
+            either a tuple of :code:`(id, type)` or a dictionary with
+            keys :code:`id` and :code:`type`, where :code:`id` is the
+            TIDAL item ID and :code:`type` is the item type
+            (:code:`"tracks"` or :code:`"videos"`).
+
+        before_item_uuid : `int` or `str`, optional
+            UUID of the item before which the new items should be added.
+            If not specified, the items will be appended to the end of
+            the playlist.
+        """
+        self._check_scope("add_playlist_items", "playlists.write")
+
+        for idx, item in enumerate(items):
+            if isinstance(item, tuple):
+                if len(item) != 2:
+                    raise ValueError(
+                        "Tuples in `items` passed to "
+                        f"`{self._NAME}.add_playlist_items()` must "
+                        "have length 2."
+                    )
+                if not isinstance(item[0], str) or not item[1].endswith("s"):
+                    items[idx] = item = str(item[0]), f"{item[1]}s"
+                items[idx] = {"id": item[0], "type": item[1]}
+            else:
+                if "id" not in item or "type" not in item:
+                    raise ValueError(
+                        "Dictionaries in `items` passed to "
+                        f"`{self._NAME}.add_playlist_items()` must have "
+                        "keys 'id' and 'type'."
+                    )
+                if not isinstance(item["id"], str):
+                    item["id"] = str(item["id"])
+                if not item["type"].endswith("s"):
+                    item["type"] = f"{item['type']}s"
+
+        body = {"data": items}
+        if before_item_uuid is not None:
+            body["meta"] = {"positionBefore": str(before_item_uuid)}
+        self._request(
+            "post",
+            f"{self.API_URL}/playlists/{playlist_uuid}/relationships/items",
+            json=body,
+        )
+
+    def update_playlist_items(
+        self,
+        playlist_uuid: str,
+        items: list[tuple[Union[int, str], str, str], dict[str, str]],
+        before_item_uuid: Union[int, str],
+    ) -> None:
+        """
+        `Playlists > Update playlist items
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /patch_playlists__id__relationships_items>`_: Update items in a
+        playlist.
+
+        .. admonition:: Authorization scope
+           :class: warning
+
+           Requires the :code:`playlists.write` scope.
+
+        Parameters
+        ----------
+        playlist_uuid : `str`
+            TIDAL playlist UUID.
+
+            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+
+        items : `list`
+            A list of items to update in the playlist. Each item can be
+            either a tuple of :code:`(id, type, uuid)` or a dictionary with
+            keys :code:`id`, :code:`type`, and :code:`meta`, where :code:`id`
+            is the TIDAL item ID, :code:`type` is the item type
+            (:code:`"tracks"` or :code:`"videos"`), and :code:`uuid` is the
+            TIDAL item UUID.
+
+        before_item_uuid : `int` or `str`
+            UUID of the item before which the items should be moved to.
+        """
+        self._check_scope("update_playlist_items", "playlists.write")
+
+        for idx, item in enumerate(items):
+            if isinstance(item, tuple):
+                if len(item) != 3:
+                    raise ValueError(
+                        "Tuples in `items` passed to "
+                        f"`{self._NAME}.update_playlist_items()` must "
+                        "have length 3."
+                    )
+                if not isinstance(item[0], str) or not item[1].endswith("s"):
+                    items[idx] = item = str(item[0]), f"{item[1]}s", item[2]
+                    item = {
+                        "id": item[0],
+                        "type": item[1],
+                        "meta": {"itemId": item[2]},
+                    }
+            else:
+                if any(key not in item for key in {"id", "type", "meta"}):
+                    raise ValueError(
+                        "Dictionaries in `items` passed to "
+                        f"`{self._NAME}.update_playlist_items()` must "
+                        "have keys 'id', 'type', and 'meta'."
+                    )
+                if "itemId" not in item["meta"]:
+                    raise ValueError(
+                        "Track UUID not provided in `meta/itemId` for "
+                        f"{item['type'][:-1]} ID '{item['id']}'."
+                    )
+                if not isinstance(item["id"], str):
+                    item["id"] = str(item["id"])
+                if not item["type"].endswith("s"):
+                    item["type"] = f"{item['type']}s"
+
+        # TODO: Figure out how this endpoint actually works.
+        self._request(
+            "patch",
+            f"{self.API_URL}/playlists/{playlist_uuid}/relationships/items",
+            json={"data": items, "positionBefore": str(before_item_uuid)},
+        )
+
+    def delete_playlist_items(
+        self,
+        playlist_uuid: str,
+        items: list[tuple[Union[int, str], str, str], dict[str, str]],
+    ) -> None:
+        """
+        `Playlists > Delete playlist items
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /delete_playlists__id__relationships_items>`_: Remove items from a
+        playlist.
+
+        .. admonition:: Authorization scope
+           :class: warning
+
+           Requires the :code:`playlists.write` scope.
+
+        Parameters
+        ----------
+        playlist_uuid : `str`
+            TIDAL playlist UUID.
+
+            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+
+        items : `list`
+            A list of items to remove from the playlist. Each item can be
+            either a tuple of :code:`(id, type, uuid)` or a dictionary with
+            keys :code:`id`, :code:`type`, and :code:`meta`, where :code:`id`
+            is the TIDAL item ID, :code:`type` is the item type
+            (:code:`"tracks"` or :code:`"videos"`), and :code:`uuid` is the
+            TIDAL item UUID.
+        """
+        self._check_scope("delete_playlist_items", "playlists.write")
+
+        for idx, item in enumerate(items):
+            if isinstance(item, tuple):
+                if len(item) != 3:
+                    raise ValueError(
+                        "Tuples in `items` passed to "
+                        f"`{self._NAME}.delete_playlist_items()` must "
+                        "have length 3."
+                    )
+                if not isinstance(item[0], str) or not item[1].endswith("s"):
+                    items[idx] = item = str(item[0]), f"{item[1]}s", item[2]
+                    item = {
+                        "id": item[0],
+                        "type": item[1],
+                        "meta": {"itemId": item[2]},
+                    }
+            else:
+                if any(key not in item for key in {"id", "type", "meta"}):
+                    raise ValueError(
+                        "Dictionaries in `items` passed to "
+                        f"`{self._NAME}.delete_playlist_items()` must "
+                        "have keys 'id', 'type', and 'meta'."
+                    )
+                if "itemId" not in item["meta"]:
+                    raise ValueError(
+                        "Track UUID not provided in `meta/itemId` for "
+                        f"{item['type'][:-1]} ID '{item['id']}'."
+                    )
+                if not isinstance(item["id"], str):
+                    item["id"] = str(item["id"])
+                if not item["type"].endswith("s"):
+                    item["type"] = f"{item['type']}s"
+
+        self._request(
+            "delete",
+            f"{self.API_URL}/playlists/{playlist_uuid}/relationships/items",
+            json={"data": items},
+        )
+
+    def get_playlist_owners(
+        self,
+        playlist_uuid: str,
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Playlists > Get playlist owners
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /get_playlists__id__relationships_owners>`_: Retrieve the
+        owners of a playlist.
+
+        .. admonition:: Authorization scope
+           :class: warning
+
+           Requires the :code:`playlists.read` scope.
+
+        Parameters
+        ----------
+        playlist_uuid : `str`, positional-only
+            TIDAL playlist UUID.
+
+            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor. If not specified, the first page of
+            results will be returned.
+
+        Returns
+        -------
+        owners : `dict`
+            A dictionary containing TIDAL catalog information for the
+            owners of the playlist.
+        """
+        self._check_scope("get_playlist_owners", "playlists.read")
+        return self.get_playlist_relationship(
+            playlist_uuid, "owners", country_code, cursor=cursor
+        )
+
+    ### PROVIDERS #############################################################
+
+    def get_provider(self, provider_id: Union[int, str], /) -> dict[str, Any]:
+        """
+        `Providers > Get provider <https://tidal-music.github.io
+        /tidal-api-reference/#/providers/get_providers__id_>`_:
+        Retrieve a specific provider by ID.
+
+        Parameters
+        ----------
+        provider_id : `int` or `str`, positional-only
+            TIDAL provider ID.
+
+        Returns
+        -------
+        provider : `dict`
+            A dictionary containing TIDAL catalog information for the provider.
+        """
+        return self._get_json(f"{self.API_URL}/providers/{provider_id}")
+
+    def get_providers(
+        self, provider_ids: Union[int, str, list[Union[int, str]]], /
+    ) -> dict[str, Any]:
+        """
+        `Providers > Get providers <https://tidal-music.github.io
+        /tidal-api-reference/#/providers/get_providers>`_: Retrieve
+        multiple providers by their IDs.
+
+        Parameters
+        ----------
+        provider_ids : `int`, `str`, or `list`, positional-only
+            TIDAL provider ID(s).
+
+        Returns
+        -------
+        providers : `dict`
+            A dictionary containing TIDAL catalog information for the
+            providers.
+        """
+        return self._get_json(
+            f"{self.API_URL}/providers", params={"filter[id]": provider_ids}
+        )
+
+    ### SEARCH RESULTS ########################################################
+
+    def search(
+        self,
+        query: str,
+        /,
+        country_code: str,
+        *,
+        explicit: bool = True,
+        include: Union[str, list[str], None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Search Results > Search
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /searchResults/get_searchResults__id_>`_: Search for content in
+        the TIDAL catalog.
+
+        Parameters
+        ----------
+        query : `str`, positional-only
+            Search query.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        explicit : `bool`, keyword-only, default: :code:`True`
+            Specifies whether to include explicit content in the search
+            results.
+
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"playlists"`, :code:`"topHits"`, :code:`"tracks"`,
+            or :code:`"videos"`.
+
+            **Examples**: :code:`"albums"`, :code:`"albums,artists"`, and
+            :code:`["albums", "artists"]`.
+
+        Returns
+        -------
+        results : `dict`
+            A dictionary containing the search results.
+        """
+        self._check_scope("search", "search.read")
+        params = {
+            "countryCode": country_code,
+            "explicitFilter": "include" if explicit else "exclude",
+            "include": include,
+        }
+        return self._get_json(
+            f"{self.API_URL}/searchResults/{urllib.parse.quote(query)}",
+            params=params,
+        )
+
+    def search_relationship(
+        self,
+        query: str,
+        relationship: str,
+        /,
+        country_code: str,
+        *,
+        explicit: bool = True,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        Retrieve information based on a search query.
+
+        .. note::
+
+           This method is provided for convenience and is not a TIDAL API
+           endpoint.
+
+        Parameters
+        ----------
+        query : `str`, positional-only
+            Search query.
+
+        relationship : `str`, positional-only
+            Relationship type.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"playlists"`, :code:`"topHits"`, :code:`"tracks"`, or
+            :code:`"videos"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        explicit : `bool`, keyword-only, default: :code:`True`
+            Specifies whether to include explicit content in the search
+            results.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        results : `dict`
+            A dictionary containing the search results.
+        """
+        self._check_scope("search", "search.read")
+        return self._get_json(
+            f"{self.API_URL}/searchResults/{urllib.parse.quote(query)}"
+            f"/relationships/{relationship}",
+            params={
+                "countryCode": country_code,
+                "explicitFilter": "include" if explicit else "exclude",
+                "include": relationship,
+                "page[cursor]": cursor,
+            },
+        )
+
+    def search_albums(
+        self,
+        query: str,
+        /,
+        country_code: str,
+        *,
+        explicit: bool = True,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Search Results > Search albums <https://tidal-music.github.io
+        /tidal-api-reference/#/searchResults
+        /get_searchResults__id__relationships_albums>_: Search for
+        albums in the TIDAL catalog.
+
+        Parameters
+        ----------
+        query : `str`, positional-only
+            Search query.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        explicit : `bool`, keyword-only, default: :code:`True`
+            Specifies whether to include explicit content in the search
+            results.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        albums : `dict`
+            A dictionary containing matching albums.
+        """
+        return self.search_relationship(
+            query,
+            "albums",
+            country_code,
+            explicit=explicit,
+            cursor=cursor,
+        )
+
+    def search_artists(
+        self,
+        query: str,
+        /,
+        country_code: str,
+        *,
+        explicit: bool = True,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Search Results > Search artists <https://tidal-music.github.io
+        /tidal-api-reference/#/searchResults
+        /get_searchResults__id__relationships_artists>_: Search for
+        artists in the TIDAL catalog.
+
+        Parameters
+        ----------
+        query : `str`, positional-only
+            Search query.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        explicit : `bool`, keyword-only, default: :code:`True`
+            Specifies whether to include explicit content in the search
+            results.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        artists : `dict`
+            A dictionary containing matching artists.
+        """
+        return self.search_relationship(
+            query,
+            "artists",
+            country_code,
+            explicit=explicit,
+            cursor=cursor,
+        )
+
+    def search_playlists(
+        self,
+        query: str,
+        /,
+        country_code: str,
+        *,
+        explicit: bool = True,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Search Results > Search playlists <https://tidal-music.github.io
+        /tidal-api-reference/#/searchResults
+        /get_searchResults__id__relationships_playlists>_: Search for
+        playlists in the TIDAL catalog.
+
+        Parameters
+        ----------
+        query : `str`, positional-only
+            Search query.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        explicit : `bool`, keyword-only, default: :code:`True`
+            Specifies whether to include explicit content in the search
+            results.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        playlists : `dict`
+            A dictionary containing matching playlists.
+        """
+        return self.search_relationship(
+            query,
+            "playlists",
+            country_code,
+            explicit=explicit,
+            cursor=cursor,
+        )
+
+    def search_top_hits(
+        self,
+        query: str,
+        /,
+        country_code: str,
+        *,
+        explicit: bool = True,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Search Results > Search top hits <https://tidal-music.github.io
+        /tidal-api-reference/#/searchResults
+        /get_searchResults__id__relationships_topHits>_: Search for top
+        hits in the TIDAL catalog.
+
+        Parameters
+        ----------
+        query : `str`, positional-only
+            Search query.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        explicit : `bool`, keyword-only, default: :code:`True`
+            Specifies whether to include explicit content in the search
+            results.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        top_hits : `dict`
+            A dictionary containing matching top hits.
+        """
+        return self.search_relationship(
+            query,
+            "topHits",
+            country_code,
+            explicit=explicit,
+            cursor=cursor,
+        )
+
+    def search_tracks(
+        self,
+        query: str,
+        /,
+        country_code: str,
+        *,
+        explicit: bool = True,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Search Results > Search tracks <https://tidal-music.github.io
+        /tidal-api-reference/#/searchResults
+        /get_searchResults__id__relationships_tracks>_: Search for
+        tracks in the TIDAL catalog.
+
+        Parameters
+        ----------
+        query : `str`, positional-only
+            Search query.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        explicit : `bool`, keyword-only, default: :code:`True`
+            Specifies whether to include explicit content in the search
+            results.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        tracks : `dict`
+            A dictionary containing matching tracks.
+        """
+        return self.search_relationship(
+            query,
+            "tracks",
+            country_code,
+            explicit=explicit,
+            cursor=cursor,
+        )
+
+    def search_videos(
+        self,
+        query: str,
+        /,
+        country_code: str,
+        *,
+        explicit: bool = True,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Search Results > Search videos <https://tidal-music.github.io
+        /tidal-api-reference/#/searchResults
+        /get_searchResults__id__relationships_videos>_: Search for
+        videos in the TIDAL catalog.
+
+        Parameters
+        ----------
+        query : `str`, positional-only
+            Search query.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        explicit : `bool`, keyword-only, default: :code:`True`
+            Specifies whether to include explicit content in the search
+            results.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        videos : `dict`
+            A dictionary containing matching videos.
+        """
+        return self.search_relationship(
+            query,
+            "videos",
+            country_code,
+            explicit=explicit,
+            cursor=cursor,
+        )
+
+    ### SEARCH SUGGESTIONS ####################################################
+
+    def get_search_suggestion(
+        self,
+        query: str,
+        /,
+        country_code: str,
+        *,
+        explicit: bool = True,
+        include: Union[str, list[str], None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Search Suggestions > Get search suggestion
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /searchSuggestions/get_searchSuggestions__id_>`_: Retrieve a
+        single search suggestion for a given query.
+
+        Parameters
+        ----------
+        query : `str`, positional-only
+            Search query.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        explicit : `bool`, keyword-only, default: :code:`True`
+            Specifies whether to include explicit content in the search
+            results.
+
+        include : `str` or `list[str]`, keyword-only, optional
+            Additional content types to include in the search suggestion.
+
+        Returns
+        -------
+        search_suggestion : `dict`
+            A dictionary containing the search suggestion.
+        """
+        self._check_authentication("get_search_suggestion")
+        return self._get_json(
+            f"{self.API_URL}/searchSuggestions/{urllib.parse.quote(query)}",
+            params={
+                "countryCode": country_code,
+                "explicitFilter": "include" if explicit else "exclude",
+                "include": include,
+            },
+        )
+
+    def get_search_direct_hits(
+        self,
+        query: str,
+        /,
+        country_code: str,
+        *,
+        explicit: bool = True,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Search Suggestions > Get search direct hits
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /searchSuggestions
+        /get_searchSuggestions__id__relationships_directHits>`_:
+        Retrieve direct hits for search suggestions given a query.
+
+        Parameters
+        ----------
+        query : `str`, positional-only
+            Search query.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        explicit : `bool`, keyword-only, default: :code:`True`
+            Specifies whether to include explicit content in the search
+            results.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        search_hits : `dict`
+            A dictionary containing the search hits.
+        """
+        self._check_authentication("get_search_suggestion_direct_hits")
+        return self._get_json(
+            f"{self.API_URL}/searchSuggestions"
+            f"/{urllib.parse.quote(query)}/relationships/directHits",
+            params={
+                "countryCode": country_code,
+                "explicitFilter": "include" if explicit else "exclude",
+                "include": "directHits",
+                "page[cursor]": cursor,
+            },
+        )
+
+    ### TRACKS ################################################################
+
+    def get_track(
+        self,
+        track_id: str,
+        /,
+        country_code: str,
+        *,
+        include: Union[str, list[str], None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Tracks > Get single track <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks/get_tracks__id_>`_: Retrieve a
+        single track by ID.
+
+        Parameters
+        ----------
+        track_id : `int` or `str`, positional-only
+            TIDAL track ID.
+
+            **Example**: :code:`75413016` or :code:`"75413016"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"genres"`, :code:`"lyrics"`, :code:`"owners"`,
+            :code:`"providers"`, :code:`"radio"`,
+            :code:`"similarTracks"`, :code:`"sourceFile"`, and
+            :code:`"trackStatistics"`.
+
+            **Examples**: :code:`"albums"`, :code:`"albums,artists"`, and
+            :code:`["albums", "artists"]`.
 
         Returns
         -------
         track : `dict`
-            TIDAL catalog information for a single track.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                    {
-                      "artifactType": "track",
-                      "id": <str>,
-                      "title": <str>,
-                      "artists": [
-                        {
-                          "id": <str>,
-                          "name": <str>,
-                          "picture": [
-                            {
-                              "url": <str>,
-                              "width": <int>,
-                              "height": <int>
-                            }
-                          ],
-                          "main": <bool>
-                        }
-                      ],
-                      "album": {
-                        "id": <str>,
-                        "title": <str>,
-                        "imageCover": [
-                          {
-                            "url": <str>,
-                            "width": <int>,
-                            "height": <int>
-                          }
-                        ],
-                        "videoCover": [
-                            {
-                              "url": <str>,
-                              "width": <int>,
-                              "height": <int>
-                            }
-                        ]
-                      },
-                      "duration": <int>,
-                      "trackNumber": <int>,
-                      "volumeNumber": <int>,
-                      "isrc": <int>,
-                      "copyright": <int>,
-                      "mediaMetadata": {
-                        "tags": [<str>]
-                      },
-                      "properties": {
-                        "content": [<str>]
-                      }
-                    }
+            TIDAL catalog information and related resources for a single track.
         """
-
+        if isinstance(include, str) and "," in include:
+            include = include.split(",")
         return self._get_json(
             f"{self.API_URL}/tracks/{track_id}",
-            params={"countryCode": country_code},
-        )["resource"]
+            params={"countryCode": country_code, "include": include},
+        )
 
     def get_tracks(
         self,
-        track_ids: Union[int, str, list[Union[int, str]]],
         country_code: str,
+        *,
+        track_ids: Union[int, str, list[Union[int, str]], None] = None,
+        isrcs: Union[str, list[str], None] = None,
+        user_ids: Union[int, str, list[Union[int, str]], None] = None,
+        include: Union[str, list[str], None] = None,
+        cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
-        `Album API > Get multiple tracks
-        <https://developer.tidal.com/apiref?ref=get-tracks-by-ids>`_:
-        Retrieve a list of track details by TIDAL track IDs.
+        `Tracks > Get multiple tracks <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks/get_tracks>`_: Retrieve multiple
+        tracks by their IDs, ISRCs, or user IDs.
 
         Parameters
         ----------
-        track_ids : `int`, `str`, or `list`
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        track_ids : `int`, `str`, or `list`, keyword-only, optional
             TIDAL track ID(s).
 
-            **Examples**: :code:`"251380837,251380838"` or
-            :code:`[251380837, 251380838]`.
+            **Example**: :code:`75413016` or :code:`"75413016"`.
 
-        country_code : `str`
-            ISO 3166-1 alpha-2 country code.
+        isrcs : `int`, `str`, or `list`, keyword-only, optional
+            International Standard Recording Code(s).
 
-            **Example**: :code:`"US"`.
+            **Examples**: :code:`"QMJMT1701237"`,
+            :code:`"QMJMT1701237,QMJMT1701238"`, and
+            :code:`["USUM72012345", "QMJMT1701238"]`.
+
+        user_ids : `int`, `str`, or `list`, keyword-only, optional
+            TIDAL user ID(s).
+
+            **Example**: :code:`"123456"`.
+
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"genres"`, :code:`"lyrics"`, :code:`"owners"`,
+            :code:`"providers"`, :code:`"radio"`,
+            :code:`"similarTracks"`, :code:`"sourceFile"`, and
+            :code:`"trackStatistics"`.
+
+            **Examples**: :code:`"albums"`, :code:`"albums,artists"`, and
+            :code:`["albums", "artists"]`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
 
         Returns
         -------
         tracks : `dict`
-            A dictionary containing TIDAL catalog information for
-            multiple tracks and metadata for the returned results.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "resource": {
-                          "artifactType": "track",
-                          "id": <str>,
-                          "title": <str>,
-                          "artists": [
-                            {
-                              "id": <str>,
-                              "name": <str>,
-                              "picture": [
-                                {
-                                  "url": <str>,
-                                  "width": <int>,
-                                  "height": <int>
-                                }
-                              ],
-                              "main": <bool>
-                            }
-                          ],
-                          "album": {
-                            "id": <str>,
-                            "title": <str>,
-                            "imageCover": [
-                              {
-                                "url": <str>,
-                                "width": <int>,
-                                "height": <int>
-                              }
-                            ],
-                            "videoCover": [
-                                {
-                                  "url": <str>,
-                                  "width": <int>,
-                                  "height": <int>
-                                }
-                            ]
-                          },
-                          "duration": <int>,
-                          "trackNumber": <int>,
-                          "volumeNumber": <int>,
-                          "isrc": <int>,
-                          "copyright": <int>,
-                          "mediaMetadata": {
-                            "tags": [<str>]
-                          },
-                          "properties": {
-                            "content": [<str>]
-                          }
-                        },
-                        "id": <str>,
-                        "status": 200,
-                        "message": "success"
-                      }
-                    ],
-                    "metadata": {
-                      "requested": <int>,
-                      "success": <int>,
-                      "failure": <int>
-                    }
-                  }
+            A dictionary containing TIDAL catalog information and
+            related resources for multiple tracks.
         """
-
+        if isinstance(include, str) and "," in include:
+            include = include.split(",")
+        if isinstance(user_ids, str) and "," in user_ids:
+            user_ids = user_ids.split(",")
+        if isinstance(isrcs, str) and "," in isrcs:
+            isrcs = isrcs.split(",")
+        if isinstance(track_ids, str) and "," in track_ids:
+            track_ids = track_ids.split(",")
         return self._get_json(
             f"{self.API_URL}/tracks",
-            params={"ids": track_ids, "countryCode": country_code},
+            params={
+                "countryCode": country_code,
+                "page[cursor]": cursor,
+                "include": include,
+                "filter[r.owners.id]": user_ids,
+                "filter[isrc]": isrcs,
+                "filter[id]": track_ids,
+            },
         )
 
-    def get_tracks_by_isrc(
+    def get_track_relationship(
         self,
-        isrc: str,
-        country_code: str,
-        limit: int = None,
-        offset: int = None,
+        track_id: Union[int, str],
+        relationship: str,
+        /,
+        **kwargs,
     ) -> dict[str, Any]:
         """
-        `Track API > Get tracks by ISRC
-        <https://developer.tidal.com/apiref?ref=get-tracks-by-isrc>`_:
-        Retrieve a list of track details by ISRC.
+        Retrieve information related to a track.
+
+        .. note::
+
+           This method is provided for convenience and is not a TIDAL API
+           endpoint.
 
         Parameters
         ----------
-        isrc : `str`
-            Valid ISRC code (usually comprises 12 alphanumeric
-            characters).
+        track_id : `int` or `str`, positional-only
+            TIDAL track ID.
 
-            **Example**: :code:`"USSM12209515"`.
+            **Examples**: :code:`75413016` and :code:`"75413016"`.
+
+        relationship : `str`, positional-only
+            Relationship type.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"owners"`, :code:`"providers"`, :code:`"radio"`,
+            :code:`"similarTracks"`, :code:`"sourceFile"`, or
+            :code:`"trackStatistics"`.
+
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        track_relationship : `dict`
+            A dictionary containing TIDAL catalog information for the
+            specified track relationship.
+        """
+        return self._get_json(
+            f"{self.API_URL}/tracks/{track_id}/relationships/{relationship}",
+            params={"include": relationship, **kwargs},
+        )
+
+    def get_track_albums(
+        self,
+        track_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Tracks > Get track albums <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks
+        /get_tracks__id__relationships_albums>`_: Retrieve albums
+        containing a track.
+
+        Parameters
+        ----------
+        track_id : `int` or `str`, positional-only
+            TIDAL track ID.
+
+            **Examples**: :code:`75413016` and :code:`"75413016"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        limit : `int`, optional
-            Page size.
-
-            **Example**: :code:`10`.
-
-        offset : `int`, optional
-            Pagination offset (in number of items).
-
-            **Example**: :code:`0`.
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
 
         Returns
         -------
-        tracks : `dict`
-            A dictionary containing TIDAL catalog information for
-            tracks with the specified ISRC and metadata for the
-            returned results.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "resource": {
-                          "artifactType": "track",
-                          "id": <str>,
-                          "title": <str>,
-                          "artists": [
-                            {
-                              "id": <str>,
-                              "name": <str>,
-                              "picture": [
-                                {
-                                  "url": <str>,
-                                  "width": <int>,
-                                  "height": <int>
-                                }
-                              ],
-                              "main": <bool>
-                            }
-                          ],
-                          "album": {
-                            "id": <str>,
-                            "title": <str>,
-                            "imageCover": [
-                              {
-                                "url": <str>,
-                                "width": <int>,
-                                "height": <int>
-                              }
-                            ],
-                            "videoCover": [
-                                {
-                                  "url": <str>,
-                                  "width": <int>,
-                                  "height": <int>
-                                }
-                            ]
-                          },
-                          "duration": <int>,
-                          "trackNumber": <int>,
-                          "volumeNumber": <int>,
-                          "isrc": <int>,
-                          "copyright": <int>,
-                          "mediaMetadata": {
-                            "tags": [<str>]
-                          },
-                          "properties": {
-                            "content": [<str>]
-                          }
-                        },
-                        "id": <str>,
-                        "status": 200,
-                        "message": "success"
-                      }
-                    ],
-                    "metadata": {
-                      "requested": <int>,
-                      "success": <int>,
-                      "failure": <int>
-                    }
-                  }
+        track_albums : `dict`
+            A dictionary containing TIDAL catalog information for the
+            albums containing the track.
         """
+        return self.get_track_relationship(
+            track_id,
+            "albums",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
+        )
 
-        return self._get_json(
-            f"{self.API_URL}/tracks/byIsrc",
-            params={
-                "isrc": isrc,
-                "countryCode": country_code,
-                "limit": limit,
-                "offset": offset,
-            },
+    def get_track_artists(
+        self,
+        track_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Tracks > Get track artists <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks/get_tracks__id__relationships_artists>`_:
+        Retrieve artists of a track.
+
+        Parameters
+        ----------
+        track_id : `int` or `str`, positional-only
+            TIDAL track ID.
+
+            **Examples**: :code:`75413016` and :code:`"75413016"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        track_artists : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artists of the track.
+        """
+        return self.get_track_relationship(
+            track_id,
+            "artists",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
+        )
+
+    def get_track_owners(
+        self,
+        track_id: Union[int, str],
+        /,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Tracks > Get track owners <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks/get_tracks__id__relationships_owners>`_:
+        Retrieve owners of a track.
+
+        Parameters
+        ----------
+        track_id : `int` or `str`, positional-only
+            TIDAL track ID.
+
+            **Examples**: :code:`75413016` and :code:`"75413016"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        track_owners : `dict`
+            A dictionary containing TIDAL catalog information for the
+            owners of the track.
+        """
+        return self.get_track_relationship(
+            track_id, "owners", **{"page[cursor]": cursor}
+        )
+
+    def get_track_providers(
+        self,
+        track_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Tracks > Get track providers <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks
+        /get_tracks__id__relationships_providers>`_: Retrieve providers
+        of a track.
+
+        Parameters
+        ----------
+        track_id : `int` or `str`, positional-only
+            TIDAL track ID.
+
+            **Examples**: :code:`75413016` and :code:`"75413016"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        track_providers : `dict`
+            A dictionary containing TIDAL catalog information for the
+            providers of the track.
+        """
+        return self.get_track_relationship(
+            track_id,
+            "providers",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
+        )
+
+    def get_track_radio(
+        self,
+        track_id: Union[int, str],
+        /,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Tracks > Get track radio <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks/get_tracks__id__relationships_radio>`_:
+        Retrieve radio information for a track.
+
+        Parameters
+        ----------
+        track_id : `int` or `str`, positional-only
+            TIDAL track ID.
+
+            **Examples**: :code:`75413016` and :code:`"75413016"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        track_radio : `dict`
+            A dictionary containing TIDAL catalog information for the
+            radio of the track.
+        """
+        return self.get_track_relationship(
+            track_id, "radio", **{"page[cursor]": cursor}
         )
 
     def get_similar_tracks(
         self,
         track_id: Union[int, str],
+        /,
         country_code: str,
         *,
-        limit: int = None,
-        offset: int = None,
+        cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
-        `Track API > Get similar tracks for the given track
-        <https://developer.tidal.com/apiref?ref=get-similar-tracks>`_:
-        Retrieve a list of tracks similar to the given track.
+        `Tracks > Get similar tracks <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks
+        /get_tracks__id__relationships_similarTracks>`_: Retrieve
+        similar tracks for a track.
 
         Parameters
         ----------
-        track_id : `int` or `str`
+        track_id : `int` or `str`, positional-only
             TIDAL track ID.
 
-            **Example**: :code:`251380837`.
+            **Examples**: :code:`75413016` and :code:`"75413016"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        limit : `int`, keyword-only, optional
-            Page size.
-
-            **Example**: :code:`10`.
-
-        offset : `int`, keyword-only, optional
-            Pagination offset (in number of items).
-
-            **Example**: :code:`0`.
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
 
         Returns
         -------
-        track_ids : `dict`
-            A dictionary containing TIDAL track IDs for similar albums
-            and metadata for the returned results.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "resource": {
-                          "id": <str>
-                        }
-                      }
-                    ],
-                    "metadata": {
-                      "total": <int>
-                    }
-                  }
+        similar_tracks : `dict`
+            A dictionary containing TIDAL catalog information for the
+            similar tracks.
         """
-
-        return self._get_json(
-            f"{self.API_URL}/tracks/{track_id}/similar",
-            params={
-                "countryCode": country_code,
-                "limit": limit,
-                "offset": offset,
-            },
+        return self.get_track_relationship(
+            track_id,
+            "similar",
+            countryCode=country_code,
+            **{"page[cursor]": cursor},
         )
 
-    ### VIDEO API #############################################################
-
-    def get_video(
-        self, video_id: Union[int, str], country_code: str
+    def get_track_source_file(
+        self, track_id: Union[int, str], /
     ) -> dict[str, Any]:
         """
-        `Video API > Get single video
-        <https://developer.tidal.com/apiref?ref=get-video>`_: Retrieve
-        video details by TIDAL video ID.
+        `Tracks > Get track source file <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks
+        /get_tracks__id__relationships_sourceFile>`_: Retrieve source
+        file information for a track.
 
         Parameters
         ----------
-        video_id : `int` or `str`
-            TIDAL video ID.
+        track_id : `int` or `str`, positional-only
+            TIDAL track ID.
 
-            **Example**: :code:`75623239`.
+            **Examples**: :code:`75413016` and :code:`"75413016"`.
+
+        Returns
+        -------
+        track_source_file : `dict`
+            A dictionary containing TIDAL catalog information for the
+            source file of the track.
+        """
+        return self.get_track_relationship(track_id, "sourceFile")
+
+    def get_track_statistics(
+        self, track_id: Union[int, str], /
+    ) -> dict[str, Any]:
+        """
+        `Tracks > Get track statistics <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks
+        /get_tracks__id__relationships_trackStatistics>`_: Retrieve
+        statistics about a track.
+
+        Parameters
+        ----------
+        track_id : `int` or `str`, positional-only
+            TIDAL track ID.
+
+            **Examples**: :code:`75413016` and :code:`"75413016"`.
+
+        Returns
+        -------
+        track_statistics : `dict`
+            A dictionary containing TIDAL catalog information for the
+            statistics about the track.
+        """
+        return self.get_track_relationship(track_id, "statistics")
+
+    ### USER COLLECTIONS ######################################################
+
+    def get_user_collection(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    def get_album_collection(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    def add_album_to_collection(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    def delete_album_from_collection(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    def get_artist_collection(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    def add_artist_to_collection(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    def delete_artist_from_collection(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    def get_owner_collection(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    def get_playlist_collection(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    def add_playlist_to_collection(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    def delete_playlist_from_collection(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    ### USER ENTITLEMENTS #####################################################
+
+    def get_user_entitlements(self) -> dict[str, Any]:
+        """
+        `User Entitlements > Get user entitlements
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userEntitlements/get_userEntitlements__id_>`_: Retrieve user
+        entitlements.
+
+        Returns
+        -------
+        user_entitlements : `dict`
+            A dictionary containing user entitlements.
+        """
+        self._check_scope("get_user_entitlements", "entitlements.read")
+        return self._get_json(
+            f"{self.API_URL}/userEntitlements/{self._user_id}"
+        )
+
+    ### USER RECOMMENDATIONS ##################################################
+
+    def get_user_recommendations(
+        self,
+        country_code: str,
+        locale: str,
+        *,
+        include: Union[str, list[str], None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Users > Get user recommendations <https://tidal-music.github.io
+        /tidal-api-reference/#/userRecommendations
+        /get_userRecommendations__id_>`_: Retrieve user recommendations.
+
+        Parameters
+        ----------
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : `str`
+            IETF BCP 47 language tag.
+
+            **Example**: :code:`"en-US"`.
+
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid values**: :code:`"discoveryMixes"`, :code:`"myMixes"`,
+            and :code:`"newArrivalMixes"`.
+
+            **Examples**: :code:`"discoveryMixes"`,
+            :code:`"discoveryMixes,myMixes"`, and
+            :code:`["discoveryMixes", "myMixes"]`.
+
+        Returns
+        -------
+        user_recommendations : `dict`
+            A dictionary containing TIDAL catalog information for the
+            user recommendations.
+        """
+        self._check_scope("get_user_recommendations", "recommendations.read")
+        return self._get_json(
+            f"{self.API_URL}/userRecommendations/{self._user_id}",
+            params={
+                "countryCode": country_code,
+                "locale": locale,
+                "include": include,
+            },
+        )
+
+    def get_mixes(
+        self,
+        mix_type: str,
+        /,
+        country_code: str,
+        locale: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        Retrieve mixes of a specific type for a user.
+
+        .. note::
+
+           This method is provided for convenience and is not a TIDAL API
+           endpoint.
+
+        Parameters
+        ----------
+        user_id : `int` or `str`, positional-only
+            TIDAL user ID.
+
+            **Examples**: :code:`123456` and :code:`"123456"`.
+
+        mix_type : `str`, positional-only
+            Mix type.
+
+            **Valid values**: :code:`"discovery"`, :code:`"my"`, and
+            :code:`"newArrival"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
+
+        locale : `str`
+            IETF BCP 47 language tag.
+
+            **Example**: :code:`"en-US"`.
+
+        cursor : `int` or `str`, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        mixes : `dict`
+            A dictionary containing TIDAL catalog information for the
+            user's mixes.
+        """
+        return self._get_json(
+            f"{self.API_URL}/userRecommendations/{self._user_id}/{mix_type}Mixes",
+            params={
+                "countryCode": country_code,
+                "locale": locale,
+                "include": f"{mix_type}Mixes",
+                "page[cursor]": cursor,
+            },
+        )
+
+    def get_discovery_mixes(
+        self,
+        country_code: str,
+        locale: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `User Recommendations > Get discovery mixes
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userRecommendations
+        /get_userRecommendations__id__relationships_discoveryMixes>`_:
+        Retrieve discovery mixes for a user.
+
+        Parameters
+        ----------
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : `str`
+            IETF BCP 47 language tag.
+
+            **Example**: :code:`"en-US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+        """
+        self._check_scope("get_discovery_mixes", "recommendations.read")
+        return self.get_mixes("discovery", country_code, locale, cursor=cursor)
+
+    def get_user_mixes(
+        self,
+        country_code: str,
+        locale: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `User Recommendations > Get user mixes
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userRecommendations
+        /get_userRecommendations__id__relationships_myMixes>`_:
+        Retrieve user mixes for a user.
+
+        Parameters
+        ----------
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : `str`
+            IETF BCP 47 language tag.
+
+            **Example**: :code:`"en-US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+        """
+        self._check_scope("get_user_mixes", "recommendations.read")
+        return self.get_mixes("my", country_code, locale, cursor=cursor)
+
+    def get_new_arrival_mixes(
+        self,
+        country_code: str,
+        locale: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `User Recommendations > Get new arrival mixes
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userRecommendations
+        /get_userRecommendations__id__relationships_newArrivalMixes>`_:
+        Retrieve new arrival mixes for a user.
+
+        Parameters
+        ----------
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : `str`
+            IETF BCP 47 language tag.
+
+            **Example**: :code:`"en-US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+        """
+        self._check_scope("get_new_arrival_mixes", "recommendations.read")
+        return self.get_mixes("newArrival", country_code, locale, cursor=cursor)
+
+    ### USERS #################################################################
+
+    def get_me(self) -> dict[str, Any]:
+        """
+        `Users > Get current user <https://tidal-music.github.io
+        /tidal-api-reference/#/users/get_users_me>`_: Retrieve
+        information about the authenticated user.
+
+        Returns
+        -------
+        user_info : `dict`
+            A dictionary containing TIDAL catalog information for the
+            authenticated user.
+        """
+        return self._get_json(f"{self.API_URL}/users/me")
+
+    ### VIDEOS ################################################################
+
+    def get_video(
+        self,
+        video_id: str,
+        /,
+        country_code: str,
+        *,
+        include: Union[str, list[str], None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Videos > Get single video <https://tidal-music.github.io
+        /tidal-api-reference/#/videos/get_videos__id_>`_: Retrieve a
+        single video by ID.
+
+        Parameters
+        ----------
+        video_id : `int` or `str`, positional-only
+            TIDAL video ID.
+
+            **Example**: :code:`75623239` or :code:`"75623239"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"providers"`, and :code:`"thumbnailArt"`.
+
+            **Examples**: :code:`"albums"`, :code:`"albums,artists"`, and
+            :code:`["albums", "artists"]`.
 
         Returns
         -------
         video : `dict`
-            TIDAL catalog information for a single video.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "artifactType": "video",
-                    "id": <str>,
-                    "title": <str>,
-                    "image": [
-                          {
-                            "url": <str>,
-                            "width": <int>,
-                            "height": <int>
-                          }
-                    ],
-                    "releaseDate": <str>,
-                    "artists": [
-                      {
-                        "id": <str>,
-                        "name": <str>,
-                        "picture": [
-                          {
-                            "url": <str>,
-                            "width": <int>,
-                            "height": <int>
-                          }
-                        ],
-                        "main": <bool>
-                      }
-                    ],
-                    "duration": <int>,
-                    "trackNumber": <int>,
-                    "volumeNumber": <int>,
-                    "isrc": <str>,
-                    "properties": {
-                      "content": [<str>]
-                    }
-                  }
+            TIDAL catalog information and related resources for a single video.
         """
-
+        if isinstance(include, str) and "," in include:
+            include = include.split(",")
         return self._get_json(
             f"{self.API_URL}/videos/{video_id}",
-            params={"countryCode": country_code},
-        )["resource"]
+            params={"countryCode": country_code, "include": include},
+        )
 
     def get_videos(
         self,
-        video_ids: Union[int, str, list[Union[int, str]]],
         country_code: str,
-    ) -> list[dict[str, Any]]:
+        *,
+        video_ids: Union[int, str, list[Union[int, str]], None] = None,
+        isrcs: Union[str, list[str], None] = None,
+        include: Union[str, list[str], None] = None,
+    ) -> dict[str, Any]:
         """
-        `Album API > Get multiple videos
-        <https://developer.tidal.com/apiref?ref=get-videos-by-ids>`_:
-        Retrieve a list of video details by TIDAL video IDs.
+        `Videos > Get multiple videos <https://tidal-music.github.io
+        /tidal-api-reference/#/videos/get_videos>`_: Retrieve multiple
+        videos by their IDs or ISRCs.
 
         Parameters
         ----------
-        video_ids : `int`, `str`, or `list`
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        video_ids : `int` or `str` or `list`, keyword-only, optional
             TIDAL video ID(s).
 
-            **Examples**: :code:`"59727844,75623239"` or
-            :code:`[59727844, 75623239]`.
+            **Examples**: :code:`75623239`, :code:`"75623239"`, and
+            :code:`["75623239", "75623240"]`.
+
+        isrcs : `int` or `str` or `list`, keyword-only, optional
+            International Standard Recording Code(s) (ISRC) for the
+            video(s).
+
+            **Examples**: :code:`"USSM21600755"`,
+            :code:`"USSM21600755,USSM21600756"`, and
+            :code:`["USSM21600755", "USSM21600756"]`.
+
+        include : `str` or `list`, keyword-only, optional
+            Related resource(s) that should be included in the response.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"providers"`, and :code:`"thumbnailArt"`.
+
+            **Examples**: :code:`"albums"`, :code:`"albums,artists"`, and
+            :code:`["albums", "artists"]`.
+
+        Returns
+        -------
+        videos : `dict`
+            TIDAL catalog information and related resources for multiple
+            videos.
+        """
+        if isinstance(include, str) and "," in include:
+            include = include.split(",")
+        if isinstance(isrcs, str) and "," in isrcs:
+            isrcs = isrcs.split(",")
+        if isinstance(video_ids, str) and "," in video_ids:
+            video_ids = video_ids.split(",")
+        return self._get_json(
+            f"{self.API_URL}/videos",
+            params={
+                "countryCode": country_code,
+                "include": include,
+                "filter[isrc]": isrcs,
+                "filter[id]": video_ids,
+            },
+        )
+
+    def get_video_relationship(
+        self,
+        video_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        Retrieve information related to a video.
+
+        .. note::
+
+           This method is provided for convenience and is not a TIDAL API
+           endpoint.
+
+        Parameters
+        ----------
+        video_id : `int` or `str`, positional-only
+            TIDAL video ID.
+
+            **Examples**: :code:`75623239` and :code:`"75623239"`.
 
         country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
         Returns
         -------
-        videos : `dict`
-            A dictionary containing TIDAL catalog information for
-            multiple videos and metadata for the returned results.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "artifactType": "video",
-                        "id": <str>,
-                        "title": <str>,
-                        "image": [
-                              {
-                                "url": <str>,
-                                "width": <int>,
-                                "height": <int>
-                              }
-                        ],
-                        "releaseDate": <str>,
-                        "artists": [
-                          {
-                            "id": <str>,
-                            "name": <str>,
-                            "picture": [
-                              {
-                                "url": <str>,
-                                "width": <int>,
-                                "height": <int>
-                              }
-                            ],
-                            "main": <bool>
-                          }
-                        ],
-                        "duration": <int>,
-                        "trackNumber": <int>,
-                        "volumeNumber": <int>,
-                        "isrc": <str>,
-                        "properties": {
-                          "content": [<str>]
-                        }
-                      }
-                    ],
-                    "metadata": {
-                      "requested": <int>,
-                      "success": <int>,
-                      "failure": <int>
-                    }
-                  }
+        relationship : `dict`
+            A dictionary containing TIDAL catalog information for the
+            specified video relationship.
         """
-
         return self._get_json(
-            f"{self.API_URL}/videos",
-            params={"ids": video_ids, "countryCode": country_code},
+            f"{self.API_URL}/videos/{video_id}/relationships",
+            params={"countryCode": country_code, "page[cursor]": cursor},
         )
 
-    ### SEARCH API ############################################################
-
-    def search(
+    def get_video_albums(
         self,
-        query: str,
+        video_id: Union[int, str],
+        /,
         country_code: str,
         *,
-        type: str = None,
-        limit: int = None,
-        offset: int = None,
-        popularity: str = None,
-    ) -> dict[str, list[dict[str, Any]]]:
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
         """
-        `Search API > Search for catalog items
-        <https://developer.tidal.com/apiref?ref=search>`_: Search for
-        albums, artists, tracks, and videos.
+        `Videos > Get video albums <https://tidal-music.github.io
+        /tidal-api-reference/#/videos
+        /get_videos__id__relationships_albums>`_: Retrieve albums
+        containing a video.
 
         Parameters
         ----------
-        query : `str`
-            Search query.
+        video_id : `int` or `str`, positional-only
+            TIDAL video ID.
 
-            **Example**: :code:`"Beyoncé"`.
+            **Examples**: :code:`75623239` and :code:`"75623239"`.
 
-        country_code: `str`
+        country_code : `str`
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        type : `str`, keyword-only, optional
-            Target search type. Searches for all types if not specified.
-
-            **Valid values**: :code:`"ALBUMS"`, :code:`"ARTISTS"`,
-            :code:`"TRACKS"`, :code:`"VIDEOS"`.
-
-        limit : `int`, keyword-only, optional
-            Page size.
-
-            **Example**: :code:`10`.
-
-        offset : `int`, keyword-only, optional
-            Pagination offset (in number of items).
-
-            **Example**: :code:`0`.
-
-        popularity : `str`, keyword-only, optional
-            Specify which popularity type to apply for query result.
-            :code:`"WORLDWIDE"` is used if not specified.
-
-            **Valid values**: :code:`"WORLDWIDE"` or :code:`"COUNTRY"`.
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
 
         Returns
         -------
-        results : `dict`
-            A dictionary containing TIDAL catalog information for
-            albums, artists, tracks, and videos matching the search
-            query, and metadata for the returned results.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "albums": [
-                      {
-                        "resource": {
-                          "id": <str>,
-                          "barcodeId": <str>,
-                          "title": <str>,
-                          "artists": [
-                            {
-                              "id": <str>,
-                              "name": <str>,
-                              "picture": [
-                                {
-                                  "url": <str>,
-                                  "width": <int>,
-                                  "height": <int>
-                                }
-                              ],
-                              "main": <bool>
-                            }
-                          ],
-                          "duration": <int>,
-                          "releaseDate": <str>,
-                          "imageCover": [
-                            {
-                              "url": <str>,
-                              "width": <int>,
-                              "height": <int>
-                            }
-                          ],
-                          "videoCover": [
-                            {
-                              "url": <str>,
-                              "width": <int>,
-                              "height": <int>
-                            }
-                          ],
-                          "numberOfVolumes": <int>,
-                          "numberOfTracks": <int>,
-                          "numberOfVideos": <int>,
-                          "type": "ALBUM",
-                          "copyright": <str>,
-                          "mediaMetadata": {
-                            "tags": [<str>]
-                          },
-                          "properties": {
-                            "content": [<str>]
-                          }
-                        },
-                        "id": <str>,
-                        "status": 200,
-                        "message": "success"
-                      }
-                    ],
-                    "artists": [
-                      {
-                        "resource": {
-                          "id": <str>,
-                          "name": <str>,
-                          "picture": [
-                            {
-                              "url": <str>,
-                              "width": <int>,
-                              "height": <int>
-                            }
-                          ]
-                        },
-                        "id": <str>,
-                        "status": 200,
-                        "message": "success"
-                      }
-                    ],
-                    "tracks": [
-                      {
-                        "resource": {
-                          "artifactType": "track",
-                          "id": <str>,
-                          "title": <str>,
-                          "artists": [
-                            {
-                              "id": <str>,
-                              "name": <str>,
-                              "picture": [
-                                {
-                                  "url": <str>,
-                                  "width": <int>,
-                                  "height": <int>
-                                }
-                              ],
-                              "main": <bool>
-                            }
-                          ],
-                          "album": {
-                            "id": <str>,
-                            "title": <str>,
-                            "imageCover": [
-                              {
-                                "url": <str>,
-                                "width": <int>,
-                                "height": <int>
-                              }
-                            ],
-                            "videoCover": [
-                                {
-                                  "url": <str>,
-                                  "width": <int>,
-                                  "height": <int>
-                                }
-                            ]
-                          },
-                          "duration": <int>,
-                          "trackNumber": <int>,
-                          "volumeNumber": <int>,
-                          "isrc": <int>,
-                          "copyright": <int>,
-                          "mediaMetadata": {
-                            "tags": [<str>]
-                          },
-                          "properties": {
-                            "content": [<str>]
-                          }
-                        },
-                        "id": <str>,
-                        "status": 200,
-                        "message": "success"
-                      }
-                    ],
-                    "videos": [
-                      {
-                        "artifactType": "video",
-                        "id": <str>,
-                        "title": <str>,
-                        "image": [
-                              {
-                                "url": <str>,
-                                "width": <int>,
-                                "height": <int>
-                              }
-                        ],
-                        "releaseDate": <str>,
-                        "artists": [
-                          {
-                            "id": <str>,
-                            "name": <str>,
-                            "picture": [
-                              {
-                                "url": <str>,
-                                "width": <int>,
-                                "height": <int>
-                              }
-                            ],
-                            "main": <bool>
-                          }
-                        ],
-                        "duration": <int>,
-                        "trackNumber": <int>,
-                        "volumeNumber": <int>,
-                        "isrc": <str>,
-                        "properties": {
-                          "content": [<str>]
-                        }
-                      }
-                    ]
-                  }
+        video_albums : `dict`
+            A dictionary containing TIDAL catalog information for the
+            albums containing the video.
         """
+        return self.get_video_relationship(
+            video_id, "albums", country_code=country_code, cursor=cursor
+        )
 
-        if type and type not in (
-            TYPES := {"ALBUMS", "ARTISTS", "TRACKS", "VIDEOS"}
-        ):
-            emsg = (
-                f"Invalid target search type. Valid values: {', '.join(TYPES)}."
-            )
-            raise ValueError(emsg)
+    def get_video_artists(
+        self,
+        video_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Videos > Get video artists <https://tidal-music.github.io
+        /tidal-api-reference/#/videos
+        /get_videos__id__relationships_artists>`_: Retrieve artists
+        associated with a video.
 
-        return self._get_json(
-            f"{self.API_URL}/search",
-            params={
-                "query": query,
-                "countryCode": country_code,
-                "type": type,
-                "limit": limit,
-                "offset": offset,
-                "popularity": popularity,
-            },
+        Parameters
+        ----------
+        video_id : `int` or `str`, positional-only
+            TIDAL video ID.
+
+            **Examples**: :code:`75623239` and :code:`"75623239"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        video_artists : `dict`
+            A dictionary containing TIDAL catalog information for the
+            artists associated with the video.
+        """
+        return self.get_video_relationship(
+            video_id, "artists", country_code=country_code, cursor=cursor
+        )
+
+    def get_video_providers(
+        self,
+        video_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Videos > Get video providers <https://tidal-music.github.io
+        /tidal-api-reference/#/videos
+        /get_videos__id__relationships_providers>`_: Retrieve providers
+        of a video.
+
+        Parameters
+        ----------
+        video_id : `int` or `str`, positional-only
+            TIDAL video ID.
+
+            **Examples**: :code:`75623239` and :code:`"75623239"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        video_providers : `dict`
+            A dictionary containing TIDAL catalog information for the
+            providers of the video.
+        """
+        return self.get_video_relationship(
+            video_id, "providers", country_code=country_code, cursor=cursor
+        )
+
+    def get_video_thumbnail_art(
+        self,
+        video_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        cursor: Union[int, str, None] = None,
+    ) -> dict[str, Any]:
+        """
+        `Videos > Get video thumbnail art <https://tidal-music.github.io
+        /tidal-api-reference/#/videos
+        /get_videos__id__relationships_thumbnailArt>`_: Retrieve thumbnail art
+        for a video.
+
+        Parameters
+        ----------
+        video_id : `int` or `str`, positional-only
+            TIDAL video ID.
+
+            **Examples**: :code:`75623239` and :code:`"75623239"`.
+
+        country_code : `str`
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        cursor : `int` or `str`, keyword-only, optional
+            Pagination cursor.
+
+        Returns
+        -------
+        video_thumbnail_art : `dict`
+            A dictionary containing TIDAL catalog information for the
+            thumbnail art for the video.
+        """
+        return self.get_video_relationship(
+            video_id, "thumbnailArt", country_code=country_code, cursor=cursor
         )
 
 
@@ -2665,7 +4391,7 @@ class PrivateAPI:
     AUTH_URL = "https://auth.tidal.com/v1/oauth2"
     LOGIN_URL = "https://login.tidal.com"
     REDIRECT_URI = "tidal://login/auth"
-    RESOURCES_URL = "http://resources.tidal.com"
+    RESOURCES_URL = "https://resources.tidal.com"
     WEB_URL = "https://listen.tidal.com"
 
     def __init__(
