@@ -1,6 +1,0 @@
-levenshtein\_ratios
-===================
-
-.. currentmodule:: minim.utility
-
-.. autofunction:: levenshtein_ratios

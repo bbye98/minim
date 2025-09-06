@@ -1,8 +1,7 @@
+*.egg-info/
 **/__pycache__/
 **/.pytest_cache/
+.coverage
 .ruff_cache/
-_examples/
 dist/
 jupyter_execute/
-src/minim.egg-info
-.coverage

@@ -4,7 +4,7 @@ requires = ["setuptools"]
 
 [project]
 name = "minim"
-version = "1.0.0"
+version = "2.0.0"
 authors = [
   { name = "Benjamin Ye", email = "benjaminbobinye@gmail.com" }
 ]
@@ -14,17 +14,28 @@ classifiers = [
   "Programming Language :: Python :: 3"
 ]
 dependencies = [
-  "cryptography",
-  "mutagen",
-  "requests"
+  "httpx"
 ]
 description = """
 A collection of music service APIs to query media information and 
-(semi-)automate tagging.
+media file readers and writers to (semi-)automate tagging.
 """
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = [
+  "pytest-cov",
+  "pytest-playwright",
+  "ruff"
+]
+docs = [
+  "sphinx"
+]
 
 [project.urls]
 "Homepage" = "https://github.com/bbye98/minim"
 "Bug Tracker" = "https://github.com/bbye98/minim/issues"
+
+[tool.ruff]
+target-version = "py310"
