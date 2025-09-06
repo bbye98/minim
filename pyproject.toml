@@ -27,6 +27,7 @@ requires-python = ">=3.11"
 dev = [
   "pytest-cov",
   "pytest-playwright",
+  "pyyaml",
   "ruff"
 ]
 docs = [

@@ -1,19 +1,19 @@
-import configparser
 from importlib.util import find_spec
 from pathlib import Path
-import tempfile
+
+import yaml
 
 __version__ = "2.0.0"
 
+ILLEGAL_CHARS = {ord(c): "_" for c in '"*/:<>?\\|'}
 FOUND = {lib: find_spec(lib) is not None for lib in {"playwright"}}
 HOME_DIR = Path.home()
-TEMP_DIR = Path(tempfile.gettempdir())
-ILLEGAL_CHARS = {ord(c): "_" for c in '"*/:<>?\\|'}
+CONFIG_FILE = HOME_DIR / "minim.yaml"
 
-config_file = HOME_DIR / "minim.ini"
-config = configparser.ConfigParser()
-config.read(config_file)
-if not config.has_section("minim"):
-    config["minim"] = {"version": __version__}
-    with open(config_file, "w") as f:
-        config.write(f)
+if CONFIG_FILE.exists():
+    with CONFIG_FILE.open() as f:
+        config = yaml.safe_load(f)
+else:
+    config = {"version": __version__}
+    with CONFIG_FILE.open("w") as f:
+        yaml.safe_dump(config, f)

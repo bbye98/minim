@@ -13,8 +13,9 @@ from urllib.parse import parse_qsl, urlencode, urlparse
 import webbrowser
 
 import httpx
+import yaml
 
-from .. import FOUND, config_file, config
+from .. import FOUND, CONFIG_FILE, config
 
 if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
@@ -257,8 +258,8 @@ class _OAuth2API(ABC):
                 if (expiry := getattr(self, "_expiry"))
                 else "",
             }
-            with open(config_file, "w") as f:
-                config.write(f)
+            with CONFIG_FILE.open("w") as f:
+                yaml.safe_dump(config, f)
 
     def _get_authorization_code(self, code_challenge: str | None = None) -> str:
         """ """
