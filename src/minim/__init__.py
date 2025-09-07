@@ -8,8 +8,9 @@ __version__ = "2.0.0"
 ILLEGAL_CHARS = {ord(c): "_" for c in '"*/:<>?\\|'}
 FOUND = {lib: find_spec(lib) is not None for lib in {"playwright"}}
 HOME_DIR = Path.home()
-CONFIG_FILE = HOME_DIR / "minim.yaml"
 
+# Load (or create) local token storage file
+CONFIG_FILE = HOME_DIR / "minim.yaml"
 if CONFIG_FILE.exists():
     with CONFIG_FILE.open() as f:
         config = yaml.safe_load(f)
