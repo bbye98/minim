@@ -4,4 +4,6 @@
 .coverage
 .ruff_cache/
 dist/
+docs/build/
+docs/source/**/_autosummary/
 jupyter_execute/

@@ -21,11 +21,15 @@ if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
 
 
-class _OAuth2RedirectHandler(BaseHTTPRequestHandler):
-    """ """
+class OAuth2RedirectHandler(BaseHTTPRequestHandler):
+    """
+    HTTP request handler for OAuth 2.0 redirect URIs.
+    """
 
-    def do_GET(self):
-        """ """
+    def do_GET(self) -> None:
+        """
+        Handle a GET request to the redirect URI.
+        """
         parsed = urlparse(self.path)
         if parsed.query:
             self.server.response = dict(parse_qsl(parsed.query))
@@ -59,11 +63,13 @@ class _OAuth2RedirectHandler(BaseHTTPRequestHandler):
             self.wfile.write(html.encode())
 
     def log_message(self, *args, **kwargs) -> None:
-        """ """
+        """
+        Silence the HTTP server logging output.
+        """
         pass
 
 
-class _OAuth2API(ABC):
+class OAuth2API(ABC):
     """
     Abstract base class for OAuth 2.0-based API clients.
     """
@@ -80,10 +86,16 @@ class _OAuth2API(ABC):
     }
     _PROVIDER: str = ...
     _ENV_VAR_PREFIX: str = ...
+    _SCOPES: Any = ...
+
+    #: Authorization endpoint.
     AUTH_URL: str = ...
+
+    #: Base URL for API endpoints.
     BASE_URL: str = ...
+
+    #: Token endpoint.
     TOKEN_URL: str = ...
-    SCOPES: Any = ...
 
     def __init__(
         self,
@@ -194,22 +206,21 @@ class _OAuth2API(ABC):
             when :code:`persist=True` to distinguish between multiple
             user accounts for the same client ID and authorization flow.
 
-            If provided, it is used to locate existing access tokens in
-            Minim's local token storage, where the key is a SHA-256 hash
-            of the client ID, authorization flow, and user identifier.
-            For newly acquired tokens, the user identifier is
-            incorporated into the storage key.
+            If provided, it is used to locate existing access tokens or
+            store new tokens in Minim's local token storage, where the
+            key is a SHA-256 hash of the client ID, authorization flow,
+            and the identifier.
 
             If not provided, the last accessed account for the specified
             authorization flow in `flow` is selected if it exists in
             local storage. Otherwise, a new entry is created using a
             hash of the client ID, authorization flow, and an available
-            user identifier (e.g., user ID).
+            user identifier (e.g., user ID) after successful
+            authorization.
 
-            The keyword :code:`"new"` is reserved and cannot be used as
-            an identifier, but may be specified to authorize an
-            additional account for the same client ID and authorization
-            flow.
+            Prepending the identifier with a plus sign (:code:`"+"`)
+            allows authorizing an additional account for the same client
+            ID and authorization flow.
         """
         self._client = httpx.Client(base_url=self.BASE_URL)
 
@@ -236,8 +247,8 @@ class _OAuth2API(ABC):
                 f"{client_id}:{flow}".encode()
             ).hexdigest()
         elif user_identifier:
-            if user_identifier == "new":
-                user_identifier = None
+            if user_identifier.startswith("+"):
+                user_identifier = user_identifier[1:]
                 self._account_identifier = None
             else:
                 self._account_identifier = hashlib.sha256(
@@ -338,7 +349,7 @@ class _OAuth2API(ABC):
         .. note::
 
            Calling this method replaces all existing values with the
-           provided arguments. Parameters not provided explicitly will
+           provided arguments. Parameters not specified explicitly will
            be overwritten by their default values.
 
         .. important::
@@ -398,7 +409,7 @@ class _OAuth2API(ABC):
         .. note::
 
            Calling this method replaces all existing values with the
-           provided arguments. Parameters not provided explicitly will
+           provided arguments. Parameters not specified explicitly will
            be overwritten by their default values.
 
         Parameters
@@ -613,7 +624,7 @@ class _OAuth2API(ABC):
                 )
 
             if self._backend == "http.server":
-                httpd = HTTPServer(("", self._port), _OAuth2RedirectHandler)
+                httpd = HTTPServer(("", self._port), OAuth2RedirectHandler)
                 httpd.serve_forever()
                 queries = httpd.response
             else:

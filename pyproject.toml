@@ -31,7 +31,12 @@ dev = [
   "ruff"
 ]
 docs = [
-  "sphinx"
+  "furo",
+  "myst-nb",
+  "numpydoc",
+  "sphinx",
+  "sphinx-copybutton",
+  "sphinx-togglebutton",
 ]
 
 [project.urls]

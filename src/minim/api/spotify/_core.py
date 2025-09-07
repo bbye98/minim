@@ -4,14 +4,14 @@ from json.decoder import JSONDecodeError
 from typing import TYPE_CHECKING
 import warnings
 
-from .._shared import _OAuth2API
-from ._web_api._users import _WebAPIUsers
+from .._shared import OAuth2API
+from ._web_api.users import UserEndpoints
 
 if TYPE_CHECKING:
     import httpx
 
 
-class WebAPI(_OAuth2API):
+class WebAPI(OAuth2API):
     """
     Spotify Web API client.
     """
@@ -19,10 +19,7 @@ class WebAPI(_OAuth2API):
     _FLOWS = {"auth_code", "pkce", "client_credentials", "implicit"}
     _PROVIDER = "Spotify"
     _ENV_VAR_PREFIX = "SPOTIFY_WEB_API"
-    AUTH_URL = "https://accounts.spotify.com/authorize"
-    BASE_URL = "https://api.spotify.com/v1"
-    TOKEN_URL = "https://accounts.spotify.com/api/token"
-    SCOPES = {
+    _SCOPES = {
         "images": {"ugc-image-upload"},
         "spotify_connect": {
             "user-read-playback-state",
@@ -45,6 +42,9 @@ class WebAPI(_OAuth2API):
         "library": {"user-library-modify", "user-library-read"},
         "users": {"user-read-email", "user-read-private"},
     }
+    AUTH_URL = "https://accounts.spotify.com/authorize"
+    BASE_URL = "https://api.spotify.com/v1"
+    TOKEN_URL = "https://accounts.spotify.com/api/token"
 
     def __init__(
         self,
@@ -157,11 +157,10 @@ class WebAPI(_OAuth2API):
             when :code:`persist=True` to distinguish between multiple
             user accounts for the same client ID and authorization flow.
 
-            If provided, it is used to locate existing access tokens in
-            Minim's local token storage, where the key is a SHA-256 hash
-            of the client ID, authorization flow, and user identifier.
-            For newly acquired tokens, the user identifier is
-            incorporated into the storage key.
+            If provided, it is used to locate existing access tokens or
+            store new tokens in Minim's local token storage, where the
+            key is a SHA-256 hash of the client ID, authorization flow,
+            and the identifier.
 
             If not provided, the last accessed account for the specified
             authorization flow in `flow` is selected if it exists in
@@ -169,13 +168,12 @@ class WebAPI(_OAuth2API):
             hash of the client ID, authorization flow, and the Spotify
             user ID.
 
-            The keyword :code:`"new"` is reserved and cannot be used as
-            an identifier, but may be specified to authorize an
-            additional account for the same client ID and authorization
-            flow.
+            Prepending the identifier with a plus sign (:code:`"+"`)
+            allows authorizing an additional account for the same client
+            ID and authorization flow.
         """
         # Initialize subclasses for categorized endpoints
-        self.users = _WebAPIUsers(self)
+        self.users = UserEndpoints(self)
 
         if flow == "client_credentials" and scopes:
             warnings.warn(
@@ -269,17 +267,17 @@ class WebAPI(_OAuth2API):
         """
         # Return all scopes if no matches are provided
         if matches is None:
-            return set().union(*cls.SCOPES.values())
+            return set().union(*cls._SCOPES.values())
 
         if isinstance(matches, str):
             # Return scopes for a specific category
-            if matches in cls.SCOPES:
-                return cls.SCOPES[matches]
+            if matches in cls._SCOPES:
+                return cls._SCOPES[matches]
 
             # Return scopes containing a substring
             return {
                 scope
-                for scopes in cls.SCOPES.values()
+                for scopes in cls._SCOPES.values()
                 for scope in scopes
                 if matches in scope
             }

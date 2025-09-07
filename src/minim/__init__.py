@@ -3,6 +3,7 @@ from pathlib import Path
 
 import yaml
 
+__all__ = ["api"]
 __version__ = "2.0.0"
 
 ILLEGAL_CHARS = {ord(c): "_" for c in '"*/:<>?\\|'}
