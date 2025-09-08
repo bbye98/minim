@@ -10,6 +10,7 @@ import threading
 import time
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlparse
+import warnings
 import webbrowser
 
 import httpx
@@ -117,7 +118,7 @@ class OAuth2API(ABC):
         """
         Parameters
         ----------
-        flow : `str`, keyword-only
+        flow : str, keyword-only
             OAuth 2.0 authorization flow.
 
             .. container::
@@ -130,24 +131,24 @@ class OAuth2API(ABC):
                * :code:`"client_credentials"` — Client Credentials Flow.
                * :code:`"implicit"` — Implicit Grant Flow.
 
-        client_id : `str`, keyword-only, optional
+        client_id : str, keyword-only, optional
             Client ID. Must be provided unless it is set as a system
             environment variable or stored in Minim's local token
             storage.
 
-        client_secret : `str`, keyword-only, optional
+        client_secret : str, keyword-only, optional
             Client secret. Required for the Authorization Code, Client
             Credentials, and Resource Owner Password Credential flows.
             Must be provided unless it is set as a system environment
             variable or stored in Minim's local token storage.
 
-        redirect_uri : `str`, keyword-only, optional
+        redirect_uri : str, keyword-only, optional
             Redirect URI. Required for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             the host is not :code:`127.0.0.1` or :code:`localhost`,
             redirect handling is not available.
 
-        scopes : `str` or `Collection[str]`, keyword-only, optional
+        scopes : str or Collection[str], keyword-only, optional
             Authorization scopes the client requests to access user
             resources.
 
@@ -155,27 +156,27 @@ class OAuth2API(ABC):
 
                :meth:`get_scopes` — Get a set of scopes to request.
 
-        access_token : `str`, keyword-only, optional
+        access_token : str, keyword-only, optional
             Access token. If provided or found in Minim's local token
             storage, the authorization process is bypassed. If provided,
             all other relevant keyword arguments should also be
             specified to enable automatic token refresh upon expiration.
 
-        token_type : `str`, keyword-only, default: :code:`"Bearer"`
+        token_type : str, keyword-only, default: :code:`"Bearer"`
             Type of the access token.
 
-        refresh_token : `str`, keyword-only, optional
+        refresh_token : str, keyword-only, optional
             Refresh token accompanying the access token in
             `access_token`. If not provided, the user will be
             reauthorized via the authorization flow in `flow` when the
             access token expires.
 
-        expiry : `datetime.datetime` or `str`, keyword-only, optional
+        expiry : str or datetime.datetime, keyword-only, optional
             Expiry of the access token in `access_token`. If provided as
             a `str`, it must be in ISO 8601 format
             (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
-        backend : `str`, keyword-only, optional
+        backend : str, keyword-only, optional
             Backend to handle redirects during the authorization flow.
 
             .. container::
@@ -187,20 +188,20 @@ class OAuth2API(ABC):
                * :code:`"http.server"` — Simple HTTP server.
                * :code:`"playwright"` — Playwright Firefox browser.
 
-        browser : `bool`, keyword-only, default: :code:`False`
+        browser : bool, keyword-only, default: :code:`False`
             Specifies whether to automatically open the authorization
             URL in the default web browser for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             :code:`False`, the authorization URL is printed to the
             terminal.
 
-        persist : `bool`, keyword-only, default: :code:`True`
+        persist : bool, keyword-only, default: :code:`True`
             Specifies whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
             client will not retrieve or store access tokens.
 
-        user_identifier : `str`, keyword-only, optional
+        user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all
             authorization flows but the Client Credentials flow. Used
             when :code:`persist=True` to distinguish between multiple
@@ -240,23 +241,8 @@ class OAuth2API(ABC):
                 "arguments, respectively."
             )
 
-        # Assign unique account identifier based on client ID,
-        # authorization flow, and optionally, a user identifier
-        if flow == "client_credentials":
-            self._account_identifier = hashlib.sha256(
-                f"{client_id}:{flow}".encode()
-            ).hexdigest()
-        elif user_identifier:
-            if user_identifier.startswith("+"):
-                user_identifier = user_identifier[1:]
-                self._account_identifier = None
-            else:
-                self._account_identifier = hashlib.sha256(
-                    f"{client_id}:{flow}:{user_identifier}".encode()
-                ).hexdigest()
-        else:
-            self._account_identifier = f"last_{flow}"
-        self._user_identifier = user_identifier
+        # Assign unique account identifier
+        self._set_account_identifier(flow, client_id, user_identifier)
 
         # If an access token is not provided, try to retrieve it from
         # local token storage
@@ -289,6 +275,7 @@ class OAuth2API(ABC):
             backend=backend,
             browser=browser,
             persist=persist,
+            user_identifier="__init__",
         )
         if access_token:
             self.set_access_token(
@@ -315,15 +302,15 @@ class OAuth2API(ABC):
 
         Parameters
         ----------
-        *args : `tuple[Any]`
+        *args : tuple[Any]
             Positional arguments to be defined by subclasses.
 
-        **kwargs : `dict[str, Any]`
+        **kwargs : dict[str, Any]
             Keyword arguments to be defined by subclasses.
 
         Returns
         -------
-        scopes : `set[str]`
+        scopes : set[str]
             Authorization scopes.
         """
         ...
@@ -346,7 +333,7 @@ class OAuth2API(ABC):
         """
         Set or update the access token and related information.
 
-        .. note::
+        .. caution::
 
            Calling this method replaces all existing values with the
            provided arguments. Parameters not specified explicitly will
@@ -360,18 +347,18 @@ class OAuth2API(ABC):
 
         Parameters
         ----------
-        access_token : `str`, positional-only
+        access_token : str, positional-only
             Access token.
 
-        token_type : `str`, default: :code:`"Bearer"`
+        token_type : str, default: :code:`"Bearer"`
             Type of the access token.
 
-        refresh_token : `str`, keyword-only, optional
+        refresh_token : str, keyword-only, optional
             Refresh token accompanying the access token in
             `access_token`. If not provided, the user will be
             reauthorized when the access token expires.
 
-        expiry : `datetime.datetime` or `str`, keyword-only, optional
+        expiry : str or datetime.datetime, keyword-only, optional
             Expiry of the access token in `access_token`. If provided
             as a `str`, it must be in ISO 8601 format
             (:code:`%Y-%m-%dT%H:%M:%SZ`).
@@ -402,11 +389,12 @@ class OAuth2API(ABC):
         backend: str | None = None,
         browser: bool = False,
         persist: bool = True,
+        user_identifier: str | None = None,
     ) -> None:
         """
         Set or update the authorization flow and related parameters.
 
-        .. note::
+        .. caution::
 
            Calling this method replaces all existing values with the
            provided arguments. Parameters not specified explicitly will
@@ -414,7 +402,7 @@ class OAuth2API(ABC):
 
         Parameters
         ----------
-        flow : `str`, keyword-only
+        flow : str, keyword-only
             OAuth 2.0 authorization flow.
 
             .. container::
@@ -427,24 +415,24 @@ class OAuth2API(ABC):
                * :code:`"client_credentials"` — Client Credentials Flow.
                * :code:`"implicit"` — Implicit Grant Flow.
 
-        client_id : `str`, keyword-only, optional
+        client_id : str, keyword-only, optional
             Client ID. Must be provided unless it is set as a system
             environment variable or stored in Minim's local token
             storage.
 
-        client_secret : `str`, keyword-only, optional
+        client_secret : str, keyword-only, optional
             Client secret. Required for the Authorization Code, Client
             Credentials, and Resource Owner Password Credential flows.
             Must be provided unless it is set as a system environment
             variable or stored in Minim's local token storage.
 
-        redirect_uri : `str`, keyword-only, optional
+        redirect_uri : str, keyword-only, optional
             Redirect URI. Required for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             the host is not :code:`127.0.0.1` or :code:`localhost`,
             redirect handling is not available.
 
-        scopes : `str` or `Collection[str]`, keyword-only, optional
+        scopes : str or `Collection[str]`, keyword-only, optional
             Authorization scopes the client requests to access user
             resources.
 
@@ -452,7 +440,7 @@ class OAuth2API(ABC):
 
                :meth:`get_scopes` — Get a set of scopes to request.
 
-        backend : `str`, keyword-only, optional
+        backend : str, keyword-only, optional
             Backend to handle redirects during the authorization flow.
 
             .. container::
@@ -464,26 +452,50 @@ class OAuth2API(ABC):
                * :code:`"http.server"` — Simple HTTP server.
                * :code:`"playwright"` — Playwright Firefox browser.
 
-        browser : `bool`, keyword-only, default: :code:`False`
+        browser : bool, keyword-only, default: :code:`False`
             Specifies whether to automatically open the authorization
             URL in the default web browser for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             :code:`False`, the authorization URL is printed to the
             terminal.
 
-        persist : `bool`, keyword-only, default: :code:`True`
+        persist : bool, keyword-only, default: :code:`True`
             Specifies whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
             client will not retrieve or store access tokens.
 
+        user_identifier : str, keyword-only, optional
+            Unique identifier for the user account to log into for all
+            authorization flows but the Client Credentials flow. Used
+            when :code:`persist=True` to distinguish between multiple
+            user accounts for the same client ID and authorization flow.
+
+            If provided, it is used to locate existing access tokens or
+            store new tokens in Minim's local token storage, where the
+            key is a SHA-256 hash of the client ID, authorization flow,
+            and the identifier.
+
+            If not provided, the last accessed account for the specified
+            authorization flow in `flow` is selected if it exists in
+            local storage. Otherwise, a new entry is created using a
+            hash of the client ID, authorization flow, and an available
+            user identifier (e.g., user ID) after successful
+            authorization.
+
+            Prepending the identifier with a plus sign (:code:`"+"`)
+            allows authorizing an additional account for the same client
+            ID and authorization flow.
         """
+
         if flow not in self._FLOWS:
             _flows = "', '".join(self._FLOWS)
             raise ValueError(
                 f"Invalid authorization flow {flow!r}. "
                 f"Valid values: '{_flows}'."
             )
+        if user_identifier != "__init__":
+            self._set_account_identifier(flow, client_id, user_identifier)
         self._flow = flow
         self._scopes = (
             scopes
@@ -531,13 +543,13 @@ class OAuth2API(ABC):
 
         Parameters
         ----------
-        code_challenge : `str`, optional
+        code_challenge : str, optional
             Code challenge derived from the code verifier for the
             Authorization Code with PKCE flow.
 
         Returns
         -------
-        code : `str`
+        code : str
             Authorization code.
         """
         params = {
@@ -568,10 +580,10 @@ class OAuth2API(ABC):
 
         Parameters
         ----------
-        auth_url : `str`
+        auth_url : str
             Authorization URL to visit.
 
-        part : `str`
+        part : str
             Part of the redirect URL to extract the authorization
             response from.
 
@@ -579,7 +591,7 @@ class OAuth2API(ABC):
 
         Returns
         -------
-        queries : `dict[str, int or str]`
+        queries : dict[str, int | str]
             Parsed key-value pairs from the specified part of the
             redirect URL.
         """
@@ -645,7 +657,7 @@ class OAuth2API(ABC):
 
         Parameters
         ----------
-        flow : `str`, optional
+        flow : str, optional
             Authorization flow. If not provided, the current
             authorization flow in :attr:`_flow` is used.
 
@@ -677,6 +689,14 @@ class OAuth2API(ABC):
                     data=data,
                     headers={"Authorization": f"Basic {client_b64}"},
                 ).json()
+                if error := resp_json.get("error"):
+                    warnings.warn(
+                        f"Encountered {error!r} error: "
+                        f"{resp_json['error_description']}. "
+                        "Reauthorizing via the "
+                        f"{self._OAUTH_FLOWS_NAMES[self._flow]}.",
+                    )
+                    return self._obtain_access_token(self._flow)
             else:
                 data["client_id"] = self._client_id
                 resp_json = httpx.post(self.TOKEN_URL, data=data).json()
@@ -787,7 +807,7 @@ class OAuth2API(ABC):
             "refresh_token" if self._refresh_token else self._flow
         )
 
-    def _require_scope(
+    def _require_scopes(
         self, endpoint_method: str, scopes: str | Collection[str]
     ) -> None:
         """
@@ -796,10 +816,10 @@ class OAuth2API(ABC):
 
         Parameters
         ----------
-        endpoint_method : `str`
+        endpoint_method : str
             Name of the endpoint method.
 
-        scopes : `str` or `Collection[str]`
+        scopes : str or `Collection[str]`
             Required authorization scopes.
         """
         if isinstance(scopes, str):
@@ -810,7 +830,56 @@ class OAuth2API(ABC):
                 )
         else:
             for scope in scopes:
-                self._require_scope(endpoint_method, scope)
+                self._require_scopes(endpoint_method, scope)
+
+    def _set_account_identifier(
+        self,
+        flow: str | None = None,
+        client_id: str | None = None,
+        user_identifier: str | None = None,
+    ) -> None:
+        """
+        Assign unique account identifier based on client ID,
+        authorization flow, and optionally, a user identifier.
+
+        Parameters
+        ----------
+        flow : str, optional
+            Authorization flow. If not provided, the current
+            authorization flow in :attr:`_flow` is used.
+
+        client_id : str, optional
+            Client ID. If not provided, the current client ID in
+            :attr:`_client_id` is used.
+
+        user_identifier : str, optional
+            Unique identifier for the user account to log into for all
+            authorization flows but the Client Credentials flow. If not
+            provided, the current user identifier in
+            :attr:`_user_identifier` is used.
+        """
+        if not flow:
+            flow = self._flow
+        if not client_id:
+            client_id = self._client_id
+        if not user_identifier:
+            user_identifier = getattr(self, "_user_identifier", None)
+
+        if flow == "client_credentials":
+            self._account_identifier = hashlib.sha256(
+                f"{client_id}:{flow}".encode()
+            ).hexdigest()
+        elif user_identifier:
+            if user_identifier.startswith("+"):
+                user_identifier = user_identifier[1:]
+                self._account_identifier = None
+            else:
+                self._account_identifier = hashlib.sha256(
+                    f"{client_id}:{flow}:{user_identifier}".encode()
+                ).hexdigest()
+        else:
+            self._account_identifier = f"last_{flow}"
+        self._user_identifier = user_identifier
 
     @abstractmethod
     def _request(self, method: str, endpoint: str, **kwargs) -> httpx.Response:
@@ -819,19 +888,19 @@ class OAuth2API(ABC):
 
         Parameters
         ----------
-        method : `str`
+        method : str
             HTTP method.
 
-        endpoint : `str`
+        endpoint : str
             API endpoint.
 
-        **kwargs : `dict[str, Any]`
+        **kwargs : dict[str, Any]
             Additional arguments to pass to
             :meth:`httpx.Client.request`.
 
         Returns
         -------
-        response : `httpx.Response`
+        response : httpx.Response
             HTTP response.
         """
         ...

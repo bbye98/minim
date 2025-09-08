@@ -4,25 +4,747 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class UserEndpoints:
+class WebAPIUserEndpoints:
     """
     Spotify Web API user endpoints.
+
+    .. important::
+
+       This class is managed by :class:`minim.api.spotify.WebAPI` and
+       should not be instantiated directly.
     """
 
-    def __init__(self, client: "WebAPI") -> None:
+    def __init__(self, client: "WebAPI", /) -> None:
         """
         Parameters
         ----------
-        client : `WebAPI`
-            ...
+        client : minim.api.spotify.WebAPI
+            OAuth 2.0 API client.
         """
         self._client = client
 
-    def get_me(self) -> dict[str, Any]:
+    def get_profile(self, user_id: str | None = None, /) -> dict[str, Any]:
         """
-        ...
+        `Users > Get Current User's Profile
+        <https://developer.spotify.com/documentation/web-api/reference
+        /get-current-users-profile>`_: Get detailed profile information
+        about the current user (including the current user's username);
+        `Users > Get User's Profile <https://developer.spotify.com
+        /documentation/web-api/reference/get-users-profile>`_: Get
+        public profile information about a Spotify user.
+
+        .. admonition:: Authorization scopes
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              :code:`user-read-private`
+                 Access your subscription details.
+              :code:`user-read-email`
+                 Get your real email address.
+
+        Parameters
+        ----------
+        user_id : str, positional-only, optional
+            Spotify user ID. If not provided, the current user's
+            profile will be returned.
+
+            **Example**: :code:`"smedjan"`.
+
+        Returns
+        -------
+        profile : dict[str, Any]
+            User's profile information.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. tab:: Current user
+
+                  .. code::
+
+                     {
+                       "country": <str>,
+                       "display_name": <str>,
+                       "email": <str>,
+                       "explicit_content": {
+                         "filter_enabled": <bool>,
+                         "filter_locked": <bool>
+                       },
+                       "external_urls": {
+                         "spotify": <str>
+                       },
+                       "followers": {
+                         "href": <str>,
+                         "total": <int>
+                       },
+                       "href": <str>,
+                       "id": <str>,
+                       "images": [
+                         {
+                           "url": <str>,
+                           "height": <int>,
+                           "width": <int>
+                         }
+                       ],
+                       "product": <str>,
+                       "type": "user",
+                       "uri": <str>
+                     }
+
+               .. tab:: Public user
+
+                  .. code::
+
+                     {
+                       "display_name": <str>,
+                       "external_urls": {
+                         "spotify": <str>
+                       },
+                       "followers": {
+                         "href": <str>,
+                         "total": <int>
+                       },
+                       "href": <str>,
+                       "id": <str>,
+                       "images": [
+                         {
+                           "url": <str>,
+                           "height": <int>,
+                           "width": <int>
+                         }
+                       ],
+                       "type": "user",
+                       "uri": <str>
+                     }
         """
-        self._client._require_scope(
-            "get_me", {"user-read-private", "user-read-email"}
+        return self._client._request(
+            "get", f"users/{user_id}" if user_id else "me"
+        ).json()
+
+    def get_top_items(
+        self,
+        item_type: str,
+        /,
+        *,
+        time_range: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Users > Get User's Top Items
+        <https://developer.spotify.com/documentation/web-api/reference
+        /get-users-top-artists-and-tracks>`_: Get the current user's top
+        artists or tracks based on calculated affinity.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-top-read`
+                 Read your top artists and contents.
+
+        Parameters
+        ----------
+        item_type : str, positional-only
+            Type of entity to return.
+
+            **Valid values**: :code:`"artists"` or :code:`"tracks"`.
+
+        time_range : str, keyword-only, optional
+            Time frame over which the affinities are computed.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`"long_term"`: Approximately one year of data,
+                 including all new data as it becomes available.
+               * :code:`"medium_term"`: Approximately the last six
+                 months of data.
+               * :code:`"short_term"`: Approximately the last four weeks
+                 of data.
+
+            **Default**: :code:`"medium_term"`.
+
+        limit : int, keyword-only, optional
+            Maximum number of entities to return.
+
+            **Valid values**: :code:`1` to :code:`50`.
+
+            **Default**: :code:`20`.
+
+        offset : int, keyword-only, optional
+            Index of the first entity to return.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        top_items : dict[str, Any]
+            Spotify content metadata for the current user's top artists
+            or tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. tab:: Artists
+
+                  .. code::
+
+                     {
+                       "href": <str>,
+                       "limit": <int>,
+                       "next": <str>,
+                       "offset": <int>,
+                       "previous": <str>,
+                       "total": <int>,
+                       "items": [
+                         {
+                           "external_urls": {
+                             "spotify": <str>
+                           },
+                           "followers": {
+                             "href": <str>,
+                             "total": <int>
+                           },
+                           "genres": <list[str]>,
+                           "href": <str>,
+                           "id": <str>,
+                           "images": [
+                             {
+                               "url": <str>,
+                               "height": <int>,
+                               "width": <int>
+                             }
+                           ],
+                           "name": <str>,
+                           "popularity": <int>,
+                           "type": "artist",
+                           "uri": <str>
+                         }
+                       ]
+                     }
+
+               .. tab:: Tracks
+
+                  .. code::
+
+                     {
+                       "items": [
+                         {
+                           "album": {
+                             "album_type": <str>,
+                             "artists": [
+                               {
+                                 "external_urls": {
+                                   "spotify": <str>
+                                 },
+                                 "href": <str>,
+                                 "id": <str>,
+                                 "name": <str>,
+                                 "type": "artist",
+                                 "uri": <str>
+                               }
+                             ],
+                             "available_markets": <list[str]>,
+                             "external_urls": {
+                               "spotify": <str>
+                             },
+                             "href": <str>,
+                             "id": <str>,
+                             "images": [
+                               {
+                                 "url": <str>,
+                                 "height": <int>,
+                                 "width": <int>
+                               }
+                             ],
+                             "is_playable": <bool>,
+                             "name": <str>,
+                             "release_date": <str>,
+                             "release_date_precision": <str>,
+                             "total_tracks": <int>,
+                             "type": "album",
+                             "uri": <str>
+                           },
+                           "artists": [
+                             {
+                               "external_urls": {
+                                 "spotify": <str>
+                               },
+                               "href": <str>,
+                               "id": <str>,
+                               "name": <str>,
+                               "type": "artist",
+                               "uri": <str></str>
+                             }
+                           ],
+                           "available_markets": <list[str]>,
+                           "disc_number": <int>,
+                           "duration_ms": <int>,
+                           "explicit": <bool>,
+                           "external_ids": {
+                             "isrc": <str>
+                           },
+                           "external_urls": {
+                             "spotify": <str>
+                           },
+                           "href": <str>,
+                           "id": <str>,
+                           "is_local": <bool>,
+                           "is_playable": <bool>,
+                           "name": <str>,
+                           "popularity": <int>,
+                           "preview_url": <str>,
+                           "track_number": <int>,
+                           "type": "track",
+                           "uri": <str>
+                         }
+                       ],
+                       "total": <int>,
+                       "limit": <int>,
+                       "offset": <int>,
+                       "href": <str>,
+                       "next": <str>,
+                       "previous": <str>
+                     }
+        """
+        self._client._require_scopes("get_top_items", "user-top-read")
+        return self._client._request(
+            "get",
+            f"me/top/{item_type}",
+            params={"time_range": time_range, "limit": limit, "offset": offset},
+        ).json()
+
+    def follow_playlist(
+        self, playlist_id: str, /, *, public: bool | None = None
+    ) -> None:
+        """
+        `Users > Follow Playlist <https://developer.spotify.com
+        /documentation/web-api/reference/follow-playlist>`_: Add the
+        current user as a follower of a playlist.
+
+        .. admonition:: Authorization scopes
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlist-modify-public`
+                 Manage your public playlists.
+              :code:`playlist-modify-private`
+                 Manage your private playlists.
+
+        Parameters
+        ----------
+        playlist_id : str, positional-only
+            Spotify ID of the playlist.
+
+        public : bool, keyword-only, optional
+            Specifies whether the playlist will be included in the
+            current user's public playlists.
+
+            **Default**: :code:`True`.
+        """
+        self._client._require_scopes(
+            "follow_playlist",
+            f"playlist-modify-{'public' if public else 'private'}",
         )
-        return self._client._request("get", "me").json()
+        self._client._request("put", f"playlists/{playlist_id}/followers")
+
+    def unfollow_playlist(self, playlist_id: str, /) -> None:
+        """
+        `Users > Unfollow Playlist <https://developer.spotify.com
+        /documentation/web-api/reference/unfollow-playlist>`_: Remove
+        the current user as a follower of a playlist.
+
+        .. admonition:: Authorization scopes
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlist-modify-public`
+                 Manage your public playlists.
+              :code:`playlist-modify-private`
+                 Manage your private playlists.
+
+        Parameters
+        ----------
+        playlist_id : str, positional-only
+            Spotify ID of the playlist.
+        """
+        self._client._require_scopes(
+            "unfollow_playlist",
+            {"playlist-modify-public", "playlist-modify-private"},
+        )
+        self._client._request("delete", f"playlists/{playlist_id}/followers")
+
+    def get_followed_artists(
+        self,
+        *,
+        after: str | None = None,
+        limit: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Users > Get Followed Artists <https://developer.spotify.com
+        /documentation/web-api/reference/get-followed>`_: Get the
+        current user's followed artists.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-read`
+                 Access your followers and who you are following.
+
+        Parameters
+        ----------
+        after : str, keyword-only, optional
+            Last artist ID retrieved from the previous request.
+
+            **Example**: :code:`"0I2XqVXqHScXjHhk6AYYRe"`.
+
+        limit : int, keyword-only, optional
+            Maximum number of items to return.
+
+            **Valid values**: :code:`1` to :code:`50`.
+
+            **Default**: :code:`20`.
+
+        Returns
+        -------
+        followed_artists : dict[str, Any]
+            Spotify content metadata for the current user's followed
+            artists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "artists": {
+                      "href": <str>,
+                      "limit": <int>,
+                      "next": <str>,
+                      "cursors": {
+                        "after": <str>,
+                        "before": <str>
+                      },
+                      "total": <int>,
+                      "items": [
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": <int>
+                          },
+                          "genres": <list[str]>,
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": <int>,
+                              "width": <int>
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": <int>,
+                          "type": "artist",
+                          "uri": <str>
+                        }
+                      ]
+                    }
+                  }
+        """
+        self._client._require_scopes("get_followed_artists", "user-follow-read")
+        return self._client._request(
+            "get",
+            "me/following",
+            params={"type": "artist", "after": after, "limit": limit},
+        ).json()
+
+    def follow_artists(self, artist_ids: str | list[str], /) -> None:
+        """
+        `Users > Follow Artists <https://developer.spotify.com
+        /documentation/web-api/reference/follow-artists-users>`_: Add
+        the current user as a follower of one or more artists.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-modify`
+                 Manage your saved content.
+
+        Parameters
+        ----------
+        artist_ids : str or list[str], positional-only
+            (Comma-separated) list of Spotify IDs for the artists. A
+            maximum of 50 IDs can be sent in one request.
+
+            **Examples**:
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`
+            or :code:`["2CIMQHirSU0MQqyYHq0eOx",
+            "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
+        """
+        self._client._require_scopes("follow_artists", "user-follow-modify")
+        self._client._request(
+            "put",
+            "me/following",
+            params={
+                "type": "artist",
+                "ids": artist_ids
+                if isinstance(artist_ids, str)
+                else ",".join(artist_ids),
+            },
+        )
+
+    def follow_users(self, user_ids: str | list[str], /) -> None:
+        """
+        `Users > Follow Users <https://developer.spotify.com
+        /documentation/web-api/reference/follow-artists-users>`_: Add
+        the current user as a follower of one or more Spotify users.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-modify`
+                 Manage your saved content.
+
+        Parameters
+        ----------
+        user_ids : str or list[str], positional-only
+            (Comma-separated) list of Spotify user IDs. A maximum of 50
+            IDs can be sent in one request.
+
+            **Examples**:
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`
+            or :code:`["2CIMQHirSU0MQqyYHq0eOx",
+            "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
+        """
+        self._client._require_scopes("follow_users", "user-follow-modify")
+        self._client._request(
+            "put",
+            "me/following",
+            params={
+                "type": "user",
+                "ids": user_ids
+                if isinstance(user_ids, str)
+                else ",".join(user_ids),
+            },
+        )
+
+    def unfollow_artists(self, artist_ids: str | list[str], /) -> None:
+        """
+        `Users > Unfollow Artists <https://developer.spotify.com
+        /documentation/web-api/reference/unfollow-artists-users>`_:
+        Remove the current user as a follower of one or more artists.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-modify`
+                 Manage your saved content.
+
+        Parameters
+        ----------
+        artist_ids : str or list[str], positional-only
+            (Comma-separated) list of Spotify IDs for the artists. A
+            maximum of 50 IDs can be sent in one request.
+
+            **Examples**:
+            :code:`"2CIMQHirSU0MQqyYHq0eOx, 57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`
+            or :code:`["2CIMQHirSU0MQqyYHq0eOx",
+            "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
+        """
+        self._client._require_scopes("unfollow_artists", "user-follow-modify")
+        self._client._request(
+            "delete",
+            "me/following",
+            params={
+                "type": "artist",
+                "ids": artist_ids
+                if isinstance(artist_ids, str)
+                else ",".join(artist_ids),
+            },
+        )
+
+    def unfollow_users(self, user_ids: str | list[str], /) -> None:
+        """
+        `Users > Unfollow Users <https://developer.spotify.com
+        /documentation/web-api/reference/unfollow-artists-users>`_:
+        Remove the current user as a follower of one or more Spotify users.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-modify`
+                 Manage your saved content.
+
+        Parameters
+        ----------
+        user_ids : str or list[str], positional-only
+            (Comma-separated) list of Spotify user IDs. A maximum of 50
+            IDs can be sent in one request.
+
+            **Examples**:
+            :code:`"2CIMQHirSU0MQqyYHq0eOx, 57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`
+            or :code:`["2CIMQHirSU0MQqyYHq0eOx",
+            "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
+        """
+        self._client._require_scopes("unfollow_users", "user-follow-modify")
+        self._client._request(
+            "delete",
+            "me/following",
+            params={
+                "type": "user",
+                "ids": user_ids
+                if isinstance(user_ids, str)
+                else ",".join(user_ids),
+            },
+        )
+
+    def is_following_artists(
+        self, artist_ids: str | list[str], /
+    ) -> list[bool]:
+        """
+        `Users > Check If User Follows Artists
+        <https://developer.spotify.com/documentation/web-api/reference
+        /check-current-user-follows>`_: Check to see if the current user
+        is following one or more artists.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-read`
+                 Access your followers and who you are following.
+
+        Parameters
+        ----------
+        artist_ids : str or list[str], positional-only
+            (Comma-separated) list of Spotify IDs for the artists. A
+            maximum of 50 IDs can be sent in one request.
+
+            **Examples**:
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`
+            or :code:`["2CIMQHirSU0MQqyYHq0eOx",
+            "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
+
+        Returns
+        -------
+        is_following_artists : list[bool]
+            Following status for each artist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [False, True]
+        """
+        self._client._require_scopes("is_following_artists", "user-follow-read")
+        return self._client._request(
+            "get",
+            "me/following/contains",
+            params={
+                "type": "artist",
+                "ids": artist_ids
+                if isinstance(artist_ids, str)
+                else ",".join(artist_ids),
+            },
+        ).json()
+
+    def is_following_users(self, user_ids: str | list[str], /) -> list[bool]:
+        """
+        `Users > Check If User Follows Users
+        <https://developer.spotify.com/documentation/web-api/reference
+        /check-current-user-follows>`_: Check to see if the current user
+        is following one or more Spotify users.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-read`
+                 Access your followers and who you are following.
+
+        Parameters
+        ----------
+        user_ids : str or list[str], positional-only
+            (Comma-separated) list of Spotify user IDs. A maximum of 50
+            IDs can be sent in one request.
+
+            **Examples**:
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`
+            or :code:`["2CIMQHirSU0MQqyYHq0eOx",
+            "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
+
+        Returns
+        -------
+        is_following_users : list[bool]
+            Following status for each Spotify user.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [False, True]
+        """
+        self._client._require_scopes("is_following_users", "user-follow-read")
+        return self._client._request(
+            "get",
+            "me/following/contains",
+            params={
+                "type": "user",
+                "ids": user_ids
+                if isinstance(user_ids, str)
+                else ",".join(user_ids),
+            },
+        ).json()
+
+    def is_following_playlist(self, playlist_id: str, /) -> bool:
+        """
+        `Users > Check if Current User Follows Playlist
+        <https://developer.spotify.com/documentation/web-api/reference
+        /check-if-user-follows-playlist>`_: Check to see if the current
+        user is following a playlist.
+
+        Parameters
+        ----------
+        playlist_id : str, positional-only
+            Spotify ID of the playlist.
+
+            **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
+
+        Returns
+        -------
+        is_following_playlist : bool
+            Following status for the playlist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  True
+        """
+        return self._client._request(
+            "get", f"playlists/{playlist_id}/followers/contains"
+        ).json()[0]

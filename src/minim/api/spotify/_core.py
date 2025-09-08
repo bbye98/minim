@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import warnings
 
 from .._shared import OAuth2API
-from ._web_api.users import UserEndpoints
+from ._web_api.users import WebAPIUserEndpoints
 
 if TYPE_CHECKING:
     import httpx
@@ -66,7 +66,7 @@ class WebAPI(OAuth2API):
         """
         Parameters
         ----------
-        flow : `str`, keyword-only
+        flow : str, keyword-only
             Authorization flow.
 
             .. container::
@@ -79,25 +79,25 @@ class WebAPI(OAuth2API):
                * :code:`"client_credentials"` — Client Credentials Flow.
                * :code:`"implicit"` — Implicit Grant Flow.
 
-        client_id : `str`, keyword-only, optional
+        client_id : str, keyword-only, optional
             Client ID. Must be provided unless it is set as system
             environment variable :code:`SPOTIFY_WEB_API_CLIENT_ID` or
             stored in Minim's local token storage.
 
-        client_secret : `str`, keyword-only, optional
+        client_secret : str, keyword-only, optional
             Client secret. Required for the Authorization Code, Client
             Credentials, and Resource Owner Password Credential flows.
             Must be provided unless it is set as system environment
             variable :code:`SPOTIFY_WEB_API_CLIENT_SECRET` or stored in
             Minim's local token storage.
 
-        redirect_uri : `str`, keyword-only, optional
+        redirect_uri : str, keyword-only, optional
             Redirect URI. Required for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             the host is not :code:`127.0.0.1` or :code:`localhost`,
             redirect handling is not available.
 
-        scopes : `str` or `Collection[str]`, keyword-only, optional
+        scopes : str or `Collection[str]`, keyword-only, optional
             Authorization scopes the client requests to access user
             resources.
 
@@ -106,27 +106,27 @@ class WebAPI(OAuth2API):
                :meth:`get_scopes` — Get a set of scopes to request,
                filtered by categories, patterns, and/or substrings.
 
-        access_token : `str`, keyword-only, optional
+        access_token : str, keyword-only, optional
             Access token. If provided or found in Minim's local token
             storage, the authorization process is bypassed. If provided,
             all other relevant keyword arguments should also be
             specified to enable automatic token refresh upon expiration.
 
-        token_type : `str`, keyword-only, default: :code:`"Bearer"`
+        token_type : str, keyword-only, default: :code:`"Bearer"`
             Type of the access token.
 
-        refresh_token : `str`, keyword-only, optional
+        refresh_token : str, keyword-only, optional
             Refresh token accompanying the access token in
             `access_token`. If not provided, the user will be
             reauthorized via the authorization flow in `flow` when the
             access token expires.
 
-        expiry : `datetime.datetime` or `str`, keyword-only, optional
+        expiry : str or datetime.datetime, keyword-only, optional
             Expiry of the access token in `access_token`. If provided as
             a `str`, it must be in ISO 8601 format
             (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
-        backend : `str`, keyword-only, optional
+        backend : str, keyword-only, optional
             Backend to handle redirects during the authorization flow.
 
             .. container::
@@ -138,20 +138,20 @@ class WebAPI(OAuth2API):
                * :code:`"http.server"` — Simple HTTP server.
                * :code:`"playwright"` — Playwright Firefox browser.
 
-        browser : `bool`, keyword-only, default: :code:`False`
+        browser : bool, keyword-only, default: :code:`False`
             Specifies whether to automatically open the authorization
             URL in the default web browser for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             :code:`False`, the authorization URL is printed to the
             terminal.
 
-        persist : `bool`, keyword-only, default: :code:`True`
+        persist : bool, keyword-only, default: :code:`True`
             Specifies whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
             client will not retrieve or store access tokens.
 
-        user_identifier : `str`, keyword-only, optional
+        user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all
             authorization flows but the Client Credentials flow. Used
             when :code:`persist=True` to distinguish between multiple
@@ -173,7 +173,8 @@ class WebAPI(OAuth2API):
             ID and authorization flow.
         """
         # Initialize subclasses for categorized endpoints
-        self.users = UserEndpoints(self)
+        #: Spotify Web API user endpoints.
+        self.users: WebAPIUserEndpoints = WebAPIUserEndpoints(self)
 
         if flow == "client_credentials" and scopes:
             warnings.warn(
@@ -208,7 +209,7 @@ class WebAPI(OAuth2API):
 
         Parameters
         ----------
-        matches : `str`, or `Collection[str]`, optional
+        matches : str, or `Collection[str]`, optional
             Categories and/or substrings to filter scopes by.
 
             .. container::
@@ -262,7 +263,7 @@ class WebAPI(OAuth2API):
 
         Returns
         -------
-        scopes : `set[str]`
+        scopes : set[str]
             Authorization scopes.
         """
         # Return all scopes if no matches are provided
@@ -294,19 +295,19 @@ class WebAPI(OAuth2API):
 
         Parameters
         ----------
-        method : `str`
+        method : str
             HTTP method.
 
-        endpoint : `str`
+        endpoint : str
             Spotify Web API endpoint.
 
-        **kwargs : `dict[str, Any]`
+        **kwargs : dict[str, Any]
             Additional arguments to pass to
             :meth:`httpx.Client.request`.
 
         Returns
         -------
-        response : `httpx.Response`
+        response : httpx.Response
             HTTP response.
         """
         if self._expiry and datetime.now() > self._expiry:
@@ -331,4 +332,4 @@ class WebAPI(OAuth2API):
         Assign the Spotify user ID as the user identifier for the
         current account.
         """
-        self._user_identifier = self.users.get_me()["id"]
+        self._user_identifier = self.users.get_profile()["id"]
