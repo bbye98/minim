@@ -1,0 +1,24 @@
+name: minim
+channels:
+  - conda-forge
+  - microsoft
+dependencies:
+  # CORE DEPENDENCIES
+  - httpx
+  - pyyaml
+  # OPTIONAL DEPENDENCIES
+  - ffmpeg
+  - pytest-playwright
+  # DEVELOPMENT DEPENDENCIES
+  - pytest-cov
+  - ruff
+  # DOCUMENTATION DEPENDENCIES
+  - furo
+  - ipywidgets
+  - jupyterlab
+  - myst-nb
+  - numpydoc
+  - sphinx
+  - sphinx-copybutton
+  - sphinx-inline-tabs
+  - sphinx-togglebutton
