@@ -4,7 +4,7 @@ python:
     - method: pip
       path: .
 conda:
-  environment: environment.yml
+  environment: environment.yaml
 build:
   os: ubuntu-lts-latest
   tools:
