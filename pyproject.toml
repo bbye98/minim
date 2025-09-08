@@ -36,7 +36,8 @@ docs = [
   "numpydoc",
   "sphinx",
   "sphinx-copybutton",
-  "sphinx-togglebutton",
+  "sphinx-inline-tabs",
+  "sphinx-togglebutton"
 ]
 
 [project.urls]

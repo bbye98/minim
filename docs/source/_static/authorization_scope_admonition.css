@@ -1,0 +1,18 @@
+:root {
+    --icon--authorization-scope: url('../../../assets/icons/lock.svg');
+}
+
+.admonition.authorization-scope {
+    border-color: rgb(252, 112, 144);
+}
+
+.admonition.authorization-scope>.admonition-title {
+    background-color: rgba(252, 112, 144, 0.1);
+    border-color: rgb(252, 112, 144);
+}
+
+.admonition.authorization-scope>.admonition-title::before {
+    background-color: rgb(252, 112, 144);
+    -webkit-mask-image: var(--icon--authorization-scope);
+    mask-image: var(--icon--authorization-scope);
+}

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" overflow="hidden" viewBox="0 0 660 495">
+  <defs>
+    <linearGradient id="a" x1="298" x2="760" y1="1567.5" y2="1567.5" gradientUnits="userSpaceOnUse" spreadMethod="reflect">
+      <stop offset="0" stop-color="#f0f"/>
+      <stop offset=".02" stop-color="#FE01FF"/>
+      <stop offset=".04" stop-color="#FE03FF"/>
+      <stop offset=".06" stop-color="#FE05FF"/>
+      <stop offset=".08" stop-color="#FE07FF"/>
+      <stop offset=".1" stop-color="#FE08FF"/>
+      <stop offset=".12" stop-color="#FE0AFF"/>
+      <stop offset=".14" stop-color="#FD0CFF"/>
+      <stop offset=".16" stop-color="#FD0DFF"/>
+      <stop offset=".18" stop-color="#FC0FFF"/>
+      <stop offset=".2" stop-color="#FC11FF"/>
+      <stop offset=".22" stop-color="#FC12FF"/>
+      <stop offset=".24" stop-color="#FB14FF"/>
+      <stop offset=".26" stop-color="#FA15FF"/>
+      <stop offset=".28" stop-color="#FA16FF"/>
+      <stop offset=".3" stop-color="#F918FF"/>
+      <stop offset=".32" stop-color="#F819FF"/>
+      <stop offset=".34" stop-color="#F81BFF"/>
+      <stop offset=".36" stop-color="#F71CFF"/>
+      <stop offset=".38" stop-color="#F61DFF"/>
+      <stop offset=".4" stop-color="#F51EFF"/>
+      <stop offset=".42" stop-color="#F41FFF"/>
+      <stop offset=".44" stop-color="#F421FF"/>
+      <stop offset=".46" stop-color="#F322FF"/>
+      <stop offset=".48" stop-color="#F223FF"/>
+      <stop offset=".5" stop-color="#F124FF"/>
+      <stop offset=".52" stop-color="#F025FF"/>
+      <stop offset=".54" stop-color="#EE26FF"/>
+      <stop offset=".56" stop-color="#ED27FF"/>
+      <stop offset=".58" stop-color="#EC28FF"/>
+      <stop offset=".6" stop-color="#EB29FF"/>
+      <stop offset=".62" stop-color="#EA29FF"/>
+      <stop offset=".64" stop-color="#E82AFF"/>
+      <stop offset=".66" stop-color="#E72BFF"/>
+      <stop offset=".68" stop-color="#E62CFF"/>
+      <stop offset=".7" stop-color="#E42CFF"/>
+      <stop offset=".72" stop-color="#E32DFF"/>
+      <stop offset=".74" stop-color="#E22EFF"/>
+      <stop offset=".76" stop-color="#E02EFF"/>
+      <stop offset=".78" stop-color="#DE2FFF"/>
+      <stop offset=".8" stop-color="#DD2FFF"/>
+      <stop offset=".82" stop-color="#DB2FFF"/>
+      <stop offset=".84" stop-color="#DA30FF"/>
+      <stop offset=".86" stop-color="#D830FF"/>
+      <stop offset=".88" stop-color="#D631FF"/>
+      <stop offset=".9" stop-color="#D531FF"/>
+      <stop offset=".92" stop-color="#D331FF"/>
+      <stop offset=".94" stop-color="#D131FF"/>
+      <stop offset=".96" stop-color="#CF31FF"/>
+      <stop offset=".98" stop-color="#CD31FF"/>
+      <stop offset="1" stop-color="#CC32FF"/>
+    </linearGradient>
+    <clipPath id="b">
+      <path d="M198 1320h660v495H198z"/>
+    </clipPath>
+  </defs>
+  <g fill="url(#a)" fill-rule="evenodd" clip-path="url(#b)" transform="translate(-198 -1320)">
+    <path d="M298 1353c0-18.23 14.775-33 33-33s33 14.77 33 33l-.001 429c0 18.23-14.774 33-33 33H331c-18.225 0-33-14.77-33-33zm98 165c0-18.23 14.775-33 33-33s33 14.77 33 33v99c0 18.23-14.775 33-33 33s-33-14.77-33-33zm99-82c0-18.23 14.775-33 33-33s33 14.77 33 33v264c0 18.23-14.775 33-33 33s-33-14.77-33-33zm99 82c0-18.23 14.775-33 33-33s33 14.77 33 33v99c0 18.23-14.775 33-33 33s-33-14.77-33-33zm100-165c0-18.23 14.775-33 33-33s33 14.77 33 33v429c0 18.23-14.775 33-33 33s-33-14.77-33-33z"/>
+  </g>
+</svg>

@@ -9,4 +9,4 @@ audio files, such as updating metadata and converting between audio formats.
    :hidden:
 
    Home <self>
-   API Reference <api_reference/minim>
+   API Reference <api>
