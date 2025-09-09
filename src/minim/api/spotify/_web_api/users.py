@@ -19,7 +19,7 @@ class WebAPIUserEndpoints:
         Parameters
         ----------
         client : minim.api.spotify.WebAPI
-            OAuth 2.0 API client.
+            Minim's Spotify Web API client.
         """
         self._client = client
 
@@ -28,7 +28,7 @@ class WebAPIUserEndpoints:
         `Users > Get Current User's Profile
         <https://developer.spotify.com/documentation/web-api/reference
         /get-current-users-profile>`_: Get detailed profile information
-        about the current user (including the current user's username);
+        about the current user (including username)․
         `Users > Get User's Profile <https://developer.spotify.com
         /documentation/web-api/reference/get-users-profile>`_: Get
         public profile information about a Spotify user.
@@ -82,8 +82,8 @@ class WebAPIUserEndpoints:
                        "id": <str>,
                        "images": [
                          {
-                           "url": <str>,
                            "height": <int>,
+                           "url": <str>,
                            "width": <int>
                          }
                        ],
@@ -109,8 +109,8 @@ class WebAPIUserEndpoints:
                        "id": <str>,
                        "images": [
                          {
-                           "url": <str>,
                            "height": <int>,
+                           "url": <str>,
                            "width": <int>
                          }
                        ],
@@ -119,7 +119,7 @@ class WebAPIUserEndpoints:
                      }
         """
         return self._client._request(
-            "get", f"users/{user_id}" if user_id else "me"
+            "GET", f"users/{user_id}" if user_id else "me"
         ).json()
 
     def get_top_items(
@@ -150,7 +150,7 @@ class WebAPIUserEndpoints:
         item_type : str, positional-only
             Type of entity to return.
 
-            **Valid values**: :code:`"artists"` or :code:`"tracks"`.
+            **Valid values**: :code:`"artists"`, :code:`"tracks"`.
 
         time_range : str, keyword-only, optional
             Time frame over which the affinities are computed.
@@ -195,11 +195,6 @@ class WebAPIUserEndpoints:
 
                      {
                        "href": <str>,
-                       "limit": <int>,
-                       "next": <str>,
-                       "offset": <int>,
-                       "previous": <str>,
-                       "total": <int>,
                        "items": [
                          {
                            "external_urls": {
@@ -214,8 +209,8 @@ class WebAPIUserEndpoints:
                            "id": <str>,
                            "images": [
                              {
-                               "url": <str>,
                                "height": <int>,
+                               "url": <str>,
                                "width": <int>
                              }
                            ],
@@ -224,7 +219,12 @@ class WebAPIUserEndpoints:
                            "type": "artist",
                            "uri": <str>
                          }
-                       ]
+                       ],
+                       "limit": <int>,
+                       "next": <str>,
+                       "offset": <int>,
+                       "previous": <str>,
+                       "total": <int>
                      }
 
                .. tab:: Tracks
@@ -232,6 +232,7 @@ class WebAPIUserEndpoints:
                   .. code::
 
                      {
+                       "href": <str>,
                        "items": [
                          {
                            "album": {
@@ -256,8 +257,8 @@ class WebAPIUserEndpoints:
                              "id": <str>,
                              "images": [
                                {
-                                 "url": <str>,
                                  "height": <int>,
+                                 "url": <str>,
                                  "width": <int>
                                }
                              ],
@@ -303,17 +304,16 @@ class WebAPIUserEndpoints:
                            "uri": <str>
                          }
                        ],
-                       "total": <int>,
                        "limit": <int>,
-                       "offset": <int>,
-                       "href": <str>,
                        "next": <str>,
-                       "previous": <str>
+                       "offset": <int>,
+                       "previous": <str>,
+                       "total": <int>
                      }
         """
         self._client._require_scopes("get_top_items", "user-top-read")
         return self._client._request(
-            "get",
+            "GET",
             f"me/top/{item_type}",
             params={"time_range": time_range, "limit": limit, "offset": offset},
         ).json()
@@ -351,7 +351,7 @@ class WebAPIUserEndpoints:
             "follow_playlist",
             f"playlist-modify-{'public' if public else 'private'}",
         )
-        self._client._request("put", f"playlists/{playlist_id}/followers")
+        self._client._request("PUT", f"playlists/{playlist_id}/followers")
 
     def unfollow_playlist(self, playlist_id: str, /) -> None:
         """
@@ -378,7 +378,7 @@ class WebAPIUserEndpoints:
             "unfollow_playlist",
             {"playlist-modify-public", "playlist-modify-private"},
         )
-        self._client._request("delete", f"playlists/{playlist_id}/followers")
+        self._client._request("DELETE", f"playlists/{playlist_id}/followers")
 
     def get_followed_artists(
         self,
@@ -402,7 +402,8 @@ class WebAPIUserEndpoints:
         Parameters
         ----------
         after : str, keyword-only, optional
-            Last artist ID retrieved from the previous request.
+            Spotify ID of the last artist retrieved in the previous
+            request.
 
             **Example**: :code:`"0I2XqVXqHScXjHhk6AYYRe"`.
 
@@ -426,14 +427,11 @@ class WebAPIUserEndpoints:
 
                   {
                     "artists": {
-                      "href": <str>,
-                      "limit": <int>,
-                      "next": <str>,
                       "cursors": {
                         "after": <str>,
                         "before": <str>
                       },
-                      "total": <int>,
+                      "href": <str>,
                       "items": [
                         {
                           "external_urls": {
@@ -458,13 +456,16 @@ class WebAPIUserEndpoints:
                           "type": "artist",
                           "uri": <str>
                         }
-                      ]
+                      ],
+                      "limit": <int>,
+                      "next": <str>,
+                      "total": <int>
                     }
                   }
         """
         self._client._require_scopes("get_followed_artists", "user-follow-read")
         return self._client._request(
-            "get",
+            "GET",
             "me/following",
             params={"type": "artist", "after": after, "limit": limit},
         ).json()
@@ -489,14 +490,14 @@ class WebAPIUserEndpoints:
             (Comma-separated) list of Spotify IDs for the artists. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**:
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`
-            or :code:`["2CIMQHirSU0MQqyYHq0eOx",
+            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx",
             "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
         """
         self._client._require_scopes("follow_artists", "user-follow-modify")
         self._client._request(
-            "put",
+            "PUT",
             "me/following",
             params={
                 "type": "artist",
@@ -526,14 +527,14 @@ class WebAPIUserEndpoints:
             (Comma-separated) list of Spotify user IDs. A maximum of 50
             IDs can be sent in one request.
 
-            **Examples**:
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`
-            or :code:`["2CIMQHirSU0MQqyYHq0eOx",
+            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx",
             "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
         """
         self._client._require_scopes("follow_users", "user-follow-modify")
         self._client._request(
-            "put",
+            "PUT",
             "me/following",
             params={
                 "type": "user",
@@ -563,14 +564,14 @@ class WebAPIUserEndpoints:
             (Comma-separated) list of Spotify IDs for the artists. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**:
-            :code:`"2CIMQHirSU0MQqyYHq0eOx, 57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`
-            or :code:`["2CIMQHirSU0MQqyYHq0eOx",
+            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx",
             "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
         """
         self._client._require_scopes("unfollow_artists", "user-follow-modify")
         self._client._request(
-            "delete",
+            "DELETE",
             "me/following",
             params={
                 "type": "artist",
@@ -600,14 +601,14 @@ class WebAPIUserEndpoints:
             (Comma-separated) list of Spotify user IDs. A maximum of 50
             IDs can be sent in one request.
 
-            **Examples**:
-            :code:`"2CIMQHirSU0MQqyYHq0eOx, 57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`
-            or :code:`["2CIMQHirSU0MQqyYHq0eOx",
+            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx",
             "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
         """
         self._client._require_scopes("unfollow_users", "user-follow-modify")
         self._client._request(
-            "delete",
+            "DELETE",
             "me/following",
             params={
                 "type": "user",
@@ -623,7 +624,7 @@ class WebAPIUserEndpoints:
         """
         `Users > Check If User Follows Artists
         <https://developer.spotify.com/documentation/web-api/reference
-        /check-current-user-follows>`_: Check to see if the current user
+        /check-current-user-follows>`_: Check whether the current user
         is following one or more artists.
 
         .. admonition:: Authorization scope
@@ -640,9 +641,9 @@ class WebAPIUserEndpoints:
             (Comma-separated) list of Spotify IDs for the artists. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**:
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`
-            or :code:`["2CIMQHirSU0MQqyYHq0eOx",
+            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx",
             "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
 
         Returns
@@ -659,7 +660,7 @@ class WebAPIUserEndpoints:
         """
         self._client._require_scopes("is_following_artists", "user-follow-read")
         return self._client._request(
-            "get",
+            "GET",
             "me/following/contains",
             params={
                 "type": "artist",
@@ -673,7 +674,7 @@ class WebAPIUserEndpoints:
         """
         `Users > Check If User Follows Users
         <https://developer.spotify.com/documentation/web-api/reference
-        /check-current-user-follows>`_: Check to see if the current user
+        /check-current-user-follows>`_: Check whether the current user
         is following one or more Spotify users.
 
         .. admonition:: Authorization scope
@@ -690,9 +691,9 @@ class WebAPIUserEndpoints:
             (Comma-separated) list of Spotify user IDs. A maximum of 50
             IDs can be sent in one request.
 
-            **Examples**:
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`
-            or :code:`["2CIMQHirSU0MQqyYHq0eOx",
+            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx",
             "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
 
         Returns
@@ -709,7 +710,7 @@ class WebAPIUserEndpoints:
         """
         self._client._require_scopes("is_following_users", "user-follow-read")
         return self._client._request(
-            "get",
+            "GET",
             "me/following/contains",
             params={
                 "type": "user",
@@ -723,7 +724,7 @@ class WebAPIUserEndpoints:
         """
         `Users > Check if Current User Follows Playlist
         <https://developer.spotify.com/documentation/web-api/reference
-        /check-if-user-follows-playlist>`_: Check to see if the current
+        /check-if-user-follows-playlist>`_: Check whether the current
         user is following a playlist.
 
         Parameters
@@ -746,5 +747,5 @@ class WebAPIUserEndpoints:
                   True
         """
         return self._client._request(
-            "get", f"playlists/{playlist_id}/followers/contains"
+            "GET", f"playlists/{playlist_id}/followers/contains"
         ).json()[0]
