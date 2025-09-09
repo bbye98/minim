@@ -252,13 +252,13 @@ class OAuth2API(ABC):
             and (accounts := config.get(self._API_NAME))
             and (account := accounts.get(self._account_identifier))
         ):
-            access_token = account.get("access_token")
-
-            # If a stored access token is found, assume all other
-            # pertinent information was written correctly by Minim and
-            # is also available
-            if access_token:
-                client_id = account.get("client_id")
+            # If a stored access token is found and the client ID
+            # matches, assume all other pertinent information was
+            # written correctly by Minim and is also available
+            if (
+                _access_token := account.get("access_token")
+            ) and client_id == account.get("client_id"):
+                access_token = _access_token
                 client_secret = account.get("client_secret")
                 scopes = account.get("scopes", set())
                 redirect_uri = account.get("redirect_uri")
@@ -274,6 +274,7 @@ class OAuth2API(ABC):
             scopes=scopes,
             backend=backend,
             browser=browser,
+            authorize=False,
             persist=persist,
             user_identifier="__init__",
         )
@@ -290,7 +291,7 @@ class OAuth2API(ABC):
     @property
     def _API_NAME(self) -> str:
         """
-        Fully qualified name of the API client class.
+        Fully qualified name of this API client class.
         """
         return f"{(cls := self.__class__).__module__}.{cls.__qualname__}"
 
@@ -314,6 +315,156 @@ class OAuth2API(ABC):
             Authorization scopes.
         """
         ...
+
+    @classmethod
+    def clear_token_storage(cls) -> None:
+        """
+        Clear all stored access tokens and related information for
+        this API client from Minim's local token storage.
+        """
+        if (api_name := f"{cls.__module__}.{cls.__qualname__}") in config:
+            del config[api_name]
+            with CONFIG_FILE.open("w") as f:
+                yaml.safe_dump(config, f)
+
+    @classmethod
+    def remove_account_token(
+        cls, flow: str, client_id: str, user_identifier: str | None = None
+    ) -> None:
+        """
+        Remove a stored access token and related information for a
+        specific account from this API client's local token storage.
+
+        Parameters
+        ----------
+        flow : str
+            Authorization flow.
+
+        client_id : str
+            Client ID.
+
+        user_identifier : str, optional
+            Unique identifier for the user account to log into for all
+            authorization flows but the Client Credentials flow. If not
+            provided, the last accessed account for the specified
+            authorization flow in `flow` and client ID in `client_id` is
+            removed.
+        """
+        changed = False
+        if (api_name := f"{cls.__module__}.{cls.__qualname__}") in config:
+            accounts = config[api_name]
+            last_flow_str = f"last_{flow}"
+            if user_identifier or flow == "client_credentials":
+                if (
+                    account_identifier := cls._generate_account_identifier(
+                        flow, client_id, user_identifier
+                    )
+                ) in accounts:
+                    # Reassign or delete last accessed account for this
+                    # flow if it is the one being removed
+                    if id(accounts[account_identifier]) == id(
+                        accounts[last_flow_str]
+                    ):
+                        flow_accounts = [
+                            (acct_ident, acct_info["added"])
+                            for acct_ident, acct_info in accounts.items()
+                            if acct_info["flow"] == flow
+                        ]
+                        flow_accounts.sort(key=lambda a: a[1], reverse=True)
+                        if flow_accounts:
+                            accounts[last_flow_str] = next(
+                                acct_ident
+                                for acct_ident, _ in flow_accounts
+                                if acct_ident != account_identifier
+                            )
+                        else:
+                            del accounts[last_flow_str]
+
+                    del accounts[account_identifier]
+                    changed = True
+            else:
+                # Reassign or delete last accessed account for this flow
+                # if it has the same client ID
+                if accounts[last_flow_str]["client_id"] == client_id:
+                    acct_added_next = ""
+                    acct_id_last = id(accounts[last_flow_str])
+                    acct_ident_delete = acct_ident_next = None
+                    for acct_ident, acct_info in accounts.items():
+                        if acct_ident.startswith("l"):
+                            continue
+                        if id(acct_info) == acct_id_last:
+                            acct_ident_delete = acct_ident
+                        elif (
+                            acct_info["flow"] == flow
+                            and (acct_added := acct_info["added"])
+                            > acct_added_next
+                        ):
+                            acct_added_next = acct_added
+                            acct_ident_next = acct_ident
+                    if acct_ident_next:
+                        accounts[last_flow_str] = acct_ident_next
+                    else:
+                        del accounts[last_flow_str]
+                    del accounts[acct_ident_delete]
+                    changed = True
+
+                # Find and delete the last accessed account for this
+                # flow and client ID, if it exists
+                else:
+                    acct_added_last = ""
+                    acct_ident_last = None
+                    for acct_ident, acct_info in accounts.items():
+                        if acct_ident.startswith("l"):
+                            continue
+                        if (
+                            acct_info["client_id"] == client_id
+                            and (acct_info["flow"] == flow)
+                            and (acct_added := acct_info["added"])
+                            > acct_added_last
+                        ):
+                            acct_added_last = acct_added
+                            acct_ident_last = acct_ident
+
+                    if acct_ident_last:
+                        del accounts[acct_ident_last]
+                        changed = True
+
+        if changed:
+            with CONFIG_FILE.open("w") as f:
+                yaml.safe_dump(config, f)
+
+    @staticmethod
+    def _generate_account_identifier(
+        flow: str, client_id: str, user_identifier: str | None = None
+    ) -> str | None:
+        """
+        Generate a unique account identifier using a SHA-256 hash of the
+        client ID, authorization flow, and user identifier.
+
+        Parameters
+        ----------
+        flow : str, optional
+            Authorization flow.
+
+        client_id : str, optional
+            Client ID.
+
+        user_identifier : str, optional
+            Unique identifier for the user account to log into for all
+            authorization flows but the Client Credentials flow.
+
+        Returns
+        -------
+        account_identifier : str
+            Account identifier.
+        """
+        if flow == "client_credentials":
+            return hashlib.sha256(f"{client_id}:{flow}".encode()).hexdigest()
+        if user_identifier:
+            return hashlib.sha256(
+                f"{client_id}:{flow}:{user_identifier}".encode()
+            ).hexdigest()
+        return f"last_{flow}"
 
     def close(self) -> None:
         """
@@ -339,16 +490,17 @@ class OAuth2API(ABC):
            provided arguments. Parameters not specified explicitly will
            be overwritten by their default values.
 
-        .. important::
-
-           If the access token was acquired via a different
-           authorization flow or client, call :meth:`set_flow` first to
-           ensure that all other relevant parameters are set correctly.
-
         Parameters
         ----------
         access_token : str, positional-only
             Access token.
+
+            .. important::
+
+               If the access token was acquired via a different
+               authorization flow or client, call :meth:`set_flow` first
+               to ensure that all other relevant authorization
+               parameters are set correctly.
 
         token_type : str, default: :code:`"Bearer"`
             Type of the access token.
@@ -388,11 +540,12 @@ class OAuth2API(ABC):
         scopes: str | Collection[str] = "",
         backend: str | None = None,
         browser: bool = False,
+        authorize: bool = True,
         persist: bool = True,
         user_identifier: str | None = None,
     ) -> None:
         """
-        Set or update the authorization flow and related parameters.
+        Set or update the authorization flow and related information.
 
         .. caution::
 
@@ -458,6 +611,17 @@ class OAuth2API(ABC):
             Authorization Code with PKCE, and Implicit Grant flows. If
             :code:`False`, the authorization URL is printed to the
             terminal.
+
+        authorize : bool, keyword-only, default: :code:`True`
+            Specifies whether to immediately initiate the authorization
+            flow to acquire an access token.
+
+            .. important::
+
+               Unless :meth:`set_access_token` is immediately called
+               afterwards, this should be left as :code:`True` to ensure
+               that the client's existing access token is compatible
+               with the new authorization flow and/or scopes.
 
         persist : bool, keyword-only, default: :code:`True`
             Specifies whether to enable Minim's local token storage for
@@ -536,6 +700,9 @@ class OAuth2API(ABC):
         self._browser = browser
         self._persist = persist
 
+        if authorize:
+            self._obtain_access_token()
+
     def _get_authorization_code(self, code_challenge: str | None = None) -> str:
         """
         Get the authorization code for the Authorization Code and
@@ -587,7 +754,7 @@ class OAuth2API(ABC):
             Part of the redirect URL to extract the authorization
             response from.
 
-            **Valid values**: :code:`"query"` or :code:`"fragment"`.
+            **Valid values**: :code:`"query"`, :code:`"fragment"`.
 
         Returns
         -------
@@ -784,6 +951,7 @@ class OAuth2API(ABC):
             accounts[self._account_identifier] = accounts[
                 f"last_{self._flow}"
             ] = {
+                "added": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "flow": self._flow,
                 "client_id": self._client_id,
                 "client_secret": self._client_secret or "",
@@ -865,21 +1033,14 @@ class OAuth2API(ABC):
         if not user_identifier:
             user_identifier = getattr(self, "_user_identifier", None)
 
-        if flow == "client_credentials":
-            self._account_identifier = hashlib.sha256(
-                f"{client_id}:{flow}".encode()
-            ).hexdigest()
-        elif user_identifier:
-            if user_identifier.startswith("+"):
-                user_identifier = user_identifier[1:]
-                self._account_identifier = None
-            else:
-                self._account_identifier = hashlib.sha256(
-                    f"{client_id}:{flow}:{user_identifier}".encode()
-                ).hexdigest()
+        if user_identifier and user_identifier.startswith("+"):
+            self._account_identifier = None
+            self._user_identifier = user_identifier[1:]
         else:
-            self._account_identifier = f"last_{flow}"
-        self._user_identifier = user_identifier
+            self._account_identifier = self._generate_account_identifier(
+                flow, client_id, user_identifier
+            )
+            self._user_identifier = user_identifier
 
     @abstractmethod
     def _request(self, method: str, endpoint: str, **kwargs) -> httpx.Response:
