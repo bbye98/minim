@@ -6,6 +6,7 @@ import warnings
 
 from .._shared import OAuth2API
 from ._web_api.albums import WebAPIAlbumEndpoints
+from ._web_api.artists import WebAPIArtistEndpoints
 from ._web_api.users import WebAPIUserEndpoints
 
 if TYPE_CHECKING:
@@ -176,6 +177,8 @@ class WebAPI(OAuth2API):
         # Initialize subclasses for categorized endpoints
         #: Spotify Web API album endpoints.
         self.albums: WebAPIAlbumEndpoints = WebAPIAlbumEndpoints(self)
+        #: Spotify Web API artist endpoints.
+        self.artists: WebAPIArtistEndpoints = WebAPIArtistEndpoints(self)
         #: Spotify Web API user endpoints.
         self.users: WebAPIUserEndpoints = WebAPIUserEndpoints(self)
 

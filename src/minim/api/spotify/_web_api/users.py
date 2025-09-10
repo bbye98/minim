@@ -122,20 +122,18 @@ class WebAPIUserEndpoints:
             "GET", f"users/{user_id}" if user_id else "me"
         ).json()
 
-    def get_top_items(
+    def get_top_artists(
         self,
-        item_type: str,
-        /,
         *,
         time_range: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        `Users > Get User's Top Items
+        `Users > Get User's Top Artists
         <https://developer.spotify.com/documentation/web-api/reference
         /get-users-top-artists-and-tracks>`_: Get the current user's top
-        artists or tracks based on calculated affinity.
+        artists based on calculated affinity.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -147,11 +145,6 @@ class WebAPIUserEndpoints:
 
         Parameters
         ----------
-        item_type : str, positional-only
-            Type of entity to return.
-
-            **Valid values**: :code:`"artists"`, :code:`"tracks"`.
-
         time_range : str, keyword-only, optional
             Time frame over which the affinities are computed.
 
@@ -183,139 +176,247 @@ class WebAPIUserEndpoints:
 
         Returns
         -------
-        top_items : dict[str, Any]
-            Spotify content metadata for the current user's top artists
-            or tracks.
+        top_artists : dict[str, Any]
+            Spotify content metadata for the current user's top artists.
 
             .. admonition:: Sample response
                :class: dropdown
 
-               .. tab:: Artists
+               .. code::
 
-                  .. code::
-
-                     {
-                       "href": <str>,
-                       "items": [
-                         {
-                           "external_urls": {
-                             "spotify": <str>
-                           },
-                           "followers": {
-                             "href": <str>,
-                             "total": <int>
-                           },
-                           "genres": <list[str]>,
-                           "href": <str>,
-                           "id": <str>,
-                           "images": [
-                             {
-                               "height": <int>,
-                               "url": <str>,
-                               "width": <int>
-                             }
-                           ],
-                           "name": <str>,
-                           "popularity": <int>,
-                           "type": "artist",
-                           "uri": <str>
-                         }
-                       ],
-                       "limit": <int>,
-                       "next": <str>,
-                       "offset": <int>,
-                       "previous": <str>,
-                       "total": <int>
-                     }
-
-               .. tab:: Tracks
-
-                  .. code::
-
-                     {
-                       "href": <str>,
-                       "items": [
-                         {
-                           "album": {
-                             "album_type": <str>,
-                             "artists": [
-                               {
-                                 "external_urls": {
-                                   "spotify": <str>
-                                 },
-                                 "href": <str>,
-                                 "id": <str>,
-                                 "name": <str>,
-                                 "type": "artist",
-                                 "uri": <str>
-                               }
-                             ],
-                             "available_markets": <list[str]>,
-                             "external_urls": {
-                               "spotify": <str>
-                             },
-                             "href": <str>,
-                             "id": <str>,
-                             "images": [
-                               {
-                                 "height": <int>,
-                                 "url": <str>,
-                                 "width": <int>
-                               }
-                             ],
-                             "is_playable": <bool>,
-                             "name": <str>,
-                             "release_date": <str>,
-                             "release_date_precision": <str>,
-                             "total_tracks": <int>,
-                             "type": "album",
-                             "uri": <str>
-                           },
-                           "artists": [
-                             {
-                               "external_urls": {
-                                 "spotify": <str>
-                               },
-                               "href": <str>,
-                               "id": <str>,
-                               "name": <str>,
-                               "type": "artist",
-                               "uri": <str></str>
-                             }
-                           ],
-                           "available_markets": <list[str]>,
-                           "disc_number": <int>,
-                           "duration_ms": <int>,
-                           "explicit": <bool>,
-                           "external_ids": {
-                             "isrc": <str>
-                           },
-                           "external_urls": {
-                             "spotify": <str>
-                           },
-                           "href": <str>,
-                           "id": <str>,
-                           "is_local": <bool>,
-                           "is_playable": <bool>,
-                           "name": <str>,
-                           "popularity": <int>,
-                           "preview_url": <str>,
-                           "track_number": <int>,
-                           "type": "track",
-                           "uri": <str>
-                         }
-                       ],
-                       "limit": <int>,
-                       "next": <str>,
-                       "offset": <int>,
-                       "previous": <str>,
-                       "total": <int>
-                     }
+                  {
+                    "href": <str>,
+                    "items": [
+                      {
+                        "album": {
+                          "album_type": <str>,
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "available_markets": <list[str]>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "is_playable": <bool>,
+                          "name": <str>,
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
+                          "total_tracks": <int>,
+                          "type": "album",
+                          "uri": <str>
+                        },
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str></str>
+                          }
+                        ],
+                        "available_markets": <list[str]>,
+                        "disc_number": <int>,
+                        "duration_ms": <int>,
+                        "explicit": <bool>,
+                        "external_ids": {
+                          "isrc": <str>
+                        },
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "is_local": <bool>,
+                        "is_playable": <bool>,
+                        "name": <str>,
+                        "popularity": <int>,
+                        "preview_url": <str>,
+                        "track_number": <int>,
+                        "type": "track",
+                        "uri": <str>
+                      }
+                    ],
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>
+                  }
         """
-        self._client._require_scopes("get_top_items", "user-top-read")
+        self._client._require_scopes("get_top_artists", "user-top-read")
         return self._client._request(
             "GET",
-            f"me/top/{item_type}",
+            "me/top/artists",
+            params={"time_range": time_range, "limit": limit, "offset": offset},
+        ).json()
+
+    def get_top_tracks(
+        self,
+        *,
+        time_range: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Users > Get User's Top Tracks
+        <https://developer.spotify.com/documentation/web-api/reference
+        /get-users-top-artists-and-tracks>`_: Get the current user's top
+        tracks based on calculated affinity.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-top-read`
+                 Read your top artists and contents.
+
+        Parameters
+        ----------
+        time_range : str, keyword-only, optional
+            Time frame over which the affinities are computed.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`"long_term"`: Approximately one year of data,
+                 including all new data as it becomes available.
+               * :code:`"medium_term"`: Approximately the last six
+                 months of data.
+               * :code:`"short_term"`: Approximately the last four weeks
+                 of data.
+
+            **Default**: :code:`"medium_term"`.
+
+        limit : int, keyword-only, optional
+            Maximum number of items to return.
+
+            **Valid values**: :code:`1` to :code:`50`.
+
+            **Default**: :code:`20`.
+
+        offset : int, keyword-only, optional
+            Index of the first item to return. Use with `limit` to get
+            the next set of items.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        top_tracks : dict[str, Any]
+            Spotify content metadata for the current user's top tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "items": [
+                      {
+                        "album": {
+                          "album_type": <str>,
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "available_markets": <list[str]>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "is_playable": <bool>,
+                          "name": <str>,
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
+                          "total_tracks": <int>,
+                          "type": "album",
+                          "uri": <str>
+                        },
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str></str>
+                          }
+                        ],
+                        "available_markets": <list[str]>,
+                        "disc_number": <int>,
+                        "duration_ms": <int>,
+                        "explicit": <bool>,
+                        "external_ids": {
+                          "isrc": <str>
+                        },
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "is_local": <bool>,
+                        "is_playable": <bool>,
+                        "name": <str>,
+                        "popularity": <int>,
+                        "preview_url": <str>,
+                        "track_number": <int>,
+                        "type": "track",
+                        "uri": <str>
+                      }
+                    ],
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>
+                  }
+        """
+        self._client._require_scopes("get_top_tracks", "user-top-read")
+        return self._client._request(
+            "GET",
+            "me/top/tracks",
             params={"time_range": time_range, "limit": limit, "offset": offset},
         ).json()
 
@@ -409,7 +510,7 @@ class WebAPIUserEndpoints:
             **Example**: :code:`"0I2XqVXqHScXjHhk6AYYRe"`.
 
         limit : int, keyword-only, optional
-            Maximum number of items to return.
+            Maximum number of artists to return.
 
             **Valid values**: :code:`1` to :code:`50`.
 

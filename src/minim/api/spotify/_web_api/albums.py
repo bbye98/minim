@@ -64,7 +64,7 @@ class WebAPIAlbumEndpoints:
         albums : dict[str, Any]
             Spotify content metadata for the albums.
 
-            .. admonition:: Sample response
+            .. admonition:: Sample responses
                :class: dropdown
 
                .. tab:: Single album
@@ -289,12 +289,12 @@ class WebAPIAlbumEndpoints:
         """
         if not isinstance(album_ids, str):
             album_ids = ",".join(album_ids)
-        if "," not in album_ids:
+        if "," in album_ids:
             return self._client._request(
-                "GET", f"albums/{album_ids}", params={"market": market}
+                "GET", "albums", params={"ids": album_ids, "market": market}
             ).json()
         return self._client._request(
-            "GET", "albums", params={"ids": album_ids, "market": market}
+            "GET", f"albums/{album_ids}", params={"market": market}
         ).json()
 
     def get_album_tracks(
@@ -333,15 +333,15 @@ class WebAPIAlbumEndpoints:
             **Example**: :code:`"ES"`.
 
         limit : int, keyword-only, optional
-            Maximum number of items to return.
+            Maximum number of tracks to return.
 
             **Valid values**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
-            Index of the first item to return. Use with `limit` to get
-            the next set of items.
+            Index of the first track to return. Use with `limit` to get
+            the next set of tracks.
 
             **Default**: :code:`0`.
 
@@ -451,15 +451,15 @@ class WebAPIAlbumEndpoints:
             **Example**: :code:`"ES"`.
 
         limit : int, keyword-only, optional
-            Maximum number of items to return.
+            Maximum number of albums to return.
 
             **Valid values**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
-            Index of the first item to return. Use with `limit` to get
-            the next set of items.
+            Index of the first album to return. Use with `limit` to get
+            the next set of albums.
 
             **Default**: :code:`0`.
 
@@ -665,7 +665,7 @@ class WebAPIAlbumEndpoints:
         """
         `Albums > Check User's Saved Albums
         <https://developer.spotify.com/documentation/web-api/reference
-        /check-users-saved-albums>_`: Check if one or more albums is
+        /check-users-saved-albums>`_: Check if one or more albums is
         already saved in the current user's "Your Music" library.
 
         .. admonition:: Authorization scope
@@ -718,21 +718,21 @@ class WebAPIAlbumEndpoints:
         Parameters
         ----------
         limit : int, keyword-only, optional
-            Maximum number of items to return.
+            Maximum number of albums to return.
 
             **Valid values**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
-            Index of the first item to return. Use with `limit` to get
-            the next set of items.
+            Index of the first album to return. Use with `limit` to get
+            the next set of albums.
 
             **Default**: :code:`0`.
 
         Returns
         -------
-        featured_albums : dict[str, Any]
+        new_releases : dict[str, Any]
             Spotify content metadata for the new album releases.
 
             .. admonition:: Sample response
