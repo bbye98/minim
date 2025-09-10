@@ -219,48 +219,48 @@ class WebAPI(OAuth2API):
 
                **Valid values**:
 
-               * :code:`"images"` for scopes related to custom images,
+               * :code:`"images"` — Scopes related to custom images,
                  such as :code:`ugc-image-upload`.
-               * :code:`"spotify_connect"` for scopes related to Spotify
+               * :code:`"spotify_connect"` — Scopes related to Spotify
                  Connect, such as
 
                  * :code:`user-read-playback-state`,
                  * :code:`user-modify-playback-state`, and
                  * :code:`user-read-currently-playing`.
-               * :code:`"playback"` for scopes related to playback
+               * :code:`"playback"` — Scopes related to playback
                  control, such as :code:`app-remote-control` and
                  :code:`streaming`.
-               * :code:`"playlists"` for scopes related to playlists,
-                 such as
+               * :code:`"playlists"` — Scopes related to playlists, such
+                 as
 
                  * :code:`playlist-read-private`,
                  * :code:`playlist-read-collaborative`,
                  * :code:`playlist-modify-private`, and
                  * :code:`playlist-modify-public`.
-               * :code:`"follow"` for scopes related to followed artists
+               * :code:`"follow"` — Scopes related to followed artists
                  and users, such as :code:`user-follow-modify` and
                  :code:`user-follow-read`.
-               * :code:`"listening_history"` for scopes related to
+               * :code:`"listening_history"` — Scopes related to
                  playback history, such as
 
                  * :code:`user-read-playback-position`,
                  * :code:`user-top-read`, and
                  * :code:`user-read-recently-played`.
-               * :code:`"library"` for scopes related to saved content,
+               * :code:`"library"` — Scopes related to saved content,
                  such as :code:`user-library-modify` and
                  :code:`user-library-read`.
-               * :code:`"users"` for scopes related to user information,
+               * :code:`"users"` — Scopes related to user information,
                  such as :code:`user-read-email` and
                  :code:`user-read-private`.
                * :code:`None` for all scopes above.
-               * A substring to match in the possible scopes, such as
+               * A substring to match in the available scopes.
 
-                 * :code:`"read"` for all scopes above that grant read
-                   access, i.e., scopes with :code:`read` in the name,
-                 * :code:`"modify"` for all scopes above that grant
+                 * :code:`"read"` — All scopes above that grant read
+                   access, i.e., scopes with :code:`read` in the name.
+                 * :code:`"modify"` — All scopes above that grant
                    modify access, i.e., scopes with :code:`modify` in
-                   the name, or
-                 * :code:`"user"` for all scopes above that grant access
+                   the name.
+                 * :code:`"user"` — All scopes above that grant access
                    to all user-related information, i.e., scopes with
                    :code:`user` in the name.
 

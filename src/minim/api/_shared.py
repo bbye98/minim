@@ -288,34 +288,6 @@ class OAuth2API(ABC):
         else:
             self._obtain_access_token()
 
-    @property
-    def _API_NAME(self) -> str:
-        """
-        Fully qualified name of this API client class.
-        """
-        return f"{(cls := self.__class__).__module__}.{cls.__qualname__}"
-
-    @classmethod
-    @abstractmethod
-    def get_scopes(cls, *args, **kwargs) -> set[str]:
-        """
-        Retrieve a set of authorization scopes.
-
-        Parameters
-        ----------
-        *args : tuple[Any]
-            Positional arguments to be defined by subclasses.
-
-        **kwargs : dict[str, Any]
-            Keyword arguments to be defined by subclasses.
-
-        Returns
-        -------
-        scopes : set[str]
-            Authorization scopes.
-        """
-        ...
-
     @classmethod
     def clear_token_storage(cls) -> None:
         """
@@ -465,6 +437,13 @@ class OAuth2API(ABC):
                 f"{client_id}:{flow}:{user_identifier}".encode()
             ).hexdigest()
         return f"last_{flow}"
+
+    @property
+    def _API_NAME(self) -> str:
+        """
+        Fully qualified name of this API client class.
+        """
+        return f"{(cls := self.__class__).__module__}.{cls.__qualname__}"
 
     def close(self) -> None:
         """
@@ -1041,6 +1020,27 @@ class OAuth2API(ABC):
                 flow, client_id, user_identifier
             )
             self._user_identifier = user_identifier
+
+    @classmethod
+    @abstractmethod
+    def get_scopes(cls, *args, **kwargs) -> set[str]:
+        """
+        Retrieve a set of authorization scopes.
+
+        Parameters
+        ----------
+        *args : tuple[Any]
+            Positional arguments to be defined by subclasses.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to be defined by subclasses.
+
+        Returns
+        -------
+        scopes : set[str]
+            Authorization scopes.
+        """
+        ...
 
     @abstractmethod
     def _request(self, method: str, endpoint: str, **kwargs) -> httpx.Response:

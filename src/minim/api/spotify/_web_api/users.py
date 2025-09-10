@@ -169,14 +169,15 @@ class WebAPIUserEndpoints:
             **Default**: :code:`"medium_term"`.
 
         limit : int, keyword-only, optional
-            Maximum number of entities to return.
+            Maximum number of items to return.
 
             **Valid values**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
-            Index of the first entity to return.
+            Index of the first item to return. Use with `limit` to get
+            the next set of items.
 
             **Default**: :code:`0`.
 
@@ -649,7 +650,7 @@ class WebAPIUserEndpoints:
         Returns
         -------
         is_following_artists : list[bool]
-            Following status for each artist.
+            Whether the current user follows each specified artist.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -699,7 +700,7 @@ class WebAPIUserEndpoints:
         Returns
         -------
         is_following_users : list[bool]
-            Following status for each Spotify user.
+            Whether the current user follows each specified user.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -737,7 +738,7 @@ class WebAPIUserEndpoints:
         Returns
         -------
         is_following_playlist : bool
-            Following status for the playlist.
+            Whether the current user follows the specified playlist.
 
             .. admonition:: Sample response
                :class: dropdown
