@@ -284,13 +284,18 @@ class WebAPIUserEndpoints:
         /get-users-top-artists-and-tracks>`_: Get the current user's top
         tracks based on calculated affinity.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scope and third-party application mode
            :class: authorization-scope
 
            .. tab:: Required
 
               :code:`user-top-read`
                  Read your top artists and contents.
+
+           .. tab:: Optional
+
+              Extended quota mode before November 11, 2024
+                  Access 30-second preview URLs.
 
         Parameters
         ----------
@@ -603,9 +608,9 @@ class WebAPIUserEndpoints:
             "me/following",
             params={
                 "type": "artist",
-                "ids": artist_ids
-                if isinstance(artist_ids, str)
-                else ",".join(artist_ids),
+                "ids": self._client._normalize_spotify_ids(
+                    artist_ids, limit=50
+                )[0],
             },
         )
 
@@ -640,9 +645,9 @@ class WebAPIUserEndpoints:
             "me/following",
             params={
                 "type": "user",
-                "ids": user_ids
-                if isinstance(user_ids, str)
-                else ",".join(user_ids),
+                "ids": self._client._normalize_spotify_ids(
+                    user_ids, limit=50, strict_length=False
+                )[0],
             },
         )
 
@@ -677,9 +682,9 @@ class WebAPIUserEndpoints:
             "me/following",
             params={
                 "type": "artist",
-                "ids": artist_ids
-                if isinstance(artist_ids, str)
-                else ",".join(artist_ids),
+                "ids": self._client._normalize_spotify_ids(
+                    artist_ids, limit=50
+                )[0],
             },
         )
 
@@ -714,9 +719,9 @@ class WebAPIUserEndpoints:
             "me/following",
             params={
                 "type": "user",
-                "ids": user_ids
-                if isinstance(user_ids, str)
-                else ",".join(user_ids),
+                "ids": self._client._normalize_spotify_ids(
+                    user_ids, limit=50, strict_length=False
+                )[0],
             },
         )
 
@@ -766,9 +771,9 @@ class WebAPIUserEndpoints:
             "me/following/contains",
             params={
                 "type": "artist",
-                "ids": artist_ids
-                if isinstance(artist_ids, str)
-                else ",".join(artist_ids),
+                "ids": self._client._normalize_spotify_ids(
+                    artist_ids, limit=50
+                )[0],
             },
         ).json()
 
@@ -816,9 +821,9 @@ class WebAPIUserEndpoints:
             "me/following/contains",
             params={
                 "type": "user",
-                "ids": user_ids
-                if isinstance(user_ids, str)
-                else ",".join(user_ids),
+                "ids": self._client._normalize_spotify_ids(
+                    user_ids, limit=50, strict_length=False
+                )[0],
             },
         ).json()
 

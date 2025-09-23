@@ -111,9 +111,10 @@ class WebAPIArtistEndpoints:
                        ]
                      }
         """
-        if not isinstance(artist_ids, str):
-            artist_ids = ",".join(artist_ids)
-        if "," in artist_ids:
+        artist_ids, n_ids = self._client._normalize_spotify_ids(
+            artist_ids, limit=50
+        )
+        if n_ids > 1:
             return self._client._request(
                 "GET", "artists", params={"ids": artist_ids}
             ).json()
@@ -257,6 +258,14 @@ class WebAPIArtistEndpoints:
         /get-an-artists-top-tracks>`_: Get Spotify catalog information
         for an artist's top tracks.
 
+        .. admonition:: Third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              Extended quota mode before November 11, 2024
+                  Access 30-second preview URLs.
+
         Parameters
         ----------
         artist_id : str, positional-only
@@ -381,6 +390,14 @@ class WebAPIArtistEndpoints:
         /get-an-artists-related-artists>`_: Get Spotify catalog
         information for artists similar to a given artist based on
         an analysis of the Spotify community's listening history.
+
+        .. admonition:: Third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              Extended quota mode before November 11, 2024
+                  Access the :code:`related-artists` endpoint.
 
         Parameters
         ----------

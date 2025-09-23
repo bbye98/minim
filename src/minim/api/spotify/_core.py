@@ -7,6 +7,7 @@ import warnings
 from .._shared import OAuth2API
 from ._web_api.albums import WebAPIAlbumEndpoints
 from ._web_api.artists import WebAPIArtistEndpoints
+from ._web_api.tracks import WebAPITrackEndpoints
 from ._web_api.users import WebAPIUserEndpoints
 
 if TYPE_CHECKING:
@@ -179,6 +180,8 @@ class WebAPI(OAuth2API):
         self.albums: WebAPIAlbumEndpoints = WebAPIAlbumEndpoints(self)
         #: Spotify Web API artist endpoints.
         self.artists: WebAPIArtistEndpoints = WebAPIArtistEndpoints(self)
+        #: Spotify Web API artist endpoints.
+        self.tracks: WebAPITrackEndpoints = WebAPITrackEndpoints(self)
         #: Spotify Web API user endpoints.
         self.users: WebAPIUserEndpoints = WebAPIUserEndpoints(self)
 
@@ -292,6 +295,66 @@ class WebAPI(OAuth2API):
         # Recursively gather scopes for multiple
         # categories/substrings
         return {scope for match in matches for scope in cls.get_scopes(match)}
+
+    @staticmethod
+    def _normalize_spotify_ids(
+        spotify_ids: str | list[str],
+        *,
+        limit: int,
+        strict_length: bool = True,
+    ) -> tuple[str, int]:
+        """
+        Stringify a list of Spotify IDs into a comma-delimited string.
+
+        Parameters
+        ----------
+        spotify_ids : str or list[str]
+            (Comma-delimited) list of Spotify IDs.
+
+        limit : int, keyword-only
+            Maximum number of Spotify IDs that can be sent in the
+            request.
+
+        strict_length : bool, keyword-only, default: :code:`True`
+            Specifies whether to only allow 22-character-long Spotify IDs.
+
+        Parameters
+        ----------
+        spotify_ids : str
+            Comma-delimited list of Spotify IDs.
+
+        n_ids : int
+            Number of Spotify IDs.
+        """
+        if not spotify_ids:
+            raise ValueError("At least one Spotify ID must be specified.")
+
+        if isinstance(spotify_ids, str):
+            split_ids = spotify_ids.split(",")
+            for id_ in split_ids:
+                if not id_.isalnum() or strict_length and len(id_) != 22:
+                    raise ValueError(
+                        f"{id_!r} is not a valid base62 Spotify ID."
+                    )
+            n_ids = len(split_ids)
+            if n_ids > limit:
+                raise ValueError(
+                    f"A maximum of {limit} Spotify IDs can be sent in "
+                    "one request."
+                )
+            return spotify_ids, n_ids
+
+        n_ids = len(spotify_ids)
+        if n_ids > limit:
+            raise ValueError(
+                f"A maximum of {limit} Spotify IDs can be sent in one request."
+            )
+        for id_ in spotify_ids:
+            if not isinstance(id_, str):
+                raise ValueError("Spotify IDs must be provided as strings.")
+            if not id_.isalnum() or strict_length and len(id_) != 22:
+                raise ValueError(f"{id_!r} is not a valid base62 Spotify ID.")
+        return ",".join(spotify_ids), n_ids
 
     def _request(
         self, method: str, endpoint: str, retry: bool = True, **kwargs

@@ -1,3 +1,4 @@
+from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -24,7 +25,7 @@ class WebAPIAlbumEndpoints:
         self._client = client
 
     def get_albums(
-        self, album_ids: str | list[str], /, *, market: str = None
+        self, album_ids: str | Collection[str], /, *, market: str = None
     ) -> dict[str, Any]:
         """
         `Albums > Get Album <https://developer.spotify.com/documentation
@@ -34,9 +35,17 @@ class WebAPIAlbumEndpoints:
         /documentation/web-api/reference/get-multiple-albums>`_: Get
         Spotify catalog information for multiple albums.
 
+        .. admonition:: Third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              Extended quota mode before November 11, 2024
+                  Access 30-second preview URLs.
+
         Parameters
         ----------
-        album_ids : str or list[str], positional-only
+        album_ids : str or Collection[str], positional-only
             (Comma-separated) list of Spotify IDs of the albums. A
             maximum of 20 IDs can be sent in one request.
 
@@ -287,9 +296,11 @@ class WebAPIAlbumEndpoints:
                        ]
                      }
         """
-        if not isinstance(album_ids, str):
-            album_ids = ",".join(album_ids)
-        if "," in album_ids:
+
+        album_ids, n_ids = self._client._normalize_spotify_ids(
+            album_ids, limit=20
+        )
+        if n_ids > 1:
             return self._client._request(
                 "GET", "albums", params={"ids": album_ids, "market": market}
             ).json()
@@ -310,6 +321,14 @@ class WebAPIAlbumEndpoints:
         `Albums > Get Album Tracks <https://developer.spotify.com
         /documentation/web-api/reference/get-an-albums-tracks>`_: Get
         Spotify catalog information about an album's tracks.
+
+        .. admonition:: Third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              Extended quota mode before November 11, 2024
+                  Access 30-second preview URLs.
 
         Parameters
         ----------
@@ -426,13 +445,18 @@ class WebAPIAlbumEndpoints:
         /documentation/web-api/reference/get-users-saved-albums>`_: Get
         the albums saved in the current user's "Your Music" library.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scope and third-party application mode
            :class: authorization-scope
 
            .. tab:: Required
 
               :code:`user-library-read`
                  Access your saved content.
+
+           .. tab:: Optional
+
+              Extended quota mode before November 11, 2024
+                  Access 30-second preview URLs.
 
         Parameters
         ----------
@@ -465,7 +489,7 @@ class WebAPIAlbumEndpoints:
 
         Returns
         -------
-        albums : dict[str, Any]
+        saved_albums : dict[str, Any]
             Spotify content metadata for the user's saved albums.
 
             .. admonition:: Sample response
@@ -624,9 +648,15 @@ class WebAPIAlbumEndpoints:
             "2noRn2Aes5aoNVsU6iWThc"]`.
         """
         self._client._require_scopes("save_albums", "user-library-modify")
-        if not isinstance(album_ids, str):
-            album_ids = ",".join(album_ids)
-        self._client._request("PUT", "me/albums", params={"ids": album_ids})
+        self._client._request(
+            "PUT",
+            "me/albums",
+            params={
+                "ids": self._client._normalize_spotify_ids(album_ids, limit=20)[
+                    0
+                ]
+            },
+        )
 
     def remove_saved_albums(self, album_ids: str | list[str], /) -> None:
         """
@@ -657,9 +687,15 @@ class WebAPIAlbumEndpoints:
         self._client._require_scopes(
             "remove_saved_albums", "user-library-modify"
         )
-        if not isinstance(album_ids, str):
-            album_ids = ",".join(album_ids)
-        self._client._request("DELETE", "me/albums", params={"ids": album_ids})
+        self._client._request(
+            "DELETE",
+            "me/albums",
+            params={
+                "ids": self._client._normalize_spotify_ids(album_ids, limit=20)[
+                    0
+                ]
+            },
+        )
 
     def are_albums_saved(self, album_ids: str | list[str], /) -> list[bool]:
         """
@@ -701,10 +737,14 @@ class WebAPIAlbumEndpoints:
                   [False, True]
         """
         self._client._require_scopes("are_albums_saved", "user-library-read")
-        if not isinstance(album_ids, str):
-            album_ids = ",".join(album_ids)
         return self._client._request(
-            "GET", "me/albums/contains", params={"ids": album_ids}
+            "GET",
+            "me/albums/contains",
+            params={
+                "ids": self._client._normalize_spotify_ids(album_ids, limit=20)[
+                    0
+                ]
+            },
         ).json()
 
     def get_new_releases(
