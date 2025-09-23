@@ -1,8 +1,7 @@
 from datetime import datetime
-import fnmatch
 from pathlib import Path
 import sys
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -43,8 +42,8 @@ intersphinx_mapping = {
 numpydoc_show_class_members = False
 togglebutton_hint = togglebutton_hint_hide = ""
 
-html_favicon = "../../assets/minim/favicon.ico"
-html_logo = "../../assets/minim/icon.svg"
+html_favicon = "../../assets/favicon.ico"
+html_logo = "../../assets/icon.svg"
 html_show_sourcelink = False
 html_static_path = ["_static"]
 html_theme = "furo"
