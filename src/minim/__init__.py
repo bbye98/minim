@@ -16,6 +16,6 @@ if CONFIG_FILE.exists():
     with CONFIG_FILE.open() as f:
         config = yaml.safe_load(f)
 else:
-    config = {"version": __version__}
+    config = {"api": {}, "gui": {"library": {}}, "version": __version__}
     with CONFIG_FILE.open("w") as f:
         yaml.safe_dump(config, f)

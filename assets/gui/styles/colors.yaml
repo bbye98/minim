@@ -1,15 +1,15 @@
 dark:
-  base: rgb(223, 223, 223)
+  text: rgb(223, 223, 223)
   border: rgb(95, 95, 95)
   button: rgb(47, 47, 47)
   hover: rgb(63, 63, 63)
-  main: rgba(31, 31, 31, 0.9)
+  main: rgba(31, 31, 31, 0.95)
   pressed: rgb(79, 79, 79)
 
 light:
-  base: rgb(31, 31, 31)
+  text: rgb(31, 31, 31)
   border: rgb(159, 159, 159)
   button: rgb(207, 207, 207)
   hover: rgb(191, 191, 191)
-  main: rgba(223, 223, 223, 0.9)
+  main: rgba(223, 223, 223, 0.95)
   pressed: rgb(175, 175, 175)

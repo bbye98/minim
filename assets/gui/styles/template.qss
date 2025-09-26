@@ -4,13 +4,35 @@
     border-radius: 16px;
 }}
 
+QListView {{
+    background-color: {button};
+    border: 1px solid {border};
+    border-radius: 16px;
+    color: {text};
+}}
+
 QFrame[role="navigation"] {{
     background-color: {hover};
     border-radius: 32px;
 }}
 
 QLabel {{
-    color: {base};
+    color: {text};
+    font-size: 14px;
+}}
+
+QLabel[role="navigation"] {{
+    background-color: rgba(0, 0, 0, 0.0);
+    font-size: 12px;
+}}
+
+QLineEdit {{
+    background-color: {pressed};
+    border: 1px solid {border};
+    border-radius: 16px;
+    color: {text};
+    padding-left: 12px;
+    padding-right: 12px;
     font-size: 14px;
 }}
 
@@ -18,7 +40,7 @@ QPushButton {{
     background-color: {button};
     border: 1px solid {border};
     border-radius: 8px;
-    color: {base};
+    color: {text};
     font-size: 14px;
 }}
 
@@ -30,14 +52,18 @@ QPushButton:pressed {{
     background-color: {pressed};
 }}
 
+QPushButton[role="address"] {{
+    background-color: rgba(0, 0, 0, 0.0);
+    border: none;
+    border-radius: 16px;
+}}
+
 QPushButton[role="navigation"] {{
     background-color: rgba(0, 0, 0, 0.0);
     border: none;
-    font-size: 18px;
 }}
 
 QPushButton[role="navigation"]:checked {{
-    background-color: rgba(0, 0, 0, 0.0);
     border-radius: 32px;
 }}
 
@@ -58,10 +84,12 @@ QPushButton[role="theme"] {{
     font-size: 18px;
 }}
 
+QPushButton[role="address"]:hover,
 QPushButton[role="theme"]:hover {{
     background-color: {hover};
 }}
 
+QPushButton[role="address"]:pressed,
 QPushButton[role="theme"]:pressed {{
     background-color: {pressed};
 }}
@@ -99,5 +127,5 @@ QPushButton[role="close"]:pressed {{
 }}
 
 QSvgWidget {{
-    color: {base};
+    color: {text};
 }}

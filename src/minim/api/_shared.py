@@ -294,8 +294,9 @@ class OAuth2API(ABC):
         Clear all stored access tokens and related information for
         this API client from Minim's local token storage.
         """
-        if (api_name := f"{cls.__module__}.{cls.__qualname__}") in config:
-            del config[api_name]
+        api_config = config["api"]
+        if (api_name := f"{cls.__module__}.{cls.__qualname__}") in api_config:
+            del api_config[api_name]
             with CONFIG_FILE.open("w") as f:
                 yaml.safe_dump(config, f)
 
@@ -324,7 +325,7 @@ class OAuth2API(ABC):
         """
         changed = False
         if (api_name := f"{cls.__module__}.{cls.__qualname__}") in config:
-            accounts = config[api_name]
+            accounts = config["api"][api_name]
             last_flow_str = f"last_{flow}"
             if user_identifier or flow == "client_credentials":
                 if (
@@ -437,13 +438,6 @@ class OAuth2API(ABC):
                 f"{client_id}:{flow}:{user_identifier}".encode()
             ).hexdigest()
         return f"last_{flow}"
-
-    @property
-    def _API_NAME(self) -> str:
-        """
-        Fully qualified name of this API client class.
-        """
-        return f"{(cls := self.__class__).__module__}.{cls.__qualname__}"
 
     def close(self) -> None:
         """
@@ -918,9 +912,10 @@ class OAuth2API(ABC):
             + timedelta(seconds=int(resp_json["expires_in"])),
         )
         if self._persist:
-            accounts = config.get(self._API_NAME)
+            api_config = config["api"]
+            accounts = api_config.get(self._API_NAME)
             if not isinstance(accounts, dict):
-                config[self._API_NAME] = accounts = {}
+                api_config[self._API_NAME] = accounts = {}
             if flow != "client_credentials":
                 if not self._user_identifier:
                     self._resolve_user_identifier()
@@ -1039,6 +1034,14 @@ class OAuth2API(ABC):
         -------
         scopes : set[str]
             Authorization scopes.
+        """
+        ...
+
+    @property
+    @abstractmethod
+    def _API_NAME(self) -> str:
+        """
+        Name of this API client.
         """
         ...
 

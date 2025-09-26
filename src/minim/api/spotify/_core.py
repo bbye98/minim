@@ -402,3 +402,10 @@ class WebAPI(OAuth2API):
         current account.
         """
         self._user_identifier = self.users.get_profile()["id"]
+
+    @property
+    def _API_NAME(self) -> str:
+        """
+        Name of this API client.
+        """
+        return "SpotifyWebAPI"
