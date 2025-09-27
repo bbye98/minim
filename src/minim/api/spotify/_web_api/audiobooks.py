@@ -1,6 +1,4 @@
 from collections.abc import Collection
-from datetime import datetime
-from numbers import Number
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -419,7 +417,7 @@ class WebAPIAudiobookEndpoints:
         """
         `Audiobooks > Get User's Saved Audiobooks
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-users-saved-audiobooks>_`: Get the audiobooks saved in the
+        /get-users-saved-audiobooks>`_: Get the audiobooks saved in the
         current user's "Your Music" library.
 
         .. admonition:: Authorization scope and third-party application mode
