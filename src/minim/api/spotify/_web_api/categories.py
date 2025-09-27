@@ -6,9 +6,9 @@ if TYPE_CHECKING:
 
 class WebAPICategoryEndpoints:
     """
-    Spotify Web API category endpoints.
+    Spotify Web API browse category endpoints.
 
-    .. important::
+    .. note::
 
        This class is managed by :class:`minim.api.spotify.WebAPI` and
        should not be instantiated directly.
@@ -123,6 +123,41 @@ class WebAPICategoryEndpoints:
             get the next set of categories.
 
             **Default**: :code:`0`.
+
+        Returns
+        -------
+        categories : dict[str, Any]
+            Spotify content metadata for multiple categories.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "categories": {
+                      "href": <str>,
+                      "items": [
+                        {
+                          "href": <str>,
+                          "icons": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "id": <str>,
+                          "name": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <int>,
+                      "total": <int>
+                    }
+                  }
         """
         return self._client._request(
             "GET",

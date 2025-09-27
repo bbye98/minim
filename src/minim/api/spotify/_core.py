@@ -8,6 +8,17 @@ from .._shared import OAuth2API
 from ._web_api.albums import WebAPIAlbumEndpoints
 from ._web_api.artists import WebAPIArtistEndpoints
 from ._web_api.audiobooks import WebAPIAudiobookEndpoints
+from ._web_api.categories import WebAPICategoryEndpoints
+
+# from ._web_api.chapters import WebAPIChapterEndpoints
+# from ._web_api.episodes import WebAPIEpisodeEndpoints
+from ._web_api.genres import WebAPIGenreEndpoints
+
+# from ._web_api.markets import WebAPIMarketEndpoints
+# from ._web_api.player import WebAPIPlayerEndpoints
+# from ._web_api.playlists import WebAPIPlaylistEndpoints
+# from ._web_api.search import WebAPISearchEndpoints
+# from ._web_api.shows import WebAPIShowEndpoints
 from ._web_api.tracks import WebAPITrackEndpoints
 from ._web_api.users import WebAPIUserEndpoints
 
@@ -186,6 +197,24 @@ class WebAPI(OAuth2API):
         self.audiobooks: WebAPIAudiobookEndpoints = WebAPIAudiobookEndpoints(
             self
         )
+        #: Spotify Web API browse category endpoints.
+        self.categories: WebAPICategoryEndpoints = WebAPICategoryEndpoints(self)
+        #: Spotify Web API audiobook chapter endpoints.
+        # self.chapters: WebAPIChapterEndpoints = WebAPIChapterEndpoints(self)
+        #: Spotify Web API episode endpoints.
+        # self.episodes: WebAPIEpisodeEndpoints = WebAPIEpisodeEndpoints(self)
+        #: Spotify Web API genre endpoints.
+        self.genres: WebAPIGenreEndpoints = WebAPIGenreEndpoints(self)
+        #: Spotify Web API market endpoints.
+        # self.markets: WebAPIMarketEndpoints = WebAPIMarketEndpoints(self)
+        #: Spotify Web API player endpoints.
+        # self.player: WebAPIPlayerEndpoints = WebAPIPlayerEndpoints(self)
+        #: Spotify Web API playlist endpoints.
+        # self.playlists: WebAPIPlaylistEndpoints = WebAPIPlaylistEndpoints(self)
+        #: Spotify Web API search endpoints.
+        # self.search: WebAPISearchEndpoints = WebAPISearchEndpoints(self)
+        #: Spotify Web API show endpoints.
+        # self.shows: WebAPIShowEndpoints = WebAPIShowEndpoints(self)
         #: Spotify Web API track endpoints.
         self.tracks: WebAPITrackEndpoints = WebAPITrackEndpoints(self)
         #: Spotify Web API user endpoints.

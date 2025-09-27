@@ -11,6 +11,11 @@ class WebAPIAudiobookEndpoints:
 
     .. important::
 
+       Audiobooks are only available in the US, UK, Canada, Ireland,
+       New Zealand, and Australia markets.
+
+    .. note::
+
        This class is managed by :class:`minim.api.spotify.WebAPI` and
        should not be instantiated directly.
     """
@@ -28,7 +33,7 @@ class WebAPIAudiobookEndpoints:
         self, audiobook_ids: str | Collection[str], /, *, market: str = None
     ) -> dict[str, Any]:
         """
-        `Audiobooks > Get Audiobook <https://developer.spotify.com
+        `Audiobooks > Get an Audiobook <https://developer.spotify.com
         /documentation/web-api/reference/get-an-audiobook>`_: Get Spotify
         catalog information for a single audiobook․
         `Audiobook > Get Several Audiobooks <https://developer.spotify.com
@@ -110,10 +115,7 @@ class WebAPIAudiobookEndpoints:
                                }
                              ],
                              "is_playable": <bool>,
-                             "languages": [
-                               "fr",
-                               "en"
-                             ],
+                             "languages": <list[str]>,
                              "name": <str>,
                              "release_date": <str>,
                              "release_date_precision": <str>,
@@ -297,11 +299,6 @@ class WebAPIAudiobookEndpoints:
         <https://developer.spotify.com/documentation/web-api/reference
         /get-audiobook-chapters>`_: Get Spotify catalog information
         about an audiobook's chapters.
-
-        .. important::
-
-           Audiobooks are only available in the US, UK, Canada, Ireland,
-           New Zealand and Australia markets.
 
         .. admonition:: Third-party application mode
            :class: authorization-scope

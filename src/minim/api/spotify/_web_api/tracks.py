@@ -23,7 +23,7 @@ class WebAPITrackEndpoints:
     """
     Spotify Web API track endpoints.
 
-    .. important::
+    .. note::
 
        This class is managed by :class:`minim.api.spotify.WebAPI` and
        should not be instantiated directly.
@@ -990,7 +990,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-                :meth:~minim.api.spotify._web_api.genres.get_genre_seeds`
+                :meth:`~minim.api.spotify.WebAPIGenreEndpoints.get_seed_genres`
                 — Get available seed genres.
 
         seed_tracks : str or Collection[str], optional

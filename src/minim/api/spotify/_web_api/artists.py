@@ -9,7 +9,7 @@ class WebAPIArtistEndpoints:
     """
     Spotify Web API artist endpoints.
 
-    .. important::
+    .. note::
 
        This class is managed by :class:`minim.api.spotify.WebAPI` and
        should not be instantiated directly.
