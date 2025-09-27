@@ -63,9 +63,21 @@ class OAuth2RedirectHandler(BaseHTTPRequestHandler):
             """
             self.wfile.write(html.encode())
 
-    def log_message(self, *args, **kwargs) -> None:
+    def log_message(
+        self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+    ) -> None:
         """
         Silence the HTTP server logging output.
+
+        Parameters
+        ----------
+        *args : tuple[Any, ...], optional
+            Positional arguments to pass to
+            :meth:`http.server.BaseHTTPRequestHandler.log_message`.
+
+        **kwargs : dict[str, Any], optional
+            Keyword arguments to pass to
+            :meth:`http.server.BaseHTTPRequestHandler.log_message`.
         """
         pass
 
@@ -75,6 +87,7 @@ class OAuth2API(ABC):
     Abstract base class for OAuth 2.0-based API clients.
     """
 
+    _API_NAME: str = ...
     _BACKENDS = {"http.server", "playwright"}
     _FLOWS: set[str] = ...
     _OAUTH_FLOWS_NAMES = {
@@ -416,10 +429,10 @@ class OAuth2API(ABC):
 
         Parameters
         ----------
-        flow : str, optional
+        flow : str
             Authorization flow.
 
-        client_id : str, optional
+        client_id : str
             Client ID.
 
         user_identifier : str, optional
@@ -558,7 +571,7 @@ class OAuth2API(ABC):
             the host is not :code:`127.0.0.1` or :code:`localhost`,
             redirect handling is not available.
 
-        scopes : str or `Collection[str]`, keyword-only, optional
+        scopes : str or Collection[str], keyword-only, optional
             Authorization scopes the client requests to access user
             resources.
 
@@ -961,7 +974,7 @@ class OAuth2API(ABC):
         endpoint_method : str
             Name of the endpoint method.
 
-        scopes : str or `Collection[str]`
+        scopes : str or Collection[str]
             Required authorization scopes.
         """
         if isinstance(scopes, str):
@@ -1018,13 +1031,15 @@ class OAuth2API(ABC):
 
     @classmethod
     @abstractmethod
-    def get_scopes(cls, *args, **kwargs) -> set[str]:
+    def get_scopes(
+        cls, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+    ) -> set[str]:
         """
         Retrieve a set of authorization scopes.
 
         Parameters
         ----------
-        *args : tuple[Any]
+        *args : tuple[Any, ...]
             Positional arguments to be defined by subclasses.
 
         **kwargs : dict[str, Any]
@@ -1037,16 +1052,10 @@ class OAuth2API(ABC):
         """
         ...
 
-    @property
     @abstractmethod
-    def _API_NAME(self) -> str:
-        """
-        Name of this API client.
-        """
-        ...
-
-    @abstractmethod
-    def _request(self, method: str, endpoint: str, **kwargs) -> httpx.Response:
+    def _request(
+        self, method: str, endpoint: str, **kwargs: dict[str, Any]
+    ) -> httpx.Response:
         """
         Make an HTTP request to an API endpoint.
 
@@ -1059,8 +1068,7 @@ class OAuth2API(ABC):
             API endpoint.
 
         **kwargs : dict[str, Any]
-            Additional arguments to pass to
-            :meth:`httpx.Client.request`.
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------

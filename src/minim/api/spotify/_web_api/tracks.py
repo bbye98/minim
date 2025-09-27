@@ -170,7 +170,7 @@ class WebAPITrackEndpoints:
 
         Returns
         -------
-        track : dict[str, Any]
+        tracks : dict[str, Any]
             Spotify content metadata for the tracks.
 
             .. admonition:: Sample responses
@@ -613,7 +613,7 @@ class WebAPITrackEndpoints:
             "PUT", "me/tracks", json={"timestamped_ids": track_ids}
         )
 
-    def remove_saved_tracks(self, track_ids: str | list[str], /) -> None:
+    def remove_saved_tracks(self, track_ids: str | Collection[str], /) -> None:
         """
         `Tracks > Remove User's Saved Tracks
         <https://developer.spotify.com/documentation/web-api/reference
@@ -630,7 +630,7 @@ class WebAPITrackEndpoints:
 
         Parameters
         ----------
-        track_ids : str or list[str], positional-only
+        track_ids : str or Collection[str], positional-only
             (Comma-separated) list of Spotify IDs of the tracks. A
             maximum of 50 IDs can be sent in one request.
 
@@ -652,11 +652,13 @@ class WebAPITrackEndpoints:
             },
         )
 
-    def are_tracks_saved(self, track_ids: str | list[str], /) -> list[bool]:
+    def are_tracks_saved(
+        self, track_ids: str | Collection[str], /
+    ) -> list[bool]:
         """
         `Tracks > Check User's Saved Tracks
         <https://developer.spotify.com/documentation/web-api/reference
-        /check-users-saved-tracks>`_: Check if one or more tracks is
+        /check-users-saved-tracks>`_: Check if one or more tracks are
         already saved in the current user's "Your Music" library.
 
         .. admonition:: Authorization scope
@@ -669,7 +671,7 @@ class WebAPITrackEndpoints:
 
         Parameters
         ----------
-        track_ids : str or list[str], positional-only
+        track_ids : str or Collection[str], positional-only
             (Comma-separated) list of Spotify IDs of the tracks. A
             maximum of 50 IDs can be sent in one request.
 
@@ -703,7 +705,7 @@ class WebAPITrackEndpoints:
         ).json()
 
     def get_audio_features(
-        self, track_ids: str | list[str], /
+        self, track_ids: str | Collection[str], /
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track's Audio Features
@@ -725,7 +727,7 @@ class WebAPITrackEndpoints:
 
         Parameters
         ----------
-        track_ids : str or list[str], positional-only
+        track_ids : str or Collection[str], positional-only
             (Comma-separated) list of Spotify IDs of the tracks. A
             maximum of 100 IDs can be sent in one request.
 
@@ -934,9 +936,9 @@ class WebAPITrackEndpoints:
 
     def get_recommendations(
         self,
-        seed_artists: str | list[str] | None = None,
-        seed_genres: str | list[str] | None = None,
-        seed_tracks: str | list[str] | None = None,
+        seed_artists: str | Collection[str] | None = None,
+        seed_genres: str | Collection[str] | None = None,
+        seed_tracks: str | Collection[str] | None = None,
         *,
         market: str | None = None,
         limit: int | None = None,
@@ -971,7 +973,7 @@ class WebAPITrackEndpoints:
 
         Parameters
         ----------
-        seed_artists : str or list[str], optional
+        seed_artists : str or Collection[str], optional
             (Comma-separated) list of Spotify IDs of seed artists.
             Up to 5 seed values may be provided in any combination of
             :code:`seed_artists`, :code:`seed_genres` and
@@ -981,7 +983,7 @@ class WebAPITrackEndpoints:
             :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
             :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
 
-        seed_genres : str or list[str], optional
+        seed_genres : str or Collection[str], optional
             (Comma-separated) list of seed genres. Up to 5 seed values
             may be provided in any combination of :code:`seed_artists`,
             :code:`seed_genres` and :code:`seed_tracks`.
@@ -991,7 +993,7 @@ class WebAPITrackEndpoints:
                 :meth:~minim.api.spotify._web_api.genres.get_genre_seeds`
                 — Get available seed genres.
 
-        seed_tracks : str or list[str], optional
+        seed_tracks : str or Collection[str], optional
             (Comma-separated) list of Spotify IDs of seed tracks. Up to
             5 seed values may be provided in any combination of
             :code:`seed_artists`, :code:`seed_genres` and
@@ -1053,7 +1055,7 @@ class WebAPITrackEndpoints:
     def _parse_seeds(
         self,
         seed_type: str,
-        seeds: str | list[str] | None,
+        seeds: str | Collection[str] | None,
         n_seeds: int,
         params: dict[str, Any],
     ) -> int:
@@ -1069,7 +1071,7 @@ class WebAPITrackEndpoints:
             **Valid values**: :code:`"seed_artists"`,
             :code:`"seed_genres"`, :code:`"seed_tracks"`.
 
-        seeds : str, list[str], or None
+        seeds : str, Collection[str], or None
             Seed values.
 
         n_seeds : int

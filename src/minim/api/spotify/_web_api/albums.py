@@ -621,11 +621,11 @@ class WebAPIAlbumEndpoints:
             params={"market": market, "limit": limit, "offset": offset},
         ).json()
 
-    def save_albums(self, album_ids: str | list[str], /) -> None:
+    def save_albums(self, album_ids: str | Collection[str], /) -> None:
         """
         `Albums > Save Albums for Current User
         <https://developer.spotify.com/documentation/web-api/reference
-        /save-albums-user>`_: Save one or morealbums to the current
+        /save-albums-user>`_: Save one or more albums to the current
         user's "Your Music" library.
 
         .. admonition:: Authorization scope
@@ -638,7 +638,7 @@ class WebAPIAlbumEndpoints:
 
         Parameters
         ----------
-        album_ids : str or list[str], positional-only
+        album_ids : str or Collection[str], positional-only
             (Comma-separated) list of Spotify IDs of the albums. A
             maximum of 20 IDs can be sent in one request.
 
@@ -658,7 +658,7 @@ class WebAPIAlbumEndpoints:
             },
         )
 
-    def remove_saved_albums(self, album_ids: str | list[str], /) -> None:
+    def remove_saved_albums(self, album_ids: str | Collection[str], /) -> None:
         """
         `Albums > Remove User's Saved Albums
         <https://developer.spotify.com/documentation/web-api/reference
@@ -675,7 +675,7 @@ class WebAPIAlbumEndpoints:
 
         Parameters
         ----------
-        album_ids : str or list[str], positional-only
+        album_ids : str or Collection[str], positional-only
             (Comma-separated) list of Spotify IDs of the albums. A
             maximum of 20 IDs can be sent in one request.
 
@@ -697,11 +697,13 @@ class WebAPIAlbumEndpoints:
             },
         )
 
-    def are_albums_saved(self, album_ids: str | list[str], /) -> list[bool]:
+    def are_albums_saved(
+        self, album_ids: str | Collection[str], /
+    ) -> list[bool]:
         """
         `Albums > Check User's Saved Albums
         <https://developer.spotify.com/documentation/web-api/reference
-        /check-users-saved-albums>`_: Check if one or more albums is
+        /check-users-saved-albums>`_: Check if one or more albums are
         already saved in the current user's "Your Music" library.
 
         .. admonition:: Authorization scope
@@ -714,7 +716,7 @@ class WebAPIAlbumEndpoints:
 
         Parameters
         ----------
-        album_ids : str or list[str], positional-only
+        album_ids : str or Collection[str], positional-only
             (Comma-separated) list of Spotify IDs of the albums. A
             maximum of 20 IDs can be sent in one request.
 

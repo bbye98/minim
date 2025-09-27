@@ -1,12 +1,13 @@
 from collections.abc import Collection
 from datetime import datetime
 from json.decoder import JSONDecodeError
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 import warnings
 
 from .._shared import OAuth2API
 from ._web_api.albums import WebAPIAlbumEndpoints
 from ._web_api.artists import WebAPIArtistEndpoints
+from ._web_api.audiobooks import WebAPIAudiobookEndpoints
 from ._web_api.tracks import WebAPITrackEndpoints
 from ._web_api.users import WebAPIUserEndpoints
 
@@ -19,6 +20,7 @@ class WebAPI(OAuth2API):
     Spotify Web API client.
     """
 
+    _API_NAME = "SpotifyWebAPI"
     _FLOWS = {"auth_code", "pkce", "client_credentials", "implicit"}
     _PROVIDER = "Spotify"
     _ENV_VAR_PREFIX = "SPOTIFY_WEB_API"
@@ -100,7 +102,7 @@ class WebAPI(OAuth2API):
             the host is not :code:`127.0.0.1` or :code:`localhost`,
             redirect handling is not available.
 
-        scopes : str or `Collection[str]`, keyword-only, optional
+        scopes : str or Collection[str], keyword-only, optional
             Authorization scopes the client requests to access user
             resources.
 
@@ -180,7 +182,11 @@ class WebAPI(OAuth2API):
         self.albums: WebAPIAlbumEndpoints = WebAPIAlbumEndpoints(self)
         #: Spotify Web API artist endpoints.
         self.artists: WebAPIArtistEndpoints = WebAPIArtistEndpoints(self)
-        #: Spotify Web API artist endpoints.
+        #: Spotify Web API audiobook endpoints.
+        self.audiobooks: WebAPIAudiobookEndpoints = WebAPIAudiobookEndpoints(
+            self
+        )
+        #: Spotify Web API track endpoints.
         self.tracks: WebAPITrackEndpoints = WebAPITrackEndpoints(self)
         #: Spotify Web API user endpoints.
         self.users: WebAPIUserEndpoints = WebAPIUserEndpoints(self)
@@ -218,7 +224,7 @@ class WebAPI(OAuth2API):
 
         Parameters
         ----------
-        matches : str, or `Collection[str]`, optional
+        matches : str or Collection[str], optional
             Categories and/or substrings to filter scopes by.
 
             .. container::
@@ -298,7 +304,7 @@ class WebAPI(OAuth2API):
 
     @staticmethod
     def _normalize_spotify_ids(
-        spotify_ids: str | list[str],
+        spotify_ids: str | Collection[str],
         *,
         limit: int,
         strict_length: bool = True,
@@ -308,7 +314,7 @@ class WebAPI(OAuth2API):
 
         Parameters
         ----------
-        spotify_ids : str or list[str]
+        spotify_ids : str or Collection[str]
             (Comma-delimited) list of Spotify IDs.
 
         limit : int, keyword-only
@@ -357,7 +363,11 @@ class WebAPI(OAuth2API):
         return ",".join(spotify_ids), n_ids
 
     def _request(
-        self, method: str, endpoint: str, retry: bool = True, **kwargs
+        self,
+        method: str,
+        endpoint: str,
+        retry: bool = True,
+        **kwargs: dict[str, Any],
     ) -> "httpx.Response":
         """
         Make an HTTP request to a Spotify Web API endpoint.
@@ -371,8 +381,7 @@ class WebAPI(OAuth2API):
             Spotify Web API endpoint.
 
         **kwargs : dict[str, Any]
-            Additional arguments to pass to
-            :meth:`httpx.Client.request`.
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------
@@ -402,10 +411,3 @@ class WebAPI(OAuth2API):
         current account.
         """
         self._user_identifier = self.users.get_profile()["id"]
-
-    @property
-    def _API_NAME(self) -> str:
-        """
-        Name of this API client.
-        """
-        return "SpotifyWebAPI"

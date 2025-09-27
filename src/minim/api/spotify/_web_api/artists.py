@@ -1,3 +1,4 @@
+from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -23,7 +24,9 @@ class WebAPIArtistEndpoints:
         """
         self._client = client
 
-    def get_artists(self, artist_ids: str | list[str], /) -> dict[str, Any]:
+    def get_artists(
+        self, artist_ids: str | Collection[str], /
+    ) -> dict[str, Any]:
         """
         `Artists > Get Artist <https://developer.spotify.com
         /documentation/web-api/reference/get-an-artist>`_: Get
@@ -34,7 +37,7 @@ class WebAPIArtistEndpoints:
 
         Parameters
         ----------
-        artist_ids : str or list[str], positional-only
+        artist_ids : str or Collection[str], positional-only
             (Comma-separated) list of Spotify IDs of the artists. A
             maximum of 50 IDs can be sent in one request.
 
