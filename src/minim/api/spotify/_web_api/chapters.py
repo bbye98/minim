@@ -256,15 +256,16 @@ class WebAPIChapterEndpoints:
                        ]
                      }
         """
+        string = isinstance(chapter_ids, str)
         chapter_ids, n_ids = self._client._normalize_spotify_ids(
             chapter_ids, limit=50
         )
-        if n_ids > 1:
+        if string and n_ids == 1:
             return self._client._request(
-                "GET",
-                "chapters",
-                params={"ids": chapter_ids, "market": market},
+                "GET", f"chapters/{chapter_ids}", params={"market": market}
             ).json()
         return self._client._request(
-            "GET", f"chapters/{chapter_ids}", params={"market": market}
+            "GET",
+            "chapters",
+            params={"ids": chapter_ids, "market": market},
         ).json()

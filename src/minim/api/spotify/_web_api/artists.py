@@ -9,7 +9,7 @@ class WebAPIArtistEndpoints:
     """
     Spotify Web API artist endpoints.
 
-    .. note::
+    .. important::
 
        This class is managed by :class:`minim.api.spotify.WebAPI` and
        should not be instantiated directly.
@@ -114,14 +114,15 @@ class WebAPIArtistEndpoints:
                        ]
                      }
         """
+        string = isinstance(artist_ids, str)
         artist_ids, n_ids = self._client._normalize_spotify_ids(
             artist_ids, limit=50
         )
-        if n_ids > 1:
-            return self._client._request(
-                "GET", "artists", params={"ids": artist_ids}
-            ).json()
-        return self._client._request("GET", f"artists/{artist_ids}").json()
+        if string and n_ids == 1:
+            return self._client._request("GET", f"artists/{artist_ids}").json()
+        return self._client._request(
+            "GET", "artists", params={"ids": artist_ids}
+        ).json()
 
     def get_artist_albums(
         self,

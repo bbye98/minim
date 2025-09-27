@@ -344,15 +344,16 @@ class WebAPITrackEndpoints:
                        ]
                      }
         """
+        string = isinstance(track_ids, str)
         track_ids, n_ids = self._client._normalize_spotify_ids(
             track_ids, limit=50
         )
-        if n_ids > 1:
+        if string and n_ids == 1:
             return self._client._request(
-                "GET", "tracks", params={"ids": track_ids, "market": market}
+                "GET", f"tracks/{track_ids}", params={"market": market}
             ).json()
         return self._client._request(
-            "GET", f"tracks/{track_ids}", params={"market": market}
+            "GET", "tracks", params={"ids": track_ids, "market": market}
         ).json()
 
     def get_saved_tracks(
@@ -367,7 +368,7 @@ class WebAPITrackEndpoints:
         /documentation/web-api/reference/get-users-saved-tracks>`_: Get
         the tracks saved in the current user's "Your Music" library.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scope and third-party application mode
            :class: authorization-scope
 
            .. tab:: Required
@@ -798,15 +799,16 @@ class WebAPITrackEndpoints:
                        ]
                      }
         """
+        string = isinstance(track_ids, str)
         track_ids, n_ids = self._client._normalize_spotify_ids(
             track_ids, limit=100
         )
-        if n_ids > 1:
+        if string and n_ids == 1:
             return self._client._request(
-                "GET", "audio-features", params={"ids": track_ids}
+                "GET", f"audio-features/{track_ids}"
             ).json()
         return self._client._request(
-            "GET", f"audio-features/{track_ids}"
+            "GET", "audio-features", params={"ids": track_ids}
         ).json()
 
     def get_audio_analysis(self, track_id: str, /) -> dict[str, Any]:
@@ -1091,7 +1093,6 @@ class WebAPITrackEndpoints:
         """
         if seeds is None:
             return n_seeds
-
         params[seed_type], new_n_seeds = self._client._normalize_spotify_ids(
             seeds, limit=5, strict_length=seed_type != "seed_genres"
         )

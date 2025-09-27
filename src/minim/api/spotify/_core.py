@@ -9,9 +9,8 @@ from ._web_api.albums import WebAPIAlbumEndpoints
 from ._web_api.artists import WebAPIArtistEndpoints
 from ._web_api.audiobooks import WebAPIAudiobookEndpoints
 from ._web_api.categories import WebAPICategoryEndpoints
-
-# from ._web_api.chapters import WebAPIChapterEndpoints
-# from ._web_api.episodes import WebAPIEpisodeEndpoints
+from ._web_api.chapters import WebAPIChapterEndpoints
+from ._web_api.episodes import WebAPIEpisodeEndpoints
 from ._web_api.genres import WebAPIGenreEndpoints
 
 # from ._web_api.markets import WebAPIMarketEndpoints
@@ -200,9 +199,9 @@ class WebAPI(OAuth2API):
         #: Spotify Web API browse category endpoints.
         self.categories: WebAPICategoryEndpoints = WebAPICategoryEndpoints(self)
         #: Spotify Web API audiobook chapter endpoints.
-        # self.chapters: WebAPIChapterEndpoints = WebAPIChapterEndpoints(self)
+        self.chapters: WebAPIChapterEndpoints = WebAPIChapterEndpoints(self)
         #: Spotify Web API episode endpoints.
-        # self.episodes: WebAPIEpisodeEndpoints = WebAPIEpisodeEndpoints(self)
+        self.episodes: WebAPIEpisodeEndpoints = WebAPIEpisodeEndpoints(self)
         #: Spotify Web API genre endpoints.
         self.genres: WebAPIGenreEndpoints = WebAPIGenreEndpoints(self)
         #: Spotify Web API market endpoints.
@@ -358,8 +357,9 @@ class WebAPI(OAuth2API):
         spotify_ids : str
             Comma-delimited list of Spotify IDs.
 
-        n_ids : int
-            Number of Spotify IDs.
+        single : bool
+            Specifies whether to use the API endpoint for a single
+            item request.
         """
         if not spotify_ids:
             raise ValueError("At least one Spotify ID must be specified.")

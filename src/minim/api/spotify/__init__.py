@@ -3,9 +3,8 @@ from ._web_api.albums import WebAPIAlbumEndpoints
 from ._web_api.artists import WebAPIArtistEndpoints
 from ._web_api.audiobooks import WebAPIAudiobookEndpoints
 from ._web_api.categories import WebAPICategoryEndpoints
-
-# from ._web_api.chapters import WebAPIChapterEndpoints
-# from ._web_api.episodes import WebAPIEpisodeEndpoints
+from ._web_api.chapters import WebAPIChapterEndpoints
+from ._web_api.episodes import WebAPIEpisodeEndpoints
 from ._web_api.genres import WebAPIGenreEndpoints
 
 # from ._web_api.markets import WebAPIMarketEndpoints
@@ -22,8 +21,8 @@ __all__ = [
     "WebAPIArtistEndpoints",
     "WebAPIAudiobookEndpoints",
     "WebAPICategoryEndpoints",
-    # "WebAPIChapterEndpoints",
-    # "WebAPIEpisodeEndpoints",
+    "WebAPIChapterEndpoints",
+    "WebAPIEpisodeEndpoints",
     "WebAPIGenreEndpoints",
     # "WebAPIMarketEndpoints",
     # "WebAPIPlayerEndpoints",
