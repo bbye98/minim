@@ -992,7 +992,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-                :meth:`~minim.api.spotify.WebAPIGenreEndpoints.get_seed_genres`
+                :meth:`~minim.api.spotify.WebAPIGenreEndpoints.get_available_seed_genres`
                 — Get available seed genres.
 
         seed_tracks : str or Collection[str], optional

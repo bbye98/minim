@@ -23,7 +23,7 @@ class WebAPIGenreEndpoints:
         """
         self._client = client
 
-    def get_seed_genres(self) -> dict[str, list[str]]:
+    def get_available_seed_genres(self) -> dict[str, list[str]]:
         """
         `Genres > Get Available Seed Genre
         <https://developer.spotify.com/documentation/web-api/reference
@@ -43,7 +43,6 @@ class WebAPIGenreEndpoints:
                   {
                     "genres": ["alternative", "samba"]
                   }
-
         """
         return self._client._request(
             "GET", "recommendations/available-genre-seeds"

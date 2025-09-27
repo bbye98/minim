@@ -12,8 +12,8 @@ from ._web_api.categories import WebAPICategoryEndpoints
 from ._web_api.chapters import WebAPIChapterEndpoints
 from ._web_api.episodes import WebAPIEpisodeEndpoints
 from ._web_api.genres import WebAPIGenreEndpoints
+from ._web_api.markets import WebAPIMarketEndpoints
 
-# from ._web_api.markets import WebAPIMarketEndpoints
 # from ._web_api.player import WebAPIPlayerEndpoints
 # from ._web_api.playlists import WebAPIPlaylistEndpoints
 # from ._web_api.search import WebAPISearchEndpoints
@@ -205,7 +205,7 @@ class WebAPI(OAuth2API):
         #: Spotify Web API genre endpoints.
         self.genres: WebAPIGenreEndpoints = WebAPIGenreEndpoints(self)
         #: Spotify Web API market endpoints.
-        # self.markets: WebAPIMarketEndpoints = WebAPIMarketEndpoints(self)
+        self.markets: WebAPIMarketEndpoints = WebAPIMarketEndpoints(self)
         #: Spotify Web API player endpoints.
         # self.player: WebAPIPlayerEndpoints = WebAPIPlayerEndpoints(self)
         #: Spotify Web API playlist endpoints.
