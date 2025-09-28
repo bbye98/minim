@@ -265,7 +265,5 @@ class WebAPIChapterEndpoints:
                 "GET", f"chapters/{chapter_ids}", params={"market": market}
             ).json()
         return self._client._request(
-            "GET",
-            "chapters",
-            params={"ids": chapter_ids, "market": market},
+            "GET", "chapters", params={"ids": chapter_ids, "market": market}
         ).json()

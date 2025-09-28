@@ -125,7 +125,7 @@ class WebAPITrackEndpoints:
             )
 
     def get_tracks(
-        self, track_ids: str | Collection[str], /, *, market: str = None
+        self, track_ids: str | Collection[str], /, *, market: str | None = None
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track <https://developer.spotify.com/documentation
@@ -934,6 +934,7 @@ class WebAPITrackEndpoints:
                     }
                   }
         """
+        self._client._validate_spotify_id(track_id)
         return self._client._request("GET", f"audio-analysis/{track_id}").json()
 
     def get_recommendations(

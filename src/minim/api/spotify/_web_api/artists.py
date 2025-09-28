@@ -242,6 +242,7 @@ class WebAPIArtistEndpoints:
                     "total": <int>
                   }
         """
+        self._client._validate_spotify_id(artist_id)
         return self._client._request(
             "GET",
             f"artists/{artist_id}/albums",
@@ -383,6 +384,7 @@ class WebAPIArtistEndpoints:
                     ]
                   }
         """
+        self._client._validate_spotify_id(artist_id)
         return self._client._request(
             "GET", f"artists/{artist_id}/top-tracks", params={"market": market}
         ).json()
@@ -448,6 +450,7 @@ class WebAPIArtistEndpoints:
                     ]
                   }
         """
+        self._client._validate_spotify_id(artist_id)
         return self._client._request(
             "GET", f"artists/{artist_id}/related-artists"
         ).json()

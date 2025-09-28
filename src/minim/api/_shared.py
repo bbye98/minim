@@ -1054,17 +1054,17 @@ class OAuth2API(ABC):
 
     @abstractmethod
     def _request(
-        self, method: str, endpoint: str, **kwargs: dict[str, Any]
+        self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
     ) -> httpx.Response:
         """
         Make an HTTP request to an API endpoint.
 
         Parameters
         ----------
-        method : str
+        method : str, positional-only
             HTTP method.
 
-        endpoint : str
+        endpoint : str, positional-only
             API endpoint.
 
         **kwargs : dict[str, Any]

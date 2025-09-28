@@ -30,7 +30,11 @@ class WebAPIAudiobookEndpoints:
         self._client = client
 
     def get_audiobooks(
-        self, audiobook_ids: str | Collection[str], /, *, market: str = None
+        self,
+        audiobook_ids: str | Collection[str],
+        /,
+        *,
+        market: str | None = None,
     ) -> dict[str, Any]:
         """
         `Audiobooks > Get an Audiobook <https://developer.spotify.com
@@ -281,9 +285,7 @@ class WebAPIAudiobookEndpoints:
                 "GET", f"audiobooks/{audiobook_ids}", params={"market": market}
             ).json()
         return self._client._request(
-            "GET",
-            "audiobooks",
-            params={"ids": audiobook_ids, "market": market},
+            "GET", "audiobooks", params={"ids": audiobook_ids, "market": market}
         ).json()
 
     def get_audiobook_chapters(
@@ -399,6 +401,7 @@ class WebAPIAudiobookEndpoints:
                     "total": <int>
                   }
         """
+        self._client._validate_spotify_id(audiobook_id)
         return self._client._request(
             "GET",
             f"audiobooks/{audiobook_id}/chapters",
@@ -418,18 +421,13 @@ class WebAPIAudiobookEndpoints:
         /get-users-saved-audiobooks>`_: Get the audiobooks saved in the
         current user's "Your Music" library.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scope
            :class: authorization-scope
 
            .. tab:: Required
 
               :code:`user-library-read`
                  Access your saved content.
-
-           .. tab:: Optional
-
-              Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
 
         Parameters
         ----------

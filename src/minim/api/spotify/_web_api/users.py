@@ -118,6 +118,7 @@ class WebAPIUserEndpoints:
                        "uri": <str>
                      }
         """
+        self._client._validate_spotify_id(user_id, strict_length=False)
         return self._client._request(
             "GET", f"users/{user_id}" if user_id else "me"
         ).json()
@@ -135,13 +136,18 @@ class WebAPIUserEndpoints:
         /get-users-top-artists-and-tracks>`_: Get the current user's top
         artists based on calculated affinity.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scope and third-party application mode
            :class: authorization-scope
 
            .. tab:: Required
 
               :code:`user-top-read`
                  Read your top artists and contents.
+
+           .. tab:: Optional
+
+              Extended quota mode before November 11, 2024
+                  Access 30-second preview URLs.
 
         Parameters
         ----------
@@ -458,6 +464,7 @@ class WebAPIUserEndpoints:
             "follow_playlist",
             f"playlist-modify-{'public' if public else 'private'}",
         )
+        self._client._validate_spotify_id(playlist_id)
         self._client._request("PUT", f"playlists/{playlist_id}/followers")
 
     def unfollow_playlist(self, playlist_id: str, /) -> None:
@@ -483,15 +490,13 @@ class WebAPIUserEndpoints:
         """
         self._client._require_scopes(
             "unfollow_playlist",
-            {"playlist-modify-public", "playlist-modify-private"},
+            ["playlist-modify-public", "playlist-modify-private"],
         )
+        self._client._validate_spotify_id(playlist_id)
         self._client._request("DELETE", f"playlists/{playlist_id}/followers")
 
     def get_followed_artists(
-        self,
-        *,
-        after: str | None = None,
-        limit: int | None = None,
+        self, *, after: str | None = None, limit: int | None = None
     ) -> dict[str, Any]:
         """
         `Users > Get Followed Artists <https://developer.spotify.com
@@ -853,6 +858,7 @@ class WebAPIUserEndpoints:
 
                   True
         """
+        self._client._validate_spotify_id(playlist_id)
         return self._client._request(
             "GET", f"playlists/{playlist_id}/followers/contains"
         ).json()[0]

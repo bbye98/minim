@@ -331,6 +331,26 @@ class WebAPI(OAuth2API):
         return {scope for match in matches for scope in cls.get_scopes(match)}
 
     @staticmethod
+    def _validate_spotify_id(
+        spotify_id: str, /, *, strict_length: bool = True
+    ) -> None:
+        """
+        Validate Spotify ID.
+
+        Parameters
+        ----------
+        spotify_ids : str
+            Spotify ID.
+
+        strict_length : bool, keyword-only, default: :code:`True`
+            Specifies whether to only allow 22-character-long Spotify IDs.
+        """
+        if strict_length and len(spotify_id) != 22 or not spotify_id.isalnum():
+            raise ValueError(
+                f"{spotify_id!r} is not a valid base62 Spotify ID."
+            )
+
+    @staticmethod
     def _normalize_spotify_ids(
         spotify_ids: str | Collection[str],
         *,
@@ -367,10 +387,7 @@ class WebAPI(OAuth2API):
         if isinstance(spotify_ids, str):
             split_ids = spotify_ids.split(",")
             for id_ in split_ids:
-                if not id_.isalnum() or strict_length and len(id_) != 22:
-                    raise ValueError(
-                        f"{id_!r} is not a valid base62 Spotify ID."
-                    )
+                WebAPI._validate_spotify_id(id_, strict_length=strict_length)
             n_ids = len(split_ids)
             if n_ids > limit:
                 raise ValueError(
@@ -387,14 +404,15 @@ class WebAPI(OAuth2API):
         for id_ in spotify_ids:
             if not isinstance(id_, str):
                 raise ValueError("Spotify IDs must be provided as strings.")
-            if not id_.isalnum() or strict_length and len(id_) != 22:
-                raise ValueError(f"{id_!r} is not a valid base62 Spotify ID.")
+            WebAPI._validate_spotify_id(id_, strict_length=strict_length)
         return ",".join(spotify_ids), n_ids
 
     def _request(
         self,
         method: str,
         endpoint: str,
+        /,
+        *,
         retry: bool = True,
         **kwargs: dict[str, Any],
     ) -> "httpx.Response":
@@ -403,11 +421,15 @@ class WebAPI(OAuth2API):
 
         Parameters
         ----------
-        method : str
+        method : str, positional-only
             HTTP method.
 
-        endpoint : str
+        endpoint : str, positional-only
             Spotify Web API endpoint.
+
+        retry : bool, keyword-only, default: :code:`True`
+            Specifies whether to retry the request if the first attempt
+            returns a :code:`401 Unauthorized`.
 
         **kwargs : dict[str, Any]
             Keyword arguments to pass to :meth:`httpx.Client.request`.

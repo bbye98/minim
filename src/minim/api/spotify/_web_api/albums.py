@@ -25,7 +25,7 @@ class WebAPIAlbumEndpoints:
         self._client = client
 
     def get_albums(
-        self, album_ids: str | Collection[str], /, *, market: str = None
+        self, album_ids: str | Collection[str], /, *, market: str | None = None
     ) -> dict[str, Any]:
         """
         `Albums > Get Album <https://developer.spotify.com/documentation
@@ -428,6 +428,7 @@ class WebAPIAlbumEndpoints:
                     "total": <int>
                   }
         """
+        self._client._validate_spotify_id(album_id)
         return self._client._request(
             "GET",
             f"albums/{album_id}/tracks",
