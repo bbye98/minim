@@ -277,16 +277,20 @@ class WebAPIAudiobookEndpoints:
                      }
         """
         string = isinstance(audiobook_ids, str)
-        audiobook_ids, n_ids = self._client._normalize_spotify_ids(
+        audiobook_ids, n_ids = self._client._prepare_spotify_ids(
             audiobook_ids, limit=50
         )
+        params = {}
+        if market is not None:
+            self._client._validate_market(market)
+            params["market"] = market
         if string and n_ids == 1:
             return self._client._request(
-                "GET", f"audiobooks/{audiobook_ids}", params={"market": market}
+                "GET", f"audiobooks/{audiobook_ids}", params
             ).json()
-        return self._client._request(
-            "GET", "audiobooks", params={"ids": audiobook_ids, "market": market}
-        ).json()
+
+        params["ids"] = audiobook_ids
+        return self._client._request("GET", "audiobooks", params=params).json()
 
     def get_audiobook_chapters(
         self,
@@ -335,13 +339,15 @@ class WebAPIAudiobookEndpoints:
         limit : int, keyword-only, optional
             Maximum number of chapters to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
             Index of the first chapter to return. Use with `limit` to
             get the next set of chapters.
+
+            **Minimum value**: :code:`0`.
 
             **Default**: :code:`0`.
 
@@ -402,10 +408,18 @@ class WebAPIAudiobookEndpoints:
                   }
         """
         self._client._validate_spotify_id(audiobook_id)
+        params = {}
+        if market is not None:
+            self._client._validate_market(market)
+            params["market"] = market
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
         return self._client._request(
-            "GET",
-            f"audiobooks/{audiobook_id}/chapters",
-            params={"market": market, "limit": limit, "offset": offset},
+            "GET", f"audiobooks/{audiobook_id}/chapters", params=params
         ).json()
 
     def get_saved_audiobooks(
@@ -448,13 +462,15 @@ class WebAPIAudiobookEndpoints:
         limit : int, keyword-only, optional
             Maximum number of audiobooks to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
             Index of the first audiobook to return. Use with `limit` to
             get the next set of audiobook
+
+            **Minimum value**: :code:`0`.
 
             **Default**: :code:`0`.
 
@@ -524,10 +540,18 @@ class WebAPIAudiobookEndpoints:
         self._client._require_scopes(
             "get_saved_audiobooks", "user-library-read"
         )
+        params = {}
+        if market is not None:
+            self._client._validate_market(market)
+            params["market"] = market
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
         return self._client._request(
-            "GET",
-            "me/audiobooks",
-            params={"market": market, "limit": limit, "offset": offset},
+            "GET", "me/audiobooks", params=params
         ).json()
 
     def save_audiobooks(self, audiobook_ids: str | Collection[str], /) -> None:
@@ -560,7 +584,7 @@ class WebAPIAudiobookEndpoints:
             "PUT",
             "me/audiobooks",
             params={
-                "ids": self._client._normalize_spotify_ids(
+                "ids": self._client._prepare_spotify_ids(
                     audiobook_ids, limit=50
                 )[0]
             },
@@ -600,7 +624,7 @@ class WebAPIAudiobookEndpoints:
             "DELETE",
             "me/audiobooks",
             params={
-                "ids": self._client._normalize_spotify_ids(
+                "ids": self._client._prepare_spotify_ids(
                     audiobook_ids, limit=50
                 )[0]
             },
@@ -654,7 +678,7 @@ class WebAPIAudiobookEndpoints:
             "GET",
             "me/audiobooks/contains",
             params={
-                "ids": self._client._normalize_spotify_ids(
+                "ids": self._client._prepare_spotify_ids(
                     audiobook_ids, limit=20
                 )[0]
             },

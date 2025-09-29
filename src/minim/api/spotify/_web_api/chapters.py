@@ -257,7 +257,7 @@ class WebAPIChapterEndpoints:
                      }
         """
         string = isinstance(chapter_ids, str)
-        chapter_ids, n_ids = self._client._normalize_spotify_ids(
+        chapter_ids, n_ids = self._client._prepare_spotify_ids(
             chapter_ids, limit=50
         )
         if string and n_ids == 1:

@@ -154,16 +154,18 @@ class WebAPIShowEndpoints:
                      }
         """
         string = isinstance(show_ids, str)
-        show_ids, n_ids = self._client._normalize_spotify_ids(
-            show_ids, limit=50
-        )
+        show_ids, n_ids = self._client._prepare_spotify_ids(show_ids, limit=50)
+        params = {}
+        if market is not None:
+            self._client._validate_market(market)
+            params["market"] = market
         if string and n_ids == 1:
             return self._client._request(
-                "GET", f"shows/{show_ids}", params={"market": market}
+                "GET", f"shows/{show_ids}", params=params
             ).json()
-        return self._client._request(
-            "GET", "show", params={"ids": show_ids, "market": market}
-        ).json()
+
+        params["ids"] = show_ids
+        return self._client._request("GET", "show", params=params).json()
 
     def get_show_episodes(
         self,
@@ -216,7 +218,7 @@ class WebAPIShowEndpoints:
         limit : int, keyword-only, optional
             Maximum number of shows to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
@@ -224,10 +226,12 @@ class WebAPIShowEndpoints:
             Index of the first show to return. Use with `limit` to get
             the next set of shows.
 
+            **Minimum value**: :code:`0`.
+
             **Default**: :code:`0`.
 
-        Parameters
-        ----------
+        Returns
+        -------
         episodes : dict[str, Any]
             Spotify content metadata for the show's episodes.
 
@@ -286,10 +290,18 @@ class WebAPIShowEndpoints:
             "get_show_episodes", "user-read-playback-position"
         )
         self._client._validate_spotify_id(show_id)
+        params = {}
+        if market is not None:
+            self._client._validate_market(market)
+            params["market"] = market
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
         return self._client._request(
-            "GET",
-            f"shows/{show_id}/episodes",
-            params={"market": market, "limit": limit, "offset": offset},
+            "GET", f"shows/{show_id}/episodes", params=params
         )
 
     def get_saved_shows(
@@ -313,13 +325,15 @@ class WebAPIShowEndpoints:
         limit : int, keyword-only, optional
             Maximum number of shows to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
             Index of the first show to return. Use with `limit` to get
             the next set of shows.
+
+            **Minimum value**: :code:`0`.
 
             **Default**: :code:`0`.
 
@@ -380,9 +394,14 @@ class WebAPIShowEndpoints:
                   }
         """
         self._client._require_scopes("get_saved_shows", "user-library-read")
-        return self._client._request(
-            "GET", "me/shows", params={"limit": limit, "offset": offset}
-        ).json()
+        params = {}
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request("GET", "me/shows", params=params).json()
 
     def save_shows(self, show_ids: str | Collection[str], /) -> None:
         """
@@ -414,9 +433,7 @@ class WebAPIShowEndpoints:
             "PUT",
             "me/shows",
             params={
-                "ids": self._client._normalize_spotify_ids(show_ids, limit=50)[
-                    0
-                ]
+                "ids": self._client._prepare_spotify_ids(show_ids, limit=50)[0]
             },
         )
 
@@ -452,9 +469,7 @@ class WebAPIShowEndpoints:
             "DELETE",
             "me/shows",
             params={
-                "ids": self._client._normalize_spotify_ids(show_ids, limit=50)[
-                    0
-                ]
+                "ids": self._client._prepare_spotify_ids(show_ids, limit=50)[0]
             },
         )
 
@@ -501,8 +516,6 @@ class WebAPIShowEndpoints:
             "GET",
             "me/shows/contains",
             params={
-                "ids": self._client._normalize_spotify_ids(show_ids, limit=20)[
-                    0
-                ]
+                "ids": self._client._prepare_spotify_ids(show_ids, limit=20)[0]
             },
         ).json()

@@ -15,6 +15,8 @@ class WebAPIArtistEndpoints:
        should not be instantiated directly.
     """
 
+    _GROUPS = {"album", "single", "appears_on", "compilation"}
+
     def __init__(self, client: "WebAPI", /) -> None:
         """
         Parameters
@@ -115,7 +117,7 @@ class WebAPIArtistEndpoints:
                      }
         """
         string = isinstance(artist_ids, str)
-        artist_ids, n_ids = self._client._normalize_spotify_ids(
+        artist_ids, n_ids = self._client._prepare_spotify_ids(
             artist_ids, limit=50
         )
         if string and n_ids == 1:
@@ -173,13 +175,15 @@ class WebAPIArtistEndpoints:
         limit : int, keyword-only, optional
             Maximum number of albums to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
             Index of the first album to return. Use with `limit` to get
             the next set of albums.
+
+            **Minimum value**: :code:`0`.
 
             **Default**: :code:`0`.
 
@@ -243,15 +247,21 @@ class WebAPIArtistEndpoints:
                   }
         """
         self._client._validate_spotify_id(artist_id)
+        params = {}
+        if market is not None:
+            self._client._validate_market(market)
+            params["market"] = market
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        if include_groups is not None:
+            include_groups = self._prepare_groups(include_groups)
+            params["include_groups"] = include_groups
         return self._client._request(
-            "GET",
-            f"artists/{artist_id}/albums",
-            params={
-                "include_groups": include_groups,
-                "market": market,
-                "limit": limit,
-                "offset": offset,
-            },
+            "GET", f"artists/{artist_id}/albums", params=params
         ).json()
 
     def get_artist_top_tracks(
@@ -385,8 +395,12 @@ class WebAPIArtistEndpoints:
                   }
         """
         self._client._validate_spotify_id(artist_id)
+        params = {}
+        if market is not None:
+            self._client._validate_market(market)
+            params["market"] = market
         return self._client._request(
-            "GET", f"artists/{artist_id}/top-tracks", params={"market": market}
+            "GET", f"artists/{artist_id}/top-tracks", params=params
         ).json()
 
     def get_related_artists(self, artist_id: str, /) -> dict[str, Any]:
@@ -454,3 +468,43 @@ class WebAPIArtistEndpoints:
         return self._client._request(
             "GET", f"artists/{artist_id}/related-artists"
         ).json()
+
+    def _prepare_groups(self, groups: str | Collection[str], /) -> str:
+        """
+        Stringify a list of album types into a comma-delimited string.
+
+        Parameters
+        ----------
+        groups : str or Collection[str], positional-only
+            (Comma-delimited) list of album types.
+
+        Returns
+        -------
+        groups : str
+            Comma-delimited string containing album types.
+        """
+        if isinstance(groups, str):
+            split_groups = groups.split(",")
+            for group in split_groups:
+                self._validate_group(group)
+            return ",".join(sorted(split_groups))
+
+        groups = set(groups)
+        for group in groups:
+            self._validate_groups(group)
+        return ",".join(sorted(groups))
+
+    def _validate_group(self, group: str, /) -> None:
+        """
+        Validate album type.
+
+        Parameters
+        ----------
+        group : str, positional-only
+            Album type.
+        """
+        if group not in self._GROUPS:
+            raise ValueError(
+                f"{group!r} is not a valid album type. "
+                "Valid values: '" + ", ".join(self._GROUPS) + "'."
+            )

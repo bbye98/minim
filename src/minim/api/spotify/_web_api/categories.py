@@ -77,8 +77,11 @@ class WebAPICategoryEndpoints:
                     "name": <str>
                   }
         """
+        params = {}
+        if locale:
+            params["locale"] = locale
         return self._client._request(
-            "GET", f"browse/categories/{category_id}", params={"locale": locale}
+            "GET", f"browse/categories/{category_id}", params=params
         ).json()
 
     def get_categories(
@@ -114,13 +117,15 @@ class WebAPICategoryEndpoints:
         limit : int, keyword-only, optional
             Maximum number of categories to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
             Index of the first category to return. Use with `limit` to
             get the next set of categories.
+
+            **Minimum value**: :code:`0`.
 
             **Default**: :code:`0`.
 
@@ -159,8 +164,15 @@ class WebAPICategoryEndpoints:
                     }
                   }
         """
+        params = {}
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        if locale:
+            params["locale"] = locale
         return self._client._request(
-            "GET",
-            "browse/categories",
-            params={"locale": locale, "limit": limit, "offset": offset},
+            "GET", "browse/categories", params=params
         ).json()

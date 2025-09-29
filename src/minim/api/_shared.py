@@ -6,6 +6,7 @@ import hashlib
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import os
 import secrets
+from textwrap import dedent
 import threading
 import time
 from typing import Any
@@ -46,22 +47,23 @@ class OAuth2RedirectHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
             self.end_headers()
-            html = """
-<html>
-  <body>
-    <script>
-      const params = new URLSearchParams(window.location.hash.substring(1));
-      const query = Array.from(params.entries())
-        .map(e => e.join('='))
-        .join('&');
-      fetch('/callback?' + query)
-        .then(response => response.text())
-        .then(text => document.body.innerHTML = text);
-    </script>
-  </body>
-</html>
-            """
-            self.wfile.write(html.encode())
+            self.wfile.write(
+                dedent("""\\
+                    <html>
+                    <body>
+                        <script>
+                        const params = new URLSearchParams(window.location.hash.substring(1));
+                        const query = Array.from(params.entries())
+                            .map(e => e.join('='))
+                            .join('&');
+                        fetch('/callback?' + query)
+                            .then(response => response.text())
+                            .then(text => document.body.innerHTML = text);
+                        </script>
+                    </body>
+                    </html>
+                """).encode()
+            )
 
     def log_message(
         self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
@@ -302,6 +304,61 @@ class OAuth2API(ABC):
             self._obtain_access_token()
 
     @classmethod
+    @abstractmethod
+    def get_scopes(
+        cls, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+    ) -> set[str]:
+        """
+        Retrieve a set of authorization scopes.
+
+        Parameters
+        ----------
+        *args : tuple[Any, ...]
+            Positional arguments to be defined by subclasses.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to be defined by subclasses.
+
+        Returns
+        -------
+        scopes : set[str]
+            Authorization scopes.
+        """
+        ...
+
+    @abstractmethod
+    def _request(
+        self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
+    ) -> httpx.Response:
+        """
+        Make an HTTP request to an API endpoint.
+
+        Parameters
+        ----------
+        method : str, positional-only
+            HTTP method.
+
+        endpoint : str, positional-only
+            API endpoint.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
+
+        Returns
+        -------
+        response : httpx.Response
+            HTTP response.
+        """
+        ...
+
+    @abstractmethod
+    def _resolve_user_identifier(self) -> None:
+        """
+        Resolve and assign a user identifier for the current account.
+        """
+        ...
+
+    @classmethod
     def clear_token_storage(cls) -> None:
         """
         Clear all stored access tokens and related information for
@@ -451,6 +508,50 @@ class OAuth2API(ABC):
                 f"{client_id}:{flow}:{user_identifier}".encode()
             ).hexdigest()
         return f"last_{flow}"
+
+    @staticmethod
+    def _validate_number(
+        name: str,
+        value: int,
+        data_type: type,
+        lower_bound: int | None = None,
+        upper_bound: int | None = None,
+    ) -> None:
+        """
+        Validate an integer value.
+
+        Parameters
+        ----------
+        name : str
+            Variable name.
+
+        value : int
+            Integer value.
+
+        lower_bound : int, optional
+            Lower bound, inclusive.
+
+        upper_bound : int, optional
+            Upper bound, inclusive.
+        """
+        if lower_bound is None:
+            if upper_bound is None:
+                emsg_suffix = ""
+            else:
+                emsg_suffix = f" less than {upper_bound}, inclusive"
+        else:
+            if upper_bound is None:
+                emsg_suffix = f" greater than {lower_bound}, inclusive"
+            else:
+                emsg_suffix = (
+                    f" between {lower_bound} and {upper_bound}, inclusive"
+                )
+        if not (
+            isinstance(value, data_type)
+            and (lower_bound is None or value >= lower_bound)
+            and (upper_bound is None or value <= upper_bound)
+        ):
+            raise ValueError(f"`{name}` must be an integer{emsg_suffix}.")
 
     def close(self) -> None:
         """
@@ -1028,58 +1129,3 @@ class OAuth2API(ABC):
                 flow, client_id, user_identifier
             )
             self._user_identifier = user_identifier
-
-    @classmethod
-    @abstractmethod
-    def get_scopes(
-        cls, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> set[str]:
-        """
-        Retrieve a set of authorization scopes.
-
-        Parameters
-        ----------
-        *args : tuple[Any, ...]
-            Positional arguments to be defined by subclasses.
-
-        **kwargs : dict[str, Any]
-            Keyword arguments to be defined by subclasses.
-
-        Returns
-        -------
-        scopes : set[str]
-            Authorization scopes.
-        """
-        ...
-
-    @abstractmethod
-    def _request(
-        self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
-    ) -> httpx.Response:
-        """
-        Make an HTTP request to an API endpoint.
-
-        Parameters
-        ----------
-        method : str, positional-only
-            HTTP method.
-
-        endpoint : str, positional-only
-            API endpoint.
-
-        **kwargs : dict[str, Any]
-            Keyword arguments to pass to :meth:`httpx.Client.request`.
-
-        Returns
-        -------
-        response : httpx.Response
-            HTTP response.
-        """
-        ...
-
-    @abstractmethod
-    def _resolve_user_identifier(self) -> None:
-        """
-        Resolve and assign a user identifier for the current account.
-        """
-        ...

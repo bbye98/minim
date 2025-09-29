@@ -296,18 +296,21 @@ class WebAPIAlbumEndpoints:
                        ]
                      }
         """
-
-        string = isinstance(album_ids, str)
-        album_ids, n_ids = self._client._normalize_spotify_ids(
+        is_string = isinstance(album_ids, str)
+        album_ids, n_ids = self._client._prepare_spotify_ids(
             album_ids, limit=20
         )
-        if string and n_ids == 1:
+        params = {}
+        if market is not None:
+            self._client._validate_market(market)
+            params["market"] = market
+        if is_string and n_ids == 1:
             return self._client._request(
-                "GET", f"albums/{album_ids}", params={"market": market}
+                "GET", f"albums/{album_ids}", params=params
             ).json()
-        return self._client._request(
-            "GET", "albums", params={"ids": album_ids, "market": market}
-        ).json()
+
+        params["ids"] = album_ids
+        return self._client._request("GET", "albums", params=params).json()
 
     def get_album_tracks(
         self,
@@ -355,13 +358,15 @@ class WebAPIAlbumEndpoints:
         limit : int, keyword-only, optional
             Maximum number of tracks to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
             Index of the first track to return. Use with `limit` to get
             the next set of tracks.
+
+            **Minimum value**: :code:`0`.
 
             **Default**: :code:`0`.
 
@@ -429,10 +434,18 @@ class WebAPIAlbumEndpoints:
                   }
         """
         self._client._validate_spotify_id(album_id)
+        params = {}
+        if market is not None:
+            self._client._validate_market(market)
+            params["market"] = market
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
         return self._client._request(
-            "GET",
-            f"albums/{album_id}/tracks",
-            params={"market": market, "limit": limit, "offset": offset},
+            "GET", f"albums/{album_id}/tracks", params=params
         ).json()
 
     def get_saved_albums(
@@ -479,13 +492,15 @@ class WebAPIAlbumEndpoints:
         limit : int, keyword-only, optional
             Maximum number of albums to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
             Index of the first album to return. Use with `limit` to get
             the next set of albums.
+
+            **Minimum value**: :code:`0`.
 
             **Default**: :code:`0`.
 
@@ -617,11 +632,17 @@ class WebAPIAlbumEndpoints:
                   }
         """
         self._client._require_scopes("get_saved_albums", "user-library-read")
-        return self._client._request(
-            "GET",
-            "me/albums",
-            params={"market": market, "limit": limit, "offset": offset},
-        ).json()
+        params = {}
+        if market is not None:
+            self._client._validate_market(market)
+            params["market"] = market
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request("GET", "me/albums", params=params).json()
 
     def save_albums(self, album_ids: str | Collection[str], /) -> None:
         """
@@ -654,9 +675,7 @@ class WebAPIAlbumEndpoints:
             "PUT",
             "me/albums",
             params={
-                "ids": self._client._normalize_spotify_ids(album_ids, limit=20)[
-                    0
-                ]
+                "ids": self._client._prepare_spotify_ids(album_ids, limit=20)[0]
             },
         )
 
@@ -693,9 +712,7 @@ class WebAPIAlbumEndpoints:
             "DELETE",
             "me/albums",
             params={
-                "ids": self._client._normalize_spotify_ids(album_ids, limit=20)[
-                    0
-                ]
+                "ids": self._client._prepare_spotify_ids(album_ids, limit=20)[0]
             },
         )
 
@@ -745,9 +762,7 @@ class WebAPIAlbumEndpoints:
             "GET",
             "me/albums/contains",
             params={
-                "ids": self._client._normalize_spotify_ids(album_ids, limit=20)[
-                    0
-                ]
+                "ids": self._client._prepare_spotify_ids(album_ids, limit=20)[0]
             },
         ).json()
 
@@ -757,20 +772,22 @@ class WebAPIAlbumEndpoints:
         """
         `Albums > Get New Releases <https://developer.spotify.com
         /documentation/web-api/reference/get-new-releases>`_: Get a list
-        of new album releases featured on Spotify (in the "Browse" tab).
+        of new album releases featured on Spotify.
 
         Parameters
         ----------
         limit : int, keyword-only, optional
             Maximum number of albums to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
             Index of the first album to return. Use with `limit` to get
             the next set of albums.
+
+            **Minimum value**: :code:`0`.
 
             **Default**: :code:`0`.
 
@@ -834,8 +851,13 @@ class WebAPIAlbumEndpoints:
                     }
                   }
         """
+        params = {}
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
         return self._client._request(
-            "GET",
-            "browse/new-releases",
-            params={"limit": limit, "offset": offset},
+            "GET", "browse/new-releases", params=params
         ).json()

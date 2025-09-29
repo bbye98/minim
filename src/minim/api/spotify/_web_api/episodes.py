@@ -156,7 +156,7 @@ class WebAPIEpisodeEndpoints:
                        "uri": <str>
                      }
 
-               .. tag:: Multiple show episodes
+               .. tab:: Multiple show episodes
 
                   .. code::
 
@@ -233,16 +233,20 @@ class WebAPIEpisodeEndpoints:
                      }
         """
         string = isinstance(episode_ids, str)
-        episode_ids, n_ids = self._client._normalize_spotify_ids(
+        episode_ids, n_ids = self._client._prepare_spotify_ids(
             episode_ids, limit=50
         )
+        params = {}
+        if market is not None:
+            self._client._validate_market(market)
+            params["market"] = market
         if string and n_ids == 1:
             return self._client._request(
-                "GET", f"episodes/{episode_ids}", params={"market": market}
+                "GET", f"episodes/{episode_ids}", params=params
             ).json()
-        return self._client._request(
-            "GET", "episodes", params={"ids": episode_ids, "market": market}
-        ).json()
+
+        params["ids"] = episode_ids
+        return self._client._request("GET", "episodes", params=params).json()
 
     def get_saved_episodes(
         self,
@@ -292,13 +296,15 @@ class WebAPIEpisodeEndpoints:
         limit : int, keyword-only, optional
             Maximum number of show episodes to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
             Index of the first show episode to return. Use with `limit`
             to get the next set of show episodes.
+
+            **Minimum value**: :code:`0`.
 
             **Default**: :code:`0`.
 
@@ -397,11 +403,17 @@ class WebAPIEpisodeEndpoints:
             "get_saved_episodes",
             ["user-library-read", "user-read-playback-position"],
         )
-        return self._client._request(
-            "GET",
-            "me/episodes",
-            params={"market": market, "limit": limit, "offset": offset},
-        ).json()
+        params = {}
+        if market is not None:
+            self._client._validate_market(market)
+            params["market"] = market
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request("GET", "me/episodes", params=params).json()
 
     def save_episodes(self, episode_ids: str | Collection[str], /) -> None:
         """
@@ -433,9 +445,9 @@ class WebAPIEpisodeEndpoints:
             "PUT",
             "me/episodes",
             params={
-                "ids": self._client._normalize_spotify_ids(
-                    episode_ids, limit=50
-                )[0]
+                "ids": self._client._prepare_spotify_ids(episode_ids, limit=50)[
+                    0
+                ]
             },
         )
 
@@ -473,9 +485,9 @@ class WebAPIEpisodeEndpoints:
             "DELETE",
             "me/episodes",
             params={
-                "ids": self._client._normalize_spotify_ids(
-                    episode_ids, limit=50
-                )[0]
+                "ids": self._client._prepare_spotify_ids(episode_ids, limit=50)[
+                    0
+                ]
             },
         )
 
@@ -525,8 +537,8 @@ class WebAPIEpisodeEndpoints:
             "GET",
             "me/episodes/contains",
             params={
-                "ids": self._client._normalize_spotify_ids(
-                    episode_ids, limit=50
-                )[0]
+                "ids": self._client._prepare_spotify_ids(episode_ids, limit=50)[
+                    0
+                ]
             },
         ).json()

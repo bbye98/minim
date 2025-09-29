@@ -14,6 +14,8 @@ class WebAPIUserEndpoints:
        should not be instantiated directly.
     """
 
+    _TIME_RANGES = {"long_term", "medium_term", "short_term"}
+
     def __init__(self, client: "WebAPI", /) -> None:
         """
         Parameters
@@ -170,13 +172,15 @@ class WebAPIUserEndpoints:
         limit : int, keyword-only, optional
             Maximum number of items to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
             Index of the first item to return. Use with `limit` to get
             the next set of items.
+
+            **Minimum value**: :code:`0`.
 
             **Default**: :code:`0`.
 
@@ -271,10 +275,18 @@ class WebAPIUserEndpoints:
                   }
         """
         self._client._require_scopes("get_top_artists", "user-top-read")
+        params = {}
+        if time_range:
+            self._validate_time_range(time_range)
+            params["time_range"] = time_range
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
         return self._client._request(
-            "GET",
-            "me/top/artists",
-            params={"time_range": time_range, "limit": limit, "offset": offset},
+            "GET", "me/top/artists", params=params
         ).json()
 
     def get_top_tracks(
@@ -324,13 +336,15 @@ class WebAPIUserEndpoints:
         limit : int, keyword-only, optional
             Maximum number of items to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
             Index of the first item to return. Use with `limit` to get
             the next set of items.
+
+            **Minimum value**: :code:`0`.
 
             **Default**: :code:`0`.
 
@@ -425,10 +439,18 @@ class WebAPIUserEndpoints:
                   }
         """
         self._client._require_scopes("get_top_tracks", "user-top-read")
+        params = {}
+        if time_range:
+            self._validate_time_range(time_range)
+            params["time_range"] = time_range
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
         return self._client._request(
-            "GET",
-            "me/top/tracks",
-            params={"time_range": time_range, "limit": limit, "offset": offset},
+            "GET", "me/top/tracks", params=params
         ).json()
 
     def follow_playlist(
@@ -465,7 +487,12 @@ class WebAPIUserEndpoints:
             f"playlist-modify-{'public' if public else 'private'}",
         )
         self._client._validate_spotify_id(playlist_id)
-        self._client._request("PUT", f"playlists/{playlist_id}/followers")
+        json = {}
+        if isinstance(public, bool):
+            json["public"] = public
+        self._client._request(
+            "PUT", f"playlists/{playlist_id}/followers", json=json
+        )
 
     def unfollow_playlist(self, playlist_id: str, /) -> None:
         """
@@ -522,7 +549,7 @@ class WebAPIUserEndpoints:
         limit : int, keyword-only, optional
             Maximum number of artists to return.
 
-            **Valid values**: :code:`1` to :code:`50`.
+            **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
@@ -576,10 +603,15 @@ class WebAPIUserEndpoints:
                   }
         """
         self._client._require_scopes("get_followed_artists", "user-follow-read")
+        params = {"type": "artist"}
+        if after is not None:
+            self._client._validate_spotify_id(after)
+            params["after"] = after
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
         return self._client._request(
-            "GET",
-            "me/following",
-            params={"type": "artist", "after": after, "limit": limit},
+            "GET", "me/following", params=params
         ).json()
 
     def follow_artists(self, artist_ids: str | list[str], /) -> None:
@@ -613,9 +645,9 @@ class WebAPIUserEndpoints:
             "me/following",
             params={
                 "type": "artist",
-                "ids": self._client._normalize_spotify_ids(
-                    artist_ids, limit=50
-                )[0],
+                "ids": self._client._prepare_spotify_ids(artist_ids, limit=50)[
+                    0
+                ],
             },
         )
 
@@ -650,7 +682,7 @@ class WebAPIUserEndpoints:
             "me/following",
             params={
                 "type": "user",
-                "ids": self._client._normalize_spotify_ids(
+                "ids": self._client._prepare_spotify_ids(
                     user_ids, limit=50, strict_length=False
                 )[0],
             },
@@ -687,9 +719,9 @@ class WebAPIUserEndpoints:
             "me/following",
             params={
                 "type": "artist",
-                "ids": self._client._normalize_spotify_ids(
-                    artist_ids, limit=50
-                )[0],
+                "ids": self._client._prepare_spotify_ids(artist_ids, limit=50)[
+                    0
+                ],
             },
         )
 
@@ -724,7 +756,7 @@ class WebAPIUserEndpoints:
             "me/following",
             params={
                 "type": "user",
-                "ids": self._client._normalize_spotify_ids(
+                "ids": self._client._prepare_spotify_ids(
                     user_ids, limit=50, strict_length=False
                 )[0],
             },
@@ -776,9 +808,9 @@ class WebAPIUserEndpoints:
             "me/following/contains",
             params={
                 "type": "artist",
-                "ids": self._client._normalize_spotify_ids(
-                    artist_ids, limit=50
-                )[0],
+                "ids": self._client._prepare_spotify_ids(artist_ids, limit=50)[
+                    0
+                ],
             },
         ).json()
 
@@ -826,7 +858,7 @@ class WebAPIUserEndpoints:
             "me/following/contains",
             params={
                 "type": "user",
-                "ids": self._client._normalize_spotify_ids(
+                "ids": self._client._prepare_spotify_ids(
                     user_ids, limit=50, strict_length=False
                 )[0],
             },
@@ -862,3 +894,21 @@ class WebAPIUserEndpoints:
         return self._client._request(
             "GET", f"playlists/{playlist_id}/followers/contains"
         ).json()[0]
+
+    def _validate_time_range(self, time_range: str, /) -> None:
+        """
+        Validate time frame.
+
+        Parameters
+        ----------
+        time_range : str, positional-only
+            Time frame.
+        """
+        if (
+            not isinstance(time_range, str)
+            or time_range not in self._TIME_RANGES
+        ):
+            raise ValueError(
+                f"{time_range!r} is not valid time frame. "
+                "Valid values: '" + ", ".join(self._TIME_RANGES) + "'."
+            )

@@ -1,5 +1,6 @@
 from collections.abc import Collection
 from datetime import datetime
+from functools import cached_property
 from json.decoder import JSONDecodeError
 from typing import TYPE_CHECKING, Any
 import warnings
@@ -16,8 +17,8 @@ from ._web_api.markets import WebAPIMarketEndpoints
 
 # from ._web_api.player import WebAPIPlayerEndpoints
 # from ._web_api.playlists import WebAPIPlaylistEndpoints
-# from ._web_api.search import WebAPISearchEndpoints
-# from ._web_api.shows import WebAPIShowEndpoints
+from ._web_api.search import WebAPISearchEndpoints
+from ._web_api.shows import WebAPIShowEndpoints
 from ._web_api.tracks import WebAPITrackEndpoints
 from ._web_api.users import WebAPIUserEndpoints
 
@@ -211,9 +212,9 @@ class WebAPI(OAuth2API):
         #: Spotify Web API playlist endpoints.
         # self.playlists: WebAPIPlaylistEndpoints = WebAPIPlaylistEndpoints(self)
         #: Spotify Web API search endpoints.
-        # self.search: WebAPISearchEndpoints = WebAPISearchEndpoints(self)
+        self.search: WebAPISearchEndpoints = WebAPISearchEndpoints(self)
         #: Spotify Web API show endpoints.
-        # self.shows: WebAPIShowEndpoints = WebAPIShowEndpoints(self)
+        self.shows: WebAPIShowEndpoints = WebAPIShowEndpoints(self)
         #: Spotify Web API track endpoints.
         self.tracks: WebAPITrackEndpoints = WebAPITrackEndpoints(self)
         #: Spotify Web API user endpoints.
@@ -331,6 +332,62 @@ class WebAPI(OAuth2API):
         return {scope for match in matches for scope in cls.get_scopes(match)}
 
     @staticmethod
+    def _prepare_spotify_ids(
+        spotify_ids: str | Collection[str],
+        /,
+        *,
+        limit: int,
+        strict_length: bool = True,
+    ) -> tuple[str, int]:
+        """
+        Stringify a list of Spotify IDs into a comma-delimited string.
+
+        Parameters
+        ----------
+        spotify_ids : str or Collection[str], positional-only
+            (Comma-delimited) list of Spotify IDs.
+
+        limit : int, keyword-only
+            Maximum number of Spotify IDs that can be sent in the
+            request.
+
+        strict_length : bool, keyword-only, default: :code:`True`
+            Specifies whether to only allow 22-character-long Spotify IDs.
+
+        Returns
+        -------
+        spotify_ids : str
+            Comma-delimited string containing Spotify IDs.
+
+        single : bool
+            Specifies whether to use the API endpoint for a single
+            item request.
+        """
+        if not spotify_ids:
+            raise ValueError("At least one Spotify ID must be specified.")
+
+        if isinstance(spotify_ids, str):
+            split_ids = spotify_ids.split(",")
+            n_ids = len(split_ids)
+            if n_ids > limit:
+                raise ValueError(
+                    f"A maximum of {limit} Spotify IDs can be sent in "
+                    "one request."
+                )
+            for id_ in split_ids:
+                WebAPI._validate_spotify_id(id_, strict_length=strict_length)
+            return spotify_ids, n_ids
+
+        n_ids = len(spotify_ids)
+        if n_ids > limit:
+            raise ValueError(
+                f"A maximum of {limit} Spotify IDs can be sent in one request."
+            )
+        for id_ in spotify_ids:
+            WebAPI._validate_spotify_id(id_, strict_length=strict_length)
+        return ",".join(spotify_ids), n_ids
+
+    @staticmethod
     def _validate_spotify_id(
         spotify_id: str, /, *, strict_length: bool = True
     ) -> None:
@@ -345,67 +402,41 @@ class WebAPI(OAuth2API):
         strict_length : bool, keyword-only, default: :code:`True`
             Specifies whether to only allow 22-character-long Spotify IDs.
         """
-        if strict_length and len(spotify_id) != 22 or not spotify_id.isalnum():
+        if (
+            not isinstance(spotify_id, str)
+            or strict_length
+            and len(spotify_id) != 22
+            or not spotify_id.isalnum()
+        ):
             raise ValueError(
                 f"{spotify_id!r} is not a valid base62 Spotify ID."
             )
 
-    @staticmethod
-    def _normalize_spotify_ids(
-        spotify_ids: str | Collection[str],
-        *,
-        limit: int,
-        strict_length: bool = True,
-    ) -> tuple[str, int]:
+    @cached_property
+    def available_seed_genres(self) -> list[str]:
         """
-        Stringify a list of Spotify IDs into a comma-delimited string.
+        Available seed genres for recommendations.
 
-        Parameters
-        ----------
-        spotify_ids : str or Collection[str]
-            (Comma-delimited) list of Spotify IDs.
+        .. note::
 
-        limit : int, keyword-only
-            Maximum number of Spotify IDs that can be sent in the
-            request.
-
-        strict_length : bool, keyword-only, default: :code:`True`
-            Specifies whether to only allow 22-character-long Spotify IDs.
-
-        Parameters
-        ----------
-        spotify_ids : str
-            Comma-delimited list of Spotify IDs.
-
-        single : bool
-            Specifies whether to use the API endpoint for a single
-            item request.
+           Accessing this property for the first time will call
+           :meth:`~minim.api.spotify.WebAPIGenreEndpoints.get_available_seed_genres`
+           and cache the inner `genres` list for later use.
         """
-        if not spotify_ids:
-            raise ValueError("At least one Spotify ID must be specified.")
+        return self.genres.get_available_seed_genres()["genres"]
 
-        if isinstance(spotify_ids, str):
-            split_ids = spotify_ids.split(",")
-            for id_ in split_ids:
-                WebAPI._validate_spotify_id(id_, strict_length=strict_length)
-            n_ids = len(split_ids)
-            if n_ids > limit:
-                raise ValueError(
-                    f"A maximum of {limit} Spotify IDs can be sent in "
-                    "one request."
-                )
-            return spotify_ids, n_ids
+    @cached_property
+    def available_markets(self) -> list[str]:
+        """
+        Markets where Spotify is available.
 
-        n_ids = len(spotify_ids)
-        if n_ids > limit:
-            raise ValueError(
-                f"A maximum of {limit} Spotify IDs can be sent in one request."
-            )
-        for id_ in spotify_ids:
-            if not isinstance(id_, str):
-                raise ValueError("Spotify IDs must be provided as strings.")
-            WebAPI._validate_spotify_id(id_, strict_length=strict_length)
-        return ",".join(spotify_ids), n_ids
+        .. note::
+
+           Accessing this property for the first time will call
+           :meth:`~minim.api.spotify.WebAPIMarketEndpoints.get_available_markets`
+           and cache the inner `markets` list for later use.
+        """
+        return self.markets.get_available_markets()["markets"]
 
     def _request(
         self,
@@ -462,3 +493,41 @@ class WebAPI(OAuth2API):
         current account.
         """
         self._user_identifier = self.users.get_profile()["id"]
+
+    def _validate_market(self, market: str, /) -> None:
+        """
+        Validate market.
+
+        Parameters
+        ----------
+        market : str, positional-only
+            ISO 3166-1 alpha-2 country code.
+        """
+        if (
+            not isinstance(market, str)
+            or "markets" in self.__dict__
+            and market not in self.available_markets
+        ):
+            raise ValueError(
+                f"{market!r} is not a market in which Spotify is available. "
+                "Valid values: '" + ", ".join(self.available_markets) + "'."
+            )
+
+    def _validate_seed_genre(self, seed_genre: str, /) -> None:
+        """
+        Validate seed genre.
+
+        Parameters
+        ----------
+        seed_genre : str, positional-only
+            Seed genre.
+        """
+        if (
+            not isinstance(seed_genre, str)
+            or "available_seed_genres" in self.__dict__
+            and seed_genre not in self.available_seed_genres
+        ):
+            raise ValueError(
+                f"{seed_genre!r} is not a valid seed genre. "
+                "Valid values: '" + ", ".join(self.available_seed_genres) + "'."
+            )
