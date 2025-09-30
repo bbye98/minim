@@ -115,9 +115,7 @@ class WebAPIChapterEndpoints:
                              "width": <int>
                            }
                          ],
-                         "languages": [
-                           "string"
-                         ],
+                         "languages": <list[str]>,
                          "media_type": <str>,
                          "name": <str>,
                          "narrators": [
@@ -130,9 +128,7 @@ class WebAPIChapterEndpoints:
                          "type": <str>,
                          "uri": <str>
                        },
-                       "available_markets": [
-                         "string"
-                       ],
+                       "available_markets": <list[str]>,
                        "chapter_number": <int>,
                        "description": <str>,
                        "duration_ms": <int>,
@@ -203,9 +199,7 @@ class WebAPIChapterEndpoints:
                                  "width": <int>
                                }
                              ],
-                             "languages": [
-                               "string"
-                             ],
+                             "languages": <list[str]>,
                              "media_type": <str>,
                              "name": <str>,
                              "narrators": [
@@ -218,9 +212,7 @@ class WebAPIChapterEndpoints:
                              "type": <str>,
                              "uri": <str>
                            },
-                           "available_markets": [
-                             "string"
-                           ],
+                           "available_markets": <list[str]>,
                            "chapter_number": <int>,
                            "description": <str>,
                            "duration_ms": <int>,

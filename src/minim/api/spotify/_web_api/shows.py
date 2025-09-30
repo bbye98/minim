@@ -88,6 +88,51 @@ class WebAPIShowEndpoints:
                          }
                        ],
                        "description": <str>,
+                       "episodes": {
+                         "href": <str>,
+                         "items": [
+                           {
+                             "audio_preview_url": <str>,
+                             "description": <str>,
+                             "duration_ms": <int>,
+                             "explicit": <bool>,
+                             "external_urls": {
+                               "spotify": <str>
+                             },
+                             "href": <str>,
+                             "html_description": <str>,
+                             "id": <str>,
+                             "images": [
+                               {
+                                 "height": <int>,
+                                 "url": <str>,
+                                 "width": <int>
+                               }
+                             ],
+                             "is_externally_hosted": <bool>,
+                             "is_playable": <bool>,
+                             "language": <str>,
+                             "languages": <list[str]>,
+                             "name": <str>,
+                             "release_date": <str>,
+                             "release_date_precision": <str>,
+                             "restrictions": {
+                               "reason": <str>
+                             },
+                             "resume_point": {
+                               "fully_played": <bool>,
+                               "resume_position_ms": <int>
+                             },
+                             "type": <str>,
+                             "uri": <str>
+                           }
+                         ],
+                         "limit": <int>,
+                         "next": <str>,
+                         "offset": <int>,
+                         "previous": <str>,
+                         "total": <int>
+                       },
                        "explicit": <bool>,
                        "external_urls": {
                          "spotify": <str>
@@ -127,6 +172,51 @@ class WebAPIShowEndpoints:
                              }
                            ],
                            "description": <str>,
+                           "episodes": {
+                             "href": <str>,
+                             "items": [
+                               {
+                                 "audio_preview_url": <str>,
+                                 "description": <str>,
+                                 "duration_ms": <int>,
+                                 "explicit": <bool>,
+                                 "external_urls": {
+                                   "spotify": <str>
+                                 },
+                                 "href": <str>,
+                                 "html_description": <str>,
+                                 "id": <str>,
+                                 "images": [
+                                   {
+                                     "height": <int>,
+                                     "url": <str>,
+                                     "width": <int>
+                                   }
+                                 ],
+                                 "is_externally_hosted": <bool>,
+                                 "is_playable": <bool>,
+                                 "language": <str>,
+                                 "languages": <list[str]>,
+                                 "name": <str>,
+                                 "release_date": <str>,
+                                 "release_date_precision": <str>,
+                                 "restrictions": {
+                                   "reason": <str>
+                                 },
+                                 "resume_point": {
+                                   "fully_played": <bool>,
+                                   "resume_position_ms": <int>
+                                 },
+                                 "type": <str>,
+                                 "uri": <str>
+                               }
+                             ],
+                             "limit": <int>,
+                             "next": <str>,
+                             "offset": <int>,
+                             "previous": <str>,
+                             "total": <int>
+                           },
                            "explicit": <bool>,
                            "external_urls": {
                              "spotify": <str>

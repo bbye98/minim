@@ -125,7 +125,7 @@ class WebAPIUserEndpoints:
             "GET", f"users/{user_id}" if user_id else "me"
         ).json()
 
-    def get_top_artists(
+    def get_my_top_artists(
         self,
         *,
         time_range: str | None = None,
@@ -289,7 +289,7 @@ class WebAPIUserEndpoints:
             "GET", "me/top/artists", params=params
         ).json()
 
-    def get_top_tracks(
+    def get_my_top_tracks(
         self,
         *,
         time_range: str | None = None,
@@ -484,14 +484,14 @@ class WebAPIUserEndpoints:
         """
         self._client._require_scopes(
             "follow_playlist",
-            f"playlist-modify-{'public' if public else 'private'}",
+            {"playlist-modify-public", "playlist-modify-private"},
         )
         self._client._validate_spotify_id(playlist_id)
-        json = {}
+        payload = {}
         if isinstance(public, bool):
-            json["public"] = public
+            payload["public"] = public
         self._client._request(
-            "PUT", f"playlists/{playlist_id}/followers", json=json
+            "PUT", f"playlists/{playlist_id}/followers", json=payload
         )
 
     def unfollow_playlist(self, playlist_id: str, /) -> None:
@@ -517,12 +517,12 @@ class WebAPIUserEndpoints:
         """
         self._client._require_scopes(
             "unfollow_playlist",
-            ["playlist-modify-public", "playlist-modify-private"],
+            {"playlist-modify-public", "playlist-modify-private"},
         )
         self._client._validate_spotify_id(playlist_id)
         self._client._request("DELETE", f"playlists/{playlist_id}/followers")
 
-    def get_followed_artists(
+    def get_my_followed_artists(
         self, *, after: str | None = None, limit: int | None = None
     ) -> dict[str, Any]:
         """

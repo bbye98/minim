@@ -553,6 +553,28 @@ class OAuth2API(ABC):
         ):
             raise ValueError(f"`{name}` must be an integer{emsg_suffix}.")
 
+    @staticmethod
+    def _validate_type(name: str, value: Any, data_type: type) -> None:
+        """
+        Validate the data type of a variable.
+
+        Parameters
+        ----------
+        name : str
+            Variable name.
+
+        value : Any
+            Variable value.
+
+        data_type : type
+            Allowed data type.
+        """
+        if not isinstance(value, data_type):
+            raise ValueError(
+                f"`{name}` must be {data_type.__name__}, not "
+                f"{type(value).__name__}."
+            )
+
     def close(self) -> None:
         """
         Terminate the HTTP client session.

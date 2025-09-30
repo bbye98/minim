@@ -56,6 +56,14 @@ class WebAPISearchEndpoints:
            Audiobooks are only available in the US, UK, Canada, Ireland,
            New Zealand, and Australia markets.
 
+        .. admonition:: Third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              Extended quota mode before November 11, 2024
+                  Access 30-second preview URLs.
+
         Parameters
         ----------
         query : str, positional-only
@@ -73,7 +81,7 @@ class WebAPISearchEndpoints:
                * :code:`artist` and :code:`year` can be used when
                  searching albums, artists and tracks. The :code:`year`
                  filter accepts a single year or a range (e.g.,
-                 1955-1960).
+                 :code:`"year:1955-1960"`).
 
                * :code:`album` can be used when searching albums and
                  tracks.
@@ -85,10 +93,10 @@ class WebAPISearchEndpoints:
                  searching tracks.
 
                * :code:`upc`, :code:`tag:new`, and :code:`tag:hipster`
-                 can only be used while searching albums. The
-                 :code:`tag:new` filter returns albums released in the
-                 past two weeks, and the :code:`tag:hipster` filter
-                 returns albums in the lowest 10% popularity.
+                 can be used when searching albums. The :code:`tag:new`
+                 filter returns albums released in the past two weeks,
+                 and the :code:`tag:hipster` filter returns albums in
+                 the lowest 10% popularity.
 
             **Example**:
             :code:`"remaster track:Doxy artist:Miles Davis"`.
@@ -135,14 +143,352 @@ class WebAPISearchEndpoints:
             **Minimum value**: :code:`0`.
 
             **Default**: :code:`0`.
+
+        Returns
+        -------
+        results : dict[str, Any]
+            Search results.
+
+            .. admonition:: Sample responses
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "albums": {
+                      "href": <str>,
+                      "items": [
+                        {
+                          "album_type": <str>,
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": <str>,
+                              "uri": <str>
+                            }
+                          ],
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "is_playable": <bool>,
+                          "name": <str>,
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
+                          "total_tracks": <int>,
+                          "type": <str>,
+                          "uri": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <int>,
+                      "total": <int>
+                    },
+                    "artists": {
+                      "href": <str>,
+                      "items": [
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": <int>
+                          },
+                          "genres": <list[str]>,
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": <int>,
+                          "type": <str>,
+                          "uri": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <int>,
+                      "total": <int>
+                    },
+                    "audiobooks": {
+                      "href": <str>,
+                      "items": [
+                        {
+                          "authors": [
+                            {
+                              "name": <str>
+                            }
+                          ],
+                          "copyrights": <list[str]>,
+                          "description": <str>,
+                          "edition": <str>,
+                          "explicit": <bool>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "html_description": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "is_externally_hosted": <bool>,
+                          "languages": <list[str]>,
+                          "media_type": <str>,
+                          "name": <str>,
+                          "narrators": [
+                            {
+                              "name": <str>
+                            }
+                          ],
+                          "publisher": <str>,
+                          "total_chapters": <int>,
+                          "type": <str>,
+                          "uri": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <int>,
+                      "total": <int>
+                    },
+                    "episodes": {
+                      "href": <str>,
+                      "items": [
+                        {
+                          "audio_preview_url": <str>,
+                          "description": <str>,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "html_description": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "is_externally_hosted": <bool>,
+                          "is_playable": <bool>,
+                          "language": <str>,
+                          "languages": <list[str]>,
+                          "name": <str>,
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
+                          "resume_point": {
+                            "fully_played": <bool>,
+                            "resume_position_ms": <int>
+                          },
+                          "type": <str>,
+                          "uri": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <int>,
+                      "total": <int>
+                    },
+                    "playlists": {
+                      "href": <str>,
+                      "items": [
+                        {
+                          "collaborative": <bool>,
+                          "description": <str>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "name": <str>,
+                          "owner": {
+                            "display_name": <str>,
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "type": <str>,
+                            "uri": <str>
+                          },
+                          "primary_color": <str>,
+                          "public": <bool>,
+                          "snapshot_id": <str>,
+                          "tracks": {
+                            "href": <str>,
+                            "total": <int>
+                          },
+                          "type": <str>,
+                          "uri": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <int>,
+                      "total": <int>
+                    },
+                    "shows": {
+                      "href": <str>,
+                      "items": [
+                        {
+                          "copyrights": <list[str]>,
+                          "description": <str>,
+                          "explicit": <bool>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "html_description": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "is_externally_hosted": <bool>,
+                          "languages": <list[str]>,
+                          "media_type": <str>,
+                          "name": <str>,
+                          "publisher": <str>,
+                          "total_episodes": <int>,
+                          "type": <str>,
+                          "uri": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <int>,
+                      "total": <int>
+                    },
+                    "tracks": {
+                      "href": <str>,
+                      "items": [
+                        {
+                          "album": {
+                            "album_type": <str>,
+                            "artists": [
+                              {
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "id": <str>,
+                                "name": <str>,
+                                "type": <str>,
+                                "uri": <str>
+                              }
+                            ],
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "images": [
+                              {
+                                "height": <int>,
+                                "url": <str>,
+                                "width": <int>
+                              }
+                            ],
+                            "is_playable": <bool>,
+                            "name": <str>,
+                            "release_date": <str>,
+                            "release_date_precision": <str>,
+                            "total_tracks": <int>,
+                            "type": <str>,
+                            "uri": <str>
+                          },
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": <str>,
+                              "uri": <str>
+                            }
+                          ],
+                          "disc_number": <int>,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
+                          "external_ids": {
+                            "isrc": <str>
+                          },
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "is_local": <bool>,
+                          "is_playable": <bool>,
+                          "name": <str>,
+                          "popularity": <int>,
+                          "preview_url": <str>,
+                          "track_number": <int>,
+                          "type": <str>,
+                          "uri": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <int>,
+                      "total": <int>
+                    }
+                  }
         """
         if not query:
             raise ValueError("No search query provided.")
 
-        params = {"q": query, "type": self._prepare_types(types)}
+        params = {"q": query, "type": self._prepare_item_types(types)}
         if include_external:
             if include_external != "audio":
-                raise ValueError("")
+                raise ValueError("`include_external` can only be 'audio'.")
             params["include_external"] = include_external
         if market is not None:
             self._client._validate_market(market)
@@ -155,7 +501,7 @@ class WebAPISearchEndpoints:
             params["offset"] = offset
         return self._client._request("GET", "search", params=params).json()
 
-    def _prepare_types(self, types: str | Collection[str], /) -> str:
+    def _prepare_item_types(self, types: str | Collection[str], /) -> str:
         """
         Stringify a list of Spotify item types into a comma-delimited
         string.
@@ -173,15 +519,15 @@ class WebAPISearchEndpoints:
         if isinstance(types, str):
             split_types = types.split(",")
             for type_ in split_types:
-                self._validate_type(type_)
+                self._validate_item_type(type_)
             return ",".join(sorted(split_types))
 
         types = set(types)
         for type_ in types:
-            self._validate_type(type_)
+            self._validate_item_type(type_)
         return ",".join(sorted(types))
 
-    def _validate_type(self, type_: str, /) -> None:
+    def _validate_item_type(self, type_: str, /) -> None:
         """
         Validate Spotify item type.
 

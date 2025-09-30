@@ -258,9 +258,7 @@ class WebAPIAudiobookEndpoints:
                                "width": <int>
                              }
                            ],
-                           "languages": [
-                             "string"
-                           ],
+                           "languages": <list[str]>,
                            "media_type": <str>,
                            "name": <str>,
                            "narrators": [
