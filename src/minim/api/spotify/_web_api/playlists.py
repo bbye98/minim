@@ -1,6 +1,9 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
+from ..._shared import _copy_docstring
+from .users import WebAPIUserEndpoints
+
 if TYPE_CHECKING:
     from .. import WebAPI
 
@@ -753,86 +756,18 @@ class WebAPIPlaylistEndpoints:
     def add_playlist_cover_image(self):
         pass
 
+    @_copy_docstring(WebAPIUserEndpoints.follow_playlist)
     def follow_playlist(
         self, playlist_id: str, /, *, public: bool | None = None
     ) -> None:
-        """
-        `Users > Follow Playlist <https://developer.spotify.com
-        /documentation/web-api/reference/follow-playlist>`_: Add the
-        current user as a follower of a playlist.
-
-        .. admonition:: Authorization scopes
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`playlist-modify-public`
-                 Manage your public playlists.
-              :code:`playlist-modify-private`
-                 Manage your private playlists.
-
-        Parameters
-        ----------
-        playlist_id : str, positional-only
-            Spotify ID of the playlist.
-
-        public : bool, keyword-only, optional
-            Specifies whether the playlist will be included in the
-            current user's public playlists.
-
-            **Default**: :code:`True`.
-        """
         self._client.users.follow_playlist(playlist_id, public=public)
 
+    @_copy_docstring(WebAPIUserEndpoints.unfollow_playlist)
     def unfollow_playlist(self, playlist_id: str, /) -> None:
-        """
-        `Users > Unfollow Playlist <https://developer.spotify.com
-        /documentation/web-api/reference/unfollow-playlist>`_: Remove
-        the current user as a follower of a playlist.
-
-        .. admonition:: Authorization scopes
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`playlist-modify-public`
-                 Manage your public playlists.
-              :code:`playlist-modify-private`
-                 Manage your private playlists.
-
-        Parameters
-        ----------
-        playlist_id : str, positional-only
-            Spotify ID of the playlist.
-        """
         self._client.users.unfollow_playlist(playlist_id)
 
+    @_copy_docstring(WebAPIUserEndpoints.is_following_playlist)
     def is_following_playlist(self, playlist_id: str, /) -> bool:
-        """
-        `Users > Check if Current User Follows Playlist
-        <https://developer.spotify.com/documentation/web-api/reference
-        /check-if-user-follows-playlist>`_: Check whether the current
-        user is following a playlist.
-
-        Parameters
-        ----------
-        playlist_id : str, positional-only
-            Spotify ID of the playlist.
-
-            **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
-
-        Returns
-        -------
-        is_following_playlist : bool
-            Whether the current user follows the specified playlist.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  True
-        """
         return self._client.users.is_following_playlist(playlist_id)
 
     def _prepare_item_types(self, types: str | Collection[str], /) -> str:

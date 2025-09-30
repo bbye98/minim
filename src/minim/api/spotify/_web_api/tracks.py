@@ -3,6 +3,9 @@ from datetime import datetime
 from numbers import Number
 from typing import TYPE_CHECKING, Any
 
+from ..._shared import _copy_docstring
+from .users import WebAPIUserEndpoints
+
 if TYPE_CHECKING:
     from .. import WebAPI
 
@@ -1306,6 +1309,7 @@ class WebAPITrackEndpoints:
             "GET", "recommendations", params=params
         ).json()
 
+    @_copy_docstring(WebAPIUserEndpoints.get_my_top_tracks)
     def get_my_top_tracks(
         self,
         *,
@@ -1313,149 +1317,7 @@ class WebAPITrackEndpoints:
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        """
-        `Users > Get User's Top Tracks
-        <https://developer.spotify.com/documentation/web-api/reference
-        /get-users-top-artists-and-tracks>`_: Get the current user's top
-        tracks based on calculated affinity.
-
-        .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-top-read`
-                 Read your top artists and contents.
-
-           .. tab:: Optional
-
-              Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
-
-        Parameters
-        ----------
-        time_range : str, keyword-only, optional
-            Time frame over which the affinities are computed.
-
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"long_term"`: Approximately one year of data,
-                 including all new data as it becomes available.
-               * :code:`"medium_term"`: Approximately the last six
-                 months of data.
-               * :code:`"short_term"`: Approximately the last four weeks
-                 of data.
-
-            **Default**: :code:`"medium_term"`.
-
-        limit : int, keyword-only, optional
-            Maximum number of items to return.
-
-            **Valid range**: :code:`1` to :code:`50`.
-
-            **Default**: :code:`20`.
-
-        offset : int, keyword-only, optional
-            Index of the first item to return. Use with `limit` to get
-            the next set of items.
-
-            **Minimum value**: :code:`0`.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        top_tracks : dict[str, Any]
-            Spotify content metadata for the current user's top tracks.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "href": <str>,
-                    "items": [
-                      {
-                        "album": {
-                          "album_type": <str>,
-                          "artists": [
-                            {
-                              "external_urls": {
-                                "spotify": <str>
-                              },
-                              "href": <str>,
-                              "id": <str>,
-                              "name": <str>,
-                              "type": "artist",
-                              "uri": <str>
-                            }
-                          ],
-                          "available_markets": <list[str]>,
-                          "external_urls": {
-                            "spotify": <str>
-                          },
-                          "href": <str>,
-                          "id": <str>,
-                          "images": [
-                            {
-                              "height": <int>,
-                              "url": <str>,
-                              "width": <int>
-                            }
-                          ],
-                          "is_playable": <bool>,
-                          "name": <str>,
-                          "release_date": <str>,
-                          "release_date_precision": <str>,
-                          "total_tracks": <int>,
-                          "type": "album",
-                          "uri": <str>
-                        },
-                        "artists": [
-                          {
-                            "external_urls": {
-                              "spotify": <str>
-                            },
-                            "href": <str>,
-                            "id": <str>,
-                            "name": <str>,
-                            "type": "artist",
-                            "uri": <str></str>
-                          }
-                        ],
-                        "available_markets": <list[str]>,
-                        "disc_number": <int>,
-                        "duration_ms": <int>,
-                        "explicit": <bool>,
-                        "external_ids": {
-                          "isrc": <str>
-                        },
-                        "external_urls": {
-                          "spotify": <str>
-                        },
-                        "href": <str>,
-                        "id": <str>,
-                        "is_local": <bool>,
-                        "is_playable": <bool>,
-                        "name": <str>,
-                        "popularity": <int>,
-                        "preview_url": <str>,
-                        "track_number": <int>,
-                        "type": "track",
-                        "uri": <str>
-                      }
-                    ],
-                    "limit": <int>,
-                    "next": <str>,
-                    "offset": <int>,
-                    "previous": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client.users.get_my_top_tracks(
+        return self._client.users.get_my_top_tracks(
             time_range=time_range, limit=limit, offset=offset
         )
 

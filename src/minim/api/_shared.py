@@ -9,7 +9,7 @@ import secrets
 from textwrap import dedent
 import threading
 import time
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import parse_qsl, urlencode, urlparse
 import warnings
 import webbrowser
@@ -1151,3 +1151,28 @@ class OAuth2API(ABC):
                 flow, client_id, user_identifier
             )
             self._user_identifier = user_identifier
+
+
+def _copy_docstring(
+    source: Callable[..., Any],
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    """
+    Copy the docstring from a function to another function.
+
+    Parameters
+    ----------
+    source : Callable[..., Any]
+        Source function.
+
+    Returns
+    -------
+    decorator : Callable[[Callable[..., Any]], Callable[..., Any]]
+        Decorator that replaces the docstring of the decorated function
+        with that of `source`.
+    """
+
+    def decorator(destination: Callable[..., Any]) -> Callable[..., Any]:
+        destination.__doc__ = source.__doc__
+        return destination
+
+    return decorator
