@@ -125,7 +125,7 @@ class WebAPIChapterEndpoints:
                          ],
                          "publisher": <str>,
                          "total_chapters": <int>,
-                         "type": <str>,
+                         "type": "audiobook",
                          "uri": <str>
                        },
                        "available_markets": <list[str]>,
@@ -158,7 +158,7 @@ class WebAPIChapterEndpoints:
                          "fully_played": <bool>,
                          "resume_position_ms": <int>
                        },
-                       "type": <str>,
+                       "type": "chapter",
                        "uri": <str>
                      }
 
@@ -209,7 +209,7 @@ class WebAPIChapterEndpoints:
                              ],
                              "publisher": <str>,
                              "total_chapters": <int>,
-                             "type": <str>,
+                             "type": "audiobook",
                              "uri": <str>
                            },
                            "available_markets": <list[str]>,
@@ -242,7 +242,7 @@ class WebAPIChapterEndpoints:
                              "fully_played": <bool>,
                              "resume_position_ms": <int>
                            },
-                           "type": <str>,
+                           "type": "chapter",
                            "uri": <str>
                          }
                        ]

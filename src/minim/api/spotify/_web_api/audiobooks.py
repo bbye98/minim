@@ -130,7 +130,7 @@ class WebAPIAudiobookEndpoints:
                                "fully_played": <bool>,
                                "resume_position_ms": <int>
                              },
-                             "type": <str>,
+                             "type": "chapter",
                              "uri": <str>
                            }
                          ],
@@ -174,7 +174,7 @@ class WebAPIAudiobookEndpoints:
                        ],
                        "publisher": <str>,
                        "total_chapters": <int>,
-                       "type": <str>,
+                       "type": "audiobook",
                        "uri": <str>
                      }
 
@@ -226,7 +226,7 @@ class WebAPIAudiobookEndpoints:
                                    "fully_played": <bool>,
                                    "resume_position_ms": <int>
                                  },
-                                 "type": <str>,
+                                 "type": "chapter",
                                  "uri": <str>
                                }
                              ],
@@ -268,7 +268,7 @@ class WebAPIAudiobookEndpoints:
                            ],
                            "publisher": <str>,
                            "total_chapters": <int>,
-                           "type": <str>,
+                           "type": "audiobook",
                            "uri": <str>
                          }
                        ]
@@ -394,7 +394,7 @@ class WebAPIAudiobookEndpoints:
                           "fully_played": <bool>,
                           "resume_position_ms": <int>
                         },
-                        "type": <str>,
+                        "type": "chapter",
                         "uri": <str>
                       }
                     ],
@@ -524,7 +524,7 @@ class WebAPIAudiobookEndpoints:
                         ],
                         "publisher": <str>,
                         "total_chapters": <int>,
-                        "type": <str>,
+                        "type": "audiobook",
                         "uri": <str>
                       }
                     ],

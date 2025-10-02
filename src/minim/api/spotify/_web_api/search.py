@@ -168,7 +168,7 @@ class WebAPISearchEndpoints:
                               "href": <str>,
                               "id": <str>,
                               "name": <str>,
-                              "type": <str>,
+                              "type": "artist",
                               "uri": <str>
                             }
                           ],
@@ -189,7 +189,7 @@ class WebAPISearchEndpoints:
                           "release_date": <str>,
                           "release_date_precision": <str>,
                           "total_tracks": <int>,
-                          "type": <str>,
+                          "type": "album",
                           "uri": <str>
                         }
                       ],
@@ -222,7 +222,7 @@ class WebAPISearchEndpoints:
                           ],
                           "name": <str>,
                           "popularity": <int>,
-                          "type": <str>,
+                          "type": "artist",
                           "uri": <str>
                         }
                       ],
@@ -269,7 +269,7 @@ class WebAPISearchEndpoints:
                           ],
                           "publisher": <str>,
                           "total_chapters": <int>,
-                          "type": <str>,
+                          "type": "audiobook",
                           "uri": <str>
                         }
                       ],
@@ -311,7 +311,7 @@ class WebAPISearchEndpoints:
                             "fully_played": <bool>,
                             "resume_position_ms": <int>
                           },
-                          "type": <str>,
+                          "type": "episode",
                           "uri": <str>
                         }
                       ],
@@ -347,7 +347,7 @@ class WebAPISearchEndpoints:
                             },
                             "href": <str>,
                             "id": <str>,
-                            "type": <str>,
+                            "type": "user",
                             "uri": <str>
                           },
                           "primary_color": <str>,
@@ -357,7 +357,7 @@ class WebAPISearchEndpoints:
                             "href": <str>,
                             "total": <int>
                           },
-                          "type": <str>,
+                          "type": "playlist",
                           "uri": <str>
                         }
                       ],
@@ -393,7 +393,7 @@ class WebAPISearchEndpoints:
                           "name": <str>,
                           "publisher": <str>,
                           "total_episodes": <int>,
-                          "type": <str>,
+                          "type": "show",
                           "uri": <str>
                         }
                       ],
@@ -417,7 +417,7 @@ class WebAPISearchEndpoints:
                                 "href": <str>,
                                 "id": <str>,
                                 "name": <str>,
-                                "type": <str>,
+                                "type": "artist",
                                 "uri": <str>
                               }
                             ],
@@ -438,7 +438,7 @@ class WebAPISearchEndpoints:
                             "release_date": <str>,
                             "release_date_precision": <str>,
                             "total_tracks": <int>,
-                            "type": <str>,
+                            "type": "album",
                             "uri": <str>
                           },
                           "artists": [
@@ -449,7 +449,7 @@ class WebAPISearchEndpoints:
                               "href": <str>,
                               "id": <str>,
                               "name": <str>,
-                              "type": <str>,
+                              "type": "artist",
                               "uri": <str>
                             }
                           ],
@@ -470,7 +470,7 @@ class WebAPISearchEndpoints:
                           "popularity": <int>,
                           "preview_url": <str>,
                           "track_number": <int>,
-                          "type": <str>,
+                          "type": "track",
                           "uri": <str>
                         }
                       ],

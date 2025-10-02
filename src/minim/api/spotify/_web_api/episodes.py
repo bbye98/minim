@@ -149,10 +149,10 @@ class WebAPIEpisodeEndpoints:
                          "name": <str>,
                          "publisher": <str>,
                          "total_episodes": <int>,
-                         "type": <str>,
+                         "type": "show",
                          "uri": <str>
                        },
-                       "type": <str>,
+                       "type": "episode",
                        "uri": <str>
                      }
 
@@ -223,10 +223,10 @@ class WebAPIEpisodeEndpoints:
                              "name": <str>,
                              "publisher": <str>,
                              "total_episodes": <int>,
-                             "type": <str>,
+                             "type": "show",
                              "uri": <str>
                            },
-                           "type": <str>,
+                           "type": "episode",
                            "uri": <str>
                          }
                        ]
@@ -384,10 +384,10 @@ class WebAPIEpisodeEndpoints:
                             "name": <str>,
                             "publisher": <str>,
                             "total_episodes": <int>,
-                            "type": <str>,
+                            "type": "show",
                             "uri": <str>
                           },
-                          "type": <str>,
+                          "type": "episode",
                           "uri": <str>
                         }
                       }

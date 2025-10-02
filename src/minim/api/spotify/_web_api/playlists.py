@@ -143,7 +143,7 @@ class WebAPIPlaylistEndpoints:
                       },
                       "href": <str>,
                       "id": <str>,
-                      "type": <str>,
+                      "type": "user",
                       "uri": <str>
                     },
                     "primary_color": <int>,
@@ -160,7 +160,7 @@ class WebAPIPlaylistEndpoints:
                             },
                             "href": <str>,
                             "id": <str>,
-                            "type": <str>,
+                            "type": "user",
                             "uri": <str>
                           },
                           "is_local": <bool>,
@@ -214,11 +214,11 @@ class WebAPIPlaylistEndpoints:
                               "name": <str>,
                               "publisher": <str>,
                               "total_episodes": <int>,
-                              "type": <str>,
+                              "type": "show",
                               "uri": <str>
                             },
                             "track": <bool>,
-                            "type": <str>,
+                            "type": "track",
                             "uri": <str>
                           },
                           "video_thumbnail": {
@@ -233,7 +233,7 @@ class WebAPIPlaylistEndpoints:
                             },
                             "href": <str>,
                             "id": <str>,
-                            "type": <str>,
+                            "type": "user",
                             "uri": <str>
                           },
                           "is_local": <bool>,
@@ -249,7 +249,7 @@ class WebAPIPlaylistEndpoints:
                                   "href": <str>,
                                   "id": <str>,
                                   "name": <str>,
-                                  "type": <str>,
+                                  "type": "artist",
                                   "uri": <str>
                                 }
                               ],
@@ -270,7 +270,7 @@ class WebAPIPlaylistEndpoints:
                               "release_date": <str>,
                               "release_date_precision": <str>,
                               "total_tracks": <int>,
-                              "type": <str>,
+                              "type": "album",
                               "uri": <str>
                             },
                             "artists": [
@@ -281,7 +281,7 @@ class WebAPIPlaylistEndpoints:
                                 "href": <str>,
                                 "id": <str>,
                                 "name": <str>,
-                                "type": <str>,
+                                "type": "artist",
                                 "uri": <str>
                               }
                             ],
@@ -304,7 +304,7 @@ class WebAPIPlaylistEndpoints:
                             "preview_url": <str>,
                             "track": <bool>,
                             "track_number": <int>,
-                            "type": <str>,
+                            "type": "track",
                             "uri": <str>
                           },
                           "video_thumbnail": {
@@ -318,7 +318,7 @@ class WebAPIPlaylistEndpoints:
                       "previous": <int>,
                       "total": <int>
                     },
-                    "type": <str>,
+                    "type": "playlist",
                     "uri": <str>
                   }
         """
@@ -535,7 +535,7 @@ class WebAPIPlaylistEndpoints:
                           },
                           "href": <str>,
                           "id": <str>,
-                          "type": <str>,
+                          "type": "user",
                           "uri": <str>
                         },
                         "is_local": <bool>,
@@ -551,7 +551,7 @@ class WebAPIPlaylistEndpoints:
                                 "href": <str>,
                                 "id": <str>,
                                 "name": <str>,
-                                "type": <str>,
+                                "type": "artist",
                                 "uri": <str>
                               }
                             ],
@@ -572,7 +572,7 @@ class WebAPIPlaylistEndpoints:
                             "release_date": <str>,
                             "release_date_precision": <str>,
                             "total_tracks": <int>,
-                            "type": <str>,
+                            "type": "album",
                             "uri": <str>
                           },
                           "artists": [
@@ -583,7 +583,7 @@ class WebAPIPlaylistEndpoints:
                               "href": <str>,
                               "id": <str>,
                               "name": <str>,
-                              "type": <str>,
+                              "type": "artist",
                               "uri": <str>
                             }
                           ],
@@ -606,7 +606,7 @@ class WebAPIPlaylistEndpoints:
                           "preview_url": <str>,
                           "track": <bool>,
                           "track_number": <int>,
-                          "type": <str>,
+                          "type": "track",
                           "uri": <str>
                         },
                         "video_thumbnail": {
@@ -621,7 +621,7 @@ class WebAPIPlaylistEndpoints:
                           },
                           "href": <str>,
                           "id": <str>,
-                          "type": <str>,
+                          "type": "user",
                           "uri": <str>
                         },
                         "is_local": <bool>,
@@ -637,7 +637,7 @@ class WebAPIPlaylistEndpoints:
                                 "href": <str>,
                                 "id": <str>,
                                 "name": <str>,
-                                "type": <str>,
+                                "type": "artist",
                                 "uri": <str>
                               }
                             ],
@@ -658,7 +658,7 @@ class WebAPIPlaylistEndpoints:
                             "release_date": <str>,
                             "release_date_precision": <str>,
                             "total_tracks": <int>,
-                            "type": <str>,
+                            "type": "album",
                             "uri": <str>
                           },
                           "artists": [
@@ -669,7 +669,7 @@ class WebAPIPlaylistEndpoints:
                               "href": <str>,
                               "id": <str>,
                               "name": <str>,
-                              "type": <str>,
+                              "type": "artist",
                               "uri": <str>
                             }
                           ],
@@ -692,7 +692,7 @@ class WebAPIPlaylistEndpoints:
                           "preview_url": <str>,
                           "track": <bool>,
                           "track_number": <int>,
-                          "type": <str>,
+                          "type": "track",
                           "uri": <str>
                         },
                         "video_thumbnail": {

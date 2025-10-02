@@ -161,7 +161,7 @@ class WebAPIAlbumEndpoints:
                                },
                                "href": <str>,
                                "id": <str>,
-                               "type": <str>,
+                               "type": "track",
                                "uri": <str>
                              },
                              "name": <str>,
@@ -170,7 +170,7 @@ class WebAPIAlbumEndpoints:
                                "reason": <str>
                              },
                              "track_number": <int>,
-                             "type": <str>,
+                             "type": "track",
                              "uri": <str>
                            }
                          ],
@@ -271,7 +271,7 @@ class WebAPIAlbumEndpoints:
                                    },
                                    "href": <str>,
                                    "id": <str>,
-                                   "type": <str>,
+                                   "type": "track",
                                    "uri": <str>
                                  },
                                  "name": <str>,
@@ -280,7 +280,7 @@ class WebAPIAlbumEndpoints:
                                    "reason": <str>
                                  },
                                  "track_number": <int>,
-                                 "type": <str>,
+                                 "type": "track",
                                  "uri": <str>
                                }
                              ],
@@ -413,7 +413,7 @@ class WebAPIAlbumEndpoints:
                           },
                           "href": <str>,
                           "id": <str>,
-                          "type": <str>,
+                          "type": "track",
                           "uri": <str>
                         },
                         "name": <str>,
@@ -422,7 +422,7 @@ class WebAPIAlbumEndpoints:
                           "reason": <str>
                         },
                         "track_number": <int>,
-                        "type": <str>,
+                        "type": "track",
                         "uri": <str>
                       }
                     ],
@@ -600,7 +600,7 @@ class WebAPIAlbumEndpoints:
                                   },
                                   "href": <str>,
                                   "id": <str>,
-                                  "type": <str>,
+                                  "type": "track",
                                   "uri": <str>
                                 },
                                 "name": <str>,
@@ -609,7 +609,7 @@ class WebAPIAlbumEndpoints:
                                   "reason": <str>
                                 },
                                 "track_number": <int>,
-                                "type": <str>,
+                                "type": "track",
                                 "uri": <str>
                               }
                             ],

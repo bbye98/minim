@@ -123,7 +123,7 @@ class WebAPIShowEndpoints:
                                "fully_played": <bool>,
                                "resume_position_ms": <int>
                              },
-                             "type": <str>,
+                             "type": "episode",
                              "uri": <str>
                            }
                          ],
@@ -153,7 +153,7 @@ class WebAPIShowEndpoints:
                        "name": <str>,
                        "publisher": <str>,
                        "total_episodes": <int>,
-                       "type": <str>,
+                       "type": "show",
                        "uri": <str>
                      }
 
@@ -207,7 +207,7 @@ class WebAPIShowEndpoints:
                                    "fully_played": <bool>,
                                    "resume_position_ms": <int>
                                  },
-                                 "type": <str>,
+                                 "type": "episode",
                                  "uri": <str>
                                }
                              ],
@@ -237,7 +237,7 @@ class WebAPIShowEndpoints:
                            "name": <str>,
                            "publisher": <str>,
                            "total_episodes": <int>,
-                           "type": <str>,
+                           "type": "show",
                            "uri": <str>
                          }
                        ]
@@ -365,7 +365,7 @@ class WebAPIShowEndpoints:
                           "fully_played": <bool>,
                           "resume_position_ms": <int>
                         },
-                        "type": <str>,
+                        "type": "episodes",
                         "uri": <str>
                       }
                     ],
@@ -471,7 +471,7 @@ class WebAPIShowEndpoints:
                           "name": <str>,
                           "publisher": <str>,
                           "total_episodes": <int>,
-                          "type": <str>,
+                          "type": "show",
                           "uri": <str>
                         }
                       }

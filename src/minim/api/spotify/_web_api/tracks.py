@@ -685,7 +685,7 @@ class WebAPITrackEndpoints:
                        "tempo": <float>,
                        "time_signature": <int>,
                        "track_href": <str>,
-                       "type": <str>,
+                       "type": "audio_features",
                        "uri": <str>,
                        "valence": <float>
                      }
@@ -712,7 +712,7 @@ class WebAPITrackEndpoints:
                            "tempo": <float>,
                            "time_signature": <int>,
                            "track_href": <str>,
-                           "type": <str>,
+                           "type": "audio_features",
                            "uri": <str>,
                            "valence": <float>
                          }
@@ -1186,7 +1186,7 @@ class WebAPITrackEndpoints:
                               "href": <str>,
                               "id": <str>,
                               "name": <str>,
-                              "type": <str>,
+                              "type": "artist",
                               "uri": <str>
                             }
                           ],
@@ -1210,7 +1210,7 @@ class WebAPITrackEndpoints:
                             "reason": <str>
                           },
                           "total_tracks": <int>,
-                          "type": <str>,
+                          "type": "album",
                           "uri": <str>
                         },
                         "artists": [
@@ -1221,7 +1221,7 @@ class WebAPITrackEndpoints:
                             "href": <str>,
                             "id": <str>,
                             "name": <str>,
-                            "type": <str>,
+                            "type": "artist",
                             "uri": <str>
                           }
                         ],
@@ -1249,7 +1249,7 @@ class WebAPITrackEndpoints:
                           "reason": <str>
                         },
                         "track_number": <int>,
-                        "type": <str>,
+                        "type": "track",
                         "uri": <str>
                       }
                     ]
