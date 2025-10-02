@@ -18,6 +18,7 @@ import httpx
 import yaml
 
 from .. import FOUND, CONFIG_FILE, config
+from . import api_config
 
 if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
@@ -188,7 +189,7 @@ class OAuth2API(ABC):
 
         expiry : str or datetime.datetime, keyword-only, optional
             Expiry of the access token in `access_token`. If provided as
-            a `str`, it must be in ISO 8601 format
+            a string, it must be in ISO 8601 format
             (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
         backend : str, keyword-only, optional
@@ -264,7 +265,7 @@ class OAuth2API(ABC):
         if (
             not access_token
             and persist
-            and (accounts := config.get(self._API_NAME))
+            and (accounts := api_config.get(self._API_NAME))
             and (account := accounts.get(self._account_identifier))
         ):
             # If a stored access token is found and the client ID
@@ -364,7 +365,6 @@ class OAuth2API(ABC):
         Clear all stored access tokens and related information for
         this API client from Minim's local token storage.
         """
-        api_config = config["api"]
         if (api_name := f"{cls.__module__}.{cls.__qualname__}") in api_config:
             del api_config[api_name]
             with CONFIG_FILE.open("w") as f:
@@ -395,7 +395,7 @@ class OAuth2API(ABC):
         """
         changed = False
         if (api_name := f"{cls.__module__}.{cls.__qualname__}") in config:
-            accounts = config["api"][api_name]
+            accounts = api_config[api_name]
             last_flow_str = f"last_{flow}"
             if user_identifier or flow == "client_credentials":
                 if (
@@ -528,6 +528,9 @@ class OAuth2API(ABC):
         value : int
             Integer value.
 
+        data_type : type
+            Data type.
+
         lower_bound : int, optional
             Lower bound, inclusive.
 
@@ -621,7 +624,7 @@ class OAuth2API(ABC):
 
         expiry : str or datetime.datetime, keyword-only, optional
             Expiry of the access token in `access_token`. If provided
-            as a `str`, it must be in ISO 8601 format
+            as a string, it must be in ISO 8601 format
             (:code:`%Y-%m-%dT%H:%M:%SZ`).
         """
         self._client.headers["Authorization"] = f"{token_type} {access_token}"
@@ -967,7 +970,7 @@ class OAuth2API(ABC):
                 ).json()
                 if error := resp_json.get("error"):
                     warnings.warn(
-                        f"Encountered {error!r} error: "
+                        f"Encountered {error!r} error — "
                         f"{resp_json['error_description']}. "
                         "Reauthorizing via the "
                         f"{self._OAUTH_FLOWS_NAMES[self._flow]}.",
@@ -1048,7 +1051,6 @@ class OAuth2API(ABC):
             + timedelta(seconds=int(resp_json["expires_in"])),
         )
         if self._persist:
-            api_config = config["api"]
             accounts = api_config.get(self._API_NAME)
             if not isinstance(accounts, dict):
                 api_config[self._API_NAME] = accounts = {}

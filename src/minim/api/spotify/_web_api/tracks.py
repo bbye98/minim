@@ -614,12 +614,7 @@ class WebAPITrackEndpoints:
             Whether the current user has each of the specified tracks
             saved in their "Your Music" library.
 
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  [False, True]
+            **Sample response**: :code:`[False, True]`.
         """
         self._client._require_scopes("are_tracks_saved", "user-library-read")
         return self._client._request(

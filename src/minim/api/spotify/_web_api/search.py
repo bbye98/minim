@@ -149,7 +149,7 @@ class WebAPISearchEndpoints:
         results : dict[str, Any]
             Search results.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::

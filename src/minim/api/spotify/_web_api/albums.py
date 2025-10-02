@@ -750,12 +750,7 @@ class WebAPIAlbumEndpoints:
             Whether the current user has each of the specified albums
             saved in their "Your Music" library.
 
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  [False, True]
+            **Sample response**: :code:`[False, True]`.
         """
         self._client._require_scopes("are_albums_saved", "user-library-read")
         return self._client._request(

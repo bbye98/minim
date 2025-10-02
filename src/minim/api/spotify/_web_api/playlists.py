@@ -337,9 +337,11 @@ class WebAPIPlaylistEndpoints:
         if market is not None:
             self._client._validate_market(market)
             params["market"] = market
-        return self._client._request(f"playlists/{playlist_id}", params=params)
+        return self._client._request(
+            "GET", f"playlists/{playlist_id}", params=params
+        ).json()
 
-    def change_playlist_details(
+    def update_playlist_details(
         self,
         playlist_id: str,
         /,
@@ -362,6 +364,7 @@ class WebAPIPlaylistEndpoints:
 
               :code:`playlist-modify-public`
                  Manage your public playlists.
+
               :code:`playlist-modify-private`
                  Manage your private playlists.
 
@@ -430,10 +433,13 @@ class WebAPIPlaylistEndpoints:
         /documentation/web-api/reference/get-playlists-tracks>`_: Get
         Spotify catalog information for items in a playlist.
 
-        .. admonition:: Third-party application mode
+        .. admonition:: Authorization scope and third-party application mode
            :class: authorization-scope
 
            .. tab:: Optional
+
+              :code:`playlist-read-private`
+                 Access your private playlists.
 
               Extended quota mode before November 11, 2024
                   Access 30-second preview URLs.
@@ -723,37 +729,169 @@ class WebAPIPlaylistEndpoints:
             self._client._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
-            f"playlists/{playlist_id}/tracks", params=params
+            "GET", f"playlists/{playlist_id}/tracks", params=params
+        ).json()
+
+    def add_playlist_items(
+        self,
+        playlist_id: str,
+        /,
+        uris: str | Collection[str],
+        *,
+        position: int | None = None,
+    ) -> str:
+        """
+        `Playlists > Add Items to Playlist
+        <https://developer.spotify.com/documentation/web-api/reference
+        /add-tracks-to-playlist>`_: Add items to a user's playlist.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlist-modify-public`
+                 Manage your public playlists.
+
+              :code:`playlist-modify-private`
+                 Manage your private playlists.
+
+        Parameters
+        ----------
+        playlist_id : str, positional-only
+            Spotify ID of the playlist.
+
+            **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
+
+        uris : str or Collection[str]
+            (Comma-separated) list of Spotify URIs of tracks and/or show
+            episodes. A maximum of 100 URIs can be sent in one request.
+
+            .. container::
+
+               **Examples**:
+
+               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
+               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
+               * .. code::
+
+                    [
+                        "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+                        "spotify:track:1301WleyT98MSxVHPZCA6M",
+                        "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
+                    ]
+
+        position : int, keyword-only, optional
+            Zero-based index at which to insert the items. If not
+            specified, the items are appended to the end of the
+            playlist.
+
+            .. container::
+
+               **Examples**:
+
+               * :code:`0` – Insert items in the first position.
+               * :code:`2` – Insert items in the third position.
+
+        Returns
+        -------
+        snapshot_id : str
+            Version identifier for the playlist after the items have
+            been added.
+
+            **Sample response**: :code:`"AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"`.
+        """
+        self._client._require_scopes(
+            "add_playlist_items",
+            {"playlist-modify-public", "playlist-modify-private"},
         )
+        self._client._validate_spotify_id(playlist_id)
+        params = {}
+        if position is not None:
+            self._client._validate_number("position", position, int, 0)
+            params["position"] = position
+        return self._client._request(
+            "POST",
+            f"playlists/{playlist_id}/tracks",
+            params=params,
+            json={
+                "uris": self._client._prepare_spotify_uris(
+                    uris, limit=100, item_types=self._ADDITIONAL_TYPES
+                )
+            },
+        ).json()
 
-    def add_playlist_items(self):
+    def update_playlist_items(
+        self,
+        playlist_id: str,
+        /,
+        uris: str | Collection[str] | None = None,
+        *,
+        range_start: int | None = None,
+        insert_before: int | None = None,
+        range_length: int | None = None,
+        snapshot_id: str | None = None,
+    ) -> str:
         pass
 
-    def update_playlist_items(self):
+    def remove_playlist_items(
+        self,
+        playlist_id: str,
+        /,
+        uris: str | Collection[str],
+        *,
+        snapshot_id: str | None = None,
+    ) -> str:
         pass
 
-    def remove_playlist_items(self):
+    def get_user_playlists(  # get_my_playlists
+        self,
+        user_id: str | None = None,
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
         pass
 
-    def get_my_playlists(self):
+    def create_playlist(
+        self,
+        name: str,
+        /,
+        *,
+        description: str | None = None,
+        public: bool | None = None,
+        collaborative: bool | None = None,
+    ) -> dict[str, Any]:
         pass
 
-    def get_user_playlists(self):
+    def get_featured_playlists(
+        self,
+        *,
+        locale: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
         pass
 
-    def create_playlist(self):
+    def get_categorized_playlists(
+        self,
+        category_id: str,
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
         pass
 
-    def get_featured_playlists(self):
+    def get_playlist_cover_image(
+        self, playlist_id: str, /
+    ) -> list[dict[str, int | str]]:
         pass
 
-    def get_categorized_playlists(self):
-        pass
-
-    def get_playlist_cover_image(self):
-        pass
-
-    def add_playlist_cover_image(self):
+    def add_playlist_cover_image(
+        self, playlist_id: str, /, image: bytes
+    ) -> None:
         pass
 
     @_copy_docstring(WebAPIUserEndpoints.follow_playlist)

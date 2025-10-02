@@ -16,7 +16,7 @@ from ._web_api.genres import WebAPIGenreEndpoints
 from ._web_api.markets import WebAPIMarketEndpoints
 
 # from ._web_api.player import WebAPIPlayerEndpoints
-# from ._web_api.playlists import WebAPIPlaylistEndpoints
+from ._web_api.playlists import WebAPIPlaylistEndpoints
 from ._web_api.search import WebAPISearchEndpoints
 from ._web_api.shows import WebAPIShowEndpoints
 from ._web_api.tracks import WebAPITrackEndpoints
@@ -120,7 +120,7 @@ class WebAPI(OAuth2API):
             .. seealso::
 
                :meth:`get_scopes` — Get a set of scopes to request,
-               filtered by categories, patterns, and/or substrings.
+               filtered by categories and/or substrings.
 
         access_token : str, keyword-only, optional
             Access token. If provided or found in Minim's local token
@@ -139,7 +139,7 @@ class WebAPI(OAuth2API):
 
         expiry : str or datetime.datetime, keyword-only, optional
             Expiry of the access token in `access_token`. If provided as
-            a `str`, it must be in ISO 8601 format
+            a string, it must be in ISO 8601 format
             (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
         backend : str, keyword-only, optional
@@ -210,7 +210,7 @@ class WebAPI(OAuth2API):
         #: Spotify Web API player endpoints.
         # self.player: WebAPIPlayerEndpoints = WebAPIPlayerEndpoints(self)
         #: Spotify Web API playlist endpoints.
-        # self.playlists: WebAPIPlaylistEndpoints = WebAPIPlaylistEndpoints(self)
+        self.playlists: WebAPIPlaylistEndpoints = WebAPIPlaylistEndpoints(self)
         #: Spotify Web API search endpoints.
         self.search: WebAPISearchEndpoints = WebAPISearchEndpoints(self)
         #: Spotify Web API show endpoints.
@@ -359,44 +359,83 @@ class WebAPI(OAuth2API):
         spotify_ids : str
             Comma-delimited string containing Spotify IDs.
 
-        single : bool
-            Specifies whether to use the API endpoint for a single
-            item request.
+        n_ids : int
+            Number of Spotify IDs.
         """
         if not spotify_ids:
             raise ValueError("At least one Spotify ID must be specified.")
 
         if isinstance(spotify_ids, str):
-            split_ids = spotify_ids.split(",")
-            n_ids = len(split_ids)
-            if n_ids > limit:
-                raise ValueError(
-                    f"A maximum of {limit} Spotify IDs can be sent in "
-                    "one request."
-                )
-            for id_ in split_ids:
-                WebAPI._validate_spotify_id(id_, strict_length=strict_length)
-            return spotify_ids, n_ids
+            return WebAPI._prepare_spotify_ids(
+                spotify_ids.split(","), limit=limit, strict_length=strict_length
+            )
 
         n_ids = len(spotify_ids)
         if n_ids > limit:
             raise ValueError(
                 f"A maximum of {limit} Spotify IDs can be sent in one request."
             )
-        for id_ in spotify_ids:
+        for idx, id_ in enumerate(spotify_ids):
+            spotify_ids[idx] = id_ = id_.strip()
             WebAPI._validate_spotify_id(id_, strict_length=strict_length)
         return ",".join(spotify_ids), n_ids
+
+    @staticmethod
+    def _prepare_spotify_uris(
+        spotify_uris: str | Collection[str],
+        /,
+        *,
+        limit: int,
+        item_types: Collection[str],
+    ) -> list[str]:
+        """
+        Prepare a list of Spotify Uniform Resource Identifiers (URIs) to
+        include in the body of a HTTP request.
+
+        Parameters
+        ----------
+        spotify_uris : str or Collection[str], positional-only
+            (Comma-delimited) list of Spotify URIs.
+
+        limit : int, keyword-only
+            Maximum number of Spotify URIs that can be sent in the
+            request.
+
+        item_types : Collection[str]
+            Allowed Spotify item types.
+
+        Returns
+        -------
+        spotify_uris : list[str]
+            List of Spotify URIs.
+        """
+        if not spotify_uris:
+            raise ValueError("At least one Spotify URI must be specified.")
+
+        if isinstance(spotify_uris, str):
+            return WebAPI._prepare_spotify_uris(
+                spotify_uris.split(","), limit=limit, item_types=item_types
+            )
+
+        if len(spotify_uris) > limit:
+            raise ValueError(
+                f"A maximum of {limit} Spotify URIs can be sent in one request."
+            )
+        for idx, uri in enumerate(spotify_uris):
+            spotify_uris[idx] = uri = uri.strip()
+            WebAPI._validate_spotify_uri(uri, item_types=item_types)
+        return spotify_uris
 
     @staticmethod
     def _validate_spotify_id(
         spotify_id: str, /, *, strict_length: bool = True
     ) -> None:
         """
-        Validate Spotify ID.
+        Validate a Spotify ID.
 
         Parameters
         ----------
-        spotify_ids : str
+        spotify_id : str
             Spotify ID.
 
         strict_length : bool, keyword-only, default: :code:`True`
@@ -412,6 +451,31 @@ class WebAPI(OAuth2API):
                 f"{spotify_id!r} is not a valid base62 Spotify ID."
             )
 
+    @staticmethod
+    def _validate_spotify_uri(
+        spotify_uri: str, /, *, item_types: Collection[str]
+    ) -> None:
+        """
+        Validate a Spotify Uniform Resource Identifier (URI).
+
+        Parameters
+        ----------
+        spotify_uri : str
+            Spotify URI.
+
+        item_types : Collection[str]
+            Allowed Spotify item types.
+        """
+        if (
+            not isinstance(spotify_uri, str)
+            or len(uri_parts := spotify_uri.split(":")) != 3
+            or uri_parts[0] != "spotify"
+            or uri_parts[1] not in item_types
+            or len(spotify_id := uri_parts[2]) != 22
+            or not spotify_id.isalnum()
+        ):
+            raise ValueError(f"{spotify_uri!r} is not a valid Spotify URI.")
+
     @cached_property
     def available_seed_genres(self) -> list[str]:
         """
@@ -421,9 +485,9 @@ class WebAPI(OAuth2API):
 
            Accessing this property for the first time will call
            :meth:`~minim.api.spotify.WebAPIGenreEndpoints.get_available_seed_genres`
-           and cache the inner `genres` list for later use.
+           and cache the response for later use.
         """
-        return self.genres.get_available_seed_genres()["genres"]
+        return self.genres.get_available_seed_genres()
 
     @cached_property
     def available_markets(self) -> list[str]:
@@ -434,9 +498,9 @@ class WebAPI(OAuth2API):
 
            Accessing this property for the first time will call
            :meth:`~minim.api.spotify.WebAPIMarketEndpoints.get_available_markets`
-           and cache the inner `markets` list for later use.
+           and cache the response for later use.
         """
-        return self.markets.get_available_markets()["markets"]
+        return self.markets.get_available_markets()
 
     def _request(
         self,
@@ -492,7 +556,7 @@ class WebAPI(OAuth2API):
         Assign the Spotify user ID as the user identifier for the
         current account.
         """
-        self._user_identifier = self.users.get_profile()["id"]
+        self._user_identifier = self.users.get_user_profile()["id"]
 
     def _validate_market(self, market: str, /) -> None:
         """

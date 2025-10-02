@@ -7,6 +7,7 @@ from PySide6 import QtCore, QtGui, QtSvg, QtWidgets
 import yaml
 
 from .. import __file__, CONFIG_FILE, config
+from . import gui_config
 
 ASSETS_DIR = Path(__file__).parents[2] / "assets"
 ICONS_DIR = ASSETS_DIR / "gui/icons"
@@ -18,13 +19,6 @@ with open(STYLES_DIR / "template.qss", "r", encoding="utf8") as f:
 STYLES = {
     theme: STYLE_TEMPLATE.format(**COLORS[theme]) for theme in {"dark", "light"}
 }
-
-if "gui" in config:
-    gui_config = config["gui"]
-else:
-    config["gui"] = gui_config = {"library": {}}
-    with CONFIG_FILE.open("w") as f:
-        yaml.safe_dump(config, f)
 
 
 def color_svg(svg_file: str | Path, color: str) -> QtGui.QPixmap:

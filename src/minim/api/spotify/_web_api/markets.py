@@ -23,7 +23,7 @@ class WebAPIMarketEndpoints:
         """
         self._client = client
 
-    def get_available_markets(self) -> dict[str, list[str]]:
+    def get_available_markets(self) -> list[str]:
         """
         `Markets > Get Available Markets <https://developer.spotify.com
         /documentation/web-api/reference/get-available-markets>`_: Get a
@@ -34,13 +34,6 @@ class WebAPIMarketEndpoints:
         markets : list[str]
             Available markets.
 
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "markets": ["CA", "BR", "IT"]
-                  }
+            **Sample response**: :code:`["CA", "BR", "IT"]`.
         """
-        return self._client._request("GET", "markets").json()
+        return self._client._request("GET", "markets").json()["markets"]

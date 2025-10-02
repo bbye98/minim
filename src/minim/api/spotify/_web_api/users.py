@@ -25,7 +25,7 @@ class WebAPIUserEndpoints:
         """
         self._client = client
 
-    def get_profile(self, user_id: str | None = None, /) -> dict[str, Any]:
+    def get_user_profile(self, user_id: str | None = None, /) -> dict[str, Any]:
         """
         `Users > Get Current User's Profile
         <https://developer.spotify.com/documentation/web-api/reference
@@ -42,6 +42,7 @@ class WebAPIUserEndpoints:
 
               :code:`user-read-private`
                  Access your subscription details.
+
               :code:`user-read-email`
                  Get your real email address.
 
@@ -58,7 +59,7 @@ class WebAPIUserEndpoints:
         profile : dict[str, Any]
             User's profile information.
 
-            .. admonition:: Sample response
+            .. admonition:: Sample responses
                :class: dropdown
 
                .. tab:: Current user
@@ -120,10 +121,11 @@ class WebAPIUserEndpoints:
                        "uri": <str>
                      }
         """
-        self._client._validate_spotify_id(user_id, strict_length=False)
-        return self._client._request(
-            "GET", f"users/{user_id}" if user_id else "me"
-        ).json()
+        if user_id:
+            self._client._validate_spotify_id(user_id, strict_length=False)
+            return self._client._request("GET", f"users/{user_id}").json()
+
+        return self._client._request("GET", "me").json()
 
     def get_my_top_artists(
         self,
@@ -468,6 +470,7 @@ class WebAPIUserEndpoints:
 
               :code:`playlist-modify-public`
                  Manage your public playlists.
+
               :code:`playlist-modify-private`
                  Manage your private playlists.
 
@@ -507,6 +510,7 @@ class WebAPIUserEndpoints:
 
               :code:`playlist-modify-public`
                  Manage your public playlists.
+
               :code:`playlist-modify-private`
                  Manage your private playlists.
 
@@ -795,12 +799,7 @@ class WebAPIUserEndpoints:
         is_following_artists : list[bool]
             Whether the current user follows each specified artist.
 
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  [False, True]
+            **Sample response**: :code:`[False, True]`.
         """
         self._client._require_scopes("is_following_artists", "user-follow-read")
         return self._client._request(
@@ -845,12 +844,7 @@ class WebAPIUserEndpoints:
         is_following_users : list[bool]
             Whether the current user follows each specified user.
 
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  [False, True]
+            **Sample response**: :code:`[False, True]`.
         """
         self._client._require_scopes("is_following_users", "user-follow-read")
         return self._client._request(
@@ -883,12 +877,7 @@ class WebAPIUserEndpoints:
         is_following_playlist : bool
             Whether the current user follows the specified playlist.
 
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  True
+            **Sample response**: :code:`True`.
         """
         self._client._validate_spotify_id(playlist_id)
         return self._client._request(

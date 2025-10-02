@@ -23,7 +23,7 @@ class WebAPIGenreEndpoints:
         """
         self._client = client
 
-    def get_available_seed_genres(self) -> dict[str, list[str]]:
+    def get_available_seed_genres(self) -> list[str]:
         """
         `Genres > Get Available Seed Genre
         <https://developer.spotify.com/documentation/web-api/reference
@@ -35,15 +35,8 @@ class WebAPIGenreEndpoints:
         seed_genres : list[str]
             Seed genres.
 
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "genres": ["alternative", "samba"]
-                  }
+            **Sample response**: :code:`["alternative", "samba"]`.
         """
         return self._client._request(
             "GET", "recommendations/available-genre-seeds"
-        ).json()
+        ).json()["genres"]

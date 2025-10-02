@@ -392,7 +392,7 @@ class WebAPIShowEndpoints:
             params["offset"] = offset
         return self._client._request(
             "GET", f"shows/{show_id}/episodes", params=params
-        )
+        ).json()
 
     def get_saved_shows(
         self, *, limit: int | None = None, offset: int | None = None
@@ -594,12 +594,7 @@ class WebAPIShowEndpoints:
             Whether the current user has each of the specified shows
             saved in their "Your Music" library.
 
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  [False, True]
+            **Sample response**: :code:`[False, True]`.
         """
         self._client._require_scopes("are_shows_saved", "user-library-read")
         return self._client._request(
