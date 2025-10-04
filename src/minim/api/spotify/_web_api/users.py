@@ -897,7 +897,7 @@ class WebAPIUserEndpoints:
             not isinstance(time_range, str)
             or time_range not in self._TIME_RANGES
         ):
+            ranges_ = ", ".join(self._TIME_RANGES)
             raise ValueError(
-                f"{time_range!r} is not valid time frame. "
-                "Valid values: '" + ", ".join(self._TIME_RANGES) + "'."
+                f"Invalid time frame {time_range!r}. Valid values: '{ranges_}'."
             )

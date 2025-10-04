@@ -447,9 +447,7 @@ class WebAPI(OAuth2API):
             and len(spotify_id) != 22
             or not spotify_id.isalnum()
         ):
-            raise ValueError(
-                f"{spotify_id!r} is not a valid base62 Spotify ID."
-            )
+            raise ValueError(f"Invalid Spotify ID {spotify_id!r}.")
 
     @staticmethod
     def _validate_spotify_uri(
@@ -474,7 +472,7 @@ class WebAPI(OAuth2API):
             or len(spotify_id := uri_parts[2]) != 22
             or not spotify_id.isalnum()
         ):
-            raise ValueError(f"{spotify_uri!r} is not a valid Spotify URI.")
+            raise ValueError(f"Invalid Spotify URI {spotify_uri!r}.")
 
     @cached_property
     def available_seed_genres(self) -> list[str]:
@@ -572,9 +570,10 @@ class WebAPI(OAuth2API):
             or "markets" in self.__dict__
             and market not in self.available_markets
         ):
+            _markets = ", ".join(self.available_markets)
             raise ValueError(
-                f"{market!r} is not a market in which Spotify is available. "
-                "Valid values: '" + ", ".join(self.available_markets) + "'."
+                f"{market!r} is not a market in which Spotify is "
+                f"available. Valid values: '{_markets}'."
             )
 
     def _validate_seed_genre(self, seed_genre: str, /) -> None:
@@ -591,7 +590,7 @@ class WebAPI(OAuth2API):
             or "available_seed_genres" in self.__dict__
             and seed_genre not in self.available_seed_genres
         ):
+            _genres = ", ".join(self.available_seed_genres)
             raise ValueError(
-                f"{seed_genre!r} is not a valid seed genre. "
-                "Valid values: '" + ", ".join(self.available_seed_genres) + "'."
+                f"Invalid seed genre {seed_genre!r}. Valid values: '{_genres}'."
             )

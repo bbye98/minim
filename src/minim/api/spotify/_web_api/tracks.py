@@ -477,22 +477,22 @@ class WebAPITrackEndpoints:
         positional-only
             (Comma-separated) list of Spotify IDs of the tracks,
             optionally accompanied by timestamps to maintain a specific
-            chronological order in the user's library. A maximum of 50 
+            chronological order in the user's library. A maximum of 50
             IDs can be sent in one request.
 
-            **Examples**: 
-            
+            **Examples**:
+
             .. container::
-            
+
                * :code:`"4iV5W9uYEdYUVa79Axb7Rh"`
                * :code:`("4iV5W9uYEdYUVa79Axb7Rh", "2010-01-01T00:00:00Z")`
-               * :code:`{"id": "4iV5W9uYEdYUVa79Axb7Rh", 
+               * :code:`{"id": "4iV5W9uYEdYUVa79Axb7Rh",
                  "added_at": "2010-01-01T00:00:00Z"}`
                * .. code::
-               
+
                     [
-                        "4iV5W9uYEdYUVa79Axb7Rh", 
-                        ("11dFghVXANMlKmJXsNCbNl", "2017-05-26T00:00:00Z"), 
+                        "4iV5W9uYEdYUVa79Axb7Rh",
+                        ("11dFghVXANMlKmJXsNCbNl", "2017-05-26T00:00:00Z"),
                         {"id": "7ouMYWpwJ422jRcDASZB7P", "added_at": "2006-06-28T00:00:00Z"}
                     ]
         """
@@ -1372,7 +1372,7 @@ class WebAPITrackEndpoints:
             ):
                 raise ValueError(
                     f"Values for track attribute {attribute!r} must "
-                    "all be integers (or `None`)."
+                    "all be integers (or None)."
                 )
             elif any(
                 not (
@@ -1385,13 +1385,14 @@ class WebAPITrackEndpoints:
             ):
                 raise ValueError(
                     f"Values for track attribute {attribute!r} must "
-                    "all be numbers (or `None`)."
+                    "all be numbers (or None)."
                 )
             length = len(value)
             if length not in range(2, 4):
                 raise ValueError(
                     "The tuple provided for track attribute "
-                    f"{attribute!r} has an invalid length ({length})."
+                    f"{attribute!r} must have length 2 or 3, but is "
+                    f"length {length}."
                 )
             else:
                 for v in value:
@@ -1409,8 +1410,8 @@ class WebAPITrackEndpoints:
         else:
             raise ValueError(
                 f"The value provided for track attribute {attribute!r} "
-                f"is not a `{(dtype := data_type.__name__)}` or a "
-                f"tuple of `{dtype}`s."
+                f"must be a {(dtype := data_type.__name__)} or a "
+                f"tuple of {dtype}s, but is a {type(value).__name__}."
             )
 
     def _parse_seeds(

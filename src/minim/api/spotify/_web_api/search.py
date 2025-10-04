@@ -537,7 +537,8 @@ class WebAPISearchEndpoints:
             Spotify item type.
         """
         if type_ not in self._TYPES:
+            _types = ", ".join(self._TYPES)
             raise ValueError(
-                f"{type_!r} is not a valid Spotify item type. "
-                "Valid values: '" + ", ".join(self._TYPES) + "'."
+                f"Invalid Spotify item type {type_!r}. "
+                f"Valid values: '{_types}'."
             )

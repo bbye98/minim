@@ -541,7 +541,7 @@ class WebAPIArtistEndpoints:
             Album type.
         """
         if group not in self._GROUPS:
+            _groups = ", ".join(self._GROUPS)
             raise ValueError(
-                f"{group!r} is not a valid album type. "
-                "Valid values: '" + ", ".join(self._GROUPS) + "'."
+                f"Invalid album type {group!r}. Valid values: '{_groups}'."
             )

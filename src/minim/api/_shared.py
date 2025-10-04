@@ -554,7 +554,7 @@ class OAuth2API(ABC):
             and (lower_bound is None or value >= lower_bound)
             and (upper_bound is None or value <= upper_bound)
         ):
-            raise ValueError(f"`{name}` must be an integer{emsg_suffix}.")
+            raise ValueError(f"`{name}` must be an int{emsg_suffix}.")
 
     @staticmethod
     def _validate_type(name: str, value: Any, data_type: type) -> None:
@@ -630,9 +630,9 @@ class OAuth2API(ABC):
         self._client.headers["Authorization"] = f"{token_type} {access_token}"
         if refresh_token and self._flow in {"client_credentials", "implicit"}:
             raise ValueError(
-                f"The {self._OAUTH_FLOWS_NAMES[self._flow]} "
-                f"({self._flow=}) does not support refresh tokens, but "
-                "one was provided via the `refresh_token` argument."
+                f"The {self._OAUTH_FLOWS_NAMES[self._flow]} does not "
+                "support refresh tokens, but one was provided via the "
+                "`refresh_token` argument."
             )
         self._refresh_token = refresh_token
         self._expiry = (
@@ -784,14 +784,16 @@ class OAuth2API(ABC):
             and not client_secret
         ):
             raise ValueError(
-                f"The {self._OAUTH_FLOWS_NAMES[flow]} ({flow=}) requires "
-                "a client secret via the `client_secret` argument."
+                f"The {self._OAUTH_FLOWS_NAMES[flow]} requires a "
+                "a client secret to be provided via the "
+                "`client_secret` argument."
             )
         self._client_secret = client_secret
         if flow in {"auth_code", "pkce", "implicit"} and not redirect_uri:
             raise ValueError(
-                f"The {self._OAUTH_FLOWS_NAMES[flow]} ({flow=}) requires "
-                "a redirect URI via the `redirect_uri` argument."
+                f"The {self._OAUTH_FLOWS_NAMES[flow]} requires a "
+                "redirect URI to be provided via the `redirect_uri` "
+                "argument."
             )
         self._port = (
             port

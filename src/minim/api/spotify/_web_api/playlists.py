@@ -739,7 +739,7 @@ class WebAPIPlaylistEndpoints:
         uris: str | Collection[str],
         *,
         position: int | None = None,
-    ) -> str:
+    ) -> dict[str, str]:
         """
         `Playlists > Add Items to Playlist
         <https://developer.spotify.com/documentation/web-api/reference
@@ -795,11 +795,12 @@ class WebAPIPlaylistEndpoints:
 
         Returns
         -------
-        snapshot_id : str
+        snapshot_id : dict[str, str]
             Version identifier for the playlist after the items have
             been added.
 
-            **Sample response**: :code:`"AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"`.
+            **Sample response**:
+            :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
         """
         self._client._require_scopes(
             "add_playlist_items",
@@ -821,18 +822,168 @@ class WebAPIPlaylistEndpoints:
             },
         ).json()
 
-    def update_playlist_items(
+    def reorder_playlist_items(
         self,
         playlist_id: str,
         /,
-        uris: str | Collection[str] | None = None,
         *,
-        range_start: int | None = None,
-        insert_before: int | None = None,
+        insert_before: int,
+        range_start: int,
         range_length: int | None = None,
         snapshot_id: str | None = None,
-    ) -> str:
-        pass
+    ) -> dict[str, str]:
+        """
+        `Playlists > Update Playlist Items
+        <https://developer.spotify.com/documentation/web-api/reference
+        /reorder-or-replace-playlists-tracks>`_: Reorder items in a
+        user's playlist.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlist-modify-public`
+                 Manage your public playlists.
+
+              :code:`playlist-modify-private`
+                 Manage your private playlists.
+
+        Parameters
+        ----------
+        playlist_id : str, positional-only
+            Spotify ID of the playlist.
+
+            **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
+
+        insert_before : int, keyword-only
+            Zero-based index at which to insert the items.
+
+            .. container::
+
+               **Examples**:
+
+               * :code:`0` – Move items selected by `range_start` and
+                 `range_length` before the current item in the first
+                 position.
+               * :code:`10` – Move items selected by `range_start` and
+                 `range_length` before the current item in the eleventh
+                 position.
+
+        range_start : int, keyword-only
+            Zero-based index of the first item to be reordered.
+
+        range_length : int, keyword-only, optional
+            Number of items, starting from `range_start`, to be
+            reordered.
+
+            **Default**: :code:`1`.
+
+        snapshot_id : str, keyword-only, optional
+            Version identifier for the playlist against which to make
+            changes.
+
+        Returns
+        -------
+        snapshot_id : dict[str, str]
+            Version identifier for the playlist after the items have
+            been reordered.
+
+            **Sample response**:
+            :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
+        """
+        self._client._require_scopes(
+            "reorder_playlist_items",
+            {"playlist-modify-public", "playlist-modify-private"},
+        )
+        self._client._validate_spotify_id(playlist_id)
+        self._client._validate_number("insert_before", insert_before, int, 0)
+        self._client._validate_number("range_start", range_start, int, 0)
+        payload = {"insert_before": insert_before, "range_start": range_start}
+        if range_length is not None:
+            self._client._validate_number("range_length", range_length, int, 1)
+            payload["range_length"] = range_length
+        if snapshot_id is not None:
+            self._validate_snapshot_id(snapshot_id)
+            payload["snapshot_id"] = snapshot_id
+        return self._client._request(
+            "PUT", f"playlists/{playlist_id}/tracks", json=payload
+        ).json()
+
+    def replace_playlist_items(
+        self,
+        playlist_id: str,
+        /,
+        uris: str | Collection[str],
+    ) -> dict[str, str]:
+        """
+        `Playlists > Update Playlist Items
+        <https://developer.spotify.com/documentation/web-api/reference
+        /reorder-or-replace-playlists-tracks>`_: Replace items in a
+        user's playlist.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlist-modify-public`
+                 Manage your public playlists.
+
+              :code:`playlist-modify-private`
+                 Manage your private playlists.
+
+        Parameters
+        ----------
+        playlist_id : str, positional-only
+            Spotify ID of the playlist.
+
+            **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
+
+        uris : str or Collection[str]
+            (Comma-separated) list of Spotify URIs of tracks and/or show
+            episodes. A maximum of 100 URIs can be sent in one request.
+            If None or an empty array is provided, the playlist is cleared.
+
+            .. container::
+
+               **Examples**:
+
+               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
+               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
+               * .. code::
+
+                    [
+                        "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+                        "spotify:track:1301WleyT98MSxVHPZCA6M",
+                        "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
+                    ]
+
+        Returns
+        -------
+        snapshot_id : dict[str, str]
+            Version identifier for the playlist after the items have
+            been replaced.
+
+            **Sample response**:
+            :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
+        """
+        self._client._require_scopes(
+            "replace_playlist_items",
+            {"playlist-modify-public", "playlist-modify-private"},
+        )
+        self._client._validate_spotify_id(playlist_id)
+        return self._client._request(
+            "PUT",
+            f"playlists/{playlist_id}/tracks",
+            json={
+                "uris": self._client._prepare_spotify_uris(
+                    uris, limit=100, item_types=self._ADDITIONAL_TYPES
+                )
+                if uris
+                else []
+            },
+        ).json()
 
     def remove_playlist_items(
         self,
@@ -841,10 +992,79 @@ class WebAPIPlaylistEndpoints:
         uris: str | Collection[str],
         *,
         snapshot_id: str | None = None,
-    ) -> str:
-        pass
+    ) -> dict[str, str]:
+        """
+        `Playlists > Remove Playlist Items
+        <https://developer.spotify.com/documentation/web-api/reference
+        /remove-tracks-playlist>`_: Remove items from a user's playlist.
 
-    def get_user_playlists(  # get_my_playlists
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlist-modify-public`
+                 Manage your public playlists.
+
+              :code:`playlist-modify-private`
+                 Manage your private playlists.
+
+        Parameters
+        ----------
+        playlist_id : str, positional-only
+            Spotify ID of the playlist.
+
+            **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
+
+        uris : str or Collection[str]
+            (Comma-separated) list of Spotify URIs of tracks and/or show
+            episodes. A maximum of 100 URIs can be sent in one request.
+
+            .. container::
+
+               **Examples**:
+
+               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
+               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
+               * .. code::
+
+                    [
+                        "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+                        "spotify:track:1301WleyT98MSxVHPZCA6M",
+                        "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
+                    ]
+
+        snapshot_id : str, keyword-only, optional
+            Version identifier for the playlist against which to make
+            changes.
+
+        Returns
+        -------
+        snapshot_id : dict[str, str]
+            Version identifier for the playlist after the items have
+            been removed.
+
+            **Sample response**:
+            :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
+        """
+        self._client._require_scopes(
+            "remove_playlist_items",
+            {"playlist-modify-public", "playlist-modify-private"},
+        )
+        self._client._validate_spotify_id(playlist_id)
+        payload = {
+            "tracks": self._client._prepare_spotify_uris(
+                uris, limit=100, item_types=self._ADDITIONAL_TYPES
+            )
+        }
+        if snapshot_id is not None:
+            self._validate_snapshot_id(snapshot_id)
+            payload["snapshot_id"] = snapshot_id
+        return self._client._request(
+            "DELETE", f"playlists/{playlist_id}/tracks", json=payload
+        ).json()
+
+    def get_user_playlists(
         self,
         user_id: str | None = None,
         /,
@@ -852,7 +1072,81 @@ class WebAPIPlaylistEndpoints:
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        pass
+        """
+        `Playlists > Get Current User's Playlists
+        <https://developer.spotify.com/documentation/web-api/reference
+        /get-a-list-of-current-users-playlists>`_: Get playlists owned
+        or followed by the current user․
+        `Playlists > Get User's Playlists <https://developer.spotify.com
+        /documentation/web-api/reference/get-list-users-playlists>`_:
+        Get playlists owned or followed by a Spotify user.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlist-read-private`
+                 Access your private playlists.
+
+              :code:`playlist-read-collaborative`
+                 Access your collaborative playlists.
+
+        Parameters
+        ----------
+        user_id : str, positional-only, optional
+            Spotify user ID. If not provided, the current user's
+            playlists will be returned.
+
+            **Example**: :code:`"smedjan"`.
+
+        limit : int, keyword-only, optional
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+            **Default**: :code:`20`.
+
+        offset : int, keyword-only, optional
+            Index of the first playlist to return. Use with `limit` to
+            get the next set of playlists.
+
+            **Minimum value**: :code:`0`.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            Spotify content metadata for the playlists.
+
+            .. admonition:: Sample responses
+               :class: dropdown
+
+               .. code::
+
+                  TODO
+        """
+        self._client._require_scopes(
+            "get_user_playlists", "playlist-read-private"
+        )
+        params = {}
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        if user_id:
+            self._client._require_scopes(
+                "get_user_playlists", "playlist-read-collaborative"
+            )
+            self._client._validate_spotify_id(user_id, strict_length=False)
+            return self._client._request(
+                "GET", f"users/{user_id}/playlists", params=params
+            )
+
+        return self._client._request("GET", "me/playlists", params=params)
 
     def create_playlist(
         self,
@@ -936,7 +1230,7 @@ class WebAPIPlaylistEndpoints:
 
     def _validate_item_type(self, type_: str, /) -> None:
         """
-        Validate Spotify item type.
+        Validate a Spotify item type.
 
         Parameters
         ----------
@@ -944,7 +1238,22 @@ class WebAPIPlaylistEndpoints:
             Spotify item type.
         """
         if type_ not in self._ADDITIONAL_TYPES:
+            _types = ", ".join(self._ADDITIONAL_TYPES)
             raise ValueError(
-                f"{type_!r} is not a valid Spotify item type. Valid "
-                "values: '" + ", ".join(self._ADDITIONAL_TYPES) + "'."
+                f"Invalid Spotify item type {type_!r}. "
+                f"Valid values: '{_types}'."
+            )
+
+    def _validate_snapshot_id(str, snapshot_id: str, /) -> None:
+        """
+        Validate a Spotify playlist snapshot ID.
+
+        Parameters
+        ----------
+        snapshot_id : str, positional-only
+            Snapshot ID.
+        """
+        if not isinstance(snapshot_id, str) or not len(snapshot_id):
+            raise ValueError(
+                f"Invalid snapshot ID {snapshot_id!r}; must be a str."
             )
