@@ -506,6 +506,13 @@ class WebAPI(OAuth2API):
         """
         return self.markets.get_available_markets()["markets"]
 
+    @cached_property
+    def user_profile(self) -> str:
+        """
+        Current user's profile.
+        """
+        return self.users.get_user_profile()
+
     def _request(
         self,
         method: str,
@@ -560,7 +567,7 @@ class WebAPI(OAuth2API):
         Assign the Spotify user ID as the user identifier for the
         current account.
         """
-        self._user_identifier = self.users.get_user_profile()["id"]
+        self._user_identifier = self.user_profile["id"]
 
     def _validate_market(self, market: str, /) -> None:
         """

@@ -5,6 +5,7 @@ from ..._shared import _copy_docstring
 from .users import WebAPIUserEndpoints
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from .. import WebAPI
 
 
@@ -18,7 +19,7 @@ class WebAPIPlaylistEndpoints:
        should not be instantiated directly.
     """
 
-    _ADDITIONAL_TYPES = {"track", "episode"}
+    _TYPES = {"track", "episode"}
 
     def __init__(self, client: "WebAPI", /) -> None:
         """
@@ -817,7 +818,7 @@ class WebAPIPlaylistEndpoints:
             params=params,
             json={
                 "uris": self._client._prepare_spotify_uris(
-                    uris, limit=100, item_types=self._ADDITIONAL_TYPES
+                    uris, limit=100, item_types=self._TYPES
                 )
             },
         ).json()
@@ -904,7 +905,7 @@ class WebAPIPlaylistEndpoints:
             self._client._validate_number("range_length", range_length, int, 1)
             payload["range_length"] = range_length
         if snapshot_id is not None:
-            self._validate_snapshot_id(snapshot_id)
+            self._client._validate_type("snapshot_id", snapshot_id, str)
             payload["snapshot_id"] = snapshot_id
         return self._client._request(
             "PUT", f"playlists/{playlist_id}/tracks", json=payload
@@ -978,7 +979,7 @@ class WebAPIPlaylistEndpoints:
             f"playlists/{playlist_id}/tracks",
             json={
                 "uris": self._client._prepare_spotify_uris(
-                    uris, limit=100, item_types=self._ADDITIONAL_TYPES
+                    uris, limit=100, item_types=self._TYPES
                 )
                 if uris
                 else []
@@ -1054,11 +1055,11 @@ class WebAPIPlaylistEndpoints:
         self._client._validate_spotify_id(playlist_id)
         payload = {
             "tracks": self._client._prepare_spotify_uris(
-                uris, limit=100, item_types=self._ADDITIONAL_TYPES
+                uris, limit=100, item_types=self._TYPES
             )
         }
         if snapshot_id is not None:
-            self._validate_snapshot_id(snapshot_id)
+            self._client._validate_type("snapshot_id", snapshot_id, str)
             payload["snapshot_id"] = snapshot_id
         return self._client._request(
             "DELETE", f"playlists/{playlist_id}/tracks", json=payload
@@ -1125,7 +1126,51 @@ class WebAPIPlaylistEndpoints:
 
                .. code::
 
-                  TODO
+                  {
+                    "href": <str>,
+                    "items": [
+                      {
+                        "collaborative": <bool>,
+                        "description": <str>,
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "images": [
+                          {
+                            "height": <int>,
+                            "url": <str>,
+                            "width": <int>
+                          }
+                        ],
+                        "name": <str>,
+                        "owner": {
+                          "display_name": <str>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "type": <str>,
+                          "uri": <str>
+                        },
+                        "public": <bool>,
+                        "snapshot_id": <str>,
+                        "tracks": {
+                          "href": <str>,
+                          "total": <int>
+                        },
+                        "type": <str>,
+                        "uri": <str>
+                      }
+                    ],
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>
+                  }
         """
         self._client._require_scopes(
             "get_user_playlists", "playlist-read-private"
@@ -1151,13 +1196,127 @@ class WebAPIPlaylistEndpoints:
     def create_playlist(
         self,
         name: str,
-        /,
         *,
         description: str | None = None,
         public: bool | None = None,
         collaborative: bool | None = None,
     ) -> dict[str, Any]:
-        pass
+        """
+        `Playlists > Create Playlist <https://developer.spotify.com
+        /documentation/web-api/reference/create-playlist>`_: Create a
+        playlist.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlist-modify-public`
+                 Manage your public playlists.
+
+              :code:`playlist-modify-private`
+                 Manage your private playlists.
+
+        Parameters
+        ----------
+        name : str
+            Playlist name.
+
+            **Example**: :code:`"My New Playlist Title"`.
+
+        description : str, keyword-only, optional
+            Playlist description.
+
+        public : bool, keyword-only, optional
+            Specifies whether the playlist is displayed on the user's
+            profile.
+
+            **Default**: :code:`True`.
+
+        collaborative : bool, keyword-only, optional
+            Specifies whether other users can modify the playlist.
+
+            .. note::
+
+               :code:`public=False` must accompany
+               :code:`collaborative=True` to create a collaborative
+               playlist.
+
+            **Default**: :code:`False`.
+
+        Returns
+        -------
+        playlist : dict[str, Any]
+            Spotify content metadata for the newly created playlist.
+
+            .. admonition:: Sample responses
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "collaborative": <bool>,
+                    "description": <str>,
+                    "external_urls": {
+                      "spotify": <str>
+                    },
+                    "followers": {
+                      "href": None,
+                      "total": 0
+                    },
+                    "href": <str>,
+                    "id": <str>,
+                    "images": [],
+                    "name": <str>,
+                    "owner": {
+                      "display_name": <str>,
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "type": "user",
+                      "uri": <str>
+                    },
+                    "primary_color": None,
+                    "public": <bool>,
+                    "snapshot_id": <str>,
+                    "tracks": {
+                      "href": <str>,
+                      "items": [],
+                      "limit": 100,
+                      "next": None,
+                      "offset": 0,
+                      "previous": None,
+                      "total": 0
+                    },
+                    "type": "playlist",
+                    "uri": <str>
+                  }
+        """
+        self._client._require_scopes(
+            "create_playlist", "playlist-modify-public"
+        )
+        self._client._validate_type("name", name, str)
+        payload = {"name": name}
+        if description is not None:
+            self._client._validate_type("description", description, str)
+            payload["description"] = description
+        if public is not None:
+            self._client._validate_type("public", public, bool)
+            if not public:
+                self._client._require_scopes(
+                    "create_playlist", "playlist-modify-private"
+                )
+            payload["public"] = public
+        if collaborative is not None:
+            self._client._validate_type("collaborative", collaborative, bool)
+            payload["collaborative"] = collaborative
+        return self._client._request(
+            "POST",
+            f"users/{self._client.user_profile['id']}/playlists",
+            json=payload,
+        ).json()
 
     def get_featured_playlists(
         self,
@@ -1166,7 +1325,75 @@ class WebAPIPlaylistEndpoints:
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        pass
+        """
+        `Playlists > Get Featured Playlists
+        <https://developer.spotify.com/documentation/web-api/reference
+        /get-featured-playlists>`_: Get featured playlists.
+
+        .. admonition:: Third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              Extended quota mode before November 11, 2024
+                  Access 30-second preview URLs.
+
+        Parameters
+        ----------
+        locale : str, keyword-only, optional
+            Locale identifier consisting of an ISO 639-1 language
+            code and an ISO 3166-1 alpha-2 country code joined by an
+            underscore. When this parameter is provided, the category
+            strings are returned in the specified language.
+
+            .. note::
+
+               If a locale identifier is not supplied or the specified
+               language is not available, the category strings returned
+               will be in the Spotify default language (American
+               English).
+
+            **Example**: :code:`"es_MX"` for Spanish (Mexico).
+
+        limit : int, keyword-only, optional
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+            **Default**: :code:`20`.
+
+        offset : int, keyword-only, optional
+            Index of the first playlist to return. Use with `limit` to
+            get the next set of playlists.
+
+            **Minimum value**: :code:`0`.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        featured_playlists : dict[str, Any]
+            Spotify content metadata for the featured playlists.
+
+            .. admonition:: Sample responses
+               :class: dropdown
+
+               .. code::
+
+                  TODO
+        """
+        params = {}
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        if locale:
+            params["locale"] = locale
+        return self._client._request(
+            "GET", "browse/featured-playlists", params=params
+        ).json()
 
     def get_categorized_playlists(
         self,
@@ -1176,17 +1403,154 @@ class WebAPIPlaylistEndpoints:
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        pass
+        """
+        `Playlists > Get Category's Playlist
+        <https://developer.spotify.com/documentation/web-api/reference
+        /get-a-categories-playlists>`_: Get playlists tagged with a
+        particular category.
+
+        .. admonition:: Third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              Extended quota mode before November 11, 2024
+                  Access 30-second preview URLs.
+
+        Parameters
+        ----------
+        category_id : str
+            Spotify category ID.
+
+            **Examples**: :code:`"dinner"`, :code:`"party"`.
+
+        limit : int, keyword-only, optional
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+            **Default**: :code:`20`.
+
+        offset : int, keyword-only, optional
+            Index of the first playlist to return. Use with `limit` to
+            get the next set of playlists.
+
+            **Minimum value**: :code:`0`.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        categorized_playlists : dict[str, Any]
+            Spotify content metadata for the category's playlists.
+
+            .. admonition:: Sample responses
+               :class: dropdown
+
+               .. code::
+
+                  TODO
+        """
+        params = {}
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request(
+            "GET", f"browse/categories/{category_id}/playlists", params=params
+        ).json()
 
     def get_playlist_cover_image(
         self, playlist_id: str, /
     ) -> list[dict[str, int | str]]:
-        pass
+        """
+        `Playlists > Get Playlist Cover Image
+        <https://developer.spotify.com/documentation/web-api/reference
+        /get-playlist-cover>`_: Get the cover image currently associated
+        with a playlist.
+
+        Parameters
+        ----------
+        playlist_id : str, positional-only
+            Spotify ID of the playlist.
+
+            **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
+
+        Returns
+        -------
+        playlist_cover_image : list[dict[str, int | str]]
+            Playlist cover image.
+
+            **Sample response**:
+
+            .. code::
+
+               [
+                 {
+                   "height": <int>,
+                   "url": <str>,
+                   "width": <int>
+                 }
+               ]
+        """
+        self._client._validate_spotify_id(playlist_id)
+        return self._client._request(
+            "GET", f"playlists/{playlist_id}/images"
+        ).json()
 
     def add_playlist_cover_image(
-        self, playlist_id: str, /, image: bytes
+        self, playlist_id: str, /, image: bytes | str | Path
     ) -> None:
-        pass
+        """
+        `Playlists > Add Custom Playlist Cover Image
+        <https://developer.spotify.com/documentation/web-api/reference
+        /upload-custom-playlist-cover>`_: Add a cover image to a
+        playlist.
+
+        Parameters
+        ----------
+        playlist_id : str, positional-only
+            Spotify ID of the playlist.
+
+            **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
+
+        image : bytes, str, or pathlib.Path
+            Base64-encoded JPEG image data, provided as a bytes object
+            or a file path.
+        """
+        self._client._require_scopes(
+            "add_playlist_cover_image",
+            {
+                "ugc-image-upload",
+                "playlist-modify-public",
+                "playlist-modify-private",
+            },
+        )
+        self._client._validate_spotify_id(playlist_id)
+        if isinstance(image, str | Path):
+            image = Path(image).resolve(True)
+            with open(image, "rb") as f:
+                image = f.read()
+        if not isinstance(image, bytes) or not (
+            image.startswith(b"\xff\xd8") and image.endswith(b"\xff\xd9")
+        ):
+            raise ValueError(
+                "The value or file specified in the `image` argument "
+                "does not contain binary data or a JPEG image."
+            )
+        if len(image) < 262_144:
+            raise ValueError(
+                "The JPEG image specified in the `image` argument "
+                "exceeds 256 KB."
+            )
+        self._client._request(
+            "PUT",
+            f"playlists/{playlist_id}/images",
+            data=image,
+            headers={"Content-Type": "image/jpeg"},
+        )
 
     @_copy_docstring(WebAPIUserEndpoints.follow_playlist)
     def follow_playlist(
@@ -1237,23 +1601,9 @@ class WebAPIPlaylistEndpoints:
         type_ : str, positional-only
             Spotify item type.
         """
-        if type_ not in self._ADDITIONAL_TYPES:
-            _types = ", ".join(self._ADDITIONAL_TYPES)
+        if type_ not in self._TYPES:
+            _types = ", ".join(self._TYPES)
             raise ValueError(
                 f"Invalid Spotify item type {type_!r}. "
                 f"Valid values: '{_types}'."
-            )
-
-    def _validate_snapshot_id(str, snapshot_id: str, /) -> None:
-        """
-        Validate a Spotify playlist snapshot ID.
-
-        Parameters
-        ----------
-        snapshot_id : str, positional-only
-            Snapshot ID.
-        """
-        if not isinstance(snapshot_id, str) or not len(snapshot_id):
-            raise ValueError(
-                f"Invalid snapshot ID {snapshot_id!r}; must be a str."
             )

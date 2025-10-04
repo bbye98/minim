@@ -47,7 +47,7 @@ class WebAPICategoryEndpoints:
 
             .. note::
 
-               If a locale identifier is not supplied or  the specified
+               If a locale identifier is not supplied or the specified
                language is not available, the category strings returned
                will be in the Spotify default language (American
                English).
@@ -107,7 +107,7 @@ class WebAPICategoryEndpoints:
 
             .. note::
 
-               If a locale identifier is not supplied or  the specified
+               If a locale identifier is not supplied or the specified
                language is not available, the category strings returned
                will be in the Spotify default language (American
                English).
