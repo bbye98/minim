@@ -25,6 +25,12 @@ from ._web_api.users import WebAPIUserEndpoints
 if TYPE_CHECKING:
     import httpx
 
+# TODO: Add hyperlinks to scopes in docstrings.
+# TODO: Implement a `raw: bool = False` keyword argument in all
+#       endpoints and make the return values more Pythonic.
+# TODO: Move the implementations of all aliased endpoints out of the
+#       Users section.
+
 
 class WebAPI(OAuth2API):
     """
