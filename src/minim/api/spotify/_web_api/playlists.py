@@ -353,8 +353,8 @@ class WebAPIPlaylistEndpoints:
     ) -> None:
         """
         `Playlists > Change Playlist Details
-        <https://developer.spotify.com/documentation/web-api/reference/
-        change-playlist-details>`_: Change details of a playlist owned
+        <https://developer.spotify.com/documentation/web-api/reference
+        /change-playlist-details>`_: Change details of a playlist owned
         by the current user.
 
         .. admonition:: Authorization scope

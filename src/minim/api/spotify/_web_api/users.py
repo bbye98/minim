@@ -858,7 +858,7 @@ class WebAPIUserEndpoints:
             },
         ).json()
 
-    def is_following_playlist(self, playlist_id: str, /) -> bool:
+    def is_following_playlist(self, playlist_id: str, /) -> list[bool]:
         """
         `Users > Check if Current User Follows Playlist
         <https://developer.spotify.com/documentation/web-api/reference
@@ -874,15 +874,15 @@ class WebAPIUserEndpoints:
 
         Returns
         -------
-        is_following_playlist : bool
+        is_following_playlist : list[bool]
             Whether the current user follows the specified playlist.
 
-            **Sample response**: :code:`True`.
+            **Sample response**: :code:`[True]`.
         """
         self._client._validate_spotify_id(playlist_id)
         return self._client._request(
             "GET", f"playlists/{playlist_id}/followers/contains"
-        ).json()[0]
+        ).json()
 
     def _validate_time_range(self, time_range: str, /) -> None:
         """

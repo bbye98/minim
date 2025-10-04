@@ -487,7 +487,7 @@ class WebAPI(OAuth2API):
            :meth:`~minim.api.spotify.WebAPIGenreEndpoints.get_available_seed_genres`
            and cache the response for later use.
         """
-        return self.genres.get_available_seed_genres()
+        return self.genres.get_available_seed_genres()["genres"]
 
     @cached_property
     def available_markets(self) -> list[str]:
@@ -500,7 +500,7 @@ class WebAPI(OAuth2API):
            :meth:`~minim.api.spotify.WebAPIMarketEndpoints.get_available_markets`
            and cache the response for later use.
         """
-        return self.markets.get_available_markets()
+        return self.markets.get_available_markets()["markets"]
 
     def _request(
         self,
