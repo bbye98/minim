@@ -1,11 +1,11 @@
 from collections.abc import Collection
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import _copy_docstring
 from .users import WebAPIUserEndpoints
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from .. import WebAPI
 
 
