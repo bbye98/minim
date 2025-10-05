@@ -83,15 +83,15 @@ class WebAPIPlaylistEndpoints:
 
                **Examples**:
 
-               * :code:`"description,uri"` — Returns only the playlist
+               * :code:`"description,uri"` – Returns only the playlist
                  description and URI.
-               * :code:`"tracks.items(added_at,added_by.id)"` — Returns
+               * :code:`"tracks.items(added_at,added_by.id)"` – Returns
                  only the date added amd the Spotify user ID of the user
                  who added the track.
                * :code:`"tracks.items(track(name,href,album(name,href)))"`
-                 — Drills down into the album details.
+                 – Drills down into the album details.
                * :code:`"tracks.items(track(name,href,album(!name,href)))"`
-                 — Excludes the album name.
+                 – Excludes the album name.
 
         market : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code. If specified, only content
@@ -476,15 +476,15 @@ class WebAPIPlaylistEndpoints:
 
                **Examples**:
 
-               * :code:`"description,uri"` — Returns only the playlist
+               * :code:`"description,uri"` – Returns only the playlist
                  description and URI.
-               * :code:`"tracks.items(added_at,added_by.id)"` — Returns
+               * :code:`"tracks.items(added_at,added_by.id)"` – Returns
                  only the date added amd the Spotify user ID of the user
                  who added the track.
                * :code:`"tracks.items(track(name,href,album(name,href)))"`
-                 — Drills down into the album details.
+                 – Drills down into the album details.
                * :code:`"tracks.items(track(name,href,album(!name,href)))"`
-                 — Excludes the album name.
+                 – Excludes the album name.
 
         market : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code. If specified, only content

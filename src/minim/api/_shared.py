@@ -141,11 +141,11 @@ class OAuth2API(ABC):
 
                **Valid values**:
 
-               * :code:`"auth_code"` — Authorization Code Flow.
-               * :code:`"pkce"` — Authorization Code Flow with Proof Key
+               * :code:`"auth_code"` – Authorization Code Flow.
+               * :code:`"pkce"` – Authorization Code Flow with Proof Key
                  for Code Exchange (PKCE).
-               * :code:`"client_credentials"` — Client Credentials Flow.
-               * :code:`"implicit"` — Implicit Grant Flow.
+               * :code:`"client_credentials"` – Client Credentials Flow.
+               * :code:`"implicit"` – Implicit Grant Flow.
 
         client_id : str, keyword-only, optional
             Client ID. Must be provided unless it is set as a system
@@ -170,7 +170,7 @@ class OAuth2API(ABC):
 
             .. seealso::
 
-               :meth:`get_scopes` — Get a set of scopes to request.
+               :meth:`get_scopes` – Get a set of scopes to request.
 
         access_token : str, keyword-only, optional
             Access token. If provided or found in Minim's local token
@@ -199,10 +199,10 @@ class OAuth2API(ABC):
 
                **Valid values**:
 
-               * :code:`None` — Manually paste the redirect URL into
+               * :code:`None` – Manually paste the redirect URL into
                  the terminal.
-               * :code:`"http.server"` — Simple HTTP server.
-               * :code:`"playwright"` — Playwright Firefox browser.
+               * :code:`"http.server"` – Simple HTTP server.
+               * :code:`"playwright"` – Playwright Firefox browser.
 
         browser : bool, keyword-only, default: :code:`False`
             Specifies whether to automatically open the authorization
@@ -674,11 +674,11 @@ class OAuth2API(ABC):
 
                **Valid values**:
 
-               * :code:`"auth_code"` — Authorization Code Flow.
-               * :code:`"pkce"` — Authorization Code Flow with Proof Key
+               * :code:`"auth_code"` – Authorization Code Flow.
+               * :code:`"pkce"` – Authorization Code Flow with Proof Key
                  for Code Exchange (PKCE).
-               * :code:`"client_credentials"` — Client Credentials Flow.
-               * :code:`"implicit"` — Implicit Grant Flow.
+               * :code:`"client_credentials"` – Client Credentials Flow.
+               * :code:`"implicit"` – Implicit Grant Flow.
 
         client_id : str, keyword-only, optional
             Client ID. Must be provided unless it is set as a system
@@ -703,7 +703,7 @@ class OAuth2API(ABC):
 
             .. seealso::
 
-               :meth:`get_scopes` — Get a set of scopes to request.
+               :meth:`get_scopes` – Get a set of scopes to request.
 
         backend : str, keyword-only, optional
             Backend to handle redirects during the authorization flow.
@@ -712,10 +712,10 @@ class OAuth2API(ABC):
 
                **Valid values**:
 
-               * :code:`None` — Manually paste the redirect URL into
+               * :code:`None` – Manually paste the redirect URL into
                  the terminal.
-               * :code:`"http.server"` — Simple HTTP server.
-               * :code:`"playwright"` — Playwright Firefox browser.
+               * :code:`"http.server"` – Simple HTTP server.
+               * :code:`"playwright"` – Playwright Firefox browser.
 
         browser : bool, keyword-only, default: :code:`False`
             Specifies whether to automatically open the authorization
@@ -946,12 +946,12 @@ class OAuth2API(ABC):
 
                **Valid values**:
 
-               * :code:`"auth_code"` — Authorization Code Flow.
-               * :code:`"pkce"` — Authorization Code Flow with Proof Key
+               * :code:`"auth_code"` – Authorization Code Flow.
+               * :code:`"pkce"` – Authorization Code Flow with Proof Key
                  for Code Exchange (PKCE).
-               * :code:`"client_credentials"` — Client Credentials Flow.
-               * :code:`"implicit"` — Implicit Grant Flow.
-               * :code:`"refresh_token"` — Refresh Token Flow.
+               * :code:`"client_credentials"` – Client Credentials Flow.
+               * :code:`"implicit"` – Implicit Grant Flow.
+               * :code:`"refresh_token"` – Refresh Token Flow.
         """
         if not flow:
             flow = self._flow
@@ -972,7 +972,7 @@ class OAuth2API(ABC):
                 ).json()
                 if error := resp_json.get("error"):
                     warnings.warn(
-                        f"Encountered {error!r} error — "
+                        f"Encountered {error!r} error – "
                         f"{resp_json['error_description']}. "
                         "Reauthorizing via the "
                         f"{self._OAUTH_FLOWS_NAMES[self._flow]}.",

@@ -936,7 +936,7 @@ class WebAPITrackEndpoints:
             .. seealso::
 
                 :meth:`~minim.api.spotify.WebAPIGenreEndpoints.get_available_seed_genres`
-                — Get available seed genres.
+                – Get available seed genres.
 
         seed_tracks : str or Collection[str], optional
             (Comma-separated) list of Spotify IDs of seed tracks. Up to
@@ -953,7 +953,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             **Valid range**: :code:`0.0` (electronic) to :code:`1.0`
@@ -968,7 +968,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             **Valid range**: :code:`0.0` (least danceable) to
@@ -981,7 +981,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             **Minimum value**: :code:`0`.
@@ -995,7 +995,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             **Valid range**: :code:`0.0` (e.g., Bach prelude) to
@@ -1008,7 +1008,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             **Valid range**: :code:`0.0` (vocal) to :code:`1.0`
@@ -1021,26 +1021,26 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             .. container::
 
                **Valid values**:
 
-               * :code:`-1` — No key detected.
-               * :code:`0` — C.
-               * :code:`1` — C♯ or D♭.
-               * :code:`2` — D
-               * :code:`3` — D♯ or E♭.
-               * :code:`4` — E.
-               * :code:`5` — F.
-               * :code:`6` — F♯ or G♭.
-               * :code:`7` — G.
-               * :code:`8` — G♯ or A♭.
-               * :code:`9` — A.
-               * :code:`10` — A♯ or B♭.
-               * :code:`11` — B.
+               * :code:`-1` – No key detected.
+               * :code:`0` – C.
+               * :code:`1` – C♯ or D♭.
+               * :code:`2` – D
+               * :code:`3` – D♯ or E♭.
+               * :code:`4` – E.
+               * :code:`5` – F.
+               * :code:`6` – F♯ or G♭.
+               * :code:`7` – G.
+               * :code:`8` – G♯ or A♭.
+               * :code:`9` – A.
+               * :code:`10` – A♯ or B♭.
+               * :code:`11` – B.
 
         liveness : float or tuple[float, ...], optional
             Confidence measure of whether a track was performed live
@@ -1048,7 +1048,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             **Valid range**: :code:`0.0` (studio) to :code:`1.0` (live).
@@ -1060,7 +1060,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             **Maximum value**: :code:`0.0`.
@@ -1072,7 +1072,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             **Valid values**: :code:`0` for minor scale, :code:`1` for
@@ -1089,7 +1089,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             **Valid range**: :code:`0` (least popular) to :code:`100`
@@ -1100,7 +1100,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             **Valid range**: :code:`0.0` (music) to :code:`1.0`
@@ -1113,7 +1113,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             **Minimum value**: :code:`0.0`.
@@ -1125,18 +1125,18 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             .. container::
 
                **Valid values**:
 
-               * :code:`3` — 3/4.
-               * :code:`4` — 4/4.
-               * :code:`5` — 5/4.
-               * :code:`6` — 6/4.
-               * :code:`7` — 7/4.
+               * :code:`3` – 3/4.
+               * :code:`4` – 4/4.
+               * :code:`5` – 5/4.
+               * :code:`6` – 6/4.
+               * :code:`7` – 7/4.
 
         valence : float or tuple[float, ...], optional
             Confidence measure of the musical positiveness conveyed by a
@@ -1144,7 +1144,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-               :ref:`track-attribute-hint` — How to specify minimum,
+               :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
             **Valid range**: :code:`0.0` (e.g., happy, cheerful,

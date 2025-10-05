@@ -30,6 +30,14 @@ class WebAPIGenreEndpoints:
         /get-recommendation-genres>`_: Get a list of available seed
         genres for track recommendations.
 
+        .. admonition:: Third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              Extended quota mode before November 11, 2024
+                  Access 30-second preview URLs.
+
         Returns
         -------
         seed_genres : dict[str, list[str]]
