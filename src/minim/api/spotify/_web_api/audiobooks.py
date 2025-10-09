@@ -673,7 +673,7 @@ class WebAPIAudiobookEndpoints:
 
         Returns
         -------
-        are_audiobooks_saved : list[bool]
+        saved_flags : list[bool]
             Whether the current user has each of the specified
             audiobooks saved in their "Your Music" library.
 

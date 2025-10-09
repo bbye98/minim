@@ -32,6 +32,7 @@ class WebAPI(OAuth2API):
     """
 
     _API_NAME = "SpotifyWebAPI"
+    _AUDIO_TYPES = {"track", "episode"}
     _FLOWS = {"auth_code", "pkce", "client_credentials", "implicit"}
     _PROVIDER = "Spotify"
     _ENV_VAR_PREFIX = "SPOTIFY_WEB_API"

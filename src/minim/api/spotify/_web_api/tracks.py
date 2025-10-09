@@ -620,7 +620,7 @@ class WebAPITrackEndpoints:
 
         Returns
         -------
-        are_tracks_saved : list[bool]
+        saved_flags : list[bool]
             Whether the current user has each of the specified tracks
             saved in their library.
 

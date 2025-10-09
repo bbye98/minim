@@ -16,8 +16,6 @@ class WebAPIPlaylistEndpoints:
        should not be instantiated directly.
     """
 
-    _TYPES = {"track", "episode"}
-
     def __init__(self, client: "WebAPI", /) -> None:
         """
         Parameters
@@ -837,7 +835,7 @@ class WebAPIPlaylistEndpoints:
             params=params,
             json={
                 "uris": self._client._prepare_spotify_uris(
-                    uris, limit=100, item_types=self._TYPES
+                    uris, limit=100, item_types=self._client._AUDIO_TYPES
                 )
             },
         ).json()
@@ -1006,7 +1004,7 @@ class WebAPIPlaylistEndpoints:
             f"playlists/{playlist_id}/tracks",
             json={
                 "uris": self._client._prepare_spotify_uris(
-                    uris, limit=100, item_types=self._TYPES
+                    uris, limit=100, item_types=self._client._AUDIO_TYPES
                 )
                 if uris
                 else []
@@ -1088,7 +1086,7 @@ class WebAPIPlaylistEndpoints:
         self._client._validate_spotify_id(playlist_id)
         payload = {
             "tracks": self._client._prepare_spotify_uris(
-                uris, limit=100, item_types=self._TYPES
+                uris, limit=100, item_types=self._client._AUDIO_TYPES
             )
         }
         if snapshot_id is not None:
@@ -1822,8 +1820,8 @@ class WebAPIPlaylistEndpoints:
 
         types = set(types)
         for type_ in types:
-            if type_ not in self._TYPES:
-                _types = ", ".join(self._TYPES)
+            if type_ not in self._client._AUDIO_TYPES:
+                _types = ", ".join(self._client._AUDIO_TYPES)
                 raise ValueError(
                     f"Invalid Spotify item type {type_!r}. "
                     f"Valid values: '{_types}'."
