@@ -853,7 +853,7 @@ class WebAPIPlaylistEndpoints:
         """
         `Playlists > Update Playlist Items
         <https://developer.spotify.com/documentation/web-api/reference
-        /reorder-or-replace-playlists-tracks>`_: Reorder items in a
+        /reorder-or-replace-playlists-tracks>`__: Reorder items in a
         playlist owned by the current user.
 
         .. admonition:: Authorization scope
@@ -941,7 +941,7 @@ class WebAPIPlaylistEndpoints:
         """
         `Playlists > Update Playlist Items
         <https://developer.spotify.com/documentation/web-api/reference
-        /reorder-or-replace-playlists-tracks>`_: Replace items in a
+        /reorder-or-replace-playlists-tracks>`__: Replace items in a
         playlist owned by the current user.
 
         .. admonition:: Authorization scope

@@ -205,9 +205,8 @@ class WebAPIUserEndpoints:
             IDs can be sent in one request.
 
             **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx",
-            "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
         """
         self._client._require_scopes("follow_users", "user-follow-modify")
         self._client._request(
@@ -246,9 +245,8 @@ class WebAPIUserEndpoints:
             IDs can be sent in one request.
 
             **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx",
-            "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
         """
         self._client._require_scopes("unfollow_users", "user-follow-modify")
         self._client._request(
@@ -292,9 +290,8 @@ class WebAPIUserEndpoints:
             IDs can be sent in one request.
 
             **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx",
-            "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
 
         Returns
         -------
@@ -401,7 +398,7 @@ class WebAPIUserEndpoints:
     ) -> list[bool]:
         return self._client.episodes.are_episodes_saved(episode_ids)
 
-    def get_user_playlists(
+    def get_my_playlists(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         """
