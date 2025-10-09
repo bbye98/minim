@@ -3,9 +3,6 @@ from datetime import datetime
 from numbers import Number
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import _copy_docstring
-from .users import WebAPIUserEndpoints
-
 if TYPE_CHECKING:
     from .. import WebAPI
 
@@ -58,18 +55,20 @@ class WebAPITrackEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
         track_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the tracks. A
+            Spotify IDs of the tracks, provided as either a
+            comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"11dFghVXANMlKmJXsNCbNl"`,
-            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B"`,
-            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ",
-            "2takcwOaAZWiXQijPHIx7B"]`.
+            **Examples**: :code:`"7ouMYWpwJ422jRcDASZB7P"`,
+            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`,
+            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`.
 
         market : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code. If specified, only content
@@ -261,7 +260,7 @@ class WebAPITrackEndpoints:
                        ]
                      }
         """
-        string = isinstance(track_ids, str)
+        is_string = isinstance(track_ids, str)
         track_ids, n_ids = self._client._prepare_spotify_ids(
             track_ids, limit=50
         )
@@ -269,7 +268,7 @@ class WebAPITrackEndpoints:
         if market is not None:
             self._client._validate_market(market)
             params["market"] = market
-        if string and n_ids == 1:
+        if is_string and n_ids == 1:
             return self._client._request(
                 "GET", f"tracks/{track_ids}", params=params
             ).json()
@@ -277,7 +276,7 @@ class WebAPITrackEndpoints:
         params["ids"] = track_ids
         return self._client._request("GET", "tracks", params=params).json()
 
-    def get_saved_tracks(
+    def get_my_saved_tracks(
         self,
         *,
         market: str | None = None,
@@ -295,12 +294,16 @@ class WebAPITrackEndpoints:
            .. tab:: Required
 
               :code:`user-library-read`
-                 Access your saved content.
+                  Access your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-read>`__
 
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -335,8 +338,9 @@ class WebAPITrackEndpoints:
 
         Returns
         -------
-        saved_tracks : dict[str, Any]
-            Spotify content metadata for the user's saved tracks.
+        tracks : dict[str, Any]
+            Pages of Spotify content metadata for the user's saved
+            tracks.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -434,7 +438,7 @@ class WebAPITrackEndpoints:
                     "total": <int>
                   }
         """
-        self._client._require_scopes("get_saved_tracks", "user-library-read")
+        self._client._require_scopes("get_my_saved_tracks", "user-library-read")
         params = {}
         if market is not None:
             self._client._validate_market(market)
@@ -459,7 +463,7 @@ class WebAPITrackEndpoints:
         `Tracks > Save Tracks for Current User
         <https://developer.spotify.com/documentation/web-api/reference
         /save-tracks-user>`_: Save one or more tracks to the current
-        user's "Your Music" library.
+        user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -467,7 +471,9 @@ class WebAPITrackEndpoints:
            .. tab:: Required
 
               :code:`user-library-modify`
-                  Manage your saved content.
+                  Manage your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
@@ -475,10 +481,10 @@ class WebAPITrackEndpoints:
         dict[str, str | datetime], or \
         list[str | tuple[str, str | datetime] | dict[str, str | datetime]], \
         positional-only
-            (Comma-separated) list of Spotify IDs of the tracks,
-            optionally accompanied by timestamps to maintain a specific
-            chronological order in the user's library. A maximum of 50
-            IDs can be sent in one request.
+            Spotify IDs of the tracks, optionally accompanied by 
+            timestamps to maintain a specific chronological order in the
+            user's library. A maximum of 50 IDs can be sent in one 
+            request.
 
             **Examples**:
 
@@ -548,7 +554,7 @@ class WebAPITrackEndpoints:
         `Tracks > Remove User's Saved Tracks
         <https://developer.spotify.com/documentation/web-api/reference
         /remove-tracks-user>`_: Remove one or more tracks from the
-        current user's "Your Music" library.
+        current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -556,18 +562,20 @@ class WebAPITrackEndpoints:
            .. tab:: Required
 
               :code:`user-library-modify`
-                  Manage your saved content.
+                  Manage your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
         track_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the tracks. A
+            Spotify IDs of the tracks, provided as either a
+            comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"11dFghVXANMlKmJXsNCbNl"`,
-            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B"`,
-            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ",
-            "2takcwOaAZWiXQijPHIx7B"]`.
+            **Examples**: :code:`"7ouMYWpwJ422jRcDASZB7P"`,
+            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`,
+            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`.
         """
         self._client._require_scopes(
             "remove_saved_tracks", "user-library-modify"
@@ -586,8 +594,8 @@ class WebAPITrackEndpoints:
         """
         `Tracks > Check User's Saved Tracks
         <https://developer.spotify.com/documentation/web-api/reference
-        /check-users-saved-tracks>`_: Check if one or more tracks are
-        already saved in the current user's "Your Music" library.
+        /check-users-saved-tracks>`_: Check whether one or more tracks
+        are saved in the current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -595,24 +603,26 @@ class WebAPITrackEndpoints:
            .. tab:: Required
 
               :code:`user-library-read`
-                  Access your saved content.
+                  Access your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
         track_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the tracks. A
+            Spotify IDs of the tracks, provided as either a
+            comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"11dFghVXANMlKmJXsNCbNl"`,
-            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B"`,
-            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ",
-            "2takcwOaAZWiXQijPHIx7B"]`.
+            **Examples**: :code:`"7ouMYWpwJ422jRcDASZB7P"`,
+            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`,
+            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`.
 
         Returns
         -------
         are_tracks_saved : list[bool]
             Whether the current user has each of the specified tracks
-            saved in their "Your Music" library.
+            saved in their library.
 
             **Sample response**: :code:`[False, True]`.
         """
@@ -631,12 +641,12 @@ class WebAPITrackEndpoints:
         """
         `Tracks > Get Track's Audio Features
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-audio-features>`_: Get audio feature information for a
-        single track․
+        /get-audio-features>`_: Get the audio features for a single
+        track․
         `Tracks > Get Several Tracks' Audio Features
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-several-audio-features>`_: Get audio feature information
-        for multiple tracks.
+        /get-several-audio-features>`_: Get the audio features for
+        multiple tracks.
 
         .. admonition:: Third-party application mode
            :class: authorization-scope
@@ -644,23 +654,25 @@ class WebAPITrackEndpoints:
            .. tab:: Required
 
               Extended quota mode before November 11, 2024
-                  Access the :code:`audio-features` endpoint.
+                  Access the :code:`audio-features` endpoint. `Learn
+                  more. <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
         track_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the tracks. A
-            maximum of 100 IDs can be sent in one request.
+            Spotify IDs of the tracks, provided as either a
+            comma-separated string or a collection of strings. A
+            maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"11dFghVXANMlKmJXsNCbNl"`,
-            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B"`,
-            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ",
-            "2takcwOaAZWiXQijPHIx7B"]`.
+            **Examples**: :code:`"7ouMYWpwJ422jRcDASZB7P"`,
+            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`,
+            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`.
 
         Returns
         -------
         audio_features : dict[str, Any]
-            Audio feature information for the tracks.
+            Audio features for the tracks.
 
             .. admonition:: Sample responses
                :class: dropdown
@@ -719,14 +731,15 @@ class WebAPITrackEndpoints:
                        ]
                      }
         """
-        string = isinstance(track_ids, str)
+        is_string = isinstance(track_ids, str)
         track_ids, n_ids = self._client._prepare_spotify_ids(
             track_ids, limit=100
         )
-        if string and n_ids == 1:
+        if is_string and n_ids == 1:
             return self._client._request(
                 "GET", f"audio-features/{track_ids}"
             ).json()
+
         return self._client._request(
             "GET", "audio-features", params={"ids": track_ids}
         ).json()
@@ -737,7 +750,7 @@ class WebAPITrackEndpoints:
         <https://developer.spotify.com/documentation/web-api/reference
         /get-audio-analysis>`_: Get a low-level audio analysis
         (track structure and musical content, including rhythm, pitch,
-        and timbre) for a single track.
+        and timbre) of a single track.
 
         .. admonition:: Third-party application mode
            :class: authorization-scope
@@ -745,7 +758,10 @@ class WebAPITrackEndpoints:
            .. tab:: Required
 
               Extended quota mode before November 11, 2024
-                  Access the :code:`audio-analysis` endpoint.
+                  Access the :code:`audio-analysis` endpoint. `Learn
+                  more. <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
+
 
         Parameters
         ----------
@@ -757,7 +773,7 @@ class WebAPITrackEndpoints:
         Returns
         -------
         audio_analysis : dict[str, Any]
-            Audio analysis for the track.
+            Audio analysis of the track.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -883,8 +899,8 @@ class WebAPITrackEndpoints:
         """
         `Tracks > Get Recommendations <https://developer.spotify.com
         /documentation/web-api/reference/get-recommendations>`_: Get
-        recommendations based on the available information for seed
-        entities (artists, genres, and tracks).
+        track recommendations based on seed artists, genres, and/or
+        tracks, with optional tuning parameters.
 
         .. admonition:: Third-party application mode
            :class: authorization-scope
@@ -892,7 +908,9 @@ class WebAPITrackEndpoints:
            .. tab:: Required
 
               Extended quota mode before November 11, 2024
-                  Access the :code:`recommendations` endpoint.
+                  Access the :code:`recommendations` endpoint. `Learn
+                  more. <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         .. note::
 
@@ -919,19 +937,28 @@ class WebAPITrackEndpoints:
         Parameters
         ----------
         seed_artists : str or Collection[str], optional
-            (Comma-separated) list of Spotify IDs of seed artists.
-            Up to 5 seed values may be provided in any combination of
-            :code:`seed_artists`, :code:`seed_genres` and
-            :code:`seed_tracks`.
+            Spotify IDs of seed artists, provided as either a
+            comma-separated string or a collection of strings.
+
+            .. note::
+
+               Up to 5 seed values may be provided in any combination of
+               :code:`seed_artists`, :code:`seed_genres` and
+               :code:`seed_tracks`.
 
             **Examples**: :code:`"0TnOYISbd1XYRBk9myaseg"`,
             :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
             :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
 
         seed_genres : str or Collection[str], optional
-            (Comma-separated) list of seed genres. Up to 5 seed values
-            may be provided in any combination of :code:`seed_artists`,
-            :code:`seed_genres` and :code:`seed_tracks`.
+            Spotify IDs of seed genres, provided as either a
+            comma-separated string or a collection of strings.
+
+            .. note::
+
+               Up to 5 seed values may be provided in any combination of
+               :code:`seed_artists`, :code:`seed_genres` and
+               :code:`seed_tracks`.
 
             .. seealso::
 
@@ -939,10 +966,14 @@ class WebAPITrackEndpoints:
                 – Get available seed genres.
 
         seed_tracks : str or Collection[str], optional
-            (Comma-separated) list of Spotify IDs of seed tracks. Up to
-            5 seed values may be provided in any combination of
-            :code:`seed_artists`, :code:`seed_genres` and
-            :code:`seed_tracks`.
+            Spotify IDs of seed tracks, provided as either a
+            comma-separated string or a collection of strings.
+
+            .. note::
+
+               Up to 5 seed values may be provided in any combination of
+               :code:`seed_artists`, :code:`seed_genres` and
+               :code:`seed_tracks`.
 
             **Examples**: :code:`"11dFghVXANMlKmJXsNCbNl"`,
             :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`,
@@ -1155,8 +1186,8 @@ class WebAPITrackEndpoints:
         Returns
         -------
         recommendations : dict[str, Any]
-            Spotify content metadata for the recommendations generated
-            from the provided seeds and tuning parameters.
+            Spotify content metadata for the track recommendations
+            generated from the provided seeds and tuning parameters.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1304,7 +1335,6 @@ class WebAPITrackEndpoints:
             "GET", "recommendations", params=params
         ).json()
 
-    @_copy_docstring(WebAPIUserEndpoints.get_my_top_tracks)
     def get_my_top_tracks(
         self,
         *,
@@ -1312,9 +1342,164 @@ class WebAPITrackEndpoints:
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_my_top_tracks(
-            time_range=time_range, limit=limit, offset=offset
-        )
+        """
+        `Users > Get User's Top Tracks
+        <https://developer.spotify.com/documentation/web-api/reference
+        /get-users-top-artists-and-tracks>`_: Get Spotify catalog
+        information for the current user's top tracks.
+
+        .. admonition:: Authorization scope and third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-top-read`
+                 Read your top artists and contents.
+
+           .. tab:: Optional
+
+              Extended quota mode before November 11, 2024
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
+
+        Parameters
+        ----------
+        time_range : str, keyword-only, optional
+            Time frame over which the affinities are computed.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`"long_term"`: Approximately one year of data,
+                 including all new data as it becomes available.
+               * :code:`"medium_term"`: Approximately the last six
+                 months of data.
+               * :code:`"short_term"`: Approximately the last four weeks
+                 of data.
+
+            **Default**: :code:`"medium_term"`.
+
+        limit : int, keyword-only, optional
+            Maximum number of items to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+            **Default**: :code:`20`.
+
+        offset : int, keyword-only, optional
+            Index of the first item to return. Use with `limit` to get
+            the next set of items.
+
+            **Minimum value**: :code:`0`.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        top_tracks : dict[str, Any]
+            Spotify content metadata for the current user's top tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "items": [
+                      {
+                        "album": {
+                          "album_type": <str>,
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "available_markets": <list[str]>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "is_playable": <bool>,
+                          "name": <str>,
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
+                          "total_tracks": <int>,
+                          "type": "album",
+                          "uri": <str>
+                        },
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str></str>
+                          }
+                        ],
+                        "available_markets": <list[str]>,
+                        "disc_number": <int>,
+                        "duration_ms": <int>,
+                        "explicit": <bool>,
+                        "external_ids": {
+                          "isrc": <str>
+                        },
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "is_local": <bool>,
+                        "is_playable": <bool>,
+                        "name": <str>,
+                        "popularity": <int>,
+                        "preview_url": <str>,
+                        "track_number": <int>,
+                        "type": "track",
+                        "uri": <str>
+                      }
+                    ],
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>
+                  }
+        """
+        self._client._require_scopes("get_top_tracks", "user-top-read")
+        params = {}
+        if time_range:
+            self._validate_time_range(time_range)
+            params["time_range"] = time_range
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request(
+            "GET", "me/top/tracks", params=params
+        ).json()
 
     def _parse_attribute(
         self,
@@ -1466,21 +1651,32 @@ class WebAPITrackEndpoints:
     def _prepare_seed_genres(
         self, seed_genres: str | Collection[str], /, limit: int
     ) -> tuple[str, int]:
-        """ """
+        """
+        Stringify a collection of seed genres into a comma-separated
+        string.
+
+        Parameters
+        ----------
+        seed_genres : str or Collection[str], positional-only
+            Seed genres.
+
+        limit : int, keyword-only
+            Maximum number of seed genres that can be sent in the
+            request.
+
+        Returns
+        -------
+        seed_genres : str
+            Comma-delimited string containing seed genres.
+
+        n_seed_genres : int
+            Number of seed genres.
+        """
         if isinstance(seed_genres, str):
-            split_genres = set(seed_genres.split(","))
-            n_genres = len(split_genres)
-            if n_genres > limit:
-                raise ValueError(
-                    f"A maximum of {limit} seed genres can be sent in "
-                    "one request."
-                )
-            for genre in split_genres:
-                self._client._validate_seed_genre(genre)
-            return ",".join(sorted(split_genres)), n_genres
+            return self._prepare_seed_genres(seed_genres.split(","))
 
         seed_genres = set(seed_genres)
-        n_genres = len(split_genres)
+        n_genres = len(seed_genres)
         if n_genres > limit:
             raise ValueError(
                 f"A maximum of {limit} seed genres can be sent in one request."

@@ -46,13 +46,16 @@ class WebAPIChapterEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
         chapter_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the audiobook
-            chapters. A maximum of 50 IDs can be sent in one request.
+            Spotify IDs of the audiobook chapters, provided as either a
+            comma-separated string or a collection of strings. A maximum
+            of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"0IsXVP0JmcB2adSE338GkK"`,
             :code:`"0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU"`,
@@ -248,14 +251,15 @@ class WebAPIChapterEndpoints:
                        ]
                      }
         """
-        string = isinstance(chapter_ids, str)
+        is_string = isinstance(chapter_ids, str)
         chapter_ids, n_ids = self._client._prepare_spotify_ids(
             chapter_ids, limit=50
         )
-        if string and n_ids == 1:
+        if is_string and n_ids == 1:
             return self._client._request(
                 "GET", f"chapters/{chapter_ids}", params={"market": market}
             ).json()
+
         return self._client._request(
             "GET", "chapters", params={"ids": chapter_ids, "market": market}
         ).json()

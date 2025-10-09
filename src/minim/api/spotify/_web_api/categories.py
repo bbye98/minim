@@ -29,8 +29,8 @@ class WebAPICategoryEndpoints:
         """
         `Categories > Get Single Browse Category
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-a-category>`_: Get a single category used to tag items on
-        Spotify.
+        /get-a-category>`_: Get Spotify catalog information for a single
+        category.
 
         Parameters
         ----------
@@ -42,17 +42,16 @@ class WebAPICategoryEndpoints:
         locale : str, keyword-only, optional
             Locale identifier consisting of an ISO 639-1 language
             code and an ISO 3166-1 alpha-2 country code joined by an
-            underscore. When this parameter is provided, the category
-            strings are returned in the specified language.
+            underscore. When this parameter is provided, categories
+            are returned in the specified language.
 
             .. note::
 
                If a locale identifier is not supplied or the specified
-               language is not available, the category strings returned
-               will be in the Spotify default language (American
-               English).
+               language is not available, categories will be returned in
+               the Spotify default language (American English).
 
-            **Example**: :code:`"es_MX"` for Spanish (Mexico).
+            **Example**: :code:`"es_MX"` – Spanish (Mexico).
 
         Returns
         -------
@@ -94,25 +93,24 @@ class WebAPICategoryEndpoints:
         """
         `Categories > Get Several Browse Categories
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-categories>`_: Get a list of categories used to tag items
-        on Spotify.
+        /get-categories>`_: Get Spotify catalog information for
+        available categories.
 
         Parameters
         ----------
         locale : str, keyword-only, optional
             Locale identifier consisting of an ISO 639-1 language
             code and an ISO 3166-1 alpha-2 country code joined by an
-            underscore. When this parameter is provided, the category
-            strings are returned in the specified language.
+            underscore. When this parameter is provided, categories
+            are returned in the specified language.
 
             .. note::
 
                If a locale identifier is not supplied or the specified
-               language is not available, the category strings returned
-               will be in the Spotify default language (American
-               English).
+               language is not available, categories will be returned in
+               the Spotify default language (American English).
 
-            **Example**: :code:`"es_MX"` for Spanish (Mexico).
+            **Example**: :code:`"es_MX"` – Spanish (Mexico).
 
         limit : int, keyword-only, optional
             Maximum number of categories to return.
@@ -132,7 +130,7 @@ class WebAPICategoryEndpoints:
         Returns
         -------
         categories : dict[str, Any]
-            Spotify content metadata for multiple categories.
+            Pages of Spotify content metadata for available categories.
 
             .. admonition:: Sample response
                :class: dropdown

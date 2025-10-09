@@ -2,9 +2,6 @@ from collections.abc import Collection
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import _copy_docstring
-from .users import WebAPIUserEndpoints
-
 if TYPE_CHECKING:
     from .. import WebAPI
 
@@ -50,7 +47,9 @@ class WebAPIPlaylistEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -60,8 +59,8 @@ class WebAPIPlaylistEndpoints:
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
         additional_types : str or Collection[str], keyword-only, optional
-            (Comma-separated) list of item types supported by the API
-            client besides the default :code:`"track"` type.
+            Item types supported by the API client, provided as either a
+            comma-separated string or a collection of strings.
 
             .. note::
 
@@ -69,15 +68,18 @@ class WebAPIPlaylistEndpoints:
                to maintain their current behavior and might be
                deprecated in the future.
 
+            **Default**: :code:`"track"`.
+
             **Valid values**: :code:`"track"`, :code:`"episode"`.
 
         fields : str or Collection[str], keyword-only, optional
-            (Comma-separated) list of fields to return. Use a dot
+            Fields to return in the JSON reponse, provided as either a
+            comma-separated string or a collection of strings. Use a dot
             separator to specify non-recurring fields and parentheses to
             specify recurring fields within objects. Multiple levels of
             parentheses can be used to drill down into nested objects.
             Fields can be excluded by prefixing them with an exclamation
-            mark. If omitted, all fields are returned.
+            mark. If not specified, all fields are returned.
 
             .. container::
 
@@ -355,8 +357,8 @@ class WebAPIPlaylistEndpoints:
         """
         `Playlists > Change Playlist Details
         <https://developer.spotify.com/documentation/web-api/reference
-        /change-playlist-details>`_: Change details of a playlist owned
-        by the current user.
+        /change-playlist-details>`_: Update the details of a playlist
+        owend by the current user.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -364,10 +366,14 @@ class WebAPIPlaylistEndpoints:
            .. tab:: Required
 
               :code:`playlist-modify-public`
-                 Manage your public playlists.
+                 Manage your public playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-public>`__
 
               :code:`playlist-modify-private`
-                 Manage your private playlists.
+                 Manage your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -393,7 +399,7 @@ class WebAPIPlaylistEndpoints:
 
             .. note::
 
-               :code:`collaborative=True` can only be set on non-public
+               :code:`collaborative=True` can only be set on private
                playlists.
         """
         self._client._validate_spotify_id(playlist_id)
@@ -440,10 +446,14 @@ class WebAPIPlaylistEndpoints:
            .. tab:: Optional
 
               :code:`playlist-read-private`
-                 Access your private playlists.
+                 Access your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-read-private>`__
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -453,8 +463,8 @@ class WebAPIPlaylistEndpoints:
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
         additional_types : str or Collection[str], keyword-only, optional
-            (Comma-separated) list of item types supported by the API
-            client besides the default :code:`"track"` type.
+            Item types supported by the API client, provided as either a
+            comma-separated string or a collection of strings.
 
             .. note::
 
@@ -462,15 +472,18 @@ class WebAPIPlaylistEndpoints:
                to maintain their current behavior and might be
                deprecated in the future.
 
+            **Default**: :code:`"track"`.
+
             **Valid values**: :code:`"track"`, :code:`"episode"`.
 
         fields : str or Collection[str], keyword-only, optional
-            (Comma-separated) list of fields to return. Use a dot
+            Fields to return in the JSON reponse, provided as either a
+            comma-separated string or a collection of strings. Use a dot
             separator to specify non-recurring fields and parentheses to
             specify recurring fields within objects. Multiple levels of
             parentheses can be used to drill down into nested objects.
             Fields can be excluded by prefixing them with an exclamation
-            mark. If omitted, all fields are returned.
+            mark. If not specified, all fields are returned.
 
             .. container::
 
@@ -744,7 +757,8 @@ class WebAPIPlaylistEndpoints:
         """
         `Playlists > Add Items to Playlist
         <https://developer.spotify.com/documentation/web-api/reference
-        /add-tracks-to-playlist>`_: Add items to a user's playlist.
+        /add-tracks-to-playlist>`_: Add items to a playlist owned by the
+        current user.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -752,10 +766,14 @@ class WebAPIPlaylistEndpoints:
            .. tab:: Required
 
               :code:`playlist-modify-public`
-                 Manage your public playlists.
+                 Manage your public playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-public>`__
 
               :code:`playlist-modify-private`
-                 Manage your private playlists.
+                 Manage your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -765,8 +783,9 @@ class WebAPIPlaylistEndpoints:
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
         uris : str or Collection[str]
-            (Comma-separated) list of Spotify URIs of tracks and/or show
-            episodes. A maximum of 100 URIs can be sent in one request.
+            Spotify URIs of tracks and/or show episodes, provided as
+            either a comma-separated string or a collection of strings.
+            A maximum of 100 URIs can be sent in one request.
 
             .. container::
 
@@ -837,7 +856,7 @@ class WebAPIPlaylistEndpoints:
         `Playlists > Update Playlist Items
         <https://developer.spotify.com/documentation/web-api/reference
         /reorder-or-replace-playlists-tracks>`_: Reorder items in a
-        user's playlist.
+        playlist owned by the current user.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -845,10 +864,14 @@ class WebAPIPlaylistEndpoints:
            .. tab:: Required
 
               :code:`playlist-modify-public`
-                 Manage your public playlists.
+                 Manage your public playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-public>`__
 
               :code:`playlist-modify-private`
-                 Manage your private playlists.
+                 Manage your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -921,7 +944,7 @@ class WebAPIPlaylistEndpoints:
         `Playlists > Update Playlist Items
         <https://developer.spotify.com/documentation/web-api/reference
         /reorder-or-replace-playlists-tracks>`_: Replace items in a
-        user's playlist.
+        playlist owned by the current user.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -929,10 +952,14 @@ class WebAPIPlaylistEndpoints:
            .. tab:: Required
 
               :code:`playlist-modify-public`
-                 Manage your public playlists.
+                 Manage your public playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-public>`__
 
               :code:`playlist-modify-private`
-                 Manage your private playlists.
+                 Manage your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -942,9 +969,9 @@ class WebAPIPlaylistEndpoints:
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
         uris : str or Collection[str]
-            (Comma-separated) list of Spotify URIs of tracks and/or show
-            episodes. A maximum of 100 URIs can be sent in one request.
-            If None or an empty array is provided, the playlist is cleared.
+            Spotify URIs of tracks and/or show episodes, provided as
+            either a comma-separated string or a collection of strings.
+            A maximum of 100 URIs can be sent in one request.
 
             .. container::
 
@@ -997,7 +1024,8 @@ class WebAPIPlaylistEndpoints:
         """
         `Playlists > Remove Playlist Items
         <https://developer.spotify.com/documentation/web-api/reference
-        /remove-tracks-playlist>`_: Remove items from a user's playlist.
+        /remove-tracks-playlist>`_: Remove items from a playlist owned
+        by the current user.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -1005,10 +1033,14 @@ class WebAPIPlaylistEndpoints:
            .. tab:: Required
 
               :code:`playlist-modify-public`
-                 Manage your public playlists.
+                 Manage your public playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-public>`__
 
               :code:`playlist-modify-private`
-                 Manage your private playlists.
+                 Manage your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -1018,8 +1050,9 @@ class WebAPIPlaylistEndpoints:
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
         uris : str or Collection[str]
-            (Comma-separated) list of Spotify URIs of tracks and/or show
-            episodes. A maximum of 100 URIs can be sent in one request.
+            Spotify URIs of tracks and/or show episodes, provided as
+            either a comma-separated string or a collection of strings.
+            A maximum of 100 URIs can be sent in one request.
 
             .. container::
 
@@ -1076,11 +1109,12 @@ class WebAPIPlaylistEndpoints:
         """
         `Playlists > Get Current User's Playlists
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-a-list-of-current-users-playlists>`_: Get playlists owned
-        or followed by the current user․
+        /get-a-list-of-current-users-playlists>`_: Get Spotify catalog
+        information for playlists owned or followed by the current user․
         `Playlists > Get User's Playlists <https://developer.spotify.com
         /documentation/web-api/reference/get-list-users-playlists>`_:
-        Get playlists owned or followed by a Spotify user.
+        Get Spotify catalog information for playlists owned or followed
+        by a Spotify user.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -1088,10 +1122,14 @@ class WebAPIPlaylistEndpoints:
            .. tab:: Required
 
               :code:`playlist-read-private`
-                 Access your private playlists.
+                 Access your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-read-private>`__
 
               :code:`playlist-read-collaborative`
-                 Access your collaborative playlists.
+                 Access your collaborative playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-read-collaborative>`__
 
         Parameters
         ----------
@@ -1119,7 +1157,7 @@ class WebAPIPlaylistEndpoints:
         Returns
         -------
         playlists : dict[str, Any]
-            Spotify content metadata for the playlists.
+            Pages of Spotify content metadata for the user's playlists.
 
             .. admonition:: Sample responses
                :class: dropdown
@@ -1212,10 +1250,14 @@ class WebAPIPlaylistEndpoints:
            .. tab:: Required
 
               :code:`playlist-modify-public`
-                 Manage your public playlists.
+                 Manage your public playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-public>`__
 
               :code:`playlist-modify-private`
-                 Manage your private playlists.
+                 Manage your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-private>`__
 
         Parameters
         ----------
@@ -1336,24 +1378,25 @@ class WebAPIPlaylistEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
         locale : str, keyword-only, optional
             Locale identifier consisting of an ISO 639-1 language
             code and an ISO 3166-1 alpha-2 country code joined by an
-            underscore. When this parameter is provided, the category
-            strings are returned in the specified language.
+            underscore. When this parameter is provided, categories
+            are returned in the specified language.
 
             .. note::
 
                If a locale identifier is not supplied or the specified
-               language is not available, the category strings returned
-               will be in the Spotify default language (American
-               English).
+               language is not available, categories will be returned in
+               the Spotify default language (American English).
 
-            **Example**: :code:`"es_MX"` for Spanish (Mexico).
+            **Example**: :code:`"es_MX"` – Spanish (Mexico).
 
         limit : int, keyword-only, optional
             Maximum number of playlists to return.
@@ -1372,7 +1415,7 @@ class WebAPIPlaylistEndpoints:
 
         Returns
         -------
-        featured_playlists : dict[str, Any]
+        playlists : dict[str, Any]
             Spotify content metadata for the featured playlists.
 
             .. admonition:: Sample responses
@@ -1380,7 +1423,54 @@ class WebAPIPlaylistEndpoints:
 
                .. code::
 
-                  TODO
+                  {
+                    "message": <str>,
+                    "playlists": {
+                      "href": <str>,
+                      "items": [
+                        {
+                          "collaborative": <bool>,
+                          "description": <str>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "name": <str>,
+                          "owner": {
+                            "display_name": <str>,
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "type": <str>,
+                            "uri": <str>
+                          },
+                          "public": <bool>,
+                          "snapshot_id": <str>,
+                          "tracks": {
+                            "href": <str>,
+                            "total": <int>
+                          },
+                          "type": <str>,
+                          "uri": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>
+                    }
+                  }
         """
         params = {}
         if limit is not None:
@@ -1415,12 +1505,19 @@ class WebAPIPlaylistEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
         category_id : str
             Spotify category ID.
+
+            .. seealso::
+
+               :meth:`~minim.api.spotify.WebAPICategoryEndpoints.get_categories`
+               – Get information on available categories.
 
             **Examples**: :code:`"dinner"`, :code:`"party"`.
 
@@ -1441,15 +1538,63 @@ class WebAPIPlaylistEndpoints:
 
         Returns
         -------
-        categorized_playlists : dict[str, Any]
-            Spotify content metadata for the category's playlists.
+        playlists : dict[str, Any]
+            Spotify content metadata for the playlists in the specified
+            category.
 
             .. admonition:: Sample responses
                :class: dropdown
 
                .. code::
 
-                  TODO
+                  {
+                    "message": <str>,
+                    "playlists": {
+                      "href": <str>,
+                      "items": [
+                        {
+                          "collaborative": <bool>,
+                          "description": <str>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "name": <str>,
+                          "owner": {
+                            "display_name": <str>,
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "type": <str>,
+                            "uri": <str>
+                          },
+                          "public": <bool>,
+                          "snapshot_id": <str>,
+                          "tracks": {
+                            "href": <str>,
+                            "total": <int>
+                          },
+                          "type": <str>,
+                          "uri": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "next": <str>,
+                      "offset": <int>,
+                      "previous": <str>,
+                      "total": <int>
+                    }
+                  }
         """
         params = {}
         if limit is not None:
@@ -1468,8 +1613,8 @@ class WebAPIPlaylistEndpoints:
         """
         `Playlists > Get Playlist Cover Image
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-playlist-cover>`_: Get the cover image currently associated
-        with a playlist.
+        /get-playlist-cover>`_: Get the cover image associated with a
+        playlist.
 
         Parameters
         ----------
@@ -1506,7 +1651,7 @@ class WebAPIPlaylistEndpoints:
         """
         `Playlists > Add Custom Playlist Cover Image
         <https://developer.spotify.com/documentation/web-api/reference
-        /upload-custom-playlist-cover>`_: Add a cover image to a
+        /upload-custom-playlist-cover>`_: Add a custom cover image to a
         playlist.
 
         Parameters
@@ -1552,19 +1697,110 @@ class WebAPIPlaylistEndpoints:
             headers={"Content-Type": "image/jpeg"},
         )
 
-    @_copy_docstring(WebAPIUserEndpoints.follow_playlist)
     def follow_playlist(
         self, playlist_id: str, /, *, public: bool | None = None
     ) -> None:
-        self._client.users.follow_playlist(playlist_id, public=public)
+        """
+        `Users > Follow Playlist <https://developer.spotify.com
+        /documentation/web-api/reference/follow-playlist>`_: Add the
+        current user as a follower of a playlist.
 
-    @_copy_docstring(WebAPIUserEndpoints.unfollow_playlist)
+        .. admonition:: Authorization scopes
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlist-modify-public`
+                 Manage your public playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-public>`__
+
+              :code:`playlist-modify-private`
+                 Manage your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-private>`__
+
+        Parameters
+        ----------
+        playlist_id : str, positional-only
+            Spotify ID of the playlist.
+
+        public : bool, keyword-only, optional
+            Specifies whether the playlist will be included in the
+            current user's public playlists.
+
+            **Default**: :code:`True`.
+        """
+        self._client._require_scopes(
+            "follow_playlist",
+            {"playlist-modify-public", "playlist-modify-private"},
+        )
+        self._client._validate_spotify_id(playlist_id)
+        payload = {}
+        if isinstance(public, bool):
+            payload["public"] = public
+        self._client._request(
+            "PUT", f"playlists/{playlist_id}/followers", json=payload
+        )
+
     def unfollow_playlist(self, playlist_id: str, /) -> None:
-        self._client.users.unfollow_playlist(playlist_id)
+        """
+        `Users > Unfollow Playlist <https://developer.spotify.com
+        /documentation/web-api/reference/unfollow-playlist>`_: Remove
+        the current user as a follower of a playlist.
 
-    @_copy_docstring(WebAPIUserEndpoints.is_following_playlist)
-    def is_following_playlist(self, playlist_id: str, /) -> bool:
-        return self._client.users.is_following_playlist(playlist_id)
+        .. admonition:: Authorization scopes
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlist-modify-public`
+                 Manage your public playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-public>`__
+
+              :code:`playlist-modify-private`
+                 Manage your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-private>`__
+
+        Parameters
+        ----------
+        playlist_id : str, positional-only
+            Spotify ID of the playlist.
+        """
+        self._client._require_scopes(
+            "unfollow_playlist",
+            {"playlist-modify-public", "playlist-modify-private"},
+        )
+        self._client._validate_spotify_id(playlist_id)
+        self._client._request("DELETE", f"playlists/{playlist_id}/followers")
+
+    def is_following_playlist(self, playlist_id: str, /) -> list[bool]:
+        """
+        `Users > Check if Current User Follows Playlist
+        <https://developer.spotify.com/documentation/web-api/reference
+        /check-if-user-follows-playlist>`_: Check whether the current
+        user is following a playlist.
+
+        Parameters
+        ----------
+        playlist_id : str, positional-only
+            Spotify ID of the playlist.
+
+            **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
+
+        Returns
+        -------
+        is_following_playlist : list[bool]
+            Whether the current user follows the specified playlist.
+
+            **Sample response**: :code:`[True]`.
+        """
+        self._client._validate_spotify_id(playlist_id)
+        return self._client._request(
+            "GET", f"playlists/{playlist_id}/followers/contains"
+        ).json()
 
     def _prepare_item_types(self, types: str | Collection[str], /) -> str:
         """
@@ -1582,28 +1818,14 @@ class WebAPIPlaylistEndpoints:
             Comma-delimited string containing Spotify item types.
         """
         if isinstance(types, str):
-            split_types = types.split(",")
-            for type_ in split_types:
-                self._validate_item_type(type_)
-            return ",".join(sorted(split_types))
+            return self._prepare_item_types(types.split(","))
 
         types = set(types)
         for type_ in types:
-            self._validate_item_type(type_)
+            if type_ not in self._TYPES:
+                _types = ", ".join(self._TYPES)
+                raise ValueError(
+                    f"Invalid Spotify item type {type_!r}. "
+                    f"Valid values: '{_types}'."
+                )
         return ",".join(sorted(types))
-
-    def _validate_item_type(self, type_: str, /) -> None:
-        """
-        Validate a Spotify item type.
-
-        Parameters
-        ----------
-        type_ : str, positional-only
-            Spotify item type.
-        """
-        if type_ not in self._TYPES:
-            _types = ", ".join(self._TYPES)
-            raise ValueError(
-                f"Invalid Spotify item type {type_!r}. "
-                f"Valid values: '{_types}'."
-            )

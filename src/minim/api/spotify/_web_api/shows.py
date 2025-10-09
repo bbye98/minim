@@ -41,12 +41,15 @@ class WebAPIShowEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
         show_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the shows. A
+            Spotify IDs of the shows, provided as either a
+            comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"5CfCWKI5pZ28U0uOzXkDHe"`,
@@ -269,7 +272,7 @@ class WebAPIShowEndpoints:
         """
         `Shows > Get Show Episodes <https://developer.spotify.com
         /documentation/web-api/reference/get-a-shows-episodes>`_: Get
-        Spotify catalog information about a show's episodes.
+        Spotify catalog information for episodes in a show.
 
         .. admonition:: Authorization scope and third-party application mode
            :class: authorization-scope
@@ -277,12 +280,16 @@ class WebAPIShowEndpoints:
            .. tab:: Required
 
               :code:`user-read-playback-position`
-                 Read your position in content you have played.
+                 Read your position in content you have played. `Learn
+                 more. <https://developer.spotify.com/documentation
+                 /web-api/concepts/scopes#user-read-playback-position>`__
 
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -306,15 +313,15 @@ class WebAPIShowEndpoints:
             **Example**: :code:`"ES"`.
 
         limit : int, keyword-only, optional
-            Maximum number of shows to return.
+            Maximum number of episodes to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
-            Index of the first show to return. Use with `limit` to get
-            the next set of shows.
+            Index of the first episode to return. Use with `limit` to
+            get the next set of episodes.
 
             **Minimum value**: :code:`0`.
 
@@ -323,7 +330,7 @@ class WebAPIShowEndpoints:
         Returns
         -------
         episodes : dict[str, Any]
-            Spotify content metadata for the show's episodes.
+            Pages of Spotify content metadata for the show's episodes.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -394,13 +401,13 @@ class WebAPIShowEndpoints:
             "GET", f"shows/{show_id}/episodes", params=params
         ).json()
 
-    def get_saved_shows(
+    def get_my_saved_shows(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         """
         `Shows > Get User's Saved Shows <https://developer.spotify.com
         /documentation/web-api/reference/get-users-saved-shows>`_: Get
-        the shows saved in the current user's "Your Music" library.
+        the shows saved in the current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -408,7 +415,9 @@ class WebAPIShowEndpoints:
            .. tab:: Required
 
               :code:`user-library-read`
-                 Access your saved content.
+                  Access your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
@@ -429,8 +438,8 @@ class WebAPIShowEndpoints:
 
         Returns
         -------
-        saved_shows : dict[str, Any]
-            Spotify content metadata for the user's saved shows.
+        shows : dict[str, Any]
+            Pages of Spotify content metadata for the user's saved shows.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -483,7 +492,7 @@ class WebAPIShowEndpoints:
                     "total": <int>
                   }
         """
-        self._client._require_scopes("get_saved_shows", "user-library-read")
+        self._client._require_scopes("get_my_saved_shows", "user-library-read")
         params = {}
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 50)
@@ -498,7 +507,7 @@ class WebAPIShowEndpoints:
         `Shows > Save Shows for Current User
         <https://developer.spotify.com/documentation/web-api/reference
         /save-shows-user>`_: Save one or more shows to the current
-        user's "Your Music" library.
+        user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -506,12 +515,15 @@ class WebAPIShowEndpoints:
            .. tab:: Required
 
               :code:`user-library-modify`
-                  Manage your saved content.
+                  Manage your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
         show_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the shows. A
+            Spotify IDs of the shows, provided as either a
+            comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"5CfCWKI5pZ28U0uOzXkDHe"`,
@@ -532,7 +544,7 @@ class WebAPIShowEndpoints:
         `Shows > Remove User's Saved Shows
         <https://developer.spotify.com/documentation/web-api/reference
         /remove-shows-user>`_: Save one or more shows to the current
-        user's "Your Music" library.
+        user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -540,12 +552,15 @@ class WebAPIShowEndpoints:
            .. tab:: Required
 
               :code:`user-library-modify`
-                  Manage your saved content.
+                  Manage your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
         show_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the shows. A
+            Spotify IDs of the shows, provided as either a
+            comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"5CfCWKI5pZ28U0uOzXkDHe"`,
@@ -567,8 +582,8 @@ class WebAPIShowEndpoints:
         """
         `Shows > Check User's Saved Shows
         <https://developer.spotify.com/documentation/web-api/reference
-        /check-users-saved-shows>`_: Check if one or more shows are
-        already saved in the current user's "Your Music" library.
+        /check-users-saved-shows>`_: Check whether one or more shows are
+        saved in the current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -576,12 +591,15 @@ class WebAPIShowEndpoints:
            .. tab:: Required
 
               :code:`user-library-read`
-                  Access your saved content.
+                  Access your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
         show_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the shows. A
+            Spotify IDs of the shows, provided as either a
+            comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"5CfCWKI5pZ28U0uOzXkDHe"`,
@@ -590,9 +608,9 @@ class WebAPIShowEndpoints:
 
         Returns
         -------
-        are_shows_saved : list[bool]
+        saved_flags : list[bool]
             Whether the current user has each of the specified shows
-            saved in their "Your Music" library.
+            saved in their library.
 
             **Sample response**: :code:`[False, True]`.
         """

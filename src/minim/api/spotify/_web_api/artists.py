@@ -1,9 +1,6 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import _copy_docstring
-from .users import WebAPIUserEndpoints
-
 if TYPE_CHECKING:
     from .. import WebAPI
 
@@ -18,7 +15,7 @@ class WebAPIArtistEndpoints:
        should not be instantiated directly.
     """
 
-    _GROUPS = {"album", "single", "appears_on", "compilation"}
+    _ALBUM_TYPES = {"album", "single", "appears_on", "compilation"}
 
     def __init__(self, client: "WebAPI", /) -> None:
         """
@@ -43,13 +40,13 @@ class WebAPIArtistEndpoints:
         Parameters
         ----------
         artist_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the artists. A
+            Spotify IDs of the artists, provided as either a
+            comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"0TnOYISbd1XYRBk9myaseg"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E",
-            "1vCWHaC5f2uS3yhpwWbIA6"]`.
+            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
 
         Returns
         -------
@@ -119,11 +116,11 @@ class WebAPIArtistEndpoints:
                        ]
                      }
         """
-        string = isinstance(artist_ids, str)
+        is_string = isinstance(artist_ids, str)
         artist_ids, n_ids = self._client._prepare_spotify_ids(
             artist_ids, limit=50
         )
-        if string and n_ids == 1:
+        if is_string and n_ids == 1:
             return self._client._request("GET", f"artists/{artist_ids}").json()
         return self._client._request(
             "GET", "artists", params={"ids": artist_ids}
@@ -134,7 +131,7 @@ class WebAPIArtistEndpoints:
         artist_id: str,
         /,
         *,
-        include_groups: str | list[str] | None = None,
+        include_groups: str | Collection[str] | None = None,
         market: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
@@ -142,7 +139,7 @@ class WebAPIArtistEndpoints:
         """
         `Artists > Get Artist's Albums <https://developer.spotify.com
         /documentation/web-api/reference/get-an-artists-albums>`_: Get
-        Spotify catalog information about an artist's albums.
+        Spotify catalog information for an artist's albums.
 
         Parameters
         ----------
@@ -151,8 +148,9 @@ class WebAPIArtistEndpoints:
 
             **Example**: :code:`"0TnOYISbd1XYRBk9myaseg"`.
 
-        include_groups : str or list[str], optional
-            (Comma-separated) list of album types to return. If not
+        include_groups : str or Collection[str], optional
+            Album types to retrieve, provided as either a
+            comma-separated string or a collection of strings. If not
             specified, all album types will be returned.
 
             **Valid values**: :code:`"album"`, :code:`"single"`,
@@ -193,7 +191,7 @@ class WebAPIArtistEndpoints:
         Returns
         -------
         albums : dict[str, Any]
-            Spotify content metadata for the artist's albums.
+            Pages of Spotify content metadata for the artist's albums.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -261,7 +259,7 @@ class WebAPIArtistEndpoints:
             self._client._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if include_groups is not None:
-            include_groups = self._prepare_groups(include_groups)
+            include_groups = self._prepare_album_types(include_groups)
             params["include_groups"] = include_groups
         return self._client._request(
             "GET", f"artists/{artist_id}/albums", params=params
@@ -282,7 +280,9 @@ class WebAPIArtistEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -411,8 +411,7 @@ class WebAPIArtistEndpoints:
         `Artists > Get Artist's Related Artists
         <https://developer.spotify.com/documentation/web-api/reference
         /get-an-artists-related-artists>`_: Get Spotify catalog
-        information for artists similar to a given artist based on
-        an analysis of the Spotify community's listening history.
+        information for artists similar to a given artist.
 
         .. admonition:: Third-party application mode
            :class: authorization-scope
@@ -421,6 +420,8 @@ class WebAPIArtistEndpoints:
 
               Extended quota mode before November 11, 2024
                   Access the :code:`related-artists` endpoint.
+                  `Learn more. <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -431,7 +432,7 @@ class WebAPIArtistEndpoints:
 
         Returns
         -------
-        related_artists : dict[str, Any]
+        artists : dict[str, Any]
             Spotify content metadata for the related artists.
 
             .. admonition:: Sample response
@@ -472,7 +473,6 @@ class WebAPIArtistEndpoints:
             "GET", f"artists/{artist_id}/related-artists"
         ).json()
 
-    @_copy_docstring(WebAPIUserEndpoints.get_my_top_artists)
     def get_my_top_artists(
         self,
         *,
@@ -480,68 +480,359 @@ class WebAPIArtistEndpoints:
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_my_top_artists(
-            time_range=time_range, limit=limit, offset=offset
-        )
-
-    @_copy_docstring(WebAPIUserEndpoints.get_my_followed_artists)
-    def get_my_followed_artists(
-        self, *, after: str | None = None, limit: int | None = None
-    ) -> dict[str, Any]:
-        return self._client.users.get_my_followed_artists(
-            after=after, limit=limit
-        )
-
-    @_copy_docstring(WebAPIUserEndpoints.follow_artists)
-    def follow_artists(self, artist_ids: str | list[str], /) -> None:
-        self._client.users.follow_artists(artist_ids)
-
-    @_copy_docstring(WebAPIUserEndpoints.unfollow_artists)
-    def unfollow_artists(self, artist_ids: str | list[str], /) -> None:
-        self._client.users.unfollow_artists(artist_ids)
-
-    @_copy_docstring(WebAPIUserEndpoints.is_following_artists)
-    def is_following_artists(
-        self, artist_ids: str | list[str], /
-    ) -> list[bool]:
-        return self._client.users.is_following_artists(artist_ids)
-
-    def _prepare_groups(self, groups: str | Collection[str], /) -> str:
         """
-        Stringify a list of album types into a comma-delimited string.
+        `Users > Get User's Top Artists
+        <https://developer.spotify.com/documentation/web-api/reference
+        /get-users-top-artists-and-tracks>`_: Get Spotify catalog
+        information for the current user's top artists.
+
+        .. admonition:: Authorization scope and third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-top-read`
+                 Read your top artists and contents.
+
+           .. tab:: Optional
+
+              Extended quota mode before November 11, 2024
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
-        groups : str or Collection[str], positional-only
-            (Comma-delimited) list of album types.
+        time_range : str, keyword-only, optional
+            Time frame over which the current user's listening history
+            is analyzed to determine the top artists.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`"long_term"`: Approximately one year of data,
+                 including all new data as it becomes available.
+               * :code:`"medium_term"`: Approximately the last six
+                 months of data.
+               * :code:`"short_term"`: Approximately the last four weeks
+                 of data.
+
+            **Default**: :code:`"medium_term"`.
+
+        limit : int, keyword-only, optional
+            Maximum number of artists to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+            **Default**: :code:`20`.
+
+        offset : int, keyword-only, optional
+            Index of the first artist to return. Use with `limit` to get
+            the next set of artists.
+
+            **Minimum value**: :code:`0`.
+
+            **Default**: :code:`0`.
 
         Returns
         -------
-        groups : str
-            Comma-delimited string containing album types.
-        """
-        if isinstance(groups, str):
-            split_groups = groups.split(",")
-            for group in split_groups:
-                self._validate_group(group)
-            return ",".join(sorted(split_groups))
+        artists : dict[str, Any]
+            Pages of Spotify content metadata for the current user's top
+            artists.
 
-        groups = set(groups)
-        for group in groups:
-            self._validate_groups(group)
-        return ",".join(sorted(groups))
+            .. admonition:: Sample response
+               :class: dropdown
 
-    def _validate_group(self, group: str, /) -> None:
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "items": [
+                      {
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "followers": {
+                          "href": <str>,
+                          "total": <int>
+                        },
+                        "genres": <list[str]>,
+                        "href": <str>,
+                        "id": <str>,
+                        "images": [
+                          {
+                            "height": <int>,
+                            "url": <str>,
+                            "width": <int>
+                          }
+                        ],
+                        "name": <str>,
+                        "type": "artist",
+                        "uri": <str>
+                      }
+                    ],
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>
+                  }
         """
-        Validate album type.
+        self._client._require_scopes("get_top_artists", "user-top-read")
+        params = {}
+        if time_range:
+            self._client.users._validate_time_range(time_range)
+            params["time_range"] = time_range
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request(
+            "GET", "me/top/artists", params=params
+        ).json()
+
+    def get_my_followed_artists(
+        self, *, after: str | None = None, limit: int | None = None
+    ) -> dict[str, Any]:
+        """
+        `Users > Get Followed Artists <https://developer.spotify.com
+        /documentation/web-api/reference/get-followed>`_: Get Spotify
+        catalog information for artists followed by the current user.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-read`
+                 Access your followers and who you are following.
 
         Parameters
         ----------
-        group : str, positional-only
-            Album type.
+        after : str, keyword-only, optional
+            Spotify ID of the last artist retrieved in the previous
+            request.
+
+            **Example**: :code:`"0I2XqVXqHScXjHhk6AYYRe"`.
+
+        limit : int, keyword-only, optional
+            Maximum number of artists to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+            **Default**: :code:`20`.
+
+        Returns
+        -------
+        artists : dict[str, Any]
+            Spotify content metadata for the artists followed by the
+            current user.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "artists": {
+                      "cursors": {
+                        "after": <str>,
+                        "before": <str>
+                      },
+                      "href": <str>,
+                      "items": [
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": <int>
+                          },
+                          "genres": <list[str]>,
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "url": <str>,
+                              "height": <int>,
+                              "width": <int>
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": <int>,
+                          "type": "artist",
+                          "uri": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "next": <str>,
+                      "total": <int>
+                    }
+                  }
         """
-        if group not in self._GROUPS:
-            _groups = ", ".join(self._GROUPS)
-            raise ValueError(
-                f"Invalid album type {group!r}. Valid values: '{_groups}'."
-            )
+        self._client._require_scopes("get_followed_artists", "user-follow-read")
+        params = {"type": "artist"}
+        if after is not None:
+            self._client._validate_spotify_id(after)
+            params["after"] = after
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        return self._client._request(
+            "GET", "me/following", params=params
+        ).json()
+
+    def follow_artists(self, artist_ids: str | Collection[str], /) -> None:
+        """
+        `Users > Follow Artists <https://developer.spotify.com
+        /documentation/web-api/reference/follow-artists-users>`_: Follow
+        one or more artists.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-modify`
+                 Manage your saved content.
+
+        Parameters
+        ----------
+        artist_ids : str or Collection[str], positional-only
+            Spotify IDs of the artists, provided as either a
+            comma-separated string or a collection of strings. A
+            maximum of 50 IDs can be sent in one request.
+
+            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
+        """
+        self._client._require_scopes("follow_artists", "user-follow-modify")
+        self._client._request(
+            "PUT",
+            "me/following",
+            params={
+                "type": "artist",
+                "ids": self._client._prepare_spotify_ids(artist_ids, limit=50)[
+                    0
+                ],
+            },
+        )
+
+    def unfollow_artists(self, artist_ids: str | Collection[str], /) -> None:
+        """
+        `Users > Unfollow Artists <https://developer.spotify.com
+        /documentation/web-api/reference/unfollow-artists-users>`_:
+        Unfollow one or more artists.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-modify`
+                 Manage your saved content.
+
+        Parameters
+        ----------
+        artist_ids : str or Collection[str], positional-only
+            Spotify IDs of the artists, provided as either a
+            comma-separated string or a collection of strings. A
+            maximum of 50 IDs can be sent in one request.
+
+            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
+        """
+        self._client._require_scopes("unfollow_artists", "user-follow-modify")
+        self._client._request(
+            "DELETE",
+            "me/following",
+            params={
+                "type": "artist",
+                "ids": self._client._prepare_spotify_ids(artist_ids, limit=50)[
+                    0
+                ],
+            },
+        )
+
+    def is_following_artists(
+        self, artist_ids: str | Collection[str], /
+    ) -> list[bool]:
+        """
+        `Users > Check If User Follows Artists
+        <https://developer.spotify.com/documentation/web-api/reference
+        /check-current-user-follows>`_: Check whether the current user
+        is following one or more artists.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-read`
+                 Access your followers and who you are following.
+
+        Parameters
+        ----------
+        artist_ids : str or Collection[str], positional-only
+            Spotify IDs of the artists, provided as either a
+            comma-separated string or a collection of strings. A
+            maximum of 50 IDs can be sent in one request.
+
+            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
+            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
+            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
+
+        Returns
+        -------
+        following_flags : list[bool]
+            Whether the current user follows the specified artists.
+
+            **Sample response**: :code:`[False, True]`.
+        """
+        self._client._require_scopes("is_following_artists", "user-follow-read")
+        return self._client._request(
+            "GET",
+            "me/following/contains",
+            params={
+                "type": "artist",
+                "ids": self._client._prepare_spotify_ids(artist_ids, limit=50)[
+                    0
+                ],
+            },
+        ).json()
+
+    def _prepare_album_types(
+        self, album_types: str | Collection[str], /
+    ) -> str:
+        """
+        Stringify a collection of album types into a comma-separated
+        string.
+
+        Parameters
+        ----------
+        album_types : str or Collection[str], positional-only
+            Comma-separated string or collection containing album types.
+
+        Returns
+        -------
+        album_types : str
+            Comma-separated string containing album types.
+        """
+        if isinstance(album_types, str):
+            return self._prepare_album_types(album_types.split(","))
+
+        album_types = set(album_types)
+        for album_type in album_types:
+            if album_type not in self._ALBUM_TYPES:
+                _album_types = ", ".join(self._ALBUM_TYPES)
+                raise ValueError(
+                    f"Invalid album type {album_type!r}. "
+                    f"Valid values: '{_album_types}'."
+                )
+        return ",".join(sorted(album_types))

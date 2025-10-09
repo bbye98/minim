@@ -27,8 +27,8 @@ class WebAPIGenreEndpoints:
         """
         `Genres > Get Available Seed Genre
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-recommendation-genres>`_: Get a list of available seed
-        genres for track recommendations.
+        /get-recommendation-genres>`_: Get available seed genres for
+        track recommendations.
 
         .. admonition:: Third-party application mode
            :class: authorization-scope
@@ -36,12 +36,14 @@ class WebAPIGenreEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Returns
         -------
         seed_genres : dict[str, list[str]]
-            Seed genres.
+            Available seed genres.
 
             **Sample response**: :code:`{"genres": ["alternative", "samba"]}`.
         """

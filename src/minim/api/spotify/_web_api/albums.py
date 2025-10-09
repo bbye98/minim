@@ -41,18 +41,20 @@ class WebAPIAlbumEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
         album_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the albums. A
+            Spotify IDs of the albums, provided as either a
+            comma-separated string or a collection of strings. A
             maximum of 20 IDs can be sent in one request.
 
-            **Examples**: :code:`"4aawyAB9vmqN3uQ7FjRGTy"`,
-            :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo,2noRn2Aes5aoNVsU6iWThc"`,
-            :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo",
-            "2noRn2Aes5aoNVsU6iWThc"]`.
+            **Examples**: :code:`"382ObEPsp2rxGrnsizN5TX"`,
+            :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`,
+            :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`.
 
         market : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code. If specified, only content
@@ -324,7 +326,7 @@ class WebAPIAlbumEndpoints:
         """
         `Albums > Get Album Tracks <https://developer.spotify.com
         /documentation/web-api/reference/get-an-albums-tracks>`_: Get
-        Spotify catalog information about an album's tracks.
+        Spotify catalog information for tracks in an album.
 
         .. admonition:: Third-party application mode
            :class: authorization-scope
@@ -332,7 +334,9 @@ class WebAPIAlbumEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -373,7 +377,7 @@ class WebAPIAlbumEndpoints:
         Returns
         -------
         tracks : dict[str, Any]
-            Spotify content metadata for the album's tracks.
+            Pages of Spotify content metadata for the album's tracks.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -448,7 +452,7 @@ class WebAPIAlbumEndpoints:
             "GET", f"albums/{album_id}/tracks", params=params
         ).json()
 
-    def get_saved_albums(
+    def get_my_saved_albums(
         self,
         *,
         market: str | None = None,
@@ -458,7 +462,8 @@ class WebAPIAlbumEndpoints:
         """
         `Albums > Get User's Saved Albums <https://developer.spotify.com
         /documentation/web-api/reference/get-users-saved-albums>`_: Get
-        the albums saved in the current user's "Your Music" library.
+        Spotify catalog information for the albums saved in the current
+        user's library.
 
         .. admonition:: Authorization scope and third-party application mode
            :class: authorization-scope
@@ -466,12 +471,16 @@ class WebAPIAlbumEndpoints:
            .. tab:: Required
 
               :code:`user-library-read`
-                 Access your saved content.
+                  Access your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-read>`__
 
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -506,8 +515,9 @@ class WebAPIAlbumEndpoints:
 
         Returns
         -------
-        saved_albums : dict[str, Any]
-            Spotify content metadata for the user's saved albums.
+        albums : dict[str, Any]
+            Pages of Spotify content metadata for the user's saved
+            albums.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -631,7 +641,7 @@ class WebAPIAlbumEndpoints:
                     "total": <int>
                   }
         """
-        self._client._require_scopes("get_saved_albums", "user-library-read")
+        self._client._require_scopes("get_my_saved_albums", "user-library-read")
         params = {}
         if market is not None:
             self._client._validate_market(market)
@@ -649,7 +659,7 @@ class WebAPIAlbumEndpoints:
         `Albums > Save Albums for Current User
         <https://developer.spotify.com/documentation/web-api/reference
         /save-albums-user>`_: Save one or more albums to the current
-        user's "Your Music" library.
+        user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -657,18 +667,20 @@ class WebAPIAlbumEndpoints:
            .. tab:: Required
 
               :code:`user-library-modify`
-                  Manage your saved content.
+                  Manage your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
         album_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the albums. A
+            Spotify IDs of the albums, provided as either a
+            comma-separated string or a collection of strings. A
             maximum of 20 IDs can be sent in one request.
 
-            **Examples**: :code:`"4aawyAB9vmqN3uQ7FjRGTy"`,
-            :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo,2noRn2Aes5aoNVsU6iWThc"`,
-            :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo",
-            "2noRn2Aes5aoNVsU6iWThc"]`.
+            **Examples**: :code:`"382ObEPsp2rxGrnsizN5TX"`,
+            :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`,
+            :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`.
         """
         self._client._require_scopes("save_albums", "user-library-modify")
         self._client._request(
@@ -684,7 +696,7 @@ class WebAPIAlbumEndpoints:
         `Albums > Remove User's Saved Albums
         <https://developer.spotify.com/documentation/web-api/reference
         /remove-albums-user>`_: Remove one or more albums from the
-        current user's "Your Music" library.
+        current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -692,18 +704,20 @@ class WebAPIAlbumEndpoints:
            .. tab:: Required
 
               :code:`user-library-modify`
-                  Manage your saved content.
+                  Manage your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
         album_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the albums. A
+            Spotify IDs of the albums, provided as either a
+            comma-separated string or a collection of strings. A
             maximum of 20 IDs can be sent in one request.
 
-            **Examples**: :code:`"4aawyAB9vmqN3uQ7FjRGTy"`,
-            :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo,2noRn2Aes5aoNVsU6iWThc"`,
-            :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo",
-            "2noRn2Aes5aoNVsU6iWThc"]`.
+            **Examples**: :code:`"382ObEPsp2rxGrnsizN5TX"`,
+            :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`,
+            :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`.
         """
         self._client._require_scopes(
             "remove_saved_albums", "user-library-modify"
@@ -722,8 +736,8 @@ class WebAPIAlbumEndpoints:
         """
         `Albums > Check User's Saved Albums
         <https://developer.spotify.com/documentation/web-api/reference
-        /check-users-saved-albums>`_: Check if one or more albums are
-        already saved in the current user's "Your Music" library.
+        /check-users-saved-albums>`_: Check whether one or more albums
+        are saved in the current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -731,24 +745,26 @@ class WebAPIAlbumEndpoints:
            .. tab:: Required
 
               :code:`user-library-read`
-                  Access your saved content.
+                  Access your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
         album_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the albums. A
+            Spotify IDs of the albums, provided as either a
+            comma-separated string or a collection of strings. A
             maximum of 20 IDs can be sent in one request.
 
-            **Examples**: :code:`"4aawyAB9vmqN3uQ7FjRGTy"`,
-            :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo,2noRn2Aes5aoNVsU6iWThc"`,
-            :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo",
-            "2noRn2Aes5aoNVsU6iWThc"]`.
+            **Examples**: :code:`"382ObEPsp2rxGrnsizN5TX"`,
+            :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`,
+            :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`.
 
         Returns
         -------
-        are_albums_saved : list[bool]
+        saved_flags : list[bool]
             Whether the current user has each of the specified albums
-            saved in their "Your Music" library.
+            saved in their library.
 
             **Sample response**: :code:`[False, True]`.
         """
@@ -766,8 +782,8 @@ class WebAPIAlbumEndpoints:
     ) -> dict[str, Any]:
         """
         `Albums > Get New Releases <https://developer.spotify.com
-        /documentation/web-api/reference/get-new-releases>`_: Get a list
-        of new album releases featured on Spotify.
+        /documentation/web-api/reference/get-new-releases>`_: Get
+        Spotify catalog information for new featured album releases.
 
         Parameters
         ----------
@@ -788,8 +804,9 @@ class WebAPIAlbumEndpoints:
 
         Returns
         -------
-        new_releases : dict[str, Any]
-            Spotify content metadata for the new album releases.
+        albums : dict[str, Any]
+            Spotify content metadata for the new featured album
+            releases.
 
             .. admonition:: Sample response
                :class: dropdown

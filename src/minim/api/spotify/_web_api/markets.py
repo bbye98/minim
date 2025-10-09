@@ -26,14 +26,14 @@ class WebAPIMarketEndpoints:
     def get_available_markets(self) -> dict[str, list[str]]:
         """
         `Markets > Get Available Markets <https://developer.spotify.com
-        /documentation/web-api/reference/get-available-markets>`_: Get a
-        list of markets where Spotify is available.
+        /documentation/web-api/reference/get-available-markets>`_: Get
+        markets where Spotify is available.
 
         Returns
         -------
         markets : dict[str, list[str]]
             Available markets.
 
-            **Sample response**: :code:`{"markets": ["CA", "BR", "IT"]}`.
+            **Sample response**: :code:`{"markets": ["BR", "CA", "IT"]}`.
         """
         return self._client._request("GET", "markets").json()

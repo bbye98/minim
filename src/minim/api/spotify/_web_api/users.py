@@ -1,4 +1,15 @@
+from collections.abc import Collection
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
+
+from ..._shared import _copy_docstring
+from .albums import WebAPIAlbumEndpoints
+from .artists import WebAPIArtistEndpoints
+from .audiobooks import WebAPIAudiobookEndpoints
+from .episodes import WebAPIEpisodeEndpoints
+from .playlists import WebAPIPlaylistEndpoints
+from .shows import WebAPIShowEndpoints
+from .tracks import WebAPITrackEndpoints
 
 if TYPE_CHECKING:
     from .. import WebAPI
@@ -127,6 +138,7 @@ class WebAPIUserEndpoints:
 
         return self._client._request("GET", "me").json()
 
+    @_copy_docstring(WebAPIArtistEndpoints.get_my_top_artists)
     def get_my_top_artists(
         self,
         *,
@@ -134,163 +146,11 @@ class WebAPIUserEndpoints:
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        """
-        `Users > Get User's Top Artists
-        <https://developer.spotify.com/documentation/web-api/reference
-        /get-users-top-artists-and-tracks>`_: Get the current user's top
-        artists based on calculated affinity.
+        return self._client.artists.get_my_top_artists(
+            time_range=time_range, limit=limit, offset=offset
+        )
 
-        .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-top-read`
-                 Read your top artists and contents.
-
-           .. tab:: Optional
-
-              Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
-
-        Parameters
-        ----------
-        time_range : str, keyword-only, optional
-            Time frame over which the affinities are computed.
-
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"long_term"`: Approximately one year of data,
-                 including all new data as it becomes available.
-               * :code:`"medium_term"`: Approximately the last six
-                 months of data.
-               * :code:`"short_term"`: Approximately the last four weeks
-                 of data.
-
-            **Default**: :code:`"medium_term"`.
-
-        limit : int, keyword-only, optional
-            Maximum number of items to return.
-
-            **Valid range**: :code:`1` to :code:`50`.
-
-            **Default**: :code:`20`.
-
-        offset : int, keyword-only, optional
-            Index of the first item to return. Use with `limit` to get
-            the next set of items.
-
-            **Minimum value**: :code:`0`.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        top_artists : dict[str, Any]
-            Spotify content metadata for the current user's top artists.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "href": <str>,
-                    "items": [
-                      {
-                        "album": {
-                          "album_type": <str>,
-                          "artists": [
-                            {
-                              "external_urls": {
-                                "spotify": <str>
-                              },
-                              "href": <str>,
-                              "id": <str>,
-                              "name": <str>,
-                              "type": "artist",
-                              "uri": <str>
-                            }
-                          ],
-                          "available_markets": <list[str]>,
-                          "external_urls": {
-                            "spotify": <str>
-                          },
-                          "href": <str>,
-                          "id": <str>,
-                          "images": [
-                            {
-                              "height": <int>,
-                              "url": <str>,
-                              "width": <int>
-                            }
-                          ],
-                          "is_playable": <bool>,
-                          "name": <str>,
-                          "release_date": <str>,
-                          "release_date_precision": <str>,
-                          "total_tracks": <int>,
-                          "type": "album",
-                          "uri": <str>
-                        },
-                        "artists": [
-                          {
-                            "external_urls": {
-                              "spotify": <str>
-                            },
-                            "href": <str>,
-                            "id": <str>,
-                            "name": <str>,
-                            "type": "artist",
-                            "uri": <str></str>
-                          }
-                        ],
-                        "available_markets": <list[str]>,
-                        "disc_number": <int>,
-                        "duration_ms": <int>,
-                        "explicit": <bool>,
-                        "external_ids": {
-                          "isrc": <str>
-                        },
-                        "external_urls": {
-                          "spotify": <str>
-                        },
-                        "href": <str>,
-                        "id": <str>,
-                        "is_local": <bool>,
-                        "is_playable": <bool>,
-                        "name": <str>,
-                        "popularity": <int>,
-                        "preview_url": <str>,
-                        "track_number": <int>,
-                        "type": "track",
-                        "uri": <str>
-                      }
-                    ],
-                    "limit": <int>,
-                    "next": <str>,
-                    "offset": <int>,
-                    "previous": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client._require_scopes("get_top_artists", "user-top-read")
-        params = {}
-        if time_range:
-            self._validate_time_range(time_range)
-            params["time_range"] = time_range
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "me/top/artists", params=params
-        ).json()
-
+    @_copy_docstring(WebAPITrackEndpoints.get_my_top_tracks)
     def get_my_top_tracks(
         self,
         *,
@@ -298,364 +158,33 @@ class WebAPIUserEndpoints:
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        """
-        `Users > Get User's Top Tracks
-        <https://developer.spotify.com/documentation/web-api/reference
-        /get-users-top-artists-and-tracks>`_: Get the current user's top
-        tracks based on calculated affinity.
+        return self._client.tracks.get_my_top_tracks(
+            time_range=time_range, limit=limit, offset=offset
+        )
 
-        .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-top-read`
-                 Read your top artists and contents.
-
-           .. tab:: Optional
-
-              Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
-
-        Parameters
-        ----------
-        time_range : str, keyword-only, optional
-            Time frame over which the affinities are computed.
-
-            .. container::
-
-               **Valid values**:
-
-               * :code:`"long_term"`: Approximately one year of data,
-                 including all new data as it becomes available.
-               * :code:`"medium_term"`: Approximately the last six
-                 months of data.
-               * :code:`"short_term"`: Approximately the last four weeks
-                 of data.
-
-            **Default**: :code:`"medium_term"`.
-
-        limit : int, keyword-only, optional
-            Maximum number of items to return.
-
-            **Valid range**: :code:`1` to :code:`50`.
-
-            **Default**: :code:`20`.
-
-        offset : int, keyword-only, optional
-            Index of the first item to return. Use with `limit` to get
-            the next set of items.
-
-            **Minimum value**: :code:`0`.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        top_tracks : dict[str, Any]
-            Spotify content metadata for the current user's top tracks.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "href": <str>,
-                    "items": [
-                      {
-                        "album": {
-                          "album_type": <str>,
-                          "artists": [
-                            {
-                              "external_urls": {
-                                "spotify": <str>
-                              },
-                              "href": <str>,
-                              "id": <str>,
-                              "name": <str>,
-                              "type": "artist",
-                              "uri": <str>
-                            }
-                          ],
-                          "available_markets": <list[str]>,
-                          "external_urls": {
-                            "spotify": <str>
-                          },
-                          "href": <str>,
-                          "id": <str>,
-                          "images": [
-                            {
-                              "height": <int>,
-                              "url": <str>,
-                              "width": <int>
-                            }
-                          ],
-                          "is_playable": <bool>,
-                          "name": <str>,
-                          "release_date": <str>,
-                          "release_date_precision": <str>,
-                          "total_tracks": <int>,
-                          "type": "album",
-                          "uri": <str>
-                        },
-                        "artists": [
-                          {
-                            "external_urls": {
-                              "spotify": <str>
-                            },
-                            "href": <str>,
-                            "id": <str>,
-                            "name": <str>,
-                            "type": "artist",
-                            "uri": <str></str>
-                          }
-                        ],
-                        "available_markets": <list[str]>,
-                        "disc_number": <int>,
-                        "duration_ms": <int>,
-                        "explicit": <bool>,
-                        "external_ids": {
-                          "isrc": <str>
-                        },
-                        "external_urls": {
-                          "spotify": <str>
-                        },
-                        "href": <str>,
-                        "id": <str>,
-                        "is_local": <bool>,
-                        "is_playable": <bool>,
-                        "name": <str>,
-                        "popularity": <int>,
-                        "preview_url": <str>,
-                        "track_number": <int>,
-                        "type": "track",
-                        "uri": <str>
-                      }
-                    ],
-                    "limit": <int>,
-                    "next": <str>,
-                    "offset": <int>,
-                    "previous": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client._require_scopes("get_top_tracks", "user-top-read")
-        params = {}
-        if time_range:
-            self._validate_time_range(time_range)
-            params["time_range"] = time_range
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "me/top/tracks", params=params
-        ).json()
-
+    @_copy_docstring(WebAPIPlaylistEndpoints.follow_playlist)
     def follow_playlist(
         self, playlist_id: str, /, *, public: bool | None = None
     ) -> None:
-        """
-        `Users > Follow Playlist <https://developer.spotify.com
-        /documentation/web-api/reference/follow-playlist>`_: Add the
-        current user as a follower of a playlist.
+        self._client.playlists.follow_playlist(playlist_id, public=public)
 
-        .. admonition:: Authorization scopes
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`playlist-modify-public`
-                 Manage your public playlists.
-
-              :code:`playlist-modify-private`
-                 Manage your private playlists.
-
-        Parameters
-        ----------
-        playlist_id : str, positional-only
-            Spotify ID of the playlist.
-
-        public : bool, keyword-only, optional
-            Specifies whether the playlist will be included in the
-            current user's public playlists.
-
-            **Default**: :code:`True`.
-        """
-        self._client._require_scopes(
-            "follow_playlist",
-            {"playlist-modify-public", "playlist-modify-private"},
-        )
-        self._client._validate_spotify_id(playlist_id)
-        payload = {}
-        if isinstance(public, bool):
-            payload["public"] = public
-        self._client._request(
-            "PUT", f"playlists/{playlist_id}/followers", json=payload
-        )
-
+    @_copy_docstring(WebAPIPlaylistEndpoints.unfollow_playlist)
     def unfollow_playlist(self, playlist_id: str, /) -> None:
-        """
-        `Users > Unfollow Playlist <https://developer.spotify.com
-        /documentation/web-api/reference/unfollow-playlist>`_: Remove
-        the current user as a follower of a playlist.
+        self._client.playlists.unfollow_playlist(playlist_id)
 
-        .. admonition:: Authorization scopes
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`playlist-modify-public`
-                 Manage your public playlists.
-
-              :code:`playlist-modify-private`
-                 Manage your private playlists.
-
-        Parameters
-        ----------
-        playlist_id : str, positional-only
-            Spotify ID of the playlist.
-        """
-        self._client._require_scopes(
-            "unfollow_playlist",
-            {"playlist-modify-public", "playlist-modify-private"},
-        )
-        self._client._validate_spotify_id(playlist_id)
-        self._client._request("DELETE", f"playlists/{playlist_id}/followers")
-
+    @_copy_docstring(WebAPIArtistEndpoints.get_my_followed_artists)
     def get_my_followed_artists(
         self, *, after: str | None = None, limit: int | None = None
     ) -> dict[str, Any]:
-        """
-        `Users > Get Followed Artists <https://developer.spotify.com
-        /documentation/web-api/reference/get-followed>`_: Get the
-        current user's followed artists.
-
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-follow-read`
-                 Access your followers and who you are following.
-
-        Parameters
-        ----------
-        after : str, keyword-only, optional
-            Spotify ID of the last artist retrieved in the previous
-            request.
-
-            **Example**: :code:`"0I2XqVXqHScXjHhk6AYYRe"`.
-
-        limit : int, keyword-only, optional
-            Maximum number of artists to return.
-
-            **Valid range**: :code:`1` to :code:`50`.
-
-            **Default**: :code:`20`.
-
-        Returns
-        -------
-        followed_artists : dict[str, Any]
-            Spotify content metadata for the current user's followed
-            artists.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "artists": {
-                      "cursors": {
-                        "after": <str>,
-                        "before": <str>
-                      },
-                      "href": <str>,
-                      "items": [
-                        {
-                          "external_urls": {
-                            "spotify": <str>
-                          },
-                          "followers": {
-                            "href": <str>,
-                            "total": <int>
-                          },
-                          "genres": <list[str]>,
-                          "href": <str>,
-                          "id": <str>,
-                          "images": [
-                            {
-                              "url": <str>,
-                              "height": <int>,
-                              "width": <int>
-                            }
-                          ],
-                          "name": <str>,
-                          "popularity": <int>,
-                          "type": "artist",
-                          "uri": <str>
-                        }
-                      ],
-                      "limit": <int>,
-                      "next": <str>,
-                      "total": <int>
-                    }
-                  }
-        """
-        self._client._require_scopes("get_followed_artists", "user-follow-read")
-        params = {"type": "artist"}
-        if after is not None:
-            self._client._validate_spotify_id(after)
-            params["after"] = after
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
-            params["limit"] = limit
-        return self._client._request(
-            "GET", "me/following", params=params
-        ).json()
-
-    def follow_artists(self, artist_ids: str | list[str], /) -> None:
-        """
-        `Users > Follow Artists <https://developer.spotify.com
-        /documentation/web-api/reference/follow-artists-users>`_: Add
-        the current user as a follower of one or more artists.
-
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-follow-modify`
-                 Manage your saved content.
-
-        Parameters
-        ----------
-        artist_ids : str or list[str], positional-only
-            (Comma-separated) list of Spotify IDs for the artists. A
-            maximum of 50 IDs can be sent in one request.
-
-            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx",
-            "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
-        """
-        self._client._require_scopes("follow_artists", "user-follow-modify")
-        self._client._request(
-            "PUT",
-            "me/following",
-            params={
-                "type": "artist",
-                "ids": self._client._prepare_spotify_ids(artist_ids, limit=50)[
-                    0
-                ],
-            },
+        return self._client.artists.get_my_followed_artists(
+            after=after, limit=limit
         )
 
-    def follow_users(self, user_ids: str | list[str], /) -> None:
+    @_copy_docstring(WebAPIArtistEndpoints.follow_artists)
+    def follow_artists(self, artist_ids: str | Collection[str], /) -> None:
+        self._client.artists.follow_artists(artist_ids)
+
+    def follow_users(self, user_ids: str | Collection[str], /) -> None:
         """
         `Users > Follow Users <https://developer.spotify.com
         /documentation/web-api/reference/follow-artists-users>`_: Add
@@ -692,44 +221,11 @@ class WebAPIUserEndpoints:
             },
         )
 
-    def unfollow_artists(self, artist_ids: str | list[str], /) -> None:
-        """
-        `Users > Unfollow Artists <https://developer.spotify.com
-        /documentation/web-api/reference/unfollow-artists-users>`_:
-        Remove the current user as a follower of one or more artists.
+    @_copy_docstring(WebAPIArtistEndpoints.unfollow_artists)
+    def unfollow_artists(self, artist_ids: str | Collection[str], /) -> None:
+        self._client.artists.unfollow_artists(artist_ids)
 
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-follow-modify`
-                 Manage your saved content.
-
-        Parameters
-        ----------
-        artist_ids : str or list[str], positional-only
-            (Comma-separated) list of Spotify IDs for the artists. A
-            maximum of 50 IDs can be sent in one request.
-
-            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx",
-            "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
-        """
-        self._client._require_scopes("unfollow_artists", "user-follow-modify")
-        self._client._request(
-            "DELETE",
-            "me/following",
-            params={
-                "type": "artist",
-                "ids": self._client._prepare_spotify_ids(artist_ids, limit=50)[
-                    0
-                ],
-            },
-        )
-
-    def unfollow_users(self, user_ids: str | list[str], /) -> None:
+    def unfollow_users(self, user_ids: str | Collection[str], /) -> None:
         """
         `Users > Unfollow Users <https://developer.spotify.com
         /documentation/web-api/reference/unfollow-artists-users>`_:
@@ -766,54 +262,15 @@ class WebAPIUserEndpoints:
             },
         )
 
+    @_copy_docstring(WebAPIArtistEndpoints.is_following_artists)
     def is_following_artists(
-        self, artist_ids: str | list[str], /
+        self, artist_ids: str | Collection[str], /
     ) -> list[bool]:
-        """
-        `Users > Check If User Follows Artists
-        <https://developer.spotify.com/documentation/web-api/reference
-        /check-current-user-follows>`_: Check whether the current user
-        is following one or more artists.
+        return self._client.artists.is_following_artists(artist_ids)
 
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-follow-read`
-                 Access your followers and who you are following.
-
-        Parameters
-        ----------
-        artist_ids : str or list[str], positional-only
-            (Comma-separated) list of Spotify IDs for the artists. A
-            maximum of 50 IDs can be sent in one request.
-
-            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx",
-            "57dN52uHvrHOxijzpIgu3E", "1vCWHaC5f2uS3yhpwWbIA6"]`.
-
-        Returns
-        -------
-        is_following_artists : list[bool]
-            Whether the current user follows each specified artist.
-
-            **Sample response**: :code:`[False, True]`.
-        """
-        self._client._require_scopes("is_following_artists", "user-follow-read")
-        return self._client._request(
-            "GET",
-            "me/following/contains",
-            params={
-                "type": "artist",
-                "ids": self._client._prepare_spotify_ids(artist_ids, limit=50)[
-                    0
-                ],
-            },
-        ).json()
-
-    def is_following_users(self, user_ids: str | list[str], /) -> list[bool]:
+    def is_following_users(
+        self, user_ids: str | Collection[str], /
+    ) -> list[bool]:
         """
         `Users > Check If User Follows Users
         <https://developer.spotify.com/documentation/web-api/reference
@@ -858,31 +315,239 @@ class WebAPIUserEndpoints:
             },
         ).json()
 
-    def is_following_playlist(self, playlist_id: str, /) -> list[bool]:
+    @_copy_docstring(WebAPIPlaylistEndpoints.is_following_playlist)
+    def is_following_playlist(self, playlist_id: str, /) -> bool:
+        return self._client.playlists.is_following_playlist(playlist_id)
+
+    @_copy_docstring(WebAPIAlbumEndpoints.get_my_saved_albums)
+    def get_my_saved_albums(
+        self,
+        *,
+        market: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.albums.get_my_saved_albums(
+            market=market, limit=limit, offset=offset
+        )
+
+    @_copy_docstring(WebAPIAlbumEndpoints.save_albums)
+    def save_albums(self, album_ids: str | Collection[str], /) -> None:
+        self._client.albums.save_albums(album_ids)
+
+    @_copy_docstring(WebAPIAlbumEndpoints.remove_saved_albums)
+    def remove_saved_albums(self, album_ids: str | Collection[str], /) -> None:
+        self._client.albums.remove_saved_albums(album_ids)
+
+    @_copy_docstring(WebAPIAlbumEndpoints.are_albums_saved)
+    def are_albums_saved(
+        self, album_ids: str | Collection[str], /
+    ) -> list[bool]:
+        return WebAPIAlbumEndpoints.are_albums_saved(album_ids)
+
+    @_copy_docstring(WebAPIAudiobookEndpoints.get_my_saved_audiobooks)
+    def get_my_saved_audiobooks(
+        self,
+        *,
+        market: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.audiobooks.get_my_saved_audiobooks(
+            market=market, limit=limit, offset=offset
+        )
+
+    @_copy_docstring(WebAPIAudiobookEndpoints.save_audiobooks)
+    def save_audiobooks(self, audiobook_ids: str | Collection[str], /) -> None:
+        self._client.audiobooks.save_audiobooks(audiobook_ids)
+
+    @_copy_docstring(WebAPIAudiobookEndpoints.remove_saved_audiobooks)
+    def remove_saved_audiobooks(
+        self, audiobook_ids: str | Collection[str], /
+    ) -> None:
+        self._client.audiobooks.remove_saved_audiobooks(audiobook_ids)
+
+    @_copy_docstring(WebAPIAudiobookEndpoints.are_audiobooks_saved)
+    def are_audiobooks_saved(
+        self, audiobook_ids: str | Collection[str], /
+    ) -> list[bool]:
+        return self._client.audiobooks.are_audiobooks_saved(audiobook_ids)
+
+    @_copy_docstring(WebAPIEpisodeEndpoints.get_my_saved_episodes)
+    def get_my_saved_episodes(
+        self,
+        *,
+        market: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.episodes.get_my_saved_episodes(
+            market=market, limit=limit, offset=offset
+        )
+
+    @_copy_docstring(WebAPIEpisodeEndpoints.save_episodes)
+    def save_episodes(self, episode_ids: str | Collection[str], /) -> None:
+        self._client.episodes.save_episodes(episode_ids)
+
+    @_copy_docstring(WebAPIEpisodeEndpoints.remove_saved_episodes)
+    def remove_saved_episodes(
+        self, episode_ids: str | Collection[str], /
+    ) -> None:
+        self._client.episodes.remove_saved_episodes(episode_ids)
+
+    @_copy_docstring(WebAPIEpisodeEndpoints.are_episodes_saved)
+    def are_episodes_saved(
+        self, episode_ids: str | Collection[str], /
+    ) -> list[bool]:
+        return self._client.episodes.are_episodes_saved(episode_ids)
+
+    def get_user_playlists(
+        self, *, limit: int | None = None, offset: int | None = None
+    ) -> dict[str, Any]:
         """
-        `Users > Check if Current User Follows Playlist
+        `Playlists > Get Current User's Playlists
         <https://developer.spotify.com/documentation/web-api/reference
-        /check-if-user-follows-playlist>`_: Check whether the current
-        user is following a playlist.
+        /get-a-list-of-current-users-playlists>`_: Get Spotify catalog
+        information for playlists owned or followed by the current user.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlist-read-private`
+                 Access your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-read-private>`__
 
         Parameters
         ----------
-        playlist_id : str, positional-only
-            Spotify ID of the playlist.
+        limit : int, keyword-only, optional
+            Maximum number of playlists to return.
 
-            **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
+            **Valid range**: :code:`1` to :code:`50`.
+
+            **Default**: :code:`20`.
+
+        offset : int, keyword-only, optional
+            Index of the first playlist to return. Use with `limit` to
+            get the next set of playlists.
+
+            **Minimum value**: :code:`0`.
+
+            **Default**: :code:`0`.
 
         Returns
         -------
-        is_following_playlist : list[bool]
-            Whether the current user follows the specified playlist.
+        playlists : dict[str, Any]
+            Pages of Spotify content metadata for the current user's
+            playlists.
 
-            **Sample response**: :code:`[True]`.
+            .. admonition:: Sample responses
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "href": <str>,
+                    "items": [
+                      {
+                        "collaborative": <bool>,
+                        "description": <str>,
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "images": [
+                          {
+                            "height": <int>,
+                            "url": <str>,
+                            "width": <int>
+                          }
+                        ],
+                        "name": <str>,
+                        "owner": {
+                          "display_name": <str>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "type": <str>,
+                          "uri": <str>
+                        },
+                        "public": <bool>,
+                        "snapshot_id": <str>,
+                        "tracks": {
+                          "href": <str>,
+                          "total": <int>
+                        },
+                        "type": <str>,
+                        "uri": <str>
+                      }
+                    ],
+                    "limit": <int>,
+                    "next": <str>,
+                    "offset": <int>,
+                    "previous": <str>,
+                    "total": <int>
+                  }
         """
-        self._client._validate_spotify_id(playlist_id)
-        return self._client._request(
-            "GET", f"playlists/{playlist_id}/followers/contains"
-        ).json()
+        return self._client.playlists.get_user_playlists(
+            limit=limit, offset=offset
+        )
+
+    @_copy_docstring(WebAPIShowEndpoints.get_my_saved_shows)
+    def get_my_saved_shows(
+        self, *, limit: int | None = None, offset: int | None = None
+    ) -> dict[str, Any]:
+        return self._client.shows.get_my_saved_shows(limit=limit, offset=offset)
+
+    @_copy_docstring(WebAPIShowEndpoints.save_shows)
+    def save_shows(self, show_ids: str | Collection[str], /) -> None:
+        self._client.shows.save_shows(show_ids)
+
+    @_copy_docstring(WebAPIShowEndpoints.remove_saved_shows)
+    def remove_saved_shows(self, show_ids: str | Collection[str], /) -> None:
+        self._client.shows.remove_saved_shows(show_ids)
+
+    @_copy_docstring(WebAPIShowEndpoints.are_shows_saved)
+    def are_shows_saved(self, show_ids: str | Collection[str], /) -> list[bool]:
+        return self._client.shows.are_shows_saved(show_ids)
+
+    @_copy_docstring(WebAPITrackEndpoints.get_my_saved_tracks)
+    def get_my_saved_tracks(
+        self,
+        *,
+        market: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.tracks.get_my_saved_tracks(
+            market=market, limit=limit, offset=offset
+        )
+
+    @_copy_docstring(WebAPITrackEndpoints.save_tracks)
+    def save_tracks(
+        self,
+        track_ids: str
+        | tuple[str, str | datetime]
+        | dict[str, str | datetime]
+        | list[str | tuple[str, str | datetime] | dict[str, str | datetime]],
+        /,
+    ) -> None:
+        self._client.tracks.save_tracks(track_ids)
+
+    @_copy_docstring(WebAPITrackEndpoints.remove_saved_tracks)
+    def remove_saved_tracks(self, track_ids: str | Collection[str], /) -> None:
+        self._client.tracks.remove_saved_tracks(track_ids)
+
+    @_copy_docstring(WebAPITrackEndpoints.are_tracks_saved)
+    def are_tracks_saved(
+        self, track_ids: str | Collection[str], /
+    ) -> list[bool]:
+        return self._client.tracks.are_tracks_saved(track_ids)
 
     def _validate_time_range(self, time_range: str, /) -> None:
         """

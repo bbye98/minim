@@ -3,6 +3,6 @@ minim
 
 .. autosummary::
    :recursive:
-   :toctree: _autosummary
+   :toctree: autosummary
 
    minim

@@ -48,8 +48,8 @@ class WebAPISearchEndpoints:
         """
         `Search > Search for Item <https://developer.spotify.com
         /documentation/web-api/reference/search>`_: Get Spotify catalog
-        information about albums, artists, playlists, tracks, shows,
-        episodes, or audiobooks that match a keyword string.
+        information for albums, artists, playlists, tracks, shows,
+        episodes, and/or audiobooks that match a keyword string.
 
         .. important::
 
@@ -62,7 +62,9 @@ class WebAPISearchEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -102,7 +104,8 @@ class WebAPISearchEndpoints:
             :code:`"remaster track:Doxy artist:Miles Davis"`.
 
         types : str or Collection[str]
-            (Comma-separated) list of item types to search across.
+            Item types to search across, provided as either a
+            comma-separated string or a collection of strings.
 
             **Valid values**: :code:`"album"`, :code:`"artist"`,
             :code:`"playlist"`, :code:`"track"`, :code:`"show"`,
@@ -517,28 +520,14 @@ class WebAPISearchEndpoints:
             Comma-delimited string containing Spotify item types.
         """
         if isinstance(types, str):
-            split_types = types.split(",")
-            for type_ in split_types:
-                self._validate_item_type(type_)
-            return ",".join(sorted(split_types))
+            return self._prepare_item_types(types.split(","))
 
         types = set(types)
         for type_ in types:
-            self._validate_item_type(type_)
+            if type_ not in self._TYPES:
+                _types = ", ".join(self._TYPES)
+                raise ValueError(
+                    f"Invalid Spotify item type {type_!r}. "
+                    f"Valid values: '{_types}'."
+                )
         return ",".join(sorted(types))
-
-    def _validate_item_type(self, type_: str, /) -> None:
-        """
-        Validate Spotify item type.
-
-        Parameters
-        ----------
-        type_ : str, positional-only
-            Spotify item type.
-        """
-        if type_ not in self._TYPES:
-            _types = ", ".join(self._TYPES)
-            raise ValueError(
-                f"Invalid Spotify item type {type_!r}. "
-                f"Valid values: '{_types}'."
-            )

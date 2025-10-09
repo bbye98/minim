@@ -50,12 +50,15 @@ class WebAPIAudiobookEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
         audiobook_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the audiobooks. A
+            Spotify IDs of the audiobooks, provided as either a
+            comma-delimited string or as a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"18yVqkdbdRvS24c0Ilj2ci"`,
@@ -274,7 +277,7 @@ class WebAPIAudiobookEndpoints:
                        ]
                      }
         """
-        string = isinstance(audiobook_ids, str)
+        is_string = isinstance(audiobook_ids, str)
         audiobook_ids, n_ids = self._client._prepare_spotify_ids(
             audiobook_ids, limit=50
         )
@@ -282,7 +285,7 @@ class WebAPIAudiobookEndpoints:
         if market is not None:
             self._client._validate_market(market)
             params["market"] = market
-        if string and n_ids == 1:
+        if is_string and n_ids == 1:
             return self._client._request(
                 "GET", f"audiobooks/{audiobook_ids}", params
             ).json()
@@ -303,7 +306,7 @@ class WebAPIAudiobookEndpoints:
         `Audiobooks > Get Audiobook Chapters
         <https://developer.spotify.com/documentation/web-api/reference
         /get-audiobook-chapters>`_: Get Spotify catalog information
-        about an audiobook's chapters.
+        for chapters in an audiobook.
 
         .. admonition:: Third-party application mode
            :class: authorization-scope
@@ -311,7 +314,9 @@ class WebAPIAudiobookEndpoints:
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -352,7 +357,7 @@ class WebAPIAudiobookEndpoints:
         Returns
         -------
         chapters : dict[str, Any]
-            Spotify content metadata for the audiobook's chapters.
+            Pages of Spotify content metadata for the audiobook's chapters.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -420,7 +425,7 @@ class WebAPIAudiobookEndpoints:
             "GET", f"audiobooks/{audiobook_id}/chapters", params=params
         ).json()
 
-    def get_saved_audiobooks(
+    def get_my_saved_audiobooks(
         self,
         *,
         market: str | None = None,
@@ -430,8 +435,8 @@ class WebAPIAudiobookEndpoints:
         """
         `Audiobooks > Get User's Saved Audiobooks
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-users-saved-audiobooks>`_: Get the audiobooks saved in the
-        current user's "Your Music" library.
+        /get-users-saved-audiobooks>`_: Get Spotify catalog information
+        for the audiobooks saved in the current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -439,7 +444,9 @@ class WebAPIAudiobookEndpoints:
            .. tab:: Required
 
               :code:`user-library-read`
-                 Access your saved content.
+                  Access your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
@@ -474,8 +481,8 @@ class WebAPIAudiobookEndpoints:
 
         Returns
         -------
-        saved_audiobooks : dict[str, Any]
-            Spotify content metadata for the user's saved audiobooks.
+        audiobooks : dict[str, Any]
+            Pages of Spotify content metadata for the user's saved audiobooks.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -536,7 +543,7 @@ class WebAPIAudiobookEndpoints:
                   }
         """
         self._client._require_scopes(
-            "get_saved_audiobooks", "user-library-read"
+            "get_my_saved_audiobooks", "user-library-read"
         )
         params = {}
         if market is not None:
@@ -557,7 +564,7 @@ class WebAPIAudiobookEndpoints:
         `Albums > Save Audiobooks for Current User
         <https://developer.spotify.com/documentation/web-api/reference
         /save-albums-user>`_: Save one or more audiobooks to the current
-        user's "Your Music" library.
+        user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -565,12 +572,15 @@ class WebAPIAudiobookEndpoints:
            .. tab:: Required
 
               :code:`user-library-modify`
-                  Manage your saved content.
+                  Manage your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
         audiobook_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the audiobooks. A
+            Spotify IDs of the audiobooks, provided as either a
+            comma-delimited string or as a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"18yVqkdbdRvS24c0Ilj2ci"`,
@@ -594,8 +604,8 @@ class WebAPIAudiobookEndpoints:
         """
         `Albums > Remove User's Saved Audiobooks
         <https://developer.spotify.com/documentation/web-api/reference
-        /remove-audiobooks-user>`_: Save one or more audiobooks to the
-        current user's "Your Music" library.
+        /remove-audiobooks-user>`_: Remove one or more audiobooks from
+        the current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -603,12 +613,15 @@ class WebAPIAudiobookEndpoints:
            .. tab:: Required
 
               :code:`user-library-modify`
-                  Manage your saved content.
+                  Manage your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
         audiobook_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the audiobooks. A
+            Spotify IDs of the audiobooks, provided as either a
+            comma-delimited string or as a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"18yVqkdbdRvS24c0Ilj2ci"`,
@@ -634,9 +647,8 @@ class WebAPIAudiobookEndpoints:
         """
         `Audiobooks > Check User's Saved Audiobooks
         <https://developer.spotify.com/documentation/web-api/reference
-        /check-users-saved-audiobooks>`_: Check if one or more
-        audiobooks are already saved in the current user's "Your Music"
-        library.
+        /check-users-saved-audiobooks>`_: Check whether one or more
+        audiobooks are already saved in the current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -644,12 +656,15 @@ class WebAPIAudiobookEndpoints:
            .. tab:: Required
 
               :code:`user-library-read`
-                  Access your saved content.
+                  Access your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
         audiobook_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the audiobooks. A
+            Spotify IDs of the audiobooks, provided as either a
+            comma-delimited string or as a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"18yVqkdbdRvS24c0Ilj2ci"`,

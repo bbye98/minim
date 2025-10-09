@@ -45,18 +45,23 @@ class WebAPIEpisodeEndpoints:
            .. tab:: Required
 
               :code:`user-read-playback-position`
-                 Read your position in content you have played.
+                 Read your position in content you have played. `Learn
+                 more. <https://developer.spotify.com/documentation
+                 /web-api/concepts/scopes#user-read-playback-position>`__
 
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
         episode_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the show episodes.
-            A maximum of 50 IDs can be sent in one request.
+            Spotify IDs of the show episodes, provided as either a
+            comma-separated string or a collection of strings. A
+            maximum of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"77o6BIVlYM3msb4MMIL1jH"`,
             :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`,
@@ -232,7 +237,7 @@ class WebAPIEpisodeEndpoints:
                        ]
                      }
         """
-        string = isinstance(episode_ids, str)
+        is_string = isinstance(episode_ids, str)
         episode_ids, n_ids = self._client._prepare_spotify_ids(
             episode_ids, limit=50
         )
@@ -240,7 +245,7 @@ class WebAPIEpisodeEndpoints:
         if market is not None:
             self._client._validate_market(market)
             params["market"] = market
-        if string and n_ids == 1:
+        if is_string and n_ids == 1:
             return self._client._request(
                 "GET", f"episodes/{episode_ids}", params=params
             ).json()
@@ -248,7 +253,7 @@ class WebAPIEpisodeEndpoints:
         params["ids"] = episode_ids
         return self._client._request("GET", "episodes", params=params).json()
 
-    def get_saved_episodes(
+    def get_my_saved_episodes(
         self,
         *,
         market: str | None = None,
@@ -258,8 +263,8 @@ class WebAPIEpisodeEndpoints:
         """
         `Episodes > Get User's Saved Episodes
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-multiple-episodes>`_: Get the show episodes saved in the
-        current user's "Your Music" library.
+        /get-multiple-episodes>`_: Get Spotify catalog information for
+        the show episodes saved in the current user's library.
 
         .. admonition:: Authorization scope and third-party application mode
            :class: authorization-scope
@@ -267,15 +272,21 @@ class WebAPIEpisodeEndpoints:
            .. tab:: Required
 
               :code:`user-library-read`
-                 Access your saved content.
+                  Access your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-read>`__
 
               :code:`user-read-playback-position`
-                 Read your position in content you have played.
+                 Read your position in content you have played. `Learn
+                 more. <https://developer.spotify.com/documentation
+                 /web-api/concepts/scopes#user-read-playback-position>`__
 
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -310,8 +321,9 @@ class WebAPIEpisodeEndpoints:
 
         Returns
         -------
-        saved_episodes : dict[str, Any]
-            Spotify content metadata for the user's saved show episodes.
+        episodes : dict[str, Any]
+            Pages of Spotify content metadata for the user's saved show
+            episodes.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -400,7 +412,7 @@ class WebAPIEpisodeEndpoints:
                   }
         """
         self._client._require_scopes(
-            "get_saved_episodes",
+            "get_my_saved_episodes",
             ["user-library-read", "user-read-playback-position"],
         )
         params = {}
@@ -420,7 +432,7 @@ class WebAPIEpisodeEndpoints:
         `Episodes > Save Episodes for Current User
         <https://developer.spotify.com/documentation/web-api/reference
         /save-episodes-user>`_: Save one or more show episodes to the
-        current user's "Your Music" library.
+        current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -428,13 +440,16 @@ class WebAPIEpisodeEndpoints:
            .. tab:: Required
 
               :code:`user-library-modify`
-                  Manage your saved content.
+                  Manage your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
         episode_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the show episodes.
-            A maximum of 50 IDs can be sent in one request.
+            Spotify IDs of the show episodes, provided as either a
+            comma-separated string or a collection of strings. A
+            maximum of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"77o6BIVlYM3msb4MMIL1jH"`,
             :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`,
@@ -458,7 +473,7 @@ class WebAPIEpisodeEndpoints:
         `Episodes > Remove User's Saved Episodes
         <https://developer.spotify.com/documentation/web-api/reference
         /remove-episodes-user>`_: Remove one or more show episodes from
-        the current user's "Your Music" library.
+        the current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -466,13 +481,16 @@ class WebAPIEpisodeEndpoints:
            .. tab:: Required
 
               :code:`user-library-modify`
-                  Manage your saved content.
+                  Manage your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-modify>`__
 
         Parameters
         ----------
         episode_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the show episodes.
-            A maximum of 50 IDs can be sent in one request.
+            Spotify IDs of the show episodes, provided as either a
+            comma-separated string or a collection of strings. A
+            maximum of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"77o6BIVlYM3msb4MMIL1jH"`,
             :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`,
@@ -497,9 +515,8 @@ class WebAPIEpisodeEndpoints:
         """
         `Episodes > Check User's Saved Episodes
         <https://developer.spotify.com/documentation/web-api/reference
-        /check-users-saved-episodes>`_: Check if one or more show
-        episodes are already saved in the current user's "Your Music"
-        library.
+        /check-users-saved-episodes>`_: Check whether one or more show
+        episodes are saved in the current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -512,8 +529,9 @@ class WebAPIEpisodeEndpoints:
         Parameters
         ----------
         episode_ids : str or Collection[str], positional-only
-            (Comma-separated) list of Spotify IDs of the show episodes.
-            A maximum of 50 IDs can be sent in one request.
+            Spotify IDs of the show episodes, provided as either a
+            comma-separated string or a collection of strings. A
+            maximum of 50 IDs can be sent in one request.
 
             **Examples**: :code:`"77o6BIVlYM3msb4MMIL1jH"`,
             :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`,
@@ -521,9 +539,9 @@ class WebAPIEpisodeEndpoints:
 
         Returns
         -------
-        are_episodes_saved : list[bool]
-            Whether the current user has each of the specified episodes
-            saved in their "Your Music" library.
+        saved_flags : list[bool]
+            Whether the current user has each of the specified show
+            episodes saved in their library.
 
             **Sample response**: :code:`[False, True]`.
         """

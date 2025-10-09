@@ -25,12 +25,6 @@ from ._web_api.users import WebAPIUserEndpoints
 if TYPE_CHECKING:
     import httpx
 
-# TODO: Add hyperlinks to scopes in docstrings.
-# TODO: Implement a `raw: bool = False` keyword argument in all
-#       endpoints and make the return values more Pythonic.
-# TODO: Move the implementations of all aliased endpoints out of the
-#       Users section.
-
 
 class WebAPI(OAuth2API):
     """
@@ -491,7 +485,9 @@ class WebAPI(OAuth2API):
            .. tab:: Optional
 
               Extended quota mode before November 11, 2024
-                  Access 30-second preview URLs.
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`_
 
         .. note::
 
