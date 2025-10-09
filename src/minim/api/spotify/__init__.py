@@ -7,8 +7,7 @@ from ._web_api.chapters import WebAPIChapterEndpoints
 from ._web_api.episodes import WebAPIEpisodeEndpoints
 from ._web_api.genres import WebAPIGenreEndpoints
 from ._web_api.markets import WebAPIMarketEndpoints
-
-# from ._web_api.player import WebAPIPlayerEndpoints
+from ._web_api.player import WebAPIPlayerEndpoints
 from ._web_api.playlists import WebAPIPlaylistEndpoints
 from ._web_api.search import WebAPISearchEndpoints
 from ._web_api.shows import WebAPIShowEndpoints
@@ -25,7 +24,7 @@ __all__ = [
     "WebAPIEpisodeEndpoints",
     "WebAPIGenreEndpoints",
     "WebAPIMarketEndpoints",
-    # "WebAPIPlayerEndpoints",
+    "WebAPIPlayerEndpoints",
     "WebAPIPlaylistEndpoints",
     "WebAPISearchEndpoints",
     "WebAPIShowEndpoints",
