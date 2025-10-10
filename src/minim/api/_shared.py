@@ -205,14 +205,14 @@ class OAuth2API(ABC):
                * :code:`"playwright"` – Playwright Firefox browser.
 
         browser : bool, keyword-only, default: :code:`False`
-            Specifies whether to automatically open the authorization
+            Whether to automatically open the authorization
             URL in the default web browser for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             :code:`False`, the authorization URL is printed to the
             terminal.
 
         persist : bool, keyword-only, default: :code:`True`
-            Specifies whether to enable Minim's local token storage for
+            Whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
             client will not retrieve or store access tokens.
@@ -718,14 +718,14 @@ class OAuth2API(ABC):
                * :code:`"playwright"` – Playwright Firefox browser.
 
         browser : bool, keyword-only, default: :code:`False`
-            Specifies whether to automatically open the authorization
+            Whether to automatically open the authorization
             URL in the default web browser for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             :code:`False`, the authorization URL is printed to the
             terminal.
 
         authorize : bool, keyword-only, default: :code:`True`
-            Specifies whether to immediately initiate the authorization
+            Whether to immediately initiate the authorization
             flow to acquire an access token.
 
             .. important::
@@ -736,7 +736,7 @@ class OAuth2API(ABC):
                with the new authorization flow and/or scopes.
 
         persist : bool, keyword-only, default: :code:`True`
-            Specifies whether to enable Minim's local token storage for
+            Whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
             client will not retrieve or store access tokens.

@@ -54,7 +54,7 @@ class WebAPITrackEndpoints:
 
            .. tab:: Optional
 
-              Extended quota mode before November 11, 2024
+              Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.
                   <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
@@ -304,7 +304,7 @@ class WebAPITrackEndpoints:
 
            .. tab:: Optional
 
-              Extended quota mode before November 11, 2024
+              Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.
                   <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
@@ -665,7 +665,7 @@ class WebAPITrackEndpoints:
 
            .. tab:: Required
 
-              Extended quota mode before November 11, 2024
+              Extended quota mode before November 27, 2024
                   Access the :code:`audio-features` endpoint. `Learn
                   more. <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
@@ -773,7 +773,7 @@ class WebAPITrackEndpoints:
 
            .. tab:: Required
 
-              Extended quota mode before November 11, 2024
+              Extended quota mode before November 27, 2024
                   Access the :code:`audio-analysis` endpoint. `Learn
                   more. <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
@@ -923,7 +923,7 @@ class WebAPITrackEndpoints:
 
            .. tab:: Required
 
-              Extended quota mode before November 11, 2024
+              Extended quota mode before November 27, 2024
                   Access the :code:`recommendations` endpoint. `Learn
                   more. <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
@@ -1384,7 +1384,7 @@ class WebAPITrackEndpoints:
 
            .. tab:: Optional
 
-              Extended quota mode before November 11, 2024
+              Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.
                   <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__

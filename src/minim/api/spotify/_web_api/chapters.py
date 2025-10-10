@@ -45,7 +45,7 @@ class WebAPIChapterEndpoints:
 
            .. tab:: Optional
 
-              Extended quota mode before November 11, 2024
+              Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.
                   <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__

@@ -155,14 +155,14 @@ class WebAPI(OAuth2API):
                * :code:`"playwright"` – Playwright Firefox browser.
 
         browser : bool, keyword-only, default: :code:`False`
-            Specifies whether to automatically open the authorization
+            Whether to automatically open the authorization
             URL in the default web browser for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             :code:`False`, the authorization URL is printed to the
             terminal.
 
         persist : bool, keyword-only, default: :code:`True`
-            Specifies whether to enable Minim's local token storage for
+            Whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
             client will not retrieve or store access tokens.
@@ -352,7 +352,7 @@ class WebAPI(OAuth2API):
             request.
 
         strict_length : bool, keyword-only, default: :code:`True`
-            Specifies whether to only allow 22-character-long Spotify IDs.
+            Whether to only allow 22-character-long Spotify IDs.
 
         Returns
         -------
@@ -439,7 +439,7 @@ class WebAPI(OAuth2API):
             Spotify ID.
 
         strict_length : bool, keyword-only, default: :code:`True`
-            Specifies whether to only allow 22-character-long Spotify IDs.
+            Whether to only allow 22-character-long Spotify IDs.
         """
         if (
             not isinstance(spotify_id, str)
@@ -491,9 +491,8 @@ class WebAPI(OAuth2API):
 
         .. note::
 
-           Accessing this property for the first time will call
-           :meth:`~minim.api.spotify.WebAPIGenreEndpoints.get_available_seed_genres`
-           and cache the response for later use.
+           Accessing this property for the first time may call
+           :meth:`~minim.api.spotify.WebAPIGenreEndpoints.get_available_seed_genres`.
         """
         return self.genres.get_available_seed_genres()["genres"]
 
@@ -504,18 +503,45 @@ class WebAPI(OAuth2API):
 
         .. note::
 
-           Accessing this property for the first time will call
-           :meth:`~minim.api.spotify.WebAPIMarketEndpoints.get_available_markets`
-           and cache the response for later use.
+           Accessing this property for the first time may call
+           :meth:`~minim.api.spotify.WebAPIMarketEndpoints.get_available_markets`.
         """
         return self.markets.get_available_markets()["markets"]
 
     @cached_property
-    def user_profile(self) -> str:
+    def my_profile(self) -> str:
         """
         Current user's profile.
         """
         return self.users.get_user_profile()
+
+    def _prepare_audio_types(self, types: str | Collection[str], /) -> str:
+        """
+        Stringify a list of Spotify item types into a comma-delimited
+        string.
+
+        Parameters
+        ----------
+        types : str, positional-only
+            Spotify item types.
+
+        Returns
+        -------
+        types : str
+            Comma-delimited string containing Spotify item types.
+        """
+        if isinstance(types, str):
+            return self._prepare_audio_types(types.split(","))
+
+        types = set(types)
+        for type_ in types:
+            if type_ not in self._AUDIO_TYPES:
+                _types = ", ".join(self._AUDIO_TYPES)
+                raise ValueError(
+                    f"Invalid Spotify item type {type_!r}. "
+                    f"Valid values: '{_types}'."
+                )
+        return ",".join(sorted(types))
 
     def _request(
         self,
@@ -538,7 +564,7 @@ class WebAPI(OAuth2API):
             Spotify Web API endpoint.
 
         retry : bool, keyword-only, default: :code:`True`
-            Specifies whether to retry the request if the first attempt
+            Whether to retry the request if the first attempt
             returns a :code:`401 Unauthorized`.
 
         **kwargs : dict[str, Any]
@@ -574,7 +600,7 @@ class WebAPI(OAuth2API):
         Assign the Spotify user ID as the user identifier for the
         current account.
         """
-        self._user_identifier = self.user_profile["id"]
+        self._user_identifier = self.my_profile["id"]
 
     def _validate_market(self, market: str, /) -> None:
         """

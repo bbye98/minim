@@ -56,7 +56,7 @@ class WebAPIPlaylistEndpoints:
 
            .. tab:: Optional
 
-              Extended quota mode before November 11, 2024
+              Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.
                   <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
@@ -338,7 +338,7 @@ class WebAPIPlaylistEndpoints:
         self._client._validate_spotify_id(playlist_id)
         params = {}
         if additional_types is not None:
-            params["additional_types"] = self._prepare_item_types(
+            params["additional_types"] = self._client._prepare_audio_types(
                 additional_types
             )
         if fields is not None:
@@ -401,11 +401,11 @@ class WebAPIPlaylistEndpoints:
             Playlist description.
 
         public : bool, keyword-only, optional
-            Specifies whether the playlist is displayed on the user's
+            Whether the playlist is displayed on the user's
             profile.
 
         collaborative : bool, keyword-only, optional
-            Specifies whether other users can modify the playlist.
+            Whether other users can modify the playlist.
 
             .. note::
 
@@ -463,7 +463,7 @@ class WebAPIPlaylistEndpoints:
 
            .. tab:: Optional
 
-              Extended quota mode before November 11, 2024
+              Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.
                   <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
@@ -737,7 +737,7 @@ class WebAPIPlaylistEndpoints:
         self._client._validate_spotify_id(playlist_id)
         params = {}
         if additional_types is not None:
-            params["additional_types"] = self._prepare_item_types(
+            params["additional_types"] = self._client._prepare_audio_types(
                 additional_types
             )
         if fields is not None:
@@ -1261,13 +1261,13 @@ class WebAPIPlaylistEndpoints:
             Playlist description.
 
         public : bool, keyword-only, optional
-            Specifies whether the playlist is displayed on the user's
+            Whether the playlist is displayed on the user's
             profile.
 
             **Default**: :code:`True`.
 
         collaborative : bool, keyword-only, optional
-            Specifies whether other users can modify the playlist.
+            Whether other users can modify the playlist.
 
             .. note::
 
@@ -1344,7 +1344,7 @@ class WebAPIPlaylistEndpoints:
             payload["collaborative"] = collaborative
         return self._client._request(
             "POST",
-            f"users/{self._client.user_profile['id']}/playlists",
+            f"users/{self._client.my_profile['id']}/playlists",
             json=payload,
         ).json()
 
@@ -1365,7 +1365,7 @@ class WebAPIPlaylistEndpoints:
 
            .. tab:: Optional
 
-              Extended quota mode before November 11, 2024
+              Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.
                   <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
@@ -1492,7 +1492,7 @@ class WebAPIPlaylistEndpoints:
 
            .. tab:: Optional
 
-              Extended quota mode before November 11, 2024
+              Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.
                   <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
@@ -1733,7 +1733,7 @@ class WebAPIPlaylistEndpoints:
             Spotify ID of the playlist.
 
         public : bool, keyword-only, optional
-            Specifies whether the playlist will be included in the
+            Whether the playlist will be included in the
             current user's public playlists.
 
             **Default**: :code:`True`.
@@ -1814,31 +1814,3 @@ class WebAPIPlaylistEndpoints:
         return self._client._request(
             "GET", f"playlists/{playlist_id}/followers/contains"
         ).json()
-
-    def _prepare_item_types(self, types: str | Collection[str], /) -> str:
-        """
-        Stringify a list of Spotify item types into a comma-delimited
-        string.
-
-        Parameters
-        ----------
-        types : str, positional-only
-            Spotify item types.
-
-        Returns
-        -------
-        types : str
-            Comma-delimited string containing Spotify item types.
-        """
-        if isinstance(types, str):
-            return self._prepare_item_types(types.split(","))
-
-        types = set(types)
-        for type_ in types:
-            if type_ not in self._client._AUDIO_TYPES:
-                _types = ", ".join(self._client._AUDIO_TYPES)
-                raise ValueError(
-                    f"Invalid Spotify item type {type_!r}. "
-                    f"Valid values: '{_types}'."
-                )
-        return ",".join(sorted(types))

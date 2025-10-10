@@ -41,10 +41,10 @@ class WebAPIUserEndpoints:
         `Users > Get Current User's Profile
         <https://developer.spotify.com/documentation/web-api/reference
         /get-current-users-profile>`_: Get detailed profile information
-        about the current user․
+        for the current user․
         `Users > Get User's Profile <https://developer.spotify.com
         /documentation/web-api/reference/get-users-profile>`_: Get
-        public profile information about a Spotify user.
+        public profile information for a specific Spotify user.
 
         .. admonition:: Authorization scopes
            :class: authorization-scope
