@@ -666,8 +666,8 @@ class WebAPITrackEndpoints:
            .. tab:: Required
 
               Extended quota mode before November 27, 2024
-                  Access the :code:`audio-features` endpoint. `Learn
-                  more. <https://developer.spotify.com/blog
+                  Access the :code:`/audio-features/{id}` endpoint.
+                  `Learn more. <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
@@ -774,8 +774,8 @@ class WebAPITrackEndpoints:
            .. tab:: Required
 
               Extended quota mode before November 27, 2024
-                  Access the :code:`audio-analysis` endpoint. `Learn
-                  more. <https://developer.spotify.com/blog
+                  Access the :code:`/audio-analysis/{id}` endpoint.
+                  `Learn more. <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
 
 
@@ -924,7 +924,7 @@ class WebAPITrackEndpoints:
            .. tab:: Required
 
               Extended quota mode before November 27, 2024
-                  Access the :code:`recommendations` endpoint. `Learn
+                  Access the :code:`/recommendations` endpoint. `Learn
                   more. <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
 
@@ -1032,7 +1032,7 @@ class WebAPITrackEndpoints:
             **Example**: :code:`0.585`.
 
         duration_ms : int or tuple[int, ...], optional
-            Track duration in milliseconds.
+            Track duration (in milliseconds).
 
             .. seealso::
 

@@ -155,17 +155,17 @@ class WebAPI(OAuth2API):
                * :code:`"playwright"` – Playwright Firefox browser.
 
         browser : bool, keyword-only, default: :code:`False`
-            Whether to automatically open the authorization
-            URL in the default web browser for the Authorization Code,
+            Whether to automatically open the authorization URL in the
+            default web browser for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             :code:`False`, the authorization URL is printed to the
             terminal.
 
         persist : bool, keyword-only, default: :code:`True`
-            Whether to enable Minim's local token storage for
-            this client. If :code:`True`, newly acquired access tokens
-            and related information are stored. If :code:`False`, the
-            client will not retrieve or store access tokens.
+            Whether to enable Minim's local token storage for this
+            client. If :code:`True`, newly acquired access tokens and
+            related information are stored. If :code:`False`, the client
+            will not retrieve or store access tokens.
 
         user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all
@@ -564,8 +564,8 @@ class WebAPI(OAuth2API):
             Spotify Web API endpoint.
 
         retry : bool, keyword-only, default: :code:`True`
-            Whether to retry the request if the first attempt
-            returns a :code:`401 Unauthorized`.
+            Whether to retry the request if the first attempt returns a
+            :code:`401 Unauthorized`.
 
         **kwargs : dict[str, Any]
             Keyword arguments to pass to :meth:`httpx.Client.request`.

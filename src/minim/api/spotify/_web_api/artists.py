@@ -424,9 +424,9 @@ class WebAPIArtistEndpoints:
            .. tab:: Required
 
               Extended quota mode before November 27, 2024
-                  Access the :code:`related-artists` endpoint.
-                  `Learn more. <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+                  Access the :code:`/artists/{id}/related-artists`
+                  endpoint. `Learn more. <https://developer.spotify.com
+                  /blog/2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------

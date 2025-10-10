@@ -401,8 +401,7 @@ class WebAPIPlaylistEndpoints:
             Playlist description.
 
         public : bool, keyword-only, optional
-            Whether the playlist is displayed on the user's
-            profile.
+            Whether the playlist is displayed on the user's profile.
 
         collaborative : bool, keyword-only, optional
             Whether other users can modify the playlist.
@@ -1261,8 +1260,7 @@ class WebAPIPlaylistEndpoints:
             Playlist description.
 
         public : bool, keyword-only, optional
-            Whether the playlist is displayed on the user's
-            profile.
+            Whether the playlist is displayed on the user's profile.
 
             **Default**: :code:`True`.
 
@@ -1733,8 +1731,8 @@ class WebAPIPlaylistEndpoints:
             Spotify ID of the playlist.
 
         public : bool, keyword-only, optional
-            Whether the playlist will be included in the
-            current user's public playlists.
+            Whether the playlist will be included in the current user's
+            public playlists.
 
             **Default**: :code:`True`.
         """

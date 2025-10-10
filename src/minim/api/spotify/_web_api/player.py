@@ -237,20 +237,20 @@ class WebAPIPlayerEndpoints:
         /documentation/web-api/reference/transfer-a-users-playback>`_:
         Transfer playback to a new device.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scope and subscription
            :class: authorization-scope
 
            .. tab:: Required
+
+              Spotify Premium subscription
+                 Access the :code:`/me/player` endpoint.
+                 `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
                  Control playback on your Spotify clients and Spotify
                  Connect devices. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /reference/transfer-a-users-playback>`__
-
-        .. important::
-
-           This endpoint requires Spotify Premium.
 
         .. warning::
 
@@ -261,6 +261,9 @@ class WebAPIPlayerEndpoints:
         ----------
         device_id : str, positional-only
             Playback device ID.
+
+            **Example**:
+            :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
 
         play : bool, keyword-only, optional
             Whether to start playback on the new device.
@@ -543,17 +546,190 @@ class WebAPIPlayerEndpoints:
     ) -> None:
         pass
 
-    def pause_playback(self, device_id: str, /) -> None:
-        pass
+    def pause_playback(self, device_id: str | None = None) -> None:
+        """
+        `Player > Pause Playback <https://developer.spotify.com
+        /documentation/web-api/reference/pause-a-users-playback>`_:
+        Pause playback.
 
-    def skip_next(self, device_id: str, /) -> None:
-        pass
+        .. admonition:: Authorization scope and subscription
+           :class: authorization-scope
 
-    def skip_previous(self, device_id: str, /) -> None:
-        pass
+           .. tab:: Required
 
-    def seek(self, position_ms: int, *, device_id: str | None = None) -> None:
-        pass
+              Spotify Premium subscription
+                 Access the :code:`/me/player` endpoint.
+                 `Learn more. <https://www.spotify.com/us/premium/>`__
+
+              :code:`user-modify-playback-state` scope
+                 Control playback on your Spotify clients and Spotify
+                 Connect devices. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /reference/transfer-a-users-playback>`__
+
+        .. warning::
+
+           The order of execution is not guaranteed when this endpoint
+           is used with other Spotify Web API player endpoints.
+
+        Parameters
+        ----------
+        device_id : str, optional
+            Playback device ID. If not specified, the currently active
+            device is the target.
+
+            **Example**:
+            :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
+        """
+        self._client._require_scopes(
+            "pause_playback", "user-modify-playback-state"
+        )
+        params = {}
+        if device_id is not None:
+            self._client._validate_spotify_id(device_id)
+            params["device_id"] = device_id
+        self._client._request("PUT", "me/player/pause", params=params)
+
+    def skip_next(self, device_id: str | None = None) -> None:
+        """
+        `Player > Skip To Next <https://developer.spotify.com
+        /documentation/web-api/reference
+        /skip-users-playback-to-next-track>`_: Skip to the next item in
+        the queue.
+
+        .. admonition:: Authorization scope and subscription
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              Spotify Premium subscription
+                 Access the :code:`/me/player/next` endpoint.
+                 `Learn more. <https://www.spotify.com/us/premium/>`__
+
+              :code:`user-modify-playback-state` scope
+                 Control playback on your Spotify clients and Spotify
+                 Connect devices. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /reference/transfer-a-users-playback>`__
+
+        .. warning::
+
+           The order of execution is not guaranteed when this endpoint
+           is used with other Spotify Web API player endpoints.
+
+        Parameters
+        ----------
+        device_id : str, optional
+            Playback device ID. If not specified, the currently active
+            device is the target.
+
+            **Example**:
+            :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
+        """
+        self._client._require_scopes("skip_next", "user-modify-playback-state")
+        params = {}
+        if device_id is not None:
+            self._client._validate_spotify_id(device_id)
+            params["device_id"] = device_id
+        self._client._request("POST", "me/player/next", params=params)
+
+    def skip_previous(self, device_id: str | None = None) -> None:
+        """
+        `Player > Skip To Next <https://developer.spotify.com
+        /documentation/web-api/reference
+        /skip-users-playback-to-next-track>`_: Skip to the previous item
+        in the queue.
+
+        .. admonition:: Authorization scope and subscription
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              Spotify Premium subscription
+                 Access the :code:`/me/player/previous` endpoint.
+                 `Learn more. <https://www.spotify.com/us/premium/>`__
+
+              :code:`user-modify-playback-state` scope
+                 Control playback on your Spotify clients and Spotify
+                 Connect devices. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /reference/transfer-a-users-playback>`__
+
+        .. warning::
+
+           The order of execution is not guaranteed when this endpoint
+           is used with other Spotify Web API player endpoints.
+
+        Parameters
+        ----------
+        device_id : str, optional
+            Playback device ID. If not specified, the currently active
+            device is the target.
+
+            **Example**:
+            :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
+        """
+        self._client._require_scopes(
+            "skip_previous", "user-modify-playback-state"
+        )
+        params = {}
+        if device_id is not None:
+            self._client._validate_spotify_id(device_id)
+            params["device_id"] = device_id
+        self._client._request("POST", "me/player/next", params=params)
+
+    def seek(self, position_ms: int, /, device_id: str | None = None) -> None:
+        """
+        `Player > Seek To Position <https://developer.spotify.com
+        /documentation/web-api/reference
+        /seek-to-position-in-currently-playing-track>`_: Seek to a
+        specific position in the currently playing track.
+
+        .. admonition:: Authorization scope and subscription
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              Spotify Premium subscription
+                 Access the :code:`/me/player/seek` endpoint.
+                 `Learn more. <https://www.spotify.com/us/premium/>`__
+
+              :code:`user-modify-playback-state` scope
+                 Control playback on your Spotify clients and Spotify
+                 Connect devices. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /reference/transfer-a-users-playback>`__
+
+        .. warning::
+
+           The order of execution is not guaranteed when this endpoint
+           is used with other Spotify Web API player endpoints.
+
+        Parameters
+        ----------
+        position_ms : int, positional-only
+            Position (in milliseconds) to seek to. If a position greater
+            than the length of the track is specified, the player will
+            start playing the next song.
+
+            **Minimum value**: :code:`0`.
+
+            **Example**: :code:`25_000`.
+
+        device_id : str, optional
+            Playback device ID. If not specified, the currently active
+            device is the target.
+
+            **Example**:
+            :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
+        """
+        self._client._require_scopes("seek", "user-modify-playback-state")
+        self._client._validate_number("position_ms", position_ms, int, 0)
+        params = {"position_ms": position_ms}
+        if device_id is not None:
+            self._client._validate_spotify_id(device_id)
+            params["device_id"] = device_id
+        self._client._request("PUT", "me/player/seek", params=params)
 
     def set_repeat(
         self, state: str, /, *, device_id: str | None = None
