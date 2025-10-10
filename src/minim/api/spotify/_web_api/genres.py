@@ -31,7 +31,7 @@ class WebAPIGenreEndpoints:
         track recommendations.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 

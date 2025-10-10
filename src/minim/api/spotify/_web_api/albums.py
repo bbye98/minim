@@ -36,7 +36,7 @@ class WebAPIAlbumEndpoints:
         Spotify catalog information for multiple albums.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -52,9 +52,13 @@ class WebAPIAlbumEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 20 IDs can be sent in one request.
 
-            **Examples**: :code:`"382ObEPsp2rxGrnsizN5TX"`,
-            :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`,
-            :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"382ObEPsp2rxGrnsizN5TX"`
+               * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
+               * :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`
 
         market : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code. If specified, only content
@@ -329,7 +333,7 @@ class WebAPIAlbumEndpoints:
         Spotify catalog information for tracks in an album.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -470,7 +474,7 @@ class WebAPIAlbumEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-read`
+              :code:`user-library-read` scope
                   Access your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-read>`__
@@ -666,7 +670,7 @@ class WebAPIAlbumEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-modify`
+              :code:`user-library-modify` scope
                   Manage your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-modify>`__
@@ -678,9 +682,13 @@ class WebAPIAlbumEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 20 IDs can be sent in one request.
 
-            **Examples**: :code:`"382ObEPsp2rxGrnsizN5TX"`,
-            :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`,
-            :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"382ObEPsp2rxGrnsizN5TX"`
+               * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
+               * :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`
         """
         self._client._require_scopes("save_albums", "user-library-modify")
         self._client._request(
@@ -703,7 +711,7 @@ class WebAPIAlbumEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-modify`
+              :code:`user-library-modify` scope
                   Manage your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-modify>`__
@@ -715,9 +723,13 @@ class WebAPIAlbumEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 20 IDs can be sent in one request.
 
-            **Examples**: :code:`"382ObEPsp2rxGrnsizN5TX"`,
-            :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`,
-            :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"382ObEPsp2rxGrnsizN5TX"`
+               * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
+               * :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`
         """
         self._client._require_scopes(
             "remove_saved_albums", "user-library-modify"
@@ -744,7 +756,7 @@ class WebAPIAlbumEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-read`
+              :code:`user-library-read` scope
                   Access your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-read>`__
@@ -756,13 +768,17 @@ class WebAPIAlbumEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 20 IDs can be sent in one request.
 
-            **Examples**: :code:`"382ObEPsp2rxGrnsizN5TX"`,
-            :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`,
-            :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"382ObEPsp2rxGrnsizN5TX"`
+               * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
+               * :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`
 
         Returns
         -------
-        saved_flags : list[bool]
+        saved : list[bool]
             Whether the current user has each of the specified albums
             saved in their library.
 
@@ -783,7 +799,7 @@ class WebAPIAlbumEndpoints:
         """
         `Albums > Get New Releases <https://developer.spotify.com
         /documentation/web-api/reference/get-new-releases>`_: Get
-        Spotify catalog information for new featured album releases.
+        Spotify catalog information for featured new releases.
 
         Parameters
         ----------
@@ -805,7 +821,7 @@ class WebAPIAlbumEndpoints:
         Returns
         -------
         albums : dict[str, Any]
-            Spotify content metadata for the new featured album
+            Spotify content metadata for albums featured as new
             releases.
 
             .. admonition:: Sample response

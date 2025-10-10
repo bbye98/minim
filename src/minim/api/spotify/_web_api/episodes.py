@@ -44,7 +44,7 @@ class WebAPIEpisodeEndpoints:
 
            .. tab:: Required
 
-              :code:`user-read-playback-position`
+              :code:`user-read-playback-position` scope
                  Read your position in content you have played. `Learn
                  more. <https://developer.spotify.com/documentation
                  /web-api/concepts/scopes#user-read-playback-position>`__
@@ -63,9 +63,12 @@ class WebAPIEpisodeEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"77o6BIVlYM3msb4MMIL1jH"`,
-            :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`,
-            :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`.
+            .. container::
+
+               **Examples**:
+               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
+               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
+               * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
 
         market : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code. If specified, only content
@@ -266,17 +269,17 @@ class WebAPIEpisodeEndpoints:
         /get-multiple-episodes>`_: Get Spotify catalog information for
         the show episodes saved in the current user's library.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scopes and third-party application mode
            :class: authorization-scope
 
            .. tab:: Required
 
-              :code:`user-library-read`
+              :code:`user-library-read` scope
                   Access your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-read>`__
 
-              :code:`user-read-playback-position`
+              :code:`user-read-playback-position` scope
                  Read your position in content you have played. `Learn
                  more. <https://developer.spotify.com/documentation
                  /web-api/concepts/scopes#user-read-playback-position>`__
@@ -413,7 +416,7 @@ class WebAPIEpisodeEndpoints:
         """
         self._client._require_scopes(
             "get_my_saved_episodes",
-            ["user-library-read", "user-read-playback-position"],
+            {"user-library-read", "user-read-playback-position"},
         )
         params = {}
         if market is not None:
@@ -439,7 +442,7 @@ class WebAPIEpisodeEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-modify`
+              :code:`user-library-modify` scope
                   Manage your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-modify>`__
@@ -451,9 +454,12 @@ class WebAPIEpisodeEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"77o6BIVlYM3msb4MMIL1jH"`,
-            :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`,
-            :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`.
+            .. container::
+
+               **Examples**:
+               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
+               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
+               * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
         """
         self._client._require_scopes("save_episodes", "user-library-modify")
         self._client._request(
@@ -480,7 +486,7 @@ class WebAPIEpisodeEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-modify`
+              :code:`user-library-modify` scope
                   Manage your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-modify>`__
@@ -492,9 +498,12 @@ class WebAPIEpisodeEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"77o6BIVlYM3msb4MMIL1jH"`,
-            :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`,
-            :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`.
+            .. container::
+
+               **Examples**:
+               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
+               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
+               * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
         """
         self._client._require_scopes(
             "remove_saved_episodes", "user-library-modify"
@@ -523,8 +532,10 @@ class WebAPIEpisodeEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-read`
-                  Access your saved content.
+              :code:`user-library-read` scope
+                  Access your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-read>`__
 
         Parameters
         ----------
@@ -533,13 +544,16 @@ class WebAPIEpisodeEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"77o6BIVlYM3msb4MMIL1jH"`,
-            :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`,
-            :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`.
+            .. container::
+
+               **Examples**:
+               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
+               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
+               * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
 
         Returns
         -------
-        saved_flags : list[bool]
+        saved : list[bool]
             Whether the current user has each of the specified show
             episodes saved in their library.
 

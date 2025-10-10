@@ -39,8 +39,20 @@ class WebAPIPlaylistEndpoints:
         /documentation/web-api/reference/get-playlist>`_: Get Spotify
         catalog information for a playlist.
 
-        .. admonition:: Third-party application mode
+        .. admonition:: Authorization scopes and third-party application mode
            :class: authorization-scope
+
+           .. tab:: Conditional
+
+              :code:`playlist-read-private` scope
+                 Access your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-read-private>`__
+
+              :code:`playlist-read-collaborative` scope
+                 Access your collaborative playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-read-collaborative>`__
 
            .. tab:: Optional
 
@@ -112,7 +124,7 @@ class WebAPIPlaylistEndpoints:
         playlist : dict[str, Any]
             Spotify content metadata for the playlist.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -358,17 +370,17 @@ class WebAPIPlaylistEndpoints:
         /change-playlist-details>`_: Update the details of a playlist
         owend by the current user.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scopes
            :class: authorization-scope
 
-           .. tab:: Required
+           .. tab:: Conditional
 
-              :code:`playlist-modify-public`
+              :code:`playlist-modify-public` scope
                  Manage your public playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-public>`__
 
-              :code:`playlist-modify-private`
+              :code:`playlist-modify-private` scope
                  Manage your private playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-private>`__
@@ -401,10 +413,6 @@ class WebAPIPlaylistEndpoints:
                playlists.
         """
         self._client._validate_spotify_id(playlist_id)
-        self._client._require_scopes(
-            "change_playlist_details",
-            {"playlist-modify-public", "playlist-modify-private"},
-        )
         payload = {}
         if name is not None:
             self._client._validate_type("name", name, str)
@@ -438,15 +446,22 @@ class WebAPIPlaylistEndpoints:
         /documentation/web-api/reference/get-playlists-tracks>`_: Get
         Spotify catalog information for items in a playlist.
 
-        .. admonition:: Authorization scope and third-party application mode
+        .. admonition:: Authorization scopes and third-party application mode
            :class: authorization-scope
 
-           .. tab:: Optional
+           .. tab:: Conditional
 
-              :code:`playlist-read-private`
+              :code:`playlist-read-private` scope
                  Access your private playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-read-private>`__
+
+              :code:`playlist-read-collaborative` scope
+                 Access your collaborative playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-read-collaborative>`__
+
+           .. tab:: Optional
 
               Extended quota mode before November 11, 2024
                   Access 30-second preview URLs. `Learn more.
@@ -531,7 +546,7 @@ class WebAPIPlaylistEndpoints:
         items : dict[str, Any]
             Spotify content metadata for the playlist items.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -758,17 +773,17 @@ class WebAPIPlaylistEndpoints:
         /add-tracks-to-playlist>`_: Add items to a playlist owned by the
         current user.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scopes
            :class: authorization-scope
 
-           .. tab:: Required
+           .. tab:: Conditional
 
-              :code:`playlist-modify-public`
+              :code:`playlist-modify-public` scope
                  Manage your public playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-public>`__
 
-              :code:`playlist-modify-private`
+              :code:`playlist-modify-private` scope
                  Manage your private playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-private>`__
@@ -820,10 +835,6 @@ class WebAPIPlaylistEndpoints:
             **Sample response**:
             :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
         """
-        self._client._require_scopes(
-            "add_playlist_items",
-            {"playlist-modify-public", "playlist-modify-private"},
-        )
         self._client._validate_spotify_id(playlist_id)
         params = {}
         if position is not None:
@@ -856,17 +867,17 @@ class WebAPIPlaylistEndpoints:
         /reorder-or-replace-playlists-tracks>`__: Reorder items in a
         playlist owned by the current user.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scopes
            :class: authorization-scope
 
-           .. tab:: Required
+           .. tab:: Conditional
 
-              :code:`playlist-modify-public`
+              :code:`playlist-modify-public` scope
                  Manage your public playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-public>`__
 
-              :code:`playlist-modify-private`
+              :code:`playlist-modify-private` scope
                  Manage your private playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-private>`__
@@ -914,10 +925,6 @@ class WebAPIPlaylistEndpoints:
             **Sample response**:
             :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
         """
-        self._client._require_scopes(
-            "reorder_playlist_items",
-            {"playlist-modify-public", "playlist-modify-private"},
-        )
         self._client._validate_spotify_id(playlist_id)
         self._client._validate_number("insert_before", insert_before, int, 0)
         self._client._validate_number("range_start", range_start, int, 0)
@@ -944,17 +951,17 @@ class WebAPIPlaylistEndpoints:
         /reorder-or-replace-playlists-tracks>`__: Replace items in a
         playlist owned by the current user.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scopes
            :class: authorization-scope
 
-           .. tab:: Required
+           .. tab:: Conditional
 
-              :code:`playlist-modify-public`
+              :code:`playlist-modify-public` scope
                  Manage your public playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-public>`__
 
-              :code:`playlist-modify-private`
+              :code:`playlist-modify-private` scope
                  Manage your private playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-private>`__
@@ -994,10 +1001,6 @@ class WebAPIPlaylistEndpoints:
             **Sample response**:
             :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
         """
-        self._client._require_scopes(
-            "replace_playlist_items",
-            {"playlist-modify-public", "playlist-modify-private"},
-        )
         self._client._validate_spotify_id(playlist_id)
         return self._client._request(
             "PUT",
@@ -1025,17 +1028,17 @@ class WebAPIPlaylistEndpoints:
         /remove-tracks-playlist>`_: Remove items from a playlist owned
         by the current user.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scopes
            :class: authorization-scope
 
-           .. tab:: Required
+           .. tab:: Conditional
 
-              :code:`playlist-modify-public`
+              :code:`playlist-modify-public` scope
                  Manage your public playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-public>`__
 
-              :code:`playlist-modify-private`
+              :code:`playlist-modify-private` scope
                  Manage your private playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-private>`__
@@ -1079,10 +1082,6 @@ class WebAPIPlaylistEndpoints:
             **Sample response**:
             :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
         """
-        self._client._require_scopes(
-            "remove_playlist_items",
-            {"playlist-modify-public", "playlist-modify-private"},
-        )
         self._client._validate_spotify_id(playlist_id)
         payload = {
             "tracks": self._client._prepare_spotify_uris(
@@ -1114,17 +1113,17 @@ class WebAPIPlaylistEndpoints:
         Get Spotify catalog information for playlists owned or followed
         by a Spotify user.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scopes
            :class: authorization-scope
 
-           .. tab:: Required
+           .. tab:: Conditional
 
-              :code:`playlist-read-private`
+              :code:`playlist-read-private` scope
                  Access your private playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-read-private>`__
 
-              :code:`playlist-read-collaborative`
+              :code:`playlist-read-collaborative` scope
                  Access your collaborative playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-read-collaborative>`__
@@ -1157,7 +1156,7 @@ class WebAPIPlaylistEndpoints:
         playlists : dict[str, Any]
             Pages of Spotify content metadata for the user's playlists.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1208,9 +1207,6 @@ class WebAPIPlaylistEndpoints:
                     "total": <int>
                   }
         """
-        self._client._require_scopes(
-            "get_user_playlists", "playlist-read-private"
-        )
         params = {}
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 50)
@@ -1219,9 +1215,6 @@ class WebAPIPlaylistEndpoints:
             self._client._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if user_id:
-            self._client._require_scopes(
-                "get_user_playlists", "playlist-read-collaborative"
-            )
             self._client._validate_spotify_id(user_id, strict_length=False)
             return self._client._request(
                 "GET", f"users/{user_id}/playlists", params=params
@@ -1242,17 +1235,17 @@ class WebAPIPlaylistEndpoints:
         /documentation/web-api/reference/create-playlist>`_: Create a
         playlist.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scopes
            :class: authorization-scope
 
-           .. tab:: Required
+           .. tab:: Conditional
 
-              :code:`playlist-modify-public`
+              :code:`playlist-modify-public` scope
                  Manage your public playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-public>`__
 
-              :code:`playlist-modify-private`
+              :code:`playlist-modify-private` scope
                  Manage your private playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-private>`__
@@ -1289,7 +1282,7 @@ class WebAPIPlaylistEndpoints:
         playlist : dict[str, Any]
             Spotify content metadata for the newly created playlist.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1334,9 +1327,6 @@ class WebAPIPlaylistEndpoints:
                     "uri": <str>
                   }
         """
-        self._client._require_scopes(
-            "create_playlist", "playlist-modify-public"
-        )
         self._client._validate_type("name", name, str)
         payload = {"name": name}
         if description is not None:
@@ -1344,10 +1334,10 @@ class WebAPIPlaylistEndpoints:
             payload["description"] = description
         if public is not None:
             self._client._validate_type("public", public, bool)
-            if not public:
-                self._client._require_scopes(
-                    "create_playlist", "playlist-modify-private"
-                )
+            self._client._require_scopes(
+                "create_playlist",
+                f"playlist-modify-{'public' if public else 'private'}",
+            )
             payload["public"] = public
         if collaborative is not None:
             self._client._validate_type("collaborative", collaborative, bool)
@@ -1371,7 +1361,7 @@ class WebAPIPlaylistEndpoints:
         /get-featured-playlists>`_: Get featured playlists.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -1414,9 +1404,9 @@ class WebAPIPlaylistEndpoints:
         Returns
         -------
         playlists : dict[str, Any]
-            Spotify content metadata for the featured playlists.
+            Pages of Spotify content metadata for the featured playlists.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1498,7 +1488,7 @@ class WebAPIPlaylistEndpoints:
         particular category.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -1537,10 +1527,10 @@ class WebAPIPlaylistEndpoints:
         Returns
         -------
         playlists : dict[str, Any]
-            Spotify content metadata for the playlists in the specified
-            category.
+            Pages of Spotify content metadata for the playlists in the
+            specified category.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1652,6 +1642,28 @@ class WebAPIPlaylistEndpoints:
         /upload-custom-playlist-cover>`_: Add a custom cover image to a
         playlist.
 
+        .. admonition:: Authorization scopes
+           :class: authorization-scope
+
+           .. tab:: Conditional
+
+              :code:`playlist-modify-public` scope
+                 Manage your public playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-public>`__
+
+              :code:`playlist-modify-private` scope
+                 Manage your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-modify-private>`__
+
+           .. tab:: Required
+
+              :code:`ugc-image-upload` scope
+                 Upload images to Spotify on your behalf. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#ugc-image-upload>`__
+
         Parameters
         ----------
         playlist_id : str, positional-only
@@ -1662,14 +1674,11 @@ class WebAPIPlaylistEndpoints:
         image : bytes, str, or pathlib.Path
             Base64-encoded JPEG image data, provided as a bytes object
             or a file path.
+
+            **Example**: :code:`"/9j/2wCEABoZGSccJz4lJT5CLy8vQkc9Ozs9R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0cBHCcnMyYzPSYmPUc9Mj1HR0dEREdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR//dAAQAAf/uAA5BZG9iZQBkwAAAAAH/wAARCAABAAEDACIAAREBAhEB/8QASwABAQAAAAAAAAAAAAAAAAAAAAYBAQAAAAAAAAAAAAAAAAAAAAAQAQAAAAAAAAAAAAAAAAAAAAARAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwAAARECEQA/AJgAH//Z"`.
         """
         self._client._require_scopes(
-            "add_playlist_cover_image",
-            {
-                "ugc-image-upload",
-                "playlist-modify-public",
-                "playlist-modify-private",
-            },
+            "add_playlist_cover_image", "ugc-image-upload"
         )
         self._client._validate_spotify_id(playlist_id)
         if isinstance(image, str | Path):
@@ -1700,20 +1709,20 @@ class WebAPIPlaylistEndpoints:
     ) -> None:
         """
         `Users > Follow Playlist <https://developer.spotify.com
-        /documentation/web-api/reference/follow-playlist>`_: Add the
-        current user as a follower of a playlist.
+        /documentation/web-api/reference/follow-playlist>`_: Follow a
+        playlist.
 
         .. admonition:: Authorization scopes
            :class: authorization-scope
 
-           .. tab:: Required
+           .. tab:: Conditional
 
-              :code:`playlist-modify-public`
+              :code:`playlist-modify-public` scope
                  Manage your public playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-public>`__
 
-              :code:`playlist-modify-private`
+              :code:`playlist-modify-private` scope
                  Manage your private playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-private>`__
@@ -1729,13 +1738,13 @@ class WebAPIPlaylistEndpoints:
 
             **Default**: :code:`True`.
         """
-        self._client._require_scopes(
-            "follow_playlist",
-            {"playlist-modify-public", "playlist-modify-private"},
-        )
         self._client._validate_spotify_id(playlist_id)
         payload = {}
         if isinstance(public, bool):
+            self._client._require_scopes(
+                "follow_playlist",
+                f"playlist-modify-{'public' if public else 'private'}",
+            )
             payload["public"] = public
         self._client._request(
             "PUT", f"playlists/{playlist_id}/followers", json=payload
@@ -1744,20 +1753,20 @@ class WebAPIPlaylistEndpoints:
     def unfollow_playlist(self, playlist_id: str, /) -> None:
         """
         `Users > Unfollow Playlist <https://developer.spotify.com
-        /documentation/web-api/reference/unfollow-playlist>`_: Remove
-        the current user as a follower of a playlist.
+        /documentation/web-api/reference/unfollow-playlist>`_: Unfollow
+        a playlist.
 
         .. admonition:: Authorization scopes
            :class: authorization-scope
 
-           .. tab:: Required
+           .. tab:: Conditional
 
-              :code:`playlist-modify-public`
+              :code:`playlist-modify-public` scope
                  Manage your public playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-public>`__
 
-              :code:`playlist-modify-private`
+              :code:`playlist-modify-private` scope
                  Manage your private playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-private>`__
@@ -1767,10 +1776,6 @@ class WebAPIPlaylistEndpoints:
         playlist_id : str, positional-only
             Spotify ID of the playlist.
         """
-        self._client._require_scopes(
-            "unfollow_playlist",
-            {"playlist-modify-public", "playlist-modify-private"},
-        )
         self._client._validate_spotify_id(playlist_id)
         self._client._request("DELETE", f"playlists/{playlist_id}/followers")
 
@@ -1781,6 +1786,16 @@ class WebAPIPlaylistEndpoints:
         /check-if-user-follows-playlist>`_: Check whether the current
         user is following a playlist.
 
+        .. admonition:: Authorization scopes
+           :class: authorization-scope
+
+           .. tab:: Conditional
+
+              :code:`playlist-read-private` scope
+                 Access your private playlists. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#playlist-read-private>`__
+
         Parameters
         ----------
         playlist_id : str, positional-only
@@ -1790,7 +1805,7 @@ class WebAPIPlaylistEndpoints:
 
         Returns
         -------
-        is_following_playlist : list[bool]
+        following : list[bool]
             Whether the current user follows the specified playlist.
 
             **Sample response**: :code:`[True]`.

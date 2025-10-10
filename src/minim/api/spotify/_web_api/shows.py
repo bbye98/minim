@@ -36,7 +36,7 @@ class WebAPIShowEndpoints:
         Spotify catalog information for multiple shows.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -52,9 +52,12 @@ class WebAPIShowEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"5CfCWKI5pZ28U0uOzXkDHe"`,
-            :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`,
-            :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`.
+            .. container::
+
+               **Examples**:
+               * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
+               * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
+               * :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`
 
         market : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code. If specified, only content
@@ -279,7 +282,7 @@ class WebAPIShowEndpoints:
 
            .. tab:: Required
 
-              :code:`user-read-playback-position`
+              :code:`user-read-playback-position` scope
                  Read your position in content you have played. `Learn
                  more. <https://developer.spotify.com/documentation
                  /web-api/concepts/scopes#user-read-playback-position>`__
@@ -313,15 +316,15 @@ class WebAPIShowEndpoints:
             **Example**: :code:`"ES"`.
 
         limit : int, keyword-only, optional
-            Maximum number of episodes to return.
+            Maximum number of show episodes to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
-            Index of the first episode to return. Use with `limit` to
-            get the next set of episodes.
+            Index of the first show episode to return. Use with `limit`
+            to get the next set of show episodes.
 
             **Minimum value**: :code:`0`.
 
@@ -414,7 +417,7 @@ class WebAPIShowEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-read`
+              :code:`user-library-read` scope
                   Access your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-read>`__
@@ -514,7 +517,7 @@ class WebAPIShowEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-modify`
+              :code:`user-library-modify` scope
                   Manage your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-modify>`__
@@ -526,9 +529,12 @@ class WebAPIShowEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"5CfCWKI5pZ28U0uOzXkDHe"`,
-            :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`,
-            :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`.
+            .. container::
+
+               **Examples**:
+               * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
+               * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
+               * :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`
         """
         self._client._require_scopes("save_shows", "user-library-modify")
         self._client._request(
@@ -551,7 +557,7 @@ class WebAPIShowEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-modify`
+              :code:`user-library-modify` scope
                   Manage your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-modify>`__
@@ -563,9 +569,12 @@ class WebAPIShowEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"5CfCWKI5pZ28U0uOzXkDHe"`,
-            :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`,
-            :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`.
+            .. container::
+
+               **Examples**:
+               * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
+               * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
+               * :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`
         """
         self._client._require_scopes(
             "remove_saved_shows", "user-library-modify"
@@ -590,7 +599,7 @@ class WebAPIShowEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-read`
+              :code:`user-library-read` scope
                   Access your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-read>`__
@@ -602,13 +611,16 @@ class WebAPIShowEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"5CfCWKI5pZ28U0uOzXkDHe"`,
-            :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`,
-            :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`.
+            .. container::
+
+               **Examples**:
+               * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
+               * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
+               * :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`
 
         Returns
         -------
-        saved_flags : list[bool]
+        saved : list[bool]
             Whether the current user has each of the specified shows
             saved in their library.
 

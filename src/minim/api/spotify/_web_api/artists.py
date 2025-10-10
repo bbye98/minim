@@ -44,9 +44,13 @@ class WebAPIArtistEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
+               * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
+               * :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`
 
         Returns
         -------
@@ -122,6 +126,7 @@ class WebAPIArtistEndpoints:
         )
         if is_string and n_ids == 1:
             return self._client._request("GET", f"artists/{artist_ids}").json()
+
         return self._client._request(
             "GET", "artists", params={"ids": artist_ids}
         ).json()
@@ -275,7 +280,7 @@ class WebAPIArtistEndpoints:
         for an artist's top tracks.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -491,8 +496,10 @@ class WebAPIArtistEndpoints:
 
            .. tab:: Required
 
-              :code:`user-top-read`
-                 Read your top artists and contents.
+              :code:`user-top-read` scope
+                 Read your top artists and contents. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#user-top-read>`__
 
            .. tab:: Optional
 
@@ -511,12 +518,12 @@ class WebAPIArtistEndpoints:
 
                **Valid values**:
 
-               * :code:`"long_term"`: Approximately one year of data,
+               * :code:`"long_term"` – Approximately one year of data,
                  including all new data as it becomes available.
-               * :code:`"medium_term"`: Approximately the last six
+               * :code:`"medium_term"` – Approximately the last six
                  months of data.
-               * :code:`"short_term"`: Approximately the last four weeks
-                 of data.
+               * :code:`"short_term"` – Approximately the last four
+                 weeks of data.
 
             **Default**: :code:`"medium_term"`.
 
@@ -607,8 +614,10 @@ class WebAPIArtistEndpoints:
 
            .. tab:: Required
 
-              :code:`user-follow-read`
-                 Access your followers and who you are following.
+              :code:`user-follow-read` scope
+                 Access your followers and who you are following. `Learn
+                 more. <https://developer.spotify.com/documentation
+                 /web-api/concepts/scopes#user-follow-read>`__
 
         Parameters
         ----------
@@ -697,8 +706,10 @@ class WebAPIArtistEndpoints:
 
            .. tab:: Required
 
-              :code:`user-follow-modify`
-                 Manage your saved content.
+              :code:`user-follow-modify` scope
+                 Manage your saved content. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#user-follow-modify>`__
 
         Parameters
         ----------
@@ -707,9 +718,13 @@ class WebAPIArtistEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
+               * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
+               * :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`
         """
         self._client._require_scopes("follow_artists", "user-follow-modify")
         self._client._request(
@@ -734,8 +749,10 @@ class WebAPIArtistEndpoints:
 
            .. tab:: Required
 
-              :code:`user-follow-modify`
-                 Manage your saved content.
+              :code:`user-follow-modify` scope
+                 Manage your saved content. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#user-follow-modify>`__
 
         Parameters
         ----------
@@ -744,9 +761,13 @@ class WebAPIArtistEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
+               * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
+               * :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`
         """
         self._client._require_scopes("unfollow_artists", "user-follow-modify")
         self._client._request(
@@ -774,8 +795,10 @@ class WebAPIArtistEndpoints:
 
            .. tab:: Required
 
-              :code:`user-follow-read`
-                 Access your followers and who you are following.
+              :code:`user-follow-read` scope
+                 Access your followers and who you are following. `Learn
+                 more. <https://developer.spotify.com/documentation
+                 /web-api/concepts/scopes#user-follow-read>`__
 
         Parameters
         ----------
@@ -784,13 +807,17 @@ class WebAPIArtistEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
+               * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
+               * :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`
 
         Returns
         -------
-        following_flags : list[bool]
+        following : list[bool]
             Whether the current user follows the specified artists.
 
             **Sample response**: :code:`[False, True]`.

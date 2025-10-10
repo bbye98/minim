@@ -41,7 +41,7 @@ class WebAPIUserEndpoints:
         `Users > Get Current User's Profile
         <https://developer.spotify.com/documentation/web-api/reference
         /get-current-users-profile>`_: Get detailed profile information
-        about the current user (including username)․
+        about the current user․
         `Users > Get User's Profile <https://developer.spotify.com
         /documentation/web-api/reference/get-users-profile>`_: Get
         public profile information about a Spotify user.
@@ -52,10 +52,14 @@ class WebAPIUserEndpoints:
            .. tab:: Optional
 
               :code:`user-read-private`
-                 Access your subscription details.
+                 Access your subscription details. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#user-read-private>`__
 
               :code:`user-read-email`
-                 Get your real email address.
+                 Get your real email address. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#user-read-email>`__
 
         Parameters
         ----------
@@ -187,26 +191,28 @@ class WebAPIUserEndpoints:
     def follow_users(self, user_ids: str | Collection[str], /) -> None:
         """
         `Users > Follow Users <https://developer.spotify.com
-        /documentation/web-api/reference/follow-artists-users>`_: Add
-        the current user as a follower of one or more Spotify users.
+        /documentation/web-api/reference/follow-artists-users>`_: Follow
+        one or more Spotify users.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
 
            .. tab:: Required
 
-              :code:`user-follow-modify`
-                 Manage your saved content.
+              :code:`user-follow-modify` scope
+                 Manage your saved content. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#user-follow-modify>`__
 
         Parameters
         ----------
-        user_ids : str or list[str], positional-only
-            (Comma-separated) list of Spotify user IDs. A maximum of 50
-            IDs can be sent in one request.
+        user_ids : str or Collection[str], positional-only
+            Spotify user IDs, provided as either a comma-separated
+            string or a collection of strings. A maximum of 50 IDs can
+            be sent in one request.
 
-            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
+            **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
+            :code:`["smedjan", "bbye98"]`.
         """
         self._client._require_scopes("follow_users", "user-follow-modify")
         self._client._request(
@@ -228,25 +234,27 @@ class WebAPIUserEndpoints:
         """
         `Users > Unfollow Users <https://developer.spotify.com
         /documentation/web-api/reference/unfollow-artists-users>`_:
-        Remove the current user as a follower of one or more Spotify users.
+        Unfollow one or more Spotify users.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
 
            .. tab:: Required
 
-              :code:`user-follow-modify`
-                 Manage your saved content.
+              :code:`user-follow-modify` scope
+                 Manage your saved content. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#user-follow-modify>`__
 
         Parameters
         ----------
-        user_ids : str or list[str], positional-only
-            (Comma-separated) list of Spotify user IDs. A maximum of 50
-            IDs can be sent in one request.
+        user_ids : str or Collection[str], positional-only
+            Spotify user IDs, provided as either a comma-separated
+            string or a collection of strings. A maximum of 50 IDs can
+            be sent in one request.
 
-            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
+            **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
+            :code:`["smedjan", "bbye98"]`.
         """
         self._client._require_scopes("unfollow_users", "user-follow-modify")
         self._client._request(
@@ -280,22 +288,24 @@ class WebAPIUserEndpoints:
 
            .. tab:: Required
 
-              :code:`user-follow-read`
-                 Access your followers and who you are following.
+              :code:`user-follow-read` scope
+                 Access your followers and who you are following. `Learn
+                 more. <https://developer.spotify.com/documentation
+                 /web-api/concepts/scopes#user-follow-read>`__
 
         Parameters
         ----------
-        user_ids : str or list[str], positional-only
-            (Comma-separated) list of Spotify user IDs. A maximum of 50
-            IDs can be sent in one request.
+        user_ids : str or Collection[str], positional-only
+            Spotify user IDs, provided as either a comma-separated
+            string or a collection of strings. A maximum of 50 IDs can
+            be sent in one request.
 
-            **Examples**: :code:`"2CIMQHirSU0MQqyYHq0eOx"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
+            **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
+            :code:`["smedjan", "bbye98"]`.
 
         Returns
         -------
-        is_following_users : list[bool]
+        following : list[bool]
             Whether the current user follows each specified user.
 
             **Sample response**: :code:`[False, True]`.
@@ -412,7 +422,7 @@ class WebAPIUserEndpoints:
 
            .. tab:: Required
 
-              :code:`playlist-read-private`
+              :code:`playlist-read-private` scope
                  Access your private playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-read-private>`__

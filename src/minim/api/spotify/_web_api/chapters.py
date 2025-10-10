@@ -41,7 +41,7 @@ class WebAPIChapterEndpoints:
         Spotify catalog information for multiple audiobook chapters.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -57,9 +57,13 @@ class WebAPIChapterEndpoints:
             comma-separated string or a collection of strings. A maximum
             of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"0IsXVP0JmcB2adSE338GkK"`,
-            :code:`"0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU"`,
-            :code:`["0IsXVP0JmcB2adSE338GkK", "3ZXb8FKZGU0EHALYX6uCzU"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"0IsXVP0JmcB2adSE338GkK"`
+               * :code:`"0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU"`
+               * :code:`["0IsXVP0JmcB2adSE338GkK", "3ZXb8FKZGU0EHALYX6uCzU"]`
 
         market : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code. If specified, only content

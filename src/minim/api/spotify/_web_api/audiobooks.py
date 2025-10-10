@@ -45,7 +45,7 @@ class WebAPIAudiobookEndpoints:
         Spotify catalog information for multiple audiobooks.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -61,9 +61,13 @@ class WebAPIAudiobookEndpoints:
             comma-delimited string or as a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"18yVqkdbdRvS24c0Ilj2ci"`,
-            :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`,
-            :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
+               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
+               * :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`
 
         market : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code. If specified, only content
@@ -309,7 +313,7 @@ class WebAPIAudiobookEndpoints:
         for chapters in an audiobook.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -340,15 +344,15 @@ class WebAPIAudiobookEndpoints:
             **Example**: :code:`"ES"`.
 
         limit : int, keyword-only, optional
-            Maximum number of chapters to return.
+            Maximum number of audiobook chapters to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
-            Index of the first chapter to return. Use with `limit` to
-            get the next set of chapters.
+            Index of the first audiobook chapter to return. Use with
+            `limit` to get the next set of audiobook chapters.
 
             **Minimum value**: :code:`0`.
 
@@ -357,7 +361,8 @@ class WebAPIAudiobookEndpoints:
         Returns
         -------
         chapters : dict[str, Any]
-            Pages of Spotify content metadata for the audiobook's chapters.
+            Pages of Spotify content metadata for the audiobook's
+            chapters.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -443,7 +448,7 @@ class WebAPIAudiobookEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-read`
+              :code:`user-library-read` scope
                   Access your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-read>`__
@@ -482,7 +487,8 @@ class WebAPIAudiobookEndpoints:
         Returns
         -------
         audiobooks : dict[str, Any]
-            Pages of Spotify content metadata for the user's saved audiobooks.
+            Pages of Spotify content metadata for the user's saved
+            audiobooks.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -571,7 +577,7 @@ class WebAPIAudiobookEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-modify`
+              :code:`user-library-modify` scope
                   Manage your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-modify>`__
@@ -583,9 +589,13 @@ class WebAPIAudiobookEndpoints:
             comma-delimited string or as a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"18yVqkdbdRvS24c0Ilj2ci"`,
-            :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`,
-            :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
+               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
+               * :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`
         """
         self._client._require_scopes("save_audiobooks", "user-library-modify")
         self._client._request(
@@ -612,7 +622,7 @@ class WebAPIAudiobookEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-modify`
+              :code:`user-library-modify` scope
                   Manage your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-modify>`__
@@ -624,9 +634,13 @@ class WebAPIAudiobookEndpoints:
             comma-delimited string or as a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"18yVqkdbdRvS24c0Ilj2ci"`,
-            :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`,
-            :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
+               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
+               * :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`
         """
         self._client._require_scopes(
             "remove_saved_audiobooks", "user-library-modify"
@@ -648,14 +662,14 @@ class WebAPIAudiobookEndpoints:
         `Audiobooks > Check User's Saved Audiobooks
         <https://developer.spotify.com/documentation/web-api/reference
         /check-users-saved-audiobooks>`_: Check whether one or more
-        audiobooks are already saved in the current user's library.
+        audiobooks are saved in the current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
 
            .. tab:: Required
 
-              :code:`user-library-read`
+              :code:`user-library-read` scope
                   Access your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-read>`__
@@ -667,15 +681,19 @@ class WebAPIAudiobookEndpoints:
             comma-delimited string or as a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"18yVqkdbdRvS24c0Ilj2ci"`,
-            :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`,
-            :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
+               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
+               * :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`
 
         Returns
         -------
-        saved_flags : list[bool]
+        saved : list[bool]
             Whether the current user has each of the specified
-            audiobooks saved in their "Your Music" library.
+            audiobooks saved in their library.
 
             **Sample response**: :code:`[False, True]`.
         """

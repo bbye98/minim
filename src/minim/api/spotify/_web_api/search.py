@@ -57,7 +57,7 @@ class WebAPISearchEndpoints:
            New Zealand, and Australia markets.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 

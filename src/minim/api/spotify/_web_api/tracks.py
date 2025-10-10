@@ -50,7 +50,7 @@ class WebAPITrackEndpoints:
         Spotify catalog information for multiple tracks.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -66,9 +66,13 @@ class WebAPITrackEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"7ouMYWpwJ422jRcDASZB7P"`,
-            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`,
-            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
 
         market : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code. If specified, only content
@@ -286,14 +290,14 @@ class WebAPITrackEndpoints:
         """
         `Tracks > Get User's Saved Tracks <https://developer.spotify.com
         /documentation/web-api/reference/get-users-saved-tracks>`_: Get
-        the tracks saved in the current user's "Your Music" library.
+        the tracks saved in the current user's library.
 
         .. admonition:: Authorization scope and third-party application mode
            :class: authorization-scope
 
            .. tab:: Required
 
-              :code:`user-library-read`
+              :code:`user-library-read` scope
                   Access your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-read>`__
@@ -470,7 +474,7 @@ class WebAPITrackEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-modify`
+              :code:`user-library-modify` scope
                   Manage your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-modify>`__
@@ -486,9 +490,9 @@ class WebAPITrackEndpoints:
             user's library. A maximum of 50 IDs can be sent in one 
             request.
 
-            **Examples**:
-
             .. container::
+
+               **Examples**:
 
                * :code:`"4iV5W9uYEdYUVa79Axb7Rh"`
                * :code:`("4iV5W9uYEdYUVa79Axb7Rh", "2010-01-01T00:00:00Z")`
@@ -561,7 +565,7 @@ class WebAPITrackEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-modify`
+              :code:`user-library-modify` scope
                   Manage your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-modify>`__
@@ -573,9 +577,13 @@ class WebAPITrackEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"7ouMYWpwJ422jRcDASZB7P"`,
-            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`,
-            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
         """
         self._client._require_scopes(
             "remove_saved_tracks", "user-library-modify"
@@ -602,7 +610,7 @@ class WebAPITrackEndpoints:
 
            .. tab:: Required
 
-              :code:`user-library-read`
+              :code:`user-library-read` scope
                   Access your saved content. `Learn more.
                   <https://developer.spotify.com/documentation/web-api
                   /concepts/scopes#user-library-read>`__
@@ -614,13 +622,17 @@ class WebAPITrackEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"7ouMYWpwJ422jRcDASZB7P"`,
-            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`,
-            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
 
         Returns
         -------
-        saved_flags : list[bool]
+        saved : list[bool]
             Whether the current user has each of the specified tracks
             saved in their library.
 
@@ -665,9 +677,13 @@ class WebAPITrackEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            **Examples**: :code:`"7ouMYWpwJ422jRcDASZB7P"`,
-            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`,
-            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
 
         Returns
         -------
@@ -946,9 +962,13 @@ class WebAPITrackEndpoints:
                :code:`seed_artists`, :code:`seed_genres` and
                :code:`seed_tracks`.
 
-            **Examples**: :code:`"0TnOYISbd1XYRBk9myaseg"`,
-            :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`,
-            :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"0TnOYISbd1XYRBk9myaseg"`
+               * :code:`"0TnOYISbd1XYRBk9myaseg,57dN52uHvrHOxijzpIgu3E"`
+               * :code:`["0TnOYISbd1XYRBk9myaseg", "57dN52uHvrHOxijzpIgu3E"]`
 
         seed_genres : str or Collection[str], optional
             Spotify IDs of seed genres, provided as either a
@@ -975,9 +995,13 @@ class WebAPITrackEndpoints:
                :code:`seed_artists`, :code:`seed_genres` and
                :code:`seed_tracks`.
 
-            **Examples**: :code:`"11dFghVXANMlKmJXsNCbNl"`,
-            :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`,
-            :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`.
+            .. container::
+
+               **Examples**:
+
+               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
 
         acousticness : float or tuple[float, ...], optional
             Confidence measure of whether a track is acoustic.
@@ -1353,8 +1377,10 @@ class WebAPITrackEndpoints:
 
            .. tab:: Required
 
-              :code:`user-top-read`
-                 Read your top artists and contents.
+              :code:`user-top-read` scope
+                 Read your top artists and contents. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#user-top-read>`__
 
            .. tab:: Optional
 
@@ -1372,25 +1398,25 @@ class WebAPITrackEndpoints:
 
                **Valid values**:
 
-               * :code:`"long_term"`: Approximately one year of data,
+               * :code:`"long_term"` – Approximately one year of data,
                  including all new data as it becomes available.
-               * :code:`"medium_term"`: Approximately the last six
+               * :code:`"medium_term"` – Approximately the last six
                  months of data.
-               * :code:`"short_term"`: Approximately the last four weeks
-                 of data.
+               * :code:`"short_term"` – Approximately the last four
+                 weeks of data.
 
             **Default**: :code:`"medium_term"`.
 
         limit : int, keyword-only, optional
-            Maximum number of items to return.
+            Maximum number of tracks to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
         offset : int, keyword-only, optional
-            Index of the first item to return. Use with `limit` to get
-            the next set of items.
+            Index of the first track to return. Use with `limit` to get
+            the next set of tracks.
 
             **Minimum value**: :code:`0`.
 
@@ -1399,7 +1425,8 @@ class WebAPITrackEndpoints:
         Returns
         -------
         top_tracks : dict[str, Any]
-            Spotify content metadata for the current user's top tracks.
+            Pages of Spotify content metadata for the current user's top
+            tracks.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1489,7 +1516,7 @@ class WebAPITrackEndpoints:
         self._client._require_scopes("get_top_tracks", "user-top-read")
         params = {}
         if time_range:
-            self._validate_time_range(time_range)
+            self._client.users._validate_time_range(time_range)
             params["time_range"] = time_range
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 50)
