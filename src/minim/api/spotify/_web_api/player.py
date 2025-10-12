@@ -257,7 +257,7 @@ class PlayerAPI:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints for the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web API.
 
         Parameters
         ----------
@@ -590,7 +590,7 @@ class PlayerAPI:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints for the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web API.
 
         Parameters
         ----------
@@ -635,7 +635,7 @@ class PlayerAPI:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints for the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web API.
 
         Parameters
         ----------
@@ -678,7 +678,7 @@ class PlayerAPI:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints for the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web API.
 
         Parameters
         ----------
@@ -725,7 +725,7 @@ class PlayerAPI:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints for the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web API.
 
         Parameters
         ----------
@@ -779,7 +779,7 @@ class PlayerAPI:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints for the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web API.
 
         Parameters
         ----------
@@ -840,7 +840,7 @@ class PlayerAPI:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints for the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web API.
 
         Parameters
         ----------
@@ -892,7 +892,7 @@ class PlayerAPI:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints for the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web API.
 
         Parameters
         ----------
