@@ -5,9 +5,9 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPIArtistEndpoints:
+class ArtistsAPI:
     """
-    Spotify Web API artist endpoints.
+    Artists API endpoints for the Spotify Web API.
 
     .. important::
 
@@ -44,9 +44,9 @@ class WebAPIArtistEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
                * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
@@ -514,9 +514,9 @@ class WebAPIArtistEndpoints:
             Time frame over which the current user's listening history
             is analyzed to determine the top artists.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`"long_term"` – Approximately one year of data,
                  including all new data as it becomes available.
@@ -718,9 +718,9 @@ class WebAPIArtistEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
                * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
@@ -761,9 +761,9 @@ class WebAPIArtistEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
                * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
@@ -807,9 +807,9 @@ class WebAPIArtistEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
                * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
@@ -857,7 +857,7 @@ class WebAPIArtistEndpoints:
         album_types = set(album_types)
         for album_type in album_types:
             if album_type not in self._ALBUM_TYPES:
-                _album_types = ", ".join(self._ALBUM_TYPES)
+                _album_types = "', '".join(self._ALBUM_TYPES)
                 raise ValueError(
                     f"Invalid album type {album_type!r}. "
                     f"Valid values: '{_album_types}'."

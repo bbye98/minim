@@ -5,9 +5,9 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPIChapterEndpoints:
+class ChaptersAPI:
     """
-    Spotify Web API audiobook chapter endpoints.
+    Chapters API endpoints for the Spotify Web API.
 
     .. important::
 
@@ -57,9 +57,9 @@ class WebAPIChapterEndpoints:
             comma-separated string or a collection of strings. A maximum
             of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"0IsXVP0JmcB2adSE338GkK"`
                * :code:`"0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU"`

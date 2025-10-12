@@ -5,9 +5,9 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPIShowEndpoints:
+class ShowsAPI:
     """
-    Spotify Web API show endpoints.
+    Shows API endpoints for the Spotify Web API.
 
     .. note::
 
@@ -52,9 +52,10 @@ class WebAPIShowEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
+            **Examples**:
+
             .. container::
 
-               **Examples**:
                * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
                * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
                * :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`
@@ -529,9 +530,10 @@ class WebAPIShowEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
+            **Examples**:
+
             .. container::
 
-               **Examples**:
                * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
                * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
                * :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`
@@ -569,9 +571,10 @@ class WebAPIShowEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
+            **Examples**:
+
             .. container::
 
-               **Examples**:
                * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
                * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
                * :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`
@@ -611,9 +614,10 @@ class WebAPIShowEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
+            **Examples**:
+
             .. container::
 
-               **Examples**:
                * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
                * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
                * :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`

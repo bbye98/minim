@@ -15,7 +15,6 @@ copyright = f"2023–{datetime.now().year} Benjamin Ye"
 version = release = __version__
 
 extensions = [
-    "myst_nb",
     "numpydoc",
     "sphinx_copybutton",
     "sphinx_inline_tabs",

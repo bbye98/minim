@@ -5,9 +5,9 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPIEpisodeEndpoints:
+class EpisodesAPI:
     """
-    Spotify Web API show episode endpoints.
+    Episodes API endpoints for the Spotify Web API.
 
     .. note::
 
@@ -63,9 +63,10 @@ class WebAPIEpisodeEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
+            **Examples**:
+
             .. container::
 
-               **Examples**:
                * :code:`"77o6BIVlYM3msb4MMIL1jH"`
                * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
                * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
@@ -454,9 +455,10 @@ class WebAPIEpisodeEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
+            **Examples**:
+
             .. container::
 
-               **Examples**:
                * :code:`"77o6BIVlYM3msb4MMIL1jH"`
                * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
                * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
@@ -498,9 +500,10 @@ class WebAPIEpisodeEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
+            **Examples**:
+
             .. container::
 
-               **Examples**:
                * :code:`"77o6BIVlYM3msb4MMIL1jH"`
                * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
                * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
@@ -544,9 +547,10 @@ class WebAPIEpisodeEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
+            **Examples**:
+
             .. container::
 
-               **Examples**:
                * :code:`"77o6BIVlYM3msb4MMIL1jH"`
                * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
                * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`

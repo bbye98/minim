@@ -5,15 +5,17 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPIPlayerEndpoints:
+class PlayerAPI:
     """
-    Spotify Web API player endpoints.
+    Player API endpoints for the Spotify Web API.
 
     .. important::
 
        This class is managed by :class:`minim.api.spotify.WebAPI` and
        should not be instantiated directly.
     """
+
+    _PLAYBACK_STATES = {"track", "context", "off"}
 
     def __init__(self, client: "WebAPI", /) -> None:
         """
@@ -255,7 +257,7 @@ class WebAPIPlayerEndpoints:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Spotify Web API player endpoints.
+           is used with other Player API endpoints for the Spotify Web API.
 
         Parameters
         ----------
@@ -266,12 +268,9 @@ class WebAPIPlayerEndpoints:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
 
         play : bool, keyword-only, optional
-            Whether to start playback on the new device.
-
-            .. container::
-
-               * :code:`True` – Ensure playback starts.
-               * :code:`False` – Maintain the current playback state.
+            Whether to start playback on the new device. If
+            :code:`True`, playback begins immediately. If :code:`False`,
+            the current playback state is preserved.
         """
         self._client._require_scopes(
             "transfer_playback", "user-modify-playback-state"
@@ -538,15 +537,36 @@ class WebAPIPlayerEndpoints:
 
     def start_playback(
         self,
-        device_id: str,
-        /,
+        *,
+        device_id: str | None = None,
         context_uri: str | None = None,
-        track_uris: str | Collection[str] | None = None,
         offset: dict[str, int | str] | None = None,
+        uris: str | Collection[str] | None = None,
     ) -> None:
-        pass
+        """
+        `Player > Start/Resume Playback <https://developer.spotify.com
+        /documentation/web-api/reference/start-a-users-playback>`_:
+        Start or resume playback.
 
-    def pause_playback(self, device_id: str | None = None) -> None:
+        Parameters
+        ----------
+        device_id : str, keyword-only, optional
+            Playback device ID. If not specified, the currently active
+            device is the target.
+
+            **Example**:
+            :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
+
+        context_uri : str, keyword-only, optional
+
+
+        offset : dict[str, int | str], keyword-only, optional
+
+
+        uris : str or Collection[str], keyword-only, optional
+        """
+
+    def pause_playback(self, *, device_id: str | None = None) -> None:
         """
         `Player > Pause Playback <https://developer.spotify.com
         /documentation/web-api/reference/pause-a-users-playback>`_:
@@ -561,7 +581,7 @@ class WebAPIPlayerEndpoints:
                  Access the :code:`/me/player` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
-              :code:`user-modify-playback-state` scope
+              :code:`user-modify-playback-state` scopel
                  Control playback on your Spotify clients and Spotify
                  Connect devices. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
@@ -570,11 +590,11 @@ class WebAPIPlayerEndpoints:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Spotify Web API player endpoints.
+           is used with other Player API endpoints for the Spotify Web API.
 
         Parameters
         ----------
-        device_id : str, optional
+        device_id : str, keyword-only, optional
             Playback device ID. If not specified, the currently active
             device is the target.
 
@@ -590,7 +610,7 @@ class WebAPIPlayerEndpoints:
             params["device_id"] = device_id
         self._client._request("PUT", "me/player/pause", params=params)
 
-    def skip_next(self, device_id: str | None = None) -> None:
+    def skip_next(self, *, device_id: str | None = None) -> None:
         """
         `Player > Skip To Next <https://developer.spotify.com
         /documentation/web-api/reference
@@ -615,11 +635,11 @@ class WebAPIPlayerEndpoints:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Spotify Web API player endpoints.
+           is used with other Player API endpoints for the Spotify Web API.
 
         Parameters
         ----------
-        device_id : str, optional
+        device_id : str, keyword-only, optional
             Playback device ID. If not specified, the currently active
             device is the target.
 
@@ -633,7 +653,7 @@ class WebAPIPlayerEndpoints:
             params["device_id"] = device_id
         self._client._request("POST", "me/player/next", params=params)
 
-    def skip_previous(self, device_id: str | None = None) -> None:
+    def skip_previous(self, *, device_id: str | None = None) -> None:
         """
         `Player > Skip To Next <https://developer.spotify.com
         /documentation/web-api/reference
@@ -658,11 +678,11 @@ class WebAPIPlayerEndpoints:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Spotify Web API player endpoints.
+           is used with other Player API endpoints for the Spotify Web API.
 
         Parameters
         ----------
-        device_id : str, optional
+        device_id : str, keyword-only, optional
             Playback device ID. If not specified, the currently active
             device is the target.
 
@@ -678,7 +698,9 @@ class WebAPIPlayerEndpoints:
             params["device_id"] = device_id
         self._client._request("POST", "me/player/next", params=params)
 
-    def seek(self, position_ms: int, /, device_id: str | None = None) -> None:
+    def seek(
+        self, position_ms: int, /, *, device_id: str | None = None
+    ) -> None:
         """
         `Player > Seek To Position <https://developer.spotify.com
         /documentation/web-api/reference
@@ -703,7 +725,7 @@ class WebAPIPlayerEndpoints:
         .. warning::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Spotify Web API player endpoints.
+           is used with other Player API endpoints for the Spotify Web API.
 
         Parameters
         ----------
@@ -716,7 +738,7 @@ class WebAPIPlayerEndpoints:
 
             **Example**: :code:`25_000`.
 
-        device_id : str, optional
+        device_id : str, keyword-only, optional
             Playback device ID. If not specified, the currently active
             device is the target.
 
@@ -734,26 +756,204 @@ class WebAPIPlayerEndpoints:
     def set_repeat(
         self, state: str, /, *, device_id: str | None = None
     ) -> None:
-        pass
+        """
+        `Player > Set Repeat Mode <https://developer.spotify.com
+        /documentation/web-api/reference
+        /set-repeat-mode-on-users-playback>`_: Set playback repeat mode.
+
+        .. admonition:: Authorization scope and subscription
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              Spotify Premium subscription
+                 Access the :code:`/me/player/repeat` endpoint.
+                 `Learn more. <https://www.spotify.com/us/premium/>`__
+
+              :code:`user-modify-playback-state` scope
+                 Control playback on your Spotify clients and Spotify
+                 Connect devices. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /reference/transfer-a-users-playback>`__
+
+        .. warning::
+
+           The order of execution is not guaranteed when this endpoint
+           is used with other Player API endpoints for the Spotify Web API.
+
+        Parameters
+        ----------
+        state : str, positional-only
+            Playback repeat mode.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"track"` – Repeat the current track.
+               * :code:`"context"` – Repeat the current context (album,
+                 artist, or playlist).
+               * :code:`"off"` – Turn repeat off.
+
+        device_id : str, keyword-only, optional
+            Playback device ID. If not specified, the currently active
+            device is the target.
+
+            **Example**:
+            :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
+        """
+        self._client._require_scopes("set_repeat", "user-modify-playback-state")
+        if state not in self._PLAYBACK_STATES:
+            _states = "', '".join(self._PLAYBACK_STATES)
+            raise ValueError(
+                f"Invalid playback state {state!r}. Valid values: '{_states}'."
+            )
+        params = {"state": state}
+        if device_id is not None:
+            self._client._validate_spotify_id(device_id)
+            params["device_id"] = device_id
+        self._client._request("PUT", "me/player/repeat", params=params)
 
     def set_volume(
         self, volume_percent: int, /, *, device_id: str | None = None
     ) -> None:
-        pass
+        """
+        `Player > Set Playback Volume <https://developer.spotify.com
+        /documentation/web-api/reference
+        /set-volume-for-users-playback>`_: Set playback volume.
+
+        .. admonition:: Authorization scope and subscription
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              Spotify Premium subscription
+                 Access the :code:`/me/player/volume` endpoint.
+                 `Learn more. <https://www.spotify.com/us/premium/>`__
+
+              :code:`user-modify-playback-state` scope
+                 Control playback on your Spotify clients and Spotify
+                 Connect devices. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /reference/transfer-a-users-playback>`__
+
+        .. warning::
+
+           The order of execution is not guaranteed when this endpoint
+           is used with other Player API endpoints for the Spotify Web API.
+
+        Parameters
+        ----------
+        volume_percent : int, positional-only
+            Playback volume as a percentage.
+
+            **Valid range**: :code:`0` to :code:`100`.
+
+        device_id : str, keyword-only, optional
+            Playback device ID. If not specified, the currently active
+            device is the target.
+
+            **Example**:
+            :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
+        """
+        self._client._require_scopes("set_volume", "user-modify-playback-state")
+        self._client._validate_number(
+            "volume_percent", volume_percent, int, 0, 100
+        )
+        params = {"volume_percent": volume_percent}
+        if device_id is not None:
+            self._client._validate_spotify_id(device_id)
+            params["device_id"] = device_id
+        self._client._request("PUT", "me/player/volume", params=params)
 
     def set_shuffle(
         self, state: bool, /, *, device_id: str | None = None
     ) -> None:
-        pass
+        """
+        `Player > Toggle Playback Shuffle <https://developer.spotify.com
+        /documentation/web-api/reference
+        /toggle-shuffle-for-users-playback>`_: Set playback shuffle state.
+
+        .. admonition:: Authorization scope and subscription
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              Spotify Premium subscription
+                 Access the :code:`/me/player/shuffle` endpoint.
+                 `Learn more. <https://www.spotify.com/us/premium/>`__
+
+              :code:`user-modify-playback-state` scope
+                 Control playback on your Spotify clients and Spotify
+                 Connect devices. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /reference/transfer-a-users-playback>`__
+
+        .. warning::
+
+           The order of execution is not guaranteed when this endpoint
+           is used with other Player API endpoints for the Spotify Web API.
+
+        Parameters
+        ----------
+        state : bool, positional-only
+            Whether to shuffle playback.
+
+        device_id : str, keyword-only, optional
+            Playback device ID. If not specified, the currently active
+            device is the target.
+
+            **Example**:
+            :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
+        """
+        self._client._require_scopes(
+            "set_shuffle", "user-modify-playback-state"
+        )
+        self._client._validate_type("state", state, bool)
+        params = {"state": state}
+        if device_id is not None:
+            self._client._validate_spotify_id(device_id)
+            params["device_id"] = device_id
+        self._client._request("PUT", "me/player/shuffle", params=params)
 
     def get_recently_played(
         self,
         *,
-        limit: int | None = None,
         after: int | None = None,
         before: int | None = None,
+        limit: int | None = None,
     ) -> dict[str, Any]:
-        pass
+        """
+        `Player > Get Recently Played Tracks
+        <https://developer.spotify.com/documentation/web-api/reference
+        /get-recently-played>`_: Get Spotify catalog information for
+        tracks recently played by the current user.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-read-recently-played` scope
+                 Access your recently played items. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#user-read-recently-played>`__
+
+        Parameters
+        ----------
+        after : int, keyword-only, optional
+
+
+        before : int, keyword-only, optional
+
+
+        limit : int, keyword-only, optional
+            Maximum number of tracks to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+            **Default**: :code:`20`.
+        """
 
     def get_queue(self) -> dict[str, Any]:
         pass

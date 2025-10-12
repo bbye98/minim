@@ -5,9 +5,9 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPIAudiobookEndpoints:
+class AudiobooksAPI:
     """
-    Spotify Web API audiobook endpoints.
+    Audiobooks API endpoints for the Spotify Web API.
 
     .. important::
 
@@ -61,9 +61,9 @@ class WebAPIAudiobookEndpoints:
             comma-delimited string or as a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
                * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
@@ -589,9 +589,9 @@ class WebAPIAudiobookEndpoints:
             comma-delimited string or as a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
                * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
@@ -634,9 +634,9 @@ class WebAPIAudiobookEndpoints:
             comma-delimited string or as a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
                * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
@@ -681,9 +681,9 @@ class WebAPIAudiobookEndpoints:
             comma-delimited string or as a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
                * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`

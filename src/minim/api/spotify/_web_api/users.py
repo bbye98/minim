@@ -3,21 +3,21 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import _copy_docstring
-from .albums import WebAPIAlbumEndpoints
-from .artists import WebAPIArtistEndpoints
-from .audiobooks import WebAPIAudiobookEndpoints
-from .episodes import WebAPIEpisodeEndpoints
-from .playlists import WebAPIPlaylistEndpoints
-from .shows import WebAPIShowEndpoints
-from .tracks import WebAPITrackEndpoints
+from .albums import AlbumsAPI
+from .artists import ArtistsAPI
+from .audiobooks import AudiobooksAPI
+from .episodes import EpisodesAPI
+from .playlists import PlaylistsAPI
+from .shows import ShowsAPI
+from .tracks import TracksAPI
 
 if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPIUserEndpoints:
+class UsersAPI:
     """
-    Spotify Web API user endpoints.
+    Users API endpoints for the Spotify Web API.
 
     .. note::
 
@@ -142,7 +142,7 @@ class WebAPIUserEndpoints:
 
         return self._client._request("GET", "me").json()
 
-    @_copy_docstring(WebAPIArtistEndpoints.get_my_top_artists)
+    @_copy_docstring(ArtistsAPI.get_my_top_artists)
     def get_my_top_artists(
         self,
         *,
@@ -154,7 +154,7 @@ class WebAPIUserEndpoints:
             time_range=time_range, limit=limit, offset=offset
         )
 
-    @_copy_docstring(WebAPITrackEndpoints.get_my_top_tracks)
+    @_copy_docstring(TracksAPI.get_my_top_tracks)
     def get_my_top_tracks(
         self,
         *,
@@ -166,17 +166,17 @@ class WebAPIUserEndpoints:
             time_range=time_range, limit=limit, offset=offset
         )
 
-    @_copy_docstring(WebAPIPlaylistEndpoints.follow_playlist)
+    @_copy_docstring(PlaylistsAPI.follow_playlist)
     def follow_playlist(
         self, playlist_id: str, /, *, public: bool | None = None
     ) -> None:
         self._client.playlists.follow_playlist(playlist_id, public=public)
 
-    @_copy_docstring(WebAPIPlaylistEndpoints.unfollow_playlist)
+    @_copy_docstring(PlaylistsAPI.unfollow_playlist)
     def unfollow_playlist(self, playlist_id: str, /) -> None:
         self._client.playlists.unfollow_playlist(playlist_id)
 
-    @_copy_docstring(WebAPIArtistEndpoints.get_my_followed_artists)
+    @_copy_docstring(ArtistsAPI.get_my_followed_artists)
     def get_my_followed_artists(
         self, *, after: str | None = None, limit: int | None = None
     ) -> dict[str, Any]:
@@ -184,7 +184,7 @@ class WebAPIUserEndpoints:
             after=after, limit=limit
         )
 
-    @_copy_docstring(WebAPIArtistEndpoints.follow_artists)
+    @_copy_docstring(ArtistsAPI.follow_artists)
     def follow_artists(self, artist_ids: str | Collection[str], /) -> None:
         self._client.artists.follow_artists(artist_ids)
 
@@ -226,7 +226,7 @@ class WebAPIUserEndpoints:
             },
         )
 
-    @_copy_docstring(WebAPIArtistEndpoints.unfollow_artists)
+    @_copy_docstring(ArtistsAPI.unfollow_artists)
     def unfollow_artists(self, artist_ids: str | Collection[str], /) -> None:
         self._client.artists.unfollow_artists(artist_ids)
 
@@ -268,7 +268,7 @@ class WebAPIUserEndpoints:
             },
         )
 
-    @_copy_docstring(WebAPIArtistEndpoints.is_following_artists)
+    @_copy_docstring(ArtistsAPI.is_following_artists)
     def is_following_artists(
         self, artist_ids: str | Collection[str], /
     ) -> list[bool]:
@@ -322,11 +322,11 @@ class WebAPIUserEndpoints:
             },
         ).json()
 
-    @_copy_docstring(WebAPIPlaylistEndpoints.is_following_playlist)
+    @_copy_docstring(PlaylistsAPI.is_following_playlist)
     def is_following_playlist(self, playlist_id: str, /) -> bool:
         return self._client.playlists.is_following_playlist(playlist_id)
 
-    @_copy_docstring(WebAPIAlbumEndpoints.get_my_saved_albums)
+    @_copy_docstring(AlbumsAPI.get_my_saved_albums)
     def get_my_saved_albums(
         self,
         *,
@@ -338,21 +338,21 @@ class WebAPIUserEndpoints:
             market=market, limit=limit, offset=offset
         )
 
-    @_copy_docstring(WebAPIAlbumEndpoints.save_albums)
+    @_copy_docstring(AlbumsAPI.save_albums)
     def save_albums(self, album_ids: str | Collection[str], /) -> None:
         self._client.albums.save_albums(album_ids)
 
-    @_copy_docstring(WebAPIAlbumEndpoints.remove_saved_albums)
+    @_copy_docstring(AlbumsAPI.remove_saved_albums)
     def remove_saved_albums(self, album_ids: str | Collection[str], /) -> None:
         self._client.albums.remove_saved_albums(album_ids)
 
-    @_copy_docstring(WebAPIAlbumEndpoints.are_albums_saved)
+    @_copy_docstring(AlbumsAPI.are_albums_saved)
     def are_albums_saved(
         self, album_ids: str | Collection[str], /
     ) -> list[bool]:
-        return WebAPIAlbumEndpoints.are_albums_saved(album_ids)
+        return AlbumsAPI.are_albums_saved(album_ids)
 
-    @_copy_docstring(WebAPIAudiobookEndpoints.get_my_saved_audiobooks)
+    @_copy_docstring(AudiobooksAPI.get_my_saved_audiobooks)
     def get_my_saved_audiobooks(
         self,
         *,
@@ -364,23 +364,23 @@ class WebAPIUserEndpoints:
             market=market, limit=limit, offset=offset
         )
 
-    @_copy_docstring(WebAPIAudiobookEndpoints.save_audiobooks)
+    @_copy_docstring(AudiobooksAPI.save_audiobooks)
     def save_audiobooks(self, audiobook_ids: str | Collection[str], /) -> None:
         self._client.audiobooks.save_audiobooks(audiobook_ids)
 
-    @_copy_docstring(WebAPIAudiobookEndpoints.remove_saved_audiobooks)
+    @_copy_docstring(AudiobooksAPI.remove_saved_audiobooks)
     def remove_saved_audiobooks(
         self, audiobook_ids: str | Collection[str], /
     ) -> None:
         self._client.audiobooks.remove_saved_audiobooks(audiobook_ids)
 
-    @_copy_docstring(WebAPIAudiobookEndpoints.are_audiobooks_saved)
+    @_copy_docstring(AudiobooksAPI.are_audiobooks_saved)
     def are_audiobooks_saved(
         self, audiobook_ids: str | Collection[str], /
     ) -> list[bool]:
         return self._client.audiobooks.are_audiobooks_saved(audiobook_ids)
 
-    @_copy_docstring(WebAPIEpisodeEndpoints.get_my_saved_episodes)
+    @_copy_docstring(EpisodesAPI.get_my_saved_episodes)
     def get_my_saved_episodes(
         self,
         *,
@@ -392,17 +392,17 @@ class WebAPIUserEndpoints:
             market=market, limit=limit, offset=offset
         )
 
-    @_copy_docstring(WebAPIEpisodeEndpoints.save_episodes)
+    @_copy_docstring(EpisodesAPI.save_episodes)
     def save_episodes(self, episode_ids: str | Collection[str], /) -> None:
         self._client.episodes.save_episodes(episode_ids)
 
-    @_copy_docstring(WebAPIEpisodeEndpoints.remove_saved_episodes)
+    @_copy_docstring(EpisodesAPI.remove_saved_episodes)
     def remove_saved_episodes(
         self, episode_ids: str | Collection[str], /
     ) -> None:
         self._client.episodes.remove_saved_episodes(episode_ids)
 
-    @_copy_docstring(WebAPIEpisodeEndpoints.are_episodes_saved)
+    @_copy_docstring(EpisodesAPI.are_episodes_saved)
     def are_episodes_saved(
         self, episode_ids: str | Collection[str], /
     ) -> list[bool]:
@@ -450,7 +450,7 @@ class WebAPIUserEndpoints:
             Pages of Spotify content metadata for the current user's
             playlists.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -505,25 +505,25 @@ class WebAPIUserEndpoints:
             limit=limit, offset=offset
         )
 
-    @_copy_docstring(WebAPIShowEndpoints.get_my_saved_shows)
+    @_copy_docstring(ShowsAPI.get_my_saved_shows)
     def get_my_saved_shows(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
         return self._client.shows.get_my_saved_shows(limit=limit, offset=offset)
 
-    @_copy_docstring(WebAPIShowEndpoints.save_shows)
+    @_copy_docstring(ShowsAPI.save_shows)
     def save_shows(self, show_ids: str | Collection[str], /) -> None:
         self._client.shows.save_shows(show_ids)
 
-    @_copy_docstring(WebAPIShowEndpoints.remove_saved_shows)
+    @_copy_docstring(ShowsAPI.remove_saved_shows)
     def remove_saved_shows(self, show_ids: str | Collection[str], /) -> None:
         self._client.shows.remove_saved_shows(show_ids)
 
-    @_copy_docstring(WebAPIShowEndpoints.are_shows_saved)
+    @_copy_docstring(ShowsAPI.are_shows_saved)
     def are_shows_saved(self, show_ids: str | Collection[str], /) -> list[bool]:
         return self._client.shows.are_shows_saved(show_ids)
 
-    @_copy_docstring(WebAPITrackEndpoints.get_my_saved_tracks)
+    @_copy_docstring(TracksAPI.get_my_saved_tracks)
     def get_my_saved_tracks(
         self,
         *,
@@ -535,7 +535,7 @@ class WebAPIUserEndpoints:
             market=market, limit=limit, offset=offset
         )
 
-    @_copy_docstring(WebAPITrackEndpoints.save_tracks)
+    @_copy_docstring(TracksAPI.save_tracks)
     def save_tracks(
         self,
         track_ids: str
@@ -546,11 +546,11 @@ class WebAPIUserEndpoints:
     ) -> None:
         self._client.tracks.save_tracks(track_ids)
 
-    @_copy_docstring(WebAPITrackEndpoints.remove_saved_tracks)
+    @_copy_docstring(TracksAPI.remove_saved_tracks)
     def remove_saved_tracks(self, track_ids: str | Collection[str], /) -> None:
         self._client.tracks.remove_saved_tracks(track_ids)
 
-    @_copy_docstring(WebAPITrackEndpoints.are_tracks_saved)
+    @_copy_docstring(TracksAPI.are_tracks_saved)
     def are_tracks_saved(
         self, track_ids: str | Collection[str], /
     ) -> list[bool]:
@@ -569,7 +569,7 @@ class WebAPIUserEndpoints:
             not isinstance(time_range, str)
             or time_range not in self._TIME_RANGES
         ):
-            ranges_ = ", ".join(self._TIME_RANGES)
+            ranges_ = "', '".join(self._TIME_RANGES)
             raise ValueError(
                 f"Invalid time frame {time_range!r}. Valid values: '{ranges_}'."
             )

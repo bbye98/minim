@@ -4,9 +4,9 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPICategoryEndpoints:
+class CategoriesAPI:
     """
-    Spotify Web API browse category endpoints.
+    Categories API endpoints for the Spotify Web API.
 
     .. note::
 

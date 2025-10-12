@@ -17,7 +17,7 @@ dependencies = [
   "httpx"
 ]
 description = """
-A collection of music service APIs to query media information and 
+A collection of music service APIs to query media information and
 media file readers and writers to (semi-)automate tagging.
 """
 readme = "README.md"
@@ -32,7 +32,6 @@ dev = [
 ]
 docs = [
   "furo",
-  "myst-nb",
   "numpydoc",
   "sphinx",
   "sphinx-copybutton",

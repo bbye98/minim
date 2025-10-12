@@ -1,33 +1,33 @@
 from ._core import WebAPI
-from ._web_api.albums import WebAPIAlbumEndpoints
-from ._web_api.artists import WebAPIArtistEndpoints
-from ._web_api.audiobooks import WebAPIAudiobookEndpoints
-from ._web_api.categories import WebAPICategoryEndpoints
-from ._web_api.chapters import WebAPIChapterEndpoints
-from ._web_api.episodes import WebAPIEpisodeEndpoints
-from ._web_api.genres import WebAPIGenreEndpoints
-from ._web_api.markets import WebAPIMarketEndpoints
-from ._web_api.player import WebAPIPlayerEndpoints
-from ._web_api.playlists import WebAPIPlaylistEndpoints
-from ._web_api.search import WebAPISearchEndpoints
-from ._web_api.shows import WebAPIShowEndpoints
-from ._web_api.tracks import WebAPITrackEndpoints
-from ._web_api.users import WebAPIUserEndpoints
+from ._web_api.albums import AlbumsAPI
+from ._web_api.artists import ArtistsAPI
+from ._web_api.audiobooks import AudiobooksAPI
+from ._web_api.categories import CategoriesAPI
+from ._web_api.chapters import ChaptersAPI
+from ._web_api.episodes import EpisodesAPI
+from ._web_api.genres import GenresAPI
+from ._web_api.markets import MarketsAPI
+from ._web_api.player import PlayerAPI
+from ._web_api.playlists import PlaylistsAPI
+from ._web_api.search import SearchAPI
+from ._web_api.shows import ShowsAPI
+from ._web_api.tracks import TracksAPI
+from ._web_api.users import UsersAPI
 
 __all__ = [
     "WebAPI",
-    "WebAPIAlbumEndpoints",
-    "WebAPIArtistEndpoints",
-    "WebAPIAudiobookEndpoints",
-    "WebAPICategoryEndpoints",
-    "WebAPIChapterEndpoints",
-    "WebAPIEpisodeEndpoints",
-    "WebAPIGenreEndpoints",
-    "WebAPIMarketEndpoints",
-    "WebAPIPlayerEndpoints",
-    "WebAPIPlaylistEndpoints",
-    "WebAPISearchEndpoints",
-    "WebAPIShowEndpoints",
-    "WebAPITrackEndpoints",
-    "WebAPIUserEndpoints",
+    "AlbumsAPI",
+    "ArtistsAPI",
+    "AudiobooksAPI",
+    "CategoriesAPI",
+    "ChaptersAPI",
+    "EpisodesAPI",
+    "GenresAPI",
+    "MarketsAPI",
+    "PlayerAPI",
+    "PlaylistsAPI",
+    "SearchAPI",
+    "ShowsAPI",
+    "TracksAPI",
+    "UsersAPI",
 ]

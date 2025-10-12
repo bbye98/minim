@@ -6,9 +6,9 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPIPlaylistEndpoints:
+class PlaylistsAPI:
     """
-    Spotify Web API playlist endpoints.
+    Playlists API endpoints for the Spotify Web API.
 
     .. note::
 
@@ -91,9 +91,9 @@ class WebAPIPlaylistEndpoints:
             Fields can be excluded by prefixing them with an exclamation
             mark. If not specified, all fields are returned.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"description,uri"` – Returns only the playlist
                  description and URI.
@@ -497,9 +497,9 @@ class WebAPIPlaylistEndpoints:
             Fields can be excluded by prefixing them with an exclamation
             mark. If not specified, all fields are returned.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"description,uri"` – Returns only the playlist
                  description and URI.
@@ -799,9 +799,9 @@ class WebAPIPlaylistEndpoints:
             either a comma-separated string or a collection of strings.
             A maximum of 100 URIs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
                * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
@@ -818,9 +818,9 @@ class WebAPIPlaylistEndpoints:
             specified, the items are appended to the end of the
             playlist.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`0` – Insert items in the first position.
                * :code:`2` – Insert items in the third position.
@@ -891,9 +891,9 @@ class WebAPIPlaylistEndpoints:
         insert_before : int, keyword-only
             Zero-based index at which to insert the items.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`0` – Move items selected by `range_start` and
                  `range_length` before the current item in the first
@@ -977,9 +977,9 @@ class WebAPIPlaylistEndpoints:
             either a comma-separated string or a collection of strings.
             A maximum of 100 URIs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
                * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
@@ -1054,9 +1054,9 @@ class WebAPIPlaylistEndpoints:
             either a comma-separated string or a collection of strings.
             A maximum of 100 URIs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
                * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
@@ -1502,7 +1502,7 @@ class WebAPIPlaylistEndpoints:
 
             .. seealso::
 
-               :meth:`~minim.api.spotify.WebAPICategoryEndpoints.get_categories`
+               :meth:`~minim.api.spotify.CategoriesAPI.get_categories`
                – Get information on available categories.
 
             **Examples**: :code:`"dinner"`, :code:`"party"`.

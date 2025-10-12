@@ -4,9 +4,9 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPIGenreEndpoints:
+class GenresAPI:
     """
-    Spotify Web API genre endpoints.
+    Genres API endpoints for the Spotify Web API.
 
     .. note::
 

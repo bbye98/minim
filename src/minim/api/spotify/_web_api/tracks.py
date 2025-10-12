@@ -19,9 +19,9 @@ FloatAttributeSpec = (
 )
 
 
-class WebAPITrackEndpoints:
+class TracksAPI:
     """
-    Spotify Web API track endpoints.
+    Tracks API endpoints for the Spotify Web API.
 
     .. note::
 
@@ -66,9 +66,9 @@ class WebAPITrackEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"7ouMYWpwJ422jRcDASZB7P"`
                * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
@@ -485,14 +485,14 @@ class WebAPITrackEndpoints:
         dict[str, str | datetime], or \
         list[str | tuple[str, str | datetime] | dict[str, str | datetime]], \
         positional-only
-            Spotify IDs of the tracks, optionally accompanied by 
+            Spotify IDs of the tracks, optionally accompanied by
             timestamps to maintain a specific chronological order in the
-            user's library. A maximum of 50 IDs can be sent in one 
+            user's library. A maximum of 50 IDs can be sent in one
             request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"4iV5W9uYEdYUVa79Axb7Rh"`
                * :code:`("4iV5W9uYEdYUVa79Axb7Rh", "2010-01-01T00:00:00Z")`
@@ -577,9 +577,9 @@ class WebAPITrackEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"7ouMYWpwJ422jRcDASZB7P"`
                * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
@@ -622,9 +622,9 @@ class WebAPITrackEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"7ouMYWpwJ422jRcDASZB7P"`
                * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
@@ -677,9 +677,9 @@ class WebAPITrackEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 50 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"7ouMYWpwJ422jRcDASZB7P"`
                * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
@@ -962,9 +962,9 @@ class WebAPITrackEndpoints:
                :code:`seed_artists`, :code:`seed_genres` and
                :code:`seed_tracks`.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"0TnOYISbd1XYRBk9myaseg"`
                * :code:`"0TnOYISbd1XYRBk9myaseg,57dN52uHvrHOxijzpIgu3E"`
@@ -982,7 +982,7 @@ class WebAPITrackEndpoints:
 
             .. seealso::
 
-                :meth:`~minim.api.spotify.WebAPIGenreEndpoints.get_available_seed_genres`
+                :meth:`~minim.api.spotify.GenresAPI.get_available_seed_genres`
                 – Get available seed genres.
 
         seed_tracks : str or Collection[str], optional
@@ -995,9 +995,9 @@ class WebAPITrackEndpoints:
                :code:`seed_artists`, :code:`seed_genres` and
                :code:`seed_tracks`.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"7ouMYWpwJ422jRcDASZB7P"`
                * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
@@ -1079,9 +1079,9 @@ class WebAPITrackEndpoints:
                :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`-1` – No key detected.
                * :code:`0` – C.
@@ -1183,9 +1183,9 @@ class WebAPITrackEndpoints:
                :ref:`track-attribute-hint` – How to specify minimum,
                maximum, and/or target values.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`3` – 3/4.
                * :code:`4` – 4/4.
@@ -1394,9 +1394,9 @@ class WebAPITrackEndpoints:
         time_range : str, keyword-only, optional
             Time frame over which the affinities are computed.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`"long_term"` – Approximately one year of data,
                  including all new data as it becomes available.

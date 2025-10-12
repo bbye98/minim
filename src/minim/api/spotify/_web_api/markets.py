@@ -4,9 +4,9 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPIMarketEndpoints:
+class MarketsAPI:
     """
-    Spotify Web API market endpoints.
+    Markets API endpoints for the Spotify Web API.
 
     .. note::
 

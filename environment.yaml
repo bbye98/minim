@@ -14,9 +14,6 @@ dependencies:
   - ruff
   # DOCUMENTATION DEPENDENCIES
   - furo
-  - ipywidgets
-  - jupyterlab
-  - myst-nb
   - numpydoc
   - sphinx
   - sphinx-copybutton

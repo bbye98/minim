@@ -5,9 +5,9 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPIAlbumEndpoints:
+class AlbumsAPI:
     """
-    Spotify Web API album endpoints.
+    Albums API endpoints for the Spotify Web API.
 
     .. important::
 
@@ -52,9 +52,9 @@ class WebAPIAlbumEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 20 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"382ObEPsp2rxGrnsizN5TX"`
                * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
@@ -682,9 +682,9 @@ class WebAPIAlbumEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 20 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"382ObEPsp2rxGrnsizN5TX"`
                * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
@@ -723,9 +723,9 @@ class WebAPIAlbumEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 20 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"382ObEPsp2rxGrnsizN5TX"`
                * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
@@ -768,9 +768,9 @@ class WebAPIAlbumEndpoints:
             comma-separated string or a collection of strings. A
             maximum of 20 IDs can be sent in one request.
 
-            .. container::
+            **Examples**:
 
-               **Examples**:
+            .. container::
 
                * :code:`"382ObEPsp2rxGrnsizN5TX"`
                * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`

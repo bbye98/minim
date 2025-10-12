@@ -6,20 +6,20 @@ from typing import TYPE_CHECKING, Any
 import warnings
 
 from .._shared import OAuth2API
-from ._web_api.albums import WebAPIAlbumEndpoints
-from ._web_api.artists import WebAPIArtistEndpoints
-from ._web_api.audiobooks import WebAPIAudiobookEndpoints
-from ._web_api.categories import WebAPICategoryEndpoints
-from ._web_api.chapters import WebAPIChapterEndpoints
-from ._web_api.episodes import WebAPIEpisodeEndpoints
-from ._web_api.genres import WebAPIGenreEndpoints
-from ._web_api.markets import WebAPIMarketEndpoints
-from ._web_api.player import WebAPIPlayerEndpoints
-from ._web_api.playlists import WebAPIPlaylistEndpoints
-from ._web_api.search import WebAPISearchEndpoints
-from ._web_api.shows import WebAPIShowEndpoints
-from ._web_api.tracks import WebAPITrackEndpoints
-from ._web_api.users import WebAPIUserEndpoints
+from ._web_api.albums import AlbumsAPI
+from ._web_api.artists import ArtistsAPI
+from ._web_api.audiobooks import AudiobooksAPI
+from ._web_api.categories import CategoriesAPI
+from ._web_api.chapters import ChaptersAPI
+from ._web_api.episodes import EpisodesAPI
+from ._web_api.genres import GenresAPI
+from ._web_api.markets import MarketsAPI
+from ._web_api.player import PlayerAPI
+from ._web_api.playlists import PlaylistsAPI
+from ._web_api.search import SearchAPI
+from ._web_api.shows import ShowsAPI
+from ._web_api.tracks import TracksAPI
+from ._web_api.users import UsersAPI
 
 if TYPE_CHECKING:
     import httpx
@@ -32,9 +32,9 @@ class WebAPI(OAuth2API):
 
     _API_NAME = "SpotifyWebAPI"
     _AUDIO_TYPES = {"track", "episode"}
+    _ENV_VAR_PREFIX = "SPOTIFY_WEB_API"
     _FLOWS = {"auth_code", "pkce", "client_credentials", "implicit"}
     _PROVIDER = "Spotify"
-    _ENV_VAR_PREFIX = "SPOTIFY_WEB_API"
     _SCOPES = {
         "images": {"ugc-image-upload"},
         "spotify_connect": {
@@ -189,41 +189,39 @@ class WebAPI(OAuth2API):
             ID and authorization flow.
         """
         # Initialize subclasses for categorized endpoints
-        #: Spotify Web API album endpoints.
-        self.albums: WebAPIAlbumEndpoints = WebAPIAlbumEndpoints(self)
-        #: Spotify Web API artist endpoints.
-        self.artists: WebAPIArtistEndpoints = WebAPIArtistEndpoints(self)
-        #: Spotify Web API audiobook endpoints.
-        self.audiobooks: WebAPIAudiobookEndpoints = WebAPIAudiobookEndpoints(
-            self
-        )
-        #: Spotify Web API browse category endpoints.
-        self.categories: WebAPICategoryEndpoints = WebAPICategoryEndpoints(self)
-        #: Spotify Web API audiobook chapter endpoints.
-        self.chapters: WebAPIChapterEndpoints = WebAPIChapterEndpoints(self)
+        #: Albums API endpoints for the Spotify Web API.
+        self.albums: AlbumsAPI = AlbumsAPI(self)
+        #: Artists API endpoints for the Spotify Web API.
+        self.artists: ArtistsAPI = ArtistsAPI(self)
+        #: Audiobooks API endpoints for the Spotify Web API.
+        self.audiobooks: AudiobooksAPI = AudiobooksAPI(self)
+        #: Categories API endpoints for the Spotify Web API.
+        self.categories: CategoriesAPI = CategoriesAPI(self)
+        #: Chapters API endpoints for the Spotify Web API.
+        self.chapters: ChaptersAPI = ChaptersAPI(self)
         #: Spotify Web API episode endpoints.
-        self.episodes: WebAPIEpisodeEndpoints = WebAPIEpisodeEndpoints(self)
-        #: Spotify Web API genre endpoints.
-        self.genres: WebAPIGenreEndpoints = WebAPIGenreEndpoints(self)
-        #: Spotify Web API market endpoints.
-        self.markets: WebAPIMarketEndpoints = WebAPIMarketEndpoints(self)
-        #: Spotify Web API player endpoints.
-        self.player: WebAPIPlayerEndpoints = WebAPIPlayerEndpoints(self)
-        #: Spotify Web API playlist endpoints.
-        self.playlists: WebAPIPlaylistEndpoints = WebAPIPlaylistEndpoints(self)
-        #: Spotify Web API search endpoints.
-        self.search: WebAPISearchEndpoints = WebAPISearchEndpoints(self)
-        #: Spotify Web API show endpoints.
-        self.shows: WebAPIShowEndpoints = WebAPIShowEndpoints(self)
-        #: Spotify Web API track endpoints.
-        self.tracks: WebAPITrackEndpoints = WebAPITrackEndpoints(self)
-        #: Spotify Web API user endpoints.
-        self.users: WebAPIUserEndpoints = WebAPIUserEndpoints(self)
+        self.episodes: EpisodesAPI = EpisodesAPI(self)
+        #: Genres API endpoints for the Spotify Web API.
+        self.genres: GenresAPI = GenresAPI(self)
+        #: Markets API endpoints for the Spotify Web API.
+        self.markets: MarketsAPI = MarketsAPI(self)
+        #: Player API endpoints for the Spotify Web API.
+        self.player: PlayerAPI = PlayerAPI(self)
+        #: Playlists API endpoints for the Spotify Web API.
+        self.playlists: PlaylistsAPI = PlaylistsAPI(self)
+        #: Search API endpoints for the Spotify Web API.
+        self.search: SearchAPI = SearchAPI(self)
+        #: Shows API endpoints for the Spotify Web API.
+        self.shows: ShowsAPI = ShowsAPI(self)
+        #: Tracks API endpoints for the Spotify Web API.
+        self.tracks: TracksAPI = TracksAPI(self)
+        #: Users API endpoints for the Spotify Web API.
+        self.users: UsersAPI = UsersAPI(self)
 
         if flow == "client_credentials" and scopes:
             warnings.warn(
                 f"The {self._OAUTH_FLOWS_NAMES['client_credentials']} "
-                "in the Spotify Web API does not support scopes."
+                "for the Spotify Web API does not support scopes."
             )
             scopes = ""
 
@@ -492,7 +490,7 @@ class WebAPI(OAuth2API):
         .. note::
 
            Accessing this property for the first time may call
-           :meth:`~minim.api.spotify.WebAPIGenreEndpoints.get_available_seed_genres`.
+           :meth:`~minim.api.spotify.GenresAPI.get_available_seed_genres`.
         """
         return self.genres.get_available_seed_genres()["genres"]
 
@@ -504,7 +502,7 @@ class WebAPI(OAuth2API):
         .. note::
 
            Accessing this property for the first time may call
-           :meth:`~minim.api.spotify.WebAPIMarketEndpoints.get_available_markets`.
+           :meth:`~minim.api.spotify.MarketsAPI.get_available_markets`.
         """
         return self.markets.get_available_markets()["markets"]
 
@@ -512,6 +510,11 @@ class WebAPI(OAuth2API):
     def my_profile(self) -> str:
         """
         Current user's profile.
+
+        .. note::
+
+           Accessing this property for the first time may call
+           :meth:`~minim.api.users.UsersAPI.get_user_profile`.
         """
         return self.users.get_user_profile()
 
@@ -536,7 +539,7 @@ class WebAPI(OAuth2API):
         types = set(types)
         for type_ in types:
             if type_ not in self._AUDIO_TYPES:
-                _types = ", ".join(self._AUDIO_TYPES)
+                _types = "', '".join(self._AUDIO_TYPES)
                 raise ValueError(
                     f"Invalid Spotify item type {type_!r}. "
                     f"Valid values: '{_types}'."
@@ -616,7 +619,7 @@ class WebAPI(OAuth2API):
             or "markets" in self.__dict__
             and market not in self.available_markets
         ):
-            _markets = ", ".join(self.available_markets)
+            _markets = "', '".join(self.available_markets)
             raise ValueError(
                 f"{market!r} is not a market in which Spotify is "
                 f"available. Valid values: '{_markets}'."
@@ -636,7 +639,7 @@ class WebAPI(OAuth2API):
             or "available_seed_genres" in self.__dict__
             and seed_genre not in self.available_seed_genres
         ):
-            _genres = ", ".join(self.available_seed_genres)
+            _genres = "', '".join(self.available_seed_genres)
             raise ValueError(
                 f"Invalid seed genre {seed_genre!r}. Valid values: '{_genres}'."
             )

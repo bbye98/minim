@@ -5,9 +5,9 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class WebAPISearchEndpoints:
+class SearchAPI:
     """
-    Spotify Web API search endpoints.
+    Search API endpoints for the Spotify Web API.
 
     .. note::
 
@@ -525,7 +525,7 @@ class WebAPISearchEndpoints:
         types = set(types)
         for type_ in types:
             if type_ not in self._TYPES:
-                _types = ", ".join(self._TYPES)
+                _types = "', '".join(self._TYPES)
                 raise ValueError(
                     f"Invalid Spotify item type {type_!r}. "
                     f"Valid values: '{_types}'."
