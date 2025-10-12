@@ -199,7 +199,7 @@ class WebAPI(OAuth2API):
         self.categories: CategoriesAPI = CategoriesAPI(self)
         #: Chapters API endpoints for the Spotify Web API.
         self.chapters: ChaptersAPI = ChaptersAPI(self)
-        #: Spotify Web API episode endpoints.
+        #: Episodes API endpoints for the Spotify Web API.
         self.episodes: EpisodesAPI = EpisodesAPI(self)
         #: Genres API endpoints for the Spotify Web API.
         self.genres: GenresAPI = GenresAPI(self)
