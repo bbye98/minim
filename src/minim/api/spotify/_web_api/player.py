@@ -581,7 +581,7 @@ class PlayerAPI:
                  Access the :code:`/me/player` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
-              :code:`user-modify-playback-state` scopel
+              :code:`user-modify-playback-state` scope
                  Control playback on your Spotify clients and Spotify
                  Connect devices. `Learn more.
                  <https://developer.spotify.com/documentation/web-api

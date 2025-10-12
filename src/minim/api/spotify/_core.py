@@ -221,7 +221,7 @@ class WebAPI(OAuth2API):
         if flow == "client_credentials" and scopes:
             warnings.warn(
                 f"The {self._OAUTH_FLOWS_NAMES['client_credentials']} "
-                "for the Spotify Web API does not support scopes."
+                "in the Spotify Web API does not support scopes."
             )
             scopes = ""
 
