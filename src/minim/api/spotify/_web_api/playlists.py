@@ -1330,7 +1330,7 @@ class PlaylistsAPI(ResourceAPI):
         if public is not None:
             self._client._validate_type("public", public, bool)
             self._client._require_scopes(
-                "create_playlist",
+                "playlists.create_playlist",
                 f"playlist-modify-{'public' if public else 'private'}",
             )
             payload["public"] = public
@@ -1673,7 +1673,7 @@ class PlaylistsAPI(ResourceAPI):
             **Example**: :code:`"/9j/2wCEABoZGSccJz4lJT5CLy8vQkc9Ozs9R0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0cBHCcnMyYzPSYmPUc9Mj1HR0dEREdHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR//dAAQAAf/uAA5BZG9iZQBkwAAAAAH/wAARCAABAAEDACIAAREBAhEB/8QASwABAQAAAAAAAAAAAAAAAAAAAAYBAQAAAAAAAAAAAAAAAAAAAAAQAQAAAAAAAAAAAAAAAAAAAAARAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwAAARECEQA/AJgAH//Z"`.
         """
         self._client._require_scopes(
-            "add_playlist_cover_image", "ugc-image-upload"
+            "playlists.add_playlist_cover_image", "ugc-image-upload"
         )
         self._client._validate_spotify_id(playlist_id)
         if isinstance(image, str | Path):
@@ -1737,7 +1737,7 @@ class PlaylistsAPI(ResourceAPI):
         payload = {}
         if isinstance(public, bool):
             self._client._require_scopes(
-                "follow_playlist",
+                "users.follow_playlist",
                 f"playlist-modify-{'public' if public else 'private'}",
             )
             payload["public"] = public

@@ -606,6 +606,26 @@ class WebAPI(OAuth2APIClient):
         """
         self._user_identifier = self.my_profile["id"]
 
+    def _require_subscription(self, endpoint_method: str) -> None:
+        """
+        Ensure that a Spotify Premium subscription is active for an
+        endpoint method that requires it.
+
+        Parameters
+        ----------
+        endpoint_method : str
+            Name of the endpoint method.
+        """
+        if (
+            self._flow == "client_credentials"
+            or "my_profile" in self.__dict__
+            and self.my_profile["product"] != "premium"
+        ):
+            raise RuntimeError(
+                f"{self._API_NAME}.{endpoint_method}() requires an "
+                f"active Spotify Premium subscription."
+            )
+
     def _validate_market(self, market: str, /) -> None:
         """
         Validate market.

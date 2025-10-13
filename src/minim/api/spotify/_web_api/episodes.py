@@ -411,7 +411,7 @@ class EpisodesAPI(ResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "get_my_saved_episodes",
+            "episodes.get_my_saved_episodes",
             {"user-library-read", "user-read-playback-position"},
         )
         params = {}
@@ -458,7 +458,9 @@ class EpisodesAPI(ResourceAPI):
                * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
                * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
         """
-        self._client._require_scopes("save_episodes", "user-library-modify")
+        self._client._require_scopes(
+            "episodes.save_episodes", "user-library-modify"
+        )
         self._client._request(
             "PUT",
             "me/episodes",
@@ -504,7 +506,7 @@ class EpisodesAPI(ResourceAPI):
                * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
         """
         self._client._require_scopes(
-            "remove_saved_episodes", "user-library-modify"
+            "episodes.remove_saved_episodes", "user-library-modify"
         )
         self._client._request(
             "DELETE",
@@ -558,7 +560,9 @@ class EpisodesAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
-        self._client._require_scopes("are_episodes_saved", "user-library-read")
+        self._client._require_scopes(
+            "episodes.are_episodes_saved", "user-library-read"
+        )
         return self._client._request(
             "GET",
             "me/episodes/contains",

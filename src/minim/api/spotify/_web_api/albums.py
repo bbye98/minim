@@ -640,7 +640,9 @@ class AlbumsAPI(ResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_scopes("get_my_saved_albums", "user-library-read")
+        self._client._require_scopes(
+            "albums.get_my_saved_albums", "user-library-read"
+        )
         params = {}
         if market is not None:
             self._client._validate_market(market)
@@ -685,7 +687,9 @@ class AlbumsAPI(ResourceAPI):
                * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
                * :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`
         """
-        self._client._require_scopes("save_albums", "user-library-modify")
+        self._client._require_scopes(
+            "albums.save_albums", "user-library-modify"
+        )
         self._client._request(
             "PUT",
             "me/albums",
@@ -727,7 +731,7 @@ class AlbumsAPI(ResourceAPI):
                * :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`
         """
         self._client._require_scopes(
-            "remove_saved_albums", "user-library-modify"
+            "albums.remove_saved_albums", "user-library-modify"
         )
         self._client._request(
             "DELETE",
@@ -779,7 +783,9 @@ class AlbumsAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
-        self._client._require_scopes("are_albums_saved", "user-library-read")
+        self._client._require_scopes(
+            "albums.are_albums_saved", "user-library-read"
+        )
         return self._client._request(
             "GET",
             "me/albums/contains",

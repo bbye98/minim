@@ -19,6 +19,7 @@ class ArtistsAPI(ResourceAPI):
 
     _ALBUM_TYPES = {"album", "single", "appears_on", "compilation"}
     _client: "WebAPI"
+    _group = "artists"
 
     def get_artists(
         self, artist_ids: str | Collection[str], /
@@ -580,7 +581,7 @@ class ArtistsAPI(ResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_scopes("get_top_artists", "user-top-read")
+        self._client._require_scopes("users.get_top_artists", "user-top-read")
         params = {}
         if time_range:
             self._client.users._validate_time_range(time_range)
@@ -677,7 +678,9 @@ class ArtistsAPI(ResourceAPI):
                     }
                   }
         """
-        self._client._require_scopes("get_followed_artists", "user-follow-read")
+        self._client._require_scopes(
+            "users.get_followed_artists", "user-follow-read"
+        )
         params = {"type": "artist"}
         if after is not None:
             self._client._validate_spotify_id(after)
@@ -720,7 +723,9 @@ class ArtistsAPI(ResourceAPI):
                * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
                * :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`
         """
-        self._client._require_scopes("follow_artists", "user-follow-modify")
+        self._client._require_scopes(
+            "users.follow_artists", "user-follow-modify"
+        )
         self._client._request(
             "PUT",
             "me/following",
@@ -763,7 +768,9 @@ class ArtistsAPI(ResourceAPI):
                * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
                * :code:`["2CIMQHirSU0MQqyYHq0eOx", "57dN52uHvrHOxijzpIgu3E"]`
         """
-        self._client._require_scopes("unfollow_artists", "user-follow-modify")
+        self._client._require_scopes(
+            "users.unfollow_artists", "user-follow-modify"
+        )
         self._client._request(
             "DELETE",
             "me/following",
@@ -816,7 +823,9 @@ class ArtistsAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
-        self._client._require_scopes("is_following_artists", "user-follow-read")
+        self._client._require_scopes(
+            "users.is_following_artists", "user-follow-read"
+        )
         return self._client._request(
             "GET",
             "me/following/contains",

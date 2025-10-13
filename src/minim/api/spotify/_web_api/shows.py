@@ -383,7 +383,7 @@ class ShowsAPI(ResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "get_show_episodes", "user-read-playback-position"
+            "shows.get_show_episodes", "user-read-playback-position"
         )
         self._client._validate_spotify_id(show_id)
         params = {}
@@ -491,7 +491,9 @@ class ShowsAPI(ResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_scopes("get_my_saved_shows", "user-library-read")
+        self._client._require_scopes(
+            "shows.get_my_saved_shows", "user-library-read"
+        )
         params = {}
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 50)
@@ -533,7 +535,7 @@ class ShowsAPI(ResourceAPI):
                * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
                * :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`
         """
-        self._client._require_scopes("save_shows", "user-library-modify")
+        self._client._require_scopes("shows.save_shows", "user-library-modify")
         self._client._request(
             "PUT",
             "me/shows",
@@ -575,7 +577,7 @@ class ShowsAPI(ResourceAPI):
                * :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`
         """
         self._client._require_scopes(
-            "remove_saved_shows", "user-library-modify"
+            "shows.remove_saved_shows", "user-library-modify"
         )
         self._client._request(
             "DELETE",
@@ -625,7 +627,9 @@ class ShowsAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
-        self._client._require_scopes("are_shows_saved", "user-library-read")
+        self._client._require_scopes(
+            "shows.are_shows_saved", "user-library-read"
+        )
         return self._client._request(
             "GET",
             "me/shows/contains",

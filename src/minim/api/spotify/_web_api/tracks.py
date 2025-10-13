@@ -437,7 +437,9 @@ class TracksAPI(ResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_scopes("get_my_saved_tracks", "user-library-read")
+        self._client._require_scopes(
+            "tracks.get_my_saved_tracks", "user-library-read"
+        )
         params = {}
         if market is not None:
             self._client._validate_market(market)
@@ -501,7 +503,9 @@ class TracksAPI(ResourceAPI):
                         {"id": "7ouMYWpwJ422jRcDASZB7P", "added_at": "2006-06-28T00:00:00Z"}
                     ]
         """
-        self._client._require_scopes("save_tracks", "user-library-modify")
+        self._client._require_scopes(
+            "tracks.save_tracks", "user-library-modify"
+        )
         if isinstance(track_ids, str):
             track_ids = [
                 {
@@ -581,7 +585,7 @@ class TracksAPI(ResourceAPI):
                * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
         """
         self._client._require_scopes(
-            "remove_saved_tracks", "user-library-modify"
+            "tracks.remove_saved_tracks", "user-library-modify"
         )
         self._client._request(
             "DELETE",
@@ -633,7 +637,9 @@ class TracksAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
-        self._client._require_scopes("are_tracks_saved", "user-library-read")
+        self._client._require_scopes(
+            "tracks.are_tracks_saved", "user-library-read"
+        )
         return self._client._request(
             "GET",
             "me/tracks/contains",
@@ -1508,7 +1514,7 @@ class TracksAPI(ResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_scopes("get_top_tracks", "user-top-read")
+        self._client._require_scopes("users.get_top_tracks", "user-top-read")
         params = {}
         if time_range:
             self._client.users._validate_time_range(time_range)

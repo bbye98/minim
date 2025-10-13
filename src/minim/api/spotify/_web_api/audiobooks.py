@@ -544,7 +544,7 @@ class AudiobooksAPI(ResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "get_my_saved_audiobooks", "user-library-read"
+            "audiobooks.get_my_saved_audiobooks", "user-library-read"
         )
         params = {}
         if market is not None:
@@ -562,7 +562,7 @@ class AudiobooksAPI(ResourceAPI):
 
     def save_audiobooks(self, audiobook_ids: str | Collection[str], /) -> None:
         """
-        `Albums > Save Audiobooks for Current User
+        `Audiobooks > Save Audiobooks for Current User
         <https://developer.spotify.com/documentation/web-api/reference
         /save-albums-user>`_: Save one or more audiobooks to the current
         user's library.
@@ -592,7 +592,9 @@ class AudiobooksAPI(ResourceAPI):
                * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
                * :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`
         """
-        self._client._require_scopes("save_audiobooks", "user-library-modify")
+        self._client._require_scopes(
+            "audiobooks.save_audiobooks", "user-library-modify"
+        )
         self._client._request(
             "PUT",
             "me/audiobooks",
@@ -607,7 +609,7 @@ class AudiobooksAPI(ResourceAPI):
         self, audiobook_ids: str | Collection[str], /
     ) -> None:
         """
-        `Albums > Remove User's Saved Audiobooks
+        `Audiobooks > Remove User's Saved Audiobooks
         <https://developer.spotify.com/documentation/web-api/reference
         /remove-audiobooks-user>`_: Remove one or more audiobooks from
         the current user's library.
@@ -638,7 +640,7 @@ class AudiobooksAPI(ResourceAPI):
                * :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`
         """
         self._client._require_scopes(
-            "remove_saved_audiobooks", "user-library-modify"
+            "audiobooks.remove_saved_audiobooks", "user-library-modify"
         )
         self._client._request(
             "DELETE",
@@ -693,7 +695,7 @@ class AudiobooksAPI(ResourceAPI):
             **Sample response**: :code:`[False, True]`.
         """
         self._client._require_scopes(
-            "are_audiobooks_saved", "user-library-read"
+            "audiobooks.are_audiobooks_saved", "user-library-read"
         )
         return self._client._request(
             "GET",

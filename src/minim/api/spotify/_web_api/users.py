@@ -206,7 +206,7 @@ class UsersAPI(ResourceAPI):
             **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
             :code:`["smedjan", "bbye98"]`.
         """
-        self._client._require_scopes("follow_users", "user-follow-modify")
+        self._client._require_scopes("users.follow_users", "user-follow-modify")
         self._client._request(
             "PUT",
             "me/following",
@@ -248,7 +248,9 @@ class UsersAPI(ResourceAPI):
             **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
             :code:`["smedjan", "bbye98"]`.
         """
-        self._client._require_scopes("unfollow_users", "user-follow-modify")
+        self._client._require_scopes(
+            "users.unfollow_users", "user-follow-modify"
+        )
         self._client._request(
             "DELETE",
             "me/following",
@@ -302,7 +304,9 @@ class UsersAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
-        self._client._require_scopes("is_following_users", "user-follow-read")
+        self._client._require_scopes(
+            "users.is_following_users", "user-follow-read"
+        )
         return self._client._request(
             "GET",
             "me/following/contains",

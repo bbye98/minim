@@ -214,7 +214,7 @@ class PlayerAPI(ResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "get_playback_state", "user-read-playback-state"
+            "player.get_playback_state", "user-read-playback-state"
         )
         params = {}
         if market is not None:
@@ -267,8 +267,9 @@ class PlayerAPI(ResourceAPI):
             :code:`True`, playback begins immediately. If :code:`False`,
             the current playback state is preserved.
         """
+        self._client._require_subscription("player.transfer_playback")
         self._client._require_scopes(
-            "transfer_playback", "user-modify-playback-state"
+            "player.transfer_playback", "user-modify-playback-state"
         )
         self._client._validate_spotify_id(device_id)
         payload = {"device_id": device_id}
@@ -322,7 +323,9 @@ class PlayerAPI(ResourceAPI):
                     ]
                   }
         """
-        self._client._require_scopes("get_devices", "user-read-playback-state")
+        self._client._require_scopes(
+            "player.get_devices", "user-read-playback-state"
+        )
         return self._client._request("GET", "me/player/devices").json()
 
     def get_currently_playing(
@@ -517,7 +520,7 @@ class PlayerAPI(ResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "get_currently_playing", "user-read-currently-playing"
+            "player.get_currently_playing", "user-read-currently-playing"
         )
         params = {}
         if market is not None:
@@ -618,8 +621,9 @@ class PlayerAPI(ResourceAPI):
 
             **Example**: :code:`25_000`.
         """
+        self._client._require_subscription("player.start_playback")
         self._client._require_scopes(
-            "start_playback", "user-modify-playback-state"
+            "player.start_playback", "user-modify-playback-state"
         )
         params = {}
         if device_id is not None:
@@ -696,8 +700,9 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
+        self._client._require_subscription("player.pause_playback")
         self._client._require_scopes(
-            "pause_playback", "user-modify-playback-state"
+            "player.pause_playback", "user-modify-playback-state"
         )
         params = {}
         if device_id is not None:
@@ -705,7 +710,7 @@ class PlayerAPI(ResourceAPI):
             params["device_id"] = device_id
         self._client._request("PUT", "me/player/pause", params=params)
 
-    def skip_next(self, *, device_id: str | None = None) -> None:
+    def skip_to_next(self, *, device_id: str | None = None) -> None:
         """
         `Player > Skip To Next <https://developer.spotify.com
         /documentation/web-api/reference
@@ -741,19 +746,22 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_scopes("skip_next", "user-modify-playback-state")
+        self._client._require_subscription("player.skip_to_next")
+        self._client._require_scopes(
+            "player.skip_to_next", "user-modify-playback-state"
+        )
         params = {}
         if device_id is not None:
             self._client._validate_spotify_id(device_id)
             params["device_id"] = device_id
         self._client._request("POST", "me/player/next", params=params)
 
-    def skip_previous(self, *, device_id: str | None = None) -> None:
+    def skip_to_previous(self, *, device_id: str | None = None) -> None:
         """
-        `Player > Skip To Next <https://developer.spotify.com
+        `Player > Skip To Previous <https://developer.spotify.com
         /documentation/web-api/reference
-        /skip-users-playback-to-next-track>`_: Skip to the previous item
-        in the queue.
+        /skip-users-playback-to-previous-track>`_: Skip to the previous
+        item in the queue.
 
         .. admonition:: Authorization scope and subscription
            :class: authorization-scope
@@ -784,8 +792,9 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
+        self._client._require_subscription("player.skip_to_previous")
         self._client._require_scopes(
-            "skip_previous", "user-modify-playback-state"
+            "player.skip_to_previous", "user-modify-playback-state"
         )
         params = {}
         if device_id is not None:
@@ -793,7 +802,7 @@ class PlayerAPI(ResourceAPI):
             params["device_id"] = device_id
         self._client._request("POST", "me/player/next", params=params)
 
-    def seek(
+    def seek_to_position(
         self, position_ms: int, /, *, device_id: str | None = None
     ) -> None:
         """
@@ -840,7 +849,10 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_scopes("seek", "user-modify-playback-state")
+        self._client._require_subscription("player.seek_to_position")
+        self._client._require_scopes(
+            "player.seek_to_position", "user-modify-playback-state"
+        )
         self._client._validate_number("position_ms", position_ms, int, 0)
         params = {"position_ms": position_ms}
         if device_id is not None:
@@ -897,7 +909,10 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_scopes("set_repeat", "user-modify-playback-state")
+        self._client._require_subscription("player.set_repeat")
+        self._client._require_scopes(
+            "player.set_repeat", "user-modify-playback-state"
+        )
         if state not in self._client._PLAYBACK_STATES:
             _states = "', '".join(self._client._PLAYBACK_STATES)
             raise ValueError(
@@ -951,7 +966,10 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_scopes("set_volume", "user-modify-playback-state")
+        self._client._require_subscription("player.set_volume")
+        self._client._require_scopes(
+            "player.set_volume", "user-modify-playback-state"
+        )
         self._client._validate_number(
             "volume_percent", volume_percent, int, 0, 100
         )
@@ -1001,8 +1019,9 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
+        self._client._require_subscription("player.set_shuffle")
         self._client._require_scopes(
-            "set_shuffle", "user-modify-playback-state"
+            "player.set_shuffle", "user-modify-playback-state"
         )
         self._client._validate_type("state", state, bool)
         params = {"state": state}
@@ -1190,7 +1209,7 @@ class PlayerAPI(ResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "get_recently_played", "user-read-recently-played"
+            "player.get_recently_played", "user-read-recently-played"
         )
         self._client._request("GET", "me/player/recently-played")
         params = {}
@@ -1427,7 +1446,7 @@ class PlayerAPI(ResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "get_quote",
+            "player.get_queue",
             {"user-read-currently-playing", "user-read-playback-state"},
         )
         return self._client._request("GET", "me/player/queue").json()
@@ -1469,8 +1488,9 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
+        self._client._require_subscription("player.add_to_queue")
         self._client._require_scopes(
-            "add_to_queue", "user-modify-playback-state"
+            "player.dd_to_queue", "user-modify-playback-state"
         )
         self._client._validate_spotify_uri(
             uri, item_types=self._client._AUDIO_TYPES
