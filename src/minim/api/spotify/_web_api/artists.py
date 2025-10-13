@@ -1,11 +1,13 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
+from ..._shared import ResourceAPI
+
 if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class ArtistsAPI:
+class ArtistsAPI(ResourceAPI):
     """
     Artists API endpoints for the Spotify Web API.
 
@@ -16,15 +18,7 @@ class ArtistsAPI:
     """
 
     _ALBUM_TYPES = {"album", "single", "appears_on", "compilation"}
-
-    def __init__(self, client: "WebAPI", /) -> None:
-        """
-        Parameters
-        ----------
-        client : minim.api.spotify.WebAPI
-            Minim's Spotify Web API client.
-        """
-        self._client = client
+    _client: "WebAPI"
 
     def get_artists(
         self, artist_ids: str | Collection[str], /

@@ -1,10 +1,12 @@
 from typing import TYPE_CHECKING, Any
 
+from ..._shared import ResourceAPI
+
 if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class CategoriesAPI:
+class CategoriesAPI(ResourceAPI):
     """
     Categories API endpoints for the Spotify Web API.
 
@@ -14,14 +16,7 @@ class CategoriesAPI:
        should not be instantiated directly.
     """
 
-    def __init__(self, client: "WebAPI", /) -> None:
-        """
-        Parameters
-        ----------
-        client : minim.api.spotify.WebAPI
-            Minim's Spotify Web API client.
-        """
-        self._client = client
+    _client: "WebAPI"
 
     def get_category(
         self, category_id: str, /, *, locale: str | None = None

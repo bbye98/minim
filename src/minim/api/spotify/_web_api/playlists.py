@@ -2,11 +2,13 @@ from collections.abc import Collection
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from ..._shared import ResourceAPI
+
 if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class PlaylistsAPI:
+class PlaylistsAPI(ResourceAPI):
     """
     Playlists API endpoints for the Spotify Web API.
 
@@ -16,14 +18,7 @@ class PlaylistsAPI:
        should not be instantiated directly.
     """
 
-    def __init__(self, client: "WebAPI", /) -> None:
-        """
-        Parameters
-        ----------
-        client : minim.api.spotify.WebAPI
-            Minim's Spotify Web API client.
-        """
-        self._client = client
+    _client: "WebAPI"
 
     def get_playlist(
         self,
@@ -1217,9 +1212,11 @@ class PlaylistsAPI:
             self._client._validate_spotify_id(user_id, strict_length=False)
             return self._client._request(
                 "GET", f"users/{user_id}/playlists", params=params
-            )
+            ).json()
 
-        return self._client._request("GET", "me/playlists", params=params)
+        return self._client._request(
+            "GET", "me/playlists", params=params
+        ).json()
 
     def create_playlist(
         self,

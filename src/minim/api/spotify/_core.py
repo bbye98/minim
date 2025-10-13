@@ -5,7 +5,7 @@ from json.decoder import JSONDecodeError
 from typing import TYPE_CHECKING, Any
 import warnings
 
-from .._shared import OAuth2API
+from .._shared import OAuth2APIClient
 from ._web_api.albums import AlbumsAPI
 from ._web_api.artists import ArtistsAPI
 from ._web_api.audiobooks import AudiobooksAPI
@@ -25,13 +25,13 @@ if TYPE_CHECKING:
     import httpx
 
 
-class WebAPI(OAuth2API):
+class WebAPI(OAuth2APIClient):
     """
     Spotify Web API client.
     """
 
     _API_NAME = "SpotifyWebAPI"
-    _AUDIO_TYPES = {"track", "episode"}
+    _AUDIO_TYPES = {"episode", "track"}
     _ENV_VAR_PREFIX = "SPOTIFY_WEB_API"
     _FLOWS = {"auth_code", "pkce", "client_credentials", "implicit"}
     _PROVIDER = "Spotify"
@@ -482,7 +482,7 @@ class WebAPI(OAuth2API):
 
            .. tab:: Optional
 
-              Extended quota mode before November 11, 2024
+              Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.
                   <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`_
@@ -507,7 +507,7 @@ class WebAPI(OAuth2API):
         return self.markets.get_available_markets()["markets"]
 
     @cached_property
-    def my_profile(self) -> str:
+    def my_profile(self) -> dict[str, Any] | None:
         """
         Current user's profile.
 
@@ -516,7 +516,8 @@ class WebAPI(OAuth2API):
            Accessing this property for the first time may call
            :meth:`~minim.api.users.UsersAPI.get_user_profile`.
         """
-        return self.users.get_user_profile()
+        if self._flow != "client_credentials":
+            return self.users.get_user_profile()
 
     def _prepare_audio_types(self, types: str | Collection[str], /) -> str:
         """

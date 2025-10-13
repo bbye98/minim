@@ -1,11 +1,13 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
+from ..._shared import ResourceAPI
+
 if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class PlayerAPI:
+class PlayerAPI(ResourceAPI):
     """
     Player API endpoints for the Spotify Web API.
 
@@ -15,16 +17,9 @@ class PlayerAPI:
        should not be instantiated directly.
     """
 
+    _CONTEXT_TYPES = {"album", "artist", "playlist"}
     _PLAYBACK_STATES = {"track", "context", "off"}
-
-    def __init__(self, client: "WebAPI", /) -> None:
-        """
-        Parameters
-        ----------
-        client : minim.api.spotify.WebAPI
-            Minim's Spotify Web API client.
-        """
-        self._client = client
+    _client: "WebAPI"
 
     def get_playback_state(
         self, *, additional_types: str | None = None, market: str | None = None
@@ -254,7 +249,7 @@ class PlayerAPI:
                  <https://developer.spotify.com/documentation/web-api
                  /reference/transfer-a-users-playback>`__
 
-        .. warning::
+        .. caution::
 
            The order of execution is not guaranteed when this endpoint
            is used with other Player API endpoints in the Spotify Web API.
@@ -327,6 +322,7 @@ class PlayerAPI:
                     ]
                   }
         """
+        self._client._require_scopes("get_devices", "user-read-playback-state")
         return self._client._request("GET", "me/player/devices").json()
 
     def get_currently_playing(
@@ -540,13 +536,29 @@ class PlayerAPI:
         *,
         device_id: str | None = None,
         context_uri: str | None = None,
-        offset: dict[str, int | str] | None = None,
+        offset: int | str | None = None,
         uris: str | Collection[str] | None = None,
+        position_ms: int | None = None,
     ) -> None:
         """
         `Player > Start/Resume Playback <https://developer.spotify.com
         /documentation/web-api/reference/start-a-users-playback>`_:
         Start or resume playback.
+
+        .. admonition:: Authorization scope and subscription
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              Spotify Premium subscription
+                 Access the :code:`/me/player/play` endpoint.
+                 `Learn more. <https://www.spotify.com/us/premium/>`__
+
+              :code:`user-modify-playback-state` scope
+                 Control playback on your Spotify clients and Spotify
+                 Connect devices. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /reference/transfer-a-users-playback>`__
 
         Parameters
         ----------
@@ -558,13 +570,96 @@ class PlayerAPI:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
 
         context_uri : str, keyword-only, optional
+            Spotify URI of the album, artist, or playlist to play.
 
+            .. note::
 
-        offset : dict[str, int | str], keyword-only, optional
+               Only one of `context_uri` or `uris` can be specified.
 
+            **Example**: :code:`"spotify:album:1Je1IMUlBXcx1Fz0WE7oPT"`.
+
+        offset : int or str, keyword-only, optional
+            Zero-based index or Spotify URI of the item within the
+            context specified by `context_uri` at which to start
+            playback. Used only when `context_uri` is specified.
+
+            **Examples**:
+
+            .. container::
+
+               * :code:`5` – Sixth item in the context.
+               * :code:`spotify:track:1301WleyT98MSxVHPZCA6M` – Specific
+                 item in the context.
 
         uris : str or Collection[str], keyword-only, optional
+            Spotify URIs of items to play, provided as either a
+            comma-separated string or a collection of strings.
+
+            .. note::
+
+               Only one of `context_uri` or `uris` can be specified.
+
+            **Examples**:
+
+            .. container::
+
+               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh"`
+               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`
+               * :code:`["spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+                 "spotify:track:1301WleyT98MSxVHPZCA6M"]`
+
+        position_ms : int, keyword-only, optional
+            Position (in milliseconds) within the first item at which to
+            start playback. If a position greater than the length of
+            that item is specified, the player will start playing the
+            next item.
+
+            **Minimum value**: :code:`0`.
+
+            **Example**: :code:`25_000`.
         """
+        self._client._require_scopes(
+            "start_playback", "user-modify-playback-state"
+        )
+        params = {}
+        if device_id is not None:
+            self._client._validate_spotify_id(device_id)
+            params["device_id"] = device_id
+        payload = {}
+        if context_uri is not None:
+            if uris is not None:
+                raise ValueError(
+                    "Only one of `context_uri` or `uris` can be provided."
+                )
+            self._client._validate_spotify_uri(
+                context_uri, item_types=self._client._CONTEXT_TYPES
+            )
+            payload["context_uri"] = context_uri
+            if offset is not None:
+                if isinstance(offset, int):
+                    self._client._validate_number("offset", offset, int, 0)
+                    payload["offset"] = {"position": offset}
+                elif isinstance(offset, str):
+                    self._client._validate_spotify_uri(
+                        offset, item_types={"track"}
+                    )
+                    payload["offset"] = {"uri": offset}
+                else:
+                    raise ValueError(
+                        "`offset` must be either a zero-based index "
+                        "(int) or a Spotify track URI (str)."
+                    )
+        elif uris is not None:
+            _item_types = {"track"}
+            for uri in uris:
+                self._client._validate_spotify_uri(uri, item_types=_item_types)
+            payload["uris"] = list(uris)
+        if position_ms is not None:
+            self._client._validate_number("position_ms", position_ms, int, 0)
+            payload["position_ms"] = position_ms
+        self._client._request(
+            "PUT", "me/player/play", params=params, json=payload
+        )
 
     def pause_playback(self, *, device_id: str | None = None) -> None:
         """
@@ -578,7 +673,7 @@ class PlayerAPI:
            .. tab:: Required
 
               Spotify Premium subscription
-                 Access the :code:`/me/player` endpoint.
+                 Access the :code:`/me/player/pause` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
@@ -587,7 +682,7 @@ class PlayerAPI:
                  <https://developer.spotify.com/documentation/web-api
                  /reference/transfer-a-users-playback>`__
 
-        .. warning::
+        .. caution::
 
            The order of execution is not guaranteed when this endpoint
            is used with other Player API endpoints in the Spotify Web API.
@@ -632,7 +727,7 @@ class PlayerAPI:
                  <https://developer.spotify.com/documentation/web-api
                  /reference/transfer-a-users-playback>`__
 
-        .. warning::
+        .. caution::
 
            The order of execution is not guaranteed when this endpoint
            is used with other Player API endpoints in the Spotify Web API.
@@ -675,7 +770,7 @@ class PlayerAPI:
                  <https://developer.spotify.com/documentation/web-api
                  /reference/transfer-a-users-playback>`__
 
-        .. warning::
+        .. caution::
 
            The order of execution is not guaranteed when this endpoint
            is used with other Player API endpoints in the Spotify Web API.
@@ -705,7 +800,7 @@ class PlayerAPI:
         `Player > Seek To Position <https://developer.spotify.com
         /documentation/web-api/reference
         /seek-to-position-in-currently-playing-track>`_: Seek to a
-        specific position in the currently playing track.
+        specific position in the currently playing item.
 
         .. admonition:: Authorization scope and subscription
            :class: authorization-scope
@@ -722,7 +817,7 @@ class PlayerAPI:
                  <https://developer.spotify.com/documentation/web-api
                  /reference/transfer-a-users-playback>`__
 
-        .. warning::
+        .. caution::
 
            The order of execution is not guaranteed when this endpoint
            is used with other Player API endpoints in the Spotify Web API.
@@ -731,8 +826,8 @@ class PlayerAPI:
         ----------
         position_ms : int, positional-only
             Position (in milliseconds) to seek to. If a position greater
-            than the length of the track is specified, the player will
-            start playing the next song.
+            than the length of the item is specified, the player will
+            start playing the next item.
 
             **Minimum value**: :code:`0`.
 
@@ -776,7 +871,7 @@ class PlayerAPI:
                  <https://developer.spotify.com/documentation/web-api
                  /reference/transfer-a-users-playback>`__
 
-        .. warning::
+        .. caution::
 
            The order of execution is not guaranteed when this endpoint
            is used with other Player API endpoints in the Spotify Web API.
@@ -791,8 +886,8 @@ class PlayerAPI:
             .. container::
 
                * :code:`"track"` – Repeat the current track.
-               * :code:`"context"` – Repeat the current context (album,
-                 artist, or playlist).
+               * :code:`"context"` – Repeat the current album, artist,
+                 or playlist.
                * :code:`"off"` – Turn repeat off.
 
         device_id : str, keyword-only, optional
@@ -803,8 +898,8 @@ class PlayerAPI:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
         self._client._require_scopes("set_repeat", "user-modify-playback-state")
-        if state not in self._PLAYBACK_STATES:
-            _states = "', '".join(self._PLAYBACK_STATES)
+        if state not in self._client._PLAYBACK_STATES:
+            _states = "', '".join(self._client._PLAYBACK_STATES)
             raise ValueError(
                 f"Invalid playback state {state!r}. Valid values: '{_states}'."
             )
@@ -837,7 +932,7 @@ class PlayerAPI:
                  <https://developer.spotify.com/documentation/web-api
                  /reference/transfer-a-users-playback>`__
 
-        .. warning::
+        .. caution::
 
            The order of execution is not guaranteed when this endpoint
            is used with other Player API endpoints in the Spotify Web API.
@@ -889,7 +984,7 @@ class PlayerAPI:
                  <https://developer.spotify.com/documentation/web-api
                  /reference/transfer-a-users-playback>`__
 
-        .. warning::
+        .. caution::
 
            The order of execution is not guaranteed when this endpoint
            is used with other Player API endpoints in the Spotify Web API.
@@ -927,9 +1022,9 @@ class PlayerAPI:
         `Player > Get Recently Played Tracks
         <https://developer.spotify.com/documentation/web-api/reference
         /get-recently-played>`_: Get Spotify catalog information for
-        tracks recently played by the current user.
+        items recently played by the current user.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scope and third-party application mode
            :class: authorization-scope
 
            .. tab:: Required
@@ -939,26 +1034,449 @@ class PlayerAPI:
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#user-read-recently-played>`__
 
+           .. tab:: Optional
+
+              Extended quota mode before November 27, 2024
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
+
         Parameters
         ----------
         after : int, keyword-only, optional
+            Only return items played after the time indicated by this
+            Unix timestamp (in milliseconds).
 
+            .. note::
+
+               Only one of `after` or `before` can be specified.
+
+            **Minimum value**: :code:`0`.
 
         before : int, keyword-only, optional
+            Only return items played before the time indicated by this
+            Unix timestamp (in milliseconds).
 
+            .. note::
+
+               Only one of `after` or `before` can be specified.
+
+            **Minimum value**: :code:`0`.
 
         limit : int, keyword-only, optional
-            Maximum number of tracks to return.
+            Maximum number of items to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
+
+        Returns
+        -------
+        items : dict[str, Any]
+            Pages of Spotify content metadata for the recently played items.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "cursors": {
+                      "after": <str>,
+                      "before": <str>
+                    },
+                    "href": <str>,
+                    "items": [
+                      {
+                        "context": {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "type": <str>,
+                          "uri": <str>
+                        },
+                        "played_at": <str>,
+                        "track": {
+                          "album": {
+                            "album_type": <str>,
+                            "artists": [
+                              {
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "id": <str>,
+                                "name": <str>,
+                                "type": "artist",
+                                "uri": <str>
+                              }
+                            ],
+                            "available_markets": <list[str]>,
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "images": [
+                              {
+                                "height": <int>,
+                                "url": <str>,
+                                "width": <int>
+                              }
+                            ],
+                            "name": <str>,
+                            "release_date": <str>,
+                            "release_date_precision": <str>,
+                            "restrictions": {
+                              "reason": <str>
+                            },
+                            "total_tracks": <int>,
+                            "type": "album",
+                            "uri": <str>
+                          },
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "available_markets": <list[str]>,
+                          "disc_number": <int>,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
+                          "external_ids": {
+                            "ean": <str>,
+                            "isrc": <str>,
+                            "upc": <str>
+                          },
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "is_local": <bool>,
+                          "is_playable": <bool>,
+                          "linked_from": {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "type": "track",
+                            "uri": <str>
+                          },
+                          "name": <str>,
+                          "popularity": <int>,
+                          "preview_url": <str>,
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "track_number": <int>,
+                          "type": "track",
+                          "uri": <str>
+                        }
+                      }
+                    ],
+                    "limit": <int>,
+                    "next": <str>,
+                    "total": <int>
+                  }
         """
+        self._client._require_scopes(
+            "get_recently_played", "user-read-recently-played"
+        )
+        self._client._request("GET", "me/player/recently-played")
+        params = {}
+        if after is not None:
+            if before is not None:
+                raise ValueError(
+                    "Only one of `after` or `before` can be provided."
+                )
+            self._client._validate_number("after", after, int, 0)
+            params["after"] = after
+        elif before is not None:
+            self._client._validate_number("before", before, int, 0)
+            params["before"] = before
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        return self._client._request(
+            "GET", "me/player/recently-played", params=params
+        ).json()
 
     def get_queue(self) -> dict[str, Any]:
-        pass
+        """
+        `Player > Get the User's Queue <https://developer.spotify.com
+        /documentation/web-api/reference/get-queue>`_: Get the currently
+        playing item and queued items.
+
+        .. admonition:: Authorization scope and third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-read-currently-playing` scope
+                  Read your currently playing content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /reference/get-the-users-currently-playing-track>`__
+
+              :code:`user-read-playback-state` scope
+                 Read your currently playing content and Spotify Connect
+                 devices. `Learn more. <https://developer.spotify.com
+                 /documentation/web-api/reference
+                 /get-information-about-the-users-current-playback>`__
+
+           .. tab:: Optional
+
+              Extended quota mode before November 27, 2024
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
+
+        Returns
+        -------
+        queue : dict[str, Any]
+            Spotify content metadata for the currently playing item and
+            queued items.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "currently_playing": {
+                      "album": {
+                        "album_type": <str>,
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str>
+                          }
+                        ],
+                        "available_markets": <list[str]>,
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "images": [
+                          {
+                            "height": <int>,
+                            "url": <str>,
+                            "width": <int>
+                          }
+                        ],
+                        "name": <str>,
+                        "release_date": <str>,
+                        "release_date_precision": <str>,
+                        "restrictions": {
+                          "reason": <str>
+                        },
+                        "total_tracks": <int>,
+                        "type": "album",
+                        "uri": <str>
+                      },
+                      "artists": [
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "name": <str>,
+                          "type": "artist",
+                          "uri": <str>
+                        }
+                      ],
+                      "available_markets": <list[str]>,
+                      "disc_number": <int>,
+                      "duration_ms": <int>,
+                      "explicit": <bool>,
+                      "external_ids": {
+                        "ean": <str>,
+                        "isrc": <str>,
+                        "upc": <str>
+                      },
+                      "external_urls": {
+                        "spotify": <str>
+                      },
+                      "href": <str>,
+                      "id": <str>,
+                      "is_local": <bool>,
+                      "is_playable": <bool>,
+                      "linked_from": {
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "type": "track",
+                        "uri": <str>
+                      },
+                      "name": <str>,
+                      "popularity": <int>,
+                      "preview_url": <str>,
+                      "restrictions": {
+                        "reason": <str>
+                      },
+                      "track_number": <int>,
+                      "type": "track",
+                      "uri": <str>
+                    },
+                    "queue": [
+                      {
+                        "album": {
+                          "album_type": <str>,
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "id": <str>,
+                              "name": <str>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ],
+                          "available_markets": <list[str]>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "name": <str>,
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "total_tracks": <int>,
+                          "type": "album",
+                          "uri": <str>
+                        },
+                        "artists": [
+                          {
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "id": <str>,
+                            "name": <str>,
+                            "type": "artist",
+                            "uri": <str>
+                          }
+                        ],
+                        "available_markets": <list[str]>,
+                        "disc_number": <int>,
+                        "duration_ms": <int>,
+                        "explicit": <bool>,
+                        "external_ids": {
+                          "ean": <str>,
+                          "isrc": <str>,
+                          "upc": <str>
+                        },
+                        "external_urls": {
+                          "spotify": <str>
+                        },
+                        "href": <str>,
+                        "id": <str>,
+                        "is_local": <bool>,
+                        "is_playable": <bool>,
+                        "linked_from": {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "id": <str>,
+                          "type": "track",
+                          "uri": <str>
+                        },
+                        "name": <str>,
+                        "popularity": <int>,
+                        "preview_url": <str>,
+                        "restrictions": {
+                          "reason": <str>
+                        },
+                        "track_number": <int>,
+                        "type": "track",
+                        "uri": <str>
+                      }
+                    ]
+                  }
+        """
+        self._client._require_scopes(
+            "get_quote",
+            {"user-read-currently-playing", "user-read-playback-state"},
+        )
+        return self._client._request("GET", "me/player/queue").json()
 
     def add_to_queue(
         self, uri: str, /, *, device_id: str | None = None
     ) -> None:
-        pass
+        """
+        `Player > Add Item to Playback Queue
+        <https://developer.spotify.com/documentation/web-api/reference
+        /add-to-queue>`_: Add items to the playback queue.
+
+        .. admonition:: Authorization scope and subscription
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              Spotify Premium subscription
+                 Access the :code:`/me/player/shuffle` endpoint.
+                 `Learn more. <https://www.spotify.com/us/premium/>`__
+
+              :code:`user-modify-playback-state` scope
+                 Control playback on your Spotify clients and Spotify
+                 Connect devices. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /reference/transfer-a-users-playback>`__
+
+        Parameters
+        ----------
+        uri : str, positional-only
+            Spotify URI of the track or episode to add to the queue.
+
+            **Example**: :code:`spotif:track:4iV5W9uYEdYUVa79Axb7Rh`.
+
+        device_id : str, keyword-only, optional
+            Playback device ID. If not specified, the currently active
+            device is the target.
+
+            **Example**:
+            :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
+        """
+        self._client._require_scopes(
+            "add_to_queue", "user-modify-playback-state"
+        )
+        self._client._validate_spotify_uri(
+            uri, item_types=self._client._AUDIO_TYPES
+        )
+        params = {"uri": uri}
+        if device_id is not None:
+            self._client._validate_spotify_id(device_id)
+            params["device_id"] = device_id
+        self._client._request("POST", "me/player/queue", params=params)

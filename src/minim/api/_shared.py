@@ -24,6 +24,31 @@ if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
 
 
+def _copy_docstring(
+    source: Callable[..., Any],
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    """
+    Copy the docstring from a function to another function.
+
+    Parameters
+    ----------
+    source : Callable[..., Any]
+        Source function.
+
+    Returns
+    -------
+    decorator : Callable[[Callable[..., Any]], Callable[..., Any]]
+        Decorator that replaces the docstring of the decorated function
+        with that of `source`.
+    """
+
+    def decorator(destination: Callable[..., Any]) -> Callable[..., Any]:
+        destination.__doc__ = source.__doc__
+        return destination
+
+    return decorator
+
+
 class OAuth2RedirectHandler(BaseHTTPRequestHandler):
     """
     HTTP request handler for OAuth 2.0 redirect URIs.
@@ -85,12 +110,116 @@ class OAuth2RedirectHandler(BaseHTTPRequestHandler):
         pass
 
 
-class OAuth2API(ABC):
+class APIClient(ABC):
+    """
+    Abstract base class for API clients.
+    """
+
+    _API_NAME: str = ...
+    _PROVIDER: str = ...
+    #: Base URL for API endpoints.
+    BASE_URL: str = ...
+
+    @abstractmethod
+    def _request(
+        self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
+    ) -> httpx.Response:
+        """
+        Make an HTTP request to an API endpoint.
+
+        Parameters
+        ----------
+        method : str, positional-only
+            HTTP method.
+
+        endpoint : str, positional-only
+            API endpoint.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
+
+        Returns
+        -------
+        response : httpx.Response
+            HTTP response.
+        """
+        ...
+
+    @staticmethod
+    def _validate_number(
+        name: str,
+        value: int,
+        data_type: type,
+        lower_bound: int | None = None,
+        upper_bound: int | None = None,
+    ) -> None:
+        """
+        Validate an integer value.
+
+        Parameters
+        ----------
+        name : str
+            Variable name.
+
+        value : int
+            Integer value.
+
+        data_type : type
+            Data type.
+
+        lower_bound : int, optional
+            Lower bound, inclusive.
+
+        upper_bound : int, optional
+            Upper bound, inclusive.
+        """
+        if lower_bound is None:
+            if upper_bound is None:
+                emsg_suffix = ""
+            else:
+                emsg_suffix = f" less than {upper_bound}, inclusive"
+        else:
+            if upper_bound is None:
+                emsg_suffix = f" greater than {lower_bound}, inclusive"
+            else:
+                emsg_suffix = (
+                    f" between {lower_bound} and {upper_bound}, inclusive"
+                )
+        if not (
+            isinstance(value, data_type)
+            and (lower_bound is None or value >= lower_bound)
+            and (upper_bound is None or value <= upper_bound)
+        ):
+            raise ValueError(f"`{name}` must be an int{emsg_suffix}.")
+
+    @staticmethod
+    def _validate_type(name: str, value: Any, data_type: type) -> None:
+        """
+        Validate the data type of a variable.
+
+        Parameters
+        ----------
+        name : str
+            Variable name.
+
+        value : Any
+            Variable value.
+
+        data_type : type
+            Allowed data type.
+        """
+        if not isinstance(value, data_type):
+            raise ValueError(
+                f"`{name}` must be {data_type.__name__}, not "
+                f"{type(value).__name__}."
+            )
+
+
+class OAuth2APIClient(APIClient):
     """
     Abstract base class for OAuth 2.0-based API clients.
     """
 
-    _API_NAME: str = ...
     _BACKENDS = {"http.server", "playwright"}
     _FLOWS: set[str] = ...
     _OAUTH_FLOWS_NAMES = {
@@ -101,16 +230,10 @@ class OAuth2API(ABC):
         "implicit": "Implicit Grant Flow",
         # "password": "Resource Owner Password Credentials Flow"
     }
-    _PROVIDER: str = ...
     _ENV_VAR_PREFIX: str = ...
     _SCOPES: Any = ...
-
     #: Authorization endpoint.
     AUTH_URL: str = ...
-
-    #: Base URL for API endpoints.
-    BASE_URL: str = ...
-
     #: Token endpoint.
     TOKEN_URL: str = ...
 
@@ -328,31 +451,6 @@ class OAuth2API(ABC):
         ...
 
     @abstractmethod
-    def _request(
-        self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
-    ) -> httpx.Response:
-        """
-        Make an HTTP request to an API endpoint.
-
-        Parameters
-        ----------
-        method : str, positional-only
-            HTTP method.
-
-        endpoint : str, positional-only
-            API endpoint.
-
-        **kwargs : dict[str, Any]
-            Keyword arguments to pass to :meth:`httpx.Client.request`.
-
-        Returns
-        -------
-        response : httpx.Response
-            HTTP response.
-        """
-        ...
-
-    @abstractmethod
     def _resolve_user_identifier(self) -> None:
         """
         Resolve and assign a user identifier for the current account.
@@ -509,75 +607,6 @@ class OAuth2API(ABC):
             ).hexdigest()
         return f"last_{flow}"
 
-    @staticmethod
-    def _validate_number(
-        name: str,
-        value: int,
-        data_type: type,
-        lower_bound: int | None = None,
-        upper_bound: int | None = None,
-    ) -> None:
-        """
-        Validate an integer value.
-
-        Parameters
-        ----------
-        name : str
-            Variable name.
-
-        value : int
-            Integer value.
-
-        data_type : type
-            Data type.
-
-        lower_bound : int, optional
-            Lower bound, inclusive.
-
-        upper_bound : int, optional
-            Upper bound, inclusive.
-        """
-        if lower_bound is None:
-            if upper_bound is None:
-                emsg_suffix = ""
-            else:
-                emsg_suffix = f" less than {upper_bound}, inclusive"
-        else:
-            if upper_bound is None:
-                emsg_suffix = f" greater than {lower_bound}, inclusive"
-            else:
-                emsg_suffix = (
-                    f" between {lower_bound} and {upper_bound}, inclusive"
-                )
-        if not (
-            isinstance(value, data_type)
-            and (lower_bound is None or value >= lower_bound)
-            and (upper_bound is None or value <= upper_bound)
-        ):
-            raise ValueError(f"`{name}` must be an int{emsg_suffix}.")
-
-    @staticmethod
-    def _validate_type(name: str, value: Any, data_type: type) -> None:
-        """
-        Validate the data type of a variable.
-
-        Parameters
-        ----------
-        name : str
-            Variable name.
-
-        value : Any
-            Variable value.
-
-        data_type : type
-            Allowed data type.
-        """
-        if not isinstance(value, data_type):
-            raise ValueError(
-                f"`{name}` must be {data_type.__name__}, not "
-                f"{type(value).__name__}."
-            )
-
     def close(self) -> None:
         """
         Terminate the HTTP client session.
@@ -596,7 +625,7 @@ class OAuth2API(ABC):
         """
         Set or update the access token and related information.
 
-        .. caution::
+        .. warning::
 
            Calling this method replaces all existing values with the
            provided arguments. Parameters not specified explicitly will
@@ -659,7 +688,7 @@ class OAuth2API(ABC):
         """
         Set or update the authorization flow and related information.
 
-        .. caution::
+        .. warning::
 
            Calling this method replaces all existing values with the
            provided arguments. Parameters not specified explicitly will
@@ -1157,26 +1186,16 @@ class OAuth2API(ABC):
             self._user_identifier = user_identifier
 
 
-def _copy_docstring(
-    source: Callable[..., Any],
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+class ResourceAPI(ABC):
     """
-    Copy the docstring from a function to another function.
-
-    Parameters
-    ----------
-    source : Callable[..., Any]
-        Source function.
-
-    Returns
-    -------
-    decorator : Callable[[Callable[..., Any]], Callable[..., Any]]
-        Decorator that replaces the docstring of the decorated function
-        with that of `source`.
+    Abstract base class for API resource endpoint groups.
     """
 
-    def decorator(destination: Callable[..., Any]) -> Callable[..., Any]:
-        destination.__doc__ = source.__doc__
-        return destination
-
-    return decorator
+    def __init__(self, client: APIClient, /) -> None:
+        """
+        Parameters
+        ----------
+        client : minim.api._shared.APIClient
+            API client instance used to make HTTP requests.
+        """
+        self._client = client

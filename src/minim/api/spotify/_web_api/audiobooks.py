@@ -1,11 +1,13 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
+from ..._shared import ResourceAPI
+
 if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class AudiobooksAPI:
+class AudiobooksAPI(ResourceAPI):
     """
     Audiobooks API endpoints for the Spotify Web API.
 
@@ -20,14 +22,7 @@ class AudiobooksAPI:
        should not be instantiated directly.
     """
 
-    def __init__(self, client: "WebAPI", /) -> None:
-        """
-        Parameters
-        ----------
-        client : minim.api.spotify.WebAPI
-            Minim's Spotify Web API client.
-        """
-        self._client = client
+    _client: "WebAPI"
 
     def get_audiobooks(
         self,

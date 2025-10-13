@@ -1,11 +1,13 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
+from ..._shared import ResourceAPI
+
 if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class SearchAPI:
+class SearchAPI(ResourceAPI):
     """
     Search API endpoints for the Spotify Web API.
 
@@ -15,24 +17,16 @@ class SearchAPI:
        should not be instantiated directly.
     """
 
-    _TYPES = {
+    _RESOURCE_TYPES = {
         "album",
         "artist",
-        "playlist",
-        "track",
-        "show",
-        "episode",
         "audiobook",
+        "episode",
+        "playlist",
+        "show",
+        "track",
     }
-
-    def __init__(self, client: "WebAPI", /) -> None:
-        """
-        Parameters
-        ----------
-        client : minim.api.spotify.WebAPI
-            Minim's Spotify Web API client.
-        """
-        self._client = client
+    _client: "WebAPI"
 
     def search(
         self,
@@ -524,8 +518,8 @@ class SearchAPI:
 
         types = set(types)
         for type_ in types:
-            if type_ not in self._TYPES:
-                _types = "', '".join(self._TYPES)
+            if type_ not in self._RESOURCE_TYPES:
+                _types = "', '".join(self._RESOURCE_TYPES)
                 raise ValueError(
                     f"Invalid Spotify item type {type_!r}. "
                     f"Valid values: '{_types}'."

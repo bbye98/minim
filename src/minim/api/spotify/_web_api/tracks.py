@@ -3,6 +3,8 @@ from datetime import datetime
 from numbers import Number
 from typing import TYPE_CHECKING, Any
 
+from ..._shared import ResourceAPI
+
 if TYPE_CHECKING:
     from .. import WebAPI
 
@@ -19,7 +21,7 @@ FloatAttributeSpec = (
 )
 
 
-class TracksAPI:
+class TracksAPI(ResourceAPI):
     """
     Tracks API endpoints for the Spotify Web API.
 
@@ -29,14 +31,7 @@ class TracksAPI:
        should not be instantiated directly.
     """
 
-    def __init__(self, client: "WebAPI", /) -> None:
-        """
-        Parameters
-        ----------
-        client : minim.api.spotify.WebAPI
-            Minim's Spotify Web API client.
-        """
-        self._client = client
+    _client: "WebAPI"
 
     def get_tracks(
         self, track_ids: str | Collection[str], /, *, market: str | None = None
@@ -1576,7 +1571,7 @@ class TracksAPI:
 
         is_int = data_type is int
         if isinstance(value, data_type):
-            self._validate_number(attribute, value, data_type, *range_)
+            self._client._validate_number(attribute, value, data_type, *range_)
             params[f"target_{attribute}"] = value
         elif isinstance(value, Collection):
             if is_int and any(
@@ -1608,7 +1603,9 @@ class TracksAPI:
                 )
             else:
                 for v in value:
-                    self._validate_number(attribute, v, data_type, *range_)
+                    self._client._validate_number(
+                        attribute, v, data_type, *range_
+                    )
                 if length == 2:
                     params[f"min_{attribute}"], params[f"max_{attribute}"] = (
                         value

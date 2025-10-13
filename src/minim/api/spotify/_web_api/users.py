@@ -2,7 +2,7 @@ from collections.abc import Collection
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import _copy_docstring
+from ..._shared import ResourceAPI, _copy_docstring
 from .albums import AlbumsAPI
 from .artists import ArtistsAPI
 from .audiobooks import AudiobooksAPI
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from .. import WebAPI
 
 
-class UsersAPI:
+class UsersAPI(ResourceAPI):
     """
     Users API endpoints for the Spotify Web API.
 
@@ -26,15 +26,7 @@ class UsersAPI:
     """
 
     _TIME_RANGES = {"long_term", "medium_term", "short_term"}
-
-    def __init__(self, client: "WebAPI", /) -> None:
-        """
-        Parameters
-        ----------
-        client : minim.api.spotify.WebAPI
-            Minim's Spotify Web API client.
-        """
-        self._client = client
+    _client: "WebAPI"
 
     def get_user_profile(self, user_id: str | None = None, /) -> dict[str, Any]:
         """
