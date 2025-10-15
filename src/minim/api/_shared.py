@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
 import base64
 from collections.abc import Collection
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import hashlib
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import ipaddress
 import os
 import secrets
+import ssl
 from textwrap import dedent
 import threading
 import time
@@ -14,10 +16,14 @@ from urllib.parse import parse_qsl, urlencode, urlparse
 import warnings
 import webbrowser
 
+from cryptography import x509
+from cryptography.x509.oid import NameOID
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 import httpx
 import yaml
 
-from .. import FOUND, CONFIG_FILE, config
+from .. import FOUND, MINIM_DIR, CONFIG_FILE, config
 from . import api_config
 
 if FOUND["playwright"]:
@@ -117,6 +123,7 @@ class APIClient(ABC):
 
     _API_NAME: str = ...
     _PROVIDER: str = ...
+    _QUAL_NAME: str = ...
     #: Base URL for API endpoints.
     BASE_URL: str = ...
 
@@ -284,8 +291,8 @@ class OAuth2APIClient(APIClient):
         redirect_uri : str, keyword-only, optional
             Redirect URI. Required for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
-            the host is not :code:`127.0.0.1` or :code:`localhost`,
-            redirect handling is not available.
+            the host is not :code:`localhost`, :code:`127.0.0.1`, or
+            :code:`::1`, redirect handling is not available.
 
         scopes : str or Collection[str], keyword-only, optional
             Authorization scopes the client requests to access user
@@ -358,9 +365,8 @@ class OAuth2APIClient(APIClient):
             user identifier (e.g., user ID) after successful
             authorization.
 
-            Prepending the identifier with a plus sign (:code:`"+"`)
-            allows authorizing an additional account for the same client
-            ID and authorization flow.
+            Prepending the identifier with a tilde (:code:`"~"`)
+            allows skipping the token retrieval from the local storage.
         """
         self._client = httpx.Client(base_url=self.BASE_URL)
 
@@ -381,7 +387,7 @@ class OAuth2APIClient(APIClient):
             )
 
         # Assign unique account identifier
-        self._set_account_identifier(flow, client_id, user_identifier)
+        self._resolve_account_identifier(flow, client_id, user_identifier)
 
         # If an access token is not provided, try to retrieve it from
         # local token storage
@@ -415,7 +421,7 @@ class OAuth2APIClient(APIClient):
             browser=browser,
             authorize=False,
             persist=persist,
-            user_identifier="__init__",
+            user_identifier=user_identifier or "__init__",  # TODO
         )
         if access_token:
             self.set_access_token(
@@ -451,7 +457,7 @@ class OAuth2APIClient(APIClient):
         ...
 
     @abstractmethod
-    def _resolve_user_identifier(self) -> None:
+    def _get_user_identifier(self) -> str:
         """
         Resolve and assign a user identifier for the current account.
         """
@@ -607,6 +613,51 @@ class OAuth2APIClient(APIClient):
             ).hexdigest()
         return f"last_{flow}"
 
+    @staticmethod
+    def _generate_self_signed_certificate() -> None:
+        """
+        Generate a self-signed certificate to handle HTTPS redirects.
+        """
+        subject = x509.Name(
+            [
+                x509.NameAttribute(NameOID.COMMON_NAME, "127.0.0.1"),
+                x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Minim"),
+            ]
+        )
+        key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
+        cert = (
+            x509.CertificateBuilder()
+            .subject_name(subject)
+            .issuer_name(subject)
+            .public_key(key.public_key())
+            .serial_number(x509.random_serial_number())
+            .not_valid_before(datetime.now(timezone.utc) - timedelta(days=1))
+            .not_valid_after(datetime.now(timezone.utc) + timedelta(days=365))
+            .add_extension(
+                x509.SubjectAlternativeName(
+                    [
+                        x509.DNSName("localhost"),
+                        x509.IPAddress(ipaddress.ip_address("127.0.0.1")),
+                        x509.IPAddress(ipaddress.ip_address("::1")),
+                    ]
+                ),
+                critical=False,
+            )
+            .sign(key, hashes.SHA256())
+        )
+
+        with open(MINIM_DIR / "key.pem", "wb") as f:
+            f.write(
+                key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.TraditionalOpenSSL,
+                    encryption_algorithm=serialization.NoEncryption(),
+                )
+            )
+
+        with open(MINIM_DIR / "cert.pem", "wb") as f:
+            f.write(cert.public_bytes(serialization.Encoding.PEM))
+
     def close(self) -> None:
         """
         Terminate the HTTP client session.
@@ -723,8 +774,8 @@ class OAuth2APIClient(APIClient):
         redirect_uri : str, keyword-only, optional
             Redirect URI. Required for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
-            the host is not :code:`127.0.0.1` or :code:`localhost`,
-            redirect handling is not available.
+            the host is not :code:`localhost`, :code:`127.0.0.1`, or
+            :code:`::1`, redirect handling is not available.
 
         scopes : str or Collection[str], keyword-only, optional
             Authorization scopes the client requests to access user
@@ -788,9 +839,8 @@ class OAuth2APIClient(APIClient):
             user identifier (e.g., user ID) after successful
             authorization.
 
-            Prepending the identifier with a plus sign (:code:`"+"`)
-            allows authorizing an additional account for the same client
-            ID and authorization flow.
+            Prepending the identifier with a tilde (:code:`"~"`)
+            allows skipping the token retrieval from the local storage.
         """
 
         if flow not in self._FLOWS:
@@ -800,7 +850,7 @@ class OAuth2APIClient(APIClient):
                 f"Valid values: '{_flows}'."
             )
         if user_identifier != "__init__":
-            self._set_account_identifier(flow, client_id, user_identifier)
+            self._resolve_account_identifier(flow, client_id, user_identifier)
         self._flow = flow
         self._scopes = (
             scopes
@@ -824,9 +874,10 @@ class OAuth2APIClient(APIClient):
                 "redirect URI to be provided via the `redirect_uri` "
                 "argument."
             )
+        parsed = urlparse(redirect_uri)
         self._port = (
             port
-            if (port := (parsed := urlparse(redirect_uri)).port)
+            if (port := parsed.port)
             else 80
             if parsed.scheme == "http"
             else 443
@@ -834,11 +885,21 @@ class OAuth2APIClient(APIClient):
             else None
         )
         self._redirect_uri = redirect_uri
-        if backend and backend not in self._BACKENDS:
-            _backends = "', '".join(self._BACKENDS)
-            raise ValueError(
-                f"Invalid backend {backend!r}. Valid values: '{_backends}'."
-            )
+        if backend:
+            if backend not in self._BACKENDS:
+                _backends = "', '".join(self._BACKENDS)
+                raise ValueError(
+                    f"Invalid backend {backend!r}. Valid values: '{_backends}'."
+                )
+            if (hostname := parsed.hostname) not in {
+                "localhost",
+                "127.0.0.1",
+                "::1",
+            }:
+                backend = None
+                warnings.warn(
+                    f"Redirect handling is not available for host {hostname!r}."
+                )
         self._backend = backend
         self._browser = browser
         self._persist = persist
@@ -946,7 +1007,23 @@ class OAuth2APIClient(APIClient):
                 )
 
             if self._backend == "http.server":
-                httpd = HTTPServer(("", self._port), OAuth2RedirectHandler)
+                httpd = HTTPServer(
+                    (urlparse(self._redirect_uri).hostname, self._port),
+                    OAuth2RedirectHandler,
+                )
+                if urlparse(self._redirect_uri).scheme == "https":
+                    certfile = MINIM_DIR / "cert.pem"
+                    keyfile = MINIM_DIR / "key.pem"
+                    if not certfile.exists() or not keyfile.exists():
+                        self._generate_self_signed_certificate()
+                    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+                    context.load_cert_chain(
+                        certfile=certfile,
+                        keyfile=keyfile,
+                    )
+                    httpd.socket = context.wrap_socket(
+                        httpd.socket, server_side=True
+                    )
                 httpd.serve_forever()
                 queries = httpd.response
             else:
@@ -1085,12 +1162,13 @@ class OAuth2APIClient(APIClient):
             accounts = api_config.get(self._API_NAME)
             if not isinstance(accounts, dict):
                 api_config[self._API_NAME] = accounts = {}
-            if flow != "client_credentials":
-                if not self._user_identifier:
-                    self._resolve_user_identifier()
-                self._account_identifier = hashlib.sha256(
-                    f"{self._client_id}:{flow}:{self._user_identifier}".encode()
-                ).hexdigest()
+            self._resolve_account_identifier(
+                self._flow,
+                self._client_id,
+                None
+                if self._flow == "client_credentials"
+                else self._get_user_identifier(),
+            )
             accounts[self._account_identifier] = accounts[
                 f"last_{self._flow}"
             ] = {
@@ -1136,14 +1214,14 @@ class OAuth2APIClient(APIClient):
         if isinstance(scopes, str):
             if scopes not in self._scopes:
                 raise RuntimeError(
-                    f"{self._API_NAME}.{endpoint_method}() requires the "
-                    f"'{scopes}' scope."
+                    f"{self._QUAL_NAME}.{endpoint_method}() requires "
+                    f"the '{scopes}' scope."
                 )
         else:
             for scope in scopes:
                 self._require_scopes(endpoint_method, scope)
 
-    def _set_account_identifier(
+    def _resolve_account_identifier(
         self,
         flow: str | None = None,
         client_id: str | None = None,
@@ -1176,7 +1254,7 @@ class OAuth2APIClient(APIClient):
         if not user_identifier:
             user_identifier = getattr(self, "_user_identifier", None)
 
-        if user_identifier and user_identifier.startswith("+"):
+        if user_identifier and user_identifier.startswith("~"):
             self._account_identifier = None
             self._user_identifier = user_identifier[1:]
         else:
@@ -1199,3 +1277,7 @@ class ResourceAPI(ABC):
             API client instance used to make HTTP requests.
         """
         self._client = client
+
+
+class TTLCache:
+    pass

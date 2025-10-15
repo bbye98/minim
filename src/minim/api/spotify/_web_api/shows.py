@@ -548,7 +548,7 @@ class ShowsAPI(ResourceAPI):
         """
         `Shows > Remove User's Saved Shows
         <https://developer.spotify.com/documentation/web-api/reference
-        /remove-shows-user>`_: Save one or more shows to the current
+        /remove-shows-user>`_: Remove one or more shows from the current
         user's library.
 
         .. admonition:: Authorization scope

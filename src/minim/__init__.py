@@ -11,7 +11,10 @@ FOUND = {lib: find_spec(lib) is not None for lib in {"playwright"}}
 HOME_DIR = Path.home()
 
 # Load (or create) local token storage file
-CONFIG_FILE = HOME_DIR / "minim.yaml"
+MINIM_DIR = HOME_DIR / ".minim"
+if not MINIM_DIR.exists():
+    MINIM_DIR.mkdir()
+CONFIG_FILE = MINIM_DIR / "config.yaml"
 if CONFIG_FILE.exists():
     with CONFIG_FILE.open() as f:
         config = yaml.safe_load(f)

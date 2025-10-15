@@ -267,10 +267,10 @@ class PlayerAPI(ResourceAPI):
             :code:`True`, playback begins immediately. If :code:`False`,
             the current playback state is preserved.
         """
-        self._client._require_subscription("player.transfer_playback")
         self._client._require_scopes(
             "player.transfer_playback", "user-modify-playback-state"
         )
+        self._client._require_spotify_premium("player.transfer_playback")
         self._client._validate_spotify_id(device_id)
         payload = {"device_id": device_id}
         if play is not None:
@@ -621,10 +621,10 @@ class PlayerAPI(ResourceAPI):
 
             **Example**: :code:`25_000`.
         """
-        self._client._require_subscription("player.start_playback")
         self._client._require_scopes(
             "player.start_playback", "user-modify-playback-state"
         )
+        self._client._require_spotify_premium("player.start_playback")
         params = {}
         if device_id is not None:
             self._client._validate_spotify_id(device_id)
@@ -700,10 +700,10 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_subscription("player.pause_playback")
         self._client._require_scopes(
             "player.pause_playback", "user-modify-playback-state"
         )
+        self._client._require_spotify_premium("player.pause_playback")
         params = {}
         if device_id is not None:
             self._client._validate_spotify_id(device_id)
@@ -746,10 +746,10 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_subscription("player.skip_to_next")
         self._client._require_scopes(
             "player.skip_to_next", "user-modify-playback-state"
         )
+        self._client._require_spotify_premium("player.skip_to_next")
         params = {}
         if device_id is not None:
             self._client._validate_spotify_id(device_id)
@@ -792,10 +792,10 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_subscription("player.skip_to_previous")
         self._client._require_scopes(
             "player.skip_to_previous", "user-modify-playback-state"
         )
+        self._client._require_spotify_premium("player.skip_to_previous")
         params = {}
         if device_id is not None:
             self._client._validate_spotify_id(device_id)
@@ -849,10 +849,10 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_subscription("player.seek_to_position")
         self._client._require_scopes(
             "player.seek_to_position", "user-modify-playback-state"
         )
+        self._client._require_spotify_premium("player.seek_to_position")
         self._client._validate_number("position_ms", position_ms, int, 0)
         params = {"position_ms": position_ms}
         if device_id is not None:
@@ -909,10 +909,10 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_subscription("player.set_repeat")
         self._client._require_scopes(
             "player.set_repeat", "user-modify-playback-state"
         )
+        self._client._require_spotify_premium("player.set_repeat")
         if state not in self._client._PLAYBACK_STATES:
             _states = "', '".join(self._client._PLAYBACK_STATES)
             raise ValueError(
@@ -966,10 +966,10 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_subscription("player.set_volume")
         self._client._require_scopes(
             "player.set_volume", "user-modify-playback-state"
         )
+        self._client._require_spotify_premium("player.set_volume")
         self._client._validate_number(
             "volume_percent", volume_percent, int, 0, 100
         )
@@ -1019,10 +1019,10 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_subscription("player.set_shuffle")
         self._client._require_scopes(
             "player.set_shuffle", "user-modify-playback-state"
         )
+        self._client._require_spotify_premium("player.set_shuffle")
         self._client._validate_type("state", state, bool)
         params = {"state": state}
         if device_id is not None:
@@ -1465,7 +1465,7 @@ class PlayerAPI(ResourceAPI):
            .. tab:: Required
 
               Spotify Premium subscription
-                 Access the :code:`/me/player/shuffle` endpoint.
+                 Access the :code:`/me/player/queue` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
@@ -1488,10 +1488,10 @@ class PlayerAPI(ResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_subscription("player.add_to_queue")
         self._client._require_scopes(
-            "player.dd_to_queue", "user-modify-playback-state"
+            "player.add_to_queue", "user-modify-playback-state"
         )
+        self._client._require_spotify_premium("player.add_to_queue")
         self._client._validate_spotify_uri(
             uri, item_types=self._client._AUDIO_TYPES
         )

@@ -3,6 +3,7 @@ from datetime import datetime
 from functools import cached_property
 from json.decoder import JSONDecodeError
 from typing import TYPE_CHECKING, Any
+from urllib.parse import urlparse
 import warnings
 
 from .._shared import OAuth2APIClient
@@ -33,8 +34,9 @@ class WebAPI(OAuth2APIClient):
     _API_NAME = "SpotifyWebAPI"
     _AUDIO_TYPES = {"episode", "track"}
     _ENV_VAR_PREFIX = "SPOTIFY_WEB_API"
-    _FLOWS = {"auth_code", "pkce", "client_credentials", "implicit"}
+    _FLOWS = {"auth_code", "pkce", "client_credentials"}
     _PROVIDER = "Spotify"
+    _QUAL_NAME = "minim.api.spotify.WebAPI"
     _SCOPES = {
         "images": {"ugc-image-upload"},
         "spotify_connect": {
@@ -93,7 +95,6 @@ class WebAPI(OAuth2APIClient):
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
                  for Code Exchange (PKCE).
                * :code:`"client_credentials"` – Client Credentials Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
 
         client_id : str, keyword-only, optional
             Client ID. Must be provided unless it is set as system
@@ -110,8 +111,8 @@ class WebAPI(OAuth2APIClient):
         redirect_uri : str, keyword-only, optional
             Redirect URI. Required for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
-            the host is not :code:`127.0.0.1` or :code:`localhost`,
-            redirect handling is not available.
+            the host is not :code:`127.0.0.1`, redirect handling is not
+            available.
 
         scopes : str or Collection[str], keyword-only, optional
             Authorization scopes the client requests to access user
@@ -184,9 +185,8 @@ class WebAPI(OAuth2APIClient):
             hash of the client ID, authorization flow, and the Spotify
             user ID.
 
-            Prepending the identifier with a plus sign (:code:`"+"`)
-            allows authorizing an additional account for the same client
-            ID and authorization flow.
+            Prepending the identifier with a tilde (:code:`"~"`)
+            allows skipping the token retrieval from the local storage.
         """
         # Initialize subclasses for categorized endpoints
         #: Albums API endpoints for the Spotify Web API.
@@ -224,6 +224,12 @@ class WebAPI(OAuth2APIClient):
                 "in the Spotify Web API does not support scopes."
             )
             scopes = ""
+
+        if urlparse(redirect_uri).scheme == "http":
+            raise ValueError(
+                "Redirect URIs using the HTTP scheme are not supported "
+                "by the Spotify Web API."
+            )
 
         super().__init__(
             flow=flow,
@@ -599,14 +605,14 @@ class WebAPI(OAuth2APIClient):
             raise RuntimeError(emsg)
         return resp
 
-    def _resolve_user_identifier(self) -> None:
+    def _get_user_identifier(self) -> str:
         """
         Assign the Spotify user ID as the user identifier for the
         current account.
         """
-        self._user_identifier = self.my_profile["id"]
+        return self.my_profile["id"]
 
-    def _require_subscription(self, endpoint_method: str) -> None:
+    def _require_spotify_premium(self, endpoint_method: str) -> None:
         """
         Ensure that a Spotify Premium subscription is active for an
         endpoint method that requires it.
@@ -622,8 +628,8 @@ class WebAPI(OAuth2APIClient):
             and self.my_profile["product"] != "premium"
         ):
             raise RuntimeError(
-                f"{self._API_NAME}.{endpoint_method}() requires an "
-                f"active Spotify Premium subscription."
+                f"{self._QUAL_NAME}.{endpoint_method}() requires "
+                "an active Spotify Premium subscription."
             )
 
     def _validate_market(self, market: str, /) -> None:
