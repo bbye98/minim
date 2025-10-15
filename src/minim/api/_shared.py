@@ -421,7 +421,7 @@ class OAuth2APIClient(APIClient):
             browser=browser,
             authorize=False,
             persist=persist,
-            user_identifier=user_identifier or "__init__",  # TODO
+            user_identifier=user_identifier,
         )
         if access_token:
             self.set_access_token(
@@ -849,8 +849,6 @@ class OAuth2APIClient(APIClient):
                 f"Invalid authorization flow {flow!r}. "
                 f"Valid values: '{_flows}'."
             )
-        if user_identifier != "__init__":
-            self._resolve_account_identifier(flow, client_id, user_identifier)
         self._flow = flow
         self._scopes = (
             scopes
@@ -1165,9 +1163,12 @@ class OAuth2APIClient(APIClient):
             self._resolve_account_identifier(
                 self._flow,
                 self._client_id,
-                None
-                if self._flow == "client_credentials"
-                else self._get_user_identifier(),
+                getattr(self, "_user_identifier")
+                or (
+                    None
+                    if self._flow == "client_credentials"
+                    else self._get_user_identifier()
+                ),
             )
             accounts[self._account_identifier] = accounts[
                 f"last_{self._flow}"

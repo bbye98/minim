@@ -525,6 +525,13 @@ class WebAPI(OAuth2APIClient):
         if self._flow != "client_credentials":
             return self.users.get_user_profile()
 
+    def _get_user_identifier(self) -> str:
+        """
+        Assign the Spotify user ID as the user identifier for the
+        current account.
+        """
+        return self.my_profile["id"]
+
     def _prepare_audio_types(self, types: str | Collection[str], /) -> str:
         """
         Stringify a list of Spotify item types into a comma-delimited
@@ -604,13 +611,6 @@ class WebAPI(OAuth2APIClient):
                 emsg += f" – {details}"
             raise RuntimeError(emsg)
         return resp
-
-    def _get_user_identifier(self) -> str:
-        """
-        Assign the Spotify user ID as the user identifier for the
-        current account.
-        """
-        return self.my_profile["id"]
 
     def _require_spotify_premium(self, endpoint_method: str) -> None:
         """
