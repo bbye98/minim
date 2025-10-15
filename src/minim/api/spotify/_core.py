@@ -185,8 +185,8 @@ class WebAPI(OAuth2APIClient):
             hash of the client ID, authorization flow, and the Spotify
             user ID.
 
-            Prepending the identifier with a tilde (:code:`"~"`)
-            allows skipping the token retrieval from the local storage.
+            Prepending the identifier with a tilde (`"~"`) skips token
+            retrieval from local storage and forces a reauthorization.
         """
         # Initialize subclasses for categorized endpoints
         #: Albums API endpoints for the Spotify Web API.

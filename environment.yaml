@@ -4,6 +4,7 @@ channels:
   - microsoft
 dependencies:
   # CORE DEPENDENCIES
+  - cryptography
   - httpx
   - pyyaml
   # OPTIONAL DEPENDENCIES

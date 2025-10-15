@@ -14,6 +14,7 @@ classifiers = [
   "Programming Language :: Python :: 3"
 ]
 dependencies = [
+  "cryptography",
   "httpx"
 ]
 description = """

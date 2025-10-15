@@ -365,8 +365,8 @@ class OAuth2APIClient(APIClient):
             user identifier (e.g., user ID) after successful
             authorization.
 
-            Prepending the identifier with a tilde (:code:`"~"`)
-            allows skipping the token retrieval from the local storage.
+            Prepending the identifier with a tilde (`"~"`) skips token
+            retrieval from local storage and forces a reauthorization.
         """
         self._client = httpx.Client(base_url=self.BASE_URL)
 
@@ -839,8 +839,8 @@ class OAuth2APIClient(APIClient):
             user identifier (e.g., user ID) after successful
             authorization.
 
-            Prepending the identifier with a tilde (:code:`"~"`)
-            allows skipping the token retrieval from the local storage.
+            Prepending the identifier with a tilde (`"~"`) skips token
+            retrieval from local storage and forces a reauthorization.
         """
 
         if flow not in self._FLOWS:
@@ -1278,7 +1278,3 @@ class ResourceAPI(ABC):
             API client instance used to make HTTP requests.
         """
         self._client = client
-
-
-class TTLCache:
-    pass
