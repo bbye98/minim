@@ -3,7 +3,7 @@ from datetime import datetime
 from numbers import Number
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import ResourceAPI
+from ..._shared import TTLCache, ResourceAPI
 
 if TYPE_CHECKING:
     from .. import WebAPI
@@ -33,6 +33,7 @@ class TracksAPI(ResourceAPI):
 
     _client: "WebAPI"
 
+    @TTLCache.cached_method(ttl=86_400)
     def get_tracks(
         self, track_ids: str | Collection[str], /, *, market: str | None = None
     ) -> dict[str, Any]:
@@ -648,6 +649,7 @@ class TracksAPI(ResourceAPI):
             },
         ).json()
 
+    @TTLCache.cached_method(ttl=86_400)
     def get_audio_features(
         self, track_ids: str | Collection[str], /
     ) -> dict[str, Any]:
@@ -761,6 +763,7 @@ class TracksAPI(ResourceAPI):
             "GET", "audio-features", params={"ids": track_ids}
         ).json()
 
+    @TTLCache.cached_method(ttl=86_400)
     def get_audio_analysis(self, track_id: str, /) -> dict[str, Any]:
         """
         `Tracks > Get Track's Audio Analysis
@@ -890,6 +893,7 @@ class TracksAPI(ResourceAPI):
         self._client._validate_spotify_id(track_id)
         return self._client._request("GET", f"audio-analysis/{track_id}").json()
 
+    @TTLCache.cached_method(ttl=86_400)
     def get_recommendations(
         self,
         seed_artists: str | Collection[str] | None = None,

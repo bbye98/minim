@@ -1,7 +1,7 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import ResourceAPI
+from ..._shared import TTLCache, ResourceAPI
 
 if TYPE_CHECKING:
     from .. import WebAPI
@@ -21,6 +21,7 @@ class ArtistsAPI(ResourceAPI):
     _client: "WebAPI"
     _group = "artists"
 
+    @TTLCache.cached_method(ttl=86_400)
     def get_artists(
         self, artist_ids: str | Collection[str], /
     ) -> dict[str, Any]:
@@ -126,6 +127,7 @@ class ArtistsAPI(ResourceAPI):
             "GET", "artists", params={"ids": artist_ids}
         ).json()
 
+    @TTLCache.cached_method(ttl=86_400)
     def get_artist_albums(
         self,
         artist_id: str,
@@ -265,6 +267,7 @@ class ArtistsAPI(ResourceAPI):
             "GET", f"artists/{artist_id}/albums", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl=21_600)
     def get_artist_top_tracks(
         self, artist_id: str, /, *, market: str
     ) -> dict[str, Any]:
@@ -406,6 +409,7 @@ class ArtistsAPI(ResourceAPI):
             "GET", f"artists/{artist_id}/top-tracks", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl=86_400)
     def get_related_artists(self, artist_id: str, /) -> dict[str, Any]:
         """
         `Artists > Get Artist's Related Artists
@@ -473,6 +477,7 @@ class ArtistsAPI(ResourceAPI):
             "GET", f"artists/{artist_id}/related-artists"
         ).json()
 
+    @TTLCache.cached_method(ttl=7_200)
     def get_my_top_artists(
         self,
         *,

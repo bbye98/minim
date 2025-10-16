@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from ..._shared import ResourceAPI
+from ..._shared import TTLCache, ResourceAPI
 
 if TYPE_CHECKING:
     from .. import WebAPI
@@ -18,6 +18,7 @@ class MarketsAPI(ResourceAPI):
 
     _client: "WebAPI"
 
+    @TTLCache.cached_method(ttl=86_400)
     def get_available_markets(self) -> dict[str, list[str]]:
         """
         `Markets > Get Available Markets <https://developer.spotify.com

@@ -1,7 +1,7 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import ResourceAPI
+from ..._shared import TTLCache, ResourceAPI
 
 if TYPE_CHECKING:
     from .. import WebAPI
@@ -19,6 +19,7 @@ class EpisodesAPI(ResourceAPI):
 
     _client: "WebAPI"
 
+    @TTLCache.cached_method(ttl=86_400)
     def get_episodes(
         self,
         episode_ids: str | Collection[str],

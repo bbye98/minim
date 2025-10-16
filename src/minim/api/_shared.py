@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import base64
+from collections import OrderedDict
 from collections.abc import Collection
 from datetime import datetime, timedelta, timezone
 from functools import wraps
@@ -56,15 +57,73 @@ def _copy_docstring(
     return decorator
 
 
-class Cache(ABC):
-    def __init__(self) -> None:
-        self._store: dict[Any, Any] = {}
+class TTLCache:
+    """
+    Time-to-live (TTL) + least recently used (LRU) cache.
+    """
 
-    @abstractmethod
-    def wrapper(self) -> Callable[[Callable[..., Any]], Callable[..., Any]]: ...
+    def __init__(self, max_size: int = 1_024) -> None:
+        """ """
+        self._store = OrderedDict()
+        self._max_size = max_size
 
     @staticmethod
-    def cached_method() -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    def _make_hashable(obj: Any) -> Any:
+        """ """
+        if isinstance(obj, list):
+            return tuple(TTLCache._make_hashable(x) for x in obj)
+        if isinstance(obj, dict):
+            return tuple(
+                sorted((k, TTLCache._make_hashable(v)) for k, v in obj.items())
+            )
+        if isinstance(obj, set):
+            return tuple(sorted(TTLCache._make_hashable(x) for x in obj))
+        return obj
+
+    def wrapper(
+        self, *, ttl: float
+    ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+        """ """
+
+        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+            @wraps(func)
+            def wrapped(
+                *args: tuple[Any, ...], **kwargs: dict[str, Any]
+            ) -> Any:
+                key = (
+                    func.__qualname__,
+                    tuple(self._make_hashable(a) for a in args[1:]),
+                    frozenset(kwargs.items()),
+                )
+                now = time.time()
+
+                if (entry := self._store.get(key)) is not None:
+                    value, expiry = entry
+                    if expiry is None or expiry > now:
+                        self._store.move_to_end(key)
+                        return value
+                    else:
+                        del self._store[key]
+
+                value = func(*args, **kwargs)
+                self._store[key] = value, now + ttl
+                self._store.move_to_end(key)
+
+                while len(self._store) > self._max_size:
+                    self._store.popitem(last=False)
+
+                return value
+
+            return wrapped
+
+        return decorator
+
+    @staticmethod
+    def cached_method(
+        *, ttl: float
+    ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+        """ """
+
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             @wraps(func)
             def wrapped(
@@ -75,7 +134,7 @@ class Cache(ABC):
                 cache = getattr(self._client, "_cache")
                 if cache is None:
                     return func(self, *args, **kwargs)
-                return cache.wrapper()(func)(self, *args, **kwargs)
+                return cache.wrapper(ttl=ttl)(func)(self, *args, **kwargs)
 
             return wrapped
 
