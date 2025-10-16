@@ -1,12 +1,12 @@
 from collections.abc import Collection
 from datetime import datetime
-from functools import cached_property
+from functools import cached_property, wraps
 from json.decoder import JSONDecodeError
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable
 from urllib.parse import urlparse
 import warnings
 
-from .._shared import OAuth2APIClient
+from .._shared import Cache, OAuth2APIClient
 from ._web_api.albums import AlbumsAPI
 from ._web_api.artists import ArtistsAPI
 from ._web_api.audiobooks import AudiobooksAPI
@@ -24,6 +24,33 @@ from ._web_api.users import UsersAPI
 
 if TYPE_CHECKING:
     import httpx
+
+
+class WebAPICache(Cache):
+    def get(self, key: Any) -> Any: ...
+
+    def set(self, key: Any, value: Any) -> None: ...
+
+    def wrapper(self) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+            @wraps(func)
+            def wrapped(
+                *args: tuple[Any, ...], **kwargs: dict[str, Any]
+            ) -> Any:
+                key = (
+                    func.__qualname__,
+                    args[1:],
+                    frozenset(kwargs.items()),
+                )
+                if (value := self.get(key)) is not None:
+                    return value
+                value = func(*args, **kwargs)
+                self.set(key, value)
+                return value
+
+            return wrapped
+
+        return decorator
 
 
 class WebAPI(OAuth2APIClient):
@@ -192,6 +219,8 @@ class WebAPI(OAuth2APIClient):
             Prepending the identifier with a tilde (`"~"`) skips token
             retrieval from local storage and forces a reauthorization.
         """
+        self._cache = WebAPICache() if cache else None
+
         # Initialize subclasses for categorized endpoints
         #: Albums API endpoints for the Spotify Web API.
         self.albums: AlbumsAPI = AlbumsAPI(self)
@@ -247,7 +276,6 @@ class WebAPI(OAuth2APIClient):
             expiry=expiry,
             backend=backend,
             browser=browser,
-            cache=cache,
             store=store,
             user_identifier=user_identifier,
         )

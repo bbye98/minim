@@ -1,7 +1,7 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import ResourceAPI
+from ..._shared import Cache, ResourceAPI
 
 if TYPE_CHECKING:
     from .. import WebAPI
@@ -19,6 +19,7 @@ class AlbumsAPI(ResourceAPI):
 
     _client: "WebAPI"
 
+    # @Cache.cached_method()
     def get_albums(
         self, album_ids: str | Collection[str], /, *, market: str | None = None
     ) -> dict[str, Any]:

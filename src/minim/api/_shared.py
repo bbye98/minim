@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import base64
 from collections.abc import Collection
 from datetime import datetime, timedelta, timezone
+from functools import wraps
 import hashlib
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import ipaddress
@@ -53,6 +54,32 @@ def _copy_docstring(
         return destination
 
     return decorator
+
+
+class Cache(ABC):
+    def __init__(self) -> None:
+        self._store: dict[Any, Any] = {}
+
+    @abstractmethod
+    def wrapper(self) -> Callable[[Callable[..., Any]], Callable[..., Any]]: ...
+
+    @staticmethod
+    def cached_method() -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+            @wraps(func)
+            def wrapped(
+                self: ResourceAPI,
+                *args: tuple[Any, ...],
+                **kwargs: dict[str, Any],
+            ) -> Any:
+                cache = getattr(self._client, "_cache")
+                if cache is None:
+                    return func(self, *args, **kwargs)
+                return cache.wrapper()(func)(self, *args, **kwargs)
+
+            return wrapped
+
+        return decorator
 
 
 class OAuth2RedirectHandler(BaseHTTPRequestHandler):
@@ -258,7 +285,6 @@ class OAuth2APIClient(APIClient):
         expiry: str | datetime | None = None,
         backend: str | None = None,
         browser: bool = False,
-        cache: bool = True,
         store: bool = True,
         user_identifier: str | None = None,
     ) -> None:
@@ -341,9 +367,6 @@ class OAuth2APIClient(APIClient):
             Authorization Code with PKCE, and Implicit Grant flows. If
             :code:`False`, the authorization URL is printed to the
             terminal.
-
-        cache : bool, keyword-only, default: :code:`True`
-            ...
 
         store : bool, keyword-only, default: :code:`True`
             Whether to enable Minim's local token storage for
