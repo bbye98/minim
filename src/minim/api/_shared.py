@@ -258,7 +258,8 @@ class OAuth2APIClient(APIClient):
         expiry: str | datetime | None = None,
         backend: str | None = None,
         browser: bool = False,
-        persist: bool = True,
+        cache: bool = True,
+        store: bool = True,
         user_identifier: str | None = None,
     ) -> None:
         """
@@ -341,7 +342,10 @@ class OAuth2APIClient(APIClient):
             :code:`False`, the authorization URL is printed to the
             terminal.
 
-        persist : bool, keyword-only, default: :code:`True`
+        cache : bool, keyword-only, default: :code:`True`
+            ...
+
+        store : bool, keyword-only, default: :code:`True`
             Whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
@@ -350,7 +354,7 @@ class OAuth2APIClient(APIClient):
         user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all
             authorization flows but the Client Credentials flow. Used
-            when :code:`persist=True` to distinguish between multiple
+            when :code:`store=True` to distinguish between multiple
             user accounts for the same client ID and authorization flow.
 
             If provided, it is used to locate existing access tokens or
@@ -393,7 +397,7 @@ class OAuth2APIClient(APIClient):
         # local token storage
         if (
             not access_token
-            and persist
+            and store
             and (accounts := api_config.get(self._API_NAME))
             and (account := accounts.get(self._account_identifier))
         ):
@@ -420,7 +424,7 @@ class OAuth2APIClient(APIClient):
             backend=backend,
             browser=browser,
             authorize=False,
-            persist=persist,
+            store=store,
             user_identifier=user_identifier,
         )
         if access_token:
@@ -733,7 +737,7 @@ class OAuth2APIClient(APIClient):
         backend: str | None = None,
         browser: bool = False,
         authorize: bool = True,
-        persist: bool = True,
+        store: bool = True,
         user_identifier: str | None = None,
     ) -> None:
         """
@@ -815,7 +819,7 @@ class OAuth2APIClient(APIClient):
                that the client's existing access token is compatible
                with the new authorization flow and/or scopes.
 
-        persist : bool, keyword-only, default: :code:`True`
+        store : bool, keyword-only, default: :code:`True`
             Whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
@@ -824,7 +828,7 @@ class OAuth2APIClient(APIClient):
         user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all
             authorization flows but the Client Credentials flow. Used
-            when :code:`persist=True` to distinguish between multiple
+            when :code:`store=True` to distinguish between multiple
             user accounts for the same client ID and authorization flow.
 
             If provided, it is used to locate existing access tokens or
@@ -900,7 +904,9 @@ class OAuth2APIClient(APIClient):
                 )
         self._backend = backend
         self._browser = browser
-        self._persist = persist
+        self._store = store
+        if user_identifier:
+            self._resolve_account_identifier(flow, client_id, user_identifier)
 
         if authorize:
             self._obtain_access_token()
@@ -1156,7 +1162,7 @@ class OAuth2APIClient(APIClient):
             expiry=datetime.now()
             + timedelta(seconds=int(resp_json["expires_in"])),
         )
-        if self._persist:
+        if self._store:
             accounts = api_config.get(self._API_NAME)
             if not isinstance(accounts, dict):
                 api_config[self._API_NAME] = accounts = {}

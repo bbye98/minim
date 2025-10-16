@@ -78,7 +78,8 @@ class WebAPI(OAuth2APIClient):
         expiry: str | datetime | None = None,
         backend: str | None = None,
         browser: bool = False,
-        persist: bool = True,
+        cache: bool = True,
+        store: bool = True,
         user_identifier: str | None = None,
     ) -> None:
         """
@@ -162,7 +163,10 @@ class WebAPI(OAuth2APIClient):
             :code:`False`, the authorization URL is printed to the
             terminal.
 
-        persist : bool, keyword-only, default: :code:`True`
+        cache : bool, keyword-only, default: :code:`False`
+            ...
+
+        store : bool, keyword-only, default: :code:`True`
             Whether to enable Minim's local token storage for this
             client. If :code:`True`, newly acquired access tokens and
             related information are stored. If :code:`False`, the client
@@ -171,7 +175,7 @@ class WebAPI(OAuth2APIClient):
         user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all
             authorization flows but the Client Credentials flow. Used
-            when :code:`persist=True` to distinguish between multiple
+            when :code:`store=True` to distinguish between multiple
             user accounts for the same client ID and authorization flow.
 
             If provided, it is used to locate existing access tokens or
@@ -243,7 +247,8 @@ class WebAPI(OAuth2APIClient):
             expiry=expiry,
             backend=backend,
             browser=browser,
-            persist=persist,
+            cache=cache,
+            store=store,
             user_identifier=user_identifier,
         )
 
