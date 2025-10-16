@@ -2,7 +2,7 @@ from collections.abc import Collection
 from datetime import datetime
 from functools import cached_property
 from json.decoder import JSONDecodeError
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable
 from urllib.parse import urlparse
 import warnings
 
@@ -530,6 +530,11 @@ class WebAPI(OAuth2APIClient):
         """
         if self._flow != "client_credentials":
             return self.users.get_user_profile()
+
+    def clear_cache(self, func: Callable[..., Any] | None = None) -> None:
+        """ """
+        if self._cache is not None:
+            self._cache.clear(func)
 
     def _get_user_identifier(self) -> str:
         """

@@ -80,6 +80,41 @@ class TTLCache:
             return tuple(sorted(TTLCache._make_hashable(x) for x in obj))
         return obj
 
+    @staticmethod
+    def cached_method(
+        *, ttl: float
+    ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+        """ """
+
+        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+            @wraps(func)
+            def wrapped(
+                self: ResourceAPI,
+                *args: tuple[Any, ...],
+                **kwargs: dict[str, Any],
+            ) -> Any:
+                cache = getattr(self._client, "_cache")
+                if cache is None:
+                    return func(self, *args, **kwargs)
+                return cache.wrapper(ttl=ttl)(func)(self, *args, **kwargs)
+
+            return wrapped
+
+        return decorator
+
+    def clear(self, func: Callable[..., Any] | None = None, /) -> None:
+        """ """
+        if func is None:
+            self._store.clear()
+        else:
+            if not callable(func):
+                raise ValueError(
+                    "`func` must be a method from an API client class."
+                )
+            func = func.__qualname__
+            for key in [k for k in self._store if k[0] == func]:
+                del self._store[key]
+
     def wrapper(
         self, *, ttl: float
     ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
@@ -113,28 +148,6 @@ class TTLCache:
                     self._store.popitem(last=False)
 
                 return value
-
-            return wrapped
-
-        return decorator
-
-    @staticmethod
-    def cached_method(
-        *, ttl: float
-    ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-        """ """
-
-        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-            @wraps(func)
-            def wrapped(
-                self: ResourceAPI,
-                *args: tuple[Any, ...],
-                **kwargs: dict[str, Any],
-            ) -> Any:
-                cache = getattr(self._client, "_cache")
-                if cache is None:
-                    return func(self, *args, **kwargs)
-                return cache.wrapper(ttl=ttl)(func)(self, *args, **kwargs)
 
             return wrapped
 
