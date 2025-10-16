@@ -226,6 +226,9 @@ class APIClient(ABC):
     #: Base URL for API endpoints.
     BASE_URL: str = ...
 
+    def __init__(self, *, cache: bool = True) -> None:
+        self._cache = TTLCache() if cache else None
+
     @abstractmethod
     def _request(
         self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
@@ -357,6 +360,7 @@ class OAuth2APIClient(APIClient):
         expiry: str | datetime | None = None,
         backend: str | None = None,
         browser: bool = False,
+        cache: bool = True,
         store: bool = True,
         user_identifier: str | None = None,
     ) -> None:
@@ -440,6 +444,9 @@ class OAuth2APIClient(APIClient):
             :code:`False`, the authorization URL is printed to the
             terminal.
 
+        cache : bool, keyword-only, default: :code:`True`
+            ...
+
         store : bool, keyword-only, default: :code:`True`
             Whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
@@ -467,6 +474,7 @@ class OAuth2APIClient(APIClient):
             Prepending the identifier with a tilde (`"~"`) skips token
             retrieval from local storage and forces a reauthorization.
         """
+        super().__init__(cache=cache)
         self._client = httpx.Client(base_url=self.BASE_URL)
 
         # If a client ID is not provided, try to retrieve it and its
@@ -756,6 +764,11 @@ class OAuth2APIClient(APIClient):
 
         with open(MINIM_DIR / "cert.pem", "wb") as f:
             f.write(cert.public_bytes(serialization.Encoding.PEM))
+
+    def clear_cache(self, func: Callable[..., Any] | None = None) -> None:
+        """ """
+        if self._cache is not None:
+            self._cache.clear(func)
 
     def close(self) -> None:
         """

@@ -192,8 +192,6 @@ class WebAPI(OAuth2APIClient):
             Prepending the identifier with a tilde (`"~"`) skips token
             retrieval from local storage and forces a reauthorization.
         """
-        self._cache = TTLCache() if cache else None
-
         # Initialize subclasses for categorized endpoints
         #: Albums API endpoints for the Spotify Web API.
         self.albums: AlbumsAPI = AlbumsAPI(self)
@@ -249,6 +247,7 @@ class WebAPI(OAuth2APIClient):
             expiry=expiry,
             backend=backend,
             browser=browser,
+            cache=cache,
             store=store,
             user_identifier=user_identifier,
         )
@@ -530,11 +529,6 @@ class WebAPI(OAuth2APIClient):
         """
         if self._flow != "client_credentials":
             return self.users.get_user_profile()
-
-    def clear_cache(self, func: Callable[..., Any] | None = None) -> None:
-        """ """
-        if self._cache is not None:
-            self._cache.clear(func)
 
     def _get_user_identifier(self) -> str:
         """
