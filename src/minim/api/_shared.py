@@ -8,6 +8,7 @@ import hashlib
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import ipaddress
 import os
+from pathlib import Path
 import secrets
 import ssl
 from textwrap import dedent
@@ -19,9 +20,10 @@ import warnings
 import webbrowser
 
 from cryptography import x509
-from cryptography.x509.oid import NameOID
+from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.x509.oid import NameOID
 import httpx
 import yaml
 
@@ -795,8 +797,10 @@ class OAuth2APIClient(APIClient):
             .issuer_name(subject)
             .public_key(key.public_key())
             .serial_number(x509.random_serial_number())
-            .not_valid_before(datetime.now(timezone.utc) - timedelta(days=1))
-            .not_valid_after(datetime.now(timezone.utc) + timedelta(days=365))
+            .not_valid_before(
+                (now := datetime.now(timezone.utc)) - timedelta(minutes=5)
+            )
+            .not_valid_after(now + timedelta(days=365))
             .add_extension(
                 x509.SubjectAlternativeName(
                     [
@@ -822,8 +826,44 @@ class OAuth2APIClient(APIClient):
         with open(MINIM_DIR / "cert.pem", "wb") as f:
             f.write(cert.public_bytes(serialization.Encoding.PEM))
 
+    @staticmethod
+    def _is_certificate_valid(certificate_file: str | Path, /) -> bool:
+        """
+        Check whether a self-signed certificate is still valid.
+
+        Parameters
+        ----------
+        certificate_file : str or pathlib.Path, positional-only
+            Name of or path to the certificate file.
+
+        Returns
+        -------
+        is_valid : bool
+            Whether the certificate is valid.
+        """
+        try:
+            with open(certificate_file, "rb") as f:
+                certificate = x509.load_pem_x509_certificate(
+                    f.read(), default_backend()
+                )
+            return (
+                certificate.not_valid_before
+                <= datetime.now(timezone.utc)
+                <= certificate.not_valid_after
+            )
+        except Exception:
+            return False
+
     def clear_cache(self, func: Callable[..., Any] | None = None) -> None:
-        """ """
+        """
+        Clear the cache.
+
+        Parameters
+        ----------
+        func : Callable, positional-only, optional
+            Function whose cache entries should be cleared. If not
+            provided, all entries in the cache are cleared.
+        """
         if self._cache is not None:
             self._cache.clear(func)
 
@@ -1181,14 +1221,18 @@ class OAuth2APIClient(APIClient):
                     OAuth2RedirectHandler,
                 )
                 if urlparse(self._redirect_uri).scheme == "https":
-                    certfile = MINIM_DIR / "cert.pem"
-                    keyfile = MINIM_DIR / "key.pem"
-                    if not certfile.exists() or not keyfile.exists():
+                    certificate_file = MINIM_DIR / "cert.pem"
+                    private_key_file = MINIM_DIR / "key.pem"
+                    if (
+                        not certificate_file.exists()
+                        or not private_key_file.exists()
+                        or not self._is_certificate_valid(certificate_file)
+                    ):
                         self._generate_self_signed_certificate()
                     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
                     context.load_cert_chain(
-                        certfile=certfile,
-                        keyfile=keyfile,
+                        certfile=certificate_file,
+                        keyfile=private_key_file,
                     )
                     httpd.socket = context.wrap_socket(
                         httpd.socket, server_side=True

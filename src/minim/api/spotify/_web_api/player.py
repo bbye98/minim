@@ -636,7 +636,7 @@ class PlayerAPI(ResourceAPI):
                     "Only one of `context_uri` or `uris` can be provided."
                 )
             self._client._validate_spotify_uri(
-                context_uri, item_types=self._client._CONTEXT_TYPES
+                context_uri, item_types=self._CONTEXT_TYPES
             )
             payload["context_uri"] = context_uri
             if offset is not None:
@@ -913,8 +913,8 @@ class PlayerAPI(ResourceAPI):
             "player.set_repeat", "user-modify-playback-state"
         )
         self._client._require_spotify_premium("player.set_repeat")
-        if state not in self._client._PLAYBACK_STATES:
-            _states = "', '".join(self._client._PLAYBACK_STATES)
+        if state not in self._PLAYBACK_STATES:
+            _states = "', '".join(self._PLAYBACK_STATES)
             raise ValueError(
                 f"Invalid playback state {state!r}. Valid values: '{_states}'."
             )

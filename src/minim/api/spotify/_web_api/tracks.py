@@ -1037,7 +1037,7 @@ class TracksAPI(ResourceAPI):
             **Example**: :code:`0.585`.
 
         duration_ms : int or tuple[int, ...], optional
-            Track duration (in milliseconds).
+            Track duration in milliseconds.
 
             .. seealso::
 
