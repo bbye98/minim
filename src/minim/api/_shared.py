@@ -277,7 +277,6 @@ class APIClient(ABC):
     Abstract base class for API clients.
     """
 
-    _API_NAME: str = ...
     _PROVIDER: str = ...
     _QUAL_NAME: str = ...
     #: Base URL for API endpoints.
@@ -530,8 +529,9 @@ class OAuth2APIClient(APIClient):
             user identifier (e.g., user ID) after successful
             authorization.
 
-            Prepending the identifier with a tilde (`"~"`) skips token
-            retrieval from local storage and forces a reauthorization.
+            Prepending the identifier with a tilde (:code:`~`) skips
+            token retrieval from local storage and forces a
+            reauthorization.
         """
         super().__init__(cache=cache)
         self._client = httpx.Client(base_url=self.BASE_URL)
@@ -560,7 +560,7 @@ class OAuth2APIClient(APIClient):
         if (
             not access_token
             and store
-            and (accounts := api_config.get(self._API_NAME))
+            and (accounts := api_config.get(self.__name__))
             and (account := accounts.get(self._account_identifier))
         ):
             # If a stored access token is found and the client ID
@@ -1376,9 +1376,9 @@ class OAuth2APIClient(APIClient):
             + timedelta(seconds=int(resp_json["expires_in"])),
         )
         if self._store:
-            accounts = api_config.get(self._API_NAME)
+            accounts = api_config.get(self.__name__)
             if not isinstance(accounts, dict):
-                api_config[self._API_NAME] = accounts = {}
+                api_config[self.__name__] = accounts = {}
             self._resolve_account_identifier(
                 self._flow,
                 self._client_id,

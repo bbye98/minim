@@ -12,7 +12,7 @@ from .shows import ShowsAPI
 from .tracks import TracksAPI
 
 if TYPE_CHECKING:
-    from .. import WebAPI
+    from .. import SpotifyWebAPI
 
 
 class UsersAPI(ResourceAPI):
@@ -21,12 +21,12 @@ class UsersAPI(ResourceAPI):
 
     .. note::
 
-       This class is managed by :class:`minim.api.spotify.WebAPI` and
-       should not be instantiated directly.
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       and should not be instantiated directly.
     """
 
     _TIME_RANGES = {"long_term", "medium_term", "short_term"}
-    _client: "WebAPI"
+    _client: "SpotifyWebAPI"
 
     def get_user_profile(self, user_id: str | None = None, /) -> dict[str, Any]:
         """

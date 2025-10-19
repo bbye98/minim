@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 from ..._shared import TTLCache, ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import WebAPI
+    from .. import SpotifyWebAPI
 
 
 class SearchAPI(ResourceAPI):
@@ -13,8 +13,8 @@ class SearchAPI(ResourceAPI):
 
     .. note::
 
-       This class is managed by :class:`minim.api.spotify.WebAPI` and
-       should not be instantiated directly.
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       and should not be instantiated directly.
     """
 
     _RESOURCE_TYPES = {
@@ -26,7 +26,7 @@ class SearchAPI(ResourceAPI):
         "show",
         "track",
     }
-    _client: "WebAPI"
+    _client: "SpotifyWebAPI"
 
     @TTLCache.cached_method(ttl=1_800)
     def search(

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 from ..._shared import TTLCache, ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import WebAPI
+    from .. import SpotifyWebAPI
 
 
 class ArtistsAPI(ResourceAPI):
@@ -13,12 +13,13 @@ class ArtistsAPI(ResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.spotify.WebAPI` and
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       and
        should not be instantiated directly.
     """
 
     _ALBUM_TYPES = {"album", "single", "appears_on", "compilation"}
-    _client: "WebAPI"
+    _client: "SpotifyWebAPI"
     _group = "artists"
 
     @TTLCache.cached_method(ttl=86_400)

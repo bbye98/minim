@@ -27,17 +27,16 @@ if TYPE_CHECKING:
     import httpx
 
 
-class WebAPI(OAuth2APIClient):
+class SpotifyWebAPI(OAuth2APIClient):
     """
     Spotify Web API client.
     """
 
-    _API_NAME = "SpotifyWebAPI"
     _AUDIO_TYPES = {"episode", "track"}
     _ENV_VAR_PREFIX = "SPOTIFY_WEB_API"
     _FLOWS = {"auth_code", "pkce", "client_credentials"}
     _PROVIDER = "Spotify"
-    _QUAL_NAME = "minim.api.spotify.WebAPI"
+    _QUAL_NAME = "minim.api.spotify.SpotifyWebAPI"
     _SCOPES = {
         "images": {"ugc-image-upload"},
         "spotify_connect": {
@@ -189,8 +188,9 @@ class WebAPI(OAuth2APIClient):
             hash of the client ID, authorization flow, and the Spotify
             user ID.
 
-            Prepending the identifier with a tilde (`"~"`) skips token
-            retrieval from local storage and forces a reauthorization.
+            Prepending the identifier with a tilde (:code:`~`) skips
+            token retrieval from local storage and forces a
+            reauthorization.
         """
         # Initialize subclasses for categorized endpoints
         #: Albums API endpoints for the Spotify Web API.
@@ -375,7 +375,7 @@ class WebAPI(OAuth2APIClient):
             raise ValueError("At least one Spotify ID must be specified.")
 
         if isinstance(spotify_ids, str):
-            return WebAPI._prepare_spotify_ids(
+            return SpotifyWebAPI._prepare_spotify_ids(
                 spotify_ids.split(","), limit=limit, strict_length=strict_length
             )
 
@@ -386,7 +386,7 @@ class WebAPI(OAuth2APIClient):
             )
         for idx, id_ in enumerate(spotify_ids):
             spotify_ids[idx] = id_ = id_.strip()
-            WebAPI._validate_spotify_id(id_, strict_length=strict_length)
+            SpotifyWebAPI._validate_spotify_id(id_, strict_length=strict_length)
         return ",".join(spotify_ids), n_ids
 
     @staticmethod
@@ -422,7 +422,7 @@ class WebAPI(OAuth2APIClient):
             raise ValueError("At least one Spotify URI must be specified.")
 
         if isinstance(spotify_uris, str):
-            return WebAPI._prepare_spotify_uris(
+            return SpotifyWebAPI._prepare_spotify_uris(
                 spotify_uris.split(","), limit=limit, item_types=item_types
             )
 
@@ -432,7 +432,7 @@ class WebAPI(OAuth2APIClient):
             )
         for idx, uri in enumerate(spotify_uris):
             spotify_uris[idx] = uri = uri.strip()
-            WebAPI._validate_spotify_uri(uri, item_types=item_types)
+            SpotifyWebAPI._validate_spotify_uri(uri, item_types=item_types)
         return spotify_uris
 
     @staticmethod

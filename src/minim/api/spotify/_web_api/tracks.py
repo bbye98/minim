@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any
 from ..._shared import TTLCache, ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import WebAPI
+    from .. import SpotifyWebAPI
 
 
 IntAttributeSpec = (
@@ -27,11 +27,11 @@ class TracksAPI(ResourceAPI):
 
     .. note::
 
-       This class is managed by :class:`minim.api.spotify.WebAPI` and
-       should not be instantiated directly.
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       and should not be instantiated directly.
     """
 
-    _client: "WebAPI"
+    _client: "SpotifyWebAPI"
 
     @TTLCache.cached_method(ttl=86_400)
     def get_tracks(

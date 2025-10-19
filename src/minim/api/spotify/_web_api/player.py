@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import WebAPI
+    from .. import SpotifyWebAPI
 
 
 class PlayerAPI(ResourceAPI):
@@ -13,13 +13,13 @@ class PlayerAPI(ResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.spotify.WebAPI` and
-       should not be instantiated directly.
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       and should not be instantiated directly.
     """
 
     _CONTEXT_TYPES = {"album", "artist", "playlist"}
     _PLAYBACK_STATES = {"track", "context", "off"}
-    _client: "WebAPI"
+    _client: "SpotifyWebAPI"
 
     def get_playback_state(
         self, *, additional_types: str | None = None, market: str | None = None
