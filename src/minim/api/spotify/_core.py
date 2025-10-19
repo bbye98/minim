@@ -495,7 +495,7 @@ class WebAPI(OAuth2APIClient):
 
               Extended quota mode before November 27, 2024
                   Access the
-                  :code:`recommendations/available-genre-seeds`
+                  :code:`/recommendations/available-genre-seeds`
                   endpoint. `Learn more. <https://developer.spotify.com
                   /blog/2024-11-27-changes-to-the-web-api>`__
 
@@ -611,8 +611,8 @@ class WebAPI(OAuth2APIClient):
             if status == 429 and retry:
                 retry_after = int(resp.headers.get("Retry-After", 0)) + 1
                 warnings.warn(
-                    f"Rate limit exceeded. Retrying after {retry_after} "
-                    "second(s)."
+                    "Rate limit exceeded. Retrying after "
+                    f"{retry_after} second(s)."
                 )
                 time.sleep(retry_after)
                 return self._request(method, endpoint, retry=False, **kwargs)
