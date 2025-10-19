@@ -2,6 +2,7 @@ from collections.abc import Collection
 from datetime import datetime
 from functools import cached_property
 from json.decoder import JSONDecodeError
+import time
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 import warnings
@@ -589,7 +590,7 @@ class WebAPI(OAuth2APIClient):
 
         retry : bool, keyword-only, default: :code:`True`
             Whether to retry the request if the first attempt returns a
-            :code:`401 Unauthorized`.
+            :code:`401 Unauthorized` or :code:`429 Too Many Requests`.
 
         **kwargs : dict[str, Any]
             Keyword arguments to pass to :meth:`httpx.Client.request`.
@@ -606,6 +607,14 @@ class WebAPI(OAuth2APIClient):
         if not 200 <= (status := resp.status_code) < 300:
             if status == 401 and not self._expiry and retry:
                 self._refresh_access_token()
+                return self._request(method, endpoint, retry=False, **kwargs)
+            if status == 429 and retry:
+                retry_after = int(resp.headers.get("Retry-After", 0)) + 1
+                warnings.warn(
+                    f"Rate limit exceeded. Retrying after {retry_after} "
+                    "second(s)."
+                )
+                time.sleep(retry_after)
                 return self._request(method, endpoint, retry=False, **kwargs)
             emsg = f"{status} {resp.reason_phrase}"
             try:
