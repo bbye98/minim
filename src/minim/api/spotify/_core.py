@@ -2,11 +2,11 @@ from collections.abc import Collection
 from datetime import datetime
 from functools import cached_property
 from json.decoder import JSONDecodeError
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 import warnings
 
-from .._shared import TTLCache, OAuth2APIClient
+from .._shared import OAuth2APIClient
 from ._web_api.albums import AlbumsAPI
 from ._web_api.artists import ArtistsAPI
 from ._web_api.audiobooks import AudiobooksAPI
@@ -103,17 +103,16 @@ class WebAPI(OAuth2APIClient):
             stored in Minim's local token storage.
 
         client_secret : str, keyword-only, optional
-            Client secret. Required for the Authorization Code, Client
-            Credentials, and Resource Owner Password Credential flows.
-            Must be provided unless it is set as system environment
-            variable :code:`SPOTIFY_WEB_API_CLIENT_SECRET` or stored in
-            Minim's local token storage.
+            Client secret. Required for the Authorization Code and
+            Client Credentials flows and must be provided unless it is
+            set as system environment variable
+            :code:`SPOTIFY_WEB_API_CLIENT_SECRET` or stored in Minim's
+            local token storage.
 
         redirect_uri : str, keyword-only, optional
-            Redirect URI. Required for the Authorization Code,
-            Authorization Code with PKCE, and Implicit Grant flows. If
-            the host is not :code:`127.0.0.1`, redirect handling is not
-            available.
+            Redirect URI. Required for the Authorization Code and
+            Authorization Code with PKCE flows. If the host is not
+            :code:`127.0.0.1`, redirect handling is not available.
 
         scopes : str or Collection[str], keyword-only, optional
             Authorization scopes the client requests to access user
@@ -158,13 +157,13 @@ class WebAPI(OAuth2APIClient):
 
         browser : bool, keyword-only, default: :code:`False`
             Whether to automatically open the authorization URL in the
-            default web browser for the Authorization Code,
-            Authorization Code with PKCE, and Implicit Grant flows. If
-            :code:`False`, the authorization URL is printed to the
-            terminal.
+            default web browser for the Authorization Code and
+            Authorization Code with PKCE flows. If :code:`False`, the
+            authorization URL is printed to the terminal.
 
-        cache : bool, keyword-only, default: :code:`False`
-            ...
+        cache : bool, keyword-only, default: :code:`True`
+            Whether to enable an in-memory time-to-live (TTL) cache with
+            a least recently used (LRU) eviction policy for this client.
 
         store : bool, keyword-only, default: :code:`True`
             Whether to enable Minim's local token storage for this
@@ -491,17 +490,19 @@ class WebAPI(OAuth2APIClient):
         .. admonition:: Third-party application mode
            :class: authorization-scope
 
-           .. tab:: Optional
+           .. tab:: Required
 
               Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`_
+                  Access the
+                  :code:`recommendations/available-genre-seeds`
+                  endpoint. `Learn more. <https://developer.spotify.com
+                  /blog/2024-11-27-changes-to-the-web-api>`__
 
         .. note::
 
            Accessing this property for the first time may call
-           :meth:`~minim.api.spotify.GenresAPI.get_available_seed_genres`.
+           :meth:`~minim.api.spotify.GenresAPI.get_available_seed_genres`
+           and make a request to the Spotify Web API.
         """
         return self.genres.get_available_seed_genres()["genres"]
 
@@ -513,7 +514,8 @@ class WebAPI(OAuth2APIClient):
         .. note::
 
            Accessing this property for the first time may call
-           :meth:`~minim.api.spotify.MarketsAPI.get_available_markets`.
+           :meth:`~minim.api.spotify.MarketsAPI.get_available_markets`
+           and make a request to the Spotify Web API.
         """
         return self.markets.get_available_markets()["markets"]
 

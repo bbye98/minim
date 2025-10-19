@@ -36,7 +36,8 @@ def _copy_docstring(
     source: Callable[..., Any],
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
-    Copy the docstring from a function to another function.
+    Create a decorator that copies the docstring from a function to
+    another function.
 
     Parameters
     ----------
@@ -59,17 +60,35 @@ def _copy_docstring(
 
 class TTLCache:
     """
-    Time-to-live (TTL) + least recently used (LRU) cache.
+    Time-to-live (TTL) cache with least recently used (LRU) eviction
+    policy.
     """
 
     def __init__(self, max_size: int = 1_024) -> None:
-        """ """
+        """
+        Parameters
+        ----------
+        max_size : int, default: :code:`1_024`
+            Maximum number of entries to retain in the cache.
+        """
         self._store = OrderedDict()
         self._max_size = max_size
 
     @staticmethod
     def _make_hashable(obj: Any) -> Any:
-        """ """
+        """
+        Convert an object into a hashable form for use as a cache key.
+
+        Parameters
+        ----------
+        obj : Any
+            Object to convert.
+
+        Returns
+        -------
+        obj: Any
+            Hashable equivalent of the input object.
+        """
         if isinstance(obj, list):
             return tuple(TTLCache._make_hashable(x) for x in obj)
         if isinstance(obj, dict):
@@ -84,7 +103,21 @@ class TTLCache:
     def cached_method(
         *, ttl: float
     ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-        """ """
+        """
+        Create a decorator that marks an API endpoint method for
+        caching.
+
+        Parameters
+        ----------
+        ttl : float, keyword-only
+            Time-to-live (TTL) in seconds for cached entries.
+
+        Returns
+        -------
+        decorator : Callable[[Callable[..., Any]], Callable[..., Any]]
+            Decorator that enables TTL-based caching for an API endpoint
+            method.
+        """
 
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             @wraps(func)
@@ -103,7 +136,15 @@ class TTLCache:
         return decorator
 
     def clear(self, func: Callable[..., Any] | None = None, /) -> None:
-        """ """
+        """
+        Clear cached entries.
+
+        Parameters
+        ----------
+        func : Callable, positional-only, optional
+            Function whose cache entries should be cleared. If not
+            provided, all entries in the cache are cleared.
+        """
         if func is None:
             self._store.clear()
         else:
@@ -118,7 +159,21 @@ class TTLCache:
     def wrapper(
         self, *, ttl: float
     ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-        """ """
+        """
+        Create a decorator that applies TTL- and LRU-based caching using
+        the current cache instance.
+
+        Parameters
+        ----------
+        ttl : float, keyword-only
+            Time-to-live (TTL) in seconds for cached entries.
+
+        Returns
+        -------
+        decorator : Callable[[Callable[..., Any]], Callable[..., Any]]
+            Decorator that applies TTL-based caching to an API endpoint
+            method.
+        """
 
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             @wraps(func)
@@ -387,9 +442,10 @@ class OAuth2APIClient(APIClient):
 
         client_secret : str, keyword-only, optional
             Client secret. Required for the Authorization Code, Client
-            Credentials, and Resource Owner Password Credential flows.
-            Must be provided unless it is set as a system environment
-            variable or stored in Minim's local token storage.
+            Credentials, and Resource Owner Password Credential flows,
+            and must be provided unless it is set as a system
+            environment variable or stored in Minim's local token
+            storage.
 
         redirect_uri : str, keyword-only, optional
             Redirect URI. Required for the Authorization Code,
@@ -445,7 +501,8 @@ class OAuth2APIClient(APIClient):
             terminal.
 
         cache : bool, keyword-only, default: :code:`True`
-            ...
+            Whether to enable an in-memory time-to-live (TTL) cache with
+            a least recently used (LRU) eviction policy for this client.
 
         store : bool, keyword-only, default: :code:`True`
             Whether to enable Minim's local token storage for

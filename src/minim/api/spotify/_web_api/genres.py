@@ -21,20 +21,21 @@ class GenresAPI(ResourceAPI):
     @TTLCache.cached_method(ttl=86_400)
     def get_available_seed_genres(self) -> dict[str, list[str]]:
         """
-        `Genres > Get Available Seed Genre
+        `Genres > Get Available Genre Seeds
         <https://developer.spotify.com/documentation/web-api/reference
         /get-recommendation-genres>`_: Get available seed genres for
         track recommendations.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: authorization-scope
 
-           .. tab:: Optional
+           .. tab:: Required
 
               Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+                  Access the
+                  :code:`recommendations/available-genre-seeds`
+                  endpoint. `Learn more. <https://developer.spotify.com
+                  /blog/2024-11-27-changes-to-the-web-api>`__
 
         Returns
         -------

@@ -612,7 +612,7 @@ class PlayerAPI(ResourceAPI):
                  "spotify:track:1301WleyT98MSxVHPZCA6M"]`
 
         position_ms : int, keyword-only, optional
-            Position (in milliseconds) within the first item at which to
+            Position in milliseconds within the first item at which to
             start playback. If a position greater than the length of
             that item is specified, the player will start playing the
             next item.
@@ -834,7 +834,7 @@ class PlayerAPI(ResourceAPI):
         Parameters
         ----------
         position_ms : int, positional-only
-            Position (in milliseconds) to seek to. If a position greater
+            Position in milliseconds to seek to. If a position greater
             than the length of the item is specified, the player will
             start playing the next item.
 
@@ -1064,7 +1064,7 @@ class PlayerAPI(ResourceAPI):
         ----------
         after : int, keyword-only, optional
             Only return items played after the time indicated by this
-            Unix timestamp (in milliseconds).
+            Unix timestamp in milliseconds.
 
             .. note::
 
@@ -1074,7 +1074,7 @@ class PlayerAPI(ResourceAPI):
 
         before : int, keyword-only, optional
             Only return items played before the time indicated by this
-            Unix timestamp (in milliseconds).
+            Unix timestamp in milliseconds.
 
             .. note::
 
