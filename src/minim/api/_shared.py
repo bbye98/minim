@@ -854,18 +854,22 @@ class OAuth2APIClient(APIClient):
         except Exception:
             return False
 
-    def clear_cache(self, func: Callable[..., Any] | None = None) -> None:
+    def clear_cache(
+        self, endpoint_method: Callable[..., Any] | None = None
+    ) -> None:
         """
         Clear the cache.
 
         Parameters
         ----------
-        func : Callable, positional-only, optional
-            Function whose cache entries should be cleared. If not
-            provided, all entries in the cache are cleared.
+        endpoint_method : Callable, positional-only, optional
+            Endpoint method whose cache entries should be cleared. If
+            not provided, all entries in the cache are cleared.
+
+            **Example**: :code:`minim.api.spotify.ArtistsAPI.get_artists`.
         """
         if self._cache is not None:
-            self._cache.clear(func)
+            self._cache.clear(endpoint_method)
 
     def close(self) -> None:
         """
