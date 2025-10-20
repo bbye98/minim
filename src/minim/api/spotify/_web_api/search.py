@@ -483,6 +483,7 @@ class SearchAPI(ResourceAPI):
         if not query:
             raise ValueError("No search query provided.")
 
+        self._client._validate_type("query", query, str)
         params = {"q": query, "type": self._prepare_item_types(types)}
         if include_external:
             if include_external != "audio":

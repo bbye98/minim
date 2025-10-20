@@ -284,6 +284,7 @@ class APIClient(ABC):
 
     def __init__(self, *, cache: bool = True) -> None:
         self._cache = TTLCache() if cache else None
+        self._client = httpx.Client(base_url=self.BASE_URL)
 
     @abstractmethod
     def _request(
@@ -309,6 +310,29 @@ class APIClient(ABC):
             HTTP response.
         """
         ...
+
+    @staticmethod
+    def _validate_locale(locale: str, /) -> None:
+        """
+        Validate locale identifier.
+
+        Parameters
+        ----------
+        locale : str, keyword-only, optional
+            Locale identifier.
+        """
+        APIClient._validate_type("locale", locale, str)
+        if (
+            len(locale) != 5
+            or not locale[:2].isalpha()
+            or locale[2] != "_"
+            or not locale[3:].isalpha()
+        ):
+            raise ValueError(
+                f"{locale!r} is not a valid locale consisting of a "
+                "an ISO 639-1 language code and an ISO 3166-1 alpha-2 "
+                "country code joined by an underscore."
+            )
 
     @staticmethod
     def _validate_number(
@@ -534,7 +558,6 @@ class OAuth2APIClient(APIClient):
             reauthorization.
         """
         super().__init__(cache=cache)
-        self._client = httpx.Client(base_url=self.BASE_URL)
 
         # If a client ID is not provided, try to retrieve it and its
         # corresponding client secret from environment variables
@@ -560,7 +583,7 @@ class OAuth2APIClient(APIClient):
         if (
             not access_token
             and store
-            and (accounts := api_config.get(self.__name__))
+            and (accounts := api_config.get(self.__class__.__name__))
             and (account := accounts.get(self._account_identifier))
         ):
             # If a stored access token is found and the client ID
@@ -1376,9 +1399,10 @@ class OAuth2APIClient(APIClient):
             + timedelta(seconds=int(resp_json["expires_in"])),
         )
         if self._store:
-            accounts = api_config.get(self.__name__)
+            cls_name = self.__class__.__name__
+            accounts = api_config.get(cls_name)
             if not isinstance(accounts, dict):
-                api_config[self.__name__] = accounts = {}
+                api_config[cls_name] = accounts = {}
             self._resolve_account_identifier(
                 self._flow,
                 self._client_id,

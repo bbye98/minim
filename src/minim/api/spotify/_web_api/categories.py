@@ -74,6 +74,7 @@ class CategoriesAPI(ResourceAPI):
         """
         params = {}
         if locale:
+            self._client._validate_locale(locale)
             params["locale"] = locale
         return self._client._request(
             "GET", f"browse/categories/{category_id}", params=params
@@ -167,6 +168,7 @@ class CategoriesAPI(ResourceAPI):
             self._client._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if locale:
+            self._client._validate_locale(locale)
             params["locale"] = locale
         return self._client._request(
             "GET", "browse/categories", params=params

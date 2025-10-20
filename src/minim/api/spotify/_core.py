@@ -36,7 +36,7 @@ class SpotifyWebAPI(OAuth2APIClient):
     _ENV_VAR_PREFIX = "SPOTIFY_WEB_API"
     _FLOWS = {"auth_code", "pkce", "client_credentials"}
     _PROVIDER = "Spotify"
-    _QUAL_NAME = "minim.api.spotify.SpotifyWebAPI"
+    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
     _SCOPES = {
         "images": {"ugc-image-upload"},
         "spotify_connect": {
@@ -604,29 +604,33 @@ class SpotifyWebAPI(OAuth2APIClient):
             self._refresh_access_token()
 
         resp = self._client.request(method, endpoint, **kwargs)
-        if not 200 <= (status := resp.status_code) < 300:
-            if status == 401 and not self._expiry and retry:
-                self._refresh_access_token()
-                return self._request(method, endpoint, retry=False, **kwargs)
-            if status == 429 and retry:
-                retry_after = int(resp.headers.get("Retry-After", 0)) + 1
-                warnings.warn(
-                    "Rate limit exceeded. Retrying after "
-                    f"{retry_after} second(s)."
-                )
-                time.sleep(retry_after)
-                return self._request(method, endpoint, retry=False, **kwargs)
-            emsg = f"{status} {resp.reason_phrase}"
+        status = resp.status_code
+        if 200 <= status < 300:
+            return resp
+
+        if status == 401 and not self._expiry and retry:
+            self._refresh_access_token()
+            return self._request(method, endpoint, retry=False, **kwargs)
+        if status == 429 and retry:
             try:
-                details = resp.json()["error"]["message"]
-            except JSONDecodeError:
-                # Fallback for users without access to apps in
-                # development mode
-                details = resp.text
-            if details:
-                emsg += f" – {details}"
-            raise RuntimeError(emsg)
-        return resp
+                retry_after = float(resp.headers["Retry-After"]) + 1.0
+            except (KeyError, ValueError):
+                retry_after = 1.0
+            warnings.warn(
+                f"Rate limit exceeded. Retrying after {retry_after:.3f} second(s)."
+            )
+            time.sleep(retry_after)
+            return self._request(method, endpoint, retry=False, **kwargs)
+        emsg = f"{status} {resp.reason_phrase}"
+        try:
+            details = resp.json()["error"]["message"]
+        except JSONDecodeError:
+            # Fallback for users without access to apps in
+            # development mode
+            details = resp.text
+        if details:
+            emsg += f" – {details}"
+        raise RuntimeError(emsg)
 
     def _require_spotify_premium(self, endpoint_method: str) -> None:
         """
@@ -659,6 +663,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         """
         if (
             not isinstance(market, str)
+            or len(market) != 2
             or "markets" in self.__dict__
             and market not in self.available_markets
         ):

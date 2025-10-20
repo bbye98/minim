@@ -1463,6 +1463,7 @@ class PlaylistsAPI(ResourceAPI):
             self._client._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if locale:
+            self._client._validate_locale(locale)
             params["locale"] = locale
         return self._client._request(
             "GET", "browse/featured-playlists", params=params
