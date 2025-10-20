@@ -178,7 +178,11 @@ class iTunesSearchAPI(APIClient):
         limit: int | str | None = None,
         sort: str | None = None,
     ) -> dict[str, Any]:
-        """ """
+        """
+        Search for content using iTunes IDs, All Music Guide (AMG) IDs,
+        Universal Product Codes (UPCs), European Article Numbers (EANs),
+        or International Standard Book Numbers (ISBNs).
+        """
         pass
 
     def search(
@@ -187,17 +191,116 @@ class iTunesSearchAPI(APIClient):
         /,
         country: str,
         *,
-        medium: str | None = None,
+        media: str | None = None,
         entity: str | None = None,
+        attribute: str | None = None,
         limit: int | None = None,
         lang: int | None = None,
         version: int | None = None,
-        explicit: bool | None = None,
+        explicit: bool | str | None = None,
     ) -> dict[str, Any]:
-        """ """
+        """
+        Search for content using a text string.
+
+        Parameters
+        ----------
+        term : str, positional-only
+            Text to search for.
+
+            **Example**: :code:`"jack johnson"`.
+
+        country : str
+            ISO 3166-1 alpha-2 country code.
+
+            **Default**: :code:`"US"`.
+
+        media : str, keyword-only, optional
+            Media type to search for.
+
+            **Valid values**: :code:`"all"`, :code:`"audiobook"`,
+            :code:`"ebook"`, :code:`"movie"`, :code:`"music"`,
+            :code:`"musicVideo"`, :code:`"podcast"`,
+            :code:`"shortFilm"`, :code:`"software"`, :code:`"tvShow"`.
+
+            **Default**: :code:`"all"`.
+
+        entity : str, keyword-only, optional
+            ...
+
+        attribute : str, keyword-only, optional
+            ...
+
+        limit : int, keyword-only, optional
+            ...
+
+        lang : int, keyword-only, optional
+            ...
+
+        version : int, keyword-only, optional
+            ...
+
+        explicit : bool | str, keyword-only, optional
+            ...
+
+        Returns
+        -------
+        results : dict[str, Any]
+            Search results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               ...
+        """
         self._validate_type("term", term, str)
         self._validate_locale(country)
         params = {"term": term, "country": country}
+        if media is None:
+            emsg_suffix = ""
+        else:
+            self._validate_type("media", media, str)
+            if media not in self._MEDIA_RELATIONSHIPS:
+                _media = "', '".join(self._MEDIA_RELATIONSHIPS)
+                raise ValueError(
+                    f"Invalid media type {media!r}. Valid values: '{_media}'."
+                )
+            params["media"] = media
+            emsg_suffix = f" for media type '{media}'"
+        if entity is not None:
+            self._validate_type("entity", entity, str)
+            entities = self._MEDIA_RELATIONSHIPS[media or "all"]["entities"]
+            if entity not in entities:
+                entities = "', '".join(entities)
+                raise ValueError(
+                    f"Invalid entity {entity!r}{emsg_suffix}. "
+                    f"Valid values: '{entities}'."
+                )
+        if attribute is not None:
+            self._validate_type("attribute", attribute, str)
+            attributes = self._MEDIA_RELATIONSHIPS[media or "all"]["attributes"]
+            if attribute not in attributes:
+                attributes = "', '".join(attributes)
+                raise ValueError(
+                    f"Invalid attribute {attribute!r}{emsg_suffix}. "
+                    f"Valid values: '{attributes}'."
+                )
+        if limit is not None:
+            self._validate_number("limit", limit, int, 1, 200)
+            params["limit"] = limit
+        if lang is not None:
+            self._validate_locale(lang)
+            params["lang"] = lang
+        if version is not None:
+            self._validate_number("version", version, int, 1, 2)
+            params["version"] = version
+        if explicit is not None:
+            self._validate_type("explicit", explicit, bool | str)
+            if isinstance(explicit, bool):
+                params["explicit"] = "Yes" if explicit else "No"
+            elif explicit in {"Yes", "No"}:
+                params["explicit"] = explicit
+            else:
+                raise ValueError("`explicit` must be 'Yes'/True or 'No'/False.")
         return self._request("GET", "search", params=params)
 
     def _request(
