@@ -30,6 +30,11 @@ if TYPE_CHECKING:
 class SpotifyWebAPI(OAuth2APIClient):
     """
     Spotify Web API client.
+
+    .. seealso::
+
+       For more information, see the `Spotify Web API Reference
+       <https://developer.spotify.com/documentation/web-api>`_.
     """
 
     _AUDIO_TYPES = {"episode", "track"}

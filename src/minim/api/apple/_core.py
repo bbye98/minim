@@ -13,6 +13,13 @@ if TYPE_CHECKING:
 class iTunesSearchAPI(APIClient):
     """
     iTunes Search API client.
+
+    .. seealso::
+
+       For more information, see the `iTunes Search API
+       documentation <https://developer.apple.com/library/archive
+       /documentation/AudioVideo/Conceptual/iTuneSearchAPI
+       /index.html>`_.
     """
 
     _MEDIA_RELATIONSHIPS = {
