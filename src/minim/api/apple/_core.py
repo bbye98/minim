@@ -160,11 +160,11 @@ class iTunesSearchAPI(APIClient):
     def lookup(
         self,
         *,
-        itunes_id: int | str | Collection[int | str] | None = None,
-        amg_album_id: int | str | Collection[int | str] | None = None,
-        amg_artist_id: int | str | Collection[int | str] | None = None,
-        amg_video_id: int | str | Collection[int | str] | None = None,
-        bundle_id: str | Collection[str] | None = None,
+        itunes_ids: int | str | Collection[int | str] | None = None,
+        amg_album_ids: int | str | Collection[int | str] | None = None,
+        amg_artist_ids: int | str | Collection[int | str] | None = None,
+        amg_video_ids: int | str | Collection[int | str] | None = None,
+        bundle_ids: str | Collection[str] | None = None,
         isbns: int | str | Collection[int | str] | None = None,
         upcs: int | str | Collection[int | str] | None = None,
         entity: str | None = None,
@@ -175,8 +175,358 @@ class iTunesSearchAPI(APIClient):
         Search for content using iTunes IDs, All Music Guide (AMG) IDs,
         Universal Product Codes (UPCs), European Article Numbers (EANs),
         or International Standard Book Numbers (ISBNs).
+
+        Parameters
+        ----------
+        itunes_ids : int, str, or Collection[int | str], keyword-only, \
+        optional
+            iTunes IDs to look up.
+
+            .. note::
+
+               Exactly one of `itunes_ids`, `amg_album_ids`, 
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               or `upcs` must be provided.
+
+            **Examples**: :code:`30399230`, :code:`"639262988"`,
+            :code:`[30399230, 639262988]`, 
+            :code:`["30399230", "639262988"]`.
+
+        amg_album_ids : int, str, or Collection[int | str], \
+        keyword-only, optional
+            AMG album IDs to look up.
+
+            .. note::
+
+               Exactly one of `itunes_ids`, `amg_album_ids`, 
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               or `upcs` must be provided.
+
+            **Examples**: :code:`15175`, :code:`15176`,
+            :code:`[15177, 15178]`, :code:`["15183", "15184"]`.
+
+        amg_artist_ids : int, str, or Collection[int | str], \
+        keyword-only, optional
+            AMG artist IDs to look up.
+
+            .. note::
+
+               Exactly one of `itunes_ids`, `amg_album_ids`, 
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               or `upcs` must be provided.
+
+            **Examples**: :code:`816977`, :code:`"2342870"`, 
+            :code:`[816977, 2342870]`, :code:`["816977", "2342870"]`.
+
+        amg_video_ids : int, str, or Collection[int | str], \
+        keyword-only, optional
+            AMG video IDs to look up.
+
+            .. note::
+
+               Exactly one of `itunes_ids`, `amg_album_ids`, 
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               or `upcs` must be provided.
+
+            **Examples**: :code:`17120`, :code:`"17121"`,
+            :code:`[17122, 17123]`, :code:`["17124", "17125"]`.
+
+        bundle_ids : str, or Collection[str], keyword-only, optional
+            App bundle IDs to look up.
+
+            .. note::
+
+               Exactly one of `itunes_ids`, `amg_album_ids`, 
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               or `upcs` must be provided.
+
+            **Examples**: :code:`"com.yelp.yelpiphone"`,
+            :code:`["com.tripadvisor.LocalPicks", "com.yelp.yelpiphone"]`.
+
+        isbns : int, str, or Collection[int | str], keyword-only, \
+        optional
+            ISBNs to look up.
+
+            .. note::
+
+               Exactly one of `itunes_ids`, `amg_album_ids`, 
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               or `upcs` must be provided.
+
+            **Examples**: :code:`9781449355739`, :code:`"9781449365035"`,
+            :code:`[9781449355739, 9781449365035]`, 
+            :code:`["9781449355739", "9781449365035"]`.
+
+        upcs : int, str, or Collection[int | str], keyword-only, \
+        optional
+            UPCs/EANs to look up.
+
+            .. note::
+
+               Exactly one of `itunes_ids`, `amg_album_ids`, 
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               or `upcs` must be provided.
+
+            **Examples**: :code:`07464381122`, :code:`"888837724713"`,
+            :code:`[07464381122, 888837724713]`, 
+            :code:`["07464381122", "888837724713"]`.
+
+        entity : str, keyword-only, optional
+            Type of resource to return.
+
+            .. seealso::
+
+               `Table 2-1 in the iTunes Search API Documentation
+               (Archived) <https://developer.apple.com/library/archive
+               /documentation/AudioVideo/Conceptual/iTuneSearchAPI
+               /Searching.html#//apple_ref/doc/uid
+               /TP40017632-CH5-SW2>`__ – Available entities.
+
+            **Example**: :code:`"movieArtist"`.
+
+        limit : int, keyword-only, optional
+            Maximum number of items to return.
+
+            **Valid range**: :code:`1` to :code:`200`.
+
+            **Default**: :code:`50`.
+
+        sort : str, keyword-only, optional
+            Sort applied to the lookup results.
+
+            **Valid value**: :code:`"recent"`.
+
+        Returns
+        -------
+        results : dict[str, Any]
+            Lookup results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "resultCount": <int>,
+                    "results": [
+                      {
+                        "artistId": <int>,
+                        "artistName": <str>,
+                        "artistViewUrl": <str>,
+                        "artworkUrl100": <str>,
+                        "artworkUrl60": <str>,
+                        "collectionCensoredName": <str>,
+                        "collectionExplicitness": <str>,
+                        "collectionId": <int>,
+                        "collectionName": <str>,
+                        "collectionPrice": <float>,
+                        "collectionViewUrl": <str>,
+                        "copyright": <str>,
+                        "country": <str>,
+                        "currency": <str>,
+                        "description": <str>,
+                        "previewUrl": <str>,
+                        "primaryGenreName": <str>,
+                        "releaseDate": <str>,
+                        "trackCount": <int>,
+                        "wrapperType": "audiobook"
+                      },
+                      {
+                        "amgArtistId": <int>,
+                        "artistId": <int>,
+                        "artistName": <str>,
+                        "artistViewUrl": <str>,
+                        "artworkUrl100": <str>,
+                        "artworkUrl60": <str>,
+                        "collectionCensoredName": <str>,
+                        "collectionExplicitness": <str>,
+                        "collectionId": <int>,
+                        "collectionName": <str>,
+                        "collectionPrice": <float>,
+                        "collectionType": <str>,
+                        "collectionViewUrl": <str>,
+                        "contentAdvisoryRating": <str>,
+                        "copyright": <str>,
+                        "country": <str>,
+                        "currency": <str>,
+                        "primaryGenreName": <str>,
+                        "releaseDate": <str>,
+                        "trackCount": <int>,
+                        "wrapperType": "collection"
+                      },
+                      {
+                        "artistId": <int>,
+                        "artistIds": <list[int]>,
+                        "artistName": <str>,
+                        "artistViewUrl": <str>,
+                        "artworkUrl100": <str>,
+                        "artworkUrl60": <str>,
+                        "averageUserRating": <float>,
+                        "currency": <str>,
+                        "description": <str>,
+                        "fileSizeBytes": <int>,
+                        "formattedPrice": <str>,
+                        "genreIds": <list[str]>,
+                        "genres": <list[str]>,
+                        "kind": <str>,
+                        "price": <float>,
+                        "releaseDate": <str>,
+                        "trackCensoredName": <str>,
+                        "trackId": <int>,
+                        "trackName": <str>,
+                        "trackViewUrl": <str>,
+                        "userRatingCount": <int>
+                      },
+                      {
+                        "advisories": <list[str]>,
+                        "appletvScreenshotUrls": <list[str]>,
+                        "artistId": <int>,
+                        "artistName": <str>,
+                        "artistViewUrl": <str>,
+                        "artworkUrl100": <str>,
+                        "artworkUrl512": <str>,
+                        "artworkUrl60": <str>,
+                        "averageUserRating": <float>,
+                        "averageUserRatingForCurrentVersion": <float>,
+                        "bundleId": <str>,
+                        "contentAdvisoryRating": <str>,
+                        "currency": <str>,
+                        "currentVersionReleaseDate": <str>,
+                        "description": <str>,
+                        "features": <list[str]>,
+                        "fileSizeBytes": <str>,
+                        "formattedPrice": <str>,
+                        "genreIds": <list[str]>,
+                        "genres": <list[str]>,
+                        "ipadScreenshotUrls": <list[str]>,
+                        "isGameCenterEnabled": <bool>,
+                        "isVppDeviceBasedLicensingEnabled": <bool>,
+                        "kind": <str>,
+                        "languageCodesISO2A": <list[str]>,
+                        "minimumOsVersion": <str>,
+                        "price": <float>,
+                        "primaryGenreId": <int>,
+                        "primaryGenreName": <str>,
+                        "releaseDate": <str>,
+                        "releaseNotes": <str>,
+                        "screenshotUrls": <list[str]>,
+                        "sellerName": <str>,
+                        "sellerUrl": <str>,
+                        "supportedDevices": <list[str]>,
+                        "trackCensoredName": <str>,
+                        "trackContentRating": <str>,
+                        "trackId": <int>,
+                        "trackName": <str>,
+                        "trackViewUrl": <str>,
+                        "userRatingCount": 78314,
+                        "userRatingCountForCurrentVersion": <int>,
+                        "version": <str>,
+                        "wrapperType": "software"
+                      },
+                      {
+                        "artistId": <int>,
+                        "artistName": <str>,
+                        "artistViewUrl": <str>,
+                        "artworkUrl100": <str>,
+                        "artworkUrl30": <str>,
+                        "artworkUrl60": <str>,
+                        "artworkUrl600": <str>,
+                        "collectionCensoredName": <str>,
+                        "collectionExplicitness": <str>,
+                        "collectionHdPrice": <float>,
+                        "collectionId": <int>,
+                        "collectionName": <str>,
+                        "collectionPrice": <float>,
+                        "collectionViewUrl": <str>,
+                        "contentAdvisoryRating": <str>,
+                        "country": <str>,
+                        "currency": <str>,
+                        "discCount": <int>,
+                        "discNumber": <int>,
+                        "feedUrl": <str>,
+                        "genreIds": <list[str]>,
+                        "genres": <list[str]>,
+                        "isStreamable": <bool>,
+                        "kind": <str>,
+                        "longDescription": <str>,
+                        "previewUrl": <str>,
+                        "primaryGenreName": <str>,
+                        "releaseDate": <str>,
+                        "shortDescription": <str>,
+                        "trackCensoredName": <str>,
+                        "trackCount": <int>,
+                        "trackExplicitness": <str>,
+                        "trackHdPrice": <float>,
+                        "trackHdRentalPrice": <float>,
+                        "trackId": <int>,
+                        "trackName": <str>,
+                        "trackNumber": <int>,
+                        "trackPrice": <float>,
+                        "trackRentalPrice": <float>,
+                        "trackTimeMillis": <int>,
+                        "trackViewUrl": <str>,
+                        "wrapperType": "track"
+                      }
+                    ]
+                  }
         """
-        pass
+        params = {}
+        seen = False
+        local_variables = locals()
+        for arg_name, param_name, numeric in [
+            ("itunes_ids", "id", True),
+            ("amg_album_ids", "amgAlbumId", True),
+            ("amg_artist_ids", "amgArtistId", True),
+            ("amg_video_ids", "amgVideoId", True),
+            ("bundle_ids", "bundleId", False),
+            ("isbns", "isbn", True),
+            ("upcs", "upc", True),
+        ]:
+            if (arg := local_variables.get(arg_name)) is not None:
+                if seen:
+                    raise ValueError(
+                        "More than one of `itunes_ids`, "
+                        "`amg_album_ids`, `amg_artist_ids`, "
+                        "`amg_video_ids`, `bundle_ids`, `isbns`, or "
+                        "`upcs` was provided."
+                    )
+
+                if not isinstance(arg, list | set | tuple):
+                    arg = [arg]
+                if numeric:
+                    for val in arg:
+                        if isinstance(val, str) and not val.isnumeric():
+                            raise ValueError(
+                                f"Values in `{arg_name}` must be numeric."
+                            )
+                        elif not isinstance(val, int):
+                            raise ValueError(
+                                f"Values in `{arg_name}` must be numeric."
+                            )
+                else:
+                    for val in arg:
+                        if not isinstance(val, str) or not val.isalnum():
+                            raise ValueError(
+                                f"Values in `{arg_name}` must be alphanumeric."
+                            )
+                params[param_name] = ",".join(str(val) for val in arg)
+                seen = True
+        if entity is not None:
+            self._validate_type("entity", entity, str)
+            entities = self._MEDIA_RELATIONSHIPS["all"]["entities"]
+            if entity not in entities:
+                entities = "', '".join(entities)
+                raise ValueError(
+                    f"Invalid entity {entity!r}. Valid values: '{entities}'."
+                )
+        if limit is not None:
+            self._validate_number("limit", limit, int, 1, 200)
+            params["limit"] = limit
+        if sort is not None:
+            if sort != "recent":
+                raise ValueError("Invalid sort value. Valid value: 'recent'.")
+            params["sort"] = sort
+        return self._client._request("GET", "lookup", params=params)
 
     def search(
         self,
@@ -230,6 +580,8 @@ class iTunesSearchAPI(APIClient):
                /TP40017632-CH5-SW2>`__ – Available entities for each
                media type.
 
+            **Example**: :code:`"movieArtist"` when :code:`media="movie"`.
+
         attribute : str, keyword-only, optional
             Field to constrain the search by, depending on the specified
             `media`.
@@ -240,6 +592,9 @@ class iTunesSearchAPI(APIClient):
                Performance Partner Program)
                <https://performance-partners.apple.com/search-api>`__ –
                Available attributes for each media type.
+
+            **Example**: :code:`"allArtistTerm"` when
+            :code:`media="all"` and :code:`entity="allArtist"`.
 
         limit : int, keyword-only, optional
             Maximum number of items to return.

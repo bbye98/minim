@@ -792,7 +792,7 @@ class PlaylistsAPI(ResourceAPI):
         uris : str or Collection[str]
             Spotify URIs of tracks and/or show episodes, provided as
             either a comma-separated string or a collection of strings.
-            A maximum of 100 URIs can be sent in one request.
+            A maximum of 100 URIs can be sent in a request.
 
             **Examples**:
 
@@ -970,7 +970,7 @@ class PlaylistsAPI(ResourceAPI):
         uris : str or Collection[str]
             Spotify URIs of tracks and/or show episodes, provided as
             either a comma-separated string or a collection of strings.
-            A maximum of 100 URIs can be sent in one request.
+            A maximum of 100 URIs can be sent in a request.
 
             **Examples**:
 
@@ -1047,7 +1047,7 @@ class PlaylistsAPI(ResourceAPI):
         uris : str or Collection[str]
             Spotify URIs of tracks and/or show episodes, provided as
             either a comma-separated string or a collection of strings.
-            A maximum of 100 URIs can be sent in one request.
+            A maximum of 100 URIs can be sent in a request.
 
             **Examples**:
 

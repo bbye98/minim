@@ -55,7 +55,7 @@ class AudiobooksAPI(ResourceAPI):
         audiobook_ids : str or Collection[str], positional-only
             Spotify IDs of the audiobooks, provided as either a
             comma-delimited string or as a collection of strings. A
-            maximum of 50 IDs can be sent in one request.
+            maximum of 50 IDs can be sent in a request.
 
             **Examples**:
 
@@ -584,7 +584,7 @@ class AudiobooksAPI(ResourceAPI):
         audiobook_ids : str or Collection[str], positional-only
             Spotify IDs of the audiobooks, provided as either a
             comma-delimited string or as a collection of strings. A
-            maximum of 50 IDs can be sent in one request.
+            maximum of 50 IDs can be sent in a request.
 
             **Examples**:
 
@@ -631,7 +631,7 @@ class AudiobooksAPI(ResourceAPI):
         audiobook_ids : str or Collection[str], positional-only
             Spotify IDs of the audiobooks, provided as either a
             comma-delimited string or as a collection of strings. A
-            maximum of 50 IDs can be sent in one request.
+            maximum of 50 IDs can be sent in a request.
 
             **Examples**:
 
@@ -678,7 +678,7 @@ class AudiobooksAPI(ResourceAPI):
         audiobook_ids : str or Collection[str], positional-only
             Spotify IDs of the audiobooks, provided as either a
             comma-delimited string or as a collection of strings. A
-            maximum of 50 IDs can be sent in one request.
+            maximum of 50 IDs can be sent in a request.
 
             **Examples**:
 

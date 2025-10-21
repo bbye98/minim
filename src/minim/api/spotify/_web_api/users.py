@@ -201,7 +201,7 @@ class UsersAPI(ResourceAPI):
         user_ids : str or Collection[str], positional-only
             Spotify user IDs, provided as either a comma-separated
             string or a collection of strings. A maximum of 50 IDs can
-            be sent in one request.
+            be sent in a request.
 
             **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
             :code:`["smedjan", "bbye98"]`.
@@ -243,7 +243,7 @@ class UsersAPI(ResourceAPI):
         user_ids : str or Collection[str], positional-only
             Spotify user IDs, provided as either a comma-separated
             string or a collection of strings. A maximum of 50 IDs can
-            be sent in one request.
+            be sent in a request.
 
             **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
             :code:`["smedjan", "bbye98"]`.
@@ -292,7 +292,7 @@ class UsersAPI(ResourceAPI):
         user_ids : str or Collection[str], positional-only
             Spotify user IDs, provided as either a comma-separated
             string or a collection of strings. A maximum of 50 IDs can
-            be sent in one request.
+            be sent in a request.
 
             **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
             :code:`["smedjan", "bbye98"]`.

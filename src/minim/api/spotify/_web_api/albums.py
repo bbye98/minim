@@ -46,7 +46,7 @@ class AlbumsAPI(ResourceAPI):
         album_ids : str or Collection[str], positional-only
             Spotify IDs of the albums, provided as either a
             comma-separated string or a collection of strings. A
-            maximum of 20 IDs can be sent in one request.
+            maximum of 20 IDs can be sent in a request.
 
             **Examples**:
 
@@ -679,7 +679,7 @@ class AlbumsAPI(ResourceAPI):
         album_ids : str or Collection[str], positional-only
             Spotify IDs of the albums, provided as either a
             comma-separated string or a collection of strings. A
-            maximum of 20 IDs can be sent in one request.
+            maximum of 20 IDs can be sent in a request.
 
             **Examples**:
 
@@ -722,7 +722,7 @@ class AlbumsAPI(ResourceAPI):
         album_ids : str or Collection[str], positional-only
             Spotify IDs of the albums, provided as either a
             comma-separated string or a collection of strings. A
-            maximum of 20 IDs can be sent in one request.
+            maximum of 20 IDs can be sent in a request.
 
             **Examples**:
 
@@ -767,7 +767,7 @@ class AlbumsAPI(ResourceAPI):
         album_ids : str or Collection[str], positional-only
             Spotify IDs of the albums, provided as either a
             comma-separated string or a collection of strings. A
-            maximum of 20 IDs can be sent in one request.
+            maximum of 20 IDs can be sent in a request.
 
             **Examples**:
 

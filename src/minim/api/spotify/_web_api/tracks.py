@@ -60,7 +60,7 @@ class TracksAPI(ResourceAPI):
         track_ids : str or Collection[str], positional-only
             Spotify IDs of the tracks, provided as either a
             comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in one request.
+            maximum of 50 IDs can be sent in a request.
 
             **Examples**:
 
@@ -575,7 +575,7 @@ class TracksAPI(ResourceAPI):
         track_ids : str or Collection[str], positional-only
             Spotify IDs of the tracks, provided as either a
             comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in one request.
+            maximum of 50 IDs can be sent in a request.
 
             **Examples**:
 
@@ -620,7 +620,7 @@ class TracksAPI(ResourceAPI):
         track_ids : str or Collection[str], positional-only
             Spotify IDs of the tracks, provided as either a
             comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in one request.
+            maximum of 50 IDs can be sent in a request.
 
             **Examples**:
 
@@ -678,7 +678,7 @@ class TracksAPI(ResourceAPI):
         track_ids : str or Collection[str], positional-only
             Spotify IDs of the tracks, provided as either a
             comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in one request.
+            maximum of 50 IDs can be sent in a request.
 
             **Examples**:
 
@@ -1713,7 +1713,7 @@ class TracksAPI(ResourceAPI):
         n_genres = len(seed_genres)
         if n_genres > limit:
             raise ValueError(
-                f"A maximum of {limit} seed genres can be sent in one request."
+                f"A maximum of {limit} seed genres can be sent in a request."
             )
         for genre in seed_genres:
             self._client._validate_seed_genre(genre)

@@ -382,7 +382,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         n_ids = len(spotify_ids)
         if n_ids > limit:
             raise ValueError(
-                f"A maximum of {limit} Spotify IDs can be sent in one request."
+                f"A maximum of {limit} Spotify IDs can be sent in a request."
             )
         for idx, id_ in enumerate(spotify_ids):
             spotify_ids[idx] = id_ = id_.strip()
@@ -428,7 +428,7 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         if len(spotify_uris) > limit:
             raise ValueError(
-                f"A maximum of {limit} Spotify URIs can be sent in one request."
+                f"A maximum of {limit} Spotify URIs can be sent in a request."
             )
         for idx, uri in enumerate(spotify_uris):
             spotify_uris[idx] = uri = uri.strip()
