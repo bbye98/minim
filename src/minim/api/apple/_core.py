@@ -526,7 +526,7 @@ class iTunesSearchAPI(APIClient):
             if sort != "recent":
                 raise ValueError("Invalid sort value. Valid value: 'recent'.")
             params["sort"] = sort
-        return self._client._request("GET", "lookup", params=params)
+        return self._request("GET", "lookup", params=params).json()
 
     def search(
         self,
@@ -936,7 +936,7 @@ class iTunesSearchAPI(APIClient):
                 params["explicit"] = explicit
             else:
                 raise ValueError("`explicit` must be 'Yes'/True or 'No'/False.")
-        return self._request("GET", "search", params=params)
+        return self._request("GET", "search", params=params).json()
 
     def _request(
         self,
