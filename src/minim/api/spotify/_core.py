@@ -201,22 +201,6 @@ class SpotifyWebAPI(OAuth2APIClient):
                 "by the Spotify Web API."
             )
 
-        super().__init__(
-            flow=flow,
-            client_id=client_id,
-            client_secret=client_secret,
-            redirect_uri=redirect_uri,
-            scopes=scopes,
-            access_token=access_token,
-            refresh_token=refresh_token,
-            expiry=expiry,
-            backend=backend,
-            browser=browser,
-            cache=cache,
-            store=store,
-            user_identifier=user_identifier,
-        )
-
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the Spotify Web API.
         self.albums: AlbumsAPI = AlbumsAPI(self)
@@ -246,6 +230,22 @@ class SpotifyWebAPI(OAuth2APIClient):
         self.tracks: TracksAPI = TracksAPI(self)
         #: Users API endpoints for the Spotify Web API.
         self.users: UsersAPI = UsersAPI(self)
+
+        super().__init__(
+            flow=flow,
+            client_id=client_id,
+            client_secret=client_secret,
+            redirect_uri=redirect_uri,
+            scopes=scopes,
+            access_token=access_token,
+            refresh_token=refresh_token,
+            expiry=expiry,
+            backend=backend,
+            browser=browser,
+            cache=cache,
+            store=store,
+            user_identifier=user_identifier,
+        )
 
     @classmethod
     def get_scopes(
@@ -569,9 +569,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             (:code:`%Y-%m-%dT%H:%M:%SZ`).
         """
         super().set_access_token(
-            access_token,
-            refresh_token=refresh_token,
-            expiry=expiry,
+            access_token, refresh_token=refresh_token, expiry=expiry
         )
 
     def _get_user_identifier(self) -> str:

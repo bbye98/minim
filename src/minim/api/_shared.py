@@ -850,9 +850,9 @@ class OAuth2APIClient(APIClient):
                     f.read(), default_backend()
                 )
             return (
-                certificate.not_valid_before
+                certificate.not_valid_before_utc
                 <= datetime.now(timezone.utc)
-                <= certificate.not_valid_after
+                <= certificate.not_valid_after_utc
             )
         except Exception:
             return False
@@ -869,7 +869,7 @@ class OAuth2APIClient(APIClient):
             Endpoint method whose cache entries should be cleared. If
             not provided, all entries in the cache are cleared.
 
-            **Example**: :code:`minim.api.spotify.ArtistsAPI.get_artists`.
+            **Example**: :code:`minim.api.spotify.SearchAPI.search`.
         """
         if self._cache is not None:
             self._cache.clear(endpoint_method)

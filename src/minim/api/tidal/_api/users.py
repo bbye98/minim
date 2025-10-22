@@ -19,3 +19,7 @@ class UsersAPI(ResourceAPI):
     """
 
     _client: "TIDALAPI"
+
+    def get_my_profile(self) -> dict[str, Any]:
+        """ """
+        return self._client._request("GET", "users/me").json()
