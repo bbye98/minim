@@ -18,7 +18,7 @@ class MarketsAPI(ResourceAPI):
 
     _client: "SpotifyWebAPI"
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_available_markets(self) -> dict[str, list[str]]:
         """
         `Markets > Get Available Markets <https://developer.spotify.com

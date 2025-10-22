@@ -19,7 +19,7 @@ class ShowsAPI(ResourceAPI):
 
     _client: "SpotifyWebAPI"
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_shows(
         self, show_ids: str | Collection[str], /, *, market: str | None = None
     ) -> dict[str, Any]:
@@ -260,7 +260,7 @@ class ShowsAPI(ResourceAPI):
         params["ids"] = show_ids
         return self._client._request("GET", "show", params=params).json()
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_show_episodes(
         self,
         show_id: str,

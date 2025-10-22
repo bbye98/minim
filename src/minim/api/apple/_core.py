@@ -4,7 +4,7 @@ import time
 from typing import TYPE_CHECKING, Any
 import warnings
 
-from .._shared import APIClient
+from .._shared import TTLCache, APIClient
 
 if TYPE_CHECKING:
     import httpx
@@ -15,6 +15,7 @@ class iTunesSearchAPI(APIClient):
     iTunes Search API client.
     """
 
+    _RATE_LIMIT_PER_SECOND = 1 / 3
     _MEDIA_RELATIONSHIPS = {
         "all": {
             "entities": {
@@ -157,6 +158,7 @@ class iTunesSearchAPI(APIClient):
     _QUAL_NAME: str = "minim.api.apple.iTunesSearchAPI"
     BASE_URL: str = "https://itunes.apple.com"
 
+    @TTLCache.cached_method(ttl="catalog")
     def lookup(
         self,
         *,
@@ -188,9 +190,9 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
                or `upcs` must be provided.
 
-            **Examples**: :code:`30399230`, :code:`"639262988"`,
-            :code:`[30399230, 639262988]`, 
-            :code:`["30399230", "639262988"]`.
+            **Examples**: :code:`1690873457`, :code:`"984746615"`,
+            :code:`[1690873457, 984746615]`, 
+            :code:`["1690873457", "984746615"]`.
 
         amg_album_ids : int, str, or Collection[int | str], \
         keyword-only, optional
@@ -528,6 +530,7 @@ class iTunesSearchAPI(APIClient):
             params["sort"] = sort
         return self._request("GET", "lookup", params=params).json()
 
+    @TTLCache.cached_method(ttl="search")
     def search(
         self,
         term: str,
@@ -888,7 +891,12 @@ class iTunesSearchAPI(APIClient):
                      }
         """
         self._validate_type("term", term, str)
-        self._validate_locale(country)
+        self._validate_type("country", country, str)
+        if len(country) != 2 or not country.isalpha():
+            raise ValueError(
+                f"Invalid country code {country!r}. Must be a ISO "
+                "3166-1 alpha-2 country code."
+            )
         params = {"term": term, "country": country}
         if media is None:
             emsg_suffix = ""
@@ -975,9 +983,10 @@ class iTunesSearchAPI(APIClient):
             return resp
 
         if status == 403 and retry:
-            retry_after = 0.3333333333333333
+            retry_after = self._RATE_LIMIT_PER_SECOND
             warnings.warn(
-                f"Rate limit exceeded. Retrying after {retry_after:.3f} second(s)."
+                "Rate limit possibly exceeded. Retrying after "
+                f"{retry_after:.3f} second(s)."
             )
             time.sleep(retry_after)
             return self._request(method, endpoint, retry=False, **kwargs)

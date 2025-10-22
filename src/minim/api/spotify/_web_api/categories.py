@@ -18,7 +18,7 @@ class CategoriesAPI(ResourceAPI):
 
     _client: "SpotifyWebAPI"
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_category(
         self, category_id: str, /, *, locale: str | None = None
     ) -> dict[str, Any]:
@@ -80,7 +80,7 @@ class CategoriesAPI(ResourceAPI):
             "GET", f"browse/categories/{category_id}", params=params
         ).json()
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_categories(
         self,
         *,

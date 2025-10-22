@@ -28,7 +28,7 @@ class SearchAPI(ResourceAPI):
     }
     _client: "SpotifyWebAPI"
 
-    @TTLCache.cached_method(ttl=1_800)
+    @TTLCache.cached_method(ttl="search")
     def search(
         self,
         query: str,

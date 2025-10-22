@@ -19,7 +19,7 @@ class EpisodesAPI(ResourceAPI):
 
     _client: "SpotifyWebAPI"
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_episodes(
         self,
         episode_ids: str | Collection[str],

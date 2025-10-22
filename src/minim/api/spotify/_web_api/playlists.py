@@ -2,7 +2,7 @@ from collections.abc import Collection
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import ResourceAPI
+from ..._shared import TTLCache, ResourceAPI
 
 if TYPE_CHECKING:
     from .. import SpotifyWebAPI
@@ -1343,6 +1343,7 @@ class PlaylistsAPI(ResourceAPI):
             json=payload,
         ).json()
 
+    @TTLCache.cached_method(ttl="featured")
     def get_featured_playlists(
         self,
         *,
@@ -1469,6 +1470,7 @@ class PlaylistsAPI(ResourceAPI):
             "GET", "browse/featured-playlists", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl="featured")
     def get_categorized_playlists(
         self,
         category_id: str,

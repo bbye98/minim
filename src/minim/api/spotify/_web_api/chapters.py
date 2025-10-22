@@ -24,7 +24,7 @@ class ChaptersAPI(ResourceAPI):
 
     _client: "SpotifyWebAPI"
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_chapters(
         self, chapter_ids: str | Collection[str], /, *, market: str
     ) -> dict[str, Any]:

@@ -22,7 +22,7 @@ class ArtistsAPI(ResourceAPI):
     _client: "SpotifyWebAPI"
     _group = "artists"
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_artists(
         self, artist_ids: str | Collection[str], /
     ) -> dict[str, Any]:
@@ -128,7 +128,7 @@ class ArtistsAPI(ResourceAPI):
             "GET", "artists", params={"ids": artist_ids}
         ).json()
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_artist_albums(
         self,
         artist_id: str,
@@ -268,7 +268,7 @@ class ArtistsAPI(ResourceAPI):
             "GET", f"artists/{artist_id}/albums", params=params
         ).json()
 
-    @TTLCache.cached_method(ttl=21_600)
+    @TTLCache.cached_method(ttl="top")
     def get_artist_top_tracks(
         self, artist_id: str, /, *, market: str
     ) -> dict[str, Any]:
@@ -410,7 +410,7 @@ class ArtistsAPI(ResourceAPI):
             "GET", f"artists/{artist_id}/top-tracks", params=params
         ).json()
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="featured")
     def get_related_artists(self, artist_id: str, /) -> dict[str, Any]:
         """
         `Artists > Get Artist's Related Artists
@@ -478,7 +478,7 @@ class ArtistsAPI(ResourceAPI):
             "GET", f"artists/{artist_id}/related-artists"
         ).json()
 
-    @TTLCache.cached_method(ttl=7_200)
+    @TTLCache.cached_method(ttl="top")
     def get_my_top_artists(
         self,
         *,

@@ -19,7 +19,7 @@ class AlbumsAPI(ResourceAPI):
 
     _client: "SpotifyWebAPI"
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_albums(
         self, album_ids: str | Collection[str], /, *, market: str | None = None
     ) -> dict[str, Any]:
@@ -314,7 +314,7 @@ class AlbumsAPI(ResourceAPI):
         params["ids"] = album_ids
         return self._client._request("GET", "albums", params=params).json()
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_album_tracks(
         self,
         album_id: str,
@@ -796,7 +796,7 @@ class AlbumsAPI(ResourceAPI):
             },
         ).json()
 
-    @TTLCache.cached_method(ttl=21_600)
+    @TTLCache.cached_method(ttl="featured")
     def get_new_releases(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:

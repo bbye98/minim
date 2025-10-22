@@ -33,7 +33,7 @@ class TracksAPI(ResourceAPI):
 
     _client: "SpotifyWebAPI"
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_tracks(
         self, track_ids: str | Collection[str], /, *, market: str | None = None
     ) -> dict[str, Any]:
@@ -649,7 +649,7 @@ class TracksAPI(ResourceAPI):
             },
         ).json()
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_audio_features(
         self, track_ids: str | Collection[str], /
     ) -> dict[str, Any]:
@@ -763,7 +763,7 @@ class TracksAPI(ResourceAPI):
             "GET", "audio-features", params={"ids": track_ids}
         ).json()
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_audio_analysis(self, track_id: str, /) -> dict[str, Any]:
         """
         `Tracks > Get Track's Audio Analysis
@@ -893,7 +893,7 @@ class TracksAPI(ResourceAPI):
         self._client._validate_spotify_id(track_id)
         return self._client._request("GET", f"audio-analysis/{track_id}").json()
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="search")
     def get_recommendations(
         self,
         seed_artists: str | Collection[str] | None = None,
@@ -1364,6 +1364,7 @@ class TracksAPI(ResourceAPI):
             "GET", "recommendations", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl="top")
     def get_my_top_tracks(
         self,
         *,

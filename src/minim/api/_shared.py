@@ -66,6 +66,8 @@ class TTLCache:
     policy.
     """
 
+    _TTL = {"catalog": 86_400, "featured": 43_200, "top": 3_600, "search": 600}
+
     def __init__(self, max_size: int = 1_024) -> None:
         """
         Parameters
@@ -128,7 +130,10 @@ class TTLCache:
                 *args: tuple[Any, ...],
                 **kwargs: dict[str, Any],
             ) -> Any:
-                cache = getattr(self._client, "_cache")
+                cache = getattr(
+                    self._client if isinstance(self, ResourceAPI) else self,
+                    "_cache",
+                )
                 if cache is None:
                     return func(self, *args, **kwargs)
                 return cache.wrapper(ttl=ttl)(func)(self, *args, **kwargs)
@@ -176,6 +181,8 @@ class TTLCache:
             Decorator that applies TTL-based caching to an API endpoint
             method.
         """
+        if isinstance(ttl, str):
+            ttl = self._TTL[ttl]
 
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             @wraps(func)

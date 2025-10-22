@@ -24,7 +24,7 @@ class AudiobooksAPI(ResourceAPI):
 
     _client: "SpotifyWebAPI"
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_audiobooks(
         self,
         audiobook_ids: str | Collection[str],
@@ -293,7 +293,7 @@ class AudiobooksAPI(ResourceAPI):
         params["ids"] = audiobook_ids
         return self._client._request("GET", "audiobooks", params=params).json()
 
-    @TTLCache.cached_method(ttl=86_400)
+    @TTLCache.cached_method(ttl="catalog")
     def get_audiobook_chapters(
         self,
         audiobook_id: str,
