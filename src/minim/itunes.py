@@ -7,6 +7,7 @@ This module contains a complete implementation of all iTunes Search API
 endpoints.
 """
 
+from json.decoder import JSONDecodeError
 import requests
 from typing import Any, Union
 
@@ -88,17 +89,23 @@ class SearchAPI:
         """
 
         r = self.session.request(method, url, **kwargs)
-        if r.status_code not in range(200, 299):
-            raise RuntimeError(f"{r.status_code} {r.json()['errorMessage']}")
+        if 200 <= r.status_code < 300:
+            emsg = f"{r.status_code} {r.reason}"
+            try:
+                if details := r.json().get("errorMessage"):
+                    emsg += f": {details}"
+            except JSONDecodeError:
+                pass
+            raise RuntimeError(emsg)
         return r
 
     def search(
         self,
         term: str,
         *,
-        country: str = None,
+        country: str,
         media: str = None,
-        entity: Union[str, list[str]] = None,
+        entity: str = None,
         attribute: str = None,
         limit: Union[int, str] = None,
         lang: str = None,
@@ -122,7 +129,7 @@ class SearchAPI:
 
             **Example**: :code:`"jack+johnson"`.
 
-        country : str, keyword-only, optional
+        country : str, keyword-only
             The two-letter country code for the store you want to search.
             The search uses the default store front for the specified
             country.
@@ -146,14 +153,14 @@ class SearchAPI:
 
             **Default**: :code:`"all"`.
 
-        entity : `str` or `list`, keyword-only, optional
-            The type(s) of results you want returned, relative to the
+        entity : `str`, keyword-only, optional
+            The type of results you want returned, relative to the
             specified media type in `media`.
 
             .. seealso::
 
                For a list of available
-               entities, see the `iTunes Store API Table 2-1
+               entities, see the `iTunes Search API Table 2-1
                <https://developer.apple.com/library/archive
                /documentation/AudioVideo/Conceptual/iTuneSearchAPI
                /Searching.html#//apple_ref/doc/uid
@@ -172,7 +179,7 @@ class SearchAPI:
             .. seealso::
 
                For a list of available
-               attributes, see the `iTunes Store API Table 2-2
+               attributes, see the `iTunes Search API Table 2-2
                <https://developer.apple.com/library/archive
                /documentation/AudioVideo/Conceptual/iTuneSearchAPI
                /Searching.html#//apple_ref/doc/uid
@@ -309,11 +316,7 @@ class SearchAPI:
                 "term": term,
                 "country": country,
                 "media": media,
-                "entity": (
-                    entity
-                    if entity is None or isinstance(entity, str)
-                    else ",".join(entity)
-                ),
+                "entity": entity,
                 "attribute": attribute,
                 "limit": limit,
                 "lang": lang,
@@ -336,7 +339,7 @@ class SearchAPI:
         bundle_id: Union[str, list[str]] = None,
         upc: Union[int, str, list[Union[int, str]]] = None,
         isbn: Union[int, str, list[Union[int, str]]] = None,
-        entity: Union[str, list[str]] = None,
+        entity: str = None,
         limit: Union[int, str] = None,
         sort: str = None,
     ) -> dict[str, Any]:
@@ -368,8 +371,8 @@ class SearchAPI:
         isbn : `int`, `str`, or `list`, keyword-only, optional
             The 13-digit ISBN(s) to lookup.
 
-        entity : `str` or `list`, keyword-only, optional
-            The type(s) of results you want returned.
+        entity : `str`, keyword-only, optional
+            The type of results you want returned.
 
             .. seealso::
 
@@ -570,11 +573,7 @@ class SearchAPI:
                         else (str(i) for i in isbn)
                     )
                 ),
-                "entity": (
-                    entity
-                    if entity is None or isinstance(entity, str)
-                    else ",".join(entity)
-                ),
+                "entity": entity,
                 "limit": limit,
                 "sort": sort,
             },

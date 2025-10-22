@@ -574,7 +574,7 @@ class WebAPI:
     WEB_PLAYER_TOKEN_URL = "https://open.spotify.com/get_access_token"
 
     @classmethod
-    def get_scopes(self, categories: Union[str, list[str]]) -> str:
+    def get_scopes(cls, categories: Union[str, list[str]]) -> str:
         """
         Get Spotify Web API and Open Access authorization scopes for
         the specified categories.
@@ -682,7 +682,7 @@ class WebAPI:
 
         return " ".join(
             s
-            for scopes in (self.get_scopes[c] for c in categories)
+            for scopes in (cls.get_scopes[c] for c in categories)
             for s in scopes
         )
 
@@ -6466,9 +6466,9 @@ class WebAPI:
                   }
         """
 
-        self._check_scope("get_current_user_playlists", "playlist-read-private")
+        self._check_scope("get_personal_playlists", "playlist-read-private")
         self._check_scope(
-            "get_current_user_playlists", "playlist-read-collaborative"
+            "get_personal_playlists", "playlist-read-collaborative"
         )
 
         return self._get_json(
