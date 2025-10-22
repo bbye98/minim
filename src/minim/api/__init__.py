@@ -2,7 +2,7 @@ import yaml
 
 from .. import CONFIG_FILE, config
 
-__all__ = ["apple", "spotify"]
+__all__ = ["apple", "spotify", "tidal"]
 
 if "api" in config:
     api_config = config["api"]

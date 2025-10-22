@@ -489,10 +489,6 @@ class OAuth2APIClient(APIClient):
             Authorization scopes the client requests to access user
             resources.
 
-            .. seealso::
-
-               :meth:`get_scopes` – Get a set of scopes to request.
-
         access_token : str, keyword-only, optional
             Access token. If provided or found in Minim's local token
             storage, the authorization process is bypassed. If provided,
@@ -628,29 +624,6 @@ class OAuth2APIClient(APIClient):
             )
         else:
             self._obtain_access_token()
-
-    @classmethod
-    @abstractmethod
-    def get_scopes(
-        cls, *args: tuple[Any, ...], **kwargs: dict[str, Any]
-    ) -> set[str]:
-        """
-        Retrieve a set of authorization scopes.
-
-        Parameters
-        ----------
-        *args : tuple[Any, ...]
-            Positional arguments to be defined by subclasses.
-
-        **kwargs : dict[str, Any]
-            Keyword arguments to be defined by subclasses.
-
-        Returns
-        -------
-        scopes : set[str]
-            Authorization scopes.
-        """
-        ...
 
     @abstractmethod
     def _get_user_identifier(self) -> str:
@@ -1024,10 +997,6 @@ class OAuth2APIClient(APIClient):
             Authorization scopes the client requests to access user
             resources.
 
-            .. seealso::
-
-               :meth:`get_scopes` – Get a set of scopes to request.
-
         backend : str, keyword-only, optional
             Backend to handle redirects during the authorization flow.
 
@@ -1082,8 +1051,9 @@ class OAuth2APIClient(APIClient):
             user identifier (e.g., user ID) after successful
             authorization.
 
-            Prepending the identifier with a tilde (`"~"`) skips token
-            retrieval from local storage and forces a reauthorization.
+            Prepending the identifier with a tilde (:code:`~`) skips
+            token retrieval from local storage and forces a
+            reauthorization.
         """
 
         if flow not in self._FLOWS:
@@ -1335,14 +1305,16 @@ class OAuth2APIClient(APIClient):
                 data["client_id"] = self._client_id
                 resp_json = httpx.post(self.TOKEN_URL, data=data).json()
         elif flow == "client_credentials":
+            b64_client_credentials = base64.urlsafe_b64encode(
+                f"{self._client_id}:{self._client_secret}".encode()
+            ).decode()
             resp_json = httpx.post(
                 self.TOKEN_URL,
                 data={
-                    "client_id": self._client_id,
-                    "client_secret": self._client_secret,
                     "grant_type": "client_credentials",
                     "scope": " ".join(self._scopes),
                 },
+                headers={"Authorization": f"Basic {b64_client_credentials}"},
             ).json()
         elif flow == "implicit":
             params = {

@@ -15,7 +15,6 @@ class iTunesSearchAPI(APIClient):
     iTunes Search API client.
     """
 
-    _RATE_LIMIT_PER_SECOND = 1 / 3
     _MEDIA_RELATIONSHIPS = {
         "all": {
             "entities": {
@@ -156,6 +155,7 @@ class iTunesSearchAPI(APIClient):
     }
     _PROVIDER: str = "Apple"
     _QUAL_NAME: str = "minim.api.apple.iTunesSearchAPI"
+    _RATE_LIMIT_PER_SECOND = 1 / 3
     BASE_URL: str = "https://itunes.apple.com"
 
     @TTLCache.cached_method(ttl="catalog")

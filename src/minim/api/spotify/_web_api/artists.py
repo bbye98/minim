@@ -14,13 +14,11 @@ class ArtistsAPI(ResourceAPI):
     .. important::
 
        This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
-       and
-       should not be instantiated directly.
+       and should not be instantiated directly.
     """
 
     _ALBUM_TYPES = {"album", "single", "appears_on", "compilation"}
     _client: "SpotifyWebAPI"
-    _group = "artists"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artists(
