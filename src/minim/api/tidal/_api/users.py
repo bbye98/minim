@@ -20,6 +20,45 @@ class UsersAPI(ResourceAPI):
 
     _client: "TIDALAPI"
 
+    @TTLCache.cached_method(ttl="catalog")
     def get_my_profile(self) -> dict[str, Any]:
-        """ """
+        """
+        `Users > Get Current User's Profile
+        <https://tidal-music.github.io/tidal-api-reference/#/users
+        /get_users_me>`_: Get the current user's account information.
+
+        .. admonition:: Authorization scopes
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user.read`
+                 Read access to a user's account information, such as
+                 country and email address.
+
+        Returns
+        -------
+        profile : dict[str, Any]
+            Current user's account information.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+                {
+                  "data": {
+                    "attributes": {
+                      "country": <str>,
+                      "email": <str>,
+                      "emailVerified": <bool>,
+                      "firstName": <str>,
+                      "username": <str>
+                    },
+                    "id": <str>,
+                    "type": "users",
+                  },
+                  "links": {
+                    "self": "/users/me"
+                  }
+                }
+        """
         return self._client._request("GET", "users/me").json()

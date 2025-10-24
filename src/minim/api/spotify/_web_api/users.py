@@ -2,7 +2,7 @@ from collections.abc import Collection
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import ResourceAPI, _copy_docstring
+from ..._shared import TTLCache, ResourceAPI, _copy_docstring
 from .albums import AlbumsAPI
 from .artists import ArtistsAPI
 from .audiobooks import AudiobooksAPI
@@ -28,6 +28,7 @@ class UsersAPI(ResourceAPI):
     _TIME_RANGES = {"long_term", "medium_term", "short_term"}
     _client: "SpotifyWebAPI"
 
+    @TTLCache.cached_method(ttl="catalog")
     def get_user_profile(self, user_id: str | None = None, /) -> dict[str, Any]:
         """
         `Users > Get Current User's Profile

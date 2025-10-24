@@ -1,6 +1,5 @@
 from collections.abc import Collection
 from datetime import datetime
-from functools import cached_property
 from json.decoder import JSONDecodeError
 import time
 from typing import TYPE_CHECKING, Any
@@ -478,7 +477,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         ):
             raise ValueError(f"Invalid Spotify URI {spotify_uri!r}.")
 
-    @cached_property
+    @property
     def available_seed_genres(self) -> list[str]:
         """
         Available seed genres for track recommendations.
@@ -496,38 +495,24 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         .. note::
 
-           Accessing this property for the first time may call
+           Accessing this property may call
            :meth:`~minim.api.spotify.GenresAPI.get_available_seed_genres`
            and make a request to the Spotify Web API.
         """
         return self.genres.get_available_seed_genres()["genres"]
 
-    @cached_property
+    @property
     def available_markets(self) -> list[str]:
         """
         Markets where Spotify is available.
 
         .. note::
 
-           Accessing this property for the first time may call
+           Accessing this property may call
            :meth:`~minim.api.spotify.MarketsAPI.get_available_markets`
            and make a request to the Spotify Web API.
         """
         return self.markets.get_available_markets()["markets"]
-
-    @cached_property
-    def my_profile(self) -> dict[str, Any] | None:
-        """
-        Current user's profile.
-
-        .. note::
-
-           Accessing this property for the first time may call
-           :meth:`~minim.api.spotify.UsersAPI.get_user_profile` and
-           make a request to the Spotify Web API.
-        """
-        if self._flow != "client_credentials":
-            return self.users.get_user_profile()
 
     def set_access_token(
         self,
@@ -576,8 +561,14 @@ class SpotifyWebAPI(OAuth2APIClient):
         """
         Assign the Spotify user ID as the user identifier for the
         current account.
+
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.spotify.UsersAPI.get_user_profile` and
+           make a request to the Spotify Web API.
         """
-        return self.my_profile["id"]
+        return self.users.get_user_profile()["id"]
 
     def _prepare_audio_types(self, types: str | Collection[str], /) -> str:
         """
@@ -676,6 +667,12 @@ class SpotifyWebAPI(OAuth2APIClient):
         Ensure that a Spotify Premium subscription is active for an
         endpoint method that requires it.
 
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.spotify.UsersAPI.get_user_profile` and
+           make a request to the Spotify Web API.
+
         Parameters
         ----------
         endpoint_method : str
@@ -683,8 +680,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         """
         if (
             self._flow == "client_credentials"
-            or "my_profile" in self.__dict__
-            and self.my_profile["product"] != "premium"
+            or self.users.get_user_profile()["product"] != "premium"
         ):
             raise RuntimeError(
                 f"{self._QUAL_NAME}.{endpoint_method}() requires "

@@ -18,3 +18,14 @@ class AlbumsAPI(ResourceAPI):
     """
 
     _client: "TIDALAPI"
+
+    def get_albums(
+        self,
+        album_ids: Collection[int | str] | None = None,
+        barcode_ids: Collection[int | str] | None = None,
+        user_ids: Collection[int | str] | None = None,
+        country_code: str | None = None,
+        page: int | str | None = None,
+        include: Collection[str] | None = None,
+    ) -> dict[str, Any]:
+        pass

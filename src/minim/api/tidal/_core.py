@@ -1,6 +1,6 @@
-from collections.abc import Collection
+from collections.abc import Collection, Iterable
 from datetime import datetime
-from functools import cached_property
+import time
 from typing import TYPE_CHECKING, Any
 import warnings
 
@@ -48,7 +48,103 @@ class TIDALAPI(OAuth2APIClient):
         store: bool = True,
         user_identifier: str | None = None,
     ) -> None:
-        """ """
+        """
+        Parameters
+        ----------
+        flow : str, keyword-only
+            Authorization flow.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`"pkce"` – Authorization Code Flow with Proof Key
+                 for Code Exchange (PKCE).
+               * :code:`"client_credentials"` – Client Credentials Flow.
+
+        client_id : str, keyword-only, optional
+            Client ID. Must be provided unless it is set as system
+            environment variable :code:`TIDAL_API_CLIENT_ID` or stored
+            in Minim's local token storage.
+
+        client_secret : str, keyword-only, optional
+            Client secret. Required for the Client Credentials flow and
+            must be provided unless it is set as system environment
+            variable :code:`TIDAL_API_CLIENT_SECRET` or stored in
+            Minim's local token storage.
+
+        redirect_uri : str, keyword-only, optional
+            Redirect URI. Required for the Authorization Code and
+            Authorization Code with PKCE flows. If the host is not
+            :code:`localhost` or :code:`127.0.0.1`, redirect handling is
+            not available.
+
+        access_token : str, keyword-only, optional
+            Access token. If provided or found in Minim's local token
+            storage, the authorization process is bypassed. If provided,
+            all other relevant keyword arguments should also be
+            specified to enable automatic token refresh upon expiration.
+
+        refresh_token : str, keyword-only, optional
+            Refresh token accompanying the access token in
+            `access_token`. If not provided, the user will be
+            reauthorized via the authorization flow in `flow` when the
+            access token expires.
+
+        expiry : str or datetime.datetime, keyword-only, optional
+            Expiry of the access token in `access_token`. If provided as
+            a string, it must be in ISO 8601 format
+            (:code:`%Y-%m-%dT%H:%M:%SZ`).
+
+        backend : str, keyword-only, optional
+            Backend to handle redirects during the authorization flow.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`None` – Manually paste the redirect URL into
+                 the terminal.
+               * :code:`"http.server"` – Simple HTTP server.
+               * :code:`"playwright"` – Playwright Firefox browser.
+
+        browser : bool, keyword-only, default: :code:`False`
+            Whether to automatically open the authorization URL in the
+            default web browser for the Authorization Code with PKCE
+            flow. If :code:`False`, the authorization URL is printed to
+            the terminal.
+
+        cache : bool, keyword-only, default: :code:`True`
+            Whether to enable an in-memory time-to-live (TTL) cache with
+            a least recently used (LRU) eviction policy for this client.
+
+        store : bool, keyword-only, default: :code:`True`
+            Whether to enable Minim's local token storage for this
+            client. If :code:`True`, newly acquired access tokens and
+            related information are stored. If :code:`False`, the client
+            will not retrieve or store access tokens.
+
+        user_identifier : str, keyword-only, optional
+            Unique identifier for the user account to log into for all
+            authorization flows but the Client Credentials flow. Used
+            when :code:`store=True` to distinguish between multiple
+            user accounts for the same client ID and authorization flow.
+
+            If provided, it is used to locate existing access tokens or
+            store new tokens in Minim's local token storage, where the
+            key is a SHA-256 hash of the client ID, authorization flow,
+            and the identifier.
+
+            If not provided, the last accessed account for the specified
+            authorization flow in `flow` is selected if it exists in
+            local storage. Otherwise, a new entry is created using a
+            hash of the client ID, authorization flow, and the Spotify
+            user ID.
+
+            Prepending the identifier with a tilde (:code:`~`) skips
+            token retrieval from local storage and forces a
+            reauthorization.
+        """
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the TIDAL API.
         self.albums: AlbumsAPI = AlbumsAPI(self)
@@ -64,7 +160,8 @@ class TIDALAPI(OAuth2APIClient):
         self.search: SearchAPI = SearchAPI(self)
         #: Tracks API endpoints for the TIDAL API.
         self.tracks: TracksAPI = TracksAPI(self)
-        #: User Collections, User Entitlements, User Recommendations, and Users API endpoints for the TIDAL API.
+        #: User Collections, User Entitlements, User Recommendations,
+        #: and Users API endpoints for the TIDAL API.
         self.users: UsersAPI = UsersAPI(self)
         #: Videos API endpoints for the TIDAL API.
         self.videos: VideosAPI = VideosAPI(self)
@@ -84,19 +181,52 @@ class TIDALAPI(OAuth2APIClient):
             user_identifier=user_identifier,
         )
 
-    @cached_property
-    def my_profile(self) -> dict[str, Any] | None:
+    @staticmethod
+    def _validate_tidal_ids(
+        tidal_ids: int | str | Collection[int | str],
+        /,
+        *,
+        recursive: bool = True,
+    ) -> None:
         """
-        Current user's profile.
+        Validate one or more TIDAL IDs.
+
+        Parameters
+        ----------
+        tidal_ids : int, str, or Collection[int | str], positional-only
+            One or more TIDAL IDs, provided as an integer, a string, or
+            a collection of integers and/or strings.
+        """
+        # TODO
+
+        # if not tidal_ids and not isinstance(tidal_ids, int):
+        #     raise ValueError("At least one TIDAL ID must be specified.")
+
+        # if isinstance(tidal_ids, str):
+        #     if not tidal_ids.isnumeric():
+        #         raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
+        # elif not isinstance(tidal_ids, int):
+        #     if recursive:
+        #         if not isinstance(tidal_ids, Iterable):
+        #             raise ValueError()
+        #         for tidal_id in tidal_ids:
+        #             TIDALAPI._validate_tidal_ids(tidal_id, recursive=False)
+        #     else:
+        #         raise ValueError()
+
+    @property
+    def _my_country_code(self) -> str | None:
+        """
+        Current user's country code.
 
         .. note::
 
-           Accessing this property for the first time may call
+           Accessing this property may call
            :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
            make a request to the TIDAL API.
         """
         if self._flow != "client_credentials":
-            return self.users.get_my_profile()
+            return self.users.get_my_profile()["data"]["attributes"]["country"]
 
     def set_access_token(
         self,
@@ -188,4 +318,20 @@ class TIDALAPI(OAuth2APIClient):
         if 200 <= status < 300:
             return resp
 
-        ...  # TODO
+        if status == 401 and not self._expiry and retry:
+            self._refresh_access_token()
+            return self._request(method, endpoint, retry=False, **kwargs)
+        if status == 429 and retry:
+            try:
+                retry_after = float(resp.headers["Retry-After"]) + 1.0
+            except (KeyError, ValueError):
+                retry_after = 1.0
+            warnings.warn(
+                f"Rate limit exceeded. Retrying after {retry_after:.3f} second(s)."
+            )
+            time.sleep(retry_after)
+            return self._request(method, endpoint, retry=False, **kwargs)
+        error = resp.json()["errors"]
+        raise RuntimeError(
+            f"{status} {resp.reason_phrase} ({['code']}) – {error['detail']}"
+        )
