@@ -290,6 +290,7 @@ class APIClient(ABC):
     BASE_URL: str = ...
 
     def __init__(self, *, cache: bool = True) -> None:
+        """ """
         self._cache = TTLCache() if cache else None
         self._client = httpx.Client(base_url=self.BASE_URL)
 
@@ -531,12 +532,28 @@ class OAuth2APIClient(APIClient):
         cache : bool, keyword-only, default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
+            If :code:`True`, responses from semi-static endpoints are
+            cached for between 10 minutes and 1 day, depending on their
+            expected update frequency.
+
+            .. seealso::
+
+               :meth:`clear_cache` – Clear specific or all cache
+               entries for this API client.
 
         store : bool, keyword-only, default: :code:`True`
             Whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
             client will not retrieve or store access tokens.
+
+            .. seealso::
+
+               :meth:`remove_token` – Remove an access token
+               from storage for this API client.
+
+               :meth:`clear_tokens` – Clear all access tokens
+               from storage for this API client.
 
         user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all
@@ -633,7 +650,7 @@ class OAuth2APIClient(APIClient):
         ...
 
     @classmethod
-    def clear_token_storage(cls) -> None:
+    def clear_tokens(cls) -> None:
         """
         Clear all stored access tokens and related information for
         this API client from Minim's local token storage.
@@ -642,9 +659,10 @@ class OAuth2APIClient(APIClient):
             del api_config[api_name]
             with CONFIG_FILE.open("w") as f:
                 yaml.safe_dump(config, f)
+        # TODO: Merge with remove_token()?
 
     @classmethod
-    def remove_account_token(
+    def remove_token(
         cls, flow: str, client_id: str, user_identifier: str | None = None
     ) -> None:
         """
@@ -861,7 +879,7 @@ class OAuth2APIClient(APIClient):
         self, endpoint_method: Callable[..., Any] | None = None
     ) -> None:
         """
-        Clear the cache.
+        Clear specific or all cache entries for this API client.
 
         Parameters
         ----------
@@ -1032,6 +1050,14 @@ class OAuth2APIClient(APIClient):
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
             client will not retrieve or store access tokens.
+
+            .. seealso::
+
+               :meth:`remove_token` – Remove an access token
+               from storage for this API client.
+
+               :meth:`clear_tokens` – Clear all access tokens
+               from storage for this API client.
 
         user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all

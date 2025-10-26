@@ -32,7 +32,7 @@ class UsersAPI(ResourceAPI):
 
            .. tab:: Required
 
-              :code:`user.read`
+              :code:`user.read` scope
                  Read access to a user's account information, such as
                  country and email address.
 
@@ -44,21 +44,23 @@ class UsersAPI(ResourceAPI):
             .. admonition:: Sample response
                :class: dropdown
 
-                {
-                  "data": {
-                    "attributes": {
-                      "country": <str>,
-                      "email": <str>,
-                      "emailVerified": <bool>,
-                      "firstName": <str>,
-                      "username": <str>
+               .. code::
+
+                  {
+                    "data": {
+                      "attributes": {
+                        "country": <str>,
+                        "email": <str>,
+                        "emailVerified": <bool>,
+                        "firstName": <str>,
+                        "username": <str>
+                      },
+                      "id": <str>,
+                      "type": "users",
                     },
-                    "id": <str>,
-                    "type": "users",
-                  },
-                  "links": {
-                    "self": "/users/me"
+                    "links": {
+                      "self": "/users/me"
+                    }
                   }
-                }
         """
         return self._client._request("GET", "users/me").json()

@@ -186,12 +186,12 @@ class iTunesSearchAPI(APIClient):
 
             .. note::
 
-               Exactly one of `itunes_ids`, `amg_album_ids`, 
-               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               Exactly one of `itunes_ids`, `amg_album_ids`,
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
             **Examples**: :code:`1690873457`, :code:`"984746615"`,
-            :code:`[1690873457, 984746615]`, 
+            :code:`[1690873457, 984746615]`,
             :code:`["1690873457", "984746615"]`.
 
         amg_album_ids : int, str, or Collection[int | str], \
@@ -200,8 +200,8 @@ class iTunesSearchAPI(APIClient):
 
             .. note::
 
-               Exactly one of `itunes_ids`, `amg_album_ids`, 
-               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               Exactly one of `itunes_ids`, `amg_album_ids`,
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
             **Examples**: :code:`15175`, :code:`15176`,
@@ -213,11 +213,11 @@ class iTunesSearchAPI(APIClient):
 
             .. note::
 
-               Exactly one of `itunes_ids`, `amg_album_ids`, 
-               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               Exactly one of `itunes_ids`, `amg_album_ids`,
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: :code:`816977`, :code:`"2342870"`, 
+            **Examples**: :code:`816977`, :code:`"2342870"`,
             :code:`[816977, 2342870]`, :code:`["816977", "2342870"]`.
 
         amg_video_ids : int, str, or Collection[int | str], \
@@ -226,8 +226,8 @@ class iTunesSearchAPI(APIClient):
 
             .. note::
 
-               Exactly one of `itunes_ids`, `amg_album_ids`, 
-               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               Exactly one of `itunes_ids`, `amg_album_ids`,
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
             **Examples**: :code:`17120`, :code:`"17121"`,
@@ -238,8 +238,8 @@ class iTunesSearchAPI(APIClient):
 
             .. note::
 
-               Exactly one of `itunes_ids`, `amg_album_ids`, 
-               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               Exactly one of `itunes_ids`, `amg_album_ids`,
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
             **Examples**: :code:`"com.yelp.yelpiphone"`,
@@ -251,12 +251,12 @@ class iTunesSearchAPI(APIClient):
 
             .. note::
 
-               Exactly one of `itunes_ids`, `amg_album_ids`, 
-               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               Exactly one of `itunes_ids`, `amg_album_ids`,
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
             **Examples**: :code:`9781449355739`, :code:`"9781449365035"`,
-            :code:`[9781449355739, 9781449365035]`, 
+            :code:`[9781449355739, 9781449365035]`,
             :code:`["9781449355739", "9781449365035"]`.
 
         upcs : int, str, or Collection[int | str], keyword-only, \
@@ -265,12 +265,12 @@ class iTunesSearchAPI(APIClient):
 
             .. note::
 
-               Exactly one of `itunes_ids`, `amg_album_ids`, 
-               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, 
+               Exactly one of `itunes_ids`, `amg_album_ids`,
+               `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
             **Examples**: :code:`07464381122`, :code:`"888837724713"`,
-            :code:`[07464381122, 888837724713]`, 
+            :code:`[07464381122, 888837724713]`,
             :code:`["07464381122", "888837724713"]`.
 
         entity : str, keyword-only, optional
@@ -838,7 +838,7 @@ class iTunesSearchAPI(APIClient):
                            "trackId": <int>,
                            "trackName": <str>,
                            "trackViewUrl": <str>,
-                           "userRatingCount": 78314,
+                           "userRatingCount": <int>,
                            "userRatingCountForCurrentVersion": <int>,
                            "version": <str>,
                            "wrapperType": "software"

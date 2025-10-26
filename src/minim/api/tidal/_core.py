@@ -117,12 +117,28 @@ class TIDALAPI(OAuth2APIClient):
         cache : bool, keyword-only, default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
+            If :code:`True`, responses from semi-static endpoints are
+            cached for between 10 minutes and 1 day, depending on their
+            expected update frequency.
+
+            .. seealso::
+
+               :meth:`clear_cache` – Clear specific or all cache
+               entries for this API client.
 
         store : bool, keyword-only, default: :code:`True`
-            Whether to enable Minim's local token storage for this
-            client. If :code:`True`, newly acquired access tokens and
-            related information are stored. If :code:`False`, the client
-            will not retrieve or store access tokens.
+            Whether to enable Minim's local token storage for
+            this client. If :code:`True`, newly acquired access tokens
+            and related information are stored. If :code:`False`, the
+            client will not retrieve or store access tokens.
+
+            .. seealso::
+
+               :meth:`remove_token` – Remove an access token
+               from storage for this API client.
+
+               :meth:`clear_tokens` – Clear all access tokens
+               from storage for this API client.
 
         user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all
