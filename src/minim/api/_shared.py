@@ -290,7 +290,21 @@ class APIClient(ABC):
     BASE_URL: str = ...
 
     def __init__(self, *, cache: bool = True) -> None:
-        """ """
+        """
+        Parameters
+        ----------
+        cache : bool, keyword-only, default: :code:`True`
+            Whether to enable an in-memory time-to-live (TTL) cache with
+            a least recently used (LRU) eviction policy for this client.
+            If :code:`True`, responses from semi-static endpoints are
+            cached for between 10 minutes and 1 day, depending on their
+            expected update frequency.
+
+            .. seealso::
+
+               :meth:`clear_cache` – Clear specific or all cache
+               entries for this API client.
+        """
         self._cache = TTLCache() if cache else None
         self._client = httpx.Client(base_url=self.BASE_URL)
 
@@ -410,6 +424,23 @@ class APIClient(ABC):
                 f"`{name}` must be {data_type.__name__}, not "
                 f"{type(value).__name__}."
             )
+
+    def clear_cache(
+        self, endpoint_method: Callable[..., Any] | None = None
+    ) -> None:
+        """
+        Clear specific or all cache entries for this API client.
+
+        Parameters
+        ----------
+        endpoint_method : Callable, positional-only, optional
+            Endpoint method whose cache entries should be cleared. If
+            not provided, all entries in the cache are cleared.
+
+            **Example**: :code:`minim.api.spotify.SearchAPI.search`.
+        """
+        if self._cache is not None:
+            self._cache.clear(endpoint_method)
 
 
 class OAuth2APIClient(APIClient):
@@ -874,23 +905,6 @@ class OAuth2APIClient(APIClient):
             )
         except Exception:
             return False
-
-    def clear_cache(
-        self, endpoint_method: Callable[..., Any] | None = None
-    ) -> None:
-        """
-        Clear specific or all cache entries for this API client.
-
-        Parameters
-        ----------
-        endpoint_method : Callable, positional-only, optional
-            Endpoint method whose cache entries should be cleared. If
-            not provided, all entries in the cache are cleared.
-
-            **Example**: :code:`minim.api.spotify.SearchAPI.search`.
-        """
-        if self._cache is not None:
-            self._cache.clear(endpoint_method)
 
     def close(self) -> None:
         """
