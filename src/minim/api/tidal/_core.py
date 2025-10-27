@@ -1,4 +1,4 @@
-from collections.abc import Collection, Iterable
+from collections.abc import Collection
 from datetime import datetime
 import time
 from typing import TYPE_CHECKING, Any
@@ -213,22 +213,20 @@ class TIDALAPI(OAuth2APIClient):
             One or more TIDAL IDs, provided as an integer, a string, or
             a collection of integers and/or strings.
         """
-        # TODO
+        if not isinstance(tidal_ids, int) and not tidal_ids:
+            raise ValueError("At least one TIDAL ID must be specified.")
 
-        # if not tidal_ids and not isinstance(tidal_ids, int):
-        #     raise ValueError("At least one TIDAL ID must be specified.")
-
-        # if isinstance(tidal_ids, str):
-        #     if not tidal_ids.isnumeric():
-        #         raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
-        # elif not isinstance(tidal_ids, int):
-        #     if recursive:
-        #         if not isinstance(tidal_ids, Iterable):
-        #             raise ValueError()
-        #         for tidal_id in tidal_ids:
-        #             TIDALAPI._validate_tidal_ids(tidal_id, recursive=False)
-        #     else:
-        #         raise ValueError()
+        if isinstance(tidal_ids, str):
+            if not tidal_ids.isdigit():
+                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
+        elif not isinstance(tidal_ids, int):
+            if recursive:
+                if not isinstance(tidal_ids, Collection):
+                    raise ValueError("TIDAL IDs must be integers or strings.")
+                for tidal_id in tidal_ids:
+                    TIDALAPI._validate_tidal_ids(tidal_id, recursive=False)
+            else:
+                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
 
     @property
     def _my_country_code(self) -> str | None:

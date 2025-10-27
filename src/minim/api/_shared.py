@@ -414,7 +414,7 @@ class APIClient(ABC):
             and (lower_bound is None or value >= lower_bound)
             and (upper_bound is None or value <= upper_bound)
         ):
-            raise ValueError(f"`{name}` must be an int{emsg_suffix}.")
+            raise ValueError(f"`{name}` must be an integer{emsg_suffix}.")
 
     @staticmethod
     def _validate_type(name: str, value: Any, data_type: type) -> None:

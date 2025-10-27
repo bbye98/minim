@@ -1596,7 +1596,7 @@ class TracksAPI(ResourceAPI):
                 not (
                     isinstance(v, Number)
                     or isinstance(v, str)
-                    and v.isnumeric()
+                    and v.isdigit()
                     or v is None
                 )
                 for v in value
