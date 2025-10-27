@@ -89,7 +89,7 @@ class SearchAPI:
         """
 
         r = self.session.request(method, url, **kwargs)
-        if 200 <= r.status_code < 300:
+        if not 200 <= r.status_code < 300:
             emsg = f"{r.status_code} {r.reason}"
             try:
                 if details := r.json().get("errorMessage"):
@@ -103,7 +103,7 @@ class SearchAPI:
         self,
         term: str,
         *,
-        country: str,
+        country: str = None,
         media: str = None,
         entity: str = None,
         attribute: str = None,
