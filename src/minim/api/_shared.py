@@ -142,26 +142,38 @@ class TTLCache:
 
         return decorator
 
-    def clear(self, func: Callable[..., Any] | None = None, /) -> None:
+    def clear(
+        self,
+        funcs: Callable[..., Any]
+        | Collection[Callable[..., Any]]
+        | None = None,
+        /,
+        *,
+        _recursive: bool = True,
+    ) -> None:
         """
         Clear cached entries.
 
         Parameters
         ----------
-        func : Callable, positional-only, optional
-            Function whose cache entries should be cleared. If not
+        funcs : Callable or Collection[Callable], positional-only, \
+        optional
+            Functions whose cache entries should be cleared. If not
             provided, all entries in the cache are cleared.
         """
-        if func is None:
+        if funcs is None:
             self._store.clear()
-        else:
-            if not callable(func):
-                raise ValueError(
-                    "`func` must be a method from an API client class."
-                )
-            func = func.__qualname__
-            for key in [k for k in self._store if k[0] == func]:
+        elif callable(funcs):
+            funcs = funcs.__qualname__
+            for key in [k for k in self._store if k[0] == funcs]:
                 del self._store[key]
+        elif _recursive and isinstance(funcs, Collection):
+            for func in funcs:
+                self.clear(func, _recursive=False)
+        else:
+            raise ValueError(
+                "`funcs` must be methods from an API client class."
+            )
 
     def wrapper(
         self, *, ttl: float
@@ -281,7 +293,8 @@ class OAuth2RedirectHandler(BaseHTTPRequestHandler):
 
 class APIClient(ABC):
     """
-    Abstract base class for API clients.
+    Abstract base class for application programming interface (API)
+    clients.
     """
 
     _PROVIDER: str = ...
@@ -426,21 +439,52 @@ class APIClient(ABC):
             )
 
     def clear_cache(
-        self, endpoint_method: Callable[..., Any] | None = None
+        self,
+        endpoint_methods: Callable[..., Any]
+        | Collection[Callable[..., Any]]
+        | None = None,
     ) -> None:
         """
         Clear specific or all cache entries for this API client.
 
+        .. warning::
+
+           If `endpoint_methods` is not provided, all cache entries for
+           this API client are cleared.
+
         Parameters
         ----------
-        endpoint_method : Callable, positional-only, optional
-            Endpoint method whose cache entries should be cleared. If
-            not provided, all entries in the cache are cleared.
+        endpoint_methods : Callable or Collection[Callable], \
+        positional-only, optional
+            Endpoint methods whose cache entries should be cleared.
 
-            **Example**: :code:`minim.api.spotify.SearchAPI.search`.
+            **Examples**: :code:`minim.api.spotify.SearchAPI.search`,
+            :code:`[minim.api.spotify.SearchAPI.search,
+            minim.api.spotify.TracksAPI.get_tracks]`.
         """
         if self._cache is not None:
-            self._cache.clear(endpoint_method)
+            self._cache.clear(endpoint_methods)
+
+    def close(self) -> None:
+        """
+        Terminate the HTTP client session.
+        """
+        self._client.close()
+
+    def set_cache_enabled(self, enable: bool) -> None:
+        """
+        Enable or disable the in-memory TTL cache for this API client.
+
+        Parameters
+        ----------
+        enable : bool
+            Whether to enable the cache.
+        """
+        if enable and self._cache is None:
+            self._cache = TTLCache()
+        elif not enable and self._cache is not None:
+            self._cache.clear()
+            self._cache = None
 
 
 class OAuth2APIClient(APIClient):
@@ -681,24 +725,23 @@ class OAuth2APIClient(APIClient):
         ...
 
     @classmethod
-    def clear_tokens(cls) -> None:
+    def remove_all_tokens(cls) -> None:
         """
-        Clear all stored access tokens and related information for
-        this API client from Minim's local token storage.
+        Remove all stored access tokens and related information for
+        this API client.
         """
-        if (api_name := f"{cls.__module__}.{cls.__qualname__}") in api_config:
+        if (api_name := cls.__name__) in api_config:
             del api_config[api_name]
             with CONFIG_FILE.open("w") as f:
                 yaml.safe_dump(config, f)
-        # TODO: Merge with remove_token()?
 
     @classmethod
     def remove_token(
         cls, flow: str, client_id: str, user_identifier: str | None = None
     ) -> None:
         """
-        Remove a stored access token and related information for a
-        specific account from this API client's local token storage.
+        Remove a specific stored access token and related information
+        for this API client.
 
         Parameters
         ----------
@@ -709,14 +752,13 @@ class OAuth2APIClient(APIClient):
             Client ID.
 
         user_identifier : str, optional
-            Unique identifier for the user account to log into for all
-            authorization flows but the Client Credentials flow. If not
-            provided, the last accessed account for the specified
-            authorization flow in `flow` and client ID in `client_id` is
-            removed.
+            Unique identifier for the user account. If provided, the
+            credentials for the specific account are removed. Otherwise,
+            the credentials for the last accessed account using the
+            given `flow` and `client_id` are removed.
         """
         changed = False
-        if (api_name := f"{cls.__module__}.{cls.__qualname__}") in config:
+        if (api_name := cls.__name__) in api_config:
             accounts = api_config[api_name]
             last_flow_str = f"last_{flow}"
             if user_identifier or flow == "client_credentials":
@@ -730,13 +772,12 @@ class OAuth2APIClient(APIClient):
                     if id(accounts[account_identifier]) == id(
                         accounts[last_flow_str]
                     ):
-                        flow_accounts = [
+                        if flow_accounts := [
                             (acct_ident, acct_info["added"])
                             for acct_ident, acct_info in accounts.items()
                             if acct_info["flow"] == flow
-                        ]
-                        flow_accounts.sort(key=lambda a: a[1], reverse=True)
-                        if flow_accounts:
+                        ]:
+                            flow_accounts.sort(key=lambda a: a[1], reverse=True)
                             accounts[last_flow_str] = next(
                                 acct_ident
                                 for acct_ident, _ in flow_accounts
@@ -755,7 +796,7 @@ class OAuth2APIClient(APIClient):
                     acct_id_last = id(accounts[last_flow_str])
                     acct_ident_delete = acct_ident_next = None
                     for acct_ident, acct_info in accounts.items():
-                        if acct_ident.startswith("l"):
+                        if acct_ident.startswith("last"):
                             continue
                         if id(acct_info) == acct_id_last:
                             acct_ident_delete = acct_ident
@@ -905,12 +946,6 @@ class OAuth2APIClient(APIClient):
             )
         except Exception:
             return False
-
-    def close(self) -> None:
-        """
-        Terminate the HTTP client session.
-        """
-        self._client.close()
 
     def set_access_token(
         self,
