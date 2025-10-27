@@ -624,11 +624,11 @@ class OAuth2APIClient(APIClient):
 
             .. seealso::
 
-               :meth:`remove_token` – Remove an access token
-               from storage for this API client.
+               :meth:`remove_token` – Remove a specific stored access
+               token for this API client.
 
-               :meth:`clear_tokens` – Clear all access tokens
-               from storage for this API client.
+               :meth:`remove_all_tokens` – Remove all stored access
+               tokens for this API client.
 
         user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all
@@ -1102,11 +1102,11 @@ class OAuth2APIClient(APIClient):
 
             .. seealso::
 
-               :meth:`remove_token` – Remove an access token
-               from storage for this API client.
+               :meth:`remove_token` – Remove a specific stored access
+               token for this API client.
 
-               :meth:`clear_tokens` – Clear all access tokens
-               from storage for this API client.
+               :meth:`remove_all_tokens` – Remove all stored access
+               tokens for this API client.
 
         user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all
