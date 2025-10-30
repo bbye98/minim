@@ -134,11 +134,11 @@ class TIDALAPI(OAuth2APIClient):
 
             .. seealso::
 
-               :meth:`remove_token` – Remove an access token
-               from storage for this API client.
+               :meth:`remove_token` – Remove a specific stored access
+               token for this API client.
 
-               :meth:`clear_tokens` – Clear all access tokens
-               from storage for this API client.
+               :meth:`remove_all_tokens` – Remove all stored access
+               tokens for this API client.
 
         user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all
@@ -202,7 +202,7 @@ class TIDALAPI(OAuth2APIClient):
         tidal_ids: int | str | Collection[int | str],
         /,
         *,
-        recursive: bool = True,
+        _recursive: bool = True,
     ) -> None:
         """
         Validate one or more TIDAL IDs.
@@ -220,16 +220,16 @@ class TIDALAPI(OAuth2APIClient):
             if not tidal_ids.isdigit():
                 raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
         elif not isinstance(tidal_ids, int):
-            if recursive:
+            if _recursive:
                 if not isinstance(tidal_ids, Collection):
                     raise ValueError("TIDAL IDs must be integers or strings.")
                 for tidal_id in tidal_ids:
-                    TIDALAPI._validate_tidal_ids(tidal_id, recursive=False)
+                    TIDALAPI._validate_tidal_ids(tidal_id, _recursive=False)
             else:
                 raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
 
     @property
-    def _my_country_code(self) -> str | None:
+    def _my_country_code(self) -> str:
         """
         Current user's country code.
 
@@ -239,58 +239,34 @@ class TIDALAPI(OAuth2APIClient):
            :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
            make a request to the TIDAL API.
         """
-        if self._flow != "client_credentials":
-            return self.users.get_my_profile()["data"]["attributes"]["country"]
-
-    def set_access_token(
-        self,
-        access_token: str,
-        /,
-        *,
-        refresh_token: str | None = None,
-        expiry: str | datetime | None = None,
-    ) -> None:
-        """
-        Set or update the access token and related information.
-
-        .. warning::
-
-           Calling this method replaces all existing values with the
-           provided arguments. Parameters not specified explicitly will
-           be overwritten by their default values.
-
-        Parameters
-        ----------
-        access_token : str, positional-only
-            Access token.
-
-            .. important::
-
-               If the access token was acquired via a different
-               authorization flow or client, call :meth:`set_flow` first
-               to ensure that all other relevant authorization
-               parameters are set correctly.
-
-        refresh_token : str, keyword-only, optional
-            Refresh token accompanying the access token in
-            `access_token`. If not provided, the user will be
-            reauthorized when the access token expires.
-
-        expiry : str or datetime.datetime, keyword-only, optional
-            Expiry of the access token in `access_token`. If provided
-            as a string, it must be in ISO 8601 format
-            (:code:`%Y-%m-%dT%H:%M:%SZ`).
-        """
-        super().set_access_token(
-            access_token, refresh_token=refresh_token, expiry=expiry
+        country_code = (
+            None
+            if self._flow == "client_credentials"
+            else (
+                self.users.get_my_profile()["data"]
+                .get("attributes", {})
+                .get("country")
+            )
         )
+        if country_code is None:
+            raise RuntimeError(
+                "Unable to determine the country associated with the "
+                "current user account. A ISO 3166-1 alpha-2 country "
+                "code must be provided explicitly."
+            )
 
     def _get_user_identifier(self) -> str:
         """
         Assign the TIDAL user ID as the user identifier for the current
         account.
+
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
+           make a request to the TIDAL API.
         """
-        return self.my_profile["data"]["id"]
+        return self.users.get_my_profile()["data"]["id"]
 
     def _request(
         self,
@@ -345,7 +321,33 @@ class TIDALAPI(OAuth2APIClient):
             )
             time.sleep(retry_after)
             return self._request(method, endpoint, retry=False, **kwargs)
-        error = resp.json()["errors"]
+        error = resp.json()["errors"][0]
         raise RuntimeError(
-            f"{status} {resp.reason_phrase} ({['code']}) – {error['detail']}"
+            f"{status} {resp.reason_phrase} ({error['code']}) – {error['detail']}"
         )
+
+    def _resolve_country_code(
+        self, country_code: str | None, /, params: dict[str, Any]
+    ) -> None:
+        """
+        Resolve or validate a country code for a TIDAL API request.
+
+        Parameters
+        ----------
+        country_code : str, positional-only
+            ISO 3166-1 alpha-2 country code. If :code:`None`, the country
+            associated with the current user account is used.
+        """
+        if country_code is None:
+            params["countryCode"] = self._my_country_code
+        else:
+            if (
+                not isinstance(country_code, str)
+                or len(country_code) != 2
+                or not country_code.isalpha()
+            ):
+                raise ValueError(
+                    f"{country_code!r} is not a valid ISO 3166-1 "
+                    "alpha-2 country code."
+                )
+            params["countryCode"] = country_code

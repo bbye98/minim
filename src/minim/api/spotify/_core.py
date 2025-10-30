@@ -176,11 +176,11 @@ class SpotifyWebAPI(OAuth2APIClient):
 
             .. seealso::
 
-               :meth:`remove_token` – Remove an access token
-               from storage for this API client.
+               :meth:`remove_token` – Remove a specific stored access
+               token for this API client.
 
-               :meth:`clear_tokens` – Clear all access tokens
-               from storage for this API client.
+               :meth:`remove_all_tokens` – Remove all stored access
+               tokens for this API client.
 
         user_identifier : str, keyword-only, optional
             Unique identifier for the user account to log into for all
@@ -529,49 +529,6 @@ class SpotifyWebAPI(OAuth2APIClient):
            and make a request to the Spotify Web API.
         """
         return self.markets.get_available_markets()["markets"]
-
-    def set_access_token(
-        self,
-        access_token: str,
-        /,
-        *,
-        refresh_token: str | None = None,
-        expiry: str | datetime | None = None,
-    ) -> None:
-        """
-        Set or update the access token and related information.
-
-        .. warning::
-
-           Calling this method replaces all existing values with the
-           provided arguments. Parameters not specified explicitly will
-           be overwritten by their default values.
-
-        Parameters
-        ----------
-        access_token : str, positional-only
-            Access token.
-
-            .. important::
-
-               If the access token was acquired via a different
-               authorization flow or client, call :meth:`set_flow` first
-               to ensure that all other relevant authorization
-               parameters are set correctly.
-
-        refresh_token : str, keyword-only, optional
-            Refresh token accompanying the access token in
-            `access_token`. If not provided, the user will be
-            reauthorized when the access token expires.
-
-        expiry : str or datetime.datetime, keyword-only, optional
-            Expiry of the access token in `access_token`. If provided
-            as a string, it must be in ISO 8601 format
-            (:code:`%Y-%m-%dT%H:%M:%SZ`).
-        """
-        super().set_access_token(
-            access_token, refresh_token=refresh_token, expiry=expiry
-        )
 
     def _get_user_identifier(self) -> str:
         """

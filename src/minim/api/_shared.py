@@ -204,7 +204,9 @@ class TTLCache:
                 key = (
                     func.__qualname__,
                     tuple(self._make_hashable(a) for a in args[1:]),
-                    frozenset(kwargs.items()),
+                    frozenset(
+                        ((k, self._make_hashable(v)) for k, v in kwargs.items())
+                    ),
                 )
                 now = time.time()
 
@@ -347,13 +349,30 @@ class APIClient(ABC):
         ...
 
     @staticmethod
+    def _validate_barcode(barcode: int | str, /) -> None:
+        """
+        Validate a Universal Product Code (UPC) or European Article
+        Number (EAN) barcode.
+
+        Parameters
+        ----------
+        barcode : int or str, positional-only
+            UPC or EAN barcode.
+        """
+        if not (barcode_ := str(barcode)).isdigit() or len(barcode_) not in {
+            12,
+            13,
+        }:
+            raise ValueError(f"{barcode!r} is not a valid UPC or EAN.")
+
+    @staticmethod
     def _validate_locale(locale: str, /) -> None:
         """
         Validate locale identifier.
 
         Parameters
         ----------
-        locale : str, keyword-only, optional
+        locale : str, positional-only
             Locale identifier.
         """
         APIClient._validate_type("locale", locale, str)
@@ -368,6 +387,22 @@ class APIClient(ABC):
                 "an ISO 639-1 language code and an ISO 3166-1 alpha-2 "
                 "country code joined by an underscore."
             )
+
+    @staticmethod
+    def _validate_isrc(isrc: str, /) -> None:
+        """
+        Validate an International Standard Recording Code (ISRC).
+
+        Parameters
+        ----------
+        isrc : str, positional-only
+            ISRC.
+        """
+        APIClient._validate_type("isrc", isrc, str)
+        if len(isrc) != 12 or not (
+            isrc[:2].isalpha() and isrc[2:5].isalnum() and isrc[5:].isdigit()
+        ):
+            raise ValueError(f"{isrc!r} is not a valid ISRC.")
 
     @staticmethod
     def _validate_number(

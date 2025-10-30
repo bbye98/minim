@@ -487,10 +487,10 @@ class iTunesSearchAPI(APIClient):
             if (arg := local_variables.get(arg_name)) is not None:
                 if seen:
                     raise ValueError(
-                        "More than one of `itunes_ids`, "
+                        "Only one of `itunes_ids`, "
                         "`amg_album_ids`, `amg_artist_ids`, "
                         "`amg_video_ids`, `bundle_ids`, `isbns`, or "
-                        "`upcs` was provided."
+                        "`upcs` can be provided."
                     )
 
                 if not isinstance(arg, list | set | tuple):
