@@ -14,7 +14,7 @@ import ssl
 from textwrap import dedent
 import threading
 import time
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 from urllib.parse import parse_qsl, urlencode, urlparse
 import warnings
 import webbrowser
@@ -32,6 +32,9 @@ from . import api_config
 
 if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
+
+if TYPE_CHECKING:
+    import types
 
 
 def _copy_docstring(
@@ -323,6 +326,43 @@ class APIClient(ABC):
         self._cache = TTLCache() if cache else None
         self._client = httpx.Client(base_url=self.BASE_URL)
 
+    def __enter__(self) -> "APIClient":
+        """
+        Enter the runtime context related to this API client.
+
+        Returns
+        -------
+        client : APIClient
+            This API client.
+        """
+        if self._client is None:
+            raise RuntimeError(
+                "The HTTP client session has been closed and cannot be used."
+            )
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        exc_tb: "types.TracebackType" | None,
+    ) -> None:
+        """
+        Exit the runtime context related to this API client.
+
+        Parameters
+        ----------
+        exc_type : type, optional
+            Exception type.
+
+        exc_value : Exception, optional
+            Exception value.
+
+        exc_tb : TracebackType, optional
+            Traceback.
+        """
+        self.close()
+
     @abstractmethod
     def _request(
         self, method: str, endpoint: str, /, **kwargs: dict[str, Any]
@@ -504,7 +544,9 @@ class APIClient(ABC):
         """
         Terminate the HTTP client session.
         """
-        self._client.close()
+        if self._client is not None:
+            self._client.close()
+            self._client = None
 
     def set_cache_enabled(self, enable: bool) -> None:
         """

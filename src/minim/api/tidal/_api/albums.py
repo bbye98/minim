@@ -101,7 +101,7 @@ class AlbumsAPI(ResourceAPI):
         albums : dict[str, Any]
             TIDAL content metadata for the albums. 
 
-            .. admonition:: Sample response
+            .. admonition:: Sample responses
                :class: dropdown
 
                .. tab:: Single album
