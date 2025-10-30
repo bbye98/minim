@@ -1,4 +1,4 @@
-from collections.abc import Collection, Sequence
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI
@@ -17,30 +17,105 @@ class AlbumsAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RESOURCES = {
-        "artists",
-        "coverArt",
-        "genres",
-        "items",
-        "owners",
-        "providers",
-        "similarAlbums",
-        "genres",
-    }
+    _RESOURCES = {"artists", "coverArt", "items", "providers", "similarAlbums"}
     _client: "TIDALAPI"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_albums(
         self,
         *,
-        album_ids: int | str | Collection[int | str] | None = None,
-        barcodes: int | str | Collection[int | str] | None = None,
-        # owner_ids: int | str | Collection[int | str] | None = None,
+        album_ids: int | str | Sequence[int | str] | None = None,
+        barcodes: int | str | Sequence[int | str] | None = None,
         country_code: str | None = None,
         include: str | Sequence[str] | None = None,
         cursor: str | None = None,
     ) -> dict[str, Any]:
-        """ """
+        """
+        `Albums > Get Single Album <https://tidal-music.github.io
+        /tidal-api-reference/#/albums/get_albums__id_>`_: Get TIDAL
+        catalog information for a single album by its TIDAL ID․
+        `Albums > Get Multiple Albums <https://tidal-music.github.io
+        /tidal-api-reference/#/albums/get_albums>`_: Get TIDAL catalog
+        information for multiple albums by their TIDAL IDs or barcodes.
+
+        Parameters
+        ----------
+        album_ids : int, str, or Sequence[int | str], keyword-only, \
+        optional
+            TIDAL ID(s) of the album(s), provided as either an integer,
+            a string, or a sequence of integers and/or strings.
+
+            .. note::
+
+               Exactly one of `album_ids` or `barcodes` must be provided.
+
+            **Examples**: 
+            
+            .. container::
+
+               * :code:`46369321`
+               * :code:`"46369321"`
+               * :code:`[46369321, 251380836]`
+               * :code:`[46369321, "251380836"]`
+               * :code:`["46369321", "251380836"]`
+
+        barcodes : int, str, or Sequence[int | str], keyword-only, \
+        optional
+            Barcode ID(s) of the album(s), provided as either an integer,
+            a string, or a sequence of integers and/or strings.
+
+            .. note::
+
+               Exactly one of `album_ids` or `barcodes` must be provided.
+
+            **Examples**: 
+            
+            .. container::
+            
+               * :code:`075678671173`
+               * :code:`"075678671173"`
+               * :code:`[075678671173, 602448438034]`
+               * :code:`[075678671173, "602448438034"]`
+               * :code:`["075678671173", "602448438034"]`
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code. Only optional when the 
+            country code can be retrieved from the user's profile.
+
+            **Example**: :code:`"US"`.
+
+        include : str or Sequence[str], keyword-only, optional
+            Related resources to include in the response.
+
+            **Valid values**: :code:`"artists"`, :code:`"coverArt"`,
+            :code:`"items"`, :code:`"providers"`, 
+            :code:`"similarAlbums"`.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        albums : dict[str, Any]
+            TIDAL content metadata for the albums. 
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. tab:: Single album
+
+                  .. code::
+
+                     TODO
+
+               .. tab:: Multiple albums
+
+                  .. code::
+
+                     TODO
+        """
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include is not None:
@@ -144,16 +219,6 @@ class AlbumsAPI(ResourceAPI):
         return self._client._request(
             "GET", f"albums/{album_id}/relationships/items", params=params
         ).json()
-
-    # def get_album_owners(
-    #     self,
-    #     album_id: int | str,
-    #     /,
-    #     *,
-    #     include: bool = False,
-    #     cursor: str | None = None,
-    # ) -> dict[str, Any]:
-    #    ...
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album_providers(

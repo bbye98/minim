@@ -182,7 +182,7 @@ class iTunesSearchAPI(APIClient):
         ----------
         itunes_ids : int, str, or Collection[int | str], keyword-only, \
         optional
-            iTunes IDs to look up.
+            iTunes IDs.
 
             .. note::
 
@@ -190,13 +190,19 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: :code:`1690873457`, :code:`"984746615"`,
-            :code:`[1690873457, 984746615]`,
-            :code:`["1690873457", "984746615"]`.
+            **Examples**: 
+            
+            .. container::
+           
+               * :code:`984746615`
+               * :code:`"984746615"`
+               * :code:`[984746615, 1440935756]`
+               * :code:`[984746615, "1440935756"]`
+               * :code:`["984746615", "1440935756"]`
 
         amg_album_ids : int, str, or Collection[int | str], \
         keyword-only, optional
-            AMG album IDs to look up.
+            AMG album IDs.
 
             .. note::
 
@@ -204,12 +210,19 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: :code:`15175`, :code:`15176`,
-            :code:`[15177, 15178]`, :code:`["15183", "15184"]`.
+            **Examples**: 
+            
+            .. container::
+
+               * :code:`2025410`
+               * :code:`"2025410"`
+               * :code:`[2025410, 2844399]`
+               * :code:`[2025410, "2844399"]`
+               * :code:`["2025410", "2844399"]`
 
         amg_artist_ids : int, str, or Collection[int | str], \
         keyword-only, optional
-            AMG artist IDs to look up.
+            AMG artist IDs.
 
             .. note::
 
@@ -217,12 +230,19 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: :code:`816977`, :code:`"2342870"`,
-            :code:`[816977, 2342870]`, :code:`["816977", "2342870"]`.
+            **Examples**:
+
+            .. container::
+
+               * :code:`472102`
+               * :code:`"472102"`
+               * :code:`[472102, 2913530]`
+               * :code:`[472102, "2913530"]`
+               * :code:`["472102", "2913530"]`
 
         amg_video_ids : int, str, or Collection[int | str], \
         keyword-only, optional
-            AMG video IDs to look up.
+            AMG video IDs.
 
             .. note::
 
@@ -230,11 +250,18 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: :code:`17120`, :code:`"17121"`,
-            :code:`[17122, 17123]`, :code:`["17124", "17125"]`.
+            **Examples**: 
+            
+            .. container::
+
+               * :code:`17120`
+               * :code:`"17121"`
+               * :code:`[17122, 17123]`
+               * :code:`[17124, "17125"]`
+               * :code:`["17126", "17127"]`
 
         bundle_ids : str, or Collection[str], keyword-only, optional
-            App bundle IDs to look up.
+            App bundle IDs.
 
             .. note::
 
@@ -242,12 +269,16 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: :code:`"com.yelp.yelpiphone"`,
-            :code:`["com.tripadvisor.LocalPicks", "com.yelp.yelpiphone"]`.
+            **Examples**: 
+            
+            .. container::
+
+               * :code:`"com.tripadvisor.LocalPicks"`
+               * :code:`["com.tripadvisor.LocalPicks", "com.yelp.yelpiphone"]`
 
         isbns : int, str, or Collection[int | str], keyword-only, \
         optional
-            ISBNs to look up.
+            ISBNs.
 
             .. note::
 
@@ -255,13 +286,19 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: :code:`9781449355739`, :code:`"9781449365035"`,
-            :code:`[9781449355739, 9781449365035]`,
-            :code:`["9781449355739", "9781449365035"]`.
+            **Examples**: 
+            
+            .. container::
+
+               * :code:`9781637993415`
+               * :code:`"9781637993415"`
+               * :code:`[9781637993415, 9781705142110]`
+               * :code:`[9781637993415, "9781705142110"]`
+               * :code:`["9781637993415", "9781705142110"]`
 
         upcs : int, str, or Collection[int | str], keyword-only, \
         optional
-            UPCs/EANs to look up.
+            UPCs/EANs.
 
             .. note::
 
@@ -269,9 +306,15 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: :code:`07464381122`, :code:`"888837724713"`,
-            :code:`[07464381122, 888837724713]`,
-            :code:`["07464381122", "888837724713"]`.
+            **Examples**: 
+            
+            .. container::
+            
+               * :code:`075678671173`
+               * :code:`"075678671173"`
+               * :code:`[075678671173, 602448438034]`
+               * :code:`[075678671173, "602448438034"]`
+               * :code:`["075678671173", "602448438034"]`
 
         entity : str, keyword-only, optional
             Type of resource to return.
