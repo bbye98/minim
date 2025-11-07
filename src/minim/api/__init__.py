@@ -10,7 +10,6 @@ db_cursor = db_connection.cursor()
 db_cursor.execute(
     """
     CREATE TABLE IF NOT EXISTS tokens (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
         added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         client TEXT,
         flow TEXT,
@@ -22,7 +21,8 @@ db_cursor.execute(
         token_type TEXT,
         access_token TEXT,
         expiry TIMESTAMP,
-        refresh_token TEXT
+        refresh_token TEXT,
+        PRIMARY KEY (flow, client_id, user_identifier)
     )
     """
 )
