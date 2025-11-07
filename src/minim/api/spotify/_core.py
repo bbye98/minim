@@ -69,6 +69,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         flow: str,
         client_id: str | None = None,
         client_secret: str | None = None,
+        user_identifier: str | None = None,
         redirect_uri: str | None = None,
         scopes: str | Collection[str] = "",
         access_token: str | None = None,
@@ -78,7 +79,6 @@ class SpotifyWebAPI(OAuth2APIClient):
         browser: bool = False,
         cache: bool = True,
         store: bool = True,
-        user_identifier: str | None = None,
     ) -> None:
         """
         Parameters
@@ -106,6 +106,25 @@ class SpotifyWebAPI(OAuth2APIClient):
             set as system environment variable
             :code:`SPOTIFY_WEB_API_CLIENT_SECRET` or stored in Minim's
             local token storage.
+
+        user_identifier : str, keyword-only, optional
+            Unique identifier for the user account to log into for all
+            authorization flows but the Client Credentials flow. Used
+            when :code:`store=True` to distinguish between multiple
+            user accounts for the same client ID and authorization flow.
+
+            If provided, it is used to locate existing access tokens or
+            store new tokens in Minim's local token storage.
+
+            If not provided, the last accessed account for the specified
+            authorization flow in `flow` is selected if it exists in
+            local storage. Otherwise, a new entry is created using a
+            the client ID, authorization flow, and an available user
+            identifier (e.g., user ID) after successful authorization.
+
+            Prepending the identifier with a tilde (:code:`~`) skips
+            token retrieval from local storage, and the suffix will be
+            used as the identifier for storing future tokens.
 
         redirect_uri : str, keyword-only, optional
             Redirect URI. Required for the Authorization Code and
@@ -181,31 +200,11 @@ class SpotifyWebAPI(OAuth2APIClient):
 
                :meth:`remove_all_tokens` – Remove all stored access
                tokens for this API client.
-
-        user_identifier : str, keyword-only, optional
-            Unique identifier for the user account to log into for all
-            authorization flows but the Client Credentials flow. Used
-            when :code:`store=True` to distinguish between multiple
-            user accounts for the same client ID and authorization flow.
-
-            If provided, it is used to locate existing access tokens or
-            store new tokens in Minim's local token storage, where the
-            key is a SHA-256 hash of the client ID, authorization flow,
-            and the identifier.
-
-            If not provided, the last accessed account for the specified
-            authorization flow in `flow` is selected if it exists in
-            local storage. Otherwise, a new entry is created using a
-            hash of the client ID, authorization flow, and the Spotify
-            user ID.
-
-            Prepending the identifier with a tilde (:code:`~`) skips
-            token retrieval from local storage and forces a
-            reauthorization.
         """
         if flow == "client_credentials" and scopes:
             warnings.warn(
-                f"The {self._OAUTH_FLOWS_NAMES['client_credentials']} "
+                "Scopes were specified in the `scopes` argument, but "
+                f"the {self._OAUTH_FLOWS_NAMES['client_credentials']} "
                 "in the Spotify Web API does not support scopes."
             )
             scopes = ""
@@ -250,6 +249,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             flow=flow,
             client_id=client_id,
             client_secret=client_secret,
+            user_identifier=user_identifier,
             redirect_uri=redirect_uri,
             scopes=scopes,
             access_token=access_token,
@@ -259,7 +259,6 @@ class SpotifyWebAPI(OAuth2APIClient):
             browser=browser,
             cache=cache,
             store=store,
-            user_identifier=user_identifier,
         )
 
     @classmethod

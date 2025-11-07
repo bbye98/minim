@@ -1,12 +1,29 @@
-import yaml
+import sqlite3
 
-from .. import CONFIG_FILE, config
+from .. import MINIM_DIR
 
 __all__ = ["apple", "spotify", "tidal"]
 
-if "api" in config:
-    api_config = config["api"]
-else:
-    config["api"] = api_config = {}
-    with CONFIG_FILE.open("w") as f:
-        yaml.safe_dump(config, f)
+AUTH_DB_FILE = MINIM_DIR / "auth.db"
+db_connection = sqlite3.connect(AUTH_DB_FILE)
+db_cursor = db_connection.cursor()
+db_cursor.execute(
+    """
+    CREATE TABLE IF NOT EXISTS tokens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        client TEXT,
+        flow TEXT,
+        client_id TEXT,
+        client_secret TEXT,
+        user_identifier TEXT,
+        redirect_uri TEXT,
+        scopes TEXT,
+        token_type TEXT,
+        access_token TEXT,
+        expiry TIMESTAMP,
+        refresh_token TEXT
+    )
+    """
+)
+db_connection.commit()

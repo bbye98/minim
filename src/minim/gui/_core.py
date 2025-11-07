@@ -6,7 +6,7 @@ from typing import Any
 from PySide6 import QtCore, QtGui, QtSvg, QtWidgets
 import yaml
 
-from .. import __file__, CONFIG_FILE, config
+from .. import __file__, CONFIG_YAML_FILE, config
 from . import gui_config
 
 ASSETS_DIR = Path(__file__).parents[2] / "assets"
@@ -88,7 +88,7 @@ def _main() -> None:
             geometry.height(),
         )
         gui_config["is_maximized"] = False
-        with CONFIG_FILE.open("w") as f:
+        with CONFIG_YAML_FILE.open("w") as f:
             yaml.safe_dump(config, f)
     window.show()
     sys.exit(app.exec())
@@ -285,7 +285,7 @@ class TitleBar(QtWidgets.QWidget):
                         geometry.width(),
                         geometry.height(),
                     )
-                    with CONFIG_FILE.open("w") as f:
+                    with CONFIG_YAML_FILE.open("w") as f:
                         yaml.safe_dump(config, f)
 
         event.accept()
@@ -674,7 +674,7 @@ class AddressBar(QtWidgets.QWidget):
                 gui_config["library"]["recent_directories"] = list(
                     self._recent_directories
                 )
-                with CONFIG_FILE.open("w") as f:
+                with CONFIG_YAML_FILE.open("w") as f:
                     yaml.safe_dump(config, f)
 
                 self._parent.display_files()
@@ -849,7 +849,7 @@ class MainWindow(QtWidgets.QWidget):
         animation.start()
         animation.finished.connect(lambda: setattr(self, "_animation", None))
         gui_config["is_maximized"] = self._is_maximized = not self._is_maximized
-        with CONFIG_FILE.open("w") as f:
+        with CONFIG_YAML_FILE.open("w") as f:
             yaml.safe_dump(config, f)
 
     def toggle_theme(self) -> None:
@@ -865,7 +865,7 @@ class MainWindow(QtWidgets.QWidget):
             page.toggle_theme()
 
         gui_config["theme"] = theme
-        with CONFIG_FILE.open("w") as f:
+        with CONFIG_YAML_FILE.open("w") as f:
             yaml.safe_dump(config, f)
 
     def switch_page(self) -> None:

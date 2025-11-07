@@ -14,7 +14,8 @@ import ssl
 from textwrap import dedent
 import threading
 import time
-from typing import TYPE_CHECKING, Any, Callable
+import types
+from typing import Any, Callable
 from urllib.parse import parse_qsl, urlencode, urlparse
 import warnings
 import webbrowser
@@ -25,16 +26,12 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 import httpx
-import yaml
 
-from .. import FOUND, MINIM_DIR, CONFIG_FILE, config
-from . import api_config
+from .. import FOUND, MINIM_DIR
+from . import db_connection, db_cursor
 
 if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
-
-if TYPE_CHECKING:
-    import types
 
 
 def _copy_docstring(
@@ -61,6 +58,209 @@ def _copy_docstring(
         return destination
 
     return decorator
+
+
+class TokenDatabase:
+    """
+    Application programming interface (API) for the local token storage.
+    """
+
+    @staticmethod
+    def get_token(
+        client: str,
+        *,
+        flow: str | None,
+        client_id: str,
+        user_identifier: str | None,
+    ) -> dict[str, Any] | None:
+        """
+        Retrieves a access token and its related information from the
+        local storage.
+
+        Parameters
+        ----------
+        flow : str or None, keyword-only
+            Authorization flow.
+
+        client_id : str, keyword-only
+            Client ID.
+
+        user_identifier : str or None, keyword-only
+            Unique identifier for the user account to log into.
+
+        Returns
+        -------
+        token : dict[str, Any]
+            Access token and its related information.
+        """
+        if user_identifier is None:
+            clause = "ORDER BY added DESC"
+            params = client, flow, client_id
+        else:
+            clause = "AND user_identifier = ?"
+            params = client, flow, client_id, user_identifier
+        db_cursor.execute(
+            f"""
+            SELECT *
+            FROM tokens
+            WHERE client = ?
+            AND flow = ?
+            AND client_id = ?
+            {clause}
+            LIMIT 1
+            """,
+            params,
+        )
+        row = db_cursor.fetchone()
+        if row is None:
+            return None
+        return dict(zip((col for col, *_ in db_cursor.description), row))
+
+    @staticmethod
+    def add_token(
+        client: str,
+        *,
+        flow: str,
+        client_id: str,
+        client_secret: str | None,
+        user_identifier: str | None,
+        redirect_uri: str | None,
+        scopes: str | Collection[str],
+        token_type: str,
+        access_token: str,
+        expiry: str | datetime | None,
+        refresh_token: str | None,
+    ) -> None:
+        """
+        Adds an access token and its related information to the local
+        storage.
+
+        Parameters
+        ----------
+        flow : str or None, keyword-only
+            Authorization flow.
+
+        client_id : str, keyword-only
+            Client ID.
+
+        client_secret : str or None, keyword-only
+            Client secret.
+
+        user_identifier : str or None, keyword-only
+            Unique identifier for the user account to log into.
+
+        redirect_uri : str, keyword-only, optional
+            Redirect URI. Required for the Authorization Code,
+            Authorization Code with PKCE, and Implicit Grant flows. If
+            the host is not :code:`localhost`, :code:`127.0.0.1`, or
+            :code:`::1`, redirect handling is not available.
+
+        scopes : str or Collection[str], keyword-only
+            Authorization scopes the client requests to access user
+            resources.
+
+        token_type : str, keyword-only
+            Type of the access token in `access_token`.
+
+        access_token : str, keyword-only
+            Access token.
+
+        expiry : str, datetime.datetime, or None, keyword-only
+            Expiry of the access token in `access_token`.
+
+        refresh_token : str or None, keyword-only
+            Refresh token accompanying the access token in
+            `access_token`.
+        """
+        db_cursor.execute(
+            """
+            INSERT INTO tokens (
+                flow,
+                client,
+                client_id,
+                client_secret,
+                user_identifier,
+                redirect_uri,
+                scopes,
+                token_type,
+                access_token,
+                expiry,
+                refresh_token
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                flow,
+                client,
+                client_id,
+                client_secret,
+                user_identifier,
+                redirect_uri,
+                scopes if isinstance(scopes, str) else " ".join(sorted(scopes)),
+                token_type,
+                access_token,
+                expiry
+                if isinstance(expiry, str)
+                else expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                refresh_token,
+            ),
+        )
+        db_connection.commit()
+
+    @staticmethod
+    def remove_tokens(
+        client: str,
+        *,
+        flows: str | Collection[str] | None = None,
+        client_ids: str | Collection[str] | None = None,
+        user_identifiers: str | Collection[str] | None = None,
+    ) -> None:
+        """
+        Remove specific or all access tokens and their related
+        information from the local storage.
+
+        .. warning::
+
+           If `flows`, `client_ids`, and `user_identifiers` are all not
+           provided, all tokens in the local storage for the specified
+           API client are removed.
+
+        Parameters
+        ----------
+        client : str
+            API client.
+
+        flows : str or Collection[str], optional
+            Authorization flows for which tokens should be removed.
+
+        client_ids : str or Collection[str], optional
+            Client IDs for which tokens should be removed.
+
+        user_identifiers : str or Collection[str], optional
+            Unique identifiers for the user accounts for which tokens
+            should be removed.
+        """
+        query = "DELETE FROM tokens WHERE client = ?"
+        params = [client]
+
+        def make_filter_clause(
+            field: str, values: str | Collection[str]
+        ) -> str:
+            if isinstance(values, str):
+                params.append(values)
+                return f" AND {field} = ?"
+            else:
+                params.extend(values)
+                return f" AND {field} IN ({', '.join('?' for _ in values)})"
+
+        if flows is not None:
+            query += make_filter_clause("flow", flows)
+        if client_ids is not None:
+            query += make_filter_clause("client_id", client_ids)
+        if user_identifiers is not None:
+            query += make_filter_clause("user_identifier", user_identifiers)
+
+        db_cursor.execute(query, params)
+        db_connection.commit()
 
 
 class TTLCache:
@@ -157,12 +357,16 @@ class TTLCache:
         """
         Clear cached entries.
 
+        .. warning::
+
+           If no arguments are provided, all entries in the cache are
+           cleared.
+
         Parameters
         ----------
         funcs : Callable or Collection[Callable], positional-only, \
         optional
-            Functions whose cache entries should be cleared. If not
-            provided, all entries in the cache are cleared.
+            Functions whose cache entries should be cleared.
         """
         if funcs is None:
             self._store.clear()
@@ -345,7 +549,7 @@ class APIClient(ABC):
         self,
         exc_type: type[BaseException] | None,
         exc_value: BaseException | None,
-        exc_tb: "types.TracebackType" | None,
+        exc_tb: types.TracebackType | None,
     ) -> None:
         """
         Exit the runtime context related to this API client.
@@ -592,17 +796,17 @@ class OAuth2APIClient(APIClient):
         flow: str,
         client_id: str | None = None,
         client_secret: str | None = None,
+        user_identifier: str | None = None,
         redirect_uri: str | None = None,
         scopes: str | Collection[str] = "",
-        access_token: str | None = None,
         token_type: str = "Bearer",
+        access_token: str | None = None,
         refresh_token: str | None = None,
         expiry: str | datetime | None = None,
         backend: str | None = None,
         browser: bool = False,
         cache: bool = True,
         store: bool = True,
-        user_identifier: str | None = None,
     ) -> None:
         """
         Parameters
@@ -632,6 +836,25 @@ class OAuth2APIClient(APIClient):
             environment variable or stored in Minim's local token
             storage.
 
+        user_identifier : str, keyword-only, optional
+            Unique identifier for the user account to log into for all
+            authorization flows but the Client Credentials flow. Used
+            when :code:`store=True` to distinguish between multiple
+            user accounts for the same client ID and authorization flow.
+
+            If provided, it is used to locate existing access tokens or
+            store new tokens in Minim's local token storage.
+
+            If not provided, the last accessed account for the specified
+            authorization flow in `flow` is selected if it exists in
+            local storage. Otherwise, a new entry is created using a
+            the client ID, authorization flow, and an available user
+            identifier (e.g., user ID) after successful authorization.
+
+            Prepending the identifier with a tilde (:code:`~`) skips
+            token retrieval from local storage, and the suffix will be
+            used as the identifier for storing future tokens.
+
         redirect_uri : str, keyword-only, optional
             Redirect URI. Required for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
@@ -642,14 +865,14 @@ class OAuth2APIClient(APIClient):
             Authorization scopes the client requests to access user
             resources.
 
+        token_type : str, keyword-only, default: :code:`"Bearer"`
+            Type of the access token in `access_token`.
+
         access_token : str, keyword-only, optional
             Access token. If provided or found in Minim's local token
             storage, the authorization process is bypassed. If provided,
             all other relevant keyword arguments should also be
             specified to enable automatic token refresh upon expiration.
-
-        token_type : str, keyword-only, default: :code:`"Bearer"`
-            Type of the access token.
 
         refresh_token : str, keyword-only, optional
             Refresh token accompanying the access token in
@@ -706,28 +929,6 @@ class OAuth2APIClient(APIClient):
 
                :meth:`remove_all_tokens` – Remove all stored access
                tokens for this API client.
-
-        user_identifier : str, keyword-only, optional
-            Unique identifier for the user account to log into for all
-            authorization flows but the Client Credentials flow. Used
-            when :code:`store=True` to distinguish between multiple
-            user accounts for the same client ID and authorization flow.
-
-            If provided, it is used to locate existing access tokens or
-            store new tokens in Minim's local token storage, where the
-            key is a SHA-256 hash of the client ID, authorization flow,
-            and the identifier.
-
-            If not provided, the last accessed account for the specified
-            authorization flow in `flow` is selected if it exists in
-            local storage. Otherwise, a new entry is created using a
-            hash of the client ID, authorization flow, and an available
-            user identifier (e.g., user ID) after successful
-            authorization.
-
-            Prepending the identifier with a tilde (:code:`~`) skips
-            token retrieval from local storage and forces a
-            reauthorization.
         """
         super().__init__(cache=cache)
 
@@ -747,42 +948,35 @@ class OAuth2APIClient(APIClient):
                 "arguments, respectively."
             )
 
-        # Assign unique account identifier
-        self._resolve_account_identifier(flow, client_id, user_identifier)
-
         # If an access token is not provided, try to retrieve it from
         # local token storage
-        if (
-            not access_token
-            and store
-            and (accounts := api_config.get(self.__class__.__name__))
-            and (account := accounts.get(self._account_identifier))
+        if user_identifier and user_identifier[0] == "~":
+            user_identifier = user_identifier[1:]
+        elif account := TokenDatabase.get_token(
+            self.__class__.__name__,
+            flow=flow,
+            client_id=client_id,
+            user_identifier=user_identifier,
         ):
-            # If a stored access token is found and the client ID
-            # matches, assume all other pertinent information was
-            # written correctly by Minim and is also available
-            if (
-                _access_token := account.get("access_token")
-            ) and client_id == account.get("client_id"):
-                access_token = _access_token
-                client_secret = account.get("client_secret")
-                scopes = account.get("scopes", set())
-                redirect_uri = account.get("redirect_uri")
-                token_type = account.get("token_type")
-                refresh_token = account.get("refresh_token")
-                expiry = account.get("expiry")
+            access_token = account["access_token"]
+            client_secret = account["client_secret"]
+            scopes = account["scopes"]
+            redirect_uri = account["redirect_uri"]
+            token_type = account["token_type"]
+            refresh_token = account["refresh_token"]
+            expiry = account["expiry"]
 
         self.set_flow(
             flow,
             client_id=client_id,
             client_secret=client_secret,
+            user_identifier=user_identifier,
             redirect_uri=redirect_uri,
             scopes=scopes,
             backend=backend,
             browser=browser,
             authorize=False,
             store=store,
-            user_identifier=user_identifier,
         )
         if access_token:
             self.set_access_token(
@@ -802,152 +996,40 @@ class OAuth2APIClient(APIClient):
         ...
 
     @classmethod
-    def remove_all_tokens(cls) -> None:
-        """
-        Remove all stored access tokens and related information for
-        this API client.
-        """
-        if (api_name := cls.__name__) in api_config:
-            del api_config[api_name]
-            with CONFIG_FILE.open("w") as f:
-                yaml.safe_dump(config, f)
-
-    @classmethod
-    def remove_token(
-        cls, flow: str, client_id: str, user_identifier: str | None = None
+    def remove_tokens(
+        cls,
+        *,
+        flows: str | Collection[str] | None = None,
+        client_ids: str | Collection[str] | None = None,
+        user_identifiers: str | Collection[str] | None = None,
     ) -> None:
         """
-        Remove a specific stored access token and related information
-        for this API client.
+        Remove specific or all access tokens and their related
+        information for this API client from the local token storage.
+
+        .. warning::
+
+           If no arguments are provided, all tokens in the local
+           storage for this API client are removed.
 
         Parameters
         ----------
-        flow : str
-            Authorization flow.
+        flows : str or Collection[str], optional
+            Authorization flows for which tokens should be removed.
 
-        client_id : str
-            Client ID.
+        client_ids : str or Collection[str], optional
+            Client IDs for which tokens should be removed.
 
-        user_identifier : str, optional
-            Unique identifier for the user account. If provided, the
-            credentials for the specific account are removed. Otherwise,
-            the credentials for the last accessed account using the
-            given `flow` and `client_id` are removed.
+        user_identifiers : str or Collection[str], optional
+            Unique identifiers for the user accounts for which tokens
+            should be removed.
         """
-        changed = False
-        if (api_name := cls.__name__) in api_config:
-            accounts = api_config[api_name]
-            last_flow_str = f"last_{flow}"
-            if user_identifier or flow == "client_credentials":
-                if (
-                    account_identifier := cls._generate_account_identifier(
-                        flow, client_id, user_identifier
-                    )
-                ) in accounts:
-                    # Reassign or delete last accessed account for this
-                    # flow if it is the one being removed
-                    if id(accounts[account_identifier]) == id(
-                        accounts[last_flow_str]
-                    ):
-                        if flow_accounts := [
-                            (acct_ident, acct_info["added"])
-                            for acct_ident, acct_info in accounts.items()
-                            if acct_info["flow"] == flow
-                        ]:
-                            flow_accounts.sort(key=lambda a: a[1], reverse=True)
-                            accounts[last_flow_str] = next(
-                                acct_ident
-                                for acct_ident, _ in flow_accounts
-                                if acct_ident != account_identifier
-                            )
-                        else:
-                            del accounts[last_flow_str]
-
-                    del accounts[account_identifier]
-                    changed = True
-            else:
-                # Reassign or delete last accessed account for this flow
-                # if it has the same client ID
-                if accounts[last_flow_str]["client_id"] == client_id:
-                    acct_added_next = ""
-                    acct_id_last = id(accounts[last_flow_str])
-                    acct_ident_delete = acct_ident_next = None
-                    for acct_ident, acct_info in accounts.items():
-                        if acct_ident.startswith("last"):
-                            continue
-                        if id(acct_info) == acct_id_last:
-                            acct_ident_delete = acct_ident
-                        elif (
-                            acct_info["flow"] == flow
-                            and (acct_added := acct_info["added"])
-                            > acct_added_next
-                        ):
-                            acct_added_next = acct_added
-                            acct_ident_next = acct_ident
-                    if acct_ident_next:
-                        accounts[last_flow_str] = acct_ident_next
-                    else:
-                        del accounts[last_flow_str]
-                    del accounts[acct_ident_delete]
-                    changed = True
-
-                # Find and delete the last accessed account for this
-                # flow and client ID, if it exists
-                else:
-                    acct_added_last = ""
-                    acct_ident_last = None
-                    for acct_ident, acct_info in accounts.items():
-                        if acct_ident.startswith("l"):
-                            continue
-                        if (
-                            acct_info["client_id"] == client_id
-                            and (acct_info["flow"] == flow)
-                            and (acct_added := acct_info["added"])
-                            > acct_added_last
-                        ):
-                            acct_added_last = acct_added
-                            acct_ident_last = acct_ident
-
-                    if acct_ident_last:
-                        del accounts[acct_ident_last]
-                        changed = True
-
-        if changed:
-            with CONFIG_FILE.open("w") as f:
-                yaml.safe_dump(config, f)
-
-    @staticmethod
-    def _generate_account_identifier(
-        flow: str, client_id: str, user_identifier: str | None = None
-    ) -> str | None:
-        """
-        Generate a unique account identifier using a SHA-256 hash of the
-        client ID, authorization flow, and user identifier.
-
-        Parameters
-        ----------
-        flow : str
-            Authorization flow.
-
-        client_id : str
-            Client ID.
-
-        user_identifier : str, optional
-            Unique identifier for the user account to log into for all
-            authorization flows but the Client Credentials flow.
-
-        Returns
-        -------
-        account_identifier : str
-            Account identifier.
-        """
-        if flow == "client_credentials":
-            return hashlib.sha256(f"{client_id}:{flow}".encode()).hexdigest()
-        if user_identifier:
-            return hashlib.sha256(
-                f"{client_id}:{flow}:{user_identifier}".encode()
-            ).hexdigest()
-        return f"last_{flow}"
+        TokenDatabase.remove_tokens(
+            cls.__name__,
+            flows=flows,
+            client_ids=client_ids,
+            user_identifiers=user_identifiers,
+        )
 
     @staticmethod
     def _generate_self_signed_certificate() -> None:
@@ -1055,7 +1137,7 @@ class OAuth2APIClient(APIClient):
                parameters are set correctly.
 
         token_type : str, default: :code:`"Bearer"`
-            Type of the access token.
+            Type of the access token in `access_token`.
 
         refresh_token : str, keyword-only, optional
             Refresh token accompanying the access token in
@@ -1088,13 +1170,13 @@ class OAuth2APIClient(APIClient):
         *,
         client_id: str,
         client_secret: str | None = None,
+        user_identifier: str | None = None,
         redirect_uri: str | None = None,
         scopes: str | Collection[str] = "",
         backend: str | None = None,
         browser: bool = False,
         authorize: bool = True,
         store: bool = True,
-        user_identifier: str | None = None,
     ) -> None:
         """
         Set or update the authorization flow and related information.
@@ -1130,6 +1212,25 @@ class OAuth2APIClient(APIClient):
             Credentials, and Resource Owner Password Credential flows.
             Must be provided unless it is set as a system environment
             variable or stored in Minim's local token storage.
+
+        user_identifier : str, keyword-only, optional
+            Unique identifier for the user account to log into for all
+            authorization flows but the Client Credentials flow. Used
+            when :code:`store=True` to distinguish between multiple
+            user accounts for the same client ID and authorization flow.
+
+            If provided, it is used to locate existing access tokens or
+            store new tokens in Minim's local token storage.
+
+            If not provided, the last accessed account for the specified
+            authorization flow in `flow` is selected if it exists in
+            local storage. Otherwise, a new entry is created using a
+            the client ID, authorization flow, and an available user
+            identifier (e.g., user ID) after successful authorization.
+
+            Prepending the identifier with a tilde (:code:`~`) skips
+            token retrieval from local storage, and the suffix will be
+            used as the identifier for storing future tokens.
 
         redirect_uri : str, keyword-only, optional
             Redirect URI. Required for the Authorization Code,
@@ -1184,30 +1285,7 @@ class OAuth2APIClient(APIClient):
 
                :meth:`remove_all_tokens` – Remove all stored access
                tokens for this API client.
-
-        user_identifier : str, keyword-only, optional
-            Unique identifier for the user account to log into for all
-            authorization flows but the Client Credentials flow. Used
-            when :code:`store=True` to distinguish between multiple
-            user accounts for the same client ID and authorization flow.
-
-            If provided, it is used to locate existing access tokens or
-            store new tokens in Minim's local token storage, where the
-            key is a SHA-256 hash of the client ID, authorization flow,
-            and the identifier.
-
-            If not provided, the last accessed account for the specified
-            authorization flow in `flow` is selected if it exists in
-            local storage. Otherwise, a new entry is created using a
-            hash of the client ID, authorization flow, and an available
-            user identifier (e.g., user ID) after successful
-            authorization.
-
-            Prepending the identifier with a tilde (:code:`~`) skips
-            token retrieval from local storage and forces a
-            reauthorization.
         """
-
         if flow not in self._FLOWS:
             _flows = "', '".join(self._FLOWS)
             raise ValueError(
@@ -1231,43 +1309,52 @@ class OAuth2APIClient(APIClient):
                 "`client_secret` argument."
             )
         self._client_secret = client_secret
-        if flow in {"auth_code", "pkce", "implicit"} and not redirect_uri:
+        has_redirect = flow in {"auth_code", "pkce", "implicit"}
+        if has_redirect and not redirect_uri:
             raise ValueError(
                 f"The {self._OAUTH_FLOWS_NAMES[flow]} requires a "
                 "redirect URI to be provided via the `redirect_uri` "
                 "argument."
             )
-        parsed = urlparse(redirect_uri)
-        self._port = (
-            port
-            if (port := parsed.port)
-            else 80
-            if parsed.scheme == "http"
-            else 443
-            if parsed.scheme == "https"
-            else None
-        )
-        self._redirect_uri = redirect_uri
-        if backend:
-            if backend not in self._BACKENDS:
-                _backends = "', '".join(self._BACKENDS)
-                raise ValueError(
-                    f"Invalid backend {backend!r}. Valid values: '{_backends}'."
-                )
-            if (hostname := parsed.hostname) not in {
-                "localhost",
-                "127.0.0.1",
-                "::1",
-            }:
-                backend = None
-                warnings.warn(
-                    f"Redirect handling is not available for host {hostname!r}."
-                )
-        self._backend = backend
-        self._browser = browser
+        self._user_identifier = user_identifier
+        if has_redirect:
+            parsed = urlparse(redirect_uri)
+            self._port = (
+                port
+                if (port := parsed.port)
+                else 80
+                if parsed.scheme == "http"
+                else 443
+                if parsed.scheme == "https"
+                else None
+            )
+            self._redirect_uri = redirect_uri
+            if backend:
+                if backend not in self._BACKENDS:
+                    _backends = "', '".join(self._BACKENDS)
+                    raise ValueError(
+                        f"Invalid backend {backend!r}. Valid values: '{_backends}'."
+                    )
+                if (hostname := parsed.hostname) not in {
+                    "localhost",
+                    "127.0.0.1",
+                    "::1",
+                }:
+                    warnings.warn(
+                        f"Redirect handling is not available for host {hostname!r}."
+                    )
+            self._backend = backend
+            self._browser = browser
+        else:
+            warnings.warn(
+                "A redirect URI was provided via the `redirect_uri` "
+                f"argument, but the {self._OAUTH_FLOWS_NAMES[flow]} "
+                "does not use redirects."
+            )
+            self._redirect_uri = None
+            self._backend = None
+            self._browser = None
         self._store = store
-        if user_identifier:
-            self._resolve_account_identifier(flow, client_id, user_identifier)
 
         if authorize:
             self._obtain_access_token()
@@ -1530,38 +1617,24 @@ class OAuth2APIClient(APIClient):
             + timedelta(seconds=int(resp_json["expires_in"])),
         )
         if self._store:
-            cls_name = self.__class__.__name__
-            accounts = api_config.get(cls_name)
-            if not isinstance(accounts, dict):
-                api_config[cls_name] = accounts = {}
-            self._resolve_account_identifier(
-                self._flow,
-                self._client_id,
-                getattr(self, "_user_identifier")
+            TokenDatabase.add_token(
+                self.__class__.__name__,
+                flow=self._flow,
+                client_id=self._client_id,
+                client_secret=self._client_secret,
+                user_identifier=getattr(self, "_user_identifier")
                 or (
                     None
                     if self._flow == "client_credentials"
                     else self._get_user_identifier()
                 ),
+                redirect_uri=self._redirect_uri,
+                scopes=self._scopes,
+                token_type=token_type,
+                access_token=access_token,
+                refresh_token=getattr(self, "_refresh_token", None),
+                expiry=getattr(self, "_expiry", None),
             )
-            accounts[self._account_identifier] = accounts[
-                f"last_{self._flow}"
-            ] = {
-                "added": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "flow": self._flow,
-                "client_id": self._client_id,
-                "client_secret": self._client_secret or "",
-                "redirect_uri": self._redirect_uri or "",
-                "scopes": " ".join(sorted(self._scopes)),
-                "access_token": access_token,
-                "token_type": token_type,
-                "refresh_token": self._refresh_token or "",
-                "expiry": expiry.strftime("%Y-%m-%dT%H:%M:%SZ")
-                if (expiry := getattr(self, "_expiry"))
-                else "",
-            }
-            with CONFIG_FILE.open("w") as f:
-                yaml.safe_dump(config, f)
 
     def _refresh_access_token(self) -> None:
         """
@@ -1595,48 +1668,6 @@ class OAuth2APIClient(APIClient):
         else:
             for scope in scopes:
                 self._require_scopes(endpoint_method, scope)
-
-    def _resolve_account_identifier(
-        self,
-        flow: str | None = None,
-        client_id: str | None = None,
-        user_identifier: str | None = None,
-    ) -> None:
-        """
-        Assign unique account identifier based on client ID,
-        authorization flow, and optionally, a user identifier.
-
-        Parameters
-        ----------
-        flow : str, optional
-            Authorization flow. If not provided, the current
-            authorization flow in :attr:`_flow` is used.
-
-        client_id : str, optional
-            Client ID. If not provided, the current client ID in
-            :attr:`_client_id` is used.
-
-        user_identifier : str, optional
-            Unique identifier for the user account to log into for all
-            authorization flows but the Client Credentials flow. If not
-            provided, the current user identifier in
-            :attr:`_user_identifier` is used.
-        """
-        if not flow:
-            flow = self._flow
-        if not client_id:
-            client_id = self._client_id
-        if not user_identifier:
-            user_identifier = getattr(self, "_user_identifier", None)
-
-        if user_identifier and user_identifier.startswith("~"):
-            self._account_identifier = None
-            self._user_identifier = user_identifier[1:]
-        else:
-            self._account_identifier = self._generate_account_identifier(
-                flow, client_id, user_identifier
-            )
-            self._user_identifier = user_identifier
 
 
 class ResourceAPI(ABC):
