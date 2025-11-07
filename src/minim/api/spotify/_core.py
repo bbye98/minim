@@ -195,11 +195,8 @@ class SpotifyWebAPI(OAuth2APIClient):
 
             .. seealso::
 
-               :meth:`remove_token` – Remove a specific stored access
-               token for this API client.
-
-               :meth:`remove_all_tokens` – Remove all stored access
-               tokens for this API client.
+               :meth:`remove_tokens` – Remove specific or all stored
+               access tokens for this API client.
         """
         if flow == "client_credentials" and scopes:
             warnings.warn(

@@ -174,7 +174,7 @@ class TokenDatabase:
         """
         db_cursor.execute(
             """
-            INSERT INTO tokens (
+            INSERT OR REPLACE INTO tokens (
                 flow,
                 client,
                 client_id,
@@ -193,7 +193,7 @@ class TokenDatabase:
                 client,
                 client_id,
                 client_secret,
-                user_identifier,
+                user_identifier or "",
                 redirect_uri,
                 scopes if isinstance(scopes, str) else " ".join(sorted(scopes)),
                 token_type,
