@@ -1098,11 +1098,10 @@ class ArtistsAPI(TIDALResourceAPI):
             self._client._validate_type("cursor", cursor, str)
             params["cursor"] = cursor
         return self._client._request(
-            "GET",
-            f"artists/{artist_id}/relationships/albums",
-            params=params,
+            "GET", f"artists/{artist_id}/relationships/albums", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl="catalog")
     def get_artist_biography(
         self,
         artist_id: int | str,
@@ -1110,8 +1109,61 @@ class ArtistsAPI(TIDALResourceAPI):
         country_code: str | None = None,
         *,
         include: bool = False,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get Artist's Biography <https://tidal-music.github.io
+        /tidal-api-reference/#/artists
+        /get_artists__id__relationships_biography>`_: Get TIDAL catalog
+        information for an artist's biography.
 
+        Parameters
+        ----------
+        artist_id : int or str, positional-only
+            TIDAL ID of the artist.
+
+            **Examples**: :code:`1566`, :code:`"4676988"`.
+
+        country_code : str, optional
+            ISO 3166-1 alpha-2 country code. Only optional when the
+            country code can be retrieved from the user's profile.
+
+            **Example**: :code:`"US"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the artist's biography.
+
+        Returns
+        -------
+        biography : dict[str, Any]
+            TIDAL catalog information for the artist's biography.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": {
+                      "id": <str>,
+                      "type": "artistBiographies"
+                    },
+                    "included": [],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._validate_tidal_ids(artist_id)
+        params = {}
+        self._client._resolve_country_code(country_code, params)
+        if include:
+            params["include"] = "biography"
+        return self._client._request(
+            "GET", f"artists/{artist_id}/relationships/biography", params=params
+        ).json()
+
+    @TTLCache.cached_method(ttl="catalog")
     def get_artist_owners(
         self,
         artist_id: int | str,
@@ -1119,8 +1171,59 @@ class ArtistsAPI(TIDALResourceAPI):
         *,
         include: bool = False,
         cursor: str | None = None,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get Artist's Owners <https://tidal-music.github.io
+        /tidal-api-reference/#/artists
+        /get_artists__id__relationships_owners>`_: Get TIDAL catalog
+        information for an artist's owners.
 
+        Parameters
+        ----------
+        artist_id : int or str, positional-only
+            TIDAL ID of the artist.
+
+            **Examples**: :code:`1566`, :code:`"4676988"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the artist's owners.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        owners : dict[str, Any]
+            TIDAL catalog information for the artist's owners.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [],
+                    "included": [],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._validate_tidal_ids(artist_id)
+        params = {}
+        if include:
+            params["include"] = "owners"
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET", f"artists/{artist_id}/relationships/owners", params=params
+        ).json()
+
+    @TTLCache.cached_method(ttl="catalog")
     def get_artist_profile_art(
         self,
         artist_id: int | str,
@@ -1129,8 +1232,97 @@ class ArtistsAPI(TIDALResourceAPI):
         *,
         include: bool = False,
         cursor: str | None = None,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get Artist's Profile Art
+        <https://tidal-music.github.io/tidal-api-reference/#/artists
+        /get_artists__id__relationships_profileArt>`_: Get TIDAL catalog
+        information for an artist's profile art.
 
+        Parameters
+        ----------
+        artist_id : int or str, positional-only
+            TIDAL ID of the artist.
+
+            **Examples**: :code:`1566`, :code:`"4676988"`.
+
+        country_code : str, optional
+            ISO 3166-1 alpha-2 country code. Only optional when the
+            country code can be retrieved from the user's profile.
+
+            **Example**: :code:`"US"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the artist's profile art.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        profile_art : dict[str, Any]
+            TIDAL catalog information for the artist's profile art.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "id": <str>,
+                        "type": "artworks"
+                      }
+                    ],
+                    "included": [
+                      {
+                        "attributes": {
+                          "files": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "height": <int>,
+                                "width": <int>
+                              }
+                            }
+                          ],
+                          "mediaType": "IMAGE"
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "artworks"
+                      }
+                    ],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._validate_tidal_ids(artist_id)
+        params = {}
+        self._client._resolve_country_code(country_code, params)
+        if include:
+            params["include"] = "profileArt"
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET",
+            f"artists/{artist_id}/relationships/profileArt",
+            params=params,
+        ).json()
+
+    @TTLCache.cached_method(ttl="catalog")
     def get_artist_radio(
         self,
         artist_id: int | str,
@@ -1139,8 +1331,113 @@ class ArtistsAPI(TIDALResourceAPI):
         *,
         include: bool = False,
         cursor: str | None = None,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get Artist Radio
+        <https://tidal-music.github.io/tidal-api-reference/#/artists
+        /get_artists__id__relationships_radio>`_: Get TIDAL catalog
+        information for radio stations generated from an artist's music
+        catalog.
 
+        Parameters
+        ----------
+        artist_id : int or str, positional-only
+            TIDAL ID of the artist.
+
+            **Examples**: :code:`1566`, :code:`"4676988"`.
+
+        country_code : str, optional
+            ISO 3166-1 alpha-2 country code. Only optional when the
+            country code can be retrieved from the user's profile.
+
+            **Example**: :code:`"US"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the artist radio.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        radio : dict[str, Any]
+            TIDAL catalog information for the artist radio.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "id": <str>,
+                        "type": "playlists"
+                      }
+                    ],
+                    "included": [
+                      {
+                        "attributes": {
+                          "accessType": "PUBLIC",
+                          "bounded": <bool>,
+                          "createdAt": <str>,
+                          "description": "Artist Radio",
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "lastModifiedAt": <str>,
+                          "name": <str>,
+                          "playlistType": "MIX"
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "coverArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "items": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "playlists"
+                      }
+                    ],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._validate_tidal_ids(artist_id)
+        params = {}
+        self._client._resolve_country_code(country_code, params)
+        if include:
+            params["include"] = "radio"
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET",
+            f"artists/{artist_id}/relationships/radio",
+            params=params,
+        ).json()
+
+    @TTLCache.cached_method(ttl="catalog")
     def get_artist_roles(
         self,
         artist_id: int | str,
@@ -1148,8 +1445,74 @@ class ArtistsAPI(TIDALResourceAPI):
         *,
         include: bool = False,
         cursor: str | None = None,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get Artist's Roles
+        <https://tidal-music.github.io/tidal-api-reference/#/artists
+        /get_artists__id__relationships_artistRoles>`_: Get TIDAL
+        catalog information for an artist's roles.
 
+        Parameters
+        ----------
+        artist_id : int or str, positional-only
+            TIDAL ID of the artist.
+
+            **Examples**: :code:`1566`, :code:`"4676988"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the artist's roles.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        roles : dict[str, Any]
+            TIDAL catalog information for the artist's roles.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "id": <str>,
+                        "type": "artistRoles"
+                      }
+                    ],
+                    "included": [
+                      {
+                        "attributes": {
+                          "name": <str>
+                        },
+                        "id": <str>,
+                        "type": "artistRoles"
+                      }
+                    ],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._validate_tidal_ids(artist_id)
+        params = {}
+        if include:
+            params["include"] = "roles"
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET",
+            f"artists/{artist_id}/relationships/roles",
+            params=params,
+        ).json()
+
+    @TTLCache.cached_method(ttl="catalog")
     def get_similar_artists(
         self,
         artist_id: int | str,
@@ -1158,8 +1521,153 @@ class ArtistsAPI(TIDALResourceAPI):
         *,
         include: bool = False,
         cursor: str | None = None,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get Similar Artists
+        <https://tidal-music.github.io/tidal-api-reference/#/artists
+        /get_artists__id__relationships_similarArtists>`_: Get TIDAL
+        catalog information for other artists that are similar to an
+        artist.
 
+        Parameters
+        ----------
+        artist_id : int or str, positional-only
+            TIDAL ID of the artist.
+
+            **Examples**: :code:`1566`, :code:`"4676988"`.
+
+        country_code : str, optional
+            ISO 3166-1 alpha-2 country code. Only optional when the
+            country code can be retrieved from the user's profile.
+
+            **Example**: :code:`"US"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the similar artists.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        artists : dict[str, Any]
+            TIDAL catalog information for the similar artists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "id": <str>,
+                        "type": "artists"
+                      }
+                    ],
+                    "included": [
+                      {
+                        "attributes": {
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": <float>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "albums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "biography": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "followers": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "following": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "profileArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "radio": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "roles": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "similarArtists": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "trackProviders": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "tracks": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "videos": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "artists"
+                      }
+                    ],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._validate_tidal_ids(artist_id)
+        params = {}
+        self._client._resolve_country_code(country_code, params)
+        if include:
+            params["include"] = "similarArtists"
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET",
+            f"artists/{artist_id}/relationships/similarArtists",
+            params=params,
+        ).json()
+
+    @TTLCache.cached_method(ttl="catalog")
     def get_artist_track_providers(
         self,
         artist_id: int | str,
@@ -1167,7 +1675,81 @@ class ArtistsAPI(TIDALResourceAPI):
         *,
         include: bool = False,
         cursor: str | None = None,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get Artist's Track Providers
+        <https://tidal-music.github.io/tidal-api-reference/#/artists
+        /get_artists__id__relationships_trackProviders>`_: Get TIDAL
+        catalog information for an artist's track providers.
+
+        Parameters
+        ----------
+        artist_id : int or str, positional-only
+            TIDAL ID of the artist.
+
+            **Examples**: :code:`1566`, :code:`"4676988"`.
+
+        country_code : str, optional
+            ISO 3166-1 alpha-2 country code. Only optional when the
+            country code can be retrieved from the user's profile.
+
+            **Example**: :code:`"US"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the artist's track providers.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        artists : dict[str, Any]
+            TIDAL catalog information for the artist's track providers.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "id": <str>,
+                        "meta": {
+                          "numberOfTracks": <int>
+                        },
+                        "type": "providers"
+                      }
+                    ],
+                    "included": [
+                      {
+                        "attributes": {
+                          "name": <str>
+                        },
+                        "id": <str>,
+                        "type": "providers"
+                      }
+                    ],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._validate_tidal_ids(artist_id)
+        params = {}
+        if include:
+            params["include"] = "trackProviders"
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET",
+            f"artists/{artist_id}/relationships/trackProviders",
+            params=params,
+        ).json()
 
     def get_artist_tracks(
         self,
