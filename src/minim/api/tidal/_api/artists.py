@@ -1089,7 +1089,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id)
+        self._client._validate_tidal_ids(artist_id, _recursive=False)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include:
@@ -1154,7 +1154,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id)
+        self._client._validate_tidal_ids(artist_id, _recursive=False)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include:
@@ -1216,7 +1216,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id)
+        self._client._validate_tidal_ids(artist_id, _recursive=False)
         params = {}
         if include:
             params["include"] = "owners"
@@ -1316,7 +1316,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id)
+        self._client._validate_tidal_ids(artist_id, _recursive=False)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include:
@@ -1435,7 +1435,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id)
+        self._client._validate_tidal_ids(artist_id, _recursive=False)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include:
@@ -1515,7 +1515,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id)
+        self._client._validate_tidal_ids(artist_id, _recursive=False)
         params = {}
         if include:
             params["include"] = "roles"
@@ -1673,7 +1673,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id)
+        self._client._validate_tidal_ids(artist_id, _recursive=False)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include:
@@ -1762,7 +1762,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id)
+        self._client._validate_tidal_ids(artist_id, _recursive=False)
         params = {}
         if include:
             params["include"] = "trackProviders"
@@ -1937,7 +1937,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id)
+        self._client._validate_tidal_ids(artist_id, _recursive=False)
         if collapse_by.upper() not in {"FINGERPRINT", "ID"}:
             raise ValueError(
                 f"Cannot group tracks by {collapse_by!r}. "
@@ -2067,7 +2067,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id)
+        self._client._validate_tidal_ids(artist_id, _recursive=False)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include:

@@ -1149,7 +1149,7 @@ class AlbumsAPI(TIDALResourceAPI):
                  }
                }
         """
-        self._client._validate_tidal_ids(album_id)
+        self._client._validate_tidal_ids(album_id, _recursive=False)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include:
@@ -1248,7 +1248,7 @@ class AlbumsAPI(TIDALResourceAPI):
                  }
                }
         """
-        self._client._validate_tidal_ids(album_id)
+        self._client._validate_tidal_ids(album_id, _recursive=False)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include:
@@ -1466,7 +1466,7 @@ class AlbumsAPI(TIDALResourceAPI):
                  }
                }
         """
-        self._client._validate_tidal_ids(album_id)
+        self._client._validate_tidal_ids(album_id, _recursive=False)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include:
@@ -1529,7 +1529,7 @@ class AlbumsAPI(TIDALResourceAPI):
                  }
                }
         """
-        self._client._validate_tidal_ids(album_id)
+        self._client._validate_tidal_ids(album_id, _recursive=False)
         params = {}
         if include:
             params["include"] = "owners"
@@ -1611,7 +1611,7 @@ class AlbumsAPI(TIDALResourceAPI):
                  }
                }
         """
-        self._client._validate_tidal_ids(album_id)
+        self._client._validate_tidal_ids(album_id, _recursive=False)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include:
@@ -1754,7 +1754,7 @@ class AlbumsAPI(TIDALResourceAPI):
                        }
                      }
         """
-        self._client._validate_tidal_ids(album_id)
+        self._client._validate_tidal_ids(album_id, _recursive=False)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include:
