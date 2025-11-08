@@ -1208,6 +1208,10 @@ class ArtistsAPI(TIDALResourceAPI):
                     "data": [],
                     "included": [],
                     "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
                       "self": <str>
                     }
                   }
@@ -1304,6 +1308,10 @@ class ArtistsAPI(TIDALResourceAPI):
                       }
                     ],
                     "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
                       "self": <str>
                     }
                   }
@@ -1419,6 +1427,10 @@ class ArtistsAPI(TIDALResourceAPI):
                       }
                     ],
                     "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
                       "self": <str>
                     }
                   }
@@ -1495,6 +1507,10 @@ class ArtistsAPI(TIDALResourceAPI):
                       }
                     ],
                     "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
                       "self": <str>
                     }
                   }
@@ -1649,6 +1665,10 @@ class ArtistsAPI(TIDALResourceAPI):
                       }
                     ],
                     "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
                       "self": <str>
                     }
                   }
@@ -1706,7 +1726,7 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Returns
         -------
-        artists : dict[str, Any]
+        providers : dict[str, Any]
             TIDAL catalog information for the artist's track providers.
 
             .. admonition:: Sample response
@@ -1734,6 +1754,10 @@ class ArtistsAPI(TIDALResourceAPI):
                       }
                     ],
                     "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
                       "self": <str>
                     }
                   }
@@ -1762,6 +1786,7 @@ class ArtistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]: ...
 
+    @TTLCache.cached_method(ttl="catalog")
     def get_artist_videos(
         self,
         artist_id: int | str,
@@ -1770,4 +1795,118 @@ class ArtistsAPI(TIDALResourceAPI):
         *,
         include: bool = False,
         cursor: str | None = None,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get Artist's Videos
+        <https://tidal-music.github.io/tidal-api-reference/#/artists
+        /get_artists__id__relationships_videos>`_: Get TIDAL
+        catalog information for an artist's videos.
+
+        Parameters
+        ----------
+        artist_id : int or str, positional-only
+            TIDAL ID of the artist.
+
+            **Examples**: :code:`1566`, :code:`"4676988"`.
+
+        country_code : str, optional
+            ISO 3166-1 alpha-2 country code. Only optional when the
+            country code can be retrieved from the user's profile.
+
+            **Example**: :code:`"US"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the artist's videos.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        videos : dict[str, Any]
+            TIDAL catalog information for the artist's videos.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "id": <str>,
+                        "type": "videos"
+                      }
+                    ],
+                    "included": [
+                      {
+                        "attributes": {
+                          "copyright": {
+                            "text": <str>
+                          },
+                          "duration": <str>,
+                          "explicit": false,
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "isrc": <str>,
+                          "popularity": <float>,
+                          "releaseDate": <str>,
+                          "title": <str>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "albums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "artists": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "providers": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "thumbnailArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "videos"
+                      }
+                    ],
+                    "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._validate_tidal_ids(artist_id)
+        params = {}
+        self._client._resolve_country_code(country_code, params)
+        if include:
+            params["include"] = "videos"
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET",
+            f"artists/{artist_id}/relationships/videos",
+            params=params,
+        ).json()
