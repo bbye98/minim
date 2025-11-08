@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class ArtistsAPI(TIDALResourceAPI):
     """
-    Artists and Artist Roles API endpoints for the TIDAL API.
+    Artist Roles and Artists API endpoints for the TIDAL API.
 
     .. important::
 
@@ -1775,16 +1775,186 @@ class ArtistsAPI(TIDALResourceAPI):
             params=params,
         ).json()
 
+    @TTLCache.cached_method(ttl="catalog")
     def get_artist_tracks(
         self,
         artist_id: int | str,
         /,
         country_code: str | None = None,
         *,
-        collapse_by: str = "ID",
+        collapse_by: str = "FINGERPRINT",
         include: bool = False,
         cursor: str | None = None,
-    ) -> dict[str, Any]: ...
+    ) -> dict[str, Any]:
+        """
+        `Artists > Get Artist's Tracks
+        <https://tidal-music.github.io/tidal-api-reference/#/artists
+        /get_artists__id__relationships_tracks>`_: Get TIDAL
+        catalog information for an artist's tracks.
+
+        Parameters
+        ----------
+        artist_id : int or str, positional-only
+            TIDAL ID of the artist.
+
+            **Examples**: :code:`1566`, :code:`"4676988"`.
+
+        country_code : str, optional
+            ISO 3166-1 alpha-2 country code. Only optional when the
+            country code can be retrieved from the user's profile.
+
+            **Example**: :code:`"US"`.
+
+        collapse_by : str, keyword-only, default: :code:`"FINGERPRINT"`
+            Controls how the returned tracks are grouped.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"FINGERPRINT"` – Collapses tracks that share the
+                 same audio fingerprint.
+               * :code:`"ID"` – Returns every track as a separate item.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the artist's tracks.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        tracks : dict[str, Any]
+            TIDAL catalog information for the artist's tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "id": <str>,
+                        "type": "tracks"
+                      }
+                    ],
+                    "included": [
+                      {
+                        "attributes": {
+                          "accessType": "PUBLIC",
+                          "availability": <list[str]>,
+                          "copyright": {
+                            "text": <str>
+                          },
+                          "duration": <str>,
+                          "explicit": <bool>,
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "isrc": <str>,
+                          "mediaTags": <list[str]>,
+                          "popularity": <float>,
+                          "spotlighted": <bool>,
+                          "title": <str>,
+                          "version": <str>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "albums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "artists": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "genres": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "lyrics": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "providers": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "radio": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "shares": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "similarTracks": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "sourceFile": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "trackStatistics": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "tracks"
+                      }
+                    ],
+                    "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._validate_tidal_ids(artist_id)
+        if collapse_by.upper() not in {"FINGERPRINT", "ID"}:
+            raise ValueError(
+                f"Cannot group tracks by {collapse_by!r}. "
+                "Valid values: 'FINGERPRINT', 'ID'."
+            )
+        params = {"collapseBy": collapse_by}
+        self._client._resolve_country_code(country_code, params)
+        if include:
+            params["include"] = "tracks"
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET",
+            f"artists/{artist_id}/relationships/tracks",
+            params=params,
+        ).json()
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_videos(
