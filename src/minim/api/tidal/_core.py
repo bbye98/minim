@@ -28,6 +28,7 @@ class TIDALAPI(OAuth2APIClient):
     _FLOWS = {"pkce", "client_credentials"}
     _PROVIDER = "TIDAL"
     _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+    _VERSION = "0.1.93"
     AUTH_URL = "https://login.tidal.com/authorize"
     BASE_URL = "https://openapi.tidal.com/v2"
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"

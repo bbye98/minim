@@ -1,13 +1,14 @@
-from collections.abc import Sequence
+from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import TTLCache, ResourceAPI
+from ..._shared import TTLCache
+from ._shared import TIDALResourceAPI
 
 if TYPE_CHECKING:
     from .. import TIDALAPI
 
 
-class AlbumsAPI(ResourceAPI):
+class AlbumsAPI(TIDALResourceAPI):
     """
     Albums API endpoints for the TIDAL API.
 
@@ -17,17 +18,25 @@ class AlbumsAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RESOURCES = {"artists", "coverArt", "items", "providers", "similarAlbums"}
+    _RESOURCES = {
+        "artists",
+        "coverArt",
+        "genres",
+        "items",
+        "owners",
+        "providers",
+        "similarAlbums",
+    }
     _client: "TIDALAPI"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_albums(
         self,
         *,
-        album_ids: int | str | Sequence[int | str] | None = None,
-        barcodes: int | str | Sequence[int | str] | None = None,
+        album_ids: int | str | Collection[int | str] | None = None,
+        barcodes: int | str | Collection[int | str] | None = None,
         country_code: str | None = None,
-        include: str | Sequence[str] | None = None,
+        include: str | Collection[str] | None = None,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -40,10 +49,10 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_ids : int, str, or Sequence[int | str], keyword-only, \
+        album_ids : int, str, or Collection[int | str], keyword-only, \
         optional
             TIDAL ID(s) of the album(s), provided as either an integer,
-            a string, or a sequence of integers and/or strings.
+            a string, or a collection of integers and/or strings.
 
             .. note::
 
@@ -59,10 +68,10 @@ class AlbumsAPI(ResourceAPI):
                * :code:`[46369321, "251380836"]`
                * :code:`["46369321", "251380836"]`
 
-        barcodes : int, str, or Sequence[int | str], keyword-only, \
+        barcodes : int, str, or Collection[int | str], keyword-only, \
         optional
             Barcode ID(s) of the album(s), provided as either an integer,
-            a string, or a sequence of integers and/or strings.
+            a string, or a collection of integers and/or strings.
 
             .. note::
 
@@ -84,12 +93,12 @@ class AlbumsAPI(ResourceAPI):
 
             **Example**: :code:`"US"`.
 
-        include : str or Sequence[str], keyword-only, optional
+        include : str or Collection[str], keyword-only, optional
             Related resources to include in the response.
 
             **Valid values**: :code:`"artists"`, :code:`"coverArt"`,
-            :code:`"items"`, :code:`"providers"`, 
-            :code:`"similarAlbums"`.
+            :code:`"genres"`, :code:`"items"`, :code:`"owners"`, 
+            `:code:`"providers"`, :code:`"similarAlbums"`.
 
         cursor : str, keyword-only, optional
             Cursor for pagination.
@@ -528,6 +537,10 @@ class AlbumsAPI(ResourceAPI):
                          }
                        ],
                        "links": {
+                         "meta": {
+                           "nextCursor": <str>
+                         },
+                         "next": <str>,
                          "self": <str>
                        }
                      }
@@ -958,6 +971,10 @@ class AlbumsAPI(ResourceAPI):
                          }
                        ],
                        "links": {
+                         "meta": {
+                           "nextCursor": <str>
+                         },
+                         "next": <str>,
                          "self": <str>
                        }
                      }
@@ -965,16 +982,9 @@ class AlbumsAPI(ResourceAPI):
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include is not None:
-            if isinstance(include, str):
-                include = [include]
-            for resource in include:
-                if resource not in self._RESOURCES:
-                    _resources = "', '".join(sorted(self._RESOURCES))
-                    raise ValueError(
-                        f"Invalid related resource {resource!r}. "
-                        f"Valid values: '{_resources}'."
-                    )
-            params["include"] = include
+            params["include"] = params["include"] = self._prepare_include(
+                include
+            )
         if album_ids is not None:
             if barcodes is not None:
                 raise ValueError(
@@ -1131,6 +1141,10 @@ class AlbumsAPI(ResourceAPI):
                    }
                  ],
                  "links": {
+                   "meta": {
+                     "nextCursor": <str>
+                   },
+                   "next": <str>,
                    "self": <str>
                  }
                }
@@ -1226,6 +1240,10 @@ class AlbumsAPI(ResourceAPI):
                    }
                  ],
                  "links": {
+                   "meta": {
+                     "nextCursor": <str>
+                   },
+                   "next": <str>,
                    "self": <str>
                  }
                }
@@ -1440,6 +1458,10 @@ class AlbumsAPI(ResourceAPI):
                    }
                  ],
                  "links": {
+                   "meta": {
+                     "nextCursor": <str>
+                   },
+                   "next": <str>,
                    "self": <str>
                  }
                }
@@ -1454,6 +1476,68 @@ class AlbumsAPI(ResourceAPI):
             params["cursor"] = cursor
         return self._client._request(
             "GET", f"albums/{album_id}/relationships/items", params=params
+        ).json()
+
+    @TTLCache.cached_method(ttl="catalog")
+    def get_album_owners(
+        self,
+        album_id: int | str,
+        /,
+        *,
+        include: bool = False,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Albums > Get Album's Owners
+        <https://tidal-music.github.io/tidal-api-reference/#/albums
+        /get_albums__id__relationships_owners>`_: Get TIDAL
+        catalog information for an album's owners.
+
+        Parameters
+        ----------
+        album_id : int or str, positional-only
+            TIDAL ID of the album.
+
+            **Examples**: :code:`46369321`, :code:`"251380836"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the album's owners.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        owners : dict[str, Any]
+            TIDAL catalog information for the album's owners.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               {
+                 "data": [],
+                 "included": [],
+                 "links": {
+                   "meta": {
+                     "nextCursor": <str>
+                   },
+                   "next": <str>,
+                   "self": <str>
+                 }
+               }
+        """
+        self._client._validate_tidal_ids(album_id)
+        params = {}
+        if include:
+            params["include"] = "owners"
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET", f"albums/{album_id}/relationships/owners", params=params
         ).json()
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1519,6 +1603,10 @@ class AlbumsAPI(ResourceAPI):
                    }
                  ],
                  "links": {
+                   "meta": {
+                     "nextCursor": <str>
+                   },
+                   "next": <str>,
                    "self": <str>
                  }
                }
