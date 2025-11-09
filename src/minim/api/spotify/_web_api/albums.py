@@ -299,14 +299,14 @@ class AlbumsAPI(ResourceAPI):
                      }
         """
         is_string = isinstance(album_ids, str)
-        album_ids, n_ids = self._client._prepare_spotify_ids(
+        album_ids, num_ids = self._client._prepare_spotify_ids(
             album_ids, limit=20
         )
         params = {}
         if market is not None:
             self._client._validate_market(market)
             params["market"] = market
-        if is_string and n_ids == 1:
+        if is_string and num_ids == 1:
             return self._client._request(
                 "GET", f"albums/{album_ids}", params=params
             ).json()

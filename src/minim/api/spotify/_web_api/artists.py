@@ -116,10 +116,10 @@ class ArtistsAPI(ResourceAPI):
                      }
         """
         is_string = isinstance(artist_ids, str)
-        artist_ids, n_ids = self._client._prepare_spotify_ids(
+        artist_ids, num_ids = self._client._prepare_spotify_ids(
             artist_ids, limit=50
         )
-        if is_string and n_ids == 1:
+        if is_string and num_ids == 1:
             return self._client._request("GET", f"artists/{artist_ids}").json()
 
         return self._client._request(

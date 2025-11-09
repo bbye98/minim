@@ -261,14 +261,14 @@ class TracksAPI(ResourceAPI):
                      }
         """
         is_string = isinstance(track_ids, str)
-        track_ids, n_ids = self._client._prepare_spotify_ids(
+        track_ids, num_ids = self._client._prepare_spotify_ids(
             track_ids, limit=50
         )
         params = {}
         if market is not None:
             self._client._validate_market(market)
             params["market"] = market
-        if is_string and n_ids == 1:
+        if is_string and num_ids == 1:
             return self._client._request(
                 "GET", f"tracks/{track_ids}", params=params
             ).json()
@@ -755,10 +755,10 @@ class TracksAPI(ResourceAPI):
                      }
         """
         is_string = isinstance(track_ids, str)
-        track_ids, n_ids = self._client._prepare_spotify_ids(
+        track_ids, num_ids = self._client._prepare_spotify_ids(
             track_ids, limit=100
         )
-        if is_string and n_ids == 1:
+        if is_string and num_ids == 1:
             return self._client._request(
                 "GET", f"audio-features/{track_ids}"
             ).json()

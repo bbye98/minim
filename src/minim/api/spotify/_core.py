@@ -366,7 +366,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         spotify_ids : str
             Comma-delimited string containing Spotify IDs.
 
-        n_ids : int
+        num_ids : int
             Number of Spotify IDs.
         """
         if not spotify_ids:
@@ -379,8 +379,8 @@ class SpotifyWebAPI(OAuth2APIClient):
                 strict_length=strict_length,
             )
 
-        n_ids = len(spotify_ids)
-        if n_ids > limit:
+        num_ids = len(spotify_ids)
+        if num_ids > limit:
             raise ValueError(
                 f"A maximum of {limit} Spotify IDs can be sent in a request."
             )
@@ -389,7 +389,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             SpotifyWebAPI._validate_spotify_id(
                 id_, strict_length=strict_length
             )
-        return ",".join(spotify_ids), n_ids
+        return ",".join(spotify_ids), num_ids
 
     @staticmethod
     def _prepare_spotify_uris(
@@ -627,7 +627,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             emsg += f" – {details}"
         raise RuntimeError(emsg)
 
-    def _require_spotify_premium(self, endpoint_method: str) -> None:
+    def _require_spotify_premium(self, endpoint_method: str, /) -> None:
         """
         Ensure that a Spotify Premium subscription is active for an
         endpoint method that requires it.
@@ -640,7 +640,7 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         Parameters
         ----------
-        endpoint_method : str
+        endpoint_method : str, positional-only
             Name of the endpoint method.
         """
         if (

@@ -252,10 +252,10 @@ class ChaptersAPI(ResourceAPI):
                      }
         """
         is_string = isinstance(chapter_ids, str)
-        chapter_ids, n_ids = self._client._prepare_spotify_ids(
+        chapter_ids, num_ids = self._client._prepare_spotify_ids(
             chapter_ids, limit=50
         )
-        if is_string and n_ids == 1:
+        if is_string and num_ids == 1:
             return self._client._request(
                 "GET", f"chapters/{chapter_ids}", params={"market": market}
             ).json()

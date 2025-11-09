@@ -278,14 +278,14 @@ class AudiobooksAPI(ResourceAPI):
                      }
         """
         is_string = isinstance(audiobook_ids, str)
-        audiobook_ids, n_ids = self._client._prepare_spotify_ids(
+        audiobook_ids, num_ids = self._client._prepare_spotify_ids(
             audiobook_ids, limit=50
         )
         params = {}
         if market is not None:
             self._client._validate_market(market)
             params["market"] = market
-        if is_string and n_ids == 1:
+        if is_string and num_ids == 1:
             return self._client._request(
                 "GET", f"audiobooks/{audiobook_ids}", params
             ).json()

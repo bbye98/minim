@@ -247,12 +247,14 @@ class ShowsAPI(ResourceAPI):
                      }
         """
         string = isinstance(show_ids, str)
-        show_ids, n_ids = self._client._prepare_spotify_ids(show_ids, limit=50)
+        show_ids, num_ids = self._client._prepare_spotify_ids(
+            show_ids, limit=50
+        )
         params = {}
         if market is not None:
             self._client._validate_market(market)
             params["market"] = market
-        if string and n_ids == 1:
+        if string and num_ids == 1:
             return self._client._request(
                 "GET", f"shows/{show_ids}", params=params
             ).json()
