@@ -35,10 +35,13 @@ class PlaylistsAPI(TIDALResourceAPI):
         sort: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Playlists > Get Single Playlist <>`_: Get TIDAL catalog
-        information for a single playlist․
-        `Playlists > Get Multiple Playlists <>`_: Get TIDAL catalog
-        information for multiple playlists.
+        `Playlists > Get Single Playlist <https://tidal-music.github.io
+        /tidal-api-reference/#/playlists/get_playlists__id_>`_: Get 
+        TIDAL catalog information for a single playlist․
+        `Playlists > Get Multiple Playlists 
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /get_playlists>`_: Get TIDAL catalog information for multiple 
+        playlists.
 
         .. admonition:: User authentication and authorization scope
            :class: authorization-scope

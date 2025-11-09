@@ -64,7 +64,7 @@ class ArtworksAPI(TIDALResourceAPI):
         include : str or Collection[str], keyword-only, optional
             Related resources to include in the response.
 
-            **Valid value**: :code:`"owners".
+            **Valid value**: :code:`"owners"`.
 
         Returns
         -------
