@@ -965,11 +965,8 @@ class OAuth2APIClient(APIClient):
 
             .. seealso::
 
-               :meth:`remove_token` – Remove a specific stored access
-               token for this API client.
-
-               :meth:`remove_all_tokens` – Remove all stored access
-               tokens for this API client.
+               :meth:`remove_tokens` – Remove specific or all stored
+               access tokens for this API client.
         """
         super().__init__(cache=cache)
 
@@ -1321,11 +1318,8 @@ class OAuth2APIClient(APIClient):
 
             .. seealso::
 
-               :meth:`remove_token` – Remove a specific stored access
-               token for this API client.
-
-               :meth:`remove_all_tokens` – Remove all stored access
-               tokens for this API client.
+               :meth:`remove_tokens` – Remove specific or all stored
+               access tokens for this API client.
         """
         if flow not in self._FLOWS:
             _flows = "', '".join(self._FLOWS)

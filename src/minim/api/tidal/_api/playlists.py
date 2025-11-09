@@ -1,5 +1,5 @@
 from collections.abc import Collection
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
@@ -814,7 +814,6 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._validate_uuid(playlist_uuid)
         self._client._request("DELETE", f"playlist/{playlist_uuid}")
 
-    @TTLCache.cached_method(ttl="catalog")
     def get_playlist_cover_art(
         self,
         playlist_uuid: str,
@@ -1142,7 +1141,10 @@ class PlaylistsAPI(TIDALResourceAPI):
         self,
         playlist_uuid: str,
         /,
-        items: tuple[int | str, str] | Collection[tuple[int | str, str]],
+        items: tuple[int | str, str]
+        | dict[str, int | str]
+        | Collection[tuple[int | str, str] | dict[str, int | str]],
+        *,
         country_code: str | None = None,
         before: str | None = None,
     ) -> None:
@@ -1167,8 +1169,8 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
 
-        items : tuple[int | str, str] or \
-        Collection[tuple[int | str, str]]
+        items : tuple[int | str, str], dict[str, int | str], or \
+        Collection[tuple[int | str, str] | dict[str, int | str]]
             TIDAL IDs of tracks and videos, provided as tuples of the ID
             and the item type, or as properly formatted dictionaries.
 
@@ -1181,23 +1183,24 @@ class PlaylistsAPI(TIDALResourceAPI):
                * :code:`{"id": "35633900", "types": "tracks"}`
                * :code:`[(458584456, "tracks"), ("29597422", "videos")]`
 
-        country_code : str, optional
+        country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        before : str, optional
+        before : str, keyword-only, optional
             UUID of the item in the playlist before which to insert the
             items in `items`. If not specified, the items are appended 
             to the end of the playlist.
 
             **Example**: :code:`"3794bdb3-1529-48d7-8a99-ef2cb0cf22c3"`.
         """
+        self._client._require_scopes("add_playlist_items", "playlists.write")
         self._client._validate_uuid(playlist_uuid)
         params = {}
         if country_code is not None:
             self._client._resolve_country_code(country_code, params)
-        payload = {"data": self._process_playlist_items(items, False)}
+        payload = {"data": self._process_playlist_items(items, meta=False)}
         if before is not None:
             payload["meta"] = {"positionBefore": before}
         self._client._request(
@@ -1207,15 +1210,163 @@ class PlaylistsAPI(TIDALResourceAPI):
             json=payload,
         )
 
-    def update_playlist_items(self) -> None: ...
+    def reorder_playlist_items(
+        self,
+        playlist_uuid: str,
+        /,
+        items: tuple[int | str, str, str]
+        | dict[str, Any]
+        | Collection[tuple[int | str, str, str] | dict[str, Any]],
+        before: str,
+    ) -> None:
+        """
+        `Playlists > Reorder Playlist Items
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /patch_playlists__id__relationships_items>`_: Reorder items in a
+        playlist owned by the current user.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlists.write` scope
+                 Write to a user's playlists.
+
+        Parameters
+        ----------
+        playlist_uuid : str , positional-only
+            UUID of the TIDAL playlist.
+
+            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+
+        items : tuple[int | str, str, str], dict[str, Any], or \
+        Collection[tuple[int | str, str, str] | dict[str, Any]]
+            TIDAL IDs and UUIDs of tracks and videos, provided as tuples
+            of the ID, the UUID, and the item type, or as properly 
+            formatted dictionaries.
+
+            **Examples**:
+
+            .. container::
+
+               * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks")`
+               * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos")`
+               * .. code::
+                 
+                    {
+                        "id": "35633900", 
+                        "meta": {
+                            "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
+                        }, 
+                        "types": "tracks"
+                    }
+               * .. code::
+
+                    [
+                        (458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks"),
+                        ("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos"),
+                        {
+                            "id": "35633900", 
+                            "meta": {
+                                "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
+                            }, 
+                            "types": "tracks",
+                        },
+                    ]
+
+        before : str
+            UUID of the item in the playlist before which to insert the
+            items in `items`.
+
+            **Example**: :code:`"3794bdb3-1529-48d7-8a99-ef2cb0cf22c3"`.
+        """
+        self._client._require_scopes(
+            "reorder_playlist_items", "playlists.write"
+        )
+        self._client._validate_uuid(playlist_uuid)
+        payload = {"data": self._process_playlist_items(items)}
+        if before is not None:
+            payload["meta"] = {"positionBefore": before}
+        self._client._request(
+            "PATCH",
+            f"playlists/{playlist_uuid}/relationships/items",
+            json=payload,
+        )
 
     def remove_playlist_items(
         self,
         playlist_uuid: str,
         /,
         items: tuple[int | str, str, str]
-        | Collection[tuple[int | str, str, str]],
-    ) -> None: ...
+        | dict[str, Any]
+        | Collection[tuple[int | str, str, str] | dict[str, Any]],
+    ) -> None:
+        """
+        `Playlists > Remove Playlist Items
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /delete_playlists__id__relationships_items>`_: Remove items from
+        a playlist owned by the current user.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`playlists.write` scope
+                 Write to a user's playlists.
+
+        Parameters
+        ----------
+        playlist_uuid : str , positional-only
+            UUID of the TIDAL playlist.
+
+            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+
+        items : tuple[int | str, str, str], dict[str, Any], or \
+        Collection[tuple[int | str, str, str] | dict[str, Any]]
+            TIDAL IDs and UUIDs of tracks and videos, provided as tuples
+            of the ID, the UUID, and the item type, or as properly 
+            formatted dictionaries.
+
+            **Examples**:
+
+            .. container::
+
+               * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks")`
+               * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos")`
+               * .. code::
+                 
+                    {
+                        "id": "35633900", 
+                        "meta": {
+                            "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
+                        }, 
+                        "types": "tracks"
+                    }
+               * .. code::
+
+                    [
+                        (458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks"),
+                        ("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos"),
+                        {
+                            "id": "35633900", 
+                            "meta": {
+                                "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
+                            }, 
+                            "types": "tracks",
+                        },
+                    ]
+        """
+        self._client._require_scopes(
+            "remove_playlist_items", "playlists.write"
+        )
+        self._client._validate_uuid(playlist_uuid)
+        self._client._request(
+            "DELETE",
+            f"playlists/{playlist_uuid}/relationships/items",
+            json={"data": self._process_playlist_items(items)},
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_playlist_owners(
@@ -1308,8 +1459,10 @@ class PlaylistsAPI(TIDALResourceAPI):
         | Collection[
             tuple[int | str, str] | tuple[int | str, str, str] | dict[str, Any]
         ],
+        /,
+        *,
         meta: bool = True,
-        _recursive: bool = False,
+        _recursive: bool = True,
     ) -> list[dict[str, Any]]:
         """
         Process user-specified items to add to, update in, or remove
@@ -1318,12 +1471,13 @@ class PlaylistsAPI(TIDALResourceAPI):
         Parameters
         ----------
         items : tuple[int | str, ...], dict[str, Any], or \
-        Collection[tuple[int | str, ...] | dict[str, Any]]
+        Collection[tuple[int | str, ...] | dict[str, Any]], \
+        positional-only
             TIDAL IDs (and UUIDs) of tracks and videos, provided as
             tuples of the ID (and UUID) and the item type, or as
             properly formatted dictionaries.
 
-        meta : bool, default: :code:`True`
+        meta : bool, keyword-only, default: :code:`True`
             Specifies whether the items have UUID information.
 
         Returns
@@ -1338,10 +1492,13 @@ class PlaylistsAPI(TIDALResourceAPI):
             if meta:
                 item_uuid = items.get("meta", {}).get("itemId")
         else:
+            num_items = len(items)
+            if not num_items:
+                raise ValueError("At least one item must be specified.")
             if isinstance(items[0], dict | list | tuple):
-                if not 0 < len(items) <= 20:
+                if num_items > 20:
                     raise ValueError(
-                        "Between 1 and 20 items can be sent in a request."
+                        "A maximum of 20 items can be sent in a request."
                     )
                 return [
                     cls._process_playlist_items(
