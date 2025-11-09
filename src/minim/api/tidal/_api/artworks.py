@@ -38,6 +38,14 @@ class ArtworksAPI(TIDALResourceAPI):
         /tidal-api-reference/#/artworks/get_artworks>`_: Get TIDAL catalog
         information for multiple artworks.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              User authentication
+                 Access information on an item's owners.
+
         Parameters
         ----------
         artwork_ids : str or Collection[str], positional-only
@@ -166,6 +174,14 @@ class ArtworksAPI(TIDALResourceAPI):
         /tidal-api-reference/#/artworks
         /get_artworks__id__relationships_owners>`_: Get TIDAL catalog
         information for an artwork's owners.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              User authentication
+                 Access information on an item's owners.
 
         Parameters
         ----------

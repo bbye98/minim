@@ -32,9 +32,11 @@ class AlbumsAPI(TIDALResourceAPI):
     @TTLCache.cached_method(ttl="catalog")
     def get_albums(
         self,
-        *,
         album_ids: int | str | Collection[int | str] | None = None,
+        /,
+        *,
         barcodes: int | str | Collection[int | str] | None = None,
+        owner_ids: int | str | Collection[int | str] | None = None,
         country_code: str | None = None,
         include: str | Collection[str] | None = None,
         cursor: str | None = None,
@@ -42,21 +44,30 @@ class AlbumsAPI(TIDALResourceAPI):
         """
         `Albums > Get Single Album <https://tidal-music.github.io
         /tidal-api-reference/#/albums/get_albums__id_>`_: Get TIDAL
-        catalog information for a single album by its TIDAL ID․
+        catalog information for a single album․
         `Albums > Get Multiple Albums <https://tidal-music.github.io
         /tidal-api-reference/#/albums/get_albums>`_: Get TIDAL catalog
-        information for multiple albums by their TIDAL IDs or barcodes.
+        information for multiple albums.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              User authentication
+                 Access information on an item's owners.
 
         Parameters
         ----------
-        album_ids : int, str, or Collection[int | str], keyword-only, \
-        optional
-            TIDAL ID(s) of the album(s), provided as either an integer,
-            a string, or a collection of integers and/or strings.
+        album_ids : int, str, or Collection[int | str], \ 
+        positional-only, optional
+            TIDAL IDs of the albums, provided as either an integer, a
+            string, or a collection of integers and/or strings.
 
             .. note::
 
-               Exactly one of `album_ids` or `barcodes` must be provided.
+               Exactly one of `album_ids`, `barcodes`, or `owner_ids` 
+               must be provided.
 
             **Examples**: 
             
@@ -64,28 +75,44 @@ class AlbumsAPI(TIDALResourceAPI):
 
                * :code:`46369321`
                * :code:`"46369321"`
-               * :code:`[46369321, 251380836]`
                * :code:`[46369321, "251380836"]`
-               * :code:`["46369321", "251380836"]`
 
         barcodes : int, str, or Collection[int | str], keyword-only, \
         optional
-            Barcode ID(s) of the album(s), provided as either an integer,
-            a string, or a collection of integers and/or strings.
+            Barcodes of the albums, provided as either an integer, a
+            string, or a collection of integers and/or strings. When 
+            this parameter is specified, the request will always be sent
+            to the endpoint for multiple albums.
 
             .. note::
 
-               Exactly one of `album_ids` or `barcodes` must be provided.
-
+               Exactly one of `album_ids`, `barcodes`, or `owner_ids` 
+               must be provided. When this parameter is specified, the 
+               request will always be sent to the endpoint for multiple
+               albums.
             **Examples**: 
             
             .. container::
             
                * :code:`075678671173`
                * :code:`"075678671173"`
-               * :code:`[075678671173, 602448438034]`
                * :code:`[075678671173, "602448438034"]`
-               * :code:`["075678671173", "602448438034"]`
+
+        owner_ids : int, str, or Collection[int | str], keyword-only, \
+        optional
+            TIDAL IDs of the albums' owners, provided either as an 
+            integer, a string, or a collection of integers and/or 
+            strings.
+
+            .. note::
+
+               Exactly one of `album_ids`, `barcodes`, or `owner_ids` 
+               must be provided. When this parameter is specified, the 
+               request will always be sent to the endpoint for multiple
+               albums.
+
+            **Examples**: :code:`123456`, :code:`"123456"`, 
+            :code:`["123456"]`.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code. Only optional when the 
@@ -101,7 +128,7 @@ class AlbumsAPI(TIDALResourceAPI):
             `:code:`"providers"`, :code:`"similarAlbums"`.
 
         cursor : str, keyword-only, optional
-            Cursor for pagination.
+            Cursor for pagination when requesting multiple albums.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -985,11 +1012,15 @@ class AlbumsAPI(TIDALResourceAPI):
             params["include"] = params["include"] = self._prepare_include(
                 include
             )
+        if (
+            sum(arg is not None for arg in (album_ids, barcodes, owner_ids))
+            != 1
+        ):
+            raise ValueError(
+                "Exactly one of `album_ids`, `barcodes`, or "
+                "`owner_ids` must be provided."
+            )
         if album_ids is not None:
-            if barcodes is not None:
-                raise ValueError(
-                    "Only one of `album_ids` or `barcodes` can be provided."
-                )
             self._client._validate_tidal_ids(album_ids)
             if isinstance(album_ids, int | str):
                 return self._client._request(
@@ -998,10 +1029,14 @@ class AlbumsAPI(TIDALResourceAPI):
             params["filter[id]"] = album_ids
         elif barcodes is not None:
             if isinstance(barcodes, int | str):
-                barcodes = [barcodes]
-            for barcode in barcodes:
-                self._client._validate_barcode(barcode)
+                self._client._validate_barcode(barcodes)
+            else:
+                for barcode in barcodes:
+                    self._client._validate_barcode(barcode)
             params["filter[barcodeId]"] = barcodes
+        else:
+            self._client._validate_tidal_ids(owner_ids)
+            params["filter[owners.id]"] = owner_ids
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
             params["cursor"] = cursor
@@ -1492,6 +1527,14 @@ class AlbumsAPI(TIDALResourceAPI):
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_owners>`_: Get TIDAL
         catalog information for an album's owners.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              User authentication
+                 Access information on an item's owners.
 
         Parameters
         ----------

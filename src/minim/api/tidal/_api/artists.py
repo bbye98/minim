@@ -36,7 +36,7 @@ class ArtistsAPI(TIDALResourceAPI):
 
     @TTLCache.cached_method(ttl="catalog")
     def get_roles(
-        self, artist_role_ids: int | str | Collection[int | str]
+        self, artist_role_ids: int | str | Collection[int | str], /
     ) -> dict[str, Any]:
         """
         `Artist Roles > Get Single Artist Role
@@ -52,7 +52,7 @@ class ArtistsAPI(TIDALResourceAPI):
         ----------
         artist_role_ids : int, str, or Collection[int | str], \
         positional-only
-            TIDAL ID(s) of the artist role(s), provided as either an 
+            TIDAL IDs of the artist roles, provided as either an 
             integer, a string, or a collection of integers and/or 
             strings.
 
@@ -112,10 +112,11 @@ class ArtistsAPI(TIDALResourceAPI):
     @TTLCache.cached_method(ttl="catalog")
     def get_artists(
         self,
-        artist_ids: int | str | Collection[int | str],
+        artist_ids: int | str | Collection[int | str] | None = None,
         /,
-        country_code: str | None = None,
         *,
+        handles: str | Collection[str] | None = None,
+        country_code: str | None = None,
         include: str | Collection[str] | None = None,
     ) -> dict[str, Any]:
         """
@@ -126,21 +127,44 @@ class ArtistsAPI(TIDALResourceAPI):
         /tidal-api-reference/#/artists/get_artists>`_: Get TIDAL catalog
         information for multiple artists.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              User authentication
+                 Access information on an item's owners.
+        
         Parameters
         ----------
-        artist_ids : int, str, or Collection[int | str], positional-only
+        artist_ids : int, str, or Collection[int | str], \
+        positional-only, optional
             TIDAL ID(s) of the artist(s), provided as either an integer,
             a string, or a collection of integers and/or strings.
+
+            .. note::
+
+               Exactly one of `artist_ids` or `handles` must be
+               provided.
 
             **Examples**:
 
             .. container::
 
                * :code:`1566`
-               * :code:`"1566"`
-               * :code:`[1566, 4676988]`
+               * :code:`"4676988"`
                * :code:`[1566, "4676988"]`
-               * :code:`["1566", "4676988"]`
+
+        handles : str or Collection[str], keyword-only, optional
+            Artist handles.
+
+            .. note::
+
+               Exactly one of `artist_ids` or `handles` must be
+               provided. When this parameter is specified, the request
+               will always be sent to the endpoint for multiple artists.
+
+            **Example**: :code:`"jayz"`.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code. Only optional when the
@@ -950,11 +974,22 @@ class ArtistsAPI(TIDALResourceAPI):
         self._client._resolve_country_code(country_code, params)
         if include is not None:
             params["include"] = self._prepare_include(include)
-        if isinstance(artist_ids, int | str):
-            return self._client._request(
-                "GET", f"artists/{artist_ids}", params=params
-            ).json()
-        params["filter[id]"] = artist_ids
+        if sum(arg is not None for arg in (artist_ids, handles)) != 1:
+            raise ValueError(
+                "Exactly one of `artist_ids` or `handles` must be provided."
+            )
+        if artist_ids is not None:
+            if isinstance(artist_ids, int | str):
+                return self._client._request(
+                    "GET", f"artists/{artist_ids}", params=params
+                ).json()
+            params["filter[id]"] = artist_ids
+        elif handles is not None:
+            if not isinstance(handles, str):
+                for handle in handles:
+                    if not isinstance(handle, str):
+                        raise ValueError("Artist handles must be strings.")
+            params["handle"] = handles
         return self._client._request("GET", "artists", params=params).json()
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1160,7 +1195,9 @@ class ArtistsAPI(TIDALResourceAPI):
         if include:
             params["include"] = "biography"
         return self._client._request(
-            "GET", f"artists/{artist_id}/relationships/biography", params=params
+            "GET",
+            f"artists/{artist_id}/relationships/biography",
+            params=params,
         ).json()
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1177,6 +1214,14 @@ class ArtistsAPI(TIDALResourceAPI):
         /tidal-api-reference/#/artists
         /get_artists__id__relationships_owners>`_: Get TIDAL catalog
         information for an artist's owners.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              User authentication
+                 Access information on an item's owners.
 
         Parameters
         ----------

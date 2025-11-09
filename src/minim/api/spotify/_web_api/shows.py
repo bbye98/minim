@@ -589,7 +589,9 @@ class ShowsAPI(ResourceAPI):
             },
         )
 
-    def are_shows_saved(self, show_ids: str | Collection[str], /) -> list[bool]:
+    def are_shows_saved(
+        self, show_ids: str | Collection[str], /
+    ) -> list[bool]:
         """
         `Shows > Check User's Saved Shows
         <https://developer.spotify.com/documentation/web-api/reference

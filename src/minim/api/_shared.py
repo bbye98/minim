@@ -17,6 +17,7 @@ import time
 import types
 from typing import Any, Callable
 from urllib.parse import parse_qsl, urlencode, urlparse
+import uuid
 import warnings
 import webbrowser
 
@@ -195,7 +196,9 @@ class TokenDatabase:
                 client_secret,
                 user_identifier or "",
                 redirect_uri,
-                scopes if isinstance(scopes, str) else " ".join(sorted(scopes)),
+                scopes
+                if isinstance(scopes, str)
+                else " ".join(sorted(scopes)),
                 token_type,
                 access_token,
                 expiry
@@ -308,7 +311,7 @@ class TTLCache:
 
     @staticmethod
     def cached_method(
-        *, ttl: float
+        *, ttl: int | float | str
     ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
         """
         Create a decorator that marks an API endpoint method for
@@ -316,8 +319,18 @@ class TTLCache:
 
         Parameters
         ----------
-        ttl : float, keyword-only
-            Time-to-live (TTL) in seconds for cached entries.
+        ttl : int, float, or str, keyword-only
+            Time-to-live (TTL) in seconds (or key referring to a
+            predefined TTL) for cached entries.
+
+            **Valid keys**:
+
+            .. container::
+
+               * :code:`"catalog"` – 1 day
+               * :code:`"featured"` – 12 hours
+               * :code:`"top"` – 1 hour
+               * :code:`"search"` – 10 minutes
 
         Returns
         -------
@@ -359,7 +372,7 @@ class TTLCache:
 
         .. warning::
 
-           If no arguments are provided, all entries in the cache are
+           If no parameters are specified, all entries in the cache are
            cleared.
 
         Parameters
@@ -383,7 +396,7 @@ class TTLCache:
             )
 
     def wrapper(
-        self, *, ttl: float
+        self, *, ttl: int | float | str
     ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
         """
         Create a decorator that applies TTL- and LRU-based caching using
@@ -391,8 +404,18 @@ class TTLCache:
 
         Parameters
         ----------
-        ttl : float, keyword-only
-            Time-to-live (TTL) in seconds for cached entries.
+        ttl : int, float, or str, keyword-only
+            Time-to-live (TTL) in seconds (or key referring to a
+            predefined TTL) for cached entries.
+
+            **Valid keys**:
+
+            .. container::
+
+               * :code:`"catalog"` – 1 day
+               * :code:`"featured"` – 12 hours
+               * :code:`"top"` – 1 hour
+               * :code:`"search"` – 10 minutes
 
         Returns
         -------
@@ -412,7 +435,10 @@ class TTLCache:
                     func.__qualname__,
                     tuple(self._make_hashable(a) for a in args[1:]),
                     frozenset(
-                        ((k, self._make_hashable(v)) for k, v in kwargs.items())
+                        (
+                            (k, self._make_hashable(v))
+                            for k, v in kwargs.items()
+                        )
                     ),
                 )
                 now = time.time()
@@ -717,6 +743,21 @@ class APIClient(ABC):
                 f"{type(value).__name__}."
             )
 
+    @staticmethod
+    def _validate_uuid(uuid_: str, /) -> None:
+        """
+        Validate a universally unique identifier (UUID).
+
+        Parameters
+        ----------
+        uuid_ : str, positional-only
+            UUID.
+        """
+        try:
+            uuid.UUID(uuid_)
+        except (TypeError, ValueError):
+            raise ValueError(f"{uuid_!r} is not a valid UUID.")
+
     def clear_cache(
         self,
         endpoint_methods: Callable[..., Any]
@@ -871,7 +912,7 @@ class OAuth2APIClient(APIClient):
         access_token : str, keyword-only, optional
             Access token. If provided or found in Minim's local token
             storage, the authorization process is bypassed. If provided,
-            all other relevant keyword arguments should also be
+            all other relevant keyword parameters should also be
             specified to enable automatic token refresh upon expiration.
 
         refresh_token : str, keyword-only, optional
@@ -945,7 +986,7 @@ class OAuth2APIClient(APIClient):
             raise ValueError(
                 "At a minimum, a client ID and an authorization flow "
                 "must be provided via the `client_id` and `flow` "
-                "arguments, respectively."
+                "parameters, respectively."
             )
 
         # If an access token is not provided, try to retrieve it from
@@ -1009,7 +1050,7 @@ class OAuth2APIClient(APIClient):
 
         .. warning::
 
-           If no arguments are provided, all tokens in the local
+           If no parameters are specified, all tokens in the local
            storage for this API client are removed.
 
         Parameters
@@ -1121,8 +1162,8 @@ class OAuth2APIClient(APIClient):
         .. warning::
 
            Calling this method replaces all existing values with the
-           provided arguments. Parameters not specified explicitly will
-           be overwritten by their default values.
+           specified parameters. Parameters not specified explicitly
+           will be overwritten by their default values.
 
         Parameters
         ----------
@@ -1154,7 +1195,7 @@ class OAuth2APIClient(APIClient):
             raise ValueError(
                 f"The {self._OAUTH_FLOWS_NAMES[self._flow]} does not "
                 "support refresh tokens, but one was provided via the "
-                "`refresh_token` argument."
+                "`refresh_token` parameter."
             )
         self._refresh_token = refresh_token
         self._expiry = (
@@ -1184,8 +1225,8 @@ class OAuth2APIClient(APIClient):
         .. warning::
 
            Calling this method replaces all existing values with the
-           provided arguments. Parameters not specified explicitly will
-           be overwritten by their default values.
+           specified parameters. Parameters not specified explicitly
+           will be overwritten by their default values.
 
         Parameters
         ----------
@@ -1293,6 +1334,13 @@ class OAuth2APIClient(APIClient):
                 f"Valid values: '{_flows}'."
             )
         self._flow = flow
+        if flow == "client_credentials" and scopes:
+            warnings.warn(
+                "Scopes were specified in the `scopes` parameter, but "
+                f"the {self._OAUTH_FLOWS_NAMES['client_credentials']} "
+                "does not support scopes."
+            )
+            scopes = ""
         self._scopes = (
             scopes
             if isinstance(scopes, set)
@@ -1306,7 +1354,7 @@ class OAuth2APIClient(APIClient):
             raise ValueError(
                 f"The {self._OAUTH_FLOWS_NAMES[flow]} requires a "
                 "a client secret to be provided via the "
-                "`client_secret` argument."
+                "`client_secret` parameter."
             )
         self._client_secret = client_secret
         has_redirect = flow in {"auth_code", "pkce", "implicit"}
@@ -1314,7 +1362,7 @@ class OAuth2APIClient(APIClient):
             raise ValueError(
                 f"The {self._OAUTH_FLOWS_NAMES[flow]} requires a "
                 "redirect URI to be provided via the `redirect_uri` "
-                "argument."
+                "parameter."
             )
         self._user_identifier = user_identifier
         if has_redirect:
@@ -1348,7 +1396,7 @@ class OAuth2APIClient(APIClient):
         else:
             warnings.warn(
                 "A redirect URI was provided via the `redirect_uri` "
-                f"argument, but the {self._OAUTH_FLOWS_NAMES[flow]} "
+                f"parameter, but the {self._OAUTH_FLOWS_NAMES[flow]} "
                 "does not use redirects."
             )
             self._redirect_uri = None
@@ -1359,7 +1407,9 @@ class OAuth2APIClient(APIClient):
         if authorize:
             self._obtain_access_token()
 
-    def _get_authorization_code(self, code_challenge: str | None = None) -> str:
+    def _get_authorization_code(
+        self, code_challenge: str | None = None
+    ) -> str:
         """
         Get the authorization code for the Authorization Code and
         Authorization Code with PKCE flows.

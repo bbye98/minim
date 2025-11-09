@@ -17,7 +17,8 @@ with open(STYLES_DIR / "colors.yaml", "r", encoding="utf8") as f:
 with open(STYLES_DIR / "template.qss", "r", encoding="utf8") as f:
     STYLE_TEMPLATE = f.read()
 STYLES = {
-    theme: STYLE_TEMPLATE.format(**COLORS[theme]) for theme in {"dark", "light"}
+    theme: STYLE_TEMPLATE.format(**COLORS[theme])
+    for theme in {"dark", "light"}
 }
 
 
@@ -40,7 +41,9 @@ def color_svg(svg_file: str | Path, color: str) -> QtGui.QPixmap:
     pixmap.fill(QtCore.Qt.GlobalColor.transparent)
     painter = QtGui.QPainter(pixmap)
     renderer.render(painter)
-    painter.setCompositionMode(painter.CompositionMode.CompositionMode_SourceIn)
+    painter.setCompositionMode(
+        painter.CompositionMode.CompositionMode_SourceIn
+    )
     if not color.startswith("#"):
         color = "#{:02X}{:02X}{:02X}".format(
             *(int(v) for v in color[4:-1].split(", "))
@@ -518,7 +521,9 @@ class AddressBar(QtWidgets.QWidget):
         max_n_directoryes = 20
         self._max_directory_index = max_n_directoryes - 1
         self._recent_directories = deque(
-            gui_config["library"].get("recent_directories", [str(Path.home())]),
+            gui_config["library"].get(
+                "recent_directories", [str(Path.home())]
+            ),
             maxlen=max_n_directoryes,
         )
         self._directory = self._recent_directories[-1]
@@ -848,7 +853,9 @@ class MainWindow(QtWidgets.QWidget):
 
         animation.start()
         animation.finished.connect(lambda: setattr(self, "_animation", None))
-        gui_config["is_maximized"] = self._is_maximized = not self._is_maximized
+        gui_config["is_maximized"] = (
+            self._is_maximized
+        ) = not self._is_maximized
         with CONFIG_YAML_FILE.open("w") as f:
             yaml.safe_dump(config, f)
 

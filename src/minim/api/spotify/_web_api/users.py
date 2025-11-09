@@ -29,7 +29,9 @@ class UsersAPI(ResourceAPI):
     _client: "SpotifyWebAPI"
 
     @TTLCache.cached_method(ttl="catalog")
-    def get_user_profile(self, user_id: str | None = None, /) -> dict[str, Any]:
+    def get_user_profile(
+        self, user_id: str | None = None, /
+    ) -> dict[str, Any]:
         """
         `Users > Get Current User's Profile
         <https://developer.spotify.com/documentation/web-api/reference
@@ -207,7 +209,9 @@ class UsersAPI(ResourceAPI):
             **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
             :code:`["smedjan", "bbye98"]`.
         """
-        self._client._require_scopes("users.follow_users", "user-follow-modify")
+        self._client._require_scopes(
+            "users.follow_users", "user-follow-modify"
+        )
         self._client._request(
             "PUT",
             "me/following",
@@ -506,7 +510,9 @@ class UsersAPI(ResourceAPI):
     def get_my_saved_shows(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
-        return self._client.shows.get_my_saved_shows(limit=limit, offset=offset)
+        return self._client.shows.get_my_saved_shows(
+            limit=limit, offset=offset
+        )
 
     @_copy_docstring(ShowsAPI.save_shows)
     def save_shows(self, show_ids: str | Collection[str], /) -> None:
@@ -517,7 +523,9 @@ class UsersAPI(ResourceAPI):
         self._client.shows.remove_saved_shows(show_ids)
 
     @_copy_docstring(ShowsAPI.are_shows_saved)
-    def are_shows_saved(self, show_ids: str | Collection[str], /) -> list[bool]:
+    def are_shows_saved(
+        self, show_ids: str | Collection[str], /
+    ) -> list[bool]:
         return self._client.shows.are_shows_saved(show_ids)
 
     @_copy_docstring(TracksAPI.get_my_saved_tracks)

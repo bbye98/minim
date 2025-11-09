@@ -592,7 +592,9 @@ class TracksAPI(ResourceAPI):
             "DELETE",
             "me/tracks",
             params={
-                "ids": self._client._prepare_spotify_ids(track_ids, limit=50)[0]
+                "ids": self._client._prepare_spotify_ids(track_ids, limit=50)[
+                    0
+                ]
             },
         )
 
@@ -645,7 +647,9 @@ class TracksAPI(ResourceAPI):
             "GET",
             "me/tracks/contains",
             params={
-                "ids": self._client._prepare_spotify_ids(track_ids, limit=50)[0]
+                "ids": self._client._prepare_spotify_ids(track_ids, limit=50)[
+                    0
+                ]
             },
         ).json()
 
@@ -891,7 +895,9 @@ class TracksAPI(ResourceAPI):
                   }
         """
         self._client._validate_spotify_id(track_id)
-        return self._client._request("GET", f"audio-analysis/{track_id}").json()
+        return self._client._request(
+            "GET", f"audio-analysis/{track_id}"
+        ).json()
 
     @TTLCache.cached_method(ttl="search")
     def get_recommendations(

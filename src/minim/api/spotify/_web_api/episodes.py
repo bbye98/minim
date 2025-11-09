@@ -425,7 +425,9 @@ class EpisodesAPI(ResourceAPI):
         if offset is not None:
             self._client._validate_number("offset", offset, int, 0)
             params["offset"] = offset
-        return self._client._request("GET", "me/episodes", params=params).json()
+        return self._client._request(
+            "GET", "me/episodes", params=params
+        ).json()
 
     def save_episodes(self, episode_ids: str | Collection[str], /) -> None:
         """
@@ -466,9 +468,9 @@ class EpisodesAPI(ResourceAPI):
             "PUT",
             "me/episodes",
             params={
-                "ids": self._client._prepare_spotify_ids(episode_ids, limit=50)[
-                    0
-                ]
+                "ids": self._client._prepare_spotify_ids(
+                    episode_ids, limit=50
+                )[0]
             },
         )
 
@@ -513,9 +515,9 @@ class EpisodesAPI(ResourceAPI):
             "DELETE",
             "me/episodes",
             params={
-                "ids": self._client._prepare_spotify_ids(episode_ids, limit=50)[
-                    0
-                ]
+                "ids": self._client._prepare_spotify_ids(
+                    episode_ids, limit=50
+                )[0]
             },
         )
 
@@ -568,8 +570,8 @@ class EpisodesAPI(ResourceAPI):
             "GET",
             "me/episodes/contains",
             params={
-                "ids": self._client._prepare_spotify_ids(episode_ids, limit=50)[
-                    0
-                ]
+                "ids": self._client._prepare_spotify_ids(
+                    episode_ids, limit=50
+                )[0]
             },
         ).json()

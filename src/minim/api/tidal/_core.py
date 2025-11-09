@@ -28,6 +28,18 @@ class TIDALAPI(OAuth2APIClient):
     _FLOWS = {"pkce", "client_credentials"}
     _PROVIDER = "TIDAL"
     _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+    _SCOPES = {
+        "collection.read",
+        "collection.write",
+        "playlists.read",
+        "playlists.write",
+        "playback",
+        "user.read",
+        "recommendations.read",
+        "entitlements.read",
+        "search.read",
+        "search.write",
+    }
     _VERSION = "0.1.93"
     AUTH_URL = "https://login.tidal.com/authorize"
     BASE_URL = "https://openapi.tidal.com/v2"
@@ -41,6 +53,7 @@ class TIDALAPI(OAuth2APIClient):
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
+        scopes: str | Collection[str] = "",
         access_token: str | None = None,
         refresh_token: str | None = None,
         expiry: str | datetime | None = None,
@@ -99,10 +112,19 @@ class TIDALAPI(OAuth2APIClient):
             :code:`localhost` or :code:`127.0.0.1`, redirect handling is
             not available.
 
+        scopes : str or Collection[str], keyword-only, optional
+            Authorization scopes the client requests to access user
+            resources.
+
+            .. seealso::
+
+               :meth:`get_scopes` – Get a set of scopes to request,
+               filtered by categories and/or substrings.
+
         access_token : str, keyword-only, optional
             Access token. If provided or found in Minim's local token
             storage, the authorization process is bypassed. If provided,
-            all other relevant keyword arguments should also be
+            all other relevant keyword parameters should also be
             specified to enable automatic token refresh upon expiration.
 
         refresh_token : str, keyword-only, optional
@@ -184,6 +206,7 @@ class TIDALAPI(OAuth2APIClient):
             client_secret=client_secret,
             user_identifier=user_identifier,
             redirect_uri=redirect_uri,
+            scopes=scopes,
             access_token=access_token,
             refresh_token=refresh_token,
             expiry=expiry,
@@ -192,6 +215,46 @@ class TIDALAPI(OAuth2APIClient):
             cache=cache,
             store=store,
         )
+
+    @classmethod
+    def get_scopes(
+        cls, matches: str | Collection[str] | None = None
+    ) -> set[str]:
+        """
+        Resolve one or more scope categories or substrings into a set of
+        scopes.
+
+        Parameters
+        ----------
+        matches : str or Collection[str], optional
+            Substrings to match in the available scopes.
+
+            **Examples**:
+
+            .. container::
+
+               * :code:`"read"` – All scopes above that grant read
+                 access, i.e., scopes with :code:`read` in the name.
+               * :code:`"write"` – All scopes above that grant
+                 write access, i.e., scopes with :code:`modify` in the
+                 name.
+
+        Returns
+        -------
+        scopes : set[str]
+            Authorization scopes.
+        """
+        # Return all scopes if no matches are provided
+        if matches is None:
+            return cls._SCOPES.copy()
+
+        # Return scopes containing a substring
+        if isinstance(matches, str):
+            return {scope for scope in cls._SCOPES if matches in scope}
+
+        # Recursively gather scopes for multiple
+        # categories/substrings
+        return {scope for match in matches for scope in cls.get_scopes(match)}
 
     @staticmethod
     def _validate_tidal_ids(
@@ -248,7 +311,8 @@ class TIDALAPI(OAuth2APIClient):
             raise RuntimeError(
                 "Unable to determine the country associated with the "
                 "current user account. A ISO 3166-1 alpha-2 country "
-                "code must be provided explicitly."
+                "code must be provided explicitly via the "
+                "`country_code` parameter."
             )
 
     def _get_user_identifier(self) -> str:
@@ -289,7 +353,7 @@ class TIDALAPI(OAuth2APIClient):
             :code:`401 Unauthorized` or :code:`429 Too Many Requests`.
 
         **kwargs : dict[str, Any]
-            Keyword arguments to pass to :meth:`httpx.Client.request`.
+            Keyword parameters to pass to :meth:`httpx.Client.request`.
 
         Returns
         -------

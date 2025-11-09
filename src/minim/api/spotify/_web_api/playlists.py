@@ -410,6 +410,8 @@ class PlaylistsAPI(ResourceAPI):
         payload = {}
         if name is not None:
             self._client._validate_type("name", name, str)
+            if not len(name):
+                raise ValueError("The playlist name cannot be blank.")
             payload["name"] = name
         if description is not None:
             self._client._validate_type("description", description, str)
@@ -809,8 +811,8 @@ class PlaylistsAPI(ResourceAPI):
                     ]
 
         position : int, keyword-only, optional
-            Zero-based index at which to insert the items. If not
-            specified, the items are appended to the end of the
+            Zero-based index at which to insert the items in `uris`. If
+            not specified, the items are appended to the end of the
             playlist.
 
             **Examples**:
@@ -1323,6 +1325,8 @@ class PlaylistsAPI(ResourceAPI):
                   }
         """
         self._client._validate_type("name", name, str)
+        if not len(name):
+            raise ValueError("The playlist name cannot be blank.")
         payload = {"name": name}
         if description is not None:
             self._client._validate_type("description", description, str)
@@ -1687,12 +1691,12 @@ class PlaylistsAPI(ResourceAPI):
             image.startswith(b"\xff\xd8") and image.endswith(b"\xff\xd9")
         ):
             raise ValueError(
-                "The value or file specified in the `image` argument "
+                "The value or file specified in the `image` parameter "
                 "does not contain binary data or a JPEG image."
             )
         if len(image) < 262_144:
             raise ValueError(
-                "The JPEG image specified in the `image` argument "
+                "The JPEG image specified in the `image` parameter "
                 "exceeds 256 KB."
             )
         self._client._request(

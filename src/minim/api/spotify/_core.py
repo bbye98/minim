@@ -198,14 +198,6 @@ class SpotifyWebAPI(OAuth2APIClient):
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this API client.
         """
-        if flow == "client_credentials" and scopes:
-            warnings.warn(
-                "Scopes were specified in the `scopes` argument, but "
-                f"the {self._OAUTH_FLOWS_NAMES['client_credentials']} "
-                "in the Spotify Web API does not support scopes."
-            )
-            scopes = ""
-
         if urlparse(redirect_uri).scheme == "http":
             raise ValueError(
                 "Redirect URIs using the HTTP scheme are not supported "
@@ -382,7 +374,9 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         if isinstance(spotify_ids, str):
             return SpotifyWebAPI._prepare_spotify_ids(
-                spotify_ids.split(","), limit=limit, strict_length=strict_length
+                spotify_ids.split(","),
+                limit=limit,
+                strict_length=strict_length,
             )
 
         n_ids = len(spotify_ids)
@@ -392,7 +386,9 @@ class SpotifyWebAPI(OAuth2APIClient):
             )
         for idx, id_ in enumerate(spotify_ids):
             spotify_ids[idx] = id_ = id_.strip()
-            SpotifyWebAPI._validate_spotify_id(id_, strict_length=strict_length)
+            SpotifyWebAPI._validate_spotify_id(
+                id_, strict_length=strict_length
+            )
         return ",".join(spotify_ids), n_ids
 
     @staticmethod

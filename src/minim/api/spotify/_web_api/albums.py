@@ -696,7 +696,9 @@ class AlbumsAPI(ResourceAPI):
             "PUT",
             "me/albums",
             params={
-                "ids": self._client._prepare_spotify_ids(album_ids, limit=20)[0]
+                "ids": self._client._prepare_spotify_ids(album_ids, limit=20)[
+                    0
+                ]
             },
         )
 
@@ -739,7 +741,9 @@ class AlbumsAPI(ResourceAPI):
             "DELETE",
             "me/albums",
             params={
-                "ids": self._client._prepare_spotify_ids(album_ids, limit=20)[0]
+                "ids": self._client._prepare_spotify_ids(album_ids, limit=20)[
+                    0
+                ]
             },
         )
 
@@ -792,7 +796,9 @@ class AlbumsAPI(ResourceAPI):
             "GET",
             "me/albums/contains",
             params={
-                "ids": self._client._prepare_spotify_ids(album_ids, limit=20)[0]
+                "ids": self._client._prepare_spotify_ids(album_ids, limit=20)[
+                    0
+                ]
             },
         ).json()
 

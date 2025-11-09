@@ -196,9 +196,7 @@ class iTunesSearchAPI(APIClient):
            
                * :code:`984746615`
                * :code:`"984746615"`
-               * :code:`[984746615, 1440935756]`
                * :code:`[984746615, "1440935756"]`
-               * :code:`["984746615", "1440935756"]`
 
         amg_album_ids : int, str, or Collection[int | str], \
         keyword-only, optional
@@ -216,9 +214,7 @@ class iTunesSearchAPI(APIClient):
 
                * :code:`2025410`
                * :code:`"2025410"`
-               * :code:`[2025410, 2844399]`
                * :code:`[2025410, "2844399"]`
-               * :code:`["2025410", "2844399"]`
 
         amg_artist_ids : int, str, or Collection[int | str], \
         keyword-only, optional
@@ -236,9 +232,7 @@ class iTunesSearchAPI(APIClient):
 
                * :code:`472102`
                * :code:`"472102"`
-               * :code:`[472102, 2913530]`
                * :code:`[472102, "2913530"]`
-               * :code:`["472102", "2913530"]`
 
         amg_video_ids : int, str, or Collection[int | str], \
         keyword-only, optional
@@ -256,9 +250,7 @@ class iTunesSearchAPI(APIClient):
 
                * :code:`17120`
                * :code:`"17121"`
-               * :code:`[17122, 17123]`
-               * :code:`[17124, "17125"]`
-               * :code:`["17126", "17127"]`
+               * :code:`[17122, "17123"]`
 
         bundle_ids : str, or Collection[str], keyword-only, optional
             App bundle IDs.
@@ -292,9 +284,7 @@ class iTunesSearchAPI(APIClient):
 
                * :code:`9781637993415`
                * :code:`"9781637993415"`
-               * :code:`[9781637993415, 9781705142110]`
                * :code:`[9781637993415, "9781705142110"]`
-               * :code:`["9781637993415", "9781705142110"]`
 
         upcs : int, str, or Collection[int | str], keyword-only, \
         optional
@@ -312,9 +302,7 @@ class iTunesSearchAPI(APIClient):
             
                * :code:`075678671173`
                * :code:`"075678671173"`
-               * :code:`[075678671173, 602448438034]`
                * :code:`[075678671173, "602448438034"]`
-               * :code:`["075678671173", "602448438034"]`
 
         entity : str, keyword-only, optional
             Type of resource to return.
@@ -963,7 +951,9 @@ class iTunesSearchAPI(APIClient):
                 )
         if attribute is not None:
             self._validate_type("attribute", attribute, str)
-            attributes = self._MEDIA_RELATIONSHIPS[media or "all"]["attributes"]
+            attributes = self._MEDIA_RELATIONSHIPS[media or "all"][
+                "attributes"
+            ]
             if attribute not in attributes:
                 attributes = "', '".join(attributes)
                 raise ValueError(
@@ -986,7 +976,9 @@ class iTunesSearchAPI(APIClient):
             elif explicit in {"Yes", "No"}:
                 params["explicit"] = explicit
             else:
-                raise ValueError("`explicit` must be 'Yes'/True or 'No'/False.")
+                raise ValueError(
+                    "`explicit` must be 'Yes'/True or 'No'/False."
+                )
         return self._request("GET", "search", params=params).json()
 
     def _request(
