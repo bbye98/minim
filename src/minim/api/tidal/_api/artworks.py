@@ -222,7 +222,7 @@ class ArtworksAPI(TIDALResourceAPI):
             params["include"] = "owners"
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["page[cursor]"] = cursor
         return self._client._request(
             "GET", f"artworks/{artwork_id}/relationships/owners", params=params
         ).json()

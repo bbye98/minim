@@ -1037,7 +1037,7 @@ class AlbumsAPI(TIDALResourceAPI):
             params["filter[owners.id]"] = owner_ids
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["page[cursor]"] = cursor
         return self._client._request("GET", "albums", params=params).json()
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1822,7 +1822,7 @@ class AlbumsAPI(TIDALResourceAPI):
             params["include"] = resource
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["page[cursor]"] = cursor
         return self._client._request(
             "GET",
             f"albums/{album_id}/relationships/{resource}",

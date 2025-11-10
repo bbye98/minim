@@ -2115,7 +2115,7 @@ class ArtistsAPI(TIDALResourceAPI):
             params["include"] = resource
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["page[cursor]"] = cursor
         return self._client._request(
             "GET",
             f"artists/{artist_id}/relationships/{resource}",

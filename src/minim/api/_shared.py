@@ -636,6 +636,26 @@ class APIClient(ABC):
             raise ValueError(f"{barcode!r} is not a valid UPC or EAN.")
 
     @staticmethod
+    def _validate_country_code(country_code: str, /) -> None:
+        """
+        Validate a country code.
+
+        Parameters
+        ----------
+        country_code : str, positional-only
+            ISO 3166-1 alpha-2 country code.
+        """
+        if (
+            not isinstance(country_code, str)
+            or len(country_code) != 2
+            or not country_code.isalpha()
+        ):
+            raise ValueError(
+                f"{country_code!r} is not a valid ISO 3166-1 "
+                "alpha-2 country code."
+            )
+
+    @staticmethod
     def _validate_locale(locale: str, /) -> None:
         """
         Validate locale identifier.

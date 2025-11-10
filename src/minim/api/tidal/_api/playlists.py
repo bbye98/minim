@@ -607,7 +607,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             params["filter[owners.id]"] = owner_ids
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["page[cursor]"] = cursor
         if sort is not None:
             self._client._validate_type("sort", sort, str)
             if (sort[1:] if sort[0] == "-" else sort) not in self._SORTS:
@@ -1556,7 +1556,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             params["include"] = resource
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["page[cursor]"] = cursor
         return self._client._request(
             "GET",
             f"playlists/{playlist_uuid}/relationships/{resource}",

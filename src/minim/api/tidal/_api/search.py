@@ -30,6 +30,853 @@ class SearchAPI(TIDALResourceAPI):
     _client: "TIDALAPI"
 
     @TTLCache.cached_method(ttl="search")
+    def get_suggestions(
+        self,
+        query: str,
+        /,
+        *,
+        country_code: str | None = None,
+        explicit: bool | None = None,
+        include: str | Collection[str] | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Search Suggestions > Get Search Suggestions
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /searchSuggestions/get_searchSuggestions__id_>`_: Get search
+        suggestions for a keyword string.
+
+        Parameters
+        ----------
+        query : str, positional-only
+            Search query.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        explicit : bool, keyword-only, optional
+            Specifies whether to include items with explicit language.
+
+            **Default**: :code:`True`.
+
+        include : str or Collection[str], keyword-only, optional
+            Related resources to include in the response.
+
+            **Valid value**: :code:`"directHits"`.
+
+        Parameters
+        ----------
+        search_suggestions : dict[str, Any]
+            Search suggestions and associated TIDAL content metadata.
+
+            .. admonition:: Sample responses
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": {
+                      "attributes": {
+                        "history": <list[str]>,
+                        "suggestions": [
+                          {
+                            "highlights": [
+                              {
+                                "length": <int>,
+                                "start": <int>
+                              }
+                            ],
+                            "query": <str>
+                          }
+                        ],
+                        "trackingId": <str>
+                      },
+                      "id": <str>,
+                      "relationships": {
+                        "directHits": {
+                          "data": [
+                            {
+                              "id": <str>,
+                              "type": "albums"
+                            },
+                            {
+                              "id": <str>,
+                              "type": "artists"
+                            },
+                            {
+                              "id": <str>,
+                              "type": "playlists"
+                            },
+                            {
+                              "id": <str>,
+                              "type": "tracks"
+                            },
+                            {
+                              "id": <str>,
+                              "type": "videos"
+                            }
+                          ],
+                          "links": {
+                            "self": <str>
+                          }
+                        }
+                      },
+                      "type": "searchSuggestions"
+                    },
+                    "included": [
+                      {
+                        "attributes": {
+                          "accessType": "PUBLIC",
+                          "availability": <list[str]>,
+                          "barcodeId": <str>,
+                          "copyright": {
+                            "text": <str>
+                          },
+                          "duration": <str>,
+                          "explicit": <bool>,
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "mediaTags": <list[str]>,
+                          "numberOfItems": <int>,
+                          "numberOfVolumes": <int>,
+                          "popularity": <float>,
+                          "releaseDate": <str>,
+                          "title": <str>,
+                          "type": "ALBUM"
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "artists": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "coverArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "genres": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "items": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "providers": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "similarAlbums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "albums"
+                      },
+                      {
+                        "attributes": {
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": <float>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "albums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "biography": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "followers": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "following": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "profileArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "radio": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "roles": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "similarArtists": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "trackProviders": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "tracks": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "videos": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "artists"
+                      },
+                      {
+                        "attributes": {
+                          "accessType": <str>,
+                          "bounded": <bool>,
+                          "createdAt": <str>,
+                          "description": <str>,
+                          "duration": <str>,
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "lastModifiedAt": <str>,
+                          "name": <str>,
+                          "numberOfItems": <int>,
+                          "playlistType": <str>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "coverArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "items": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "playlists"
+                      },
+                      {
+                        "attributes": {
+                          "accessType": "PUBLIC",
+                          "availability": <list[str]>,
+                          "copyright": {
+                            "text": <str>
+                          },
+                          "duration": <str>,
+                          "explicit": <bool>,
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "isrc": <str>,
+                          "mediaTags": <list[str]>,
+                          "popularity": <float>,
+                          "spotlighted": <bool>,
+                          "title": <str>,
+                          "version": <str>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "albums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "artists": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "genres": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "lyrics": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "providers": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "radio": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "shares": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "similarTracks": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "sourceFile": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "trackStatistics": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "tracks"
+                      },
+                      {
+                        "attributes": {
+                          "availability": <list[str]>,
+                          "copyright": {
+                            "text": <str>
+                          },
+                          "duration": <str>,
+                          "explicit": <bool>,
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "isrc":<str>,
+                          "popularity": <float>,
+                          "releaseDate": <str>,
+                          "title": <str>,
+                          "version": <str>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "albums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "artists": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "providers": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "thumbnailArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "videos"
+                      }
+                    ],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._validate_type("query", query, str)
+        params = {}
+        if country_code is not None:
+            self._client._validate_country_code(country_code)
+            params["countryCode"] = country_code
+        if explicit is not None:
+            params["explicitFilter"] = "INCLUDE" if explicit else "EXCLUDE"
+        if include is not None:
+            params["include"] = self._prepare_include(
+                include, resources={"directHits"}
+            )
+        return self._client._request(
+            "GET", f"searchSuggestions/{query}", params=params
+        ).json()
+
+    @TTLCache.cached_method(ttl="search")
+    def get_direct_hits(
+        self,
+        query: str,
+        /,
+        *,
+        country_code: str | None = None,
+        explicit: bool | None = None,
+        include: bool | None = None,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Search Suggestions > Get Direct Hits
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /searchSuggestions/get_searchSuggestions__id_>`_: Get direct
+        hits associated with search suggestions.
+
+        Parameters
+        ----------
+        query : str, positional-only
+            Search query.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        explicit : bool, keyword-only, optional
+            Specifies whether to include items with explicit language.
+
+            **Default**: :code:`True`.
+
+        include : str or Collection[str], keyword-only, optional
+            Related resources to include in the response.
+
+            **Valid value**: :code:`"directHits"`.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        direct_hits : dict[str, Any]
+            TIDAL content metadata for the direct hits.
+
+            .. admonition:: Sample responses
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "id": <str>,
+                        "type": "albums"
+                      },
+                      {
+                        "id": <str>,
+                        "type": "artists"
+                      },
+                      {
+                        "id": <str>,
+                        "type": "playlists"
+                      },
+                      {
+                        "id": <str>,
+                        "type": "tracks"
+                      },
+                      {
+                        "id": <str>,
+                        "type": "videos"
+                      }
+                    ],
+                    "included": [
+                      {
+                        "attributes": {
+                          "accessType": "PUBLIC",
+                          "availability": <list[str]>,
+                          "barcodeId": <str>,
+                          "copyright": {
+                            "text": <str>
+                          },
+                          "duration": <str>,
+                          "explicit": <bool>,
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "mediaTags": <list[str]>,
+                          "numberOfItems": <int>,
+                          "numberOfVolumes": <int>,
+                          "popularity": <float>,
+                          "releaseDate": <str>,
+                          "title": <str>,
+                          "type": "ALBUM"
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "artists": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "coverArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "genres": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "items": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "providers": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "similarAlbums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "albums"
+                      },
+                      {
+                        "attributes": {
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": <float>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "albums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "biography": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "followers": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "following": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "profileArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "radio": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "roles": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "similarArtists": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "trackProviders": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "tracks": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "videos": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "artists"
+                      },
+                      {
+                        "attributes": {
+                          "accessType": <str>,
+                          "bounded": <bool>,
+                          "createdAt": <str>,
+                          "description": <str>,
+                          "duration": <str>,
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "lastModifiedAt": <str>,
+                          "name": <str>,
+                          "numberOfItems": <int>,
+                          "playlistType": <str>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "coverArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "items": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "playlists"
+                      },
+                      {
+                        "attributes": {
+                          "accessType": "PUBLIC",
+                          "availability": <list[str]>,
+                          "copyright": {
+                            "text": <str>
+                          },
+                          "duration": <str>,
+                          "explicit": <bool>,
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "isrc": <str>,
+                          "mediaTags": <list[str]>,
+                          "popularity": <float>,
+                          "spotlighted": <bool>,
+                          "title": <str>,
+                          "version": <str>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "albums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "artists": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "genres": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "lyrics": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "owners": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "providers": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "radio": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "shares": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "similarTracks": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "sourceFile": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "trackStatistics": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "tracks"
+                      },
+                      {
+                        "attributes": {
+                          "availability": <list[str]>,
+                          "copyright": {
+                            "text": <str>
+                          },
+                          "duration": <str>,
+                          "explicit": <bool>,
+                          "externalLinks": [
+                            {
+                              "href": <str>,
+                              "meta": {
+                                "type": <str>
+                              }
+                            }
+                          ],
+                          "isrc":<str>,
+                          "popularity": <float>,
+                          "releaseDate": <str>,
+                          "title": <str>,
+                          "version": <str>
+                        },
+                        "id": <str>,
+                        "relationships": {
+                          "albums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "artists": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "providers": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "thumbnailArt": {
+                            "links": {
+                              "self": <str>
+                            }
+                          }
+                        },
+                        "type": "videos"
+                      }
+                    ],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._validate_type("query", query, str)
+        params = {}
+        if country_code is not None:
+            self._client._validate_country_code(country_code)
+            params["countryCode"] = country_code
+        if explicit is not None:
+            params["explicitFilter"] = "INCLUDE" if explicit else "EXCLUDE"
+        if include is not None:
+            params["include"] = "directHits"
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["page[cursor]"] = cursor
+        return self._client._request(
+            "GET",
+            f"searchSuggestions/{query}/relationships/directHits",
+            params=params,
+        ).json()
+
+    @TTLCache.cached_method(ttl="search")
     def search(
         self,
         query: str,
@@ -44,6 +891,14 @@ class SearchAPI(TIDALResourceAPI):
         /tidal-api-reference/#/searchResults/get_searchResults__id_>`_:
         Get TIDAL catalog information for albums, artists, playlists,
         tracks, and videos that match a keyword string.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              :code:`search.read` scope
+                 Read personalized search results.
 
         Parameters
         ----------
@@ -66,7 +921,7 @@ class SearchAPI(TIDALResourceAPI):
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"playlists"`, :code:`"topHits"`, :code:`"tracks"`,
-            `:code:`"videos"`.
+            :code:`"videos"`.
 
         Returns
         -------
@@ -513,10 +1368,11 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
+        self._client._validate_type("query", query, str)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if explicit is not None:
-            params["explicitFilter"] = "include" if explicit else "exclude"
+            params["explicitFilter"] = "INCLUDE" if explicit else "EXCLUDE"
         if include is not None:
             params["include"] = self._prepare_include(include)
         return self._client._request(
@@ -539,6 +1395,14 @@ class SearchAPI(TIDALResourceAPI):
         /get_searchResults__id__relationships_albums>`_:
         Get TIDAL catalog information for albums that match a keyword
         string.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              :code:`search.read` scope
+                 Read personalized search results.
 
         Parameters
         ----------
@@ -684,6 +1548,14 @@ class SearchAPI(TIDALResourceAPI):
         /get_searchResults__id__relationships_artists>`_:
         Get TIDAL catalog information for artists that match a keyword
         string.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              :code:`search.read` scope
+                 Read personalized search results.
 
         Parameters
         ----------
@@ -842,6 +1714,14 @@ class SearchAPI(TIDALResourceAPI):
         /get_searchResults__id__relationships_playlists>`_: Get TIDAL
         catalog information for playlists that match a keyword string.
 
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              :code:`search.read` scope
+                 Read personalized search results.
+
         Parameters
         ----------
         query : str, positional-only
@@ -961,6 +1841,14 @@ class SearchAPI(TIDALResourceAPI):
         /get_searchResults__id__relationships_topHits>`_:
         Get TIDAL catalog information for top hits that match a keyword
         string.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              :code:`search.read` scope
+                 Read personalized search results.
 
         Parameters
         ----------
@@ -1373,6 +2261,14 @@ class SearchAPI(TIDALResourceAPI):
         Get TIDAL catalog information for tracks that match a keyword
         string.
 
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              :code:`search.read` scope
+                 Read personalized search results.
+
         Parameters
         ----------
         query : str, positional-only
@@ -1537,6 +2433,14 @@ class SearchAPI(TIDALResourceAPI):
         Get TIDAL catalog information for videos that match a keyword
         string.
 
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Optional
+
+              :code:`search.read` scope
+                 Read personalized search results.
+
         Parameters
         ----------
         query : str, positional-only
@@ -1663,6 +2567,13 @@ class SearchAPI(TIDALResourceAPI):
 
         Parameters
         ----------
+        resource : str, positional-only
+            Related resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"playlists"`, :code:`"topHits"`, :code:`"tracks"`,
+            :code:`"videos"`.
+
         query : str, positional-only
             Search query.
 
@@ -1691,15 +2602,16 @@ class SearchAPI(TIDALResourceAPI):
         resource : dict[str, Any]
             TIDAL catalog information for the resource.
         """
+        self._client._validate_type("query", query, str)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if explicit is not None:
-            params["explicitFilter"] = "include" if explicit else "exclude"
+            params["explicitFilter"] = "INCLUDE" if explicit else "EXCLUDE"
         if include is not None:
             params["include"] = resource
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["page[cursor]"] = cursor
         return self._client._request(
             "GET",
             f"searchResults/{query}/relationships/{resource}",

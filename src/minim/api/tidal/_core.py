@@ -401,13 +401,5 @@ class TIDALAPI(OAuth2APIClient):
         if country_code is None:
             params["countryCode"] = self._my_country_code
         else:
-            if (
-                not isinstance(country_code, str)
-                or len(country_code) != 2
-                or not country_code.isalpha()
-            ):
-                raise ValueError(
-                    f"{country_code!r} is not a valid ISO 3166-1 "
-                    "alpha-2 country code."
-                )
+            self._validate_country_code(country_code)
             params["countryCode"] = country_code
