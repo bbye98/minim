@@ -587,9 +587,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include is not None:
-            params["include"] = params["include"] = self._prepare_include(
-                include
-            )
+            params["include"] = self._prepare_include(include)
         if sum(arg is not None for arg in (playlist_uuids, owner_ids)) != 1:
             raise ValueError(
                 "Exactly one of `playlist_uuids` or `owner_ids` must "
@@ -902,19 +900,13 @@ class PlaylistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_uuid(playlist_uuid)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "coverArt"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET",
-            f"playlists/{playlist_uuid}/relationships/coverArt",
-            params=params,
-        ).json()
+        return self._get_playlist_resource(
+            "coverArt",
+            playlist_uuid,
+            country_code,
+            include=include,
+            cursor=cursor,
+        )
 
     def get_playlist_items(
         self,
@@ -1123,19 +1115,13 @@ class PlaylistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_uuid(playlist_uuid)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "items"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET",
-            f"playlists/{playlist_uuid}/relationships/items",
-            params=params,
-        ).json()
+        return self._get_playlist_resource(
+            "items",
+            playlist_uuid,
+            country_code,
+            include=include,
+            cursor=cursor,
+        )
 
     def add_playlist_items(
         self,
@@ -1436,19 +1422,13 @@ class PlaylistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_uuid(playlist_uuid)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "owners"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET",
-            f"playlists/{playlist_uuid}/relationships/owners",
-            params=params,
-        ).json()
+        return self._get_playlist_resource(
+            "owners",
+            playlist_uuid,
+            country_code,
+            include=include,
+            cursor=cursor,
+        )
 
     @classmethod
     def _process_playlist_items(
@@ -1520,3 +1500,65 @@ class PlaylistsAPI(TIDALResourceAPI):
         if _recursive:
             return [item]
         return item
+
+    def _get_playlist_resource(
+        self,
+        resource: str,
+        playlist_uuid: str,
+        /,
+        country_code: str | None = None,
+        *,
+        include: bool = False,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for a resource related to a
+        playlist.
+
+        Parameters
+        ----------
+        resource : str, positional-only
+            Related resource type.
+
+            **Valid values**: :code:`"coverArt"`, :code:`"items"`,
+            :code:`"owners"`.
+
+        playlist_uuid : str , positional-only
+            UUID of the TIDAL playlist.
+
+            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+
+        country_code : str, optional
+            ISO 3166-1 alpha-2 country code. Only optional when the
+            country code can be retrieved from the user's profile.
+
+            **Example**: :code:`"US"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the related resource.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        resource : dict[str, Any]
+            TIDAL catalog information for the related resource.
+
+        """
+        self._client._validate_uuid(playlist_uuid)
+        params = {}
+        self._client._resolve_country_code(country_code, params)
+        if include:
+            params["include"] = resource
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET",
+            f"playlists/{playlist_uuid}/relationships/{resource}",
+            params=params,
+        ).json()

@@ -59,7 +59,7 @@ class AlbumsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        album_ids : int, str, or Collection[int | str], \ 
+        album_ids : int, str, or Collection[int | str], \
         positional-only, optional
             TIDAL IDs of the albums, provided as either an integer, a
             string, or a collection of integers and/or strings.
@@ -125,7 +125,7 @@ class AlbumsAPI(TIDALResourceAPI):
 
             **Valid values**: :code:`"artists"`, :code:`"coverArt"`,
             :code:`"genres"`, :code:`"items"`, :code:`"owners"`, 
-            `:code:`"providers"`, :code:`"similarAlbums"`.
+            :code:`"providers"`, :code:`"similarAlbums"`.
 
         cursor : str, keyword-only, optional
             Cursor for pagination when requesting multiple albums.
@@ -1009,9 +1009,7 @@ class AlbumsAPI(TIDALResourceAPI):
         params = {}
         self._client._resolve_country_code(country_code, params)
         if include is not None:
-            params["include"] = params["include"] = self._prepare_include(
-                include
-            )
+            params["include"] = self._prepare_include(include)
         if (
             sum(arg is not None for arg in (album_ids, barcodes, owner_ids))
             != 1
@@ -1184,17 +1182,9 @@ class AlbumsAPI(TIDALResourceAPI):
                  }
                }
         """
-        self._client._validate_tidal_ids(album_id, _recursive=False)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "artists"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET", f"albums/{album_id}/relationships/artists", params=params
-        ).json()
+        return self._get_album_resource(
+            "artists", album_id, country_code, include=include, cursor=cursor
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album_cover_art(
@@ -1283,17 +1273,9 @@ class AlbumsAPI(TIDALResourceAPI):
                  }
                }
         """
-        self._client._validate_tidal_ids(album_id, _recursive=False)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "coverArt"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET", f"albums/{album_id}/relationships/coverArt", params=params
-        ).json()
+        return self._get_album_resource(
+            "coverArt", album_id, country_code, include=include, cursor=cursor
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album_items(
@@ -1501,17 +1483,9 @@ class AlbumsAPI(TIDALResourceAPI):
                  }
                }
         """
-        self._client._validate_tidal_ids(album_id, _recursive=False)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "items"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET", f"albums/{album_id}/relationships/items", params=params
-        ).json()
+        return self._get_album_resource(
+            "items", album_id, country_code, include=include, cursor=cursor
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album_owners(
@@ -1572,16 +1546,9 @@ class AlbumsAPI(TIDALResourceAPI):
                  }
                }
         """
-        self._client._validate_tidal_ids(album_id, _recursive=False)
-        params = {}
-        if include:
-            params["include"] = "owners"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET", f"albums/{album_id}/relationships/owners", params=params
-        ).json()
+        return self._get_album_resource(
+            "owners", album_id, False, include=include, cursor=cursor
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album_providers(
@@ -1654,17 +1621,9 @@ class AlbumsAPI(TIDALResourceAPI):
                  }
                }
         """
-        self._client._validate_tidal_ids(album_id, _recursive=False)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "providers"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET", f"albums/{album_id}/relationships/providers", params=params
-        ).json()
+        return self._get_album_resource(
+            "providers", album_id, country_code, include=include, cursor=cursor
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_similar_albums(
@@ -1797,16 +1756,75 @@ class AlbumsAPI(TIDALResourceAPI):
                        }
                      }
         """
+        return self._get_album_resource(
+            "similarAlbums",
+            album_id,
+            country_code,
+            include=include,
+            cursor=cursor,
+        )
+
+    def _get_album_resource(
+        self,
+        resource: str,
+        album_id: int | str,
+        /,
+        country_code: bool | str | None = None,
+        *,
+        include: bool = False,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for a resource related to an
+        album.
+
+        Parameters
+        ----------
+        resource : str, positional-only
+            Related resource type.
+
+            **Valid values**: :code:`"artists"`, :code:`"coverArt"`,
+            :code:`"genres"`, :code:`"items"`, :code:`"owners"`,
+            :code:`"providers"`, :code:`"similarAlbums"`.
+
+        album_id : int or str, positional-only
+            TIDAL ID of the album.
+
+            **Examples**: :code:`46369321`, :code:`"251380836"`.
+
+        country_code : bool or str, optional
+            ISO 3166-1 alpha-2 country code. Only optional when the
+            country code can be retrieved from the user's profile. If
+            :code:`False`, the country code is not included in the
+            request.
+
+            **Example**: :code:`"US"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the related resource.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        resource : dict[str, Any]
+            TIDAL catalog information for the related resource.
+        """
         self._client._validate_tidal_ids(album_id, _recursive=False)
         params = {}
-        self._client._resolve_country_code(country_code, params)
+        if country_code is not False:
+            self._client._resolve_country_code(country_code, params)
         if include:
-            params["include"] = "similarAlbums"
+            params["include"] = resource
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
             params["cursor"] = cursor
         return self._client._request(
             "GET",
-            f"albums/{album_id}/relationships/similarAlbums",
+            f"albums/{album_id}/relationships/{resource}",
             params=params,
         ).json()

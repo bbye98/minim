@@ -1124,17 +1124,9 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id, _recursive=False)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "albums"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET", f"artists/{artist_id}/relationships/albums", params=params
-        ).json()
+        return self._get_artist_resource(
+            "albums", artist_id, country_code, include=include, cursor=cursor
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_biography(
@@ -1189,16 +1181,9 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id, _recursive=False)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "biography"
-        return self._client._request(
-            "GET",
-            f"artists/{artist_id}/relationships/biography",
-            params=params,
-        ).json()
+        return self._get_artist_resource(
+            "biography", artist_id, country_code, include=include
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_owners(
@@ -1261,16 +1246,9 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id, _recursive=False)
-        params = {}
-        if include:
-            params["include"] = "owners"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET", f"artists/{artist_id}/relationships/owners", params=params
-        ).json()
+        return self._get_artist_resource(
+            "owners", artist_id, False, include=include, cursor=cursor
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_profile_art(
@@ -1361,19 +1339,13 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id, _recursive=False)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "profileArt"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET",
-            f"artists/{artist_id}/relationships/profileArt",
-            params=params,
-        ).json()
+        return self._get_artist_resource(
+            "profileArt",
+            artist_id,
+            country_code,
+            include=include,
+            cursor=cursor,
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_radio(
@@ -1480,19 +1452,9 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id, _recursive=False)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "radio"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET",
-            f"artists/{artist_id}/relationships/radio",
-            params=params,
-        ).json()
+        return self._get_artist_resource(
+            "radio", artist_id, country_code, include=include, cursor=cursor
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_roles(
@@ -1560,18 +1522,9 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id, _recursive=False)
-        params = {}
-        if include:
-            params["include"] = "roles"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET",
-            f"artists/{artist_id}/relationships/roles",
-            params=params,
-        ).json()
+        return self._get_artist_resource(
+            "roles", artist_id, False, include=include, cursor=cursor
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_similar_artists(
@@ -1718,19 +1671,13 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id, _recursive=False)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "similarArtists"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET",
-            f"artists/{artist_id}/relationships/similarArtists",
-            params=params,
-        ).json()
+        return self._get_artist_resource(
+            "similarArtists",
+            artist_id,
+            country_code,
+            include=include,
+            cursor=cursor,
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_track_providers(
@@ -1807,18 +1754,9 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id, _recursive=False)
-        params = {}
-        if include:
-            params["include"] = "trackProviders"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET",
-            f"artists/{artist_id}/relationships/trackProviders",
-            params=params,
-        ).json()
+        return self._get_artist_resource(
+            "trackProviders", artist_id, False, include=include, cursor=cursor
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_tracks(
@@ -1982,24 +1920,19 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_tidal_ids(artist_id, _recursive=False)
         if collapse_by.upper() not in {"FINGERPRINT", "ID"}:
             raise ValueError(
                 f"Cannot group tracks by {collapse_by!r}. "
                 "Valid values: 'FINGERPRINT', 'ID'."
             )
-        params = {"collapseBy": collapse_by}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = "tracks"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET",
-            f"artists/{artist_id}/relationships/tracks",
-            params=params,
-        ).json()
+        return self._get_artist_resource(
+            "tracks",
+            artist_id,
+            country_code,
+            include=include,
+            cursor=cursor,
+            params={"collapseBy": collapse_by},
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_videos(
@@ -2112,16 +2045,79 @@ class ArtistsAPI(TIDALResourceAPI):
                     }
                   }
         """
+        return self._get_artist_resource(
+            "videos", artist_id, country_code, include=include, cursor=cursor
+        )
+
+    def _get_artist_resource(
+        self,
+        resource: str,
+        artist_id: int | str,
+        /,
+        country_code: bool | str | None = None,
+        *,
+        include: bool = False,
+        cursor: str | None = None,
+        params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for a resource related to an
+        artist.
+
+        Parameters
+        ----------
+        resource : str, positional-only
+            Related resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"biography"`,
+            :code:`"followers"`, :code:`"following"`, :code:`"owners"`,
+            :code:`"profileArt"`, :code:`"radio"`, :code:`"roles"`,
+            :code:`"similarArtists"`, :code:`"trackProviders"`,
+            :code:`"tracks"`, :code:`"videos"`.
+
+        artist_id : int or str, positional-only
+            TIDAL ID of the artist.
+
+            **Examples**: :code:`1566`, :code:`"4676988"`.
+
+        country_code : bool or str, optional
+            ISO 3166-1 alpha-2 country code. Only optional when the
+            country code can be retrieved from the user's profile. If
+            :code:`False`, the country code is not included in the
+            request.
+
+            **Example**: :code:`"US"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the artist's videos.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        params : dict[str, Any], keyword-only, optional
+            Existing dictionary holding URL query parameters. If not
+            provided, a new dictionary will be created.
+
+        Returns
+        -------
+        resource : dict[str, Any]
+            TIDAL catalog information for the related resource.
+        """
         self._client._validate_tidal_ids(artist_id, _recursive=False)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
+        if params is None:
+            params = {}
+        if country_code is not False:
+            self._client._resolve_country_code(country_code, params)
         if include:
-            params["include"] = "videos"
+            params["include"] = resource
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
             params["cursor"] = cursor
         return self._client._request(
             "GET",
-            f"artists/{artist_id}/relationships/videos",
+            f"artists/{artist_id}/relationships/{resource}",
             params=params,
         ).json()
