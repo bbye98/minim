@@ -65,12 +65,12 @@ class SearchAPI(TIDALResourceAPI):
 
             **Valid value**: :code:`"directHits"`.
 
-        Parameters
-        ----------
+        Returns
+        -------
         search_suggestions : dict[str, Any]
             Search suggestions and associated TIDAL content metadata.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
