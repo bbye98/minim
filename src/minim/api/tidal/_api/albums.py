@@ -50,7 +50,7 @@ class AlbumsAPI(TIDALResourceAPI):
         information for multiple albums.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -80,9 +80,7 @@ class AlbumsAPI(TIDALResourceAPI):
         barcodes : int, str, or Collection[int | str], keyword-only, \
         optional
             Barcodes of the albums, provided as either an integer, a
-            string, or a collection of integers and/or strings. When 
-            this parameter is specified, the request will always be sent
-            to the endpoint for multiple albums.
+            string, or a collection of integers and/or strings.
 
             .. note::
 
@@ -90,7 +88,7 @@ class AlbumsAPI(TIDALResourceAPI):
                must be provided. When this parameter is specified, the 
                request will always be sent to the endpoint for multiple
                albums.
-               
+
             **Examples**: 
             
             .. container::
@@ -1510,7 +1508,7 @@ class AlbumsAPI(TIDALResourceAPI):
         catalog information for an album's owners.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -1806,10 +1804,8 @@ class AlbumsAPI(TIDALResourceAPI):
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : bool or str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile. If
-            :code:`False`, the country code is not included in the
-            request.
+            ISO 3166-1 alpha-2 country code. If :code:`False`, the
+            country code is not included in the request.
 
             **Example**: :code:`"US"`.
 

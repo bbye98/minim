@@ -40,7 +40,7 @@ class TIDALAPI(OAuth2APIClient):
         "search.read",
         "search.write",
     }
-    _VERSION = "0.1.93"
+    _VERSION = "0.1.97"
     AUTH_URL = "https://login.tidal.com/authorize"
     BASE_URL = "https://openapi.tidal.com/v2"
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"

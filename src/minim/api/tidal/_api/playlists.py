@@ -1371,7 +1371,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         catalog information for an playlist's owners.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 

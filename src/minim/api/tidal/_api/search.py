@@ -42,8 +42,8 @@ class SearchAPI(TIDALResourceAPI):
         """
         `Search Suggestions > Get Search Suggestions
         <https://tidal-music.github.io/tidal-api-reference/#
-        /searchSuggestions/get_searchSuggestions__id_>`_: Get search
-        suggestions for a keyword string.
+        /searchSuggestions/get_searchSuggestions__id_>`_: Get TIDAL
+        catalog information for search suggestions for a keyword string.
 
         Parameters
         ----------
@@ -475,8 +475,9 @@ class SearchAPI(TIDALResourceAPI):
         """
         `Search Suggestions > Get Direct Hits
         <https://tidal-music.github.io/tidal-api-reference/#
-        /searchSuggestions/get_searchSuggestions__id_>`_: Get direct
-        hits associated with search suggestions.
+        /searchSuggestions/get_searchSuggestions__id_>`_: Get TIDAL
+        catalog information for direct hits associated with the search
+        suggestions.
 
         Parameters
         ----------
@@ -508,7 +509,7 @@ class SearchAPI(TIDALResourceAPI):
         direct_hits : dict[str, Any]
             TIDAL content metadata for the direct hits.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -893,7 +894,7 @@ class SearchAPI(TIDALResourceAPI):
         tracks, and videos that match a keyword string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -1397,7 +1398,7 @@ class SearchAPI(TIDALResourceAPI):
         string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -1550,7 +1551,7 @@ class SearchAPI(TIDALResourceAPI):
         string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -1715,7 +1716,7 @@ class SearchAPI(TIDALResourceAPI):
         catalog information for playlists that match a keyword string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -1843,7 +1844,7 @@ class SearchAPI(TIDALResourceAPI):
         string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -2262,7 +2263,7 @@ class SearchAPI(TIDALResourceAPI):
         string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -2434,7 +2435,7 @@ class SearchAPI(TIDALResourceAPI):
         string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 

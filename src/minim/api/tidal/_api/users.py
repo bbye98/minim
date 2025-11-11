@@ -27,7 +27,7 @@ class UsersAPI(ResourceAPI):
         <https://tidal-music.github.io/tidal-api-reference/#/users
         /get_users_me>`_: Get the current user's account information.
 
-        .. admonition:: Authorization scopes
+        .. admonition:: Authorization scope
            :class: authorization-scope
 
            .. tab:: Required

@@ -128,7 +128,7 @@ class ArtistsAPI(TIDALResourceAPI):
         information for multiple artists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -1201,7 +1201,7 @@ class ArtistsAPI(TIDALResourceAPI):
         information for an artist's owners.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: authorization-scope dropdown
 
            .. tab:: Optional
 
@@ -2081,10 +2081,8 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         country_code : bool or str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile. If
-            :code:`False`, the country code is not included in the
-            request.
+            ISO 3166-1 alpha-2 country code. If :code:`False`, the
+            country code is not included in the request.
 
             **Example**: :code:`"US"`.
 
