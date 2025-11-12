@@ -1050,7 +1050,7 @@ class AlbumsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album's Artists
+        `Albums > Get Album Artists
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_artists>`_: Get TIDAL
         catalog information for an album's artists.
@@ -1070,7 +1070,7 @@ class AlbumsAPI(TIDALResourceAPI):
 
         include : bool, keyword-only, default: :code:`False`
             Specifies whether to include TIDAL content metadata for
-            the album's artists.
+            the album artists.
 
         cursor : str, keyword-only, optional
             Cursor for pagination.
@@ -1080,7 +1080,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL catalog information for the album's artists.
+            TIDAL catalog information for the album artists.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1198,7 +1198,7 @@ class AlbumsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album's Cover Art
+        `Albums > Get Album Cover Art
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_coverArt>`_: Get TIDAL
         catalog information for an album's cover art.
@@ -1291,10 +1291,10 @@ class AlbumsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album's Items
+        `Albums > Get Album Items
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_items>`_: Get TIDAL
-        catalog information for an album's tracks and videos.
+        catalog information for tracks and videos in an album.
 
         Parameters
         ----------
@@ -1311,7 +1311,7 @@ class AlbumsAPI(TIDALResourceAPI):
 
         include : bool, keyword-only, default: :code:`False`
             Specifies whether to include TIDAL content metadata for
-            the album's tracks and videos.
+            the tracks and videos in the album.
 
         cursor : str, keyword-only, optional
             Cursor for pagination.
@@ -1321,7 +1321,8 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            TIDAL catalog information for the album's tracks and videos.
+            TIDAL catalog information for the tracks and videos in the
+            album.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1502,7 +1503,7 @@ class AlbumsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album's Owners
+        `Albums > Get Album Owners
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_owners>`_: Get TIDAL
         catalog information for an album's owners.
@@ -1568,7 +1569,7 @@ class AlbumsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album's Providers
+        `Albums > Get Album Providers
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_providers>`_: Get TIDAL
         catalog information for an album's providers.

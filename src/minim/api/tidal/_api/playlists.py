@@ -822,7 +822,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Playlists > Get Playlist's Cover Art
+        `Playlists > Get Playlist Cover Art
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /get_playlists__id__relationships_coverArt>`_: Get TIDAL
         catalog information for a playlist's cover art.
@@ -842,7 +842,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         include : bool, keyword-only, default: :code:`False`
             Specifies whether to include TIDAL content metadata for
-            the playlist's cover art.
+            the playlist cover art.
 
         cursor : str, keyword-only, optional
             Cursor for pagination.
@@ -852,7 +852,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         cover_art : dict[str, Any]
-            TIDAL catalog information for the playlist's cover art.
+            TIDAL catalog information for the playlist cover art.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -938,7 +938,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         include : bool, keyword-only, default: :code:`False`
             Specifies whether to include TIDAL content metadata for
-            the playlist items.
+            the items in the playlist.
 
         cursor : str, keyword-only, optional
             Cursor for pagination.
@@ -948,7 +948,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         cover_art : dict[str, Any]
-            TIDAL catalog information for the playlist items.
+            TIDAL catalog information for the items in the playlist.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1365,7 +1365,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Playlists > Get Playlist's Owners
+        `Playlists > Get Playlist Owners
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /get_playlists__id__relationships_owners>`_: Get TIDAL
         catalog information for an playlist's owners.

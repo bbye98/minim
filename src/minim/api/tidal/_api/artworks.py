@@ -170,7 +170,7 @@ class ArtworksAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Artworks > Get Artwork Owners <https://tidal-music.github.io
+        `Artworks > Get Artwork's Owners <https://tidal-music.github.io
         /tidal-api-reference/#/artworks
         /get_artworks__id__relationships_owners>`_: Get TIDAL catalog
         information for an artwork's owners.
