@@ -1327,6 +1327,10 @@ class TracksAPI(TIDALResourceAPI):
                     "data": [],
                     "included": [],
                     "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
                       "self": <str>
                     }
                   }
@@ -1400,6 +1404,10 @@ class TracksAPI(TIDALResourceAPI):
                       }
                     ],
                     "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
                       "self": <str>
                     }
                   }

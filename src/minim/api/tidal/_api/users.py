@@ -516,7 +516,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id)
+            self._client._validate_tidal_ids(user_id, _recursive=False)
         params = {}
         if country_code is not None:
             self._client._resolve_country_code(country_code, params)
@@ -531,7 +531,7 @@ class UsersAPI(TIDALResourceAPI):
             "GET", f"userCollections/{user_id}", params=params
         ).json()
 
-    def get_collection_albums(
+    def get_saved_albums(
         self,
         *,
         user_id: int | str | None = None,
@@ -701,7 +701,7 @@ class UsersAPI(TIDALResourceAPI):
             sort_fields={"addedAt", "artists.name", "releaseDate", "title"},
         )
 
-    def add_collection_albums(
+    def save_albums(
         self,
         album_ids: int
         | str
@@ -761,7 +761,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def remove_collection_albums(
+    def remove_saved_albums(
         self,
         album_ids: int
         | str
@@ -821,7 +821,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def get_collection_artists(
+    def get_saved_artists(
         self,
         *,
         user_id: int | str | None = None,
@@ -1001,7 +1001,7 @@ class UsersAPI(TIDALResourceAPI):
             sort_fields={"addedAt", "name"},
         )
 
-    def add_collection_artists(
+    def save_artists(
         self,
         artist_ids: int
         | str
@@ -1061,7 +1061,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def remove_collection_artists(
+    def remove_saved_artists(
         self,
         artist_ids: int
         | str
@@ -1121,6 +1121,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
+    @TTLCache.cached_method(ttl="catalog")
     def get_collection_owners(
         self,
         *,
@@ -1209,7 +1210,7 @@ class UsersAPI(TIDALResourceAPI):
             "owners", user_id=user_id, include=include, cursor=cursor
         )
 
-    def get_collection_playlists(
+    def get_saved_playlists(
         self,
         *,
         user_id: int | str | None = None,
@@ -1368,7 +1369,7 @@ class UsersAPI(TIDALResourceAPI):
             params=params,
         )
 
-    def add_collection_playlists(
+    def save_playlists(
         self,
         playlist_uuids: str
         | dict[str, str]
@@ -1429,7 +1430,7 @@ class UsersAPI(TIDALResourceAPI):
             "POST", "playlists", playlist_uuids, user_id=user_id
         )
 
-    def remove_collection_playlists(
+    def remove_saved_playlists(
         self,
         playlist_uuids: str
         | dict[str, str]
@@ -1490,7 +1491,7 @@ class UsersAPI(TIDALResourceAPI):
             "DELETE", "playlists", playlist_uuids, user_id=user_id
         )
 
-    def get_collection_tracks(
+    def get_saved_tracks(
         self,
         *,
         user_id: int | str | None = None,
@@ -1685,7 +1686,7 @@ class UsersAPI(TIDALResourceAPI):
             },
         )
 
-    def add_collection_tracks(
+    def save_tracks(
         self,
         track_ids: int
         | str
@@ -1745,7 +1746,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def remove_collection_tracks(
+    def remove_saved_tracks(
         self,
         track_ids: int
         | str
@@ -1805,7 +1806,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def get_collection_videos(
+    def get_saved_videos(
         self,
         *,
         user_id: int | str | None = None,
@@ -1955,7 +1956,7 @@ class UsersAPI(TIDALResourceAPI):
             sort_fields={"addedAt", "artists.name", "duration", "title"},
         )
 
-    def add_collection_videos(
+    def save_videos(
         self,
         video_ids: str
         | dict[str, int | str]
@@ -2014,7 +2015,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def remove_collection_videos(
+    def remove_saved_videos(
         self,
         video_ids: str
         | dict[str, int | str]
@@ -2125,9 +2126,10 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id)
+            self._client._validate_tidal_ids(user_id, _recursive=False)
         return self._client._request("GET", f"userEntitlements/{user_id}")
 
+    @TTLCache.cached_method(ttl="featured")
     def get_recommendations(
         self,
         *,
@@ -2222,7 +2224,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id)
+            self._client._validate_tidal_ids(user_id, _recursive=False)
         params = {}
         if country_code is not None:
             self._client._resolve_country_code(country_code, params)
@@ -2237,6 +2239,7 @@ class UsersAPI(TIDALResourceAPI):
             "GET", f"userRecommendations/{user_id}", params=params
         )
 
+    @TTLCache.cached_method(ttl="featured")
     def get_discovery_mixes(
         self,
         *,
@@ -2318,6 +2321,7 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
+    @TTLCache.cached_method(ttl="featured")
     def get_my_mixes(
         self,
         *,
@@ -2399,6 +2403,7 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
+    @TTLCache.cached_method(ttl="featured")
     def get_new_arrival_mixes(
         self,
         *,
@@ -2662,7 +2667,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id)
+            self._client._validate_tidal_ids(user_id, _recursive=False)
         if params is None:
             params = {}
         if country_code is not None:
@@ -2748,7 +2753,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id)
+            self._client._validate_tidal_ids(user_id, _recursive=False)
         params = {}
         if country_code is not None:
             self._client._resolve_country_code(country_code, params)
@@ -2816,7 +2821,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id)
+            self._client._validate_tidal_ids(user_id, _recursive=False)
         params = {}
         if country_code is not None:
             self._client._resolve_country_code(country_code, params)
