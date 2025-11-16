@@ -658,7 +658,9 @@ class APIClient(ABC):
     @staticmethod
     def _validate_locale(locale: str, /) -> None:
         """
-        Validate locale identifier.
+        Validate a Internet Engineering Task Force (IETF) Best Current
+        Practice (BCP) 47 language tag, as defined in Request for
+        Comments (RFC) 1766.
 
         Parameters
         ----------

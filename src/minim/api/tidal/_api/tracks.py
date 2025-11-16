@@ -1678,7 +1678,7 @@ class TracksAPI(TIDALResourceAPI):
         include: bool = False,
     ) -> dict[str, Any]:
         """
-        `Tracks > Get Track Source File<https://tidal-music.github.io
+        `Tracks > Get Track Source File <https://tidal-music.github.io
         /tidal-api-reference/#/tracks
         /get_tracks__id__relationships_sourceFile>`_: Get TIDAL
         catalog information for a track's source file.

@@ -613,7 +613,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             if (sort[1:] if sort[0] == "-" else sort) not in self._SORTS:
                 sorts = "', '".join(self._SORTS)
                 raise ValueError(
-                    f"Invalid sort field {sort!r}. Valid values: {sorts}."
+                    f"Invalid sort field {sort!r}. Valid values: '{sorts}'."
                 )
             params["sort"] = sort
         return self._client._request("GET", "playlists", params=params).json()
@@ -1167,7 +1167,8 @@ class PlaylistsAPI(TIDALResourceAPI):
                * :code:`(458584456, "tracks")`
                * :code:`("29597422", "videos")`
                * :code:`{"id": "35633900", "types": "tracks"}`
-               * :code:`[(458584456, "tracks"), ("29597422", "videos")]`
+               * :code:`[(458584456, "tracks"), ("29597422", "videos"),
+                 {"id": "35633900", "types": "tracks"}]`
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -1454,8 +1455,8 @@ class PlaylistsAPI(TIDALResourceAPI):
         Collection[tuple[int | str, ...] | dict[str, Any]], \
         positional-only
             TIDAL IDs (and UUIDs) of tracks and videos, provided as
-            tuples of the ID (and UUID) and the item type, or as
-            properly formatted dictionaries.
+            tuples of the ID (and UUID) and the item type, or properly
+            formatted dictionaries.
 
         meta : bool, keyword-only, default: :code:`True`
             Specifies whether the items have UUID information.
@@ -1463,8 +1464,8 @@ class PlaylistsAPI(TIDALResourceAPI):
         Returns
         -------
         items : list[dict[str, Any]]
-            List of properly formatted dictionaries containing
-            information for the tracks and videos.
+            List of properly formatted dictionaries containing metadata
+            for the tracks and videos.
         """
         if isinstance(items, dict):
             item_id = items.get("id")
@@ -1547,7 +1548,6 @@ class PlaylistsAPI(TIDALResourceAPI):
         -------
         resource : dict[str, Any]
             TIDAL catalog information for the related resource.
-
         """
         self._client._validate_uuid(playlist_uuid)
         params = {}

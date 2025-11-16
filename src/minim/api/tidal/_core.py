@@ -298,15 +298,7 @@ class TIDALAPI(OAuth2APIClient):
            :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
            make a request to the TIDAL API.
         """
-        country_code = (
-            None
-            if self._flow == "client_credentials"
-            else (
-                self.users.get_my_profile()["data"]
-                .get("attributes", {})
-                .get("country")
-            )
-        )
+        country_code = self._my_profile.get("attributes", {}).get("country")
         if country_code is None:
             raise RuntimeError(
                 "Unable to determine the country associated with the "
@@ -314,6 +306,24 @@ class TIDALAPI(OAuth2APIClient):
                 "code must be provided explicitly via the "
                 "`country_code` parameter."
             )
+        return country_code
+
+    @property
+    def _my_profile(self) -> dict[str, Any]:
+        """
+        Current user's profile.
+
+        .. note::
+
+           Accessing this property may call
+           :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
+           make a request to the TIDAL API.
+        """
+        return (
+            {}
+            if self._flow == "client_credentials"
+            else self.users.get_my_profile()["data"]
+        )
 
     def _get_user_identifier(self) -> str:
         """
