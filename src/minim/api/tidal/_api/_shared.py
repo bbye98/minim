@@ -27,7 +27,7 @@ class TIDALResourceAPI(ResourceAPI):
             used.
         """
         if resources is None:
-            resources = self._RESOURCES
+            resources = getattr(self, "_RESOURCES", {})
         if isinstance(include, str):
             include = [include]
         elif not isinstance(include, Collection):

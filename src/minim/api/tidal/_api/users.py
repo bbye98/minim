@@ -19,13 +19,18 @@ class UsersAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RESOURCES = {
+    _COLLECTION_RESOURCES = {
         "albums",
         "artists",
         "owners",
         "playlists",
         "tracks",
         "videos",
+    }
+    _RECOMMENDATION_RESOURCES = {
+        "discoveryMixes",
+        "myMixes",
+        "newArrivalMixes",
     }
     _client: "TIDALAPI"
 
@@ -507,9 +512,7 @@ class UsersAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._require_scopes(
-            "get_collection_collection", "collection.read"
-        )
+        self._client._require_scopes("get_collection", "collection.read")
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
@@ -521,7 +524,9 @@ class UsersAPI(TIDALResourceAPI):
             self._client._validate_type("locale", locale, str)
             params["locale"] = locale
         if include is not None:
-            params["include"] = self._prepare_include(include)
+            params["include"] = self._prepare_include(
+                include, resources=self._COLLECTION_RESOURCES
+            )
         return self._client._request(
             "GET", f"userCollections/{user_id}", params=params
         ).json()
@@ -2068,6 +2073,413 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
+    def get_entitlements(
+        self, *, user_id: int | str | None = None
+    ) -> dict[str, Any]:
+        """
+        `User Entitlements > Get User's Entitlements
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userEntitlements/get_userEntitlements__id_>`_: Get
+        functionalities a user is entitled to access on TIDAL.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`entitlements.read` scope
+                 Read functionalities a user is entitled to access on
+                 TIDAL.
+
+        Parameters
+        ----------
+        user_id : int or str, keyword-only, optional
+            TIDAL ID of the user, provided as either an integer or a
+            string. If not specified, the current user's TIDAL ID is
+            used.
+
+        Returns
+        -------
+        entitlements : dict[str, Any]
+            Functionalities a user is entitled to access on TIDAL.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": {
+                      "attributes": {
+                        "entitlements": <list[str]>
+                      },
+                      "id": <str>,
+                      "type": "userEntitlements"
+                    },
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._require_scopes("get_entitlements", "entitlements.read")
+        if user_id is None:
+            user_id = self._client._my_profile["id"]
+        else:
+            self._client._validate_tidal_ids(user_id)
+        return self._client._request("GET", f"userEntitlements/{user_id}")
+
+    def get_recommendations(
+        self,
+        *,
+        user_id: str | None = None,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include: str | Collection[str] | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Recommendations > Get Recommendations
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userRecommendations/get_userRecommendations__id_>`_: Get TIDAL
+        catalog information for recommended media in personally curated
+        mixes.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`recommendations.read` scope
+                 Read access to a user's personal recommendations.
+
+        Parameters
+        ----------
+        user_id : int or str, keyword-only, optional
+            TIDAL ID of the user, provided as either an integer or a
+            string. If not specified, the current user's TIDAL ID is
+            used.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str, keyword-only, optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
+        include : str or Collection[str], keyword-only, optional
+            Related resources to include in the response.
+
+            **Valid values**: :code:`"discoveryMixes"`,
+            :code:`"myMixes"`, :code:`"newArrivalMixes"`.
+
+        Returns
+        -------
+        recommendations : dict[str, Any]
+            TIDAL content metadata for the items in the mixes.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": {
+                      "attributes": {},
+                      "id": <str>,
+                      "relationships": {
+                        "discoveryMixes": {
+                          "data": [],
+                          "links": {
+                            "self": <str>
+                          }
+                        },
+                        "myMixes": {
+                          "data": [],
+                          "links": {
+                            "self": <str>
+                          }
+                        },
+                        "newArrivalMixes": {
+                          "data": [],
+                          "links": {
+                            "self": <str>
+                          }
+                        }
+                      },
+                      "type": "userRecommendations"
+                    },
+                    "included": [],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        self._client._require_scopes(
+            "get_recommendations", "recommendations.read"
+        )
+        if user_id is None:
+            user_id = self._client._my_profile["id"]
+        else:
+            self._client._validate_tidal_ids(user_id)
+        params = {}
+        if country_code is not None:
+            self._client._resolve_country_code(country_code, params)
+        if locale is not None:
+            self._client._validate_type("locale", locale, str)
+            params["locale"] = locale
+        if include is not None:
+            params["include"] = self._prepare_include(
+                include, resources=self._RECOMMENDATION_RESOURCES
+            )
+        return self._client._request(
+            "GET", f"userRecommendations/{user_id}", params=params
+        )
+
+    def get_discovery_mixes(
+        self,
+        *,
+        user_id: str | None = None,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include: bool = False,
+        cursor: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Recommendations > Get User's Discovery Mixes
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userRecommendations
+        /get_userRecommendations__id__relationships_discoveryMixes>`_:
+        Get TIDAL catalog information for the user's Discovery Mixes.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`recommendations.read` scope
+                 Read access to a user's personal recommendations.
+
+        Parameters
+        ----------
+          user_id : int or str, keyword-only, optional
+            TIDAL ID of the user, provided as either an integer or a
+            string. If not specified, the current user's TIDAL ID is
+            used.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str, keyword-only, optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the user's Discovery Mixes.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        mixes : dict[str, Any]
+            TIDAL catalog information for the user's Discovery Mixes.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [],
+                    "included": [],
+                    "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
+                      "self": <str>
+                    }
+                  }
+        """
+        return self._get_recommendation_mixes(
+            "discoveryMixes",
+            user_id=user_id,
+            country_code=country_code,
+            locale=locale,
+            include=include,
+            cursor=cursor,
+        )
+
+    def get_my_mixes(
+        self,
+        *,
+        user_id: str | None = None,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include: bool = False,
+        cursor: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Recommendations > Get User's Mixes
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userRecommendations
+        /get_userRecommendations__id__relationships_mixes>`_:
+        Get TIDAL catalog information for the user's mixes.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`recommendations.read` scope
+                 Read access to a user's personal recommendations.
+
+        Parameters
+        ----------
+          user_id : int or str, keyword-only, optional
+            TIDAL ID of the user, provided as either an integer or a
+            string. If not specified, the current user's TIDAL ID is
+            used.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str, keyword-only, optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the user's mixes.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        mixes : dict[str, Any]
+            TIDAL catalog information for the user's mixes.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [],
+                    "included": [],
+                    "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
+                      "self": <str>
+                    }
+                  }
+        """
+        return self._get_recommendation_mixes(
+            "myMixes",
+            user_id=user_id,
+            country_code=country_code,
+            locale=locale,
+            include=include,
+            cursor=cursor,
+        )
+
+    def get_new_arrival_mixes(
+        self,
+        *,
+        user_id: str | None = None,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include: bool = False,
+        cursor: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Recommendations > Get User's New Arrival Mixes
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userRecommendations
+        /get_userRecommendations__id__relationships_newArrivalMixes>`_:
+        Get TIDAL catalog information for the user's New Arrival Mixes.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`recommendations.read` scope
+                 Read access to a user's personal recommendations.
+
+        Parameters
+        ----------
+          user_id : int or str, keyword-only, optional
+            TIDAL ID of the user, provided as either an integer or a
+            string. If not specified, the current user's TIDAL ID is
+            used.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str, keyword-only, optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the user's New Arrival Mixes.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        mixes : dict[str, Any]
+            TIDAL catalog information for the user's New Arrival Mixes.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [],
+                    "included": [],
+                    "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
+                      "self": <str>
+                    }
+                  }
+        """
+        return self._get_recommendation_mixes(
+            "newArrivalMixes",
+            user_id=user_id,
+            country_code=country_code,
+            locale=locale,
+            include=include,
+            cursor=cursor,
+        )
+
     @TTLCache.cached_method(ttl="catalog")
     def get_my_profile(self) -> dict[str, Any]:
         """
@@ -2345,3 +2757,79 @@ class UsersAPI(TIDALResourceAPI):
             f"userCollections/{user_id}/relationships/{resource}",
             json={"data": self._process_collection_items(resource, item_ids)},
         )
+
+    def _get_recommendation_mixes(
+        self,
+        resource: str,
+        /,
+        *,
+        user_id: str | None = None,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include: bool = False,
+        cursor: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for mixes recommended to a user.
+
+        Parameters
+        ----------
+        resource : str, positional-only
+            Resource type.
+
+            **Valid values**: :code:`"discoveryMixes"`,
+            :code:`"myMixes"`, :code:`"newArrivalMixes"`.
+
+        user_id : int or str, keyword-only, optional
+            TIDAL ID of the user, provided as either an integer or a
+            string. If not specified, the current user's TIDAL ID is
+            used.
+
+        country_code : str, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str, keyword-only, optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the specified resource.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        resource : dict[str, Any]
+            TIDAL catalog information for the specified resource.
+        """
+        self._client._require_scopes(
+            f"get_{''.join(char if char.islower() else f'_{char.lower()}' for char in resource)}",
+            "recommendations.read",
+        )
+        if user_id is None:
+            user_id = self._client._my_profile["id"]
+        else:
+            self._client._validate_tidal_ids(user_id)
+        params = {}
+        if country_code is not None:
+            self._client._resolve_country_code(country_code, params)
+        if locale is not None:
+            self._client._validate_type("locale", locale, str)
+            params["locale"] = locale
+        if include:
+            params["include"] = resource
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["page[cursor]"] = cursor
+        return self._client._request(
+            "GET",
+            f"userRecommendations/{user_id}/relationships/{resource}",
+            params=params,
+        ).json()
