@@ -704,7 +704,9 @@ class PlaylistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._require_scopes("create_playlist", "playlists.write")
+        self._client._require_scopes(
+            "playlists.create_playlist", "playlists.write"
+        )
         self._client._validate_type("name", name, str)
         if not len(name):
             raise ValueError("The playlist name cannot be blank.")
@@ -759,7 +761,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Default**: :code:`False`.
         """
         self._client._require_scopes(
-            "update_playlist_details", "playlists.write"
+            "playlists.update_playlist_details", "playlists.write"
         )
         self._client._validate_uuid(playlist_uuid)
         payload = {
@@ -808,7 +810,9 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
         """
-        self._client._require_scopes("delete_playlist", "playlists.write")
+        self._client._require_scopes(
+            "playlists.delete_playlist", "playlists.write"
+        )
         self._client._validate_uuid(playlist_uuid)
         self._client._request("DELETE", f"playlist/{playlist_uuid}")
 
@@ -1182,7 +1186,9 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             **Example**: :code:`"3794bdb3-1529-48d7-8a99-ef2cb0cf22c3"`.
         """
-        self._client._require_scopes("add_playlist_items", "playlists.write")
+        self._client._require_scopes(
+            "playlists.add_playlist_items", "playlists.write"
+        )
         self._client._validate_uuid(playlist_uuid)
         params = {}
         if country_code is not None:
@@ -1269,7 +1275,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"3794bdb3-1529-48d7-8a99-ef2cb0cf22c3"`.
         """
         self._client._require_scopes(
-            "reorder_playlist_items", "playlists.write"
+            "playlists.reorder_playlist_items", "playlists.write"
         )
         self._client._validate_uuid(playlist_uuid)
         payload = {"data": self._process_playlist_items(items)}
@@ -1346,7 +1352,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                     ]
         """
         self._client._require_scopes(
-            "remove_playlist_items", "playlists.write"
+            "playlists.remove_playlist_items", "playlists.write"
         )
         self._client._validate_uuid(playlist_uuid)
         self._client._request(

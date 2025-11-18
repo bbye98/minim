@@ -512,7 +512,7 @@ class UsersAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._require_scopes("get_collection", "collection.read")
+        self._client._require_scopes("users.get_collection", "collection.read")
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
@@ -2122,7 +2122,9 @@ class UsersAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._require_scopes("get_entitlements", "entitlements.read")
+        self._client._require_scopes(
+            "users.get_entitlements", "entitlements.read"
+        )
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
@@ -2219,7 +2221,7 @@ class UsersAPI(TIDALResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "get_recommendations", "recommendations.read"
+            "users.get_recommendations", "recommendations.read"
         )
         if user_id is None:
             user_id = self._client._my_profile["id"]
@@ -2322,7 +2324,7 @@ class UsersAPI(TIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="featured")
-    def get_my_mixes(
+    def get_user_mixes(
         self,
         *,
         user_id: str | None = None,
@@ -2348,7 +2350,7 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-          user_id : int or str, keyword-only, optional
+        user_id : int or str, keyword-only, optional
             TIDAL ID of the user, provided as either an integer or a
             string. If not specified, the current user's TIDAL ID is
             used.
@@ -2528,6 +2530,7 @@ class UsersAPI(TIDALResourceAPI):
                     }
                   }
         """
+        self._client._require_scopes("users.get_my_profile", "user.read")
         return self._client._request("GET", "users/me").json()
 
     @classmethod
@@ -2662,7 +2665,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL catalog information for the specified resource.
         """
         self._client._require_scopes(
-            f"get_collection_{resource}", "collection.read"
+            f"users.get_collection_{resource}", "collection.read"
         )
         if user_id is None:
             user_id = self._client._my_profile["id"]
@@ -2747,7 +2750,7 @@ class UsersAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
         """
         self._client._require_scopes(
-            f"{'add' if method == 'POST' else 'remove'}_collection_{resource}",
+            f"users.{'add' if method == 'POST' else 'remove'}_collection_{resource}",
             "collection.write",
         )
         if user_id is None:
@@ -2815,7 +2818,14 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL catalog information for the specified resource.
         """
         self._client._require_scopes(
-            f"get_{''.join(char if char.islower() else f'_{char.lower()}' for char in resource)}",
+            f"users.get_{
+                'user_mixes'
+                if resource == 'myMixes'
+                else ''.join(
+                    char if char.islower() else f'_{char.lower()}'
+                    for char in resource
+                )
+            }",
             "recommendations.read",
         )
         if user_id is None:

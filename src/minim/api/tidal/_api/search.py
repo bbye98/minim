@@ -2559,7 +2559,7 @@ class SearchAPI(TIDALResourceAPI):
         country_code: str | None = None,
         *,
         explicit: bool | None = None,
-        include: str | Collection[str] | None = None,
+        include: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -2608,7 +2608,7 @@ class SearchAPI(TIDALResourceAPI):
         self._client._resolve_country_code(country_code, params)
         if explicit is not None:
             params["explicitFilter"] = "INCLUDE" if explicit else "EXCLUDE"
-        if include is not None:
+        if include:
             params["include"] = resource
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
