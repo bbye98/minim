@@ -217,6 +217,7 @@ class API:
 
     _FLOWS = {"client_credentials", "pkce"}
     _NAME = f"{__module__}.{__qualname__}"
+    _VERSION = "0.1.99"
     API_URL = "https://openapi.tidal.com/v2"
     AUTH_URL = "https://login.tidal.com/authorize"
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
@@ -282,7 +283,9 @@ class API:
             if categories in SCOPES.keys():
                 return SCOPES[categories]
             if categories == "all":
-                return " ".join(s for scopes in SCOPES.values() for s in scopes)
+                return " ".join(
+                    s for scopes in SCOPES.values() for s in scopes
+                )
             return " ".join(
                 s
                 for scopes in SCOPES.values()
@@ -594,7 +597,9 @@ class API:
                 error = r.json()
                 if "errors" in error:
                     error = error["errors"][0]
-                    emsg = f"{r.status_code} {error['code']}: {error['detail']}"
+                    emsg = (
+                        f"{r.status_code} {error['code']}: {error['detail']}"
+                    )
                 else:
                     emsg = f"{r.status_code} {r.reason}: {error['detail']}"
             except requests.exceptions.JSONDecodeError:
@@ -976,6 +981,7 @@ class API:
         relationship: str,
         /,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
         **kwargs,
     ) -> dict[str, Any]:
@@ -1001,6 +1007,10 @@ class API:
             :code:`"items"`, :code:`"owners"`, :code:`"providers"`, or
             :code:`"similarAlbums"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1015,7 +1025,11 @@ class API:
         """
         return self._get_json(
             f"{self.API_URL}/albums/{album_id}/relationships/{relationship}",
-            params={"page[cursor]": cursor, "include": relationship, **kwargs},
+            params={
+                "page[cursor]": cursor,
+                "include": relationship if include else None,
+                **kwargs,
+            },
         )
 
     def get_album_artists(
@@ -1024,6 +1038,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1044,6 +1059,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1057,7 +1076,8 @@ class API:
             album_id,
             "artists",
             countryCode=country_code,
-            **{"page[cursor]": cursor},
+            include=include,
+            cursor=cursor,
         )
 
     def get_album_cover_art(
@@ -1066,6 +1086,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1086,6 +1107,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1099,7 +1124,8 @@ class API:
             album_id,
             "coverArt",
             countryCode=country_code,
-            **{"page[cursor]": cursor},
+            include=include,
+            cursor=cursor,
         )
 
     def get_album_items(
@@ -1108,6 +1134,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1128,6 +1155,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1141,7 +1172,8 @@ class API:
             album_id,
             "items",
             countryCode=country_code,
-            **{"page[cursor]": cursor},
+            include=include,
+            cursor=cursor,
         )
 
     def get_album_owners(
@@ -1149,6 +1181,7 @@ class API:
         album_id: Union[int, str],
         /,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1169,6 +1202,10 @@ class API:
 
             **Examples**: :code:`251380836` and :code:`"251380836"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1180,7 +1217,7 @@ class API:
         """
         self._check_authentication("get_album_owners")
         return self.get_album_relationship(
-            album_id, "owners", **{"page[cursor]": cursor}
+            album_id, "owners", include=include, cursor=cursor
         )
 
     def get_album_providers(
@@ -1189,6 +1226,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1209,6 +1247,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1222,7 +1264,8 @@ class API:
             album_id,
             "providers",
             countryCode=country_code,
-            **{"page[cursor]": cursor},
+            include=include,
+            cursor=cursor,
         )
 
     def get_similar_albums(
@@ -1231,6 +1274,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1251,6 +1295,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1262,24 +1310,25 @@ class API:
         """
         return self.get_album_relationship(
             album_id,
-            "similar",
+            "similarAlbums",
             countryCode=country_code,
-            **{"page[cursor]": cursor},
+            include=include,
+            cursor=cursor,
         )
 
     ### ARTIST ROLES ##########################################################
 
-    def get_artist_role(self, artist_id: Union[int, str], /) -> dict[str, Any]:
+    def get_role(self, artist_role_id: Union[int, str], /) -> dict[str, Any]:
         """
         `Artist Roles > Get single artist role
         <https://tidal-music.github.io/tidal-api-reference/#
-        /artist-roles/get_artist_roles__id_>`_: Retrieves the role of a
-        single artist.
+        /artist-roles/get_artist_roles__id_>`_: Retrieves a single
+        artist role.
 
         Parameters
         ----------
-        artist_id : `int` or `str`
-            TIDAL artist ID.
+        artist_role_id : `int` or `str`
+            TIDAL artist role ID.
 
             **Examples**: :code:`1` and :code:`"1"`.
 
@@ -1289,36 +1338,37 @@ class API:
             A dictionary containing TIDAL catalog information for the
             artist role.
         """
-        return self.session.get(f"{self.API_URL}/artistRoles/{artist_id}")
+        return self.session.get(f"{self.API_URL}/artistRoles/{artist_role_id}")
 
-    def get_artists_roles(
+    def get_roles(
         self,
-        artist_ids: Union[int, str, list[Union[int, str]]],
+        artist_role_ids: Union[int, str, list[Union[int, str]]],
     ) -> dict[str, Any]:
         """
-        `Artist Roles > Get multiple artists' roles
+        `Artist Roles > Get multiple artist roles
         <https://tidal-music.github.io/tidal-api-reference/#
-        /artist-roles/get_artist_roles>`_: Retrieves the roles of
-        multiple artists.
+        /artist-roles/get_artist_roles>`_: Retrieves multiple artist
+        roles.
 
         Parameters
         ----------
-        artist_ids : `int`, `str`, or `list`
-            TIDAL artist ID(s).
+        artist_role_ids : `int`, `str`, or `list`
+            TIDAL artist role ID(s).
 
             **Examples**: :code:`1`, :code:`"1"`, :code:`"1,2"`,
             :code:`[1, 2]`, and :code:`["1", "2"]`.
 
         Returns
         -------
-        artists_roles : `dict`
+        artist_roles : `dict`
             A dictionary containing TIDAL catalog information for the
             artists' roles.
         """
-        if isinstance(artist_ids, str) and "," in artist_ids:
-            artist_ids = artist_ids.split(",")
+        if isinstance(artist_role_ids, str) and "," in artist_role_ids:
+            artist_role_ids = artist_role_ids.split(",")
         return self.session.get(
-            f"{self.API_URL}/artistRoles", params={"filter[id]": artist_ids}
+            f"{self.API_URL}/artistRoles",
+            params={"filter[id]": artist_role_ids},
         )
 
     ### ARTISTS ###############################################################
@@ -1352,10 +1402,10 @@ class API:
             Related resource(s) that should be included in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"biography"`,
-            :code:`"owners"`, :code:`"profileArt"`, :code:`"radio"`,
-            :code:`"roles"`, :code:`"similarArtists"`,
-            :code:`"trackProviders"`, :code:`"tracks"`,
-            and :code:`"videos"`.
+            :code:`"followers"`, :code:`"following"`, :code:`"owners"`,
+            :code:`"profileArt"`, :code:`"radio"`, :code:`"roles"`,
+            :code:`"similarArtists"`, :code:`"trackProviders"`,
+            :code:`"tracks"`, :code:`"videos"`.
 
             **Examples**: :code:`"albums"`, :code:`"albums,biography"`,
             and :code:`["albums", "biography"]`.
@@ -1395,10 +1445,10 @@ class API:
             Related resource(s) that should be included in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"biography"`,
-            :code:`"owners"`, :code:`"profileArt"`, :code:`"radio"`,
-            :code:`"roles"`, :code:`"similarArtists"`,
-            :code:`"trackProviders"`, :code:`"tracks"`,
-            and :code:`"videos"`.
+            :code:`"followers"`, :code:`"following"`, :code:`"owners"`,
+            :code:`"profileArt"`, :code:`"radio"`, :code:`"roles"`,
+            :code:`"similarArtists"`, :code:`"trackProviders"`,
+            :code:`"tracks"`, :code:`"videos"`.
 
             **Examples**: :code:`"albums"`, :code:`"albums,biography"`,
             and :code:`["albums", "biography"]`.
@@ -1440,7 +1490,12 @@ class API:
         )
 
     def get_artist_relationship(
-        self, artist_id: Union[int, str], relationship: str, /, **kwargs
+        self,
+        artist_id: Union[int, str],
+        relationship: str,
+        /,
+        include: bool = False,
+        **kwargs,
     ) -> dict[str, Any]:
         """
         Retrieve information related to an artist.
@@ -1466,6 +1521,10 @@ class API:
             :code:`"trackProviders"`, :code:`"tracks"`, or
             :code:`"videos"`.
 
+        include : bool, keyword-only
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         **kwargs
             Keyword arguments.
 
@@ -1477,7 +1536,7 @@ class API:
         """
         return self._get_json(
             f"{self.API_URL}/artists/{artist_id}/relationships/{relationship}",
-            params={"include": relationship, **kwargs},
+            params={"include": relationship if include else None, **kwargs},
         )
 
     def get_artist_albums(
@@ -1486,6 +1545,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1506,6 +1566,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1519,11 +1583,17 @@ class API:
             artist_id,
             "albums",
             countryCode=country_code,
+            include=include,
             **{"page[cursor]": cursor},
         )
 
     def get_artist_biography(
-        self, artist_id: Union[int, str], /, country_code: str
+        self,
+        artist_id: Union[int, str],
+        /,
+        country_code: str,
+        *,
+        include: bool = False,
     ) -> dict[str, Any]:
         """
         `Artists > Get artist's biography <https://tidal-music.github.io
@@ -1543,6 +1613,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         Returns
         -------
         biography : `dict`
@@ -1550,7 +1624,7 @@ class API:
             artist's biography.
         """
         return self.get_artist_relationship(
-            artist_id, "biography", countryCode=country_code
+            artist_id, "biography", countryCode=country_code, include=include
         )
 
     def get_artist_owners(
@@ -1558,6 +1632,7 @@ class API:
         artist_id: Union[int, str],
         /,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1578,6 +1653,10 @@ class API:
 
             **Examples**: :code:`1566` and :code:`"1566"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1589,7 +1668,7 @@ class API:
         """
         self._check_authentication("get_artist_owners")
         return self.get_artist_relationship(
-            artist_id, "owners", **{"page[cursor]": cursor}
+            artist_id, "owners", include=include, **{"page[cursor]": cursor}
         )
 
     def get_artist_profile_art(
@@ -1598,6 +1677,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1618,6 +1698,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1631,6 +1715,7 @@ class API:
             artist_id,
             "profile_art",
             countryCode=country_code,
+            include=include,
             **{"page[cursor]": cursor},
         )
 
@@ -1640,6 +1725,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1660,6 +1746,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1673,6 +1763,7 @@ class API:
             artist_id,
             "radio",
             countryCode=country_code,
+            include=include,
             **{"page[cursor]": cursor},
         )
 
@@ -1681,6 +1772,7 @@ class API:
         artist_id: Union[int, str],
         /,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1696,6 +1788,10 @@ class API:
 
             **Examples**: :code:`1566` and :code:`"1566"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1706,7 +1802,10 @@ class API:
             artist's roles.
         """
         return self.get_artist_relationship(
-            artist_id, "roles", **{"page[cursor]": cursor}
+            artist_id,
+            "roles",
+            include=include,
+            **{"page[cursor]": cursor},
         )
 
     def get_similar_artists(
@@ -1715,6 +1814,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1735,6 +1835,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1748,6 +1852,7 @@ class API:
             artist_id,
             "similar",
             countryCode=country_code,
+            include=include,
             **{"page[cursor]": cursor},
         )
 
@@ -1756,6 +1861,7 @@ class API:
         artist_id: Union[int, str],
         /,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1771,6 +1877,10 @@ class API:
 
             **Examples**: :code:`1566` and :code:`"1566"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1781,7 +1891,10 @@ class API:
             artist's track providers.
         """
         return self.get_artist_relationship(
-            artist_id, "trackProviders", **{"page[cursor]": cursor}
+            artist_id,
+            "trackProviders",
+            include=include,
+            **{"page[cursor]": cursor},
         )
 
     def get_artist_tracks(
@@ -1791,6 +1904,7 @@ class API:
         country_code: str,
         *,
         collapse_by: str = "ID",
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1818,6 +1932,10 @@ class API:
             tracks based on entry fingerprints, or :code:`"ID"` to
             always return all available items.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1832,6 +1950,7 @@ class API:
             "tracks",
             countryCode=country_code,
             collapseBy=collapse_by,
+            include=include,
             **{"page[cursor]": cursor},
         )
 
@@ -1841,6 +1960,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -1861,6 +1981,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -1874,6 +1998,7 @@ class API:
             artist_id,
             "videos",
             countryCode=country_code,
+            include=include,
             **{"page[cursor]": cursor},
         )
 
@@ -1972,7 +2097,12 @@ class API:
         )
 
     def get_artwork_owners(
-        self, artwork_id: str, /, *, cursor: Union[int, str, None]
+        self,
+        artwork_id: str,
+        /,
+        *,
+        include: bool = False,
+        cursor: Union[int, str, None],
     ) -> dict[str, Any]:
         """
         `Artworks > Get artwork owners <https://tidal-music.github.io
@@ -1992,6 +2122,10 @@ class API:
 
             **Example**: :code:`"a468bee88def"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -2004,7 +2138,10 @@ class API:
         self._check_authentication("get_artwork_owners")
         return self._get_json(
             f"{self.API_URL}/artworks/{artwork_id}/relationships/owners",
-            params={"include": "owners", "page[cursor]": cursor},
+            params={
+                "include": "owners" if include else None,
+                "page[cursor]": cursor,
+            },
         )
 
     ### PLAYLISTS #############################################################
@@ -2060,10 +2197,11 @@ class API:
         self,
         country_code: str,
         *,
-        playlist_uuids: Union[int, str, list[Union[int, str]], None] = None,
+        playlist_uuids: Union[str, list[str], None] = None,
         user_ids: Union[int, str, list[Union[int, str]], None] = None,
         include: Union[str, list[str], None] = None,
         cursor: Union[int, str, None] = None,
+        sort: str | None = None,
     ) -> dict[str, Any]:
         """
         `Playlists > Get multiple playlists <https://tidal-music.github.io
@@ -2082,7 +2220,7 @@ class API:
 
             **Example**: :code:`"US"`.
 
-        playlist_uuids : `int`, `str`, or `list`, keyword-only, optional
+        playlist_uuids : `str` or `list`, keyword-only, optional
             TIDAL playlist UUID(s). Only optional if `user_ids` is
             provided.
 
@@ -2108,6 +2246,15 @@ class API:
             Pagination cursor. If not specified, the first page of
             results will be returned.
 
+        sort : str, keyword-only, optional
+            Field to sort the returned playlists by. Values are sorted
+            in descending order with the :code:`-` prefix and in
+            ascending order without.
+
+            **Valid values**: :code:`"createdAt"`, :code:`"-createdAt`,
+            :code:`"lastModifiedAt`, :code:`"-lastModifiedAt"`,
+            :code:`"name"`, :code:`"-name"`.
+
         Returns
         -------
         playlists : `dict`
@@ -2129,6 +2276,7 @@ class API:
                 "include": include,
                 "filter[r.owners.id]": user_ids,
                 "filter[id]": playlist_uuids,
+                "sort": sort,
             },
         )
 
@@ -2258,6 +2406,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -2286,6 +2435,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -2299,7 +2452,7 @@ class API:
             f"{self.API_URL}/playlists/{playlist_uuid}/relationships/{relationship}",
             params={
                 "countryCode": country_code,
-                "include": relationship,
+                "include": relationship if include else None,
                 "page[cursor]": cursor,
             },
         )
@@ -2310,6 +2463,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -2330,6 +2484,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor. If not specified, the first page of
             results will be returned.
@@ -2341,7 +2499,11 @@ class API:
             cover artwork associated with the playlist.
         """
         return self.get_playlist_relationship(
-            playlist_uuid, "coverArt", country_code, cursor=cursor
+            playlist_uuid,
+            "coverArt",
+            country_code,
+            include=include,
+            cursor=cursor,
         )
 
     def get_playlist_items(
@@ -2350,6 +2512,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -2370,6 +2533,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor. If not specified, the first page of
             results will be returned.
@@ -2381,7 +2548,11 @@ class API:
             items in the playlist.
         """
         return self.get_playlist_relationship(
-            playlist_uuid, "items", country_code, cursor=cursor
+            playlist_uuid,
+            "items",
+            country_code,
+            include=include,
+            cursor=cursor,
         )
 
     def add_playlist_items(
@@ -2523,7 +2694,6 @@ class API:
                 if not item["type"].endswith("s"):
                     item["type"] = f"{item['type']}s"
 
-        # TODO: Figure out how this endpoint actually works.
         self._request(
             "patch",
             f"{self.API_URL}/playlists/{playlist_uuid}/relationships/items",
@@ -2607,6 +2777,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -2632,6 +2803,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor. If not specified, the first page of
             results will be returned.
@@ -2644,7 +2819,11 @@ class API:
         """
         self._check_scope("get_playlist_owners", "playlists.read")
         return self.get_playlist_relationship(
-            playlist_uuid, "owners", country_code, cursor=cursor
+            playlist_uuid,
+            "owners",
+            country_code,
+            include=include,
+            cursor=cursor,
         )
 
     ### PROVIDERS #############################################################
@@ -2755,6 +2934,7 @@ class API:
         country_code: str,
         *,
         explicit: bool = True,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -2786,6 +2966,10 @@ class API:
             Specifies whether to include explicit content in the search
             results.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -2801,7 +2985,7 @@ class API:
             params={
                 "countryCode": country_code,
                 "explicitFilter": "include" if explicit else "exclude",
-                "include": relationship,
+                "include": relationship if include else None,
                 "page[cursor]": cursor,
             },
         )
@@ -2813,6 +2997,7 @@ class API:
         country_code: str,
         *,
         explicit: bool = True,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -2835,6 +3020,10 @@ class API:
             Specifies whether to include explicit content in the search
             results.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -2848,6 +3037,7 @@ class API:
             "albums",
             country_code,
             explicit=explicit,
+            include=include,
             cursor=cursor,
         )
 
@@ -2858,6 +3048,7 @@ class API:
         country_code: str,
         *,
         explicit: bool = True,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -2880,6 +3071,10 @@ class API:
             Specifies whether to include explicit content in the search
             results.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -2893,6 +3088,7 @@ class API:
             "artists",
             country_code,
             explicit=explicit,
+            include=include,
             cursor=cursor,
         )
 
@@ -2903,6 +3099,7 @@ class API:
         country_code: str,
         *,
         explicit: bool = True,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -2925,6 +3122,10 @@ class API:
             Specifies whether to include explicit content in the search
             results.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -2938,6 +3139,7 @@ class API:
             "playlists",
             country_code,
             explicit=explicit,
+            include=include,
             cursor=cursor,
         )
 
@@ -2948,6 +3150,7 @@ class API:
         country_code: str,
         *,
         explicit: bool = True,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -2970,6 +3173,10 @@ class API:
             Specifies whether to include explicit content in the search
             results.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -2983,6 +3190,7 @@ class API:
             "topHits",
             country_code,
             explicit=explicit,
+            include=include,
             cursor=cursor,
         )
 
@@ -2993,6 +3201,7 @@ class API:
         country_code: str,
         *,
         explicit: bool = True,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -3015,6 +3224,10 @@ class API:
             Specifies whether to include explicit content in the search
             results.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -3028,6 +3241,7 @@ class API:
             "tracks",
             country_code,
             explicit=explicit,
+            include=include,
             cursor=cursor,
         )
 
@@ -3038,6 +3252,7 @@ class API:
         country_code: str,
         *,
         explicit: bool = True,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -3060,6 +3275,10 @@ class API:
             Specifies whether to include explicit content in the search
             results.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -3073,6 +3292,7 @@ class API:
             "videos",
             country_code,
             explicit=explicit,
+            include=include,
             cursor=cursor,
         )
 
@@ -3251,7 +3471,8 @@ class API:
         track_ids : `int`, `str`, or `list`, keyword-only, optional
             TIDAL track ID(s).
 
-            **Example**: :code:`75413016` or :code:`"75413016"`.
+            **Examples**: :code:`75413016`, :code:`"75413016"`, and
+            :code:`["46369325", "75413016"]`.
 
         isrcs : `int`, `str`, or `list`, keyword-only, optional
             International Standard Recording Code(s).
@@ -3311,6 +3532,8 @@ class API:
         track_id: Union[int, str],
         relationship: str,
         /,
+        *,
+        include: bool = False,
         **kwargs,
     ) -> dict[str, Any]:
         """
@@ -3336,6 +3559,10 @@ class API:
             :code:`"similarTracks"`, :code:`"sourceFile"`, or
             :code:`"trackStatistics"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         **kwargs
             Keyword arguments.
 
@@ -3347,7 +3574,7 @@ class API:
         """
         return self._get_json(
             f"{self.API_URL}/tracks/{track_id}/relationships/{relationship}",
-            params={"include": relationship, **kwargs},
+            params={"include": relationship if include else None, **kwargs},
         )
 
     def get_track_albums(
@@ -3356,6 +3583,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -3376,6 +3604,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -3389,6 +3621,7 @@ class API:
             track_id,
             "albums",
             countryCode=country_code,
+            include=include,
             **{"page[cursor]": cursor},
         )
 
@@ -3398,6 +3631,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -3417,6 +3651,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -3430,6 +3668,7 @@ class API:
             track_id,
             "artists",
             countryCode=country_code,
+            include=include,
             **{"page[cursor]": cursor},
         )
 
@@ -3438,6 +3677,7 @@ class API:
         track_id: Union[int, str],
         /,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -3452,6 +3692,10 @@ class API:
 
             **Examples**: :code:`75413016` and :code:`"75413016"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -3462,7 +3706,7 @@ class API:
             owners of the track.
         """
         return self.get_track_relationship(
-            track_id, "owners", **{"page[cursor]": cursor}
+            track_id, "owners", include=include, **{"page[cursor]": cursor}
         )
 
     def get_track_providers(
@@ -3471,6 +3715,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -3491,6 +3736,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -3504,6 +3753,7 @@ class API:
             track_id,
             "providers",
             countryCode=country_code,
+            include=include,
             **{"page[cursor]": cursor},
         )
 
@@ -3512,6 +3762,7 @@ class API:
         track_id: Union[int, str],
         /,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -3526,6 +3777,10 @@ class API:
 
             **Examples**: :code:`75413016` and :code:`"75413016"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -3536,7 +3791,7 @@ class API:
             radio of the track.
         """
         return self.get_track_relationship(
-            track_id, "radio", **{"page[cursor]": cursor}
+            track_id, "radio", include=include, **{"page[cursor]": cursor}
         )
 
     def get_similar_tracks(
@@ -3545,6 +3800,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -3565,6 +3821,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -3578,11 +3838,12 @@ class API:
             track_id,
             "similar",
             countryCode=country_code,
+            include=include,
             **{"page[cursor]": cursor},
         )
 
     def get_track_source_file(
-        self, track_id: Union[int, str], /
+        self, track_id: Union[int, str], /, *, include: bool = False
     ) -> dict[str, Any]:
         """
         `Tracks > Get track source file <https://tidal-music.github.io
@@ -3597,16 +3858,22 @@ class API:
 
             **Examples**: :code:`75413016` and :code:`"75413016"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         Returns
         -------
         track_source_file : `dict`
             A dictionary containing TIDAL catalog information for the
             source file of the track.
         """
-        return self.get_track_relationship(track_id, "sourceFile")
+        return self.get_track_relationship(
+            track_id, "sourceFile", include=include
+        )
 
     def get_track_statistics(
-        self, track_id: Union[int, str], /
+        self, track_id: Union[int, str], /, *, include: bool = False
     ) -> dict[str, Any]:
         """
         `Tracks > Get track statistics <https://tidal-music.github.io
@@ -3621,48 +3888,835 @@ class API:
 
             **Examples**: :code:`75413016` and :code:`"75413016"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         Returns
         -------
         track_statistics : `dict`
             A dictionary containing TIDAL catalog information for the
             statistics about the track.
         """
-        return self.get_track_relationship(track_id, "statistics")
+        return self.get_track_relationship(
+            track_id, "statistics", include=include
+        )
 
     ### USER COLLECTIONS ######################################################
 
-    def get_user_collection(self) -> dict[str, Any]:
-        raise NotImplementedError
+    def get_user_collection(
+        self,
+        *,
+        country_code: Union[str, None] = None,
+        locale: Union[str, None] = None,
+        include: Union[str, list[str], None] = None,
+    ) -> dict[str, Any]:
+        """
+        `User Collections > Get user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections/get_userCollections__id_>`_: Get a TIDAL user's
+        collection.
 
-    def get_album_collection(self) -> dict[str, Any]:
-        raise NotImplementedError
+        Parameters
+        ----------
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
 
-    def add_album_to_collection(self) -> dict[str, Any]:
-        raise NotImplementedError
+            **Example**: :code:`"US"`.
 
-    def delete_album_from_collection(self) -> dict[str, Any]:
-        raise NotImplementedError
+        locale : str, keyword-only, optional
+            IETF BCP 47 language tag.
 
-    def get_artist_collection(self) -> dict[str, Any]:
-        raise NotImplementedError
+            **Default**: :code:`"en_US"` – English (U.S.).
 
-    def add_artist_to_collection(self) -> dict[str, Any]:
-        raise NotImplementedError
+        include : str or Collection[str], keyword-only, optional
+            Related resources to include in the response.
 
-    def delete_artist_from_collection(self) -> dict[str, Any]:
-        raise NotImplementedError
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
+            :code:`"videos"`.
 
-    def get_owner_collection(self) -> dict[str, Any]:
-        raise NotImplementedError
+        Returns
+        -------
+        collection : dict[str, Any]
+            TIDAL content metadata for the items in the current user's
+            collection.
+        """
+        self._check_scope("get_user_collection", "collection.read")
+        return self._get_json(
+            f"{self.API_URL}/userCollections/{self._user_id}",
+            params={
+                "countryCode": country_code,
+                "locale": locale,
+                "include": include,
+            },
+        )
 
-    def get_playlist_collection(self) -> dict[str, Any]:
-        raise NotImplementedError
+    def get_collection_relationship(
+        self,
+        relationship: str,
+        /,
+        *,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include: bool = False,
+        cursor: str | None = None,
+        sort: str | None = None,
+        **kwargs,
+    ) -> dict[str, Any]:
+        """
+        Retrieve items in a user's collection.
 
-    def add_playlist_to_collection(self) -> dict[str, Any]:
-        raise NotImplementedError
+        .. note::
 
-    def delete_playlist_from_collection(self) -> dict[str, Any]:
-        raise NotImplementedError
+           This method is provided for convenience and is not a TIDAL
+           API endpoint.
+
+        Parameters
+        ----------
+        relationship : str, positional-only
+            Relationship type.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str, keyword-only, optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        sort : str, keyword-only, optional
+            Field to sort the returned albums by. Values are sorted
+            in descending order with the :code:`-` prefix and in
+            ascending order without.
+
+        Returns
+        -------
+        collection_relationship : `dict`
+            A dictionary containing TIDAL catalog information for the
+            specified collection relationship.
+        """
+        self._check_scope("modify_collection_items", "collection.read")
+        return self._get_json(
+            f"{self.API_URL}/userCollections/{self._user_id}"
+            f"/relationships/{relationship}",
+            params={
+                "countryCode": country_code,
+                "locale": locale,
+                "include": relationship if include else None,
+                "cursor": cursor,
+                "sort": sort,
+                **kwargs,
+            },
+        )
+
+    def modify_collection_relationship(
+        self,
+        method: str,
+        relationship: str,
+        /,
+        item_ids: Union[str, list[str]],
+        *,
+        country_code: Union[str, None] = None,
+    ) -> None:
+        """
+        Add/remove items of a relationship type to/from a user's
+        collection.
+
+        Parameters
+        ----------
+        method : `str`, positional-only
+            HTTP method.
+
+            **Valid values**: :code:`"POST"`, :code:`"DELETE"`.
+
+        relationship : `str`, positional-only
+            Relationship type.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
+            :code:`"videos"`.
+
+        item_ids : `str` or `list`
+            TIDAL IDs or UUIDs of items, provided as strings or
+            properly formatted dictionaries.
+
+        country_code : `str`, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+        """
+        self._check_scope("modify_collection_items", "collection.write")
+        self._request(
+            method,
+            f"{self.API_URL}/userCollections/{self._user_id}"
+            f"/relationships/{relationship}",
+            params={"countryCode": country_code},
+            json={
+                "data": [
+                    {"id": item_id, "type": relationship}
+                    for item_id in (
+                        item_ids.split(",") if isinstance(str) else item_ids
+                    )
+                ]
+            },
+        )
+
+    def get_saved_albums(
+        self,
+        *,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include: bool = False,
+        cursor: str | None = None,
+        sort: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Collections > Get albums in user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /get_userCollections__id__relationships_albums>`_: Get TIDAL
+        catalog information for albums in a user's collection.
+
+        Parameters
+        ----------
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str, keyword-only, optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the albums in the user's collection.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        sort : str, keyword-only, optional
+            Field to sort the returned albums by. Values are sorted
+            in descending order with the :code:`-` prefix and in
+            ascending order without.
+
+            **Valid values**: :code:`"addedAt"`, :code:`"-addedAt`,
+            :code:`"artists.name`, :code:`"-artists.name"`,
+            :code:`"releaseDate"`, :code:`"-releaseDate"`,
+            :code:`"title"`, :code:`"-title"`.
+
+        Returns
+        -------
+        albums : dict[str, Any]
+            TIDAL content metadata for the albums in the user's
+            collection.
+        """
+        return self.get_collection_relationship(
+            "albums",
+            country_code=country_code,
+            locale=locale,
+            include=include,
+            cursor=cursor,
+            sort=sort,
+        )
+
+    def save_albums(
+        self,
+        album_ids: Union[str, list[str]],
+        /,
+        *,
+        country_code: str | None = None,
+    ) -> None:
+        """
+        `User Collections > Add albums to user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /post_userCollections__id__relationships_albums>`_: Add albums
+        to a user's collection.
+
+        Parameters
+        ----------
+        album_ids : `str` or `list`, positional-only
+            TIDAL album ID(s).
+
+            **Examples**::code:`"251380836"`,
+            :code:`"251380836,275646830"`, and
+            :code:`["251380836", "275646830"]`.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+        """
+        self.modify_collection_relationship(
+            "POST", "albums", item_ids=album_ids, country_code=country_code
+        )
+
+    def remove_saved_albums(
+        self,
+        album_ids: Union[str, list[str]],
+        /,
+        *,
+        country_code: str | None = None,
+    ) -> None:
+        """
+        `User Collections > Remove albums from user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /delete_userCollections__id__relationships_albums>`_: Remove
+        albums from a user's collection.
+
+        Parameters
+        ----------
+        album_ids : `str` or `list`, positional-only
+            TIDAL album ID(s).
+
+            **Examples**::code:`"251380836"`,
+            :code:`"251380836,275646830"`, and
+            :code:`["251380836", "275646830"]`.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+        """
+        self.modify_collection_relationship(
+            "DELETE", "albums", item_ids=album_ids, country_code=country_code
+        )
+
+    def get_saved_artists(
+        self,
+        *,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include: bool = False,
+        cursor: str | None = None,
+        sort: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Collections > Get artists in user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /get_userCollections__id__relationships_artists>`_: Get TIDAL
+        catalog information for artists in a user's collection.
+
+        Parameters
+        ----------
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str, keyword-only, optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the artists in the user's collection.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        sort : str, keyword-only, optional
+            Field to sort the returned artists by. Values are sorted
+            in descending order with the :code:`-` prefix and in
+            ascending order without.
+
+            **Valid values**: :code:`"addedAt"`, :code:`"-addedAt`,
+            :code:`"name"`, :code:`"-name"`.
+
+        Returns
+        -------
+        artists : dict[str, Any]
+            TIDAL content metadata for the artists in the user's
+            collection.
+        """
+        return self.get_collection_relationship(
+            "artists",
+            country_code=country_code,
+            locale=locale,
+            include=include,
+            cursor=cursor,
+            sort=sort,
+        )
+
+    def save_artists(
+        self,
+        artist_ids: Union[str, list[str]],
+        /,
+        *,
+        country_code: str | None = None,
+    ) -> None:
+        """
+        `User Collections > Add artists to user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /post_userCollections__id__relationships_artists>`_: Add artists
+        to a user's collection.
+
+        Parameters
+        ----------
+        artist_ids : `str` or `list`, positional-only
+            TIDAL artist ID(s).
+
+            **Examples**: :code:`1`, :code:`"1"`, :code:`"1,2"`,
+            :code:`[1, 2]`, and :code:`["1", "2"]`.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+        """
+        self.modify_collection_relationship(
+            "POST", "artists", item_ids=artist_ids, country_code=country_code
+        )
+
+    def remove_saved_artists(
+        self,
+        artist_ids: Union[str, list[str]],
+        /,
+        *,
+        country_code: str | None = None,
+    ) -> None:
+        """
+        `User Collections > Remove artists from user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /delete_userCollections__id__relationships_artists>`_: Remove
+        artists from a user's collection.
+
+        Parameters
+        ----------
+        artist_ids : `str` or `list`, positional-only
+            TIDAL artist ID(s).
+
+            **Examples**: :code:`1`, :code:`"1"`, :code:`"1,2"`,
+            :code:`[1, 2]`, and :code:`["1", "2"]`.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+        """
+        self.modify_collection_relationship(
+            "DELETE", "artists", item_ids=artist_ids, country_code=country_code
+        )
+
+    def get_saved_owners(
+        self, include: bool = False, cursor: Union[str, None] = None
+    ) -> dict[str, Any]:
+        """
+        `User Collections > Get owners of user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /get_userCollections__id__relationships_owners>`_: Get TIDAL
+        catalog information for owners of a user's collection.
+        
+        Parameters
+        ----------
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the owners of the user's collection.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        owners : dict[str, Any]
+            TIDAL content metadata for the owners of the user's
+            collection.
+        """
+        return self.get_collection_relationship(
+            "owners", include=include, cursor=cursor
+        )
+
+    def get_saved_playlists(
+        self,
+        *,
+        country_code: str | None = None,
+        locale: str | None = None,
+        folders: bool = False,
+        include: bool = False,
+        cursor: str | None = None,
+        sort: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Collections > Get playlists in user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /get_userCollections__id__relationships_playlists>`_: Get TIDAL
+        catalog information for playlists in a user's collection.
+
+        Parameters
+        ----------
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str, keyword-only, optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
+        folders : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            playlist folders in the user's collection.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the playlists in the user's collection.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        sort : str, keyword-only, optional
+            Field to sort the returned playlists by. Values are sorted
+            in descending order with the :code:`-` prefix and in
+            ascending order without.
+
+            **Valid values**: :code:`"addedAt"`, :code:`"-addedAt`,
+            :code:`"lastUpdatedAt"`, :code:`"-lastUpdatedAt"`,
+            :code:`"name"`, :code:`"-name"`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            TIDAL content metadata for the playlists (and playlist
+            folders) in the user's collection.
+        """
+        return self.get_collection_relationship(
+            "playlists",
+            country_code=country_code,
+            locale=locale,
+            include=include,
+            cursor=cursor,
+            sort=sort,
+            collectionView="FOLDERS" if folders else None,
+        )
+
+    def save_playlists(
+        self,
+        playlist_uuids: Union[str, list[str]],
+        /,
+    ) -> None:
+        """
+        `User Collections > Add playlists to user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /post_userCollections__id__relationships_playlists>`_: Add
+        playlists to a user's collection.
+
+        Parameters
+        ----------
+        playlist_uuids : `str` or `list`, positional-only, optional
+            TIDAL playlist UUID(s).
+
+            **Examples**: :code:`"550e8400-e29b-41d4-a716-446655440000"`
+            and :code:`["550e8400-e29b-41d4-a716-446655440000",
+            "4261748a-4287-4758-aaab-6d5be3e99e52"]`.
+        """
+        self.modify_collection_relationship(
+            "POST", "playlists", item_ids=playlist_uuids
+        )
+
+    def remove_saved_playlists(
+        self,
+        playlist_uuids: Union[str, list[str]],
+        /,
+    ) -> None:
+        """
+        `User Collections > Remove playlists from user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /delete_userCollections__id__relationships_playlists>`_: Remove
+        playlists from a user's collection.
+
+        Parameters
+        ----------
+        playlist_uuids : `str` or `list`, positional-only, optional
+            TIDAL playlist UUID(s).
+
+            **Examples**: :code:`"550e8400-e29b-41d4-a716-446655440000"`
+            and :code:`["550e8400-e29b-41d4-a716-446655440000",
+            "4261748a-4287-4758-aaab-6d5be3e99e52"]`.
+        """
+        self.modify_collection_relationship(
+            "DELETE", "playlists", item_ids=playlist_uuids
+        )
+
+    def get_saved_tracks(
+        self,
+        *,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include: bool = False,
+        cursor: str | None = None,
+        sort: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Collections > Get tracks in user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /get_userCollections__id__relationships_tracks>`_: Get TIDAL
+        catalog information for tracks in a user's collection.
+
+        Parameters
+        ----------
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str, keyword-only, optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the tracks in the user's collection.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        sort : str, keyword-only, optional
+            Field to sort the returned tracks by. Values are sorted
+            in descending order with the :code:`-` prefix and in
+            ascending order without.
+
+            **Valid values**: :code:`"addedAt"`, :code:`"-addedAt`,
+            :code:`"albums.title"`, :code:`"-albums.title"`,
+            :code:`"artists.name"`, :code:`"-artists.name"`,
+            :code:`"duration"`, :code:`"-duration"`, :code:`"title"`,
+            :code:`"-title"`.
+
+        Returns
+        -------
+        tracks : dict[str, Any]
+            TIDAL content metadata for the tracks in the user's
+            collection.
+        """
+        return self.get_collection_relationship(
+            "tracks",
+            country_code=country_code,
+            locale=locale,
+            include=include,
+            cursor=cursor,
+            sort=sort,
+        )
+
+    def save_tracks(
+        self,
+        track_ids: Union[str, list[str]],
+        /,
+        *,
+        country_code: str | None = None,
+    ) -> None:
+        """
+        `User Collections > Add tracks to user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /post_userCollections__id__relationships_tracks>`_: Add tracks
+        to a user's collection.
+
+        Parameters
+        ----------
+        track_ids : `str` or `list`, positional-only
+            TIDAL track ID(s).
+
+            **Examples**: :code:`"46369325"`,
+            :code:`["46369325", "75413016"]`.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+        """
+        self.modify_collection_relationship(
+            "POST", "tracks", item_ids=track_ids, country_code=country_code
+        )
+
+    def remove_saved_tracks(
+        self,
+        track_ids: Union[str, list[str]],
+        /,
+        *,
+        country_code: str | None = None,
+    ) -> None:
+        """
+        `User Collections > Remove tracks from user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /delete_userCollections__id__relationships_tracks>`_: Remove
+        tracks from a user's collection.
+
+        Parameters
+        ----------
+        track_ids : `str` or `list`, positional-only
+            TIDAL track ID(s).
+
+            **Examples**: :code:`"46369325"`,
+            :code:`["46369325", "75413016"]`.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+        """
+        self.modify_collection_relationship(
+            "DELETE", "tracks", item_ids=track_ids, country_code=country_code
+        )
+
+    def get_saved_videos(
+        self,
+        *,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include: bool = False,
+        cursor: str | None = None,
+        sort: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User Collections > Get videos in user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /get_userCollections__id__relationships_videos>`_: Get TIDAL
+        catalog information for videos in a user's collection.
+
+        Parameters
+        ----------
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+
+        locale : str, keyword-only, optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the videos in the user's collection.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        sort : str, keyword-only, optional
+            Field to sort the returned videos by. Values are sorted
+            in descending order with the :code:`-` prefix and in
+            ascending order without.
+
+            **Valid values**: :code:`"addedAt"`, :code:`"-addedAt`,
+            :code:`"artists.name"`, :code:`"-artists.name"`,
+            :code:`"duration"`, :code:`"-duration"`, :code:`"title"`,
+            :code:`"-title"`.
+
+        Returns
+        -------
+        videos : dict[str, Any]
+            TIDAL content metadata for the videos in the user's
+            collection.
+        """
+        return self.get_collection_relationship(
+            "videos",
+            country_code=country_code,
+            locale=locale,
+            include=include,
+            cursor=cursor,
+            sort=sort,
+        )
+
+    def save_videos(
+        self,
+        video_ids: Union[str, list[str]],
+        /,
+        *,
+        country_code: str | None = None,
+    ) -> None:
+        """
+        `User Collections > Add videos to user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /post_userCollections__id__relationships_videos>`_: Add videos
+        to a user's collection.
+
+        Parameters
+        ----------
+        video_ids : `str` or `list`, positional-only
+            TIDAL video ID(s).
+
+            **Examples**: :code:`75623239`, :code:`"75623239"`, and
+            :code:`["75623239", "75623240"]`.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+        """
+        self.modify_collection_relationship(
+            "POST", "videos", item_ids=video_ids, country_code=country_code
+        )
+
+    def remove_saved_videos(
+        self,
+        video_ids: Union[str, list[str]],
+        /,
+        *,
+        country_code: str | None = None,
+    ) -> None:
+        """
+        `User Collections > Remove videos from user's collection
+        <https://tidal-music.github.io/tidal-api-reference/#
+        /userCollections
+        /delete_userCollections__id__relationships_videos>`_: Remove
+        videos from a user's collection.
+
+        Parameters
+        ----------
+        video_ids : `str` or `list`, positional-only
+            TIDAL video ID(s).
+
+            **Examples**: :code:`75623239`, :code:`"75623239"`, and
+            :code:`["75623239", "75623240"]`.
+
+        country_code : str, keyword-only, optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+        """
+        self.modify_collection_relationship(
+            "DELETE", "videos", item_ids=video_ids, country_code=country_code
+        )
 
     ### USER ENTITLEMENTS #####################################################
 
@@ -3742,6 +4796,7 @@ class API:
         country_code: str,
         locale: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -3775,6 +4830,10 @@ class API:
 
             **Example**: :code:`"en-US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, optional
             Pagination cursor.
 
@@ -3789,7 +4848,7 @@ class API:
             params={
                 "countryCode": country_code,
                 "locale": locale,
-                "include": f"{mix_type}Mixes",
+                "include": f"{mix_type}Mixes" if include else None,
                 "page[cursor]": cursor,
             },
         )
@@ -3799,6 +4858,7 @@ class API:
         country_code: str,
         locale: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -3820,17 +4880,24 @@ class API:
 
             **Example**: :code:`"en-US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
         """
         self._check_scope("get_discovery_mixes", "recommendations.read")
-        return self.get_mixes("discovery", country_code, locale, cursor=cursor)
+        return self.get_mixes(
+            "discovery", country_code, locale, include=include, cursor=cursor
+        )
 
     def get_user_mixes(
         self,
         country_code: str,
         locale: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -3852,17 +4919,24 @@ class API:
 
             **Example**: :code:`"en-US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
         """
         self._check_scope("get_user_mixes", "recommendations.read")
-        return self.get_mixes("my", country_code, locale, cursor=cursor)
+        return self.get_mixes(
+            "my", country_code, locale, include=include, cursor=cursor
+        )
 
     def get_new_arrival_mixes(
         self,
         country_code: str,
         locale: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -3884,11 +4958,17 @@ class API:
 
             **Example**: :code:`"en-US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
         """
         self._check_scope("get_new_arrival_mixes", "recommendations.read")
-        return self.get_mixes("newArrival", country_code, locale, cursor=cursor)
+        return self.get_mixes(
+            "newArrival", country_code, locale, include=include, cursor=cursor
+        )
 
     ### USERS #################################################################
 
@@ -3974,7 +5054,7 @@ class API:
 
             **Example**: :code:`"US"`.
 
-        video_ids : `int` or `str` or `list`, keyword-only, optional
+        video_ids : `int`, `str` or `list`, keyword-only, optional
             TIDAL video ID(s).
 
             **Examples**: :code:`75623239`, :code:`"75623239"`, and
@@ -4022,9 +5102,11 @@ class API:
     def get_video_relationship(
         self,
         video_id: Union[int, str],
+        relationship: str,
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -4047,6 +5129,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -4058,7 +5144,11 @@ class API:
         """
         return self._get_json(
             f"{self.API_URL}/videos/{video_id}/relationships",
-            params={"countryCode": country_code, "page[cursor]": cursor},
+            params={
+                "countryCode": country_code,
+                "include": relationship if include else None,
+                "page[cursor]": cursor,
+            },
         )
 
     def get_video_albums(
@@ -4067,6 +5157,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -4087,6 +5178,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -4097,7 +5192,11 @@ class API:
             albums containing the video.
         """
         return self.get_video_relationship(
-            video_id, "albums", country_code=country_code, cursor=cursor
+            video_id,
+            "albums",
+            country_code=country_code,
+            include=include,
+            cursor=cursor,
         )
 
     def get_video_artists(
@@ -4106,6 +5205,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -4126,6 +5226,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -4136,7 +5240,11 @@ class API:
             artists associated with the video.
         """
         return self.get_video_relationship(
-            video_id, "artists", country_code=country_code, cursor=cursor
+            video_id,
+            "artists",
+            country_code=country_code,
+            include=include,
+            cursor=cursor,
         )
 
     def get_video_providers(
@@ -4145,6 +5253,7 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
@@ -4165,6 +5274,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -4175,7 +5288,11 @@ class API:
             providers of the video.
         """
         return self.get_video_relationship(
-            video_id, "providers", country_code=country_code, cursor=cursor
+            video_id,
+            "providers",
+            country_code=country_code,
+            include=include,
+            cursor=cursor,
         )
 
     def get_video_thumbnail_art(
@@ -4184,13 +5301,14 @@ class API:
         /,
         country_code: str,
         *,
+        include: bool = False,
         cursor: Union[int, str, None] = None,
     ) -> dict[str, Any]:
         """
         `Videos > Get video thumbnail art <https://tidal-music.github.io
         /tidal-api-reference/#/videos
-        /get_videos__id__relationships_thumbnailArt>`_: Retrieve thumbnail art
-        for a video.
+        /get_videos__id__relationships_thumbnailArt>`_: Retrieve
+        thumbnail art for a video.
 
         Parameters
         ----------
@@ -4204,6 +5322,10 @@ class API:
 
             **Example**: :code:`"US"`.
 
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata in the
+            response.
+
         cursor : `int` or `str`, keyword-only, optional
             Pagination cursor.
 
@@ -4214,7 +5336,11 @@ class API:
             thumbnail art for the video.
         """
         return self.get_video_relationship(
-            video_id, "thumbnailArt", country_code=country_code, cursor=cursor
+            video_id,
+            "thumbnailArt",
+            country_code=country_code,
+            include=include,
+            cursor=cursor,
         )
 
 
@@ -4938,7 +6064,9 @@ class PrivateAPI:
 
         self._flow = flow
         self._save = save
-        self._client_id = client_id or os.environ.get("TIDAL_PRIVATE_CLIENT_ID")
+        self._client_id = client_id or os.environ.get(
+            "TIDAL_PRIVATE_CLIENT_ID"
+        )
 
         if flow:
             if "x-tidal-token" in self.session.headers:
@@ -5541,7 +6669,9 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_favorite_albums", "r_usr", flows={"device_code"})
+        self._check_scope(
+            "get_favorite_albums", "r_usr", flows={"device_code"}
+        )
 
         return self._get_json(
             f"{self.API_URL}/v1/users/{self._user_id}/favorites/albums",
@@ -6754,7 +7884,9 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_blocked_artists", "r_usr", flows={"device_code"})
+        self._check_scope(
+            "get_blocked_artists", "r_usr", flows={"device_code"}
+        )
 
         return self._get_json(
             f"{self.API_URL}/v1/users/{self._user_id}/blocks/artists",
@@ -7284,9 +8416,7 @@ class PrivateAPI:
         if device_type not in (
             DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}
         ):
-            emsg = (
-                f"Invalid device type. Valid values: {', '.join(DEVICE_TYPES)}."
-            )
+            emsg = f"Invalid device type. Valid values: {', '.join(DEVICE_TYPES)}."
             raise ValueError(emsg)
 
         return self._get_json(
@@ -7356,9 +8486,7 @@ class PrivateAPI:
         if device_type not in (
             DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}
         ):
-            emsg = (
-                f"Invalid device type. Valid values: {', '.join(DEVICE_TYPES)}."
-            )
+            emsg = f"Invalid device type. Valid values: {', '.join(DEVICE_TYPES)}."
             raise ValueError(emsg)
 
         return self._get_json(
@@ -7428,9 +8556,7 @@ class PrivateAPI:
         if device_type not in (
             DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}
         ):
-            emsg = (
-                f"Invalid device type. Valid values: {', '.join(DEVICE_TYPES)}."
-            )
+            emsg = f"Invalid device type. Valid values: {', '.join(DEVICE_TYPES)}."
             raise ValueError(emsg)
 
         return self._get_json(
@@ -7500,9 +8626,7 @@ class PrivateAPI:
         if device_type not in (
             DEVICE_TYPES := {"BROWSER", "DESKTOP", "PHONE", "TV"}
         ):
-            emsg = (
-                f"Invalid device type. Valid values: {', '.join(DEVICE_TYPES)}."
-            )
+            emsg = f"Invalid device type. Valid values: {', '.join(DEVICE_TYPES)}."
             raise ValueError(emsg)
 
         return self._get_json(
@@ -7999,7 +9123,9 @@ class PrivateAPI:
             **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
         """
 
-        self._check_scope("unfavorite_playlist", "r_usr", flows={"device_code"})
+        self._check_scope(
+            "unfavorite_playlist", "r_usr", flows={"device_code"}
+        )
 
         self._request(
             "put",
@@ -9252,7 +10378,7 @@ class PrivateAPI:
         self,
         track_id: Union[int, str],
         *,
-        audio_quality: str = "HI_RES",
+        audio_quality: str = "HI_RES_LOSSLESS",
         playback_mode: str = "STREAM",
         asset_presentation: str = "FULL",
         streaming_session_id: str = None,
@@ -9895,7 +11021,7 @@ class PrivateAPI:
         self,
         track_id: Union[int, str],
         *,
-        audio_quality: str = "HI_RES",
+        audio_quality: str = "HI_RES_LOSSLESS",
         playback_mode: str = "STREAM",
         asset_presentation: str = "FULL",
         streaming_session_id: str = None,
@@ -9999,7 +11125,13 @@ class PrivateAPI:
         )
 
         if audio_quality not in (
-            AUDIO_QUALITIES := {"LOW", "HIGH", "LOSSLESS", "HI_RES"}
+            AUDIO_QUALITIES := {
+                "LOW",
+                "HIGH",
+                "LOSSLESS",
+                "HI_RES",
+                "HI_RES_LOSSLESS",
+            }
         ):
             emsg = (
                 "Invalid audio quality. Valid values: "
@@ -10290,7 +11422,9 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_favorite_tracks", "r_usr", flows={"device_code"})
+        self._check_scope(
+            "get_favorite_tracks", "r_usr", flows={"device_code"}
+        )
 
         return self._get_json(
             f"{self.API_URL}/v1/users/{self._user_id}/favorites/tracks",
@@ -11164,7 +12298,9 @@ class PrivateAPI:
                   }
         """
 
-        self._check_scope("get_favorite_videos", "r_usr", flows={"device_code"})
+        self._check_scope(
+            "get_favorite_videos", "r_usr", flows={"device_code"}
+        )
 
         return self._get_json(
             f"{self.API_URL}/v1/users/{self._user_id}/favorites/videos",
