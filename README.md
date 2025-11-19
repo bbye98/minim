@@ -10,6 +10,14 @@
 
 # Minim
 
+> [!IMPORTANT]
+> Minim v1 (current `main` branch) is now in maintenance mode. It will
+> receive only critical bug fixes and occasional backports from v2. 
+> 
+> A full rewrite for Minim v2 is actively underway in the `dev` 
+> branch. If you’d like to try the bleeding-edge version or share 
+> feedback, please check out the `dev` branch and open an Issue!
+
 [![continuous-integration](https://github.com/bbye98/minim/actions/workflows/ci.yml/badge.svg)](https://github.com/bbye98/minim/actions/workflows/ci.yml)
 
 Minim is a lightweight Python 3 library that can interface with APIs 
@@ -17,7 +25,7 @@ by popular music services—iTunes, Qobuz, Spotify, and TIDAL—and operate
 on audio files, such as updating metadata and converting between audio
 formats.
 
-* **Documentation**: https://bbye98.github.io/minim/
+* **Documentation**: https://bbye98.github.io/minim/ (old) and https://minim.readthedocs.io/en/latest/ (new)
 
 ## Features
 
