@@ -1,8 +1,9 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import TTLCache
+from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
+from .users import UsersAPI
 
 if TYPE_CHECKING:
     from .. import TIDALAPI
@@ -1774,6 +1775,58 @@ class AlbumsAPI(TIDALResourceAPI):
             country_code,
             include=include,
             cursor=cursor,
+        )
+
+    @_copy_docstring(UsersAPI.get_saved_albums)
+    def get_saved_albums(
+        self,
+        *,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include: bool = False,
+        cursor: str | None = None,
+        sort: str | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_saved_albums(
+            user_id=user_id,
+            country_code=country_code,
+            locale=locale,
+            include=include,
+            cursor=cursor,
+            sort=sort,
+        )
+
+    @_copy_docstring(UsersAPI.save_albums)
+    def save_albums(
+        self,
+        album_ids: int
+        | str
+        | dict[str, int | str]
+        | Collection[int | str | dict[str, int | str]],
+        /,
+        *,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+    ) -> None:
+        self._client.users.save_albums(
+            album_ids, user_id=user_id, country_code=country_code
+        )
+
+    @_copy_docstring(UsersAPI.remove_saved_albums)
+    def remove_saved_albums(
+        self,
+        album_ids: int
+        | str
+        | dict[str, int | str]
+        | Collection[int | str | dict[str, int | str]],
+        /,
+        *,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+    ) -> None:
+        self._client.users.remove_saved_albums(
+            album_ids, user_id=user_id, country_code=country_code
         )
 
     def _get_album_resource(

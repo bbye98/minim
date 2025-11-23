@@ -1,8 +1,9 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import TTLCache
+from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
+from .users import UsersAPI
 
 if TYPE_CHECKING:
     from .. import TIDALAPI
@@ -1095,6 +1096,56 @@ class VideosAPI(TIDALResourceAPI):
             country_code,
             include=include,
             cursor=cursor,
+        )
+
+    @_copy_docstring(UsersAPI.get_saved_videos)
+    def get_saved_videos(
+        self,
+        *,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include: bool = False,
+        cursor: str | None = None,
+        sort: str | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_saved_videos(
+            user_id=user_id,
+            country_code=country_code,
+            locale=locale,
+            include=include,
+            cursor=cursor,
+            sort=sort,
+        )
+
+    @_copy_docstring(UsersAPI.save_videos)
+    def save_videos(
+        self,
+        video_ids: str
+        | dict[str, int | str]
+        | Collection[int | str | dict[str, int | str]],
+        /,
+        *,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+    ) -> None:
+        self._client.users.save_videos(
+            video_ids, user_id=user_id, country_code=country_code
+        )
+
+    @_copy_docstring(UsersAPI.remove_saved_videos)
+    def remove_saved_videos(
+        self,
+        video_ids: str
+        | dict[str, int | str]
+        | Collection[int | str | dict[str, int | str]],
+        /,
+        *,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+    ) -> None:
+        self._client.users.remove_saved_videos(
+            video_ids, user_id=user_id, country_code=country_code
         )
 
     def _get_video_resource(

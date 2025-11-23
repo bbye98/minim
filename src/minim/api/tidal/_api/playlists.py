@@ -1,8 +1,9 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import TTLCache
+from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
+from .users import UsersAPI
 
 if TYPE_CHECKING:
     from .. import TIDALAPI
@@ -22,6 +23,77 @@ class PlaylistsAPI(TIDALResourceAPI):
     _RESOURCES = {"coverArt", "items", "owners"}
     _SORTS = {"createdAt", "lastModifiedAt", "name"}
     _client: "TIDALAPI"
+
+    @classmethod
+    def _process_playlist_items(
+        cls,
+        items: tuple[int | str, str]
+        | tuple[int | str, str, str]
+        | dict[str, Any]
+        | Collection[
+            tuple[int | str, str] | tuple[int | str, str, str] | dict[str, Any]
+        ],
+        /,
+        *,
+        meta: bool = True,
+        _recursive: bool = True,
+    ) -> list[dict[str, Any]]:
+        """
+        Process user-specified items to add to, update in, or remove
+        from a playlist.
+
+        Parameters
+        ----------
+        items : tuple[int | str, ...], dict[str, Any], or \
+        Collection[tuple[int | str, ...] | dict[str, Any]], \
+        positional-only
+            TIDAL IDs (and UUIDs) of tracks and videos, provided as
+            tuples of the ID (and UUID) and the item type, or properly
+            formatted dictionaries.
+
+        meta : bool, keyword-only, default: :code:`True`
+            Specifies whether the items have UUID information.
+
+        Returns
+        -------
+        items : list[dict[str, Any]]
+            List of properly formatted dictionaries containing metadata
+            for the tracks and videos.
+        """
+        if isinstance(items, dict):
+            item_id = items.get("id")
+            item_type = items.get("type")
+            if meta:
+                item_uuid = items.get("meta", {}).get("itemId")
+        else:
+            num_items = len(items)
+            if not num_items:
+                raise ValueError("At least one item must be specified.")
+            if isinstance(items[0], dict | list | tuple):
+                if num_items > 20:
+                    raise ValueError(
+                        "A maximum of 20 items can be sent in a request."
+                    )
+                return [
+                    cls._process_playlist_items(
+                        item, meta=meta, _recursive=False
+                    )
+                    for item in items
+                ]
+            item_id, *item_uuid, item_type = items
+            if meta:
+                item_uuid = item_uuid[0]
+        if item_type not in cls._ITEM_TYPES:
+            item_types = "', '".join(cls._ITEM_TYPES)
+            raise ValueError(
+                f"Invalid item type {item_type!r}. Valid values: '{item_types}'."
+            )
+        item = {"id": str(item_id), "type": item_type}
+        if meta:
+            item["meta"] = {"itemId": item_uuid}
+        if _recursive:
+            return [item]
+        return item
 
     def get_playlists(
         self,
@@ -1437,76 +1509,53 @@ class PlaylistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @classmethod
-    def _process_playlist_items(
-        cls,
-        items: tuple[int | str, str]
-        | tuple[int | str, str, str]
-        | dict[str, Any]
-        | Collection[
-            tuple[int | str, str] | tuple[int | str, str, str] | dict[str, Any]
-        ],
+    @_copy_docstring(UsersAPI.get_saved_playlists)
+    def get_saved_playlists(
+        self,
+        *,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+        locale: str | None = None,
+        folders: bool = False,
+        include: bool = False,
+        cursor: str | None = None,
+        sort: str | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_saved_playlists(
+            user_id=user_id,
+            country_code=country_code,
+            locale=locale,
+            folders=folders,
+            include=include,
+            cursor=cursor,
+            sort=sort,
+        )
+
+    @_copy_docstring(UsersAPI.save_playlists)
+    def save_playlists(
+        self,
+        playlist_uuids: str
+        | dict[str, str]
+        | Collection[str | dict[str, str]],
         /,
         *,
-        meta: bool = True,
-        _recursive: bool = True,
-    ) -> list[dict[str, Any]]:
-        """
-        Process user-specified items to add to, update in, or remove
-        from a playlist.
+        user_id: int | str | None = None,
+    ) -> None:
+        self._client.users.save_playlists(playlist_uuids, user_id=user_id)
 
-        Parameters
-        ----------
-        items : tuple[int | str, ...], dict[str, Any], or \
-        Collection[tuple[int | str, ...] | dict[str, Any]], \
-        positional-only
-            TIDAL IDs (and UUIDs) of tracks and videos, provided as
-            tuples of the ID (and UUID) and the item type, or properly
-            formatted dictionaries.
-
-        meta : bool, keyword-only, default: :code:`True`
-            Specifies whether the items have UUID information.
-
-        Returns
-        -------
-        items : list[dict[str, Any]]
-            List of properly formatted dictionaries containing metadata
-            for the tracks and videos.
-        """
-        if isinstance(items, dict):
-            item_id = items.get("id")
-            item_type = items.get("type")
-            if meta:
-                item_uuid = items.get("meta", {}).get("itemId")
-        else:
-            num_items = len(items)
-            if not num_items:
-                raise ValueError("At least one item must be specified.")
-            if isinstance(items[0], dict | list | tuple):
-                if num_items > 20:
-                    raise ValueError(
-                        "A maximum of 20 items can be sent in a request."
-                    )
-                return [
-                    cls._process_playlist_items(
-                        item, meta=meta, _recursive=False
-                    )
-                    for item in items
-                ]
-            item_id, *item_uuid, item_type = items
-            if meta:
-                item_uuid = item_uuid[0]
-        if item_type not in cls._ITEM_TYPES:
-            item_types = "', '".join(cls._ITEM_TYPES)
-            raise ValueError(
-                f"Invalid item type {item_type!r}. Valid values: '{item_types}'."
-            )
-        item = {"id": str(item_id), "type": item_type}
-        if meta:
-            item["meta"] = {"itemId": item_uuid}
-        if _recursive:
-            return [item]
-        return item
+    @_copy_docstring(UsersAPI.remove_saved_playlists)
+    def remove_saved_playlists(
+        self,
+        playlist_uuids: str
+        | dict[str, str]
+        | Collection[str | dict[str, str]],
+        /,
+        *,
+        user_id: int | str | None = None,
+    ) -> None:
+        self._client.users.remove_saved_playlists(
+            playlist_uuids, user_id=user_id
+        )
 
     def _get_playlist_resource(
         self,
