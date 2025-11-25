@@ -27,6 +27,7 @@ class AlbumsAPI(TIDALResourceAPI):
         "owners",
         "providers",
         "similarAlbums",
+        "suggestedCoverArts",
     }
     _client: "TIDALAPI"
 
@@ -125,7 +126,8 @@ class AlbumsAPI(TIDALResourceAPI):
 
             **Valid values**: :code:`"artists"`, :code:`"coverArt"`,
             :code:`"genres"`, :code:`"items"`, :code:`"owners"`, 
-            :code:`"providers"`, :code:`"similarAlbums"`.
+            :code:`"providers"`, :code:`"similarAlbums"`, 
+            :code:`"suggestedCoverArts"`.
 
         cursor : str, keyword-only, optional
             Cursor for pagination when requesting multiple albums.
@@ -253,6 +255,11 @@ class AlbumsAPI(TIDALResourceAPI):
                                "next": <str>,
                                "self": <str>
                              }
+                           },
+                           "suggestedCoverArts" : {
+                             "links": {
+                               "self": <str>
+                             }
                            }
                          },
                          "type": "albums"
@@ -320,12 +327,18 @@ class AlbumsAPI(TIDALResourceAPI):
                                "links": {
                                  "self": <str>
                                }
+                             },
+                             "suggestedCoverArts" : {
+                               "links": {
+                                 "self": <str>
+                               }
                              }
                            },
                            "type": "albums"
                          },
                          {
                            "attributes": {
+                             "contributionsEnabled": <bool>,
                              "externalLinks": [
                                {
                                  "href": <str>,
@@ -335,7 +348,8 @@ class AlbumsAPI(TIDALResourceAPI):
                                }
                              ],
                              "name": <str>,
-                             "popularity": <float>
+                             "popularity": <float>,
+                             "spotlighted": <bool>
                            },
                            "id": <str>,
                            "relationships": {
@@ -436,6 +450,7 @@ class AlbumsAPI(TIDALResourceAPI):
                            "attributes": {
                              "accessType": "PUBLIC",
                              "availability": <list[str]>,
+                             "bpm": <float>,
                              "copyright": {
                                "text": <str>
                              },
@@ -450,10 +465,13 @@ class AlbumsAPI(TIDALResourceAPI):
                                }
                              ],
                              "isrc": <str>,
+                             "key": <str>,
+                             "keyScale": <str>,
                              "mediaTags": <list[str]>,
                              "popularity": <float>,
                              "spotlighted": <bool>,
                              "title": <str>,
+                             "toneTags": <list[str]>,
                              "version": <str>
                            },
                            "id": <str>,
@@ -686,6 +704,11 @@ class AlbumsAPI(TIDALResourceAPI):
                                  "next": <str>,
                                  "self": <str>
                                }
+                             },
+                             "suggestedCoverArts" : {
+                               "links": {
+                                 "self": <str>
+                               }
                              }
                            },
                            "type": "albums"
@@ -754,12 +777,18 @@ class AlbumsAPI(TIDALResourceAPI):
                                "links": {
                                  "self": <str>
                                }
+                             },
+                             "suggestedCoverArts" : {
+                               "links": {
+                                 "self": <str>
+                               }
                              }
                            },
                            "type": "albums"
                          },
                          {
                            "attributes": {
+                             "contributionsEnabled": <bool>,
                              "externalLinks": [
                                {
                                  "href": <str>,
@@ -769,7 +798,8 @@ class AlbumsAPI(TIDALResourceAPI):
                                }
                              ],
                              "name": <str>,
-                             "popularity": <float>
+                             "popularity": <float>,
+                             "spotlighted": <bool>
                            },
                            "id": <str>,
                            "relationships": {
@@ -870,6 +900,7 @@ class AlbumsAPI(TIDALResourceAPI):
                            "attributes": {
                              "accessType": "PUBLIC",
                              "availability": <list[str]>,
+                             "bpm": <float>,
                              "copyright": {
                                "text": <str>
                              },
@@ -884,10 +915,13 @@ class AlbumsAPI(TIDALResourceAPI):
                                }
                              ],
                              "isrc": <str>,
+                             "key": <str>,
+                             "keyScale": <str>,
                              "mediaTags": <list[str]>,
                              "popularity": <float>,
                              "spotlighted": <bool>,
                              "title": <str>,
+                             "toneTags": <list[str]>,
                              "version": <str>
                            },
                            "id": <str>,
@@ -1098,6 +1132,7 @@ class AlbumsAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
+                          "contributionsEnabled": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -1107,7 +1142,8 @@ class AlbumsAPI(TIDALResourceAPI):
                             }
                           ],
                           "name": <str>,
-                          "popularity": <float>
+                          "popularity": <float>,
+                          "spotlighted": <bool>
                         },
                         "id": <str>,
                         "relationships": {
@@ -1354,6 +1390,7 @@ class AlbumsAPI(TIDALResourceAPI):
                         "attributes": {
                           "accessType": "PUBLIC",
                           "availability": <list[str]>,
+                          "bpm": <float>,
                           "copyright": {
                             "text": <str>
                           },
@@ -1368,10 +1405,13 @@ class AlbumsAPI(TIDALResourceAPI):
                             }
                           ],
                           "isrc": <str>,
+                          "key": <str>,
+                          "keyScale": <str>,
                           "mediaTags": <list[str]>,
                           "popularity": <float>,
                           "spotlighted": <bool>,
                           "title": <str>,
+                          "toneTags": <list[str]>,
                           "version": <str>
                         },
                         "id": <str>,
@@ -1755,6 +1795,11 @@ class AlbumsAPI(TIDALResourceAPI):
                             "links": {
                               "self": <str>
                             }
+                          },
+                          "suggestedCoverArts" : {
+                            "links": {
+                              "self": <str>
+                            }
                           }
                         },
                         "type": "albums"
@@ -1771,6 +1816,75 @@ class AlbumsAPI(TIDALResourceAPI):
         """
         return self._get_album_resource(
             "similarAlbums",
+            album_id,
+            country_code,
+            include=include,
+            cursor=cursor,
+        )
+
+    @TTLCache.cached_method(ttl="catalog")
+    def get_album_suggested_cover_arts(
+        self,
+        album_id: int | str,
+        /,
+        country_code: str | None = None,
+        *,
+        include: bool = False,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Albums > Get Album's Suggested Cover Artworks
+        <https://tidal-music.github.io/tidal-api-reference/#/albums
+        /get_albums__id__relationships_suggestedCoverArts>`_: Get TIDAL
+        catalog information for an album's suggested cover artworks.
+
+        Parameters
+        ----------
+        album_id : int or str, positional-only
+            TIDAL ID of the album.
+
+            **Examples**: :code:`46369321`, :code:`"251380836"`.
+
+        country_code : str, optional
+            ISO 3166-1 alpha-2 country code. Only optional when the
+            country code can be retrieved from the user's profile.
+
+            **Example**: :code:`"US"`.
+
+        include : bool, keyword-only, default: :code:`False`
+            Specifies whether to include TIDAL content metadata for
+            the suggested cover artworks.
+
+        cursor : str, keyword-only, optional
+            Cursor for pagination.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        Returns
+        -------
+        cover_artworks : dict[str, Any]
+            TIDAL catalog information for the album's suggested cover
+            artworks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [],
+                    "included": [],
+                    "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
+                      "self": <str>
+                    }
+                  }
+        """
+        return self._get_album_resource(
+            "suggestedCoverArts",
             album_id,
             country_code,
             include=include,

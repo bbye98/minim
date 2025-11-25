@@ -261,7 +261,8 @@ class SpotifyWebAPI(OAuth2APIClient):
         Parameters
         ----------
         matches : str or Collection[str], optional
-            Categories and/or substrings to filter scopes by.
+            Categories and/or substrings to filter scopes by. If not
+            specified, all available scopes are returned.
 
             .. container::
 

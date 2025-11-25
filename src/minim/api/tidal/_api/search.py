@@ -187,12 +187,18 @@ class SearchAPI(TIDALResourceAPI):
                             "links": {
                               "self": <str>
                             }
+                          },
+                          "suggestedCoverArts" : {
+                            "links": {
+                              "self": <str>
+                            }
                           }
                         },
                         "type": "albums"
                       },
                       {
                         "attributes": {
+                          "contributionsEnabled": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -202,7 +208,8 @@ class SearchAPI(TIDALResourceAPI):
                             }
                           ],
                           "name": <str>,
-                          "popularity": <float>
+                          "popularity": <float>,
+                          "spotlighted": <bool>
                         },
                         "id": <str>,
                         "relationships": {
@@ -313,6 +320,7 @@ class SearchAPI(TIDALResourceAPI):
                         "attributes": {
                           "accessType": "PUBLIC",
                           "availability": <list[str]>,
+                          "bpm": <float>,
                           "copyright": {
                             "text": <str>
                           },
@@ -327,10 +335,13 @@ class SearchAPI(TIDALResourceAPI):
                             }
                           ],
                           "isrc": <str>,
+                          "key": <str>,
+                          "keyScale": <str>,
                           "mediaTags": <list[str]>,
                           "popularity": <float>,
                           "spotlighted": <bool>,
                           "title": <str>,
+                          "toneTags": <list[str]>,
                           "version": <str>
                         },
                         "id": <str>,
@@ -600,12 +611,18 @@ class SearchAPI(TIDALResourceAPI):
                             "links": {
                               "self": <str>
                             }
+                          },
+                          "suggestedCoverArts" : {
+                            "links": {
+                              "self": <str>
+                            }
                           }
                         },
                         "type": "albums"
                       },
                       {
                         "attributes": {
+                          "contributionsEnabled": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -615,7 +632,8 @@ class SearchAPI(TIDALResourceAPI):
                             }
                           ],
                           "name": <str>,
-                          "popularity": <float>
+                          "popularity": <float>,
+                          "spotlighted": <bool>
                         },
                         "id": <str>,
                         "relationships": {
@@ -726,6 +744,7 @@ class SearchAPI(TIDALResourceAPI):
                         "attributes": {
                           "accessType": "PUBLIC",
                           "availability": <list[str]>,
+                          "bpm": <float>,
                           "copyright": {
                             "text": <str>
                           },
@@ -740,10 +759,13 @@ class SearchAPI(TIDALResourceAPI):
                             }
                           ],
                           "isrc": <str>,
+                          "key": <str>,
+                          "keyScale": <str>,
                           "mediaTags": <list[str]>,
                           "popularity": <float>,
                           "spotlighted": <bool>,
                           "title": <str>,
+                          "toneTags": <list[str]>,
                           "version": <str>
                         },
                         "id": <str>,
@@ -1109,12 +1131,18 @@ class SearchAPI(TIDALResourceAPI):
                             "links": {
                               "self": <str>
                             }
+                          },
+                          "suggestedCoverArts" : {
+                            "links": {
+                              "self": <str>
+                            }
                           }
                         },
                         "type": "albums"
                       },
                       {
                         "attributes": {
+                          "contributionsEnabled": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -1124,7 +1152,8 @@ class SearchAPI(TIDALResourceAPI):
                             }
                           ],
                           "name": <str>,
-                          "popularity": <float>
+                          "popularity": <float>,
+                          "spotlighted": <bool>
                         },
                         "id": <str>,
                         "relationships": {
@@ -1235,12 +1264,13 @@ class SearchAPI(TIDALResourceAPI):
                         "attributes": {
                           "accessType": <str>,
                           "availability": <list[str]>,
+                          "bpm": <float>,
                           "copyright": {
                             "text": <str>
                           },
                           "createdAt": <str>,
                           "duration": <str>,
-                          "explicit": true,
+                          "explicit": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -1250,10 +1280,13 @@ class SearchAPI(TIDALResourceAPI):
                             }
                           ],
                           "isrc": <str>,
+                          "key": <str>,
+                          "keyScale": <str>,
                           "mediaTags": <list[str]>,
                           "popularity": <float>,
                           "spotlighted": <bool>,
                           "title": <str>,
+                          "toneTags": <list[str]>,
                           "version": <str>
                         },
                         "id": <str>,
@@ -1510,6 +1543,11 @@ class SearchAPI(TIDALResourceAPI):
                             "links": {
                               "self": <str>
                             }
+                          },
+                          "suggestedCoverArts" : {
+                            "links": {
+                              "self": <str>
+                            }
                           }
                         },
                         "type": "albums"
@@ -1603,6 +1641,7 @@ class SearchAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
+                          "contributionsEnabled": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -1612,7 +1651,8 @@ class SearchAPI(TIDALResourceAPI):
                             }
                           ],
                           "name": <str>,
-                          "popularity": <float>
+                          "popularity": <float>,
+                          "spotlighted": <bool>
                         },
                         "id": <str>,
                         "relationships": {
@@ -1972,12 +2012,18 @@ class SearchAPI(TIDALResourceAPI):
                             "links": {
                               "self": <str>
                             }
+                          },
+                          "suggestedCoverArts" : {
+                            "links": {
+                              "self": <str>
+                            }
                           }
                         },
                         "type": "albums"
                       },
                       {
                         "attributes": {
+                          "contributionsEnabled": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -1987,7 +2033,8 @@ class SearchAPI(TIDALResourceAPI):
                             }
                           ],
                           "name": <str>,
-                          "popularity": <float>
+                          "popularity": <float>,
+                          "spotlighted": <bool>
                         },
                         "id": <str>,
                         "relationships": {
@@ -2098,12 +2145,13 @@ class SearchAPI(TIDALResourceAPI):
                         "attributes": {
                           "accessType": <str>,
                           "availability": <list[str]>,
+                          "bpm": <float>,
                           "copyright": {
                             "text": <str>
                           },
                           "createdAt": <str>,
                           "duration": <str>,
-                          "explicit": true,
+                          "explicit": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -2113,10 +2161,13 @@ class SearchAPI(TIDALResourceAPI):
                             }
                           ],
                           "isrc": <str>,
+                          "key": <str>,
+                          "keyScale": <str>,
                           "mediaTags": <list[str]>,
                           "popularity": <float>,
                           "spotlighted": <bool>,
                           "title": <str>,
+                          "toneTags": <list[str]>,
                           "version": <str>
                         },
                         "id": <str>,
@@ -2317,12 +2368,13 @@ class SearchAPI(TIDALResourceAPI):
                         "attributes": {
                           "accessType": <str>,
                           "availability": <list[str]>,
+                          "bpm": <float>,
                           "copyright": {
                             "text": <str>
                           },
                           "createdAt": <str>,
                           "duration": <str>,
-                          "explicit": true,
+                          "explicit": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -2332,10 +2384,13 @@ class SearchAPI(TIDALResourceAPI):
                             }
                           ],
                           "isrc": <str>,
+                          "key": <str>,
+                          "keyScale": <str>,
                           "mediaTags": <list[str]>,
                           "popularity": <float>,
                           "spotlighted": <bool>,
                           "title": <str>,
+                          "toneTags": <list[str]>,
                           "version": <str>
                         },
                         "id": <str>,

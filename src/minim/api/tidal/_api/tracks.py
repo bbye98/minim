@@ -150,6 +150,7 @@ class TracksAPI(TIDALResourceAPI):
                          "attributes": {
                            "accessType": "PUBLIC",
                            "availability": <list[str]>,
+                           "bpm": <float>,
                            "copyright": {
                              "text": <str>
                            },
@@ -164,10 +165,13 @@ class TracksAPI(TIDALResourceAPI):
                              }
                            ],
                            "isrc": <str>,
+                           "key": <str>,
+                           "keyScale": <str>,
                            "mediaTags": <list[str]>,
                            "popularity": <float>,
                            "spotlighted": <bool>,
                            "title": <str>,
+                           "toneTags": <list[str]>,
                            "version": <str>
                          },
                          "id": <str>,
@@ -331,12 +335,18 @@ class TracksAPI(TIDALResourceAPI):
                                "links": {
                                  "self": <str>
                                }
+                             },
+                             "suggestedCoverArts" : {
+                               "links": {
+                                 "self": <str>
+                               }
                              }
                            },
                            "type": "albums"
                          },
                          {
                            "attributes": {
+                             "contributionsEnabled": <bool>,
                              "externalLinks": [
                                {
                                  "href": <str>,
@@ -346,7 +356,8 @@ class TracksAPI(TIDALResourceAPI):
                                }
                              ],
                              "name": <str>,
-                             "popularity": <float>
+                             "popularity": <float>,
+                             "spotlighted": <bool>
                            },
                            "id": <str>,
                            "relationships": {
@@ -462,6 +473,7 @@ class TracksAPI(TIDALResourceAPI):
                            "attributes": {
                              "accessType": <str>,
                              "availability": <list[str]>,
+                             "bpm": <float>,
                              "copyright": {
                                "text": <str>
                              },
@@ -477,10 +489,13 @@ class TracksAPI(TIDALResourceAPI):
                                }
                              ],
                              "isrc": <str>,
+                             "key": <str>,
+                             "keyScale": <str>,
                              "mediaTags": <list[str]>,
                              "popularity": <float>,
                              "spotlighted": <bool>,
                              "title": <str>,
+                             "toneTags": <list[str]>,
                              "version": <str>
                            },
                            "id": <str>,
@@ -563,6 +578,7 @@ class TracksAPI(TIDALResourceAPI):
                            "attributes": {
                              "accessType": "PUBLIC",
                              "availability": <list[str]>,
+                             "bpm": <float>,
                              "copyright": {
                                "text": <str>
                              },
@@ -577,10 +593,13 @@ class TracksAPI(TIDALResourceAPI):
                                }
                              ],
                              "isrc": <str>,
+                             "key": <str>,
+                             "keyScale": <str>,
                              "mediaTags": <list[str]>,
                              "popularity": <float>,
                              "spotlighted": <bool>,
                              "title": <str>,
+                             "toneTags": <list[str]>,
                              "version": <str>
                            },
                            "id": <str>,
@@ -745,12 +764,18 @@ class TracksAPI(TIDALResourceAPI):
                                "links": {
                                  "self": <str>
                                }
+                             },
+                             "suggestedCoverArts" : {
+                               "links": {
+                                 "self": <str>
+                               }
                              }
                            },
                            "type": "albums"
                          },
                          {
                            "attributes": {
+                             "contributionsEnabled": <bool>,
                              "externalLinks": [
                                {
                                  "href": <str>,
@@ -760,7 +785,8 @@ class TracksAPI(TIDALResourceAPI):
                                }
                              ],
                              "name": <str>,
-                             "popularity": <float>
+                             "popularity": <float>,
+                             "spotlighted": <bool>
                            },
                            "id": <str>,
                            "relationships": {
@@ -876,6 +902,7 @@ class TracksAPI(TIDALResourceAPI):
                            "attributes": {
                              "accessType": <str>,
                              "availability": <list[str]>,
+                             "bpm": <float>,
                              "copyright": {
                                "text": <str>
                              },
@@ -891,10 +918,13 @@ class TracksAPI(TIDALResourceAPI):
                                }
                              ],
                              "isrc": <str>,
+                             "key": <str>,
+                             "keyScale": <str>,
                              "mediaTags": <list[str]>,
                              "popularity": <float>,
                              "spotlighted": <bool>,
                              "title": <str>,
+                             "toneTags": <list[str]>,
                              "version": <str>
                            },
                            "id": <str>,
@@ -1117,6 +1147,11 @@ class TracksAPI(TIDALResourceAPI):
                             "links": {
                               "self": <str>
                             }
+                          },
+                          "suggestedCoverArts" : {
+                            "links": {
+                              "self": <str>
+                            }
                           }
                         },
                         "type": "albums"
@@ -1193,6 +1228,7 @@ class TracksAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
+                          "contributionsEnabled": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -1202,7 +1238,8 @@ class TracksAPI(TIDALResourceAPI):
                             }
                           ],
                           "name": <str>,
-                          "popularity": <float>
+                          "popularity": <float>,
+                          "spotlighted": <bool>
                         },
                         "id": <str>,
                         "relationships": {
@@ -1579,6 +1616,7 @@ class TracksAPI(TIDALResourceAPI):
                         "attributes": {
                           "accessType": <str>,
                           "availability": <list[str]>,
+                          "bpm": <float>,
                           "copyright": {
                             "text": <str>
                           },
@@ -1594,10 +1632,13 @@ class TracksAPI(TIDALResourceAPI):
                             }
                           ],
                           "isrc": <str>,
+                          "key": <str>,
+                          "keyScale": <str>,
                           "mediaTags": <list[str]>,
                           "popularity": <float>,
                           "spotlighted": <bool>,
                           "title": <str>,
+                          "toneTags": <list[str]>,
                           "version": <str>
                         },
                         "id": <str>,

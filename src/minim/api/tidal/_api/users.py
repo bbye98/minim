@@ -86,7 +86,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL content metadata for the items in the current user's
             collection.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -243,12 +243,18 @@ class UsersAPI(TIDALResourceAPI):
                             "links": {
                               "self": <str>
                             }
+                          },
+                          "suggestedCoverArts" : {
+                            "links": {
+                              "self": <str>
+                            }
                           }
                         },
                         "type": "albums"
                       },
                       {
                         "attributes": {
+                          "contributionsEnabled": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -258,7 +264,8 @@ class UsersAPI(TIDALResourceAPI):
                             }
                           ],
                           "name": <str>,
-                          "popularity": <float>
+                          "popularity": <float>,
+                          "spotlighted": <bool>
                         },
                         "id": <str>,
                         "relationships": {
@@ -369,6 +376,7 @@ class UsersAPI(TIDALResourceAPI):
                         "attributes": {
                           "accessType": "PUBLIC",
                           "availability": <list[str]>,
+                          "bpm": <float>,
                           "copyright": {
                             "text": <str>
                           },
@@ -383,10 +391,13 @@ class UsersAPI(TIDALResourceAPI):
                             }
                           ],
                           "isrc": <str>,
+                          "key": <str>,
+                          "keyScale": <str>,
                           "mediaTags": <list[str]>,
                           "popularity": <float>,
                           "spotlighted": <bool>,
                           "title": <str>,
+                          "toneTags": <list[str]>,
                           "version": <str>
                         },
                         "id": <str>,
@@ -676,6 +687,11 @@ class UsersAPI(TIDALResourceAPI):
                             "links": {
                               "self": <str>
                             }
+                          },
+                          "suggestedCoverArts" : {
+                            "links": {
+                              "self": <str>
+                            }
                           }
                         },
                         "type": "albums"
@@ -904,6 +920,7 @@ class UsersAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
+                          "contributionsEnabled": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -913,7 +930,8 @@ class UsersAPI(TIDALResourceAPI):
                             }
                           ],
                           "name": <str>,
-                          "popularity": <float>
+                          "popularity": <float>,
+                          "spotlighted": <bool>
                         },
                         "id": <str>,
                         "relationships": {
@@ -1136,7 +1154,7 @@ class UsersAPI(TIDALResourceAPI):
         /get_userCollections__id__relationships_owners>`_: Get TIDAL
         catalog information for owners of a user's collection.
 
-        .. admonition:: Authorization scope
+        .. admonition:: Authorization scopes
            :class: authorization-scope
 
            .. tab:: Required
@@ -1579,6 +1597,7 @@ class UsersAPI(TIDALResourceAPI):
                         "attributes": {
                           "accessType": "PUBLIC",
                           "availability": <list[str]>,
+                          "bpm": <float>,
                           "copyright": {
                             "text": <str>
                           },
@@ -1593,10 +1612,13 @@ class UsersAPI(TIDALResourceAPI):
                             }
                           ],
                           "isrc": <str>,
+                          "key": <str>,
+                          "keyScale": <str>,
                           "mediaTags": <list[str]>,
                           "popularity": <float>,
                           "spotlighted": <bool>,
                           "title": <str>,
+                          "toneTags": <list[str]>,
                           "version": <str>
                         },
                         "id": <str>,
@@ -2324,7 +2346,7 @@ class UsersAPI(TIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="featured")
-    def get_user_mixes(
+    def get_mixes(
         self,
         *,
         user_id: str | None = None,

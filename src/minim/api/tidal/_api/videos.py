@@ -239,12 +239,18 @@ class VideosAPI(TIDALResourceAPI):
                                "links": {
                                  "self": <str>
                                }
+                             },
+                             "suggestedCoverArts" : {
+                               "links": {
+                                 "self": <str>
+                               }
                              }
                            },
                            "type": "albums"
                          },
                          {
                            "attributes": {
+                             "contributionsEnabled": <bool>,
                              "externalLinks": [
                                {
                                  "href": <str>,
@@ -254,7 +260,8 @@ class VideosAPI(TIDALResourceAPI):
                                }
                              ],
                              "name": <str>,
-                             "popularity": <float>
+                             "popularity": <float>,
+                             "spotlighted": <bool>
                            },
                            "id": <str>,
                            "relationships": {
@@ -497,12 +504,18 @@ class VideosAPI(TIDALResourceAPI):
                                "links": {
                                  "self": <str>
                                }
+                             },
+                             "suggestedCoverArts" : {
+                               "links": {
+                                 "self": <str>
+                               }
                              }
                            },
                            "type": "albums"
                          },
                          {
                            "attributes": {
+                             "contributionsEnabled": <bool>,
                              "externalLinks": [
                                {
                                  "href": <str>,
@@ -512,7 +525,8 @@ class VideosAPI(TIDALResourceAPI):
                                }
                              ],
                              "name": <str>,
-                             "popularity": <float>
+                             "popularity": <float>,
+                             "spotlighted": <bool>
                            },
                            "id": <str>,
                            "relationships": {
@@ -758,6 +772,11 @@ class VideosAPI(TIDALResourceAPI):
                             "links": {
                               "self": <str>
                             }
+                          },
+                          "suggestedCoverArts" : {
+                            "links": {
+                              "self": <str>
+                            }
                           }
                         },
                         "type": "albums"
@@ -834,6 +853,7 @@ class VideosAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
+                          "contributionsEnabled": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -843,7 +863,8 @@ class VideosAPI(TIDALResourceAPI):
                             }
                           ],
                           "name": <str>,
-                          "popularity": <float>
+                          "popularity": <float>,
+                          "spotlighted": <bool>
                         },
                         "id": <str>,
                         "relationships": {

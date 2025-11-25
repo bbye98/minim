@@ -292,6 +292,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                            "attributes": {
                              "accessType": "PUBLIC",
                              "availability": <list[str]>,
+                             "bpm": <float>,
                              "copyright": {
                                "text": <str>
                              },
@@ -306,10 +307,13 @@ class PlaylistsAPI(TIDALResourceAPI):
                                }
                              ],
                              "isrc": <str>,
+                             "key": <str>,
+                             "keyScale": <str>,
                              "mediaTags": <list[str]>,
                              "popularity": <float>,
                              "spotlighted": <bool>,
                              "title": <str>,
+                             "toneTags": <list[str]>,
                              "version": <str>
                            },
                            "id": <str>,
@@ -524,6 +528,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                            "attributes": {
                              "accessType": "PUBLIC",
                              "availability": <list[str]>,
+                             "bpm": <float>,
                              "copyright": {
                                "text": <str>
                              },
@@ -538,10 +543,13 @@ class PlaylistsAPI(TIDALResourceAPI):
                                }
                              ],
                              "isrc": <str>,
+                             "key": <str>,
+                             "keyScale": <str>,
                              "mediaTags": <list[str]>,
                              "popularity": <float>,
                              "spotlighted": <bool>,
                              "title": <str>,
+                             "toneTags": <list[str]>,
                              "version": <str>
                            },
                            "id": <str>,
@@ -1055,6 +1063,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                         "attributes": {
                           "accessType": "PUBLIC",
                           "availability": <list[str]>,
+                          "bpm": <float>,
                           "copyright": {
                             "text": <str>
                           },
@@ -1069,10 +1078,13 @@ class PlaylistsAPI(TIDALResourceAPI):
                             }
                           ],
                           "isrc": <str>,
+                          "key": <str>,
+                          "keyScale": <str>,
                           "mediaTags": <list[str]>,
                           "popularity": <float>,
                           "spotlighted": <bool>,
                           "title": <str>,
+                          "toneTags": <list[str]>,
                           "version": <str>
                         },
                         "id": <str>,

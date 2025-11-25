@@ -197,6 +197,7 @@ class ArtistsAPI(TIDALResourceAPI):
                      {
                        "data": {
                          "attributes": {
+                          "contributionsEnabled": <bool>,
                            "externalLinks": [
                              {
                                "href": <str>,
@@ -206,7 +207,8 @@ class ArtistsAPI(TIDALResourceAPI):
                              }
                            ],
                            "name": <str>,
-                           "popularity": <float>
+                           "popularity": <float>,
+                           "spotlighted": <bool>
                          },
                          "id": <str>,
                          "relationships": {
@@ -371,6 +373,11 @@ class ArtistsAPI(TIDALResourceAPI):
                                "links": {
                                  "self": <str>
                                }
+                             },
+                             "suggestedCoverArts" : {
+                               "links": {
+                                 "self": <str>
+                               }
                              }
                            },
                            "type": "albums"
@@ -445,6 +452,7 @@ class ArtistsAPI(TIDALResourceAPI):
                          },
                          {
                            "attributes": {
+                             "contributionsEnabled": <bool>,
                              "externalLinks": [
                                {
                                  "href": <str>,
@@ -454,7 +462,8 @@ class ArtistsAPI(TIDALResourceAPI):
                                }
                              ],
                              "name": <str>,
-                             "popularity": <float>
+                             "popularity": <float>,
+                             "spotlighted": <bool>
                            },
                            "id": <str>,
                            "relationships": {
@@ -587,6 +596,7 @@ class ArtistsAPI(TIDALResourceAPI):
                        "data": [
                          {
                            "attributes": {
+                             "contributionsEnabled": <bool>,
                              "externalLinks": [
                                {
                                  "href": <str>,
@@ -596,7 +606,8 @@ class ArtistsAPI(TIDALResourceAPI):
                                }
                              ],
                              "name": <str>,
-                             "popularity": <float>
+                             "popularity": <float>,
+                             "spotlighted": <bool>
                            },
                            "id": <str>,
                            "relationships": {
@@ -762,6 +773,11 @@ class ArtistsAPI(TIDALResourceAPI):
                                "links": {
                                  "self": <str>
                                }
+                             },
+                             "suggestedCoverArts" : {
+                               "links": {
+                                 "self": <str>
+                               }
                              }
                            },
                            "type": "albums"
@@ -836,6 +852,7 @@ class ArtistsAPI(TIDALResourceAPI):
                          },
                          {
                            "attributes": {
+                             "contributionsEnabled": <bool>,
                              "externalLinks": [
                                {
                                  "href": <str>,
@@ -845,7 +862,8 @@ class ArtistsAPI(TIDALResourceAPI):
                                }
                              ],
                              "name": <str>,
-                             "popularity": <float>
+                             "popularity": <float>,
+                             "spotlighted": <bool>
                            },
                            "id": <str>,
                            "relationships": {
@@ -1108,6 +1126,11 @@ class ArtistsAPI(TIDALResourceAPI):
                             }
                           },
                           "similarAlbums": {
+                            "links": {
+                              "self": <str>
+                            }
+                          },
+                          "suggestedCoverArts" : {
                             "links": {
                               "self": <str>
                             }
@@ -1586,6 +1609,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
+                          "contributionsEnabled": <bool>,
                           "externalLinks": [
                             {
                               "href": <str>,
@@ -1595,7 +1619,8 @@ class ArtistsAPI(TIDALResourceAPI):
                             }
                           ],
                           "name": <str>,
-                          "popularity": <float>
+                          "popularity": <float>,
+                          "spotlighted": <bool>
                         },
                         "id": <str>,
                         "relationships": {
@@ -1831,6 +1856,7 @@ class ArtistsAPI(TIDALResourceAPI):
                         "attributes": {
                           "accessType": "PUBLIC",
                           "availability": <list[str]>,
+                          "bpm": <float>,
                           "copyright": {
                             "text": <str>
                           },
@@ -1845,10 +1871,13 @@ class ArtistsAPI(TIDALResourceAPI):
                             }
                           ],
                           "isrc": <str>,
+                          "key": <str>,
+                          "keyScale": <str>,
                           "mediaTags": <list[str]>,
                           "popularity": <float>,
                           "spotlighted": <bool>,
                           "title": <str>,
+                          "toneTags": <list[str]>,
                           "version": <str>
                         },
                         "id": <str>,

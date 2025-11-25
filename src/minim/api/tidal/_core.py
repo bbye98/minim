@@ -40,7 +40,7 @@ class TIDALAPI(OAuth2APIClient):
         "search.read",
         "search.write",
     }
-    _VERSION = "0.1.99"
+    _VERSION = "1.0.5"
     AUTH_URL = "https://login.tidal.com/authorize"
     BASE_URL = "https://openapi.tidal.com/v2"
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
@@ -119,7 +119,7 @@ class TIDALAPI(OAuth2APIClient):
             .. seealso::
 
                :meth:`get_scopes` – Get a set of scopes to request,
-               filtered by categories and/or substrings.
+               filtered by substrings.
 
         access_token : str, keyword-only, optional
             Access token. If provided or found in Minim's local token
@@ -227,7 +227,8 @@ class TIDALAPI(OAuth2APIClient):
         Parameters
         ----------
         matches : str or Collection[str], optional
-            Substrings to match in the available scopes.
+            Substrings to match in the available scopes. If not
+            specified, all available scopes are returned.
 
             **Examples**:
 
