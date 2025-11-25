@@ -22,6 +22,7 @@ db_cursor.execute(
         access_token TEXT,
         expiry TIMESTAMP,
         refresh_token TEXT,
+        extras TEXT,
         PRIMARY KEY (client, flow, client_id, user_identifier)
     )
     """

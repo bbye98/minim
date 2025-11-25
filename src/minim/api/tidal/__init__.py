@@ -1,4 +1,4 @@
-from ._core import TIDALAPI
+from ._core import TIDALAPI, PrivateTIDALAPI
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI
@@ -20,4 +20,5 @@ __all__ = [
     "TracksAPI",
     "UsersAPI",
     "VideosAPI",
+    "PrivateTIDALAPI",
 ]

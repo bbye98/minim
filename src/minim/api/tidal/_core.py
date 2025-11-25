@@ -5,15 +5,7 @@ from typing import TYPE_CHECKING, Any
 import warnings
 
 from .._shared import OAuth2APIClient
-from ._api.albums import AlbumsAPI
-from ._api.artists import ArtistsAPI
-from ._api.artworks import ArtworksAPI
-from ._api.playlists import PlaylistsAPI
-from ._api.providers import ProvidersAPI
-from ._api.search import SearchAPI
-from ._api.tracks import TracksAPI
-from ._api.users import UsersAPI
-from ._api.videos import VideosAPI
+from ._private_api.users import UsersAPI
 
 if TYPE_CHECKING:
     import httpx
@@ -414,3 +406,78 @@ class TIDALAPI(OAuth2APIClient):
         else:
             self._validate_country_code(country_code)
             params["countryCode"] = country_code
+
+
+class PrivateTIDALAPI(OAuth2APIClient):
+    """
+    Private TIDAL API client.
+    """
+
+    _ENV_VAR_PREFIX = "PRIVATE_TIDAL_API"
+    _FLOWS = {"pkce"}
+    _PROVIDER = "TIDAL"
+    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+    _SCOPES = {"r_usr", "w_usr"}
+    _VERSION = "2025.11.19"
+    LOGIN_URL = "https://login.tidal.com"
+    AUTH_URL = f"{LOGIN_URL}/authorize"
+    BASE_URL = "https://api.tidal.com"
+    TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
+
+    def __init__(
+        self,
+        *,
+        flow: str,
+        client_id: str | None = None,
+        user_identifier: str | None = None,
+        redirect_uri: str = "tidal://login/auth",
+        scopes: str | Collection[str] = "",
+        access_token: str | None = None,
+        refresh_token: str | None = None,
+        expiry: str | datetime | None = None,
+        backend: str | None = None,
+        browser: bool = False,
+        cache: bool = True,
+        store: bool = True,
+    ) -> None:
+        self.users: UsersAPI = UsersAPI(self)
+
+        super().__init__(
+            flow=flow,
+            client_id=client_id,
+            user_identifier=user_identifier,
+            redirect_uri=redirect_uri,
+            scopes=scopes,
+            access_token=access_token,
+            refresh_token=refresh_token,
+            expiry=expiry,
+            backend=backend,
+            browser=browser,
+            cache=cache,
+            store=store,
+        )
+        self._client.headers["x-tidal-client-version"] = self._VERSION
+
+    def _get_user_identifier(self):
+        return self._token_extras.get(
+            "user_id", self.users.get_my_profile()["userId"]
+        )
+
+    def _request(
+        self,
+        method: str,
+        endpoint: str,
+        /,
+        *,
+        retry: bool = True,
+        **kwargs: dict[str, Any],
+    ):
+        if self._expiry and datetime.now() > self._expiry:
+            self._refresh_access_token()
+
+        resp = self._client.request(method, endpoint, **kwargs)
+        status = resp.status_code
+        if 200 <= status < 300:
+            return resp
+
+        raise RuntimeError("Something went wrong!")  # TODO

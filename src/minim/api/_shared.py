@@ -7,6 +7,7 @@ from functools import wraps
 import hashlib
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import ipaddress
+import json
 import os
 from pathlib import Path
 import secrets
@@ -131,6 +132,7 @@ class TokenDatabase:
         access_token: str,
         expiry: str | datetime | None,
         refresh_token: str | None,
+        extras: dict[str, Any] | None = None,
     ) -> None:
         """
         Adds an access token and its related information to the local
@@ -172,6 +174,8 @@ class TokenDatabase:
         refresh_token : str or None, keyword-only
             Refresh token accompanying the access token in
             `access_token`.
+
+        extras :
         """
         db_cursor.execute(
             """
@@ -186,8 +190,9 @@ class TokenDatabase:
                 token_type,
                 access_token,
                 expiry,
-                refresh_token
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                refresh_token,
+                extras
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 flow,
@@ -205,6 +210,7 @@ class TokenDatabase:
                 if isinstance(expiry, str)
                 else expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 refresh_token,
+                json.dumps(extras or {}),
             ),
         )
         db_connection.commit()
@@ -1025,6 +1031,7 @@ class OAuth2APIClient(APIClient):
             token_type = account["token_type"]
             refresh_token = account["refresh_token"]
             expiry = account["expiry"]
+            self._token_extras = json.loads(account["extras"])
 
         self.set_flow(
             flow,
@@ -1403,7 +1410,7 @@ class OAuth2APIClient(APIClient):
                     "localhost",
                     "127.0.0.1",
                     "::1",
-                }:
+                }:  # TODO: Handle TIDAL redirects
                     warnings.warn(
                         f"Redirect handling is not available for host {hostname!r}."
                     )
@@ -1669,19 +1676,20 @@ class OAuth2APIClient(APIClient):
             else:
                 resp_json = httpx.post(self.TOKEN_URL, data=data).json()
 
-        access_token = resp_json["access_token"]
-        token_type = resp_json["token_type"].capitalize()
-        if scopes := resp_json.get("scopes"):
+        access_token = resp_json.pop("access_token")
+        token_type = resp_json.pop("token_type").capitalize()
+        if scopes := resp_json.pop("scope", None):
             self._scopes = set(scopes.split())
         self.set_access_token(
             access_token,
             token_type,
-            refresh_token=resp_json.get(
+            refresh_token=resp_json.pop(
                 "refresh_token", getattr(self, "_refresh_token", None)
             ),
             expiry=datetime.now()
-            + timedelta(seconds=int(resp_json["expires_in"])),
+            + timedelta(seconds=int(resp_json.pop("expires_in"))),
         )
+        self._token_extras = resp_json
         if self._store:
             TokenDatabase.add_token(
                 self.__class__.__name__,
@@ -1700,6 +1708,7 @@ class OAuth2APIClient(APIClient):
                 access_token=access_token,
                 refresh_token=getattr(self, "_refresh_token", None),
                 expiry=getattr(self, "_expiry", None),
+                extras=resp_json,
             )
 
     def _refresh_access_token(self) -> None:
