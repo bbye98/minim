@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from collections.abc import Collection
 from datetime import datetime
 import time
@@ -5,21 +6,169 @@ from typing import TYPE_CHECKING, Any
 import warnings
 
 from .._shared import OAuth2APIClient
-from ._private_api.users import UsersAPI
+from ._api.albums import AlbumsAPI
+from ._api.artists import ArtistsAPI
+from ._api.artworks import ArtworksAPI
+from ._api.playlists import PlaylistsAPI
+from ._api.providers import ProvidersAPI
+from ._api.search import SearchAPI
+from ._api.tracks import TracksAPI
+from ._api.users import UsersAPI
+from ._api.videos import VideosAPI
+from ._private_api.albums import AlbumsAPI as PrivateAlbumsAPI
+from ._private_api.users import UsersAPI as PrivateUsersAPI
 
 if TYPE_CHECKING:
     import httpx
 
 
-class TIDALAPI(OAuth2APIClient):
+class _BaseTIDALAPI(OAuth2APIClient):
+    """
+    Base class for TIDAL API clients.
+    """
+
+    _ENV_VAR_PREFIX: str
+    _FLOWS: set[str]
+    _QUAL_NAME: str
+    _SCOPES: set[str]
+    _VERSION: str
+    AUTH_URL: str
+    BASE_URL: str
+
+    _PROVIDER = "TIDAL"
+    AUTH_URL = "https://login.tidal.com/authorize"
+    TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
+
+    @classmethod
+    def get_scopes(
+        cls, matches: str | Collection[str] | None = None
+    ) -> set[str]:
+        """
+        Resolve one or more scope categories or substrings into a set of
+        scopes.
+
+        Parameters
+        ----------
+        matches : str or Collection[str], optional
+            Substrings to match in the available scopes. If not
+            specified, all available scopes are returned.
+
+        Returns
+        -------
+        scopes : set[str]
+            Authorization scopes.
+        """
+        # Return all scopes if no matches are provided
+        if matches is None:
+            return cls._SCOPES.copy()
+
+        # Return scopes containing a substring
+        if isinstance(matches, str):
+            return {scope for scope in cls._SCOPES if matches in scope}
+
+        # Recursively gather scopes for multiple
+        # categories/substrings
+        return {scope for match in matches for scope in cls.get_scopes(match)}
+
+    @staticmethod
+    def _validate_tidal_ids(
+        tidal_ids: int | str | Collection[int | str],
+        /,
+        *,
+        _recursive: bool = True,
+    ) -> None:
+        """
+        Validate one or more TIDAL IDs.
+
+        Parameters
+        ----------
+        tidal_ids : int, str, or Collection[int | str], positional-only
+            One or more TIDAL IDs, provided as an integer, a string, or
+            a collection of integers and/or strings.
+        """
+        if not isinstance(tidal_ids, int) and not tidal_ids:
+            raise ValueError("At least one TIDAL ID must be specified.")
+
+        if isinstance(tidal_ids, str):
+            if not tidal_ids.isdigit():
+                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
+        elif not isinstance(tidal_ids, int):
+            if _recursive:
+                if not isinstance(tidal_ids, Collection):
+                    raise ValueError("TIDAL IDs must be integers or strings.")
+                for tidal_id in tidal_ids:
+                    TIDALAPI._validate_tidal_ids(tidal_id, _recursive=False)
+            else:
+                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
+
+    @property
+    @abstractmethod
+    def _my_country_code(self) -> str:
+        """
+        Current user's country code.
+        """
+        ...
+
+    @property
+    @abstractmethod
+    def _my_profile(self) -> dict[str, Any]:
+        """
+        Current user's profile.
+        """
+        ...
+
+    @abstractmethod
+    def _get_user_identifier(self) -> str:
+        """
+        Assign the TIDAL user ID as the user identifier for the current
+        account.
+        """
+        ...
+
+    @abstractmethod
+    def _request(
+        self,
+        method: str,
+        endpoint: str,
+        /,
+        *,
+        retry: bool = True,
+        **kwargs: dict[str, Any],
+    ) -> "httpx.Response":
+        """
+        Make an HTTP request to a TIDAL API endpoint.
+
+        Parameters
+        ----------
+        method : str, positional-only
+            HTTP method.
+
+        endpoint : str, positional-only
+            TIDAL API endpoint.
+
+        retry : bool, keyword-only, default: :code:`True`
+            Whether to retry the request if the first attempt returns a
+            :code:`401 Unauthorized` or :code:`429 Too Many Requests`.
+
+        **kwargs : dict[str, Any]
+            Keyword parameters to pass to :meth:`httpx.Client.request`.
+
+        Returns
+        -------
+        response : httpx.Response
+            HTTP response.
+        """
+        ...
+
+
+class TIDALAPI(_BaseTIDALAPI):
     """
     TIDAL API client.
     """
 
     _ENV_VAR_PREFIX = "TIDAL_API"
     _FLOWS = {"pkce", "client_credentials"}
-    _PROVIDER = "TIDAL"
-    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+    _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
     _SCOPES = {
         "collection.read",
         "collection.write",
@@ -33,9 +182,7 @@ class TIDALAPI(OAuth2APIClient):
         "search.write",
     }
     _VERSION = "1.0.5"
-    AUTH_URL = "https://login.tidal.com/authorize"
     BASE_URL = "https://openapi.tidal.com/v2"
-    TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
 
     def __init__(
         self,
@@ -208,78 +355,6 @@ class TIDALAPI(OAuth2APIClient):
             store=store,
         )
 
-    @classmethod
-    def get_scopes(
-        cls, matches: str | Collection[str] | None = None
-    ) -> set[str]:
-        """
-        Resolve one or more scope categories or substrings into a set of
-        scopes.
-
-        Parameters
-        ----------
-        matches : str or Collection[str], optional
-            Substrings to match in the available scopes. If not
-            specified, all available scopes are returned.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`"read"` – All scopes above that grant read
-                 access, i.e., scopes with :code:`read` in the name.
-               * :code:`"write"` – All scopes above that grant
-                 write access, i.e., scopes with :code:`modify` in the
-                 name.
-
-        Returns
-        -------
-        scopes : set[str]
-            Authorization scopes.
-        """
-        # Return all scopes if no matches are provided
-        if matches is None:
-            return cls._SCOPES.copy()
-
-        # Return scopes containing a substring
-        if isinstance(matches, str):
-            return {scope for scope in cls._SCOPES if matches in scope}
-
-        # Recursively gather scopes for multiple
-        # categories/substrings
-        return {scope for match in matches for scope in cls.get_scopes(match)}
-
-    @staticmethod
-    def _validate_tidal_ids(
-        tidal_ids: int | str | Collection[int | str],
-        /,
-        *,
-        _recursive: bool = True,
-    ) -> None:
-        """
-        Validate one or more TIDAL IDs.
-
-        Parameters
-        ----------
-        tidal_ids : int, str, or Collection[int | str], positional-only
-            One or more TIDAL IDs, provided as an integer, a string, or
-            a collection of integers and/or strings.
-        """
-        if not isinstance(tidal_ids, int) and not tidal_ids:
-            raise ValueError("At least one TIDAL ID must be specified.")
-
-        if isinstance(tidal_ids, str):
-            if not tidal_ids.isdigit():
-                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
-        elif not isinstance(tidal_ids, int):
-            if _recursive:
-                if not isinstance(tidal_ids, Collection):
-                    raise ValueError("TIDAL IDs must be integers or strings.")
-                for tidal_id in tidal_ids:
-                    TIDALAPI._validate_tidal_ids(tidal_id, _recursive=False)
-            else:
-                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
-
     @property
     def _my_country_code(self) -> str:
         """
@@ -408,27 +483,26 @@ class TIDALAPI(OAuth2APIClient):
             params["countryCode"] = country_code
 
 
-class PrivateTIDALAPI(OAuth2APIClient):
+class PrivateTIDALAPI(_BaseTIDALAPI):
     """
     Private TIDAL API client.
     """
 
     _ENV_VAR_PREFIX = "PRIVATE_TIDAL_API"
-    _FLOWS = {"pkce"}
-    _PROVIDER = "TIDAL"
-    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
+    _FLOWS = {"pkce", "device"}
+    _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
     _SCOPES = {"r_usr", "w_usr"}
+    _TRUSTED_DEVICE = True
     _VERSION = "2025.11.19"
-    LOGIN_URL = "https://login.tidal.com"
-    AUTH_URL = f"{LOGIN_URL}/authorize"
+    DEVICE_AUTH_URL = "https://auth.tidal.com/v1/oauth2/device_authorization"
     BASE_URL = "https://api.tidal.com"
-    TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
 
     def __init__(
         self,
         *,
         flow: str,
         client_id: str | None = None,
+        client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str = "tidal://login/auth",
         scopes: str | Collection[str] = "",
@@ -440,11 +514,13 @@ class PrivateTIDALAPI(OAuth2APIClient):
         cache: bool = True,
         store: bool = True,
     ) -> None:
-        self.users: UsersAPI = UsersAPI(self)
+        self.albums: PrivateAlbumsAPI = PrivateAlbumsAPI(self)
+        self.users: PrivateUsersAPI = PrivateUsersAPI(self)
 
         super().__init__(
             flow=flow,
             client_id=client_id,
+            client_secret=client_secret,
             user_identifier=user_identifier,
             redirect_uri=redirect_uri,
             scopes=scopes,
@@ -458,10 +534,52 @@ class PrivateTIDALAPI(OAuth2APIClient):
         )
         self._client.headers["x-tidal-client-version"] = self._VERSION
 
+    @property
+    def _my_country_code(self) -> str:
+        """
+        Current user's country code.
+
+        .. note::
+
+           Accessing this property may call
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
+           make a request to the private TIDAL API.
+        """
+        country_code = self._my_profile.get("countryCode", None)
+        if not country_code:
+            raise RuntimeError(
+                "Unable to determine the country associated with the "
+                "current user account. A ISO 3166-1 alpha-2 country "
+                "code must be provided explicitly via the "
+                "`country_code` parameter."
+            )
+        return country_code
+
+    @property
+    def _my_profile(self) -> dict[str, Any]:
+        """
+        Current user's profile.
+
+        .. note::
+
+           Accessing this property may call
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
+           make a request to the private TIDAL API.
+        """
+        return self.users.get_my_profile()
+
     def _get_user_identifier(self):
-        return self._token_extras.get(
-            "user_id", self.users.get_my_profile()["userId"]
-        )
+        """
+        Assign the TIDAL user ID as the user identifier for the current
+        account.
+
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
+           make a request to the private TIDAL API.
+        """
+        return self._token_extras.get("user_id", self._my_profile["userId"])
 
     def _request(
         self,
@@ -471,7 +589,8 @@ class PrivateTIDALAPI(OAuth2APIClient):
         *,
         retry: bool = True,
         **kwargs: dict[str, Any],
-    ):
+    ) -> "httpx.Response":
+        """ """
         if self._expiry and datetime.now() > self._expiry:
             self._refresh_access_token()
 

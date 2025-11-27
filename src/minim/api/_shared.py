@@ -848,14 +848,17 @@ class OAuth2APIClient(APIClient):
         "auth_code": "Authorization Code Flow",
         "pkce": "Authorization Code Flow with Proof Key for Code Exchange (PKCE)",
         "client_credentials": "Client Credentials Flow",
-        # "device": "Device Authorization Flow",
+        "device": "Device Authorization Flow",
         "implicit": "Implicit Grant Flow",
         # "password": "Resource Owner Password Credentials Flow"
     }
     _ENV_VAR_PREFIX: str = ...
     _SCOPES: Any = ...
+    _TRUSTED_DEVICE: bool = False
     #: Authorization endpoint.
     AUTH_URL: str = ...
+    #: Device authorization endpoint.
+    DEVICE_AUTH_URL: str = ...
     #: Token endpoint.
     TOKEN_URL: str = ...
 
@@ -891,6 +894,7 @@ class OAuth2APIClient(APIClient):
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
                  for Code Exchange (PKCE).
                * :code:`"client_credentials"` – Client Credentials Flow.
+               * :code:`"device"` – Device Authorization Flow.
                * :code:`"implicit"` – Implicit Grant Flow.
 
         client_id : str, keyword-only, optional
@@ -1058,7 +1062,7 @@ class OAuth2APIClient(APIClient):
     @abstractmethod
     def _get_user_identifier(self) -> str:
         """
-        Resolve and assign a user identifier for the current account.
+        Assign a user identifier for the current account.
         """
         ...
 
@@ -1267,6 +1271,7 @@ class OAuth2APIClient(APIClient):
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
                  for Code Exchange (PKCE).
                * :code:`"client_credentials"` – Client Credentials Flow.
+               * :code:`"device"` – Device Authorization Flow.
                * :code:`"implicit"` – Implicit Grant Flow.
 
         client_id : str, keyword-only, optional
@@ -1372,12 +1377,12 @@ class OAuth2APIClient(APIClient):
         self._client_id = client_id
         if (
             flow in {"auth_code", "client_credentials", "password"}
-            and not client_secret
-        ):
+            or self._TRUSTED_DEVICE
+        ) and not client_secret:
             raise ValueError(
                 f"The {self._OAUTH_FLOWS_NAMES[flow]} requires a "
-                "a client secret to be provided via the "
-                "`client_secret` parameter."
+                "client secret to be provided via the `client_secret` "
+                "parameter."
             )
         self._client_secret = client_secret
         has_redirect = flow in {"auth_code", "pkce", "implicit"}
@@ -1645,6 +1650,42 @@ class OAuth2APIClient(APIClient):
                 raise RuntimeError(
                     "Authorization failed due to state mismatch."
                 )
+        elif flow == "device":
+            data = {
+                "client_id": self._client_id,
+                "scope": " ".join(self._scopes),
+            }
+            resp_json = httpx.post(self.DEVICE_AUTH_URL, data=data).json()
+            if error := resp_json.get("error"):
+                raise RuntimeError(f"Authorization failed. Error: {error}")
+            data["device_code"] = resp_json["deviceCode"]
+            data["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code"
+            polling_interval = resp_json.get("interval", 2)
+
+            verification_uri = (
+                f"https://{resp_json['verificationUriComplete']}"
+            )
+            if self._browser:
+                webbrowser.open(verification_uri)
+            else:
+                print(
+                    f"To grant Minim access to {self._PROVIDER} data "
+                    "and features, open the following link in your web "
+                    f"browser:\n\n{verification_uri}\n"
+                )
+            while True:
+                time.sleep(polling_interval)
+                resp_json = httpx.post(
+                    self.TOKEN_URL,
+                    auth=(self._client_id, self._client_secret)
+                    if self._TRUSTED_DEVICE
+                    else None,
+                    data=data,
+                ).json()
+                if not (error := resp_json.get("error")):
+                    break
+                elif error != "authorization_pending":
+                    raise RuntimeError(f"Authorization failed. Error: {error}")
         else:  # "auth_code" or "pkce"
             data = {
                 "grant_type": "authorization_code",

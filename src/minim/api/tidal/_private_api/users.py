@@ -14,5 +14,5 @@ class UsersAPI(ResourceAPI):
     def get_my_profile(self) -> dict[str, Any]:
         """ """
         return self._client._request(
-            "GET", f"{self._client.LOGIN_URL}/oauth2/me"
+            "GET", "https://login.tidal.com/oauth2/me"
         ).json()
