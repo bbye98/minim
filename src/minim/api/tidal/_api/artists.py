@@ -53,8 +53,8 @@ class ArtistsAPI(TIDALResourceAPI):
         ----------
         artist_role_ids : int, str, or Collection[int | str], \
         positional-only
-            TIDAL IDs of the artist roles, provided as either an 
-            integer, a string, or a collection of integers and/or 
+            TIDAL IDs of the artist roles, provided as either an
+            integer, a string, or a collection of integers and/or
             strings.
 
         Returns
@@ -135,7 +135,7 @@ class ArtistsAPI(TIDALResourceAPI):
 
               User authentication
                  Access information on an item's owners.
-        
+
         Parameters
         ----------
         artist_ids : int, str, or Collection[int | str], \
@@ -2099,8 +2099,8 @@ class ArtistsAPI(TIDALResourceAPI):
             sort=sort,
         )
 
-    @_copy_docstring(UsersAPI.save_artists)
-    def save_artists(
+    @_copy_docstring(UsersAPI.favorite_artists)
+    def favorite_artists(
         self,
         artist_ids: int
         | str
@@ -2111,12 +2111,12 @@ class ArtistsAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.save_artists(
+        self._client.users.favorite_artists(
             artist_ids, user_id=user_id, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.remove_saved_artists)
-    def remove_saved_artists(
+    @_copy_docstring(UsersAPI.unfavorite_artists)
+    def unfavorite_artists(
         self,
         artist_ids: int
         | str
@@ -2127,7 +2127,7 @@ class ArtistsAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.remove_saved_artists(
+        self._client.users.unfavorite_artists(
             artist_ids, user_id=user_id, country_code=country_code
         )
 

@@ -74,8 +74,8 @@ class TracksAPI(TIDALResourceAPI):
                Exactly one of `track_ids`, `isrcs`, or `owner_ids` must
                be provided.
 
-            **Examples**: 
-            
+            **Examples**:
+
             .. container::
 
                * :code:`46369325`
@@ -83,38 +83,38 @@ class TracksAPI(TIDALResourceAPI):
                * :code:`[46369325, "75413016"]`
 
         isrcs : str, or Collection[str], keyword-only, optional
-            International Standard Recording Codes (ISRCs) of the 
-            tracks, provided as either a string or a collection of 
+            International Standard Recording Codes (ISRCs) of the
+            tracks, provided as either a string or a collection of
             strings.
 
             .. note::
 
                Exactly one of `track_ids`, `isrcs`, or `owner_ids` must
-               be provided. When this parameter is specified, the 
+               be provided. When this parameter is specified, the
                request will always be sent to the endpoint for multiple
                tracks.
-               
+
             **Examples**: :code:`"QMJMT1701237"`,
             :code:`[QMJMT1701237, "USAT21404265"]`.
 
         owner_ids : int, str, or Collection[int | str], keyword-only, \
         optional
-            TIDAL IDs of the tracks' owners, provided either as an 
-            integer, a string, or a collection of integers and/or 
+            TIDAL IDs of the tracks' owners, provided either as an
+            integer, a string, or a collection of integers and/or
             strings.
 
             .. note::
 
                Exactly one of `track_ids`, `isrcs`, or `owner_ids` must
-               be provided. When this parameter is specified, the 
+               be provided. When this parameter is specified, the
                request will always be sent to the endpoint for multiple
                albums.
 
-            **Examples**: :code:`123456`, :code:`"123456"`, 
+            **Examples**: :code:`123456`, :code:`"123456"`,
             :code:`["123456"]`.
 
         country_code : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the 
+            ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
@@ -123,7 +123,7 @@ class TracksAPI(TIDALResourceAPI):
             Related resources to include in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"genres"`, :code:`"lyrics"`, :code:`"owners"`, 
+            :code:`"genres"`, :code:`"lyrics"`, :code:`"owners"`,
             :code:`"providers"`, :code:`"radio"`, :code:`"shares"`,
             :code:`"similarTracks"`, :code:`"sourceFile"`,
             :code:`"trackStatistics"`.
@@ -1794,8 +1794,8 @@ class TracksAPI(TIDALResourceAPI):
             sort=sort,
         )
 
-    @_copy_docstring(UsersAPI.save_tracks)
-    def save_tracks(
+    @_copy_docstring(UsersAPI.favorite_tracks)
+    def favorite_tracks(
         self,
         track_ids: int
         | str
@@ -1806,12 +1806,12 @@ class TracksAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.save_tracks(
+        self._client.users.favorite_tracks(
             track_ids, user_id=user_id, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.remove_saved_tracks)
-    def remove_saved_tracks(
+    @_copy_docstring(UsersAPI.unfavorite_tracks)
+    def unfavorite_tracks(
         self,
         track_ids: int
         | str
@@ -1822,7 +1822,7 @@ class TracksAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.remove_saved_tracks(
+        self._client.users.unfavorite_tracks(
             track_ids, user_id=user_id, country_code=country_code
         )
 

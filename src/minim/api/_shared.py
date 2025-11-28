@@ -1660,8 +1660,6 @@ class OAuth2APIClient(APIClient):
                 raise RuntimeError(f"Authorization failed. Error: {error}")
             data["device_code"] = resp_json["deviceCode"]
             data["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code"
-            polling_interval = resp_json.get("interval", 2)
-
             verification_uri = (
                 f"https://{resp_json['verificationUriComplete']}"
             )
@@ -1673,6 +1671,7 @@ class OAuth2APIClient(APIClient):
                     "and features, open the following link in your web "
                     f"browser:\n\n{verification_uri}\n"
                 )
+            polling_interval = resp_json.get("interval", 2)
             while True:
                 time.sleep(polling_interval)
                 resp_json = httpx.post(

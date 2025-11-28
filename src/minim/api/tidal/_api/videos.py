@@ -59,8 +59,8 @@ class VideosAPI(TIDALResourceAPI):
 
                Exactly one of `video_ids` or `isrcs` must be provided.
 
-            **Examples**: 
-            
+            **Examples**:
+
             .. container::
 
                * :code:`53315642`
@@ -68,8 +68,8 @@ class VideosAPI(TIDALResourceAPI):
                * :code:`[53315642, "75623239"]`
 
         isrcs : str, or Collection[str], keyword-only, optional
-            International Standard Recording Codes (ISRCs) of the 
-            videos, provided as either a string or a collection of 
+            International Standard Recording Codes (ISRCs) of the
+            videos, provided as either a string or a collection of
             strings.
 
             .. note::
@@ -77,12 +77,12 @@ class VideosAPI(TIDALResourceAPI):
                Exactly one of `video_ids` or `isrcs` must be provided.
                When this parameter is specified, the request will always
                be sent to the endpoint for multiple videos.
-               
+
             **Examples**: :code:`"QMJMT1701237"`,
             :code:`[QMJMT1701237, "USAT21404265"]`.
 
         country_code : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the 
+            ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
@@ -1139,8 +1139,8 @@ class VideosAPI(TIDALResourceAPI):
             sort=sort,
         )
 
-    @_copy_docstring(UsersAPI.save_videos)
-    def save_videos(
+    @_copy_docstring(UsersAPI.favorite_videos)
+    def favorite_videos(
         self,
         video_ids: str
         | dict[str, int | str]
@@ -1150,12 +1150,12 @@ class VideosAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.save_videos(
+        self._client.users.favorite_videos(
             video_ids, user_id=user_id, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.remove_saved_videos)
-    def remove_saved_videos(
+    @_copy_docstring(UsersAPI.unfavorite_videos)
+    def unfavorite_videos(
         self,
         video_ids: str
         | dict[str, int | str]
@@ -1165,7 +1165,7 @@ class VideosAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.remove_saved_videos(
+        self._client.users.unfavorite_videos(
             video_ids, user_id=user_id, country_code=country_code
         )
 

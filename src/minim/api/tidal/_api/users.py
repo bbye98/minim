@@ -717,7 +717,7 @@ class UsersAPI(TIDALResourceAPI):
             sort_fields={"addedAt", "artists.name", "releaseDate", "title"},
         )
 
-    def save_albums(
+    def favorite_albums(
         self,
         album_ids: int
         | str
@@ -777,7 +777,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def remove_saved_albums(
+    def unfavorite_albums(
         self,
         album_ids: int
         | str
@@ -1019,7 +1019,7 @@ class UsersAPI(TIDALResourceAPI):
             sort_fields={"addedAt", "name"},
         )
 
-    def save_artists(
+    def favorite_artists(
         self,
         artist_ids: int
         | str
@@ -1079,7 +1079,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def remove_saved_artists(
+    def unfavorite_artists(
         self,
         artist_ids: int
         | str
@@ -1387,7 +1387,7 @@ class UsersAPI(TIDALResourceAPI):
             params=params,
         )
 
-    def save_playlists(
+    def favorite_playlists(
         self,
         playlist_uuids: str
         | dict[str, str]
@@ -1400,7 +1400,7 @@ class UsersAPI(TIDALResourceAPI):
         `User Collections > Add Playlists to User's Collection
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
-        /post_userCollections__id__relationships_playlists>`_: Add 
+        /post_userCollections__id__relationships_playlists>`_: Add
         playlists to a user's collection.
 
         .. admonition:: Authorization scope
@@ -1415,7 +1415,7 @@ class UsersAPI(TIDALResourceAPI):
         ----------
         playlist_uuids : str, dict[str, str], or \
         Collection[str | dict[str, str]], positional-only
-            UUIDs of the playlists, provided as strings or properly 
+            UUIDs of the playlists, provided as strings or properly
             formatted dictionaries.
 
             **Examples**:
@@ -1424,15 +1424,15 @@ class UsersAPI(TIDALResourceAPI):
 
                * :code:"f0d6f5c4-081f-4348-9b65-ae677d92767b"
                * .. code::
-                    
+
                     {
                         "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
                         "types": "playlists"
                     }
                * .. code::
-               
+
                     [
-                        "f0d6f5c4-081f-4348-9b65-ae677d92767b", 
+                        "f0d6f5c4-081f-4348-9b65-ae677d92767b",
                         {
                             "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
                             "types": "playlists"
@@ -1448,7 +1448,7 @@ class UsersAPI(TIDALResourceAPI):
             "POST", "playlists", playlist_uuids, user_id=user_id
         )
 
-    def remove_saved_playlists(
+    def unfavorite_playlists(
         self,
         playlist_uuids: str
         | dict[str, str]
@@ -1461,7 +1461,7 @@ class UsersAPI(TIDALResourceAPI):
         `User Collections > Remove Playlists from User's Collection
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
-        /delete_userCollections__id__relationships_playlists>`_: Remove 
+        /delete_userCollections__id__relationships_playlists>`_: Remove
         playlists from a user's collection.
 
         .. admonition:: Authorization scope
@@ -1476,7 +1476,7 @@ class UsersAPI(TIDALResourceAPI):
         ----------
         playlist_uuids : str, dict[str, str], or \
         Collection[str | dict[str, str]], positional-only
-            UUIDs of the playlists, provided as strings or properly 
+            UUIDs of the playlists, provided as strings or properly
             formatted dictionaries.
 
             **Examples**:
@@ -1485,15 +1485,15 @@ class UsersAPI(TIDALResourceAPI):
 
                * :code:"f0d6f5c4-081f-4348-9b65-ae677d92767b"
                * .. code::
-                    
+
                     {
                         "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
                         "types": "playlists"
                     }
                * .. code::
-               
+
                     [
-                        "f0d6f5c4-081f-4348-9b65-ae677d92767b", 
+                        "f0d6f5c4-081f-4348-9b65-ae677d92767b",
                         {
                             "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
                             "types": "playlists"
@@ -1708,7 +1708,7 @@ class UsersAPI(TIDALResourceAPI):
             },
         )
 
-    def save_tracks(
+    def favorite_tracks(
         self,
         track_ids: int
         | str
@@ -1768,7 +1768,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def remove_saved_tracks(
+    def unfavorite_tracks(
         self,
         track_ids: int
         | str
@@ -1783,7 +1783,7 @@ class UsersAPI(TIDALResourceAPI):
         `User Collections > Remove Tracks from User's Collection
         <https://tidal-music.github.io/tidal-api-reference/#
         /userCollections
-        /delete_userCollections__id__relationships_tracks>`_: Remove 
+        /delete_userCollections__id__relationships_tracks>`_: Remove
         tracks from a user's collection.
 
         .. admonition:: Authorization scope
@@ -1978,7 +1978,7 @@ class UsersAPI(TIDALResourceAPI):
             sort_fields={"addedAt", "artists.name", "duration", "title"},
         )
 
-    def save_videos(
+    def favorite_videos(
         self,
         video_ids: str
         | dict[str, int | str]
@@ -2037,7 +2037,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def remove_saved_videos(
+    def unfavorite_videos(
         self,
         video_ids: str
         | dict[str, int | str]
@@ -2514,7 +2514,7 @@ class UsersAPI(TIDALResourceAPI):
         """
         `Users > Get Current User's Profile
         <https://tidal-music.github.io/tidal-api-reference/#/users
-        /get_users_me>`_: Get the current user's account information.
+        /get_users_me>`_: Get profile information for the current user.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -2528,7 +2528,7 @@ class UsersAPI(TIDALResourceAPI):
         Returns
         -------
         profile : dict[str, Any]
-            Current user's account information.
+            Current user's profile information.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -2582,7 +2582,7 @@ class UsersAPI(TIDALResourceAPI):
 
         item_ids : str, dict[str, int | str], or \
         Collection[int | str | dict[str, int | str]], positional-only
-            TIDAL IDs or UUIDs of items, provided as strings or 
+            TIDAL IDs or UUIDs of items, provided as strings or
             properly formatted dictionaries.
 
         Returns
@@ -2758,7 +2758,7 @@ class UsersAPI(TIDALResourceAPI):
 
         item_ids : str, dict[str, int | str], or \
         Collection[int | str | dict[str, int | str]]
-            TIDAL IDs or UUIDs of items, provided as strings or 
+            TIDAL IDs or UUIDs of items, provided as strings or
             properly formatted dictionaries.
 
         user_id : int or str, keyword-only, optional

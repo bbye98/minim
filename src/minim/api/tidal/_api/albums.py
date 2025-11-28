@@ -68,11 +68,11 @@ class AlbumsAPI(TIDALResourceAPI):
 
             .. note::
 
-               Exactly one of `album_ids`, `barcodes`, or `owner_ids` 
+               Exactly one of `album_ids`, `barcodes`, or `owner_ids`
                must be provided.
 
-            **Examples**: 
-            
+            **Examples**:
+
             .. container::
 
                * :code:`46369321`
@@ -86,37 +86,37 @@ class AlbumsAPI(TIDALResourceAPI):
 
             .. note::
 
-               Exactly one of `album_ids`, `barcodes`, or `owner_ids` 
-               must be provided. When this parameter is specified, the 
+               Exactly one of `album_ids`, `barcodes`, or `owner_ids`
+               must be provided. When this parameter is specified, the
                request will always be sent to the endpoint for multiple
                albums.
 
-            **Examples**: 
-            
+            **Examples**:
+
             .. container::
-            
+
                * :code:`075678671173`
                * :code:`"075678671173"`
                * :code:`[075678671173, "602448438034"]`
 
         owner_ids : int, str, or Collection[int | str], keyword-only, \
         optional
-            TIDAL IDs of the albums' owners, provided either as an 
-            integer, a string, or a collection of integers and/or 
+            TIDAL IDs of the albums' owners, provided either as an
+            integer, a string, or a collection of integers and/or
             strings.
 
             .. note::
 
-               Exactly one of `album_ids`, `barcodes`, or `owner_ids` 
-               must be provided. When this parameter is specified, the 
+               Exactly one of `album_ids`, `barcodes`, or `owner_ids`
+               must be provided. When this parameter is specified, the
                request will always be sent to the endpoint for multiple
                albums.
 
-            **Examples**: :code:`123456`, :code:`"123456"`, 
+            **Examples**: :code:`123456`, :code:`"123456"`,
             :code:`["123456"]`.
 
         country_code : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the 
+            ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
@@ -125,8 +125,8 @@ class AlbumsAPI(TIDALResourceAPI):
             Related resources to include in the response.
 
             **Valid values**: :code:`"artists"`, :code:`"coverArt"`,
-            :code:`"genres"`, :code:`"items"`, :code:`"owners"`, 
-            :code:`"providers"`, :code:`"similarAlbums"`, 
+            :code:`"genres"`, :code:`"items"`, :code:`"owners"`,
+            :code:`"providers"`, :code:`"similarAlbums"`,
             :code:`"suggestedCoverArts"`.
 
         cursor : str, keyword-only, optional
@@ -137,7 +137,7 @@ class AlbumsAPI(TIDALResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL content metadata for the albums. 
+            TIDAL content metadata for the albums.
 
             .. admonition:: Sample responses
                :class: dropdown
@@ -1911,8 +1911,8 @@ class AlbumsAPI(TIDALResourceAPI):
             sort=sort,
         )
 
-    @_copy_docstring(UsersAPI.save_albums)
-    def save_albums(
+    @_copy_docstring(UsersAPI.favorite_albums)
+    def favorite_albums(
         self,
         album_ids: int
         | str
@@ -1923,12 +1923,12 @@ class AlbumsAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.save_albums(
+        self._client.users.favorite_albums(
             album_ids, user_id=user_id, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.remove_saved_albums)
-    def remove_saved_albums(
+    @_copy_docstring(UsersAPI.unfavorite_albums)
+    def unfavorite_albums(
         self,
         album_ids: int
         | str
@@ -1939,7 +1939,7 @@ class AlbumsAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.remove_saved_albums(
+        self._client.users.unfavorite_albums(
             album_ids, user_id=user_id, country_code=country_code
         )
 

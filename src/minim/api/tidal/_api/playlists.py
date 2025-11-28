@@ -108,11 +108,11 @@ class PlaylistsAPI(TIDALResourceAPI):
     ) -> dict[str, Any]:
         """
         `Playlists > Get Single Playlist <https://tidal-music.github.io
-        /tidal-api-reference/#/playlists/get_playlists__id_>`_: Get 
+        /tidal-api-reference/#/playlists/get_playlists__id_>`_: Get
         TIDAL catalog information for a single playlist․
-        `Playlists > Get Multiple Playlists 
+        `Playlists > Get Multiple Playlists
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
-        /get_playlists>`_: Get TIDAL catalog information for multiple 
+        /get_playlists>`_: Get TIDAL catalog information for multiple
         playlists.
 
         .. admonition:: User authentication and authorization scope
@@ -137,31 +137,31 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             .. note::
 
-               Exactly one of `playlist_uuids` or `owner_ids` must be 
+               Exactly one of `playlist_uuids` or `owner_ids` must be
                provided.
 
-            **Examples**: 
+            **Examples**:
             :code:`"550e8400-e29b-41d4-a716-446655440000"`,
             :code:`["550e8400-e29b-41d4-a716-446655440000"]`.
 
         owner_ids : int, str, or Collection[int | str], keyword-only, \
         optional
-            TIDAL IDs of the playlists' owners, provided either as an 
-            integer, a string, or a collection of integers and/or 
+            TIDAL IDs of the playlists' owners, provided either as an
+            integer, a string, or a collection of integers and/or
             strings.
 
             .. note::
 
-               Exactly one of `playlist_uuids` or `owner_ids` must be 
+               Exactly one of `playlist_uuids` or `owner_ids` must be
                provided. When this parameter is specified, the request
                will always be sent to the endpoint for multiple
                playlists.
 
-            **Examples**: :code:`123456`, :code:`"123456"`, 
+            **Examples**: :code:`123456`, :code:`"123456"`,
             :code:`["123456"]`.
 
         country_code : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the 
+            ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
@@ -169,7 +169,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         include : str or Collection[str], keyword-only, optional
             Related resources to include in the response.
 
-            **Valid values**: :code:`"coverArt"`, :code:`"items"`, 
+            **Valid values**: :code:`"coverArt"`, :code:`"items"`,
             :code:`"owners"`.
 
         cursor : str, keyword-only, optional
@@ -181,7 +181,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             Field to sort the returned playlists by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
-        
+
             **Valid values**: :code:`"createdAt"`, :code:`"-createdAt`,
             :code:`"lastModifiedAt`, :code:`"-lastModifiedAt"`,
             :code:`"name"`, :code:`"-name"`.
@@ -1265,7 +1265,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         before : str, keyword-only, optional
             UUID of the item in the playlist before which to insert the
-            items in `items`. If not specified, the items are appended 
+            items in `items`. If not specified, the items are appended
             to the end of the playlist.
 
             **Example**: :code:`"3794bdb3-1529-48d7-8a99-ef2cb0cf22c3"`.
@@ -1320,7 +1320,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         items : tuple[int | str, str, str], dict[str, Any], or \
         Collection[tuple[int | str, str, str] | dict[str, Any]]
             TIDAL IDs and UUIDs of tracks and videos, provided as tuples
-            of the ID, the UUID, and the item type, or as properly 
+            of the ID, the UUID, and the item type, or as properly
             formatted dictionaries.
 
             **Examples**:
@@ -1330,12 +1330,12 @@ class PlaylistsAPI(TIDALResourceAPI):
                * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks")`
                * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos")`
                * .. code::
-                 
+
                     {
-                        "id": "35633900", 
+                        "id": "35633900",
                         "meta": {
                             "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                        }, 
+                        },
                         "types": "tracks"
                     }
                * .. code::
@@ -1344,10 +1344,10 @@ class PlaylistsAPI(TIDALResourceAPI):
                         (458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks"),
                         ("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos"),
                         {
-                            "id": "35633900", 
+                            "id": "35633900",
                             "meta": {
                                 "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                            }, 
+                            },
                             "types": "tracks",
                         },
                     ]
@@ -1403,7 +1403,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         items : tuple[int | str, str, str], dict[str, Any], or \
         Collection[tuple[int | str, str, str] | dict[str, Any]]
             TIDAL IDs and UUIDs of tracks and videos, provided as tuples
-            of the ID, the UUID, and the item type, or as properly 
+            of the ID, the UUID, and the item type, or as properly
             formatted dictionaries.
 
             **Examples**:
@@ -1413,12 +1413,12 @@ class PlaylistsAPI(TIDALResourceAPI):
                * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks")`
                * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos")`
                * .. code::
-                 
+
                     {
-                        "id": "35633900", 
+                        "id": "35633900",
                         "meta": {
                             "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                        }, 
+                        },
                         "types": "tracks"
                     }
                * .. code::
@@ -1427,10 +1427,10 @@ class PlaylistsAPI(TIDALResourceAPI):
                         (458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks"),
                         ("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos"),
                         {
-                            "id": "35633900", 
+                            "id": "35633900",
                             "meta": {
                                 "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                            }, 
+                            },
                             "types": "tracks",
                         },
                     ]
@@ -1543,8 +1543,8 @@ class PlaylistsAPI(TIDALResourceAPI):
             sort=sort,
         )
 
-    @_copy_docstring(UsersAPI.save_playlists)
-    def save_playlists(
+    @_copy_docstring(UsersAPI.favorite_playlists)
+    def favorite_playlists(
         self,
         playlist_uuids: str
         | dict[str, str]
@@ -1553,10 +1553,10 @@ class PlaylistsAPI(TIDALResourceAPI):
         *,
         user_id: int | str | None = None,
     ) -> None:
-        self._client.users.save_playlists(playlist_uuids, user_id=user_id)
+        self._client.users.favorite_playlists(playlist_uuids, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.remove_saved_playlists)
-    def remove_saved_playlists(
+    @_copy_docstring(UsersAPI.unfavorite_playlists)
+    def unfavorite_playlists(
         self,
         playlist_uuids: str
         | dict[str, str]
@@ -1565,7 +1565,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         *,
         user_id: int | str | None = None,
     ) -> None:
-        self._client.users.remove_saved_playlists(
+        self._client.users.unfavorite_playlists(
             playlist_uuids, user_id=user_id
         )
 

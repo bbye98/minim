@@ -160,6 +160,24 @@ class _BaseTIDALAPI(OAuth2APIClient):
         """
         ...
 
+    def _resolve_country_code(
+        self, country_code: str | None, /, params: dict[str, Any]
+    ) -> None:
+        """
+        Resolve or validate a country code for a TIDAL API request.
+
+        Parameters
+        ----------
+        country_code : str, positional-only
+            ISO 3166-1 alpha-2 country code. If :code:`None`, the country
+            associated with the current user account is used.
+        """
+        if country_code is None:
+            params["countryCode"] = self._my_country_code
+        else:
+            self._validate_country_code(country_code)
+            params["countryCode"] = country_code
+
 
 class TIDALAPI(_BaseTIDALAPI):
     """
@@ -464,24 +482,6 @@ class TIDALAPI(_BaseTIDALAPI):
             f"{status} {resp.reason_phrase} ({error['code']}) – {error['detail']}"
         )
 
-    def _resolve_country_code(
-        self, country_code: str | None, /, params: dict[str, Any]
-    ) -> None:
-        """
-        Resolve or validate a country code for a TIDAL API request.
-
-        Parameters
-        ----------
-        country_code : str, positional-only
-            ISO 3166-1 alpha-2 country code. If :code:`None`, the country
-            associated with the current user account is used.
-        """
-        if country_code is None:
-            params["countryCode"] = self._my_country_code
-        else:
-            self._validate_country_code(country_code)
-            params["countryCode"] = country_code
-
 
 class PrivateTIDALAPI(_BaseTIDALAPI):
     """
@@ -590,7 +590,29 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         retry: bool = True,
         **kwargs: dict[str, Any],
     ) -> "httpx.Response":
-        """ """
+        """
+        Make an HTTP request to a private TIDAL API endpoint.
+
+        Parameters
+        ----------
+        method : str, positional-only
+            HTTP method.
+
+        endpoint : str, positional-only
+            Private TIDAL API endpoint.
+
+        retry : bool, keyword-only, default: :code:`True`
+            Whether to retry the request if the first attempt returns a
+            :code:`401 Unauthorized`.
+
+        **kwargs : dict[str, Any]
+            Keyword parameters to pass to :meth:`httpx.Client.request`.
+
+        Returns
+        -------
+        response : httpx.Response
+            HTTP response.
+        """
         if self._expiry and datetime.now() > self._expiry:
             self._refresh_access_token()
 
@@ -599,4 +621,10 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         if 200 <= status < 300:
             return resp
 
-        raise RuntimeError("Something went wrong!")  # TODO
+        if status == 401 and not self._expiry and retry:
+            self._refresh_access_token()
+            return self._request(method, endpoint, retry=False, **kwargs)
+        error = resp.json()
+        raise RuntimeError(
+            f"{error['status']}.{error['subStatus']} – {error['userMessage']}"
+        )
