@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI
@@ -26,7 +25,7 @@ class ChaptersAPI(ResourceAPI):
 
     @TTLCache.cached_method(ttl="catalog")
     def get_chapters(
-        self, chapter_ids: str | Collection[str], /, *, market: str
+        self, chapter_ids: str | list[str], /, *, market: str
     ) -> dict[str, Any]:
         """
         `Chapters > Get a Chapter <https://developer.spotify.com
@@ -48,10 +47,10 @@ class ChaptersAPI(ResourceAPI):
 
         Parameters
         ----------
-        chapter_ids : str or Collection[str], positional-only
+        chapter_ids : str or list[str]; positional-only
             Spotify IDs of the audiobook chapters, provided as either a
-            comma-separated string or a collection of strings. A maximum
-            of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -61,7 +60,7 @@ class ChaptersAPI(ResourceAPI):
                * :code:`"0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU"`
                * :code:`["0IsXVP0JmcB2adSE338GkK", "3ZXb8FKZGU0EHALYX6uCzU"]`
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated

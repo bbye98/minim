@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import ResourceAPI
@@ -22,7 +21,10 @@ class PlayerAPI(ResourceAPI):
     _client: "SpotifyWebAPI"
 
     def get_playback_state(
-        self, *, additional_types: str | None = None, market: str | None = None
+        self,
+        *,
+        additional_types: str | list[str] | None = None,
+        market: str | None = None,
     ) -> dict[str, Any]:
         """
         `Player > Get Playback State <https://developer.spotify.com
@@ -50,9 +52,9 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        additional_types : str or Collection[str], keyword-only, optional
+        additional_types : str or list[str]; keyword-only; optional
             Item types supported by the API client, provided as either a
-            comma-separated string or a collection of strings.
+            comma-separated string or a list of strings.
 
             .. note::
 
@@ -64,7 +66,7 @@ class PlayerAPI(ResourceAPI):
 
             **Valid values**: :code:`"track"`, :code:`"episode"`.
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -256,13 +258,13 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        device_id : str, positional-only
+        device_id : str; positional-only
             Playback device ID.
 
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
 
-        play : bool, keyword-only, optional
+        play : bool; keyword-only; optional
             Whether to start playback on the new device. If
             :code:`True`, playback begins immediately. If :code:`False`,
             the current playback state is preserved.
@@ -329,7 +331,10 @@ class PlayerAPI(ResourceAPI):
         return self._client._request("GET", "me/player/devices").json()
 
     def get_currently_playing(
-        self, *, additional_types: str | None = None, market: str | None = None
+        self,
+        *,
+        additional_types: str | list[str] | None = None,
+        market: str | None = None,
     ) -> dict[str, Any]:
         """
         `Player > Get Currently Playing Track
@@ -356,9 +361,9 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        additional_types : str or Collection[str], keyword-only, optional
+        additional_types : str or list[str]; keyword-only; optional
             Item types supported by the API client, provided as either a
-            comma-separated string or a collection of strings.
+            comma-separated string or a list of strings.
 
             .. note::
 
@@ -370,7 +375,7 @@ class PlayerAPI(ResourceAPI):
 
             **Valid values**: :code:`"track"`, :code:`"episode"`.
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -540,7 +545,7 @@ class PlayerAPI(ResourceAPI):
         device_id: str | None = None,
         context_uri: str | None = None,
         offset: int | str | None = None,
-        uris: str | Collection[str] | None = None,
+        uris: str | list[str] | None = None,
         position_ms: int | None = None,
     ) -> None:
         """
@@ -565,14 +570,14 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        device_id : str, keyword-only, optional
+        device_id : str; keyword-only; optional
             Playback device ID. If not specified, the currently active
             device is the target.
 
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
 
-        context_uri : str, keyword-only, optional
+        context_uri : str; keyword-only; optional
             Spotify URI of the album, artist, or playlist to play.
 
             .. note::
@@ -581,7 +586,7 @@ class PlayerAPI(ResourceAPI):
 
             **Example**: :code:`"spotify:album:1Je1IMUlBXcx1Fz0WE7oPT"`.
 
-        offset : int or str, keyword-only, optional
+        offset : int or str; keyword-only; optional
             Zero-based index or Spotify URI of the item within the
             context specified by `context_uri` at which to start
             playback. Used only when `context_uri` is specified.
@@ -594,9 +599,9 @@ class PlayerAPI(ResourceAPI):
                * :code:`spotify:track:1301WleyT98MSxVHPZCA6M` – Specific
                  item in the context.
 
-        uris : str or Collection[str], keyword-only, optional
+        uris : str or list[str]; keyword-only; optional
             Spotify URIs of items to play, provided as either a
-            comma-separated string or a collection of strings.
+            comma-separated string or a list of strings.
 
             .. note::
 
@@ -611,7 +616,7 @@ class PlayerAPI(ResourceAPI):
                * :code:`["spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
                  "spotify:track:1301WleyT98MSxVHPZCA6M"]`
 
-        position_ms : int, keyword-only, optional
+        position_ms : int; keyword-only; optional
             Position in milliseconds within the first item at which to
             start playback. If a position greater than the length of
             that item is specified, the player will start playing the
@@ -693,7 +698,7 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        device_id : str, keyword-only, optional
+        device_id : str; keyword-only; optional
             Playback device ID. If not specified, the currently active
             device is the target.
 
@@ -739,7 +744,7 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        device_id : str, keyword-only, optional
+        device_id : str; keyword-only; optional
             Playback device ID. If not specified, the currently active
             device is the target.
 
@@ -785,7 +790,7 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        device_id : str, keyword-only, optional
+        device_id : str; keyword-only; optional
             Playback device ID. If not specified, the currently active
             device is the target.
 
@@ -833,7 +838,7 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        position_ms : int, positional-only
+        position_ms : int; positional-only
             Position in milliseconds to seek to. If a position greater
             than the length of the item is specified, the player will
             start playing the next item.
@@ -842,7 +847,7 @@ class PlayerAPI(ResourceAPI):
 
             **Example**: :code:`25_000`.
 
-        device_id : str, keyword-only, optional
+        device_id : str; keyword-only; optional
             Playback device ID. If not specified, the currently active
             device is the target.
 
@@ -890,7 +895,7 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        state : str, positional-only
+        state : str; positional-only
             Playback repeat mode.
 
             **Valid values**:
@@ -902,7 +907,7 @@ class PlayerAPI(ResourceAPI):
                  or playlist.
                * :code:`"off"` – Turn repeat off.
 
-        device_id : str, keyword-only, optional
+        device_id : str; keyword-only; optional
             Playback device ID. If not specified, the currently active
             device is the target.
 
@@ -954,12 +959,12 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        volume_percent : int, positional-only
+        volume_percent : int; positional-only
             Playback volume as a percentage.
 
             **Valid range**: :code:`0` to :code:`100`.
 
-        device_id : str, keyword-only, optional
+        device_id : str; keyword-only; optional
             Playback device ID. If not specified, the currently active
             device is the target.
 
@@ -1009,10 +1014,10 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        state : bool, positional-only
+        state : bool; positional-only
             Whether to shuffle playback.
 
-        device_id : str, keyword-only, optional
+        device_id : str; keyword-only; optional
             Playback device ID. If not specified, the currently active
             device is the target.
 
@@ -1062,7 +1067,7 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        after : int, keyword-only, optional
+        after : int; keyword-only; optional
             Only return items played after the time indicated by this
             Unix timestamp in milliseconds.
 
@@ -1072,7 +1077,7 @@ class PlayerAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-        before : int, keyword-only, optional
+        before : int; keyword-only; optional
             Only return items played before the time indicated by this
             Unix timestamp in milliseconds.
 
@@ -1082,7 +1087,7 @@ class PlayerAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of items to return.
 
             **Valid range**: :code:`1` to :code:`50`.
@@ -1476,12 +1481,12 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        uri : str, positional-only
+        uri : str; positional-only
             Spotify URI of the track or episode to add to the queue.
 
             **Example**: :code:`spotif:track:4iV5W9uYEdYUVa79Axb7Rh`.
 
-        device_id : str, keyword-only, optional
+        device_id : str; keyword-only; optional
             Playback device ID. If not specified, the currently active
             device is the target.
 

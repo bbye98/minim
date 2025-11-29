@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache
@@ -37,7 +36,7 @@ class SearchAPI(TIDALResourceAPI):
         *,
         country_code: str | None = None,
         explicit: bool | None = None,
-        include: str | Collection[str] | None = None,
+        include: str | list[str] | None = None,
     ) -> dict[str, Any]:
         """
         `Search Suggestions > Get Search Suggestions
@@ -47,20 +46,20 @@ class SearchAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        query : str, positional-only
+        query : str; positional-only
             Search query.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        explicit : bool, keyword-only, optional
-            Specifies whether to include items with explicit language.
+        explicit : bool; keyword-only; optional
+            Whether to include items with explicit language.
 
             **Default**: :code:`True`.
 
-        include : str or Collection[str], keyword-only, optional
+        include : str or list[str]; keyword-only; optional
             Related resources to include in the response.
 
             **Valid value**: :code:`"directHits"`.
@@ -463,6 +462,7 @@ class SearchAPI(TIDALResourceAPI):
             self._client._validate_country_code(country_code)
             params["countryCode"] = country_code
         if explicit is not None:
+            self._client._validate_type("explicit", explicit, bool)
             params["explicitFilter"] = "INCLUDE" if explicit else "EXCLUDE"
         if include is not None:
             params["include"] = self._prepare_include(
@@ -480,7 +480,7 @@ class SearchAPI(TIDALResourceAPI):
         *,
         country_code: str | None = None,
         explicit: bool | None = None,
-        include: bool | None = None,
+        include: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -492,25 +492,24 @@ class SearchAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        query : str, positional-only
+        query : str; positional-only
             Search query.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        explicit : bool, keyword-only, optional
-            Specifies whether to include items with explicit language.
+        explicit : bool; keyword-only; optional
+            Whether to include items with explicit language.
 
             **Default**: :code:`True`.
 
-        include : str or Collection[str], keyword-only, optional
-            Related resources to include in the response.
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
+            the direct hits.
 
-            **Valid value**: :code:`"directHits"`.
-
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -887,8 +886,10 @@ class SearchAPI(TIDALResourceAPI):
             self._client._validate_country_code(country_code)
             params["countryCode"] = country_code
         if explicit is not None:
+            self._client._validate_type("explicit", explicit, bool)
             params["explicitFilter"] = "INCLUDE" if explicit else "EXCLUDE"
         if include is not None:
+            self._client._validate_type("include", include, bool)
             params["include"] = "directHits"
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
@@ -907,7 +908,7 @@ class SearchAPI(TIDALResourceAPI):
         country_code: str | None = None,
         *,
         explicit: bool | None = None,
-        include: str | Collection[str] | None = None,
+        include: str | list[str] | None = None,
     ) -> dict[str, Any]:
         """
         `Search Results > Search <https://tidal-music.github.io
@@ -925,21 +926,21 @@ class SearchAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        query : str, positional-only
+        query : str; positional-only
             Search query.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        explicit : bool, keyword-only, optional
-            Specifies whether to include items with explicit language.
+        explicit : bool; keyword-only; optional
+            Whether to include items with explicit language.
 
             **Default**: :code:`True`.
 
-        include : str or Collection[str], keyword-only, optional
+        include : str or list[str]; keyword-only; optional
             Related resources to include in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
@@ -1406,6 +1407,7 @@ class SearchAPI(TIDALResourceAPI):
         params = {}
         self._client._resolve_country_code(country_code, params)
         if explicit is not None:
+            self._client._validate_type("explicit", explicit, bool)
             params["explicitFilter"] = "INCLUDE" if explicit else "EXCLUDE"
         if include is not None:
             params["include"] = self._prepare_include(include)
@@ -1420,7 +1422,7 @@ class SearchAPI(TIDALResourceAPI):
         country_code: str | None = None,
         *,
         explicit: bool | None = None,
-        include: str | Collection[str] | None = None,
+        include: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -1440,25 +1442,25 @@ class SearchAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        query : str, positional-only
+        query : str; positional-only
             Search query.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        explicit : bool, keyword-only, optional
-            Specifies whether to include items with explicit language.
+        explicit : bool; keyword-only; optional
+            Whether to include items with explicit language.
 
             **Default**: :code:`True`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the matching albums.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1578,7 +1580,7 @@ class SearchAPI(TIDALResourceAPI):
         country_code: str | None = None,
         *,
         explicit: bool | None = None,
-        include: str | Collection[str] | None = None,
+        include: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -1598,25 +1600,25 @@ class SearchAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        query : str, positional-only
+        query : str; positional-only
             Search query.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        explicit : bool, keyword-only, optional
-            Specifies whether to include items with explicit language.
+        explicit : bool; keyword-only; optional
+            Whether to include items with explicit language.
 
             **Default**: :code:`True`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the matching artists.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1745,7 +1747,7 @@ class SearchAPI(TIDALResourceAPI):
         country_code: str | None = None,
         *,
         explicit: bool | None = None,
-        include: str | Collection[str] | None = None,
+        include: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -1765,25 +1767,25 @@ class SearchAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        query : str, positional-only
+        query : str; positional-only
             Search query.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        explicit : bool, keyword-only, optional
-            Specifies whether to include items with explicit language.
+        explicit : bool; keyword-only; optional
+            Whether to include items with explicit language.
 
             **Default**: :code:`True`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the matching playlists.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1893,25 +1895,25 @@ class SearchAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        query : str, positional-only
+        query : str; positional-only
             Search query.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        explicit : bool, keyword-only, optional
-            Specifies whether to include items with explicit language.
+        explicit : bool; keyword-only; optional
+            Whether to include items with explicit language.
 
             **Default**: :code:`True`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the matching top hits.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -2323,25 +2325,25 @@ class SearchAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        query : str, positional-only
+        query : str; positional-only
             Search query.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        explicit : bool, keyword-only, optional
-            Specifies whether to include items with explicit language.
+        explicit : bool; keyword-only; optional
+            Whether to include items with explicit language.
 
             **Default**: :code:`True`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the matching tracks.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -2499,25 +2501,25 @@ class SearchAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        query : str, positional-only
+        query : str; positional-only
             Search query.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        explicit : bool, keyword-only, optional
-            Specifies whether to include items with explicit language.
+        explicit : bool; keyword-only; optional
+            Whether to include items with explicit language.
 
             **Default**: :code:`True`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the matching videos.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -2623,32 +2625,32 @@ class SearchAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        resource : str, positional-only
+        resource : str; positional-only
             Related resource type.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"playlists"`, :code:`"topHits"`, :code:`"tracks"`,
             :code:`"videos"`.
 
-        query : str, positional-only
+        query : str; positional-only
             Search query.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        explicit : bool, keyword-only, optional
-            Specifies whether to include items with explicit language.
+        explicit : bool; keyword-only; optional
+            Whether to include items with explicit language.
 
             **Default**: :code:`True`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the resource.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -2662,9 +2664,12 @@ class SearchAPI(TIDALResourceAPI):
         params = {}
         self._client._resolve_country_code(country_code, params)
         if explicit is not None:
+            self._client._validate_type("explicit", explicit, bool)
             params["explicitFilter"] = "INCLUDE" if explicit else "EXCLUDE"
-        if include:
-            params["include"] = resource
+        if include is not None:
+            self._client._validate_type("include", include, bool)
+            if include:
+                params["include"] = resource
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
             params["page[cursor]"] = cursor

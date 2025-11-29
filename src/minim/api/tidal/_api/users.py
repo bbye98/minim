@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache
@@ -40,7 +39,7 @@ class UsersAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
         locale: str | None = None,
-        include: str | Collection[str] | None = None,
+        include: str | list[str] | None = None,
     ) -> dict[str, Any]:
         """
         `User Collections > Get User's Collection
@@ -58,21 +57,21 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
             **Default**: :code:`"en_US"` – English (U.S.).
 
-        include : str or Collection[str], keyword-only, optional
+        include : str or list[str]; keyword-only; optional
             Related resources to include in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
@@ -568,30 +567,30 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
             **Default**: :code:`"en_US"` – English (U.S.).
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the albums in the user's collection.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str, keyword-only, optional
+        sort : str; keyword-only; optional
             Field to sort the returned albums by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
@@ -720,7 +719,7 @@ class UsersAPI(TIDALResourceAPI):
         album_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -744,7 +743,7 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         album_ids : int, str, dict[str, int | str], or \
-        Collection[int | str | dict[str, int | str]], positional-only
+        list[int | str | dict[str, int | str]]; positional-only
             TIDAL IDs of the albums, provided as integers, strings, or
             properly formatted dictionaries.
 
@@ -757,11 +756,11 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`{"id": "46369321", "types": "albums"}`
                * :code:`["251380836", {"id": "46369321", "types": "albums"}]`
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
@@ -779,7 +778,7 @@ class UsersAPI(TIDALResourceAPI):
         album_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -803,7 +802,7 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         album_ids : int, str, dict[str, int | str], or \
-        Collection[int | str | dict[str, int | str]], positional-only
+        list[int | str | dict[str, int | str]]; positional-only
             TIDAL IDs of the albums, provided as integers, strings, or
             properly formatted dictionaries.
 
@@ -816,11 +815,11 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`{"id": "46369321", "types": "albums"}`
                * :code:`["251380836", {"id": "46369321", "types": "albums"}]`
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
@@ -860,30 +859,30 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
             **Default**: :code:`"en_US"` – English (U.S.).
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the artists in the user's collection.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str, keyword-only, optional
+        sort : str; keyword-only; optional
             Field to sort the returned artists by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
@@ -1019,7 +1018,7 @@ class UsersAPI(TIDALResourceAPI):
         artist_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -1043,7 +1042,7 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         artist_ids : int, str, dict[str, int | str], or \
-        Collection[int | str | dict[str, int | str]], positional-only
+        list[int | str | dict[str, int | str]]; positional-only
             TIDAL IDs of the artists, provided as integers, strings, or
             properly formatted dictionaries.
 
@@ -1056,11 +1055,11 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`{"id": "1566", "types": "artists"}`
                * :code:`["4676988", {"id": "46369321", "types": "artists"}]`
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
@@ -1078,7 +1077,7 @@ class UsersAPI(TIDALResourceAPI):
         artist_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -1102,7 +1101,7 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         artist_ids : int, str, dict[str, int | str], or \
-        Collection[int | str | dict[str, int | str]], positional-only
+        list[int | str | dict[str, int | str]]; positional-only
             TIDAL IDs of the artists, provided as integers, strings, or
             properly formatted dictionaries.
 
@@ -1115,11 +1114,11 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`{"id": "1566", "types": "artists"}`
                * :code:`["4676988", {"id": "46369321", "types": "artists"}]`
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
@@ -1163,15 +1162,15 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the owners of the user's collection.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1248,34 +1247,34 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
             **Default**: :code:`"en_US"` – English (U.S.).
 
-        folders : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        folders : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             playlist folders in the user's collection.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the playlists in the user's collection.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str, keyword-only, optional
+        sort : str; keyword-only; optional
             Field to sort the returned playlists by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
@@ -1380,9 +1379,7 @@ class UsersAPI(TIDALResourceAPI):
 
     def favorite_playlists(
         self,
-        playlist_uuids: str
-        | dict[str, str]
-        | Collection[str | dict[str, str]],
+        playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -1405,7 +1402,7 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         playlist_uuids : str, dict[str, str], or \
-        Collection[str | dict[str, str]], positional-only
+        list[str | dict[str, str]]; positional-only
             UUIDs of the playlists, provided as strings or properly
             formatted dictionaries.
 
@@ -1430,7 +1427,7 @@ class UsersAPI(TIDALResourceAPI):
                         }
                     ]
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """
@@ -1440,9 +1437,7 @@ class UsersAPI(TIDALResourceAPI):
 
     def unfavorite_playlists(
         self,
-        playlist_uuids: str
-        | dict[str, str]
-        | Collection[str | dict[str, str]],
+        playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -1465,7 +1460,7 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         playlist_uuids : str, dict[str, str], or \
-        Collection[str | dict[str, str]], positional-only
+        list[str | dict[str, str]]; positional-only
             UUIDs of the playlists, provided as strings or properly
             formatted dictionaries.
 
@@ -1490,7 +1485,7 @@ class UsersAPI(TIDALResourceAPI):
                         }
                     ]
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """
@@ -1525,30 +1520,30 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
             **Default**: :code:`"en_US"` – English (U.S.).
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the tracks in the user's collection.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str, keyword-only, optional
+        sort : str; keyword-only; optional
             Field to sort the returned tracks by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
@@ -1701,7 +1696,7 @@ class UsersAPI(TIDALResourceAPI):
         track_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -1725,7 +1720,7 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         track_ids : int, str, dict[str, int | str], or \
-        Collection[int | str | dict[str, int | str]], positional-only
+        list[int | str | dict[str, int | str]]; positional-only
             TIDAL IDs of the tracks, provided as integers, strings, or
             properly formatted dictionaries.
 
@@ -1738,11 +1733,11 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`{"id": "46369325", "types": "tracks"}`
                * :code:`["75413016", {"id": "46369325", "types": "tracks"}]`
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
@@ -1760,7 +1755,7 @@ class UsersAPI(TIDALResourceAPI):
         track_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -1784,7 +1779,7 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         track_ids : int, str, dict[str, int | str], or \
-        Collection[int | str | dict[str, int | str]], positional-only
+        list[int | str | dict[str, int | str]]; positional-only
             TIDAL IDs of the tracks, provided as integers, strings, or
             properly formatted dictionaries.
 
@@ -1797,11 +1792,11 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`{"id": "46369325", "types": "tracks"}`
                * :code:`["75413016", {"id": "46369325", "types": "tracks"}]`
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
@@ -1841,30 +1836,30 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
             **Default**: :code:`"en_US"` – English (U.S.).
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the videos in the user's collection.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str, keyword-only, optional
+        sort : str; keyword-only; optional
             Field to sort the returned videos by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
@@ -1967,7 +1962,7 @@ class UsersAPI(TIDALResourceAPI):
         self,
         video_ids: str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -1991,7 +1986,7 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         video_ids : int, str, dict[str, int | str], or \
-        Collection[int | str | dict[str, int | str]], positional-only
+        list[int | str | dict[str, int | str]]; positional-only
             TIDAL IDs of the videos, provided as integers, strings, or
             properly formatted dictionaries.
 
@@ -2004,11 +1999,11 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`{"id": "75623239", "types": "videos"}`
                * :code:`["53315642", {"id": "75623239", "types": "videos"}]`
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
@@ -2025,7 +2020,7 @@ class UsersAPI(TIDALResourceAPI):
         self,
         video_ids: str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -2049,7 +2044,7 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         video_ids : int, str, dict[str, int | str], or \
-        Collection[int | str | dict[str, int | str]], positional-only
+        list[int | str | dict[str, int | str]]; positional-only
             TIDAL IDs of the videos, provided as integers, strings, or
             properly formatted dictionaries.
 
@@ -2062,11 +2057,11 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`{"id": "75623239", "types": "videos"}`
                * :code:`["53315642", {"id": "75623239", "types": "videos"}]`
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
@@ -2099,7 +2094,7 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
@@ -2142,7 +2137,7 @@ class UsersAPI(TIDALResourceAPI):
         user_id: str | None = None,
         country_code: str | None = None,
         locale: str | None = None,
-        include: str | Collection[str] | None = None,
+        include: str | list[str] | None = None,
     ) -> dict[str, Any]:
         """
         `User Recommendations > Get Recommendations
@@ -2161,21 +2156,21 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
             **Default**: :code:`"en_US"` – English (U.S.).
 
-        include : str or Collection[str], keyword-only, optional
+        include : str or list[str]; keyword-only; optional
             Related resources to include in the response.
 
             **Valid values**: :code:`"discoveryMixes"`,
@@ -2271,25 +2266,25 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-          user_id : int or str, keyword-only, optional
+          user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
             **Default**: :code:`"en_US"` – English (U.S.).
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the user's Discovery Mixes.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -2352,25 +2347,25 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
             **Default**: :code:`"en_US"` – English (U.S.).
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the user's mixes.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -2433,25 +2428,25 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-          user_id : int or str, keyword-only, optional
+          user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
             **Default**: :code:`"en_US"` – English (U.S.).
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the user's New Arrival Mixes.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -2540,7 +2535,7 @@ class UsersAPI(TIDALResourceAPI):
         item_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         _recursive: bool = True,
@@ -2551,7 +2546,7 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        resource : str, positional-only
+        resource : str; positional-only
             Resource type.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
@@ -2559,7 +2554,7 @@ class UsersAPI(TIDALResourceAPI):
             :code:`"videos"`.
 
         item_ids : str, dict[str, int | str], or \
-        Collection[int | str | dict[str, int | str]], positional-only
+        list[int | str | dict[str, int | str]]; positional-only
             TIDAL IDs or UUIDs of items, provided as strings or
             properly formatted dictionaries.
 
@@ -2616,45 +2611,45 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        resource : str, positional-only
+        resource : str; positional-only
             Resource type.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
             :code:`"videos"`.
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
             **Default**: :code:`"en_US"` – English (U.S.).
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the specified resource.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str, keyword-only, optional
+        sort : str; keyword-only; optional
             Field to sort the returned items by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
 
-        sort_fields : set[str], keyword-only, optional
+        sort_fields : set[str]; keyword-only; optional
             Valid fields for `sort` to sort by.
 
-        params : dict[str, Any], keyword-only, optional
+        params : dict[str, Any]; keyword-only; optional
             Existing dictionary holding URL query parameters. If not
             provided, a new dictionary will be created.
 
@@ -2677,8 +2672,10 @@ class UsersAPI(TIDALResourceAPI):
         if locale is not None:
             self._client._validate_type("locale", locale, str)
             params["locale"] = locale
-        if include:
-            params["include"] = resource
+        if include is not None:
+            self._client._validate_type("include", include, bool)
+            if include:
+                params["include"] = resource
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
             params["page[cursor]"] = cursor
@@ -2711,7 +2708,7 @@ class UsersAPI(TIDALResourceAPI):
         /,
         item_ids: str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         *,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -2721,12 +2718,12 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        method : str, positional-only
+        method : str; positional-only
             HTTP method.
 
             **Valid values**: :code:`"POST"`, :code:`"DELETE"`.
 
-        resource : str, positional-only
+        resource : str; positional-only
             Resource type.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
@@ -2734,15 +2731,15 @@ class UsersAPI(TIDALResourceAPI):
             :code:`"videos"`.
 
         item_ids : str, dict[str, int | str], or \
-        Collection[int | str | dict[str, int | str]]
+        list[int | str | dict[str, int | str]]
             TIDAL IDs or UUIDs of items, provided as strings or
             properly formatted dictionaries.
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
@@ -2780,31 +2777,31 @@ class UsersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        resource : str, positional-only
+        resource : str; positional-only
             Resource type.
 
             **Valid values**: :code:`"discoveryMixes"`,
             :code:`"myMixes"`, :code:`"newArrivalMixes"`.
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
             **Default**: :code:`"en_US"` – English (U.S.).
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the specified resource.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -2835,8 +2832,10 @@ class UsersAPI(TIDALResourceAPI):
         if locale is not None:
             self._client._validate_type("locale", locale, str)
             params["locale"] = locale
-        if include:
-            params["include"] = resource
+        if include is not None:
+            self._client._validate_type("include", include, bool)
+            if include:
+                params["include"] = resource
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
             params["page[cursor]"] = cursor

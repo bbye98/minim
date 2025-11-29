@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache
@@ -24,11 +23,11 @@ class ArtworksAPI(TIDALResourceAPI):
     @TTLCache.cached_method(ttl="catalog")
     def get_artworks(
         self,
-        artwork_ids: str | Collection[str],
+        artwork_ids: str | list[str],
         /,
         country_code: str | None = None,
         *,
-        include: str | Collection[str] | None = None,
+        include: str | list[str] | None = None,
     ) -> dict[str, Any]:
         """
         `Artworks > Get Single Artwork <https://tidal-music.github.io
@@ -48,20 +47,20 @@ class ArtworksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artwork_ids : str or Collection[str], positional-only
+        artwork_ids : str or list[str]; positional-only
             TIDAL ID(s) of the artwork(s), provided as either a string
-            or a collection of strings.
+            or a list of strings.
 
             **Examples**: :code:`"2xpmpI1s9DzeAPMlmNh9kM"`,
             :code:`["2xpmpI1s9DzeAPMlmNh9kM", "iWOu0yW0IPH0H5O42lAP"]`.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : str or Collection[str], keyword-only, optional
+        include : str or list[str]; keyword-only; optional
             Related resources to include in the response.
 
             **Valid value**: :code:`"owners"`.
@@ -185,16 +184,16 @@ class ArtworksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artwork_id : int, str, or Collection[int | str], positional-only
+        artwork_id : str; positional-only
             TIDAL ID of the artwork.
 
             **Example**: :code:`"2xpmpI1s9DzeAPMlmNh9kM"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the artwork's owners.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.

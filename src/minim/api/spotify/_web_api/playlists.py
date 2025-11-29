@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -25,8 +24,8 @@ class PlaylistsAPI(ResourceAPI):
         playlist_id: str,
         /,
         *,
-        additional_types: str | Collection[str] | None = None,
-        fields: str | Collection[str] | None = None,
+        additional_types: str | list[str] | None = None,
+        fields: str | list[str] | None = None,
         market: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -58,14 +57,14 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        playlist_id : str, positional-only
+        playlist_id : str; positional-only
             Spotify ID of the playlist.
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        additional_types : str or Collection[str], keyword-only, optional
+        additional_types : str or list[str]; keyword-only; optional
             Item types supported by the API client, provided as either a
-            comma-separated string or a collection of strings.
+            comma-separated string or a list of strings.
 
             .. note::
 
@@ -77,9 +76,9 @@ class PlaylistsAPI(ResourceAPI):
 
             **Valid values**: :code:`"track"`, :code:`"episode"`.
 
-        fields : str or Collection[str], keyword-only, optional
+        fields : str or list[str]; keyword-only; optional
             Fields to return in the JSON reponse, provided as either a
-            comma-separated string or a collection of strings. Use a dot
+            comma-separated string or a list of strings. Use a dot
             separator to specify non-recurring fields and parentheses to
             specify recurring fields within objects. Multiple levels of
             parentheses can be used to drill down into nested objects.
@@ -100,7 +99,7 @@ class PlaylistsAPI(ResourceAPI):
                * :code:`"tracks.items(track(name,href,album(!name,href)))"`
                  – Excludes the album name.
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -382,23 +381,23 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        playlist_id : str, positional-only
+        playlist_id : str; positional-only
             Spotify ID of the playlist.
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        name : str, keyword-only, optional
+        name : str; keyword-only; optional
             Playlist name.
 
             **Example**: :code:`"My New Playlist Title"`.
 
-        description : str, keyword-only, optional
+        description : str; keyword-only; optional
             Playlist description.
 
-        public : bool, keyword-only, optional
+        public : bool; keyword-only; optional
             Whether the playlist is displayed on the user's profile.
 
-        collaborative : bool, keyword-only, optional
+        collaborative : bool; keyword-only; optional
             Whether other users can modify the playlist.
 
             .. note::
@@ -431,8 +430,8 @@ class PlaylistsAPI(ResourceAPI):
         playlist_id: str,
         /,
         *,
-        additional_types: str | Collection[str] | None = None,
-        fields: str | Collection[str] | None = None,
+        additional_types: str | list[str] | None = None,
+        fields: str | list[str] | None = None,
         market: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
@@ -466,14 +465,14 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        playlist_id : str, positional-only
+        playlist_id : str; positional-only
             Spotify ID of the playlist.
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        additional_types : str or Collection[str], keyword-only, optional
+        additional_types : str or list[str]; keyword-only; optional
             Item types supported by the API client, provided as either a
-            comma-separated string or a collection of strings.
+            comma-separated string or a list of strings.
 
             .. note::
 
@@ -485,9 +484,9 @@ class PlaylistsAPI(ResourceAPI):
 
             **Valid values**: :code:`"track"`, :code:`"episode"`.
 
-        fields : str or Collection[str], keyword-only, optional
+        fields : str or list[str]; keyword-only; optional
             Fields to return in the JSON reponse, provided as either a
-            comma-separated string or a collection of strings. Use a dot
+            comma-separated string or a list of strings. Use a dot
             separator to specify non-recurring fields and parentheses to
             specify recurring fields within objects. Multiple levels of
             parentheses can be used to drill down into nested objects.
@@ -508,7 +507,7 @@ class PlaylistsAPI(ResourceAPI):
                * :code:`"tracks.items(track(name,href,album(!name,href)))"`
                  – Excludes the album name.
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -522,14 +521,14 @@ class PlaylistsAPI(ResourceAPI):
 
             **Example**: :code:`"ES"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of items to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
             the next set of items.
 
@@ -759,7 +758,7 @@ class PlaylistsAPI(ResourceAPI):
         self,
         playlist_id: str,
         /,
-        uris: str | Collection[str],
+        uris: str | list[str],
         *,
         position: int | None = None,
     ) -> dict[str, str]:
@@ -786,15 +785,15 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        playlist_id : str, positional-only
+        playlist_id : str; positional-only
             Spotify ID of the playlist.
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        uris : str or Collection[str]
+        uris : str or list[str]
             Spotify URIs of tracks and/or show episodes, provided as
-            either a comma-separated string or a collection of strings.
-            A maximum of 100 URIs can be sent in a request.
+            either a comma-separated string or a list of strings. A
+            maximum of 100 URIs can be sent in a request.
 
             **Examples**:
 
@@ -810,7 +809,7 @@ class PlaylistsAPI(ResourceAPI):
                         "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
                     ]
 
-        position : int, keyword-only, optional
+        position : int; keyword-only; optional
             Zero-based index at which to insert the items in `uris`. If
             not specified, the items are appended to the end of the
             playlist.
@@ -880,12 +879,12 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        playlist_id : str, positional-only
+        playlist_id : str; positional-only
             Spotify ID of the playlist.
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        insert_before : int, keyword-only
+        insert_before : int; keyword-only
             Zero-based index at which to insert the items.
 
             **Examples**:
@@ -899,16 +898,16 @@ class PlaylistsAPI(ResourceAPI):
                  `range_length` before the current item in the eleventh
                  position.
 
-        range_start : int, keyword-only
+        range_start : int; keyword-only
             Zero-based index of the first item to be reordered.
 
-        range_length : int, keyword-only, optional
+        range_length : int; keyword-only; optional
             Number of items, starting from `range_start`, to be
             reordered.
 
             **Default**: :code:`1`.
 
-        snapshot_id : str, keyword-only, optional
+        snapshot_id : str; keyword-only; optional
             Version identifier for the playlist against which to make
             changes.
 
@@ -936,10 +935,7 @@ class PlaylistsAPI(ResourceAPI):
         ).json()
 
     def replace_playlist_items(
-        self,
-        playlist_id: str,
-        /,
-        uris: str | Collection[str],
+        self, playlist_id: str, /, uris: str | list[str]
     ) -> dict[str, str]:
         """
         `Playlists > Update Playlist Items
@@ -964,15 +960,15 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        playlist_id : str, positional-only
+        playlist_id : str; positional-only
             Spotify ID of the playlist.
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        uris : str or Collection[str]
+        uris : str or list[str]
             Spotify URIs of tracks and/or show episodes, provided as
-            either a comma-separated string or a collection of strings.
-            A maximum of 100 URIs can be sent in a request.
+            either a comma-separated string or a list of strings. A
+            maximum of 100 URIs can be sent in a request.
 
             **Examples**:
 
@@ -1014,7 +1010,7 @@ class PlaylistsAPI(ResourceAPI):
         self,
         playlist_id: str,
         /,
-        uris: str | Collection[str],
+        uris: str | list[str],
         *,
         snapshot_id: str | None = None,
     ) -> dict[str, str]:
@@ -1041,15 +1037,15 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        playlist_id : str, positional-only
+        playlist_id : str; positional-only
             Spotify ID of the playlist.
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
-        uris : str or Collection[str]
+        uris : str or list[str]
             Spotify URIs of tracks and/or show episodes, provided as
-            either a comma-separated string or a collection of strings.
-            A maximum of 100 URIs can be sent in a request.
+            either a comma-separated string or a list of strings. A
+            maximum of 100 URIs can be sent in a request.
 
             **Examples**:
 
@@ -1065,7 +1061,7 @@ class PlaylistsAPI(ResourceAPI):
                         "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
                     ]
 
-        snapshot_id : str, keyword-only, optional
+        snapshot_id : str; keyword-only; optional
             Version identifier for the playlist against which to make
             changes.
 
@@ -1126,20 +1122,20 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        user_id : str, positional-only, optional
+        user_id : str; positional-only; optional
             Spotify user ID. If not provided, the current user's
             playlists will be returned.
 
             **Example**: :code:`"smedjan"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of playlists to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
             get the next set of playlists.
 
@@ -1255,15 +1251,15 @@ class PlaylistsAPI(ResourceAPI):
 
             **Example**: :code:`"My New Playlist Title"`.
 
-        description : str, keyword-only, optional
+        description : str; keyword-only; optional
             Playlist description.
 
-        public : bool, keyword-only, optional
+        public : bool; keyword-only; optional
             Whether the playlist is displayed on the user's profile.
 
             **Default**: :code:`True`.
 
-        collaborative : bool, keyword-only, optional
+        collaborative : bool; keyword-only; optional
             Whether other users can modify the playlist.
 
             .. note::
@@ -1372,7 +1368,7 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             Locale identifier consisting of an ISO 639-1 language
             code and an ISO 3166-1 alpha-2 country code joined by an
             underscore. When this parameter is provided, categories
@@ -1386,14 +1382,14 @@ class PlaylistsAPI(ResourceAPI):
 
             **Example**: :code:`"es_MX"` – Spanish (Mexico).
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of playlists to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
             get the next set of playlists.
 
@@ -1501,7 +1497,7 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        category_id : str
+        category_id : str, positional-only
             Spotify category ID.
 
             .. seealso::
@@ -1511,14 +1507,14 @@ class PlaylistsAPI(ResourceAPI):
 
             **Examples**: :code:`"dinner"`, :code:`"party"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of playlists to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
             get the next set of playlists.
 
@@ -1608,7 +1604,7 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        playlist_id : str, positional-only
+        playlist_id : str; positional-only
             Spotify ID of the playlist.
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
@@ -1668,7 +1664,7 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        playlist_id : str, positional-only
+        playlist_id : str; positional-only
             Spotify ID of the playlist.
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
@@ -1731,10 +1727,10 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        playlist_id : str, positional-only
+        playlist_id : str; positional-only
             Spotify ID of the playlist.
 
-        public : bool, keyword-only, optional
+        public : bool; keyword-only; optional
             Whether the playlist will be included in the current user's
             public playlists.
 
@@ -1775,7 +1771,7 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        playlist_id : str, positional-only
+        playlist_id : str; positional-only
             Spotify ID of the playlist.
         """
         self._client._validate_spotify_id(playlist_id)
@@ -1800,7 +1796,7 @@ class PlaylistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        playlist_id : str, positional-only
+        playlist_id : str; positional-only
             Spotify ID of the playlist.
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.

@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache
@@ -22,7 +21,7 @@ class ProvidersAPI(TIDALResourceAPI):
 
     @TTLCache.cached_method(ttl="catalog")
     def get_providers(
-        self, provider_ids: int | str | Collection[int | str], /
+        self, provider_ids: int | str | list[int | str], /
     ) -> dict[str, Any]:
         """
         `Providers > Get Single Provider <https://tidal-music.github.io
@@ -35,12 +34,11 @@ class ProvidersAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        provider_ids : int, str, or Collection[int | str], \
-        positional-only
+        provider_ids : int, str, or list[int | str]; positional-only
             TIDAL IDs of the providers, provided as either an integer, a
-            string, or a collection of integers and/or strings.
+            string, or a list of integers and/or strings.
 
-            **Examples**: :code:`771`, :code:`"772"`, 
+            **Examples**: :code:`771`, :code:`"772"`,
             :code:`[771, "772"]`.
 
         Returns

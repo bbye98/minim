@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI
@@ -21,9 +20,7 @@ class ArtistsAPI(ResourceAPI):
     _client: "SpotifyWebAPI"
 
     @TTLCache.cached_method(ttl="catalog")
-    def get_artists(
-        self, artist_ids: str | Collection[str], /
-    ) -> dict[str, Any]:
+    def get_artists(self, artist_ids: str | list[str], /) -> dict[str, Any]:
         """
         `Artists > Get Artist <https://developer.spotify.com
         /documentation/web-api/reference/get-an-artist>`_: Get
@@ -34,10 +31,10 @@ class ArtistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        artist_ids : str or Collection[str], positional-only
+        artist_ids : str or list[str]; positional-only
             Spotify IDs of the artists, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -132,7 +129,7 @@ class ArtistsAPI(ResourceAPI):
         artist_id: str,
         /,
         *,
-        include_groups: str | Collection[str] | None = None,
+        include_groups: str | list[str] | None = None,
         market: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
@@ -144,14 +141,14 @@ class ArtistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        artist_id : str, positional-only
+        artist_id : str; positional-only
             Spotify ID of the artist.
 
             **Example**: :code:`"0TnOYISbd1XYRBk9myaseg"`.
 
-        include_groups : str or Collection[str], optional
+        include_groups : str or list[str]; optional
             Album types to retrieve, provided as either a
-            comma-separated string or a collection of strings. If not
+            comma-separated string or a list of strings. If not
             specified, all album types will be returned.
 
             **Valid values**: :code:`"album"`, :code:`"single"`,
@@ -160,7 +157,7 @@ class ArtistsAPI(ResourceAPI):
             **Examples**: :code:`"album"`, :code:`"album,single"`,
             :code:`["single", "appears_on"]`.
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -174,14 +171,14 @@ class ArtistsAPI(ResourceAPI):
 
             **Example**: :code:`"ES"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of albums to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
             the next set of albums.
 
@@ -288,12 +285,12 @@ class ArtistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        artist_id : str, positional-only
+        artist_id : str; positional-only
             Spotify ID of the artist.
 
             **Example**: :code:`"0TnOYISbd1XYRBk9myaseg"`.
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -428,7 +425,7 @@ class ArtistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        artist_id : str, positional-only
+        artist_id : str; positional-only
             Spotify ID of the artist.
 
             **Example**: :code:`"0TnOYISbd1XYRBk9myaseg"`.
@@ -509,7 +506,7 @@ class ArtistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        time_range : str, keyword-only, optional
+        time_range : str; keyword-only; optional
             Time frame over which the current user's listening history
             is analyzed to determine the top artists.
 
@@ -526,14 +523,14 @@ class ArtistsAPI(ResourceAPI):
 
             **Default**: :code:`"medium_term"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of artists to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
             the next set of artists.
 
@@ -620,13 +617,13 @@ class ArtistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        after : str, keyword-only, optional
+        after : str; keyword-only; optional
             Spotify ID of the last artist retrieved in the previous
             request.
 
             **Example**: :code:`"0I2XqVXqHScXjHhk6AYYRe"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of artists to return.
 
             **Valid range**: :code:`1` to :code:`50`.
@@ -696,7 +693,7 @@ class ArtistsAPI(ResourceAPI):
             "GET", "me/following", params=params
         ).json()
 
-    def follow_artists(self, artist_ids: str | Collection[str], /) -> None:
+    def follow_artists(self, artist_ids: str | list[str], /) -> None:
         """
         `Users > Follow Artists <https://developer.spotify.com
         /documentation/web-api/reference/follow-artists-users>`_: Follow
@@ -714,10 +711,10 @@ class ArtistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        artist_ids : str or Collection[str], positional-only
+        artist_ids : str or list[str]; positional-only
             Spotify IDs of the artists, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -741,7 +738,7 @@ class ArtistsAPI(ResourceAPI):
             },
         )
 
-    def unfollow_artists(self, artist_ids: str | Collection[str], /) -> None:
+    def unfollow_artists(self, artist_ids: str | list[str], /) -> None:
         """
         `Users > Unfollow Artists <https://developer.spotify.com
         /documentation/web-api/reference/unfollow-artists-users>`_:
@@ -759,10 +756,10 @@ class ArtistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        artist_ids : str or Collection[str], positional-only
+        artist_ids : str or list[str]; positional-only
             Spotify IDs of the artists, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -787,7 +784,7 @@ class ArtistsAPI(ResourceAPI):
         )
 
     def is_following_artists(
-        self, artist_ids: str | Collection[str], /
+        self, artist_ids: str | list[str], /
     ) -> list[bool]:
         """
         `Users > Check If User Follows Artists
@@ -807,10 +804,10 @@ class ArtistsAPI(ResourceAPI):
 
         Parameters
         ----------
-        artist_ids : str or Collection[str], positional-only
+        artist_ids : str or list[str]; positional-only
             Spotify IDs of the artists, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -841,17 +838,14 @@ class ArtistsAPI(ResourceAPI):
             },
         ).json()
 
-    def _prepare_album_types(
-        self, album_types: str | Collection[str], /
-    ) -> str:
+    def _prepare_album_types(self, album_types: str | list[str], /) -> str:
         """
-        Stringify a collection of album types into a comma-separated
-        string.
+        Stringify a list of album types into a comma-separated string.
 
         Parameters
         ----------
-        album_types : str or Collection[str], positional-only
-            Comma-separated string or collection containing album types.
+        album_types : str or list[str]; positional-only
+            Comma-separated string or list containing album types.
 
         Returns
         -------

@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from json.decoder import JSONDecodeError
 import time
 from typing import TYPE_CHECKING, Any
@@ -162,13 +161,13 @@ class iTunesSearchAPI(APIClient):
     def lookup(
         self,
         *,
-        itunes_ids: int | str | Collection[int | str] | None = None,
-        amg_album_ids: int | str | Collection[int | str] | None = None,
-        amg_artist_ids: int | str | Collection[int | str] | None = None,
-        amg_video_ids: int | str | Collection[int | str] | None = None,
-        bundle_ids: str | Collection[str] | None = None,
-        isbns: int | str | Collection[int | str] | None = None,
-        upcs: int | str | Collection[int | str] | None = None,
+        itunes_ids: int | str | list[int | str] | None = None,
+        amg_album_ids: int | str | list[int | str] | None = None,
+        amg_artist_ids: int | str | list[int | str] | None = None,
+        amg_video_ids: int | str | list[int | str] | None = None,
+        bundle_ids: str | list[str] | None = None,
+        isbns: int | str | list[int | str] | None = None,
+        upcs: int | str | list[int | str] | None = None,
         entity: str | None = None,
         limit: int | str | None = None,
         sort: str | None = None,
@@ -180,7 +179,7 @@ class iTunesSearchAPI(APIClient):
 
         Parameters
         ----------
-        itunes_ids : int, str, or Collection[int | str], keyword-only, \
+        itunes_ids : int, str, or list[int | str]; keyword-only; \
         optional
             iTunes IDs.
 
@@ -190,16 +189,16 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: 
-            
+            **Examples**:
+
             .. container::
-           
+
                * :code:`984746615`
                * :code:`"984746615"`
                * :code:`[984746615, "1440935756"]`
 
-        amg_album_ids : int, str, or Collection[int | str], \
-        keyword-only, optional
+        amg_album_ids : int, str, or list[int | str]; keyword-only; \
+        optional
             AMG album IDs.
 
             .. note::
@@ -208,16 +207,16 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: 
-            
+            **Examples**:
+
             .. container::
 
                * :code:`2025410`
                * :code:`"2025410"`
                * :code:`[2025410, "2844399"]`
 
-        amg_artist_ids : int, str, or Collection[int | str], \
-        keyword-only, optional
+        amg_artist_ids : int, str, or list[int | str];  keyword-only; \
+        optional
             AMG artist IDs.
 
             .. note::
@@ -234,8 +233,8 @@ class iTunesSearchAPI(APIClient):
                * :code:`"472102"`
                * :code:`[472102, "2913530"]`
 
-        amg_video_ids : int, str, or Collection[int | str], \
-        keyword-only, optional
+        amg_video_ids : int, str, or list[int | str]; keyword-only; \
+        optional
             AMG video IDs.
 
             .. note::
@@ -244,15 +243,15 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: 
-            
+            **Examples**:
+
             .. container::
 
                * :code:`17120`
                * :code:`"17121"`
                * :code:`[17122, "17123"]`
 
-        bundle_ids : str, or Collection[str], keyword-only, optional
+        bundle_ids : str or list[str]; keyword-only; optional
             App bundle IDs.
 
             .. note::
@@ -261,15 +260,14 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: 
-            
+            **Examples**:
+
             .. container::
 
                * :code:`"com.tripadvisor.LocalPicks"`
                * :code:`["com.tripadvisor.LocalPicks", "com.yelp.yelpiphone"]`
 
-        isbns : int, str, or Collection[int | str], keyword-only, \
-        optional
+        isbns : int, str, or list[int | str]; keyword-only; optional
             ISBNs.
 
             .. note::
@@ -278,16 +276,15 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: 
-            
+            **Examples**:
+
             .. container::
 
                * :code:`9781637993415`
                * :code:`"9781637993415"`
                * :code:`[9781637993415, "9781705142110"]`
 
-        upcs : int, str, or Collection[int | str], keyword-only, \
-        optional
+        upcs : int, str, or list[int | str]; keyword-only; optional
             UPCs/EANs.
 
             .. note::
@@ -296,15 +293,15 @@ class iTunesSearchAPI(APIClient):
                `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
                or `upcs` must be provided.
 
-            **Examples**: 
-            
+            **Examples**:
+
             .. container::
-            
+
                * :code:`075678671173`
                * :code:`"075678671173"`
                * :code:`[075678671173, "602448438034"]`
 
-        entity : str, keyword-only, optional
+        entity : str; keyword-only; optional
             Type of resource to return.
 
             .. seealso::
@@ -317,14 +314,14 @@ class iTunesSearchAPI(APIClient):
 
             **Example**: :code:`"movieArtist"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of items to return.
 
             **Valid range**: :code:`1` to :code:`200`.
 
             **Default**: :code:`50`.
 
-        sort : str, keyword-only, optional
+        sort : str; keyword-only; optional
             Sort applied to the lookup results.
 
             **Valid value**: :code:`"recent"`.
@@ -581,7 +578,7 @@ class iTunesSearchAPI(APIClient):
 
         Parameters
         ----------
-        term : str, positional-only
+        term : str; positional-only
             Search query.
 
             **Example**: :code:`"jack johnson"`.
@@ -592,7 +589,7 @@ class iTunesSearchAPI(APIClient):
 
             **Default**: :code:`"US"`.
 
-        media : str, keyword-only, optional
+        media : str; keyword-only; optional
             Media type to search across.
 
             **Valid values**: :code:`"all"`, :code:`"audiobook"`,
@@ -602,7 +599,7 @@ class iTunesSearchAPI(APIClient):
 
             **Default**: :code:`"all"`.
 
-        entity : str, keyword-only, optional
+        entity : str; keyword-only; optional
             Type of resource to return for the specified `media`.
 
             .. seealso::
@@ -616,7 +613,7 @@ class iTunesSearchAPI(APIClient):
 
             **Example**: :code:`"movieArtist"` when :code:`media="movie"`.
 
-        attribute : str, keyword-only, optional
+        attribute : str; keyword-only; optional
             Field to constrain the search by, depending on the specified
             `media`.
 
@@ -630,14 +627,14 @@ class iTunesSearchAPI(APIClient):
             **Example**: :code:`"allArtistTerm"` when
             :code:`media="all"` and :code:`entity="allArtist"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of items to return.
 
             **Valid range**: :code:`1` to :code:`200`.
 
             **Default**: :code:`50`.
 
-        language : str, keyword-only, optional
+        language : str; keyword-only; optional
             Locale identifier consisting of an ISO 639-1 language
             code and an ISO 3166-1 alpha-2 country code joined by an
             underscore. When this parameter is provided, search results
@@ -652,14 +649,14 @@ class iTunesSearchAPI(APIClient):
 
             **Default**: :code:`"en_us"`.
 
-        version : int, keyword-only, optional
+        version : int; keyword-only; optional
             Search result key version.
 
             **Valid values**: :code:`1`, :code:`2`.
 
             **Default**: :code:`2`.
 
-        explicit : bool | str, keyword-only, optional
+        explicit : bool or str; keyword-only; optional
             Whether to include explicit content in the search results.
 
             **Valid values**: :code:`"Yes"` (or :code:`True`),
@@ -994,13 +991,13 @@ class iTunesSearchAPI(APIClient):
 
         Parameters
         ----------
-        method : str, positional-only
+        method : str; positional-only
             HTTP method.
 
-        endpoint : str, positional-only
+        endpoint : str; positional-only
             iTunes Search API endpoint.
 
-        retry : bool, keyword-only, default: :code:`True`
+        retry : bool; keyword-only; default: :code:`True`
             Whether to retry the request if the first attempt returns a
             :code:`403 Forbidden`.
 

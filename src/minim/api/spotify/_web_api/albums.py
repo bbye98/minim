@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI
@@ -21,7 +20,7 @@ class AlbumsAPI(ResourceAPI):
 
     @TTLCache.cached_method(ttl="catalog")
     def get_albums(
-        self, album_ids: str | Collection[str], /, *, market: str | None = None
+        self, album_ids: str | list[str], /, *, market: str | None = None
     ) -> dict[str, Any]:
         """
         `Albums > Get Album <https://developer.spotify.com/documentation
@@ -43,10 +42,10 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_ids : str or Collection[str], positional-only
+        album_ids : str or list[str]; positional-only
             Spotify IDs of the albums, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 20 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 20
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -56,7 +55,7 @@ class AlbumsAPI(ResourceAPI):
                * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
                * :code:`["382ObEPsp2rxGrnsizN5TX", "1A2GTWGtFfWp7KSQTwWOyo"]`
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -341,12 +340,12 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_id : str, positional-only
+        album_id : str; positional-only
             Spotify ID of the album.
 
             **Example**: :code:`"4aawyAB9vmqN3uQ7FjRGTy"`.
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -360,14 +359,14 @@ class AlbumsAPI(ResourceAPI):
 
             **Example**: :code:`"ES"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next set of tracks.
 
@@ -485,7 +484,7 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -499,14 +498,14 @@ class AlbumsAPI(ResourceAPI):
 
             **Example**: :code:`"ES"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of albums to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
             the next set of albums.
 
@@ -657,7 +656,7 @@ class AlbumsAPI(ResourceAPI):
             params["offset"] = offset
         return self._client._request("GET", "me/albums", params=params).json()
 
-    def save_albums(self, album_ids: str | Collection[str], /) -> None:
+    def save_albums(self, album_ids: str | list[str], /) -> None:
         """
         `Albums > Save Albums for Current User
         <https://developer.spotify.com/documentation/web-api/reference
@@ -676,10 +675,10 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_ids : str or Collection[str], positional-only
+        album_ids : str or list[str]; positional-only
             Spotify IDs of the albums, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 20 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 20
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -702,7 +701,7 @@ class AlbumsAPI(ResourceAPI):
             },
         )
 
-    def remove_saved_albums(self, album_ids: str | Collection[str], /) -> None:
+    def remove_saved_albums(self, album_ids: str | list[str], /) -> None:
         """
         `Albums > Remove User's Saved Albums
         <https://developer.spotify.com/documentation/web-api/reference
@@ -721,10 +720,10 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_ids : str or Collection[str], positional-only
+        album_ids : str or list[str]; positional-only
             Spotify IDs of the albums, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 20 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 20
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -747,9 +746,7 @@ class AlbumsAPI(ResourceAPI):
             },
         )
 
-    def are_albums_saved(
-        self, album_ids: str | Collection[str], /
-    ) -> list[bool]:
+    def are_albums_saved(self, album_ids: str | list[str], /) -> list[bool]:
         """
         `Albums > Check User's Saved Albums
         <https://developer.spotify.com/documentation/web-api/reference
@@ -768,10 +765,10 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_ids : str or Collection[str], positional-only
+        album_ids : str or list[str]; positional-only
             Spotify IDs of the albums, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 20 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 20
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -813,14 +810,14 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of albums to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
             the next set of albums.
 

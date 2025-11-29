@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI
@@ -33,7 +32,7 @@ class SearchAPI(ResourceAPI):
         self,
         query: str,
         /,
-        types: str | Collection[str],
+        types: str | list[str],
         *,
         include_external: str | None = None,
         market: str | None = None,
@@ -98,20 +97,20 @@ class SearchAPI(ResourceAPI):
             **Example**:
             :code:`"remaster track:Doxy artist:Miles Davis"`.
 
-        types : str or Collection[str]
+        types : str or list[str]
             Item types to search across, provided as either a
-            comma-separated string or a collection of strings.
+            comma-separated string or a list of strings.
 
             **Valid values**: :code:`"album"`, :code:`"artist"`,
             :code:`"playlist"`, :code:`"track"`, :code:`"show"`,
             :code:`"episode"`, :code:`"audiobook"`.
 
-        include_external : str, optional
+        include_external : str; keyword-only; optional
             Externally hosted content that the API client can play.
 
             **Valid value**: :code:`"audio"`.
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -125,14 +124,14 @@ class SearchAPI(ResourceAPI):
 
             **Example**: :code:`"ES"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of items to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
             the next set of items.
 
@@ -500,20 +499,20 @@ class SearchAPI(ResourceAPI):
             params["offset"] = offset
         return self._client._request("GET", "search", params=params).json()
 
-    def _prepare_item_types(self, types: str | Collection[str], /) -> str:
+    def _prepare_item_types(self, types: str | list[str], /) -> str:
         """
-        Stringify a list of Spotify item types into a comma-delimited
+        Stringify a list of Spotify item types into a comma-separated
         string.
 
         Parameters
         ----------
-        types : str, positional-only
+        types : str or list[str]; positional-only
             Spotify item types.
 
         Returns
         -------
         types : str
-            Comma-delimited string containing Spotify item types.
+            comma-separated string containing Spotify item types.
         """
         if isinstance(types, str):
             return self._prepare_item_types(types.split(","))

@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI
@@ -21,11 +20,7 @@ class EpisodesAPI(ResourceAPI):
 
     @TTLCache.cached_method(ttl="catalog")
     def get_episodes(
-        self,
-        episode_ids: str | Collection[str],
-        /,
-        *,
-        market: str | None = None,
+        self, episode_ids: str | list[str], /, *, market: str | None = None
     ) -> dict[str, Any]:
         """
         `Episodes > Get Episode <https://developer.spotify.com
@@ -54,9 +49,9 @@ class EpisodesAPI(ResourceAPI):
 
         Parameters
         ----------
-        episode_ids : str or Collection[str], positional-only
+        episode_ids : str or list[str]; positional-only
             Spotify IDs of the show episodes, provided as either a
-            comma-separated string or a collection of strings. A
+            comma-separated string or a list of strings. A
             maximum of 50 IDs can be sent in a request.
 
             **Examples**:
@@ -67,7 +62,7 @@ class EpisodesAPI(ResourceAPI):
                * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
                * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -290,7 +285,7 @@ class EpisodesAPI(ResourceAPI):
 
         Parameters
         ----------
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -304,14 +299,14 @@ class EpisodesAPI(ResourceAPI):
 
             **Example**: :code:`"ES"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of show episodes to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first show episode to return. Use with `limit`
             to get the next set of show episodes.
 
@@ -429,7 +424,7 @@ class EpisodesAPI(ResourceAPI):
             "GET", "me/episodes", params=params
         ).json()
 
-    def save_episodes(self, episode_ids: str | Collection[str], /) -> None:
+    def save_episodes(self, episode_ids: str | list[str], /) -> None:
         """
         `Episodes > Save Episodes for Current User
         <https://developer.spotify.com/documentation/web-api/reference
@@ -448,10 +443,10 @@ class EpisodesAPI(ResourceAPI):
 
         Parameters
         ----------
-        episode_ids : str or Collection[str], positional-only
+        episode_ids : str or list[str]; positional-only
             Spotify IDs of the show episodes, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -474,9 +469,7 @@ class EpisodesAPI(ResourceAPI):
             },
         )
 
-    def remove_saved_episodes(
-        self, episode_ids: str | Collection[str], /
-    ) -> None:
+    def remove_saved_episodes(self, episode_ids: str | list[str], /) -> None:
         """
         `Episodes > Remove User's Saved Episodes
         <https://developer.spotify.com/documentation/web-api/reference
@@ -495,10 +488,10 @@ class EpisodesAPI(ResourceAPI):
 
         Parameters
         ----------
-        episode_ids : str or Collection[str], positional-only
+        episode_ids : str or list[str]; positional-only
             Spotify IDs of the show episodes, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -522,7 +515,7 @@ class EpisodesAPI(ResourceAPI):
         )
 
     def are_episodes_saved(
-        self, episode_ids: str | Collection[str], /
+        self, episode_ids: str | list[str], /
     ) -> list[bool]:
         """
         `Episodes > Check User's Saved Episodes
@@ -542,10 +535,10 @@ class EpisodesAPI(ResourceAPI):
 
         Parameters
         ----------
-        episode_ids : str or Collection[str], positional-only
+        episode_ids : str or list[str]; positional-only
             Spotify IDs of the show episodes, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 

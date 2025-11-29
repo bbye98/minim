@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
@@ -58,7 +57,7 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        user_id : str, positional-only, optional
+        user_id : str; positional-only; optional
             Spotify user ID. If not provided, the current user's
             profile will be returned.
 
@@ -180,10 +179,10 @@ class UsersAPI(ResourceAPI):
         )
 
     @_copy_docstring(ArtistsAPI.follow_artists)
-    def follow_artists(self, artist_ids: str | Collection[str], /) -> None:
+    def follow_artists(self, artist_ids: str | list[str], /) -> None:
         self._client.artists.follow_artists(artist_ids)
 
-    def follow_users(self, user_ids: str | Collection[str], /) -> None:
+    def follow_users(self, user_ids: str | list[str], /) -> None:
         """
         `Users > Follow Users <https://developer.spotify.com
         /documentation/web-api/reference/follow-artists-users>`_: Follow
@@ -201,10 +200,10 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        user_ids : str or Collection[str], positional-only
+        user_ids : str or list[str]; positional-only
             Spotify user IDs, provided as either a comma-separated
-            string or a collection of strings. A maximum of 50 IDs can
-            be sent in a request.
+            string or a list of strings. A maximum of 50 IDs can be sent
+            in a request.
 
             **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
             :code:`["smedjan", "bbye98"]`.
@@ -224,10 +223,10 @@ class UsersAPI(ResourceAPI):
         )
 
     @_copy_docstring(ArtistsAPI.unfollow_artists)
-    def unfollow_artists(self, artist_ids: str | Collection[str], /) -> None:
+    def unfollow_artists(self, artist_ids: str | list[str], /) -> None:
         self._client.artists.unfollow_artists(artist_ids)
 
-    def unfollow_users(self, user_ids: str | Collection[str], /) -> None:
+    def unfollow_users(self, user_ids: str | list[str], /) -> None:
         """
         `Users > Unfollow Users <https://developer.spotify.com
         /documentation/web-api/reference/unfollow-artists-users>`_:
@@ -245,10 +244,10 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        user_ids : str or Collection[str], positional-only
+        user_ids : str or list[str]; positional-only
             Spotify user IDs, provided as either a comma-separated
-            string or a collection of strings. A maximum of 50 IDs can
-            be sent in a request.
+            string or a list of strings. A maximum of 50 IDs can be sent
+            in a request.
 
             **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
             :code:`["smedjan", "bbye98"]`.
@@ -269,13 +268,11 @@ class UsersAPI(ResourceAPI):
 
     @_copy_docstring(ArtistsAPI.is_following_artists)
     def is_following_artists(
-        self, artist_ids: str | Collection[str], /
+        self, artist_ids: str | list[str], /
     ) -> list[bool]:
         return self._client.artists.is_following_artists(artist_ids)
 
-    def is_following_users(
-        self, user_ids: str | Collection[str], /
-    ) -> list[bool]:
+    def is_following_users(self, user_ids: str | list[str], /) -> list[bool]:
         """
         `Users > Check If User Follows Users
         <https://developer.spotify.com/documentation/web-api/reference
@@ -294,10 +291,10 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        user_ids : str or Collection[str], positional-only
+        user_ids : str or list[str]; positional-only
             Spotify user IDs, provided as either a comma-separated
-            string or a collection of strings. A maximum of 50 IDs can
-            be sent in a request.
+            string or a list of strings. A maximum of 50 IDs can be sent
+            in a request.
 
             **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
             :code:`["smedjan", "bbye98"]`.
@@ -340,17 +337,15 @@ class UsersAPI(ResourceAPI):
         )
 
     @_copy_docstring(AlbumsAPI.save_albums)
-    def save_albums(self, album_ids: str | Collection[str], /) -> None:
+    def save_albums(self, album_ids: str | list[str], /) -> None:
         self._client.albums.save_albums(album_ids)
 
     @_copy_docstring(AlbumsAPI.remove_saved_albums)
-    def remove_saved_albums(self, album_ids: str | Collection[str], /) -> None:
+    def remove_saved_albums(self, album_ids: str | list[str], /) -> None:
         self._client.albums.remove_saved_albums(album_ids)
 
     @_copy_docstring(AlbumsAPI.are_albums_saved)
-    def are_albums_saved(
-        self, album_ids: str | Collection[str], /
-    ) -> list[bool]:
+    def are_albums_saved(self, album_ids: str | list[str], /) -> list[bool]:
         return AlbumsAPI.are_albums_saved(album_ids)
 
     @_copy_docstring(AudiobooksAPI.get_my_saved_audiobooks)
@@ -366,18 +361,18 @@ class UsersAPI(ResourceAPI):
         )
 
     @_copy_docstring(AudiobooksAPI.save_audiobooks)
-    def save_audiobooks(self, audiobook_ids: str | Collection[str], /) -> None:
+    def save_audiobooks(self, audiobook_ids: str | list[str], /) -> None:
         self._client.audiobooks.save_audiobooks(audiobook_ids)
 
     @_copy_docstring(AudiobooksAPI.remove_saved_audiobooks)
     def remove_saved_audiobooks(
-        self, audiobook_ids: str | Collection[str], /
+        self, audiobook_ids: str | list[str], /
     ) -> None:
         self._client.audiobooks.remove_saved_audiobooks(audiobook_ids)
 
     @_copy_docstring(AudiobooksAPI.are_audiobooks_saved)
     def are_audiobooks_saved(
-        self, audiobook_ids: str | Collection[str], /
+        self, audiobook_ids: str | list[str], /
     ) -> list[bool]:
         return self._client.audiobooks.are_audiobooks_saved(audiobook_ids)
 
@@ -394,18 +389,16 @@ class UsersAPI(ResourceAPI):
         )
 
     @_copy_docstring(EpisodesAPI.save_episodes)
-    def save_episodes(self, episode_ids: str | Collection[str], /) -> None:
+    def save_episodes(self, episode_ids: str | list[str], /) -> None:
         self._client.episodes.save_episodes(episode_ids)
 
     @_copy_docstring(EpisodesAPI.remove_saved_episodes)
-    def remove_saved_episodes(
-        self, episode_ids: str | Collection[str], /
-    ) -> None:
+    def remove_saved_episodes(self, episode_ids: str | list[str], /) -> None:
         self._client.episodes.remove_saved_episodes(episode_ids)
 
     @_copy_docstring(EpisodesAPI.are_episodes_saved)
     def are_episodes_saved(
-        self, episode_ids: str | Collection[str], /
+        self, episode_ids: str | list[str], /
     ) -> list[bool]:
         return self._client.episodes.are_episodes_saved(episode_ids)
 
@@ -430,14 +423,14 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of playlists to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
             get the next set of playlists.
 
@@ -515,17 +508,15 @@ class UsersAPI(ResourceAPI):
         )
 
     @_copy_docstring(ShowsAPI.save_shows)
-    def save_shows(self, show_ids: str | Collection[str], /) -> None:
+    def save_shows(self, show_ids: str | list[str], /) -> None:
         self._client.shows.save_shows(show_ids)
 
     @_copy_docstring(ShowsAPI.remove_saved_shows)
-    def remove_saved_shows(self, show_ids: str | Collection[str], /) -> None:
+    def remove_saved_shows(self, show_ids: str | list[str], /) -> None:
         self._client.shows.remove_saved_shows(show_ids)
 
     @_copy_docstring(ShowsAPI.are_shows_saved)
-    def are_shows_saved(
-        self, show_ids: str | Collection[str], /
-    ) -> list[bool]:
+    def are_shows_saved(self, show_ids: str | list[str], /) -> list[bool]:
         return self._client.shows.are_shows_saved(show_ids)
 
     @_copy_docstring(TracksAPI.get_my_saved_tracks)
@@ -552,13 +543,11 @@ class UsersAPI(ResourceAPI):
         self._client.tracks.save_tracks(track_ids)
 
     @_copy_docstring(TracksAPI.remove_saved_tracks)
-    def remove_saved_tracks(self, track_ids: str | Collection[str], /) -> None:
+    def remove_saved_tracks(self, track_ids: str | list[str], /) -> None:
         self._client.tracks.remove_saved_tracks(track_ids)
 
     @_copy_docstring(TracksAPI.are_tracks_saved)
-    def are_tracks_saved(
-        self, track_ids: str | Collection[str], /
-    ) -> list[bool]:
+    def are_tracks_saved(self, track_ids: str | list[str], /) -> list[bool]:
         return self._client.tracks.are_tracks_saved(track_ids)
 
     def _validate_time_range(self, time_range: str, /) -> None:
@@ -567,7 +556,7 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        time_range : str, positional-only
+        time_range : str; positional-only
             Time frame.
         """
         if (

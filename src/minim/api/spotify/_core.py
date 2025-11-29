@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from datetime import datetime
 from json.decoder import JSONDecodeError
 import time
@@ -71,7 +70,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
-        scopes: str | Collection[str] = "",
+        scopes: str | set[str] = "",
         access_token: str | None = None,
         refresh_token: str | None = None,
         expiry: str | datetime | None = None,
@@ -83,7 +82,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         """
         Parameters
         ----------
-        flow : str, keyword-only
+        flow : str; keyword-only
             Authorization flow.
 
             .. container::
@@ -95,19 +94,19 @@ class SpotifyWebAPI(OAuth2APIClient):
                  for Code Exchange (PKCE).
                * :code:`"client_credentials"` – Client Credentials Flow.
 
-        client_id : str, keyword-only, optional
+        client_id : str; keyword-only; optional
             Client ID. Must be provided unless it is set as system
             environment variable :code:`SPOTIFY_WEB_API_CLIENT_ID` or
             stored in Minim's local token storage.
 
-        client_secret : str, keyword-only, optional
+        client_secret : str; keyword-only; optional
             Client secret. Required for the Authorization Code and
             Client Credentials flows and must be provided unless it is
             set as system environment variable
             :code:`SPOTIFY_WEB_API_CLIENT_SECRET` or stored in Minim's
             local token storage.
 
-        user_identifier : str, keyword-only, optional
+        user_identifier : str; keyword-only; optional
             Unique identifier for the user account to log into for all
             authorization flows but the Client Credentials flow. Used
             when :code:`store=True` to distinguish between multiple
@@ -126,12 +125,12 @@ class SpotifyWebAPI(OAuth2APIClient):
             token retrieval from local storage, and the suffix will be
             used as the identifier for storing future tokens.
 
-        redirect_uri : str, keyword-only, optional
+        redirect_uri : str; keyword-only; optional
             Redirect URI. Required for the Authorization Code and
             Authorization Code with PKCE flows. If the host is not
             :code:`127.0.0.1`, redirect handling is not available.
 
-        scopes : str or Collection[str], keyword-only, optional
+        scopes : str or set[str]; keyword-only; optional
             Authorization scopes the client requests to access user
             resources.
 
@@ -140,24 +139,24 @@ class SpotifyWebAPI(OAuth2APIClient):
                :meth:`get_scopes` – Get a set of scopes to request,
                filtered by categories and/or substrings.
 
-        access_token : str, keyword-only, optional
+        access_token : str; keyword-only; optional
             Access token. If provided or found in Minim's local token
             storage, the authorization process is bypassed. If provided,
             all other relevant keyword arguments should also be
             specified to enable automatic token refresh upon expiration.
 
-        refresh_token : str, keyword-only, optional
+        refresh_token : str; keyword-only; optional
             Refresh token accompanying the access token in
             `access_token`. If not provided, the user will be
             reauthorized via the authorization flow in `flow` when the
             access token expires.
 
-        expiry : str or datetime.datetime, keyword-only, optional
+        expiry : str or datetime.datetime; keyword-only; optional
             Expiry of the access token in `access_token`. If provided as
             a string, it must be in ISO 8601 format
             (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
-        backend : str, keyword-only, optional
+        backend : str; keyword-only; optional
             Backend to handle redirects during the authorization flow.
 
             .. container::
@@ -169,13 +168,13 @@ class SpotifyWebAPI(OAuth2APIClient):
                * :code:`"http.server"` – Simple HTTP server.
                * :code:`"playwright"` – Playwright Firefox browser.
 
-        browser : bool, keyword-only, default: :code:`False`
+        browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
             default web browser for the Authorization Code and
             Authorization Code with PKCE flows. If :code:`False`, the
             authorization URL is printed to the terminal.
 
-        cache : bool, keyword-only, default: :code:`True`
+        cache : bool; keyword-only; default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
@@ -187,7 +186,7 @@ class SpotifyWebAPI(OAuth2APIClient):
                :meth:`clear_cache` – Clear specific or all cache
                entries for this API client.
 
-        store : bool, keyword-only, default: :code:`True`
+        store : bool; keyword-only; default: :code:`True`
             Whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
@@ -251,16 +250,14 @@ class SpotifyWebAPI(OAuth2APIClient):
         )
 
     @classmethod
-    def get_scopes(
-        cls, matches: str | Collection[str] | None = None
-    ) -> set[str]:
+    def get_scopes(cls, matches: str | list[str] | None = None) -> set[str]:
         """
         Resolve one or more scope categories or substrings into a set of
         scopes.
 
         Parameters
         ----------
-        matches : str or Collection[str], optional
+        matches : str or list[str]; optional
             Categories and/or substrings to filter scopes by. If not
             specified, all available scopes are returned.
 
@@ -341,7 +338,7 @@ class SpotifyWebAPI(OAuth2APIClient):
 
     @staticmethod
     def _prepare_spotify_ids(
-        spotify_ids: str | Collection[str],
+        spotify_ids: str | list[str],
         /,
         *,
         limit: int,
@@ -352,14 +349,14 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         Parameters
         ----------
-        spotify_ids : str or Collection[str], positional-only
+        spotify_ids : str or list[str]; positional-only
             Comma-delimited string or list containing Spotify IDs.
 
-        limit : int, keyword-only
+        limit : int; keyword-only
             Maximum number of Spotify IDs that can be sent in the
             request.
 
-        strict_length : bool, keyword-only, default: :code:`True`
+        strict_length : bool; keyword-only; default: :code:`True`
             Whether to only allow 22-character-long Spotify IDs.
 
         Returns
@@ -394,11 +391,7 @@ class SpotifyWebAPI(OAuth2APIClient):
 
     @staticmethod
     def _prepare_spotify_uris(
-        spotify_uris: str | Collection[str],
-        /,
-        *,
-        limit: int,
-        item_types: Collection[str],
+        spotify_uris: str | list[str], /, *, limit: int, item_types: set[str]
     ) -> list[str]:
         """
         Prepare a list of Spotify Uniform Resource Identifiers (URIs) to
@@ -406,14 +399,14 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         Parameters
         ----------
-        spotify_uris : str or Collection[str], positional-only
+        spotify_uris : str or list[str]; positional-only
             Comma-delimited string or list containing Spotify URIs.
 
-        limit : int, keyword-only
+        limit : int; keyword-only
             Maximum number of Spotify URIs that can be sent in the
             request.
 
-        item_types : Collection[str]
+        item_types : set[str]
             Allowed Spotify item types.
 
         Returns
@@ -447,10 +440,10 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         Parameters
         ----------
-        spotify_id : str
+        spotify_id : str; positional-only
             Spotify ID.
 
-        strict_length : bool, keyword-only, default: :code:`True`
+        strict_length : bool; keyword-only; default: :code:`True`
             Whether to only allow 22-character-long Spotify IDs.
         """
         if (
@@ -463,17 +456,17 @@ class SpotifyWebAPI(OAuth2APIClient):
 
     @staticmethod
     def _validate_spotify_uri(
-        spotify_uri: str, /, *, item_types: Collection[str]
+        spotify_uri: str, /, *, item_types: set[str]
     ) -> None:
         """
         Validate a Spotify Uniform Resource Identifier (URI).
 
         Parameters
         ----------
-        spotify_uri : str
+        spotify_uri : str; positional-only
             Spotify URI.
 
-        item_types : Collection[str]
+        item_types : set[str]
             Allowed Spotify item types.
         """
         if (
@@ -536,14 +529,14 @@ class SpotifyWebAPI(OAuth2APIClient):
         """
         return self.users.get_user_profile()["id"]
 
-    def _prepare_audio_types(self, types: str | Collection[str], /) -> str:
+    def _prepare_audio_types(self, types: str | list[str], /) -> str:
         """
         Stringify a list of Spotify item types into a comma-delimited
         string.
 
         Parameters
         ----------
-        types : str, positional-only
+        types : str or list[str]; positional-only
             Spotify item types.
 
         Returns
@@ -578,13 +571,13 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         Parameters
         ----------
-        method : str, positional-only
+        method : str; positional-only
             HTTP method.
 
-        endpoint : str, positional-only
+        endpoint : str; positional-only
             Spotify Web API endpoint.
 
-        retry : bool, keyword-only, default: :code:`True`
+        retry : bool; keyword-only; default: :code:`True`
             Whether to retry the request if the first attempt returns a
             :code:`401 Unauthorized` or :code:`429 Too Many Requests`.
 
@@ -641,7 +634,7 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         Parameters
         ----------
-        endpoint_method : str, positional-only
+        endpoint_method : str; positional-only
             Name of the endpoint method.
         """
         if (
@@ -659,7 +652,7 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         Parameters
         ----------
-        market : str, positional-only
+        market : str; positional-only
             ISO 3166-1 alpha-2 country code.
         """
         if (
@@ -680,7 +673,7 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         Parameters
         ----------
-        seed_genre : str, positional-only
+        seed_genre : str; positional-only
             Seed genre.
         """
         if (

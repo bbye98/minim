@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI
@@ -21,7 +20,7 @@ class ShowsAPI(ResourceAPI):
 
     @TTLCache.cached_method(ttl="catalog")
     def get_shows(
-        self, show_ids: str | Collection[str], /, *, market: str | None = None
+        self, show_ids: str | list[str], /, *, market: str | None = None
     ) -> dict[str, Any]:
         """
         `Shows > Get Show <https://developer.spotify.com/documentation
@@ -43,10 +42,10 @@ class ShowsAPI(ResourceAPI):
 
         Parameters
         ----------
-        show_ids : str or Collection[str], positional-only
+        show_ids : str or list[str]; positional-only
             Spotify IDs of the shows, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -56,7 +55,7 @@ class ShowsAPI(ResourceAPI):
                * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
                * :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -296,12 +295,12 @@ class ShowsAPI(ResourceAPI):
 
         Parameters
         ----------
-        show_id : str
+        show_id : str; positional-only
             Spotify ID of the show.
 
             **Examples**: :code:`"38bS44xjbVVZ3No3ByF1dJ"`.
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -315,14 +314,14 @@ class ShowsAPI(ResourceAPI):
 
             **Example**: :code:`"ES"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of show episodes to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first show episode to return. Use with `limit`
             to get the next set of show episodes.
 
@@ -424,14 +423,14 @@ class ShowsAPI(ResourceAPI):
 
         Parameters
         ----------
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of shows to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first show to return. Use with `limit` to get
             the next set of shows.
 
@@ -507,7 +506,7 @@ class ShowsAPI(ResourceAPI):
             params["offset"] = offset
         return self._client._request("GET", "me/shows", params=params).json()
 
-    def save_shows(self, show_ids: str | Collection[str], /) -> None:
+    def save_shows(self, show_ids: str | list[str], /) -> None:
         """
         `Shows > Save Shows for Current User
         <https://developer.spotify.com/documentation/web-api/reference
@@ -526,10 +525,10 @@ class ShowsAPI(ResourceAPI):
 
         Parameters
         ----------
-        show_ids : str or Collection[str], positional-only
+        show_ids : str or list[str]; positional-only
             Spotify IDs of the shows, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -548,7 +547,7 @@ class ShowsAPI(ResourceAPI):
             },
         )
 
-    def remove_saved_shows(self, show_ids: str | Collection[str], /) -> None:
+    def remove_saved_shows(self, show_ids: str | list[str], /) -> None:
         """
         `Shows > Remove User's Saved Shows
         <https://developer.spotify.com/documentation/web-api/reference
@@ -567,10 +566,10 @@ class ShowsAPI(ResourceAPI):
 
         Parameters
         ----------
-        show_ids : str or Collection[str], positional-only
+        show_ids : str or list[str]; positional-only
             Spotify IDs of the shows, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -591,9 +590,7 @@ class ShowsAPI(ResourceAPI):
             },
         )
 
-    def are_shows_saved(
-        self, show_ids: str | Collection[str], /
-    ) -> list[bool]:
+    def are_shows_saved(self, show_ids: str | list[str], /) -> list[bool]:
         """
         `Shows > Check User's Saved Shows
         <https://developer.spotify.com/documentation/web-api/reference
@@ -612,10 +609,10 @@ class ShowsAPI(ResourceAPI):
 
         Parameters
         ----------
-        show_ids : str or Collection[str], positional-only
+        show_ids : str or list[str]; positional-only
             Spotify IDs of the shows, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 

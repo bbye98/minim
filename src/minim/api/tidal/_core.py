@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from collections.abc import Collection
 from datetime import datetime
 import time
 from typing import TYPE_CHECKING, Any
@@ -40,16 +39,14 @@ class _BaseTIDALAPI(OAuth2APIClient):
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
 
     @classmethod
-    def get_scopes(
-        cls, matches: str | Collection[str] | None = None
-    ) -> set[str]:
+    def get_scopes(cls, matches: str | list[str] | None = None) -> set[str]:
         """
         Resolve one or more scope categories or substrings into a set of
         scopes.
 
         Parameters
         ----------
-        matches : str or Collection[str], optional
+        matches : str or list[str]; optional
             Substrings to match in the available scopes. If not
             specified, all available scopes are returned.
 
@@ -72,19 +69,16 @@ class _BaseTIDALAPI(OAuth2APIClient):
 
     @staticmethod
     def _validate_tidal_ids(
-        tidal_ids: int | str | Collection[int | str],
-        /,
-        *,
-        _recursive: bool = True,
+        tidal_ids: int | str | list[int | str], /, *, _recursive: bool = True
     ) -> None:
         """
         Validate one or more TIDAL IDs.
 
         Parameters
         ----------
-        tidal_ids : int, str, or Collection[int | str], positional-only
+        tidal_ids : int, str, or list[int | str]; positional-only
             One or more TIDAL IDs, provided as an integer, a string, or
-            a collection of integers and/or strings.
+            a list of integers and/or strings.
         """
         if not isinstance(tidal_ids, int) and not tidal_ids:
             raise ValueError("At least one TIDAL ID must be specified.")
@@ -94,7 +88,7 @@ class _BaseTIDALAPI(OAuth2APIClient):
                 raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
         elif not isinstance(tidal_ids, int):
             if _recursive:
-                if not isinstance(tidal_ids, Collection):
+                if not isinstance(tidal_ids, tuple | list | str):
                     raise ValueError("TIDAL IDs must be integers or strings.")
                 for tidal_id in tidal_ids:
                     TIDALAPI._validate_tidal_ids(tidal_id, _recursive=False)
@@ -140,13 +134,13 @@ class _BaseTIDALAPI(OAuth2APIClient):
 
         Parameters
         ----------
-        method : str, positional-only
+        method : str; positional-only
             HTTP method.
 
-        endpoint : str, positional-only
+        endpoint : str; positional-only
             TIDAL API endpoint.
 
-        retry : bool, keyword-only, default: :code:`True`
+        retry : bool; keyword-only; default: :code:`True`
             Whether to retry the request if the first attempt returns a
             :code:`401 Unauthorized` or :code:`429 Too Many Requests`.
 
@@ -168,7 +162,7 @@ class _BaseTIDALAPI(OAuth2APIClient):
 
         Parameters
         ----------
-        country_code : str, positional-only
+        country_code : str; positional-only
             ISO 3166-1 alpha-2 country code. If :code:`None`, the country
             associated with the current user account is used.
         """
@@ -210,7 +204,7 @@ class TIDALAPI(_BaseTIDALAPI):
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
-        scopes: str | Collection[str] = "",
+        scopes: str | set[str] = "",
         access_token: str | None = None,
         refresh_token: str | None = None,
         expiry: str | datetime | None = None,
@@ -222,7 +216,7 @@ class TIDALAPI(_BaseTIDALAPI):
         """
         Parameters
         ----------
-        flow : str, keyword-only
+        flow : str; keyword-only
             Authorization flow.
 
             .. container::
@@ -233,18 +227,18 @@ class TIDALAPI(_BaseTIDALAPI):
                  for Code Exchange (PKCE).
                * :code:`"client_credentials"` – Client Credentials Flow.
 
-        client_id : str, keyword-only, optional
+        client_id : str; keyword-only; optional
             Client ID. Must be provided unless it is set as system
             environment variable :code:`TIDAL_API_CLIENT_ID` or stored
             in Minim's local token storage.
 
-        client_secret : str, keyword-only, optional
+        client_secret : str; keyword-only; optional
             Client secret. Required for the Client Credentials flow and
             must be provided unless it is set as system environment
             variable :code:`TIDAL_API_CLIENT_SECRET` or stored in
             Minim's local token storage.
 
-        user_identifier : str, keyword-only, optional
+        user_identifier : str; keyword-only; optional
             Unique identifier for the user account to log into for all
             authorization flows but the Client Credentials flow. Used
             when :code:`store=True` to distinguish between multiple
@@ -263,13 +257,13 @@ class TIDALAPI(_BaseTIDALAPI):
             token retrieval from local storage, and the suffix will be
             used as the identifier for storing future tokens.
 
-        redirect_uri : str, keyword-only, optional
+        redirect_uri : str; keyword-only; optional
             Redirect URI. Required for the Authorization Code and
             Authorization Code with PKCE flows. If the host is not
             :code:`localhost` or :code:`127.0.0.1`, redirect handling is
             not available.
 
-        scopes : str or Collection[str], keyword-only, optional
+        scopes : str or set[str]; keyword-only; optional
             Authorization scopes the client requests to access user
             resources.
 
@@ -278,24 +272,24 @@ class TIDALAPI(_BaseTIDALAPI):
                :meth:`get_scopes` – Get a set of scopes to request,
                filtered by substrings.
 
-        access_token : str, keyword-only, optional
+        access_token : str; keyword-only; optional
             Access token. If provided or found in Minim's local token
             storage, the authorization process is bypassed. If provided,
             all other relevant keyword parameters should also be
             specified to enable automatic token refresh upon expiration.
 
-        refresh_token : str, keyword-only, optional
+        refresh_token : str; keyword-only; optional
             Refresh token accompanying the access token in
             `access_token`. If not provided, the user will be
             reauthorized via the authorization flow in `flow` when the
             access token expires.
 
-        expiry : str or datetime.datetime, keyword-only, optional
+        expiry : str or datetime.datetime; keyword-only; optional
             Expiry of the access token in `access_token`. If provided as
             a string, it must be in ISO 8601 format
             (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
-        backend : str, keyword-only, optional
+        backend : str; keyword-only; optional
             Backend to handle redirects during the authorization flow.
 
             .. container::
@@ -307,13 +301,13 @@ class TIDALAPI(_BaseTIDALAPI):
                * :code:`"http.server"` – Simple HTTP server.
                * :code:`"playwright"` – Playwright Firefox browser.
 
-        browser : bool, keyword-only, default: :code:`False`
+        browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
             default web browser for the Authorization Code with PKCE
             flow. If :code:`False`, the authorization URL is printed to
             the terminal.
 
-        cache : bool, keyword-only, default: :code:`True`
+        cache : bool; keyword-only; default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
@@ -325,7 +319,7 @@ class TIDALAPI(_BaseTIDALAPI):
                :meth:`clear_cache` – Clear specific or all cache
                entries for this API client.
 
-        store : bool, keyword-only, default: :code:`True`
+        store : bool; keyword-only; default: :code:`True`
             Whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
@@ -438,13 +432,13 @@ class TIDALAPI(_BaseTIDALAPI):
 
         Parameters
         ----------
-        method : str, positional-only
+        method : str; positional-only
             HTTP method.
 
-        endpoint : str, positional-only
+        endpoint : str; positional-only
             TIDAL API endpoint.
 
-        retry : bool, keyword-only, default: :code:`True`
+        retry : bool; keyword-only; default: :code:`True`
             Whether to retry the request if the first attempt returns a
             :code:`401 Unauthorized` or :code:`429 Too Many Requests`.
 
@@ -505,7 +499,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str = "tidal://login/auth",
-        scopes: str | Collection[str] = "",
+        scopes: str | set[str] = "",
         access_token: str | None = None,
         refresh_token: str | None = None,
         expiry: str | datetime | None = None,
@@ -514,6 +508,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         cache: bool = True,
         store: bool = True,
     ) -> None:
+        """ """
         self.albums: PrivateAlbumsAPI = PrivateAlbumsAPI(self)
         self.users: PrivateUsersAPI = PrivateUsersAPI(self)
 
@@ -536,17 +531,17 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
     @staticmethod
     def _prepare_tidal_ids(
-        tidal_ids: str | Collection[str], /, *, limit: int = 500
+        tidal_ids: str | list[str], /, *, limit: int = 500
     ) -> str:
         """
         Stringify a list of TIDAL IDs into a comma-delimited string.
 
         Parameters
         ----------
-        tidal_ids : int, str, or Collection[str], positional-only
+        tidal_ids : int, str, or list[str]; positional-only
             Comma-delimited string or list containing TIDAL IDs.
 
-        limit : int, keyword-only, default: :code:`500`
+        limit : int; keyword-only, default: :code:`500`
             Maximum number of TIDAL IDs that can be sent in the
             request.
 
@@ -643,13 +638,13 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
         Parameters
         ----------
-        method : str, positional-only
+        method : str; positional-only
             HTTP method.
 
-        endpoint : str, positional-only
+        endpoint : str; positional-only
             Private TIDAL API endpoint.
 
-        retry : bool, keyword-only, default: :code:`True`
+        retry : bool; keyword-only; default: :code:`True`
             Whether to retry the request if the first attempt returns a
             :code:`401 Unauthorized`.
 

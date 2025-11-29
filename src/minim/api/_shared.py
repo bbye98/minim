@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 import base64
 from collections import OrderedDict
-from collections.abc import Collection
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 import hashlib
@@ -81,13 +80,16 @@ class TokenDatabase:
 
         Parameters
         ----------
-        flow : str or None, keyword-only
+        client : str
+            API client.
+
+        flow : str or None; keyword-only
             Authorization flow.
 
-        client_id : str, keyword-only
+        client_id : str; keyword-only
             Client ID.
 
-        user_identifier : str or None, keyword-only
+        user_identifier : str or None; keyword-only
             Unique identifier for the user account to log into.
 
         Returns
@@ -127,7 +129,7 @@ class TokenDatabase:
         client_secret: str | None,
         user_identifier: str | None,
         redirect_uri: str | None,
-        scopes: str | Collection[str],
+        scopes: str | set[str],
         token_type: str,
         access_token: str,
         expiry: str | datetime | None,
@@ -140,38 +142,38 @@ class TokenDatabase:
 
         Parameters
         ----------
-        flow : str or None, keyword-only
+        flow : str or None; keyword-only
             Authorization flow.
 
-        client_id : str, keyword-only
+        client_id : str; keyword-only
             Client ID.
 
-        client_secret : str or None, keyword-only
+        client_secret : str or None; keyword-only
             Client secret.
 
-        user_identifier : str or None, keyword-only
+        user_identifier : str or None; keyword-only
             Unique identifier for the user account to log into.
 
-        redirect_uri : str, keyword-only, optional
+        redirect_uri : str; keyword-only; optional
             Redirect URI. Required for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             the host is not :code:`localhost`, :code:`127.0.0.1`, or
             :code:`::1`, redirect handling is not available.
 
-        scopes : str or Collection[str], keyword-only
+        scopes : str or set[str]; keyword-only
             Authorization scopes the client requests to access user
             resources.
 
-        token_type : str, keyword-only
+        token_type : str; keyword-only
             Type of the access token in `access_token`.
 
-        access_token : str, keyword-only
+        access_token : str; keyword-only
             Access token.
 
-        expiry : str, datetime.datetime, or None, keyword-only
+        expiry : str, datetime.datetime, or None; keyword-only
             Expiry of the access token in `access_token`.
 
-        refresh_token : str or None, keyword-only
+        refresh_token : str or None; keyword-only
             Refresh token accompanying the access token in
             `access_token`.
 
@@ -219,9 +221,9 @@ class TokenDatabase:
     def remove_tokens(
         client: str,
         *,
-        flows: str | Collection[str] | None = None,
-        client_ids: str | Collection[str] | None = None,
-        user_identifiers: str | Collection[str] | None = None,
+        flows: str | list[str] | None = None,
+        client_ids: str | list[str] | None = None,
+        user_identifiers: str | list[str] | None = None,
     ) -> None:
         """
         Remove specific or all access tokens and their related
@@ -238,22 +240,20 @@ class TokenDatabase:
         client : str
             API client.
 
-        flows : str or Collection[str], optional
+        flows : str or list[str]; optional
             Authorization flows for which tokens should be removed.
 
-        client_ids : str or Collection[str], optional
+        client_ids : str or list[str]; optional
             Client IDs for which tokens should be removed.
 
-        user_identifiers : str or Collection[str], optional
+        user_identifiers : str or list[str]; optional
             Unique identifiers for the user accounts for which tokens
             should be removed.
         """
         query = "DELETE FROM tokens WHERE client = ?"
         params = [client]
 
-        def make_filter_clause(
-            field: str, values: str | Collection[str]
-        ) -> str:
+        def make_filter_clause(field: str, values: str | list[str]) -> str:
             if isinstance(values, str):
                 params.append(values)
                 return f" AND {field} = ?"
@@ -284,7 +284,7 @@ class TTLCache:
         """
         Parameters
         ----------
-        max_size : int, default: :code:`1_024`
+        max_size : int; default: :code:`1_024`
             Maximum number of entries to retain in the cache.
         """
         self._store = OrderedDict()
@@ -325,7 +325,7 @@ class TTLCache:
 
         Parameters
         ----------
-        ttl : int, float, or str, keyword-only
+        ttl : int, float, or str; keyword-only
             Time-to-live (TTL) in seconds (or key referring to a
             predefined TTL) for cached entries.
 
@@ -366,9 +366,7 @@ class TTLCache:
 
     def clear(
         self,
-        funcs: Callable[..., Any]
-        | Collection[Callable[..., Any]]
-        | None = None,
+        funcs: Callable[..., Any] | list[Callable[..., Any]] | None = None,
         /,
         *,
         _recursive: bool = True,
@@ -383,8 +381,7 @@ class TTLCache:
 
         Parameters
         ----------
-        funcs : Callable or Collection[Callable], positional-only, \
-        optional
+        funcs : Callable or list[Callable]; positional-only; optional
             Functions whose cache entries should be cleared.
         """
         if funcs is None:
@@ -393,7 +390,7 @@ class TTLCache:
             funcs = funcs.__qualname__
             for key in [k for k in self._store if k[0] == funcs]:
                 del self._store[key]
-        elif _recursive and isinstance(funcs, Collection):
+        elif _recursive and isinstance(funcs, tuple | list | set):
             for func in funcs:
                 self.clear(func, _recursive=False)
         else:
@@ -410,7 +407,7 @@ class TTLCache:
 
         Parameters
         ----------
-        ttl : int, float, or str, keyword-only
+        ttl : int, float, or str; keyword-only
             Time-to-live (TTL) in seconds (or key referring to a
             predefined TTL) for cached entries.
 
@@ -521,11 +518,11 @@ class OAuth2RedirectHandler(BaseHTTPRequestHandler):
 
         Parameters
         ----------
-        *args : tuple[Any, ...], optional
+        *args : tuple[Any, ...]; optional
             Positional arguments to pass to
             :meth:`http.server.BaseHTTPRequestHandler.log_message`.
 
-        **kwargs : dict[str, Any], optional
+        **kwargs : dict[str, Any]; optional
             Keyword arguments to pass to
             :meth:`http.server.BaseHTTPRequestHandler.log_message`.
         """
@@ -547,7 +544,7 @@ class APIClient(ABC):
         """
         Parameters
         ----------
-        cache : bool, keyword-only, default: :code:`True`
+        cache : bool; keyword-only; default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
@@ -588,13 +585,13 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        exc_type : type, optional
+        exc_type : type; optional
             Exception type.
 
-        exc_value : Exception, optional
+        exc_value : Exception; optional
             Exception value.
 
-        exc_tb : TracebackType, optional
+        exc_tb : TracebackType; optional
             Traceback.
         """
         self.close()
@@ -608,10 +605,10 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        method : str, positional-only
+        method : str; positional-only
             HTTP method.
 
-        endpoint : str, positional-only
+        endpoint : str; positional-only
             API endpoint.
 
         **kwargs : dict[str, Any]
@@ -632,7 +629,7 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        barcode : int or str, positional-only
+        barcode : int or str; positional-only
             UPC or EAN barcode.
         """
         if not (barcode_ := str(barcode)).isdigit() or len(barcode_) not in {
@@ -648,7 +645,7 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        country_code : str, positional-only
+        country_code : str; positional-only
             ISO 3166-1 alpha-2 country code.
         """
         if (
@@ -670,7 +667,7 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        locale : str, positional-only
+        locale : str; positional-only
             Locale identifier.
         """
         APIClient._validate_type("locale", locale, str)
@@ -693,7 +690,7 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        isrc : str, positional-only
+        isrc : str; positional-only
             ISRC.
         """
         APIClient._validate_type("isrc", isrc, str)
@@ -724,10 +721,10 @@ class APIClient(ABC):
         data_type : type
             Data type.
 
-        lower_bound : int, optional
+        lower_bound : int; optional
             Lower bound, inclusive.
 
-        upper_bound : int, optional
+        upper_bound : int; optional
             Upper bound, inclusive.
         """
         if lower_bound is None:
@@ -778,7 +775,7 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        uuid_ : str, positional-only
+        uuid_ : str; positional-only
             UUID.
         """
         try:
@@ -789,7 +786,7 @@ class APIClient(ABC):
     def clear_cache(
         self,
         endpoint_methods: Callable[..., Any]
-        | Collection[Callable[..., Any]]
+        | list[Callable[..., Any]]
         | None = None,
     ) -> None:
         """
@@ -802,8 +799,8 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        endpoint_methods : Callable or Collection[Callable], \
-        positional-only, optional
+        endpoint_methods : Callable or list[Callable]; positional-only; \
+        optional
             Endpoint methods whose cache entries should be cleared.
 
             **Examples**: :code:`minim.api.spotify.SearchAPI.search`,
@@ -870,7 +867,7 @@ class OAuth2APIClient(APIClient):
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
-        scopes: str | Collection[str] = "",
+        scopes: str | set[str] = "",
         token_type: str = "Bearer",
         access_token: str | None = None,
         refresh_token: str | None = None,
@@ -883,7 +880,7 @@ class OAuth2APIClient(APIClient):
         """
         Parameters
         ----------
-        flow : str, keyword-only
+        flow : str; keyword-only
             OAuth 2.0 authorization flow.
 
             .. container::
@@ -897,19 +894,19 @@ class OAuth2APIClient(APIClient):
                * :code:`"device"` – Device Authorization Flow.
                * :code:`"implicit"` – Implicit Grant Flow.
 
-        client_id : str, keyword-only, optional
+        client_id : str; keyword-only; optional
             Client ID. Must be provided unless it is set as a system
             environment variable or stored in Minim's local token
             storage.
 
-        client_secret : str, keyword-only, optional
+        client_secret : str; keyword-only; optional
             Client secret. Required for the Authorization Code, Client
             Credentials, and Resource Owner Password Credential flows,
             and must be provided unless it is set as a system
             environment variable or stored in Minim's local token
             storage.
 
-        user_identifier : str, keyword-only, optional
+        user_identifier : str; keyword-only; optional
             Unique identifier for the user account to log into for all
             authorization flows but the Client Credentials flow. Used
             when :code:`store=True` to distinguish between multiple
@@ -928,37 +925,37 @@ class OAuth2APIClient(APIClient):
             token retrieval from local storage, and the suffix will be
             used as the identifier for storing future tokens.
 
-        redirect_uri : str, keyword-only, optional
+        redirect_uri : str; keyword-only; optional
             Redirect URI. Required for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             the host is not :code:`localhost`, :code:`127.0.0.1`, or
             :code:`::1`, redirect handling is not available.
 
-        scopes : str or Collection[str], keyword-only, optional
+        scopes : str or set[str]; keyword-only; optional
             Authorization scopes the client requests to access user
             resources.
 
-        token_type : str, keyword-only, default: :code:`"Bearer"`
+        token_type : str; keyword-only; default: :code:`"Bearer"`
             Type of the access token in `access_token`.
 
-        access_token : str, keyword-only, optional
+        access_token : str; keyword-only; optional
             Access token. If provided or found in Minim's local token
             storage, the authorization process is bypassed. If provided,
             all other relevant keyword parameters should also be
             specified to enable automatic token refresh upon expiration.
 
-        refresh_token : str, keyword-only, optional
+        refresh_token : str; keyword-only; optional
             Refresh token accompanying the access token in
             `access_token`. If not provided, the user will be
             reauthorized via the authorization flow in `flow` when the
             access token expires.
 
-        expiry : str or datetime.datetime, keyword-only, optional
+        expiry : str or datetime.datetime; keyword-only; optional
             Expiry of the access token in `access_token`. If provided as
             a string, it must be in ISO 8601 format
             (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
-        backend : str, keyword-only, optional
+        backend : str; keyword-only; optional
             Backend to handle redirects during the authorization flow.
 
             .. container::
@@ -970,14 +967,14 @@ class OAuth2APIClient(APIClient):
                * :code:`"http.server"` – Simple HTTP server.
                * :code:`"playwright"` – Playwright Firefox browser.
 
-        browser : bool, keyword-only, default: :code:`False`
+        browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization
             URL in the default web browser for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             :code:`False`, the authorization URL is printed to the
             terminal.
 
-        cache : bool, keyword-only, default: :code:`True`
+        cache : bool; keyword-only; default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
@@ -989,7 +986,7 @@ class OAuth2APIClient(APIClient):
                :meth:`clear_cache` – Clear specific or all cache
                entries for this API client.
 
-        store : bool, keyword-only, default: :code:`True`
+        store : bool; keyword-only; default: :code:`True`
             Whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
@@ -1070,9 +1067,9 @@ class OAuth2APIClient(APIClient):
     def remove_tokens(
         cls,
         *,
-        flows: str | Collection[str] | None = None,
-        client_ids: str | Collection[str] | None = None,
-        user_identifiers: str | Collection[str] | None = None,
+        flows: str | list[str] | None = None,
+        client_ids: str | list[str] | None = None,
+        user_identifiers: str | list[str] | None = None,
     ) -> None:
         """
         Remove specific or all access tokens and their related
@@ -1085,13 +1082,13 @@ class OAuth2APIClient(APIClient):
 
         Parameters
         ----------
-        flows : str or Collection[str], optional
+        flows : str or list[str]; optional
             Authorization flows for which tokens should be removed.
 
-        client_ids : str or Collection[str], optional
+        client_ids : str or list[str]; optional
             Client IDs for which tokens should be removed.
 
-        user_identifiers : str or Collection[str], optional
+        user_identifiers : str or list[str]; optional
             Unique identifiers for the user accounts for which tokens
             should be removed.
         """
@@ -1156,7 +1153,7 @@ class OAuth2APIClient(APIClient):
 
         Parameters
         ----------
-        certificate_file : str or pathlib.Path, positional-only
+        certificate_file : str or pathlib.Path; positional-only
             Name of or path to the certificate file.
 
         Returns
@@ -1197,7 +1194,7 @@ class OAuth2APIClient(APIClient):
 
         Parameters
         ----------
-        access_token : str, positional-only
+        access_token : str; positional-only
             Access token.
 
             .. important::
@@ -1207,15 +1204,15 @@ class OAuth2APIClient(APIClient):
                to ensure that all other relevant authorization
                parameters are set correctly.
 
-        token_type : str, default: :code:`"Bearer"`
+        token_type : str; default: :code:`"Bearer"`
             Type of the access token in `access_token`.
 
-        refresh_token : str, keyword-only, optional
+        refresh_token : str; keyword-only; optional
             Refresh token accompanying the access token in
             `access_token`. If not provided, the user will be
             reauthorized when the access token expires.
 
-        expiry : str or datetime.datetime, keyword-only, optional
+        expiry : str or datetime.datetime; keyword-only; optional
             Expiry of the access token in `access_token`. If provided
             as a string, it must be in ISO 8601 format
             (:code:`%Y-%m-%dT%H:%M:%SZ`).
@@ -1243,7 +1240,7 @@ class OAuth2APIClient(APIClient):
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
-        scopes: str | Collection[str] = "",
+        scopes: str | set[str] = "",
         backend: str | None = None,
         browser: bool = False,
         authorize: bool = True,
@@ -1260,7 +1257,7 @@ class OAuth2APIClient(APIClient):
 
         Parameters
         ----------
-        flow : str, keyword-only
+        flow : str; keyword-only
             OAuth 2.0 authorization flow.
 
             .. container::
@@ -1274,18 +1271,18 @@ class OAuth2APIClient(APIClient):
                * :code:`"device"` – Device Authorization Flow.
                * :code:`"implicit"` – Implicit Grant Flow.
 
-        client_id : str, keyword-only, optional
+        client_id : str; keyword-only; optional
             Client ID. Must be provided unless it is set as a system
             environment variable or stored in Minim's local token
             storage.
 
-        client_secret : str, keyword-only, optional
+        client_secret : str; keyword-only; optional
             Client secret. Required for the Authorization Code, Client
             Credentials, and Resource Owner Password Credential flows.
             Must be provided unless it is set as a system environment
             variable or stored in Minim's local token storage.
 
-        user_identifier : str, keyword-only, optional
+        user_identifier : str; keyword-only; optional
             Unique identifier for the user account to log into for all
             authorization flows but the Client Credentials flow. Used
             when :code:`store=True` to distinguish between multiple
@@ -1304,17 +1301,17 @@ class OAuth2APIClient(APIClient):
             token retrieval from local storage, and the suffix will be
             used as the identifier for storing future tokens.
 
-        redirect_uri : str, keyword-only, optional
+        redirect_uri : str; keyword-only; optional
             Redirect URI. Required for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             the host is not :code:`localhost`, :code:`127.0.0.1`, or
             :code:`::1`, redirect handling is not available.
 
-        scopes : str or Collection[str], keyword-only, optional
+        scopes : str or set[str]; keyword-only; optional
             Authorization scopes the client requests to access user
             resources.
 
-        backend : str, keyword-only, optional
+        backend : str; keyword-only; optional
             Backend to handle redirects during the authorization flow.
 
             .. container::
@@ -1326,14 +1323,14 @@ class OAuth2APIClient(APIClient):
                * :code:`"http.server"` – Simple HTTP server.
                * :code:`"playwright"` – Playwright Firefox browser.
 
-        browser : bool, keyword-only, default: :code:`False`
+        browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization
             URL in the default web browser for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
             :code:`False`, the authorization URL is printed to the
             terminal.
 
-        authorize : bool, keyword-only, default: :code:`True`
+        authorize : bool; keyword-only; default: :code:`True`
             Whether to immediately initiate the authorization
             flow to acquire an access token.
 
@@ -1344,7 +1341,7 @@ class OAuth2APIClient(APIClient):
                that the client's existing access token is compatible
                with the new authorization flow and/or scopes.
 
-        store : bool, keyword-only, default: :code:`True`
+        store : bool; keyword-only; default: :code:`True`
             Whether to enable Minim's local token storage for
             this client. If :code:`True`, newly acquired access tokens
             and related information are stored. If :code:`False`, the
@@ -1444,7 +1441,7 @@ class OAuth2APIClient(APIClient):
 
         Parameters
         ----------
-        code_challenge : str, optional
+        code_challenge : str; optional
             Code challenge derived from the code verifier for the
             Authorization Code with PKCE flow.
 
@@ -1578,7 +1575,7 @@ class OAuth2APIClient(APIClient):
 
         Parameters
         ----------
-        flow : str, optional
+        flow : str; optional
             Authorization flow. If not provided, the current
             authorization flow in :attr:`_flow` is used.
 
@@ -1760,7 +1757,7 @@ class OAuth2APIClient(APIClient):
         )
 
     def _require_scopes(
-        self, endpoint_method: str, scopes: str | Collection[str]
+        self, endpoint_method: str, scopes: str | set[str]
     ) -> None:
         """
         Ensure that the required authorization scopes for an endpoint
@@ -1771,7 +1768,7 @@ class OAuth2APIClient(APIClient):
         endpoint_method : str
             Name of the endpoint method.
 
-        scopes : str or Collection[str]
+        scopes : str or set[str]
             Required authorization scopes.
         """
         if isinstance(scopes, str):

@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, _copy_docstring
@@ -37,13 +36,13 @@ class TracksAPI(TIDALResourceAPI):
     @TTLCache.cached_method(ttl="catalog")
     def get_tracks(
         self,
-        track_ids: int | str | Collection[int | str] | None = None,
+        track_ids: int | str | list[int | str] | None = None,
         /,
         *,
-        isrcs: str | Collection[str] | None = None,
-        owner_ids: int | str | Collection[int | str] | None = None,
+        isrcs: str | list[str] | None = None,
+        owner_ids: int | str | list[int | str] | None = None,
         country_code: str | None = None,
-        include: str | Collection[str] | None = None,
+        include: str | list[str] | None = None,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -64,10 +63,9 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_ids : int, str, or Collection[int | str], \
-        positional-only, optional
+        track_ids : int, str, or list[int | str]; positional-only; optional
             TIDAL IDs of the tracks, provided as either an integer, a
-            string, or a collection of integers and/or strings.
+            string, or a list of integers and/or strings.
 
             .. note::
 
@@ -82,10 +80,9 @@ class TracksAPI(TIDALResourceAPI):
                * :code:`"75413016"`
                * :code:`[46369325, "75413016"]`
 
-        isrcs : str, or Collection[str], keyword-only, optional
+        isrcs : str or list[str]; keyword-only; optional
             International Standard Recording Codes (ISRCs) of the
-            tracks, provided as either a string or a collection of
-            strings.
+            tracks, provided as either a string or a list of strings.
 
             .. note::
 
@@ -97,11 +94,9 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`"QMJMT1701237"`,
             :code:`[QMJMT1701237, "USAT21404265"]`.
 
-        owner_ids : int, str, or Collection[int | str], keyword-only, \
-        optional
+        owner_ids : int, str, or list[int | str]; keyword-only; optional
             TIDAL IDs of the tracks' owners, provided either as an
-            integer, a string, or a collection of integers and/or
-            strings.
+            integer, a string, or a list of integers and/or strings.
 
             .. note::
 
@@ -113,13 +108,13 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`123456`, :code:`"123456"`,
             :code:`["123456"]`.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : str or Collection[str], keyword-only, optional
+        include : str or list[str]; keyword-only; optional
             Related resources to include in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
@@ -128,7 +123,7 @@ class TracksAPI(TIDALResourceAPI):
             :code:`"similarTracks"`, :code:`"sourceFile"`,
             :code:`"trackStatistics"`.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination when requesting multiple tracks.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1046,22 +1041,22 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the albums containing the track.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1188,22 +1183,22 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the track's artists.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1337,16 +1332,16 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the track's artists.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1395,22 +1390,22 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the track's providers.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1471,16 +1466,16 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the track radio.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1574,22 +1569,22 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the similar tracks.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1735,16 +1730,16 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the track's source file.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1800,7 +1795,7 @@ class TracksAPI(TIDALResourceAPI):
         track_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -1816,7 +1811,7 @@ class TracksAPI(TIDALResourceAPI):
         track_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -1842,7 +1837,7 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        resource : str, positional-only
+        resource : str; positional-only
             Related resource type.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
@@ -1851,22 +1846,22 @@ class TracksAPI(TIDALResourceAPI):
             :code:`"similarTracks"`, :code:`"sourceFile"`,
             :code:`"trackStatistics"`.
 
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        country_code : bool or str, optional
+        country_code : bool or str; optional
             ISO 3166-1 alpha-2 country code. If :code:`False`, the
             country code is not included in the request.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the related resource.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1880,8 +1875,10 @@ class TracksAPI(TIDALResourceAPI):
         params = {}
         if country_code is not False:
             self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = resource
+        if include is not None:
+            self._client._validate_type("include", include, bool)
+            if include:
+                params["include"] = resource
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
             params["page[cursor]"] = cursor

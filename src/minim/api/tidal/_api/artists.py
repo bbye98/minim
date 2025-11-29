@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, _copy_docstring
@@ -37,7 +36,7 @@ class ArtistsAPI(TIDALResourceAPI):
 
     @TTLCache.cached_method(ttl="catalog")
     def get_roles(
-        self, artist_role_ids: int | str | Collection[int | str], /
+        self, artist_role_ids: int | str | list[int | str], /
     ) -> dict[str, Any]:
         """
         `Artist Roles > Get Single Artist Role
@@ -51,11 +50,9 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_role_ids : int, str, or Collection[int | str], \
-        positional-only
+        artist_role_ids : int, str, or list[int | str]; positional-only
             TIDAL IDs of the artist roles, provided as either an
-            integer, a string, or a collection of integers and/or
-            strings.
+            integer, a string, or a list of integers and/or strings.
 
         Returns
         -------
@@ -113,12 +110,12 @@ class ArtistsAPI(TIDALResourceAPI):
     @TTLCache.cached_method(ttl="catalog")
     def get_artists(
         self,
-        artist_ids: int | str | Collection[int | str] | None = None,
+        artist_ids: int | str | list[int | str] | None = None,
         /,
         *,
-        handles: str | Collection[str] | None = None,
+        handles: str | list[str] | None = None,
         country_code: str | None = None,
-        include: str | Collection[str] | None = None,
+        include: str | list[str] | None = None,
     ) -> dict[str, Any]:
         """
         `Artists > Get Single Artist <https://tidal-music.github.io
@@ -138,10 +135,10 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_ids : int, str, or Collection[int | str], \
-        positional-only, optional
+        artist_ids : int, str, or list[int | str], positional-only; \
+        optional
             TIDAL ID(s) of the artist(s), provided as either an integer,
-            a string, or a collection of integers and/or strings.
+            a string, or a list of integers and/or strings.
 
             .. note::
 
@@ -156,7 +153,7 @@ class ArtistsAPI(TIDALResourceAPI):
                * :code:`"4676988"`
                * :code:`[1566, "4676988"]`
 
-        handles : str or Collection[str], keyword-only, optional
+        handles : str or list[str]; keyword-only; optional
             Artist handles.
 
             .. note::
@@ -167,13 +164,13 @@ class ArtistsAPI(TIDALResourceAPI):
 
             **Example**: :code:`"jayz"`.
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : str or Collection[str], keyword-only, optional
+        include : str or list[str]; keyword-only; optional
             Related resources to include in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"biography"`,
@@ -1029,22 +1026,22 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_id : int or str, positional-only
+        artist_id : int or str; positional-only
             TIDAL ID of the artist.
 
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the artist's albums.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1169,19 +1166,19 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_id : int or str, positional-only
+        artist_id : int or str; positional-only
             TIDAL ID of the artist.
 
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the artist's biography.
 
         Returns
@@ -1234,16 +1231,16 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_id : int or str, positional-only
+        artist_id : int or str; positional-only
             TIDAL ID of the artist.
 
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the artist's owners.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1292,22 +1289,22 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_id : int or str, positional-only
+        artist_id : int or str; positional-only
             TIDAL ID of the artist.
 
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the artist's profile art.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1390,22 +1387,22 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_id : int or str, positional-only
+        artist_id : int or str; positional-only
             TIDAL ID of the artist.
 
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the artist radio.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1497,16 +1494,16 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_id : int or str, positional-only
+        artist_id : int or str; positional-only
             TIDAL ID of the artist.
 
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the artist's roles.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1569,22 +1566,22 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_id : int or str, positional-only
+        artist_id : int or str; positional-only
             TIDAL ID of the artist.
 
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the similar artists.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1722,22 +1719,22 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_id : int or str, positional-only
+        artist_id : int or str; positional-only
             TIDAL ID of the artist.
 
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the artist's track providers.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1803,18 +1800,18 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_id : int or str, positional-only
+        artist_id : int or str; positional-only
             TIDAL ID of the artist.
 
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        collapse_by : str, keyword-only, default: :code:`"FINGERPRINT"`
+        collapse_by : str; keyword-only; default: :code:`"FINGERPRINT"`
             Controls how the returned tracks are grouped.
 
             **Valid values**:
@@ -1825,11 +1822,11 @@ class ArtistsAPI(TIDALResourceAPI):
                  same audio fingerprint.
                * :code:`"ID"` – Returns every track as a separate item.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the artist's tracks.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1982,22 +1979,22 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artist_id : int or str, positional-only
+        artist_id : int or str; positional-only
             TIDAL ID of the artist.
 
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
             country code can be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the artist's videos.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -2105,7 +2102,7 @@ class ArtistsAPI(TIDALResourceAPI):
         artist_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -2121,7 +2118,7 @@ class ArtistsAPI(TIDALResourceAPI):
         artist_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
@@ -2148,7 +2145,7 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        resource : str, positional-only
+        resource : str; positional-only
             Related resource type.
 
             **Valid values**: :code:`"albums"`, :code:`"biography"`,
@@ -2157,27 +2154,27 @@ class ArtistsAPI(TIDALResourceAPI):
             :code:`"similarArtists"`, :code:`"trackProviders"`,
             :code:`"tracks"`, :code:`"videos"`.
 
-        artist_id : int or str, positional-only
+        artist_id : int or str; positional-only
             TIDAL ID of the artist.
 
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
-        country_code : bool or str, optional
+        country_code : bool or str; optional
             ISO 3166-1 alpha-2 country code. If :code:`False`, the
             country code is not included in the request.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the artist's videos.
 
-        cursor : str, keyword-only, optional
+        cursor : str; keyword-only; optional
             Cursor for pagination.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        params : dict[str, Any], keyword-only, optional
+        params : dict[str, Any]; keyword-only; optional
             Existing dictionary holding URL query parameters. If not
             provided, a new dictionary will be created.
 
@@ -2191,8 +2188,10 @@ class ArtistsAPI(TIDALResourceAPI):
             params = {}
         if country_code is not False:
             self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = resource
+        if include is not None:
+            self._client._validate_type("include", include, bool)
+            if include:
+                params["include"] = resource
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
             params["page[cursor]"] = cursor

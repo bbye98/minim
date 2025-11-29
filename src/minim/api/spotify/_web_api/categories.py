@@ -30,12 +30,12 @@ class CategoriesAPI(ResourceAPI):
 
         Parameters
         ----------
-        category_id : str
+        category_id : str; positional-only
             Spotify category ID.
 
             **Examples**: :code:`"dinner"`, :code:`"party"`.
 
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             Locale identifier consisting of an ISO 639-1 language
             code and an ISO 3166-1 alpha-2 country code joined by an
             underscore. When this parameter is provided, categories
@@ -96,7 +96,7 @@ class CategoriesAPI(ResourceAPI):
 
         Parameters
         ----------
-        locale : str, keyword-only, optional
+        locale : str; keyword-only; optional
             Locale identifier consisting of an ISO 639-1 language
             code and an ISO 3166-1 alpha-2 country code joined by an
             underscore. When this parameter is provided, categories
@@ -110,14 +110,14 @@ class CategoriesAPI(ResourceAPI):
 
             **Example**: :code:`"es_MX"` – Spanish (Mexico).
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of categories to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first category to return. Use with `limit` to
             get the next set of categories.
 

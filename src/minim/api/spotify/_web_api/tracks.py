@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from datetime import datetime
 from numbers import Number
 from typing import TYPE_CHECKING, Any
@@ -35,7 +34,7 @@ class TracksAPI(ResourceAPI):
 
     @TTLCache.cached_method(ttl="catalog")
     def get_tracks(
-        self, track_ids: str | Collection[str], /, *, market: str | None = None
+        self, track_ids: str | list[str], /, *, market: str | None = None
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track <https://developer.spotify.com/documentation
@@ -57,10 +56,10 @@ class TracksAPI(ResourceAPI):
 
         Parameters
         ----------
-        track_ids : str or Collection[str], positional-only
+        track_ids : str or list[str]; positional-only
             Spotify IDs of the tracks, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -70,7 +69,7 @@ class TracksAPI(ResourceAPI):
                * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
                * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
 
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -307,7 +306,7 @@ class TracksAPI(ResourceAPI):
 
         Parameters
         ----------
-        market : str, keyword-only, optional
+        market : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If specified, only content
             available in that market is returned. When a valid user
             access token accompanies the request, the country associated
@@ -321,14 +320,14 @@ class TracksAPI(ResourceAPI):
 
             **Example**: :code:`"ES"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next set of tracks.
 
@@ -481,7 +480,7 @@ class TracksAPI(ResourceAPI):
         ----------
         track_ids : str, tuple[str, str | datetime], \
         dict[str, str | datetime], or \
-        list[str | tuple[str, str | datetime] | dict[str, str | datetime]], \
+        list[str | tuple[str, str | datetime] | dict[str, str | datetime]]; \
         positional-only
             Spotify IDs of the tracks, optionally accompanied by
             timestamps to maintain a specific chronological order in the
@@ -553,7 +552,7 @@ class TracksAPI(ResourceAPI):
             "PUT", "me/tracks", json={"timestamped_ids": track_ids}
         )
 
-    def remove_saved_tracks(self, track_ids: str | Collection[str], /) -> None:
+    def remove_saved_tracks(self, track_ids: str | list[str], /) -> None:
         """
         `Tracks > Remove User's Saved Tracks
         <https://developer.spotify.com/documentation/web-api/reference
@@ -572,10 +571,10 @@ class TracksAPI(ResourceAPI):
 
         Parameters
         ----------
-        track_ids : str or Collection[str], positional-only
+        track_ids : str or list[str]; positional-only
             Spotify IDs of the tracks, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -598,9 +597,7 @@ class TracksAPI(ResourceAPI):
             },
         )
 
-    def are_tracks_saved(
-        self, track_ids: str | Collection[str], /
-    ) -> list[bool]:
+    def are_tracks_saved(self, track_ids: str | list[str], /) -> list[bool]:
         """
         `Tracks > Check User's Saved Tracks
         <https://developer.spotify.com/documentation/web-api/reference
@@ -619,10 +616,10 @@ class TracksAPI(ResourceAPI):
 
         Parameters
         ----------
-        track_ids : str or Collection[str], positional-only
+        track_ids : str or list[str]; positional-only
             Spotify IDs of the tracks, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -655,7 +652,7 @@ class TracksAPI(ResourceAPI):
 
     @TTLCache.cached_method(ttl="catalog")
     def get_audio_features(
-        self, track_ids: str | Collection[str], /
+        self, track_ids: str | list[str], /
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track's Audio Features
@@ -679,10 +676,10 @@ class TracksAPI(ResourceAPI):
 
         Parameters
         ----------
-        track_ids : str or Collection[str], positional-only
+        track_ids : str or list[str]; positional-only
             Spotify IDs of the tracks, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+            comma-separated string or a list of strings. A maximum of 50
+            IDs can be sent in a request.
 
             **Examples**:
 
@@ -789,7 +786,7 @@ class TracksAPI(ResourceAPI):
 
         Parameters
         ----------
-        track_id : str, positional-only
+        track_id : str; positional-only
             Spotify ID of the track.
 
             **Example**: :code:`"11dFghVXANMlKmJXsNCbNl"`.
@@ -902,9 +899,9 @@ class TracksAPI(ResourceAPI):
     @TTLCache.cached_method(ttl="search")
     def get_recommendations(
         self,
-        seed_artists: str | Collection[str] | None = None,
-        seed_genres: str | Collection[str] | None = None,
-        seed_tracks: str | Collection[str] | None = None,
+        seed_artists: str | list[str] | None = None,
+        seed_genres: str | list[str] | None = None,
+        seed_tracks: str | list[str] | None = None,
         *,
         market: str | None = None,
         limit: int | None = None,
@@ -963,9 +960,9 @@ class TracksAPI(ResourceAPI):
 
         Parameters
         ----------
-        seed_artists : str or Collection[str], optional
+        seed_artists : str or list[str]; optional
             Spotify IDs of seed artists, provided as either a
-            comma-separated string or a collection of strings.
+            comma-separated string or a list of strings.
 
             .. note::
 
@@ -981,9 +978,9 @@ class TracksAPI(ResourceAPI):
                * :code:`"0TnOYISbd1XYRBk9myaseg,57dN52uHvrHOxijzpIgu3E"`
                * :code:`["0TnOYISbd1XYRBk9myaseg", "57dN52uHvrHOxijzpIgu3E"]`
 
-        seed_genres : str or Collection[str], optional
+        seed_genres : str or list[str]; optional
             Spotify IDs of seed genres, provided as either a
-            comma-separated string or a collection of strings.
+            comma-separated string or a list of strings.
 
             .. note::
 
@@ -996,9 +993,9 @@ class TracksAPI(ResourceAPI):
                 :meth:`~minim.api.spotify.GenresAPI.get_available_seed_genres`
                 – Get available seed genres.
 
-        seed_tracks : str or Collection[str], optional
+        seed_tracks : str or list[str]; optional
             Spotify IDs of seed tracks, provided as either a
-            comma-separated string or a collection of strings.
+            comma-separated string or a list of strings.
 
             .. note::
 
@@ -1014,7 +1011,28 @@ class TracksAPI(ResourceAPI):
                * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
                * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
 
-        acousticness : float or tuple[float, ...], optional
+        market : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If specified, only content
+            available in that market is returned. When a valid user
+            access token accompanies the request, the country associated
+            with the user account takes priority over this parameter.
+
+            .. note::
+
+               If neither the market nor the user's country are
+               provided, the content is considered unavailable for the
+               client.
+
+            **Example**: :code:`"ES"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of tracks to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+            **Default**: :code:`20`.
+
+        acousticness : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of whether a track is acoustic.
 
             .. seealso::
@@ -1027,7 +1045,7 @@ class TracksAPI(ResourceAPI):
 
             **Example**: :code:`0.00242`.
 
-        danceability : float or tuple[float, ...], optional
+        danceability : float or tuple[float, ...]; keyword-only; optional
             Suitability of a track for dancing based on a combination of
             musical elements, including tempo, rhythim stability, beat
             strength, and overall regularity.
@@ -1042,7 +1060,7 @@ class TracksAPI(ResourceAPI):
 
             **Example**: :code:`0.585`.
 
-        duration_ms : int or tuple[int, ...], optional
+        duration_ms : int or tuple[int, ...]; keyword-only; optional
             Track duration in milliseconds.
 
             .. seealso::
@@ -1054,7 +1072,7 @@ class TracksAPI(ResourceAPI):
 
             **Example**: :code:`237_040`.
 
-        energy : float or tuple[float, ...], optional
+        energy : float or tuple[float, ...]; keyword-only; optional
             Perceptual measure of a track's intensity and activity based
             on its dynamic range, perceived loudness, timbre, onset rate,
             and general entropy.
@@ -1069,7 +1087,7 @@ class TracksAPI(ResourceAPI):
 
             **Example**: :code:`0.842`.
 
-        instrumentalness : float or tuple[float, ...], optional
+        instrumentalness : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of whether a track contains no vocals.
 
             .. seealso::
@@ -1082,7 +1100,7 @@ class TracksAPI(ResourceAPI):
 
             **Example**: :code:`0.00686`.
 
-        key : int or tuple[int, ...], optional
+        key : int or tuple[int, ...]; keyword-only; optional
             Key a track is in using standard pitch class notation.
 
             .. seealso::
@@ -1108,7 +1126,7 @@ class TracksAPI(ResourceAPI):
                * :code:`10` – A♯ or B♭.
                * :code:`11` – B.
 
-        liveness : float or tuple[float, ...], optional
+        liveness : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of whether a track was performed live
             based on the presence of an audience in the recording.
 
@@ -1121,7 +1139,7 @@ class TracksAPI(ResourceAPI):
 
             **Example**: :code:`0.0866`.
 
-        loudness : float or tuple[float, ...], optional
+        loudness : float or tuple[float, ...]; keyword-only; optional
             Overall loudness of a track in decibels.
 
             .. seealso::
@@ -1133,7 +1151,7 @@ class TracksAPI(ResourceAPI):
 
             **Example**: :code:`-5.883`.
 
-        mode : int or tuple[int, ...], optional
+        mode : int or tuple[int, ...]; keyword-only; optional
             Musical mode of a track.
 
             .. seealso::
@@ -1144,7 +1162,7 @@ class TracksAPI(ResourceAPI):
             **Valid values**: :code:`0` for minor scale, :code:`1` for
             major scale.
 
-        popularity : int or tuple[int, ...], optional
+        popularity : int or tuple[int, ...]; keyword-only; optional
             Popularity of a track based on the total number of plays it
             has had and how recent those plays are.
 
@@ -1161,7 +1179,7 @@ class TracksAPI(ResourceAPI):
             **Valid range**: :code:`0` (least popular) to :code:`100`
             (most popular).
 
-        speechiness : float or tuple[float, ...], optional
+        speechiness : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of whether a track contains spoken words.
 
             .. seealso::
@@ -1174,7 +1192,7 @@ class TracksAPI(ResourceAPI):
 
             **Example**: :code:`0.0556`.
 
-        tempo : float or tuple[float, ...], optional
+        tempo : float or tuple[float, ...]; keyword-only; optional
             Overall estimated tempo of a track in beats per minute.
 
             .. seealso::
@@ -1186,7 +1204,7 @@ class TracksAPI(ResourceAPI):
 
             **Example**: :code:`118.211`.
 
-        time_signature : int or tuple[int, ...], optional
+        time_signature : int or tuple[int, ...]; keyword-only; optional
             Estimated time signature of the track.
 
             .. seealso::
@@ -1204,7 +1222,7 @@ class TracksAPI(ResourceAPI):
                * :code:`6` – 6/4.
                * :code:`7` – 7/4.
 
-        valence : float or tuple[float, ...], optional
+        valence : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of the musical positiveness conveyed by a
             track.
 
@@ -1403,7 +1421,7 @@ class TracksAPI(ResourceAPI):
 
         Parameters
         ----------
-        time_range : str, keyword-only, optional
+        time_range : str; keyword-only; optional
             Time frame over which the affinities are computed.
 
             **Valid values**:
@@ -1419,14 +1437,14 @@ class TracksAPI(ResourceAPI):
 
             **Default**: :code:`"medium_term"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
             **Default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next set of tracks.
 
@@ -1573,7 +1591,7 @@ class TracksAPI(ResourceAPI):
 
             **Valid values**: :code:`int` or :code:`float`.
 
-        range_ : tuple[int | float, int | float]
+        range_ : tuple[int | float | None, int | float | None]
             Valid range for track attribute.
 
         params : dict[str, Any]
@@ -1590,7 +1608,7 @@ class TracksAPI(ResourceAPI):
         if isinstance(value, data_type):
             self._client._validate_number(attribute, value, data_type, *range_)
             params[f"target_{attribute}"] = value
-        elif isinstance(value, Collection):
+        elif isinstance(value, tuple | list | set):
             if is_int and any(
                 not (isinstance(v, int) or v is None) for v in value
             ):
@@ -1643,7 +1661,7 @@ class TracksAPI(ResourceAPI):
     def _parse_seeds(
         self,
         seed_type: str,
-        seeds: str | Collection[str] | None,
+        seeds: str | list[str] | None,
         n_seeds: int,
         params: dict[str, Any],
     ) -> int:
@@ -1659,7 +1677,7 @@ class TracksAPI(ResourceAPI):
             **Valid values**: :code:`"seed_artists"`,
             :code:`"seed_genres"`, :code:`"seed_tracks"`.
 
-        seeds : str, Collection[str], or None
+        seeds : str, list[str], or None
             Seed values.
 
         n_seeds : int
@@ -1690,25 +1708,24 @@ class TracksAPI(ResourceAPI):
         return n_seeds + new_n_seeds
 
     def _prepare_seed_genres(
-        self, seed_genres: str | Collection[str], /, limit: int
+        self, seed_genres: str | list[str], /, limit: int
     ) -> tuple[str, int]:
         """
-        Stringify a collection of seed genres into a comma-separated
-        string.
+        Stringify a list of seed genres into a comma-separated string.
 
         Parameters
         ----------
-        seed_genres : str or Collection[str], positional-only
+        seed_genres : str or list[str]; positional-only
             Seed genres.
 
-        limit : int, keyword-only
+        limit : int; keyword-only
             Maximum number of seed genres that can be sent in the
             request.
 
         Returns
         -------
         seed_genres : str
-            Comma-delimited string containing seed genres.
+            comma-separated string containing seed genres.
 
         n_seed_genres : int
             Number of seed genres.

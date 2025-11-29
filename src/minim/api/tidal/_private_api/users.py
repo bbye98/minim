@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
@@ -99,7 +98,7 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
@@ -143,24 +142,24 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country associated with the user account is used.
 
             **Example**: :code:`"US"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of albums to return.
 
             **Valid range**: :code:`1` to :code:`100`.
 
             **Default**: :code:`10`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
             the next set of albums.
 
@@ -168,7 +167,7 @@ class UsersAPI(ResourceAPI):
 
             **Default**: :code:`0`.
 
-        sort : str, keyword-only, optional
+        sort : str; keyword-only; optional
             Field to sort the albums by.
 
             **Valid values**:
@@ -180,8 +179,8 @@ class UsersAPI(ResourceAPI):
 
             **Default**: :code:`"DATE"`.
 
-        reverse : bool, keyword-only, optional
-            Specifies whether to reverse the sort order.
+        reverse : bool; keyword-only; optional
+            Whether to reverse the sort order.
 
             **Default**: :code:`False` (ascending order).
 
@@ -267,7 +266,7 @@ class UsersAPI(ResourceAPI):
 
     def favorite_albums(
         self,
-        album_ids: int | str | Collection[int | str],
+        album_ids: int | str | list[int | str],
         /,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -279,22 +278,22 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_ids : int, str, or Collection[int | str], positional-only
+        album_ids : int, str, or list[int | str]; positional-only
             TIDAL IDs of albums, provided as either a comma-separated
-            string or a collection of integers and/or strings.
+            string or a list of integers and/or strings.
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country associated with the user account is used.
 
             **Example**: :code:`"US"`.
 
-        missing_ok : bool, keyword-only, optional
-            Specifies whether to skip albums that are not found in the
+        missing_ok : bool; keyword-only; optional
+            Whether to skip albums that are not found in the
             TIDAL catalog (:code:`True`) or raise an error
             (:code:`False`).
         """
@@ -304,7 +303,7 @@ class UsersAPI(ResourceAPI):
 
     def unfavorite_albums(
         self,
-        album_ids: int | str | Collection[int | str],
+        album_ids: int | str | list[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
@@ -313,11 +312,11 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_ids : int, str, or Collection[int | str], positional-only
+        album_ids : int, str, or list[int | str]; positional-only
             TIDAL IDs of albums, provided as either a comma-separated
-            string or a collection of integers and/or strings.
+            string or a list of integers and/or strings.
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """
@@ -341,30 +340,30 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        resource : str, positional-only
+        resource : str; positional-only
             Resource type.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"tracks"`, :code:`"videos"`.
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country associated with the user account is used.
 
             **Example**: :code:`"US"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of items to return.
 
             **Valid range**: :code:`1` to :code:`100`.
 
             **Default**: :code:`10`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
             the next set of items.
 
@@ -372,7 +371,7 @@ class UsersAPI(ResourceAPI):
 
             **Default**: :code:`0`.
 
-        sort : str, keyword-only, optional
+        sort : str; keyword-only; optional
             Field to sort the items by.
 
             **Valid values**:
@@ -384,8 +383,8 @@ class UsersAPI(ResourceAPI):
 
             **Default**: :code:`"DATE"`.
 
-        reverse : bool, keyword-only, optional
-            Specifies whether to reverse the sort order from ascending
+        reverse : bool; keyword-only; optional
+            Whether to reverse the sort order from ascending
             (:code:`False`) to descending (:code:`True`).
 
             **Default**: :code:`False`.
@@ -423,7 +422,7 @@ class UsersAPI(ResourceAPI):
     def _favorite_resources(
         self,
         resource: str,
-        item_ids: int | str | Collection[int | str],
+        item_ids: int | str | list[int | str],
         /,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -435,28 +434,28 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        resource : str, positional-only
+        resource : str; positional-only
             Resource type.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"tracks"`, :code:`"videos"`.
 
-        item_ids : int, str, or Collection[int | str], positional-only
+        item_ids : int, str, or list[int | str]; positional-only
             TIDAL IDs of items, provided as either a comma-separated
-            string or a collection of integers and/or strings.
+            string or a list of integers and/or strings.
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country associated with the user account is used.
 
             **Example**: :code:`"US"`.
 
-        missing_ok : bool, keyword-only, optional
-            Specifies whether to skip items that are not found in the
+        missing_ok : bool; keyword-only; optional
+            Whether to skip items that are not found in the
             TIDAL catalog (:code:`True`) or raise an error
             (:code:`False`).
         """
@@ -484,7 +483,7 @@ class UsersAPI(ResourceAPI):
     def _unfavorite_resources(
         self,
         resource: str,
-        item_ids: int | str | Collection[int | str],
+        item_ids: int | str | list[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
@@ -493,17 +492,17 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        resource : str, positional-only
+        resource : str; positional-only
             Resource type.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"tracks"`, :code:`"videos"`.
 
-        item_ids : int, str, or Collection[int | str], positional-only
+        item_ids : int, str, or list[int | str]; positional-only
             TIDAL IDs of items, provided as either a comma-separated
-            string or a collection of integers and/or strings.
+            string or a list of integers and/or strings.
 
-        user_id : int or str, keyword-only, optional
+        user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """

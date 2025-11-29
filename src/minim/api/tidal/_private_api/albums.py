@@ -1,8 +1,7 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI, _copy_docstring
-from users import UsersAPI
+from .users import UsersAPI
 
 if TYPE_CHECKING:
     from .. import PrivateTIDALAPI
@@ -29,12 +28,12 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_id : int or str, positional-only
+        album_id : int or str; positional-only
             TIDAL ID of the album.
 
             **Examples**: :code:`46369321` or :code:`"46369321"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country associated with the user account is used.
 
@@ -122,12 +121,12 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_id : int or str, positional-only
+        album_id : int or str; positional-only
             TIDAL ID of the album.
 
             **Examples**: :code:`46369321` or :code:`"46369321"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country associated with the user account is used.
 
@@ -180,25 +179,25 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_id : int or str, positional-only
+        album_id : int or str; positional-only
             TIDAL ID of the album.
 
             **Examples**: :code:`46369321` or :code:`"46369321"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country associated with the user account is used.
 
             **Example**: :code:`"US"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of items to return.
 
             **Valid range**: :code:`1` to :code:`100`.
 
             **Default**: :code:`10`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
             the next set of items.
 
@@ -366,25 +365,25 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_id : int or str, positional-only
+        album_id : int or str; positional-only
             TIDAL ID of the album.
 
             **Examples**: :code:`46369321` or :code:`"46369321"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country associated with the user account is used.
 
             **Example**: :code:`"US"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of credits to return.
 
             **Valid range**: :code:`1` to :code:`100`.
 
             **Default**: :code:`10`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first credit to return. Use with `limit` to get
             the next set of credits.
 
@@ -566,12 +565,12 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_id : int or str, positional-only
+        album_id : int or str; positional-only
             TIDAL ID of the album.
 
             **Examples**: :code:`46369321` or :code:`"46369321"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country associated with the user account is used.
 
@@ -621,25 +620,25 @@ class AlbumsAPI(ResourceAPI):
 
         Parameters
         ----------
-        album_id : int or str, positional-only
+        album_id : int or str; positional-only
             TIDAL ID of the album.
 
             **Examples**: :code:`46369321` or :code:`"46369321"`.
 
-        country_code : str, optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country associated with the user account is used.
 
             **Example**: :code:`"US"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of albums to return.
 
             **Valid range**: :code:`1` to :code:`100`.
 
             **Default**: :code:`10`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
             the next set of albums.
 
@@ -751,7 +750,7 @@ class AlbumsAPI(ResourceAPI):
     @_copy_docstring(UsersAPI.favorite_albums)
     def favorite_albums(
         self,
-        album_ids: int | str | Collection[int | str],
+        album_ids: int | str | list[int | str],
         /,
         user_id: int | str | None = None,
         country_code: str | None = None,
@@ -768,7 +767,7 @@ class AlbumsAPI(ResourceAPI):
     @_copy_docstring(UsersAPI.unfavorite_albums)
     def unfavorite_albums(
         self,
-        album_ids: int | str | Collection[int | str],
+        album_ids: int | str | list[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
