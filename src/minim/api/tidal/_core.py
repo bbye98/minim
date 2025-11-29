@@ -534,6 +534,54 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         )
         self._client.headers["x-tidal-client-version"] = self._VERSION
 
+    @staticmethod
+    def _prepare_tidal_ids(
+        tidal_ids: str | Collection[str], /, *, limit: int = 500
+    ) -> str:
+        """
+        Stringify a list of TIDAL IDs into a comma-delimited string.
+
+        Parameters
+        ----------
+        tidal_ids : int, str, or Collection[str], positional-only
+            Comma-delimited string or list containing TIDAL IDs.
+
+        limit : int, keyword-only, default: :code:`500`
+            Maximum number of TIDAL IDs that can be sent in the
+            request.
+
+        Returns
+        -------
+        tidal_ids : str
+            Comma-delimited string containing TIDAL IDs.
+        """
+        if not tidal_ids:
+            raise ValueError("At least one TIDAL ID must be specified.")
+
+        if isinstance(tidal_ids, int):
+            return str(tidal_ids)
+
+        if isinstance(tidal_ids, str):
+            return PrivateTIDALAPI._prepare_tidal_ids(
+                tidal_ids.split(","), limit=limit
+            )
+
+        num_ids = len(tidal_ids)
+        if num_ids > limit:
+            raise ValueError(
+                f"A maximum of {limit} TIDAL IDs can be sent in a request."
+            )
+        for idx, id_ in enumerate(tidal_ids):
+            if isinstance(id_, int):
+                tidal_ids[idx] = str(id_)
+            elif isinstance(id_, str):
+                tidal_ids[idx] = id_ = id_.strip()
+                if not id_.isdigit():
+                    raise ValueError(f"Invalid TIDAL ID {id_!r}.")
+            else:
+                raise ValueError(f"Invalid TIDAL ID {id_!r}.")
+        return ",".join(tidal_ids)
+
     @property
     def _my_country_code(self) -> str:
         """

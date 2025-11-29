@@ -59,9 +59,8 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -542,7 +541,7 @@ class UsersAPI(TIDALResourceAPI):
             "GET", f"userCollections/{user_id}", params=params
         ).json()
 
-    def get_saved_albums(
+    def get_favorite_albums(
         self,
         *,
         user_id: int | str | None = None,
@@ -570,9 +569,8 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -760,9 +758,8 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`["251380836", {"id": "46369321", "types": "albums"}]`
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -820,9 +817,8 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`["251380836", {"id": "46369321", "types": "albums"}]`
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -837,7 +833,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def get_saved_artists(
+    def get_favorite_artists(
         self,
         *,
         user_id: int | str | None = None,
@@ -865,9 +861,8 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -1062,9 +1057,8 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`["4676988", {"id": "46369321", "types": "artists"}]`
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -1122,9 +1116,8 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`["4676988", {"id": "46369321", "types": "artists"}]`
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -1171,9 +1164,8 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         include : bool, keyword-only, default: :code:`False`
             Specifies whether to include TIDAL content metadata for
@@ -1228,7 +1220,7 @@ class UsersAPI(TIDALResourceAPI):
             "owners", user_id=user_id, include=include, cursor=cursor
         )
 
-    def get_saved_playlists(
+    def get_favorite_playlists(
         self,
         *,
         user_id: int | str | None = None,
@@ -1257,9 +1249,8 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -1440,9 +1431,8 @@ class UsersAPI(TIDALResourceAPI):
                     ]
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
         """
         self._modify_collection_resource(
             "POST", "playlists", playlist_uuids, user_id=user_id
@@ -1501,15 +1491,14 @@ class UsersAPI(TIDALResourceAPI):
                     ]
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
         """
         self._modify_collection_resource(
             "DELETE", "playlists", playlist_uuids, user_id=user_id
         )
 
-    def get_saved_tracks(
+    def get_favorite_tracks(
         self,
         *,
         user_id: int | str | None = None,
@@ -1537,9 +1526,8 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -1751,9 +1739,8 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`["75413016", {"id": "46369325", "types": "tracks"}]`
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -1811,9 +1798,8 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`["75413016", {"id": "46369325", "types": "tracks"}]`
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -1828,7 +1814,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def get_saved_videos(
+    def get_favorite_videos(
         self,
         *,
         user_id: int | str | None = None,
@@ -1856,9 +1842,8 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -2020,9 +2005,8 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`["53315642", {"id": "75623239", "types": "videos"}]`
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -2079,9 +2063,8 @@ class UsersAPI(TIDALResourceAPI):
                * :code:`["53315642", {"id": "75623239", "types": "videos"}]`
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -2117,9 +2100,8 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         Returns
         -------
@@ -2180,9 +2162,8 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -2291,9 +2272,8 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
           user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -2373,9 +2353,8 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -2455,9 +2434,8 @@ class UsersAPI(TIDALResourceAPI):
         Parameters
         ----------
           user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, keyword-only, optional
             ISO 3166-1 alpha-2 country code.
@@ -2646,9 +2624,8 @@ class UsersAPI(TIDALResourceAPI):
             :code:`"videos"`.
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, optional
             ISO 3166-1 alpha-2 country code.
@@ -2762,9 +2739,8 @@ class UsersAPI(TIDALResourceAPI):
             properly formatted dictionaries.
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, optional
             ISO 3166-1 alpha-2 country code.
@@ -2811,9 +2787,8 @@ class UsersAPI(TIDALResourceAPI):
             :code:`"myMixes"`, :code:`"newArrivalMixes"`.
 
         user_id : int or str, keyword-only, optional
-            TIDAL ID of the user, provided as either an integer or a
-            string. If not specified, the current user's TIDAL ID is
-            used.
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
 
         country_code : str, optional
             ISO 3166-1 alpha-2 country code.

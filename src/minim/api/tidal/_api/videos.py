@@ -1119,8 +1119,8 @@ class VideosAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_saved_videos)
-    def get_saved_videos(
+    @_copy_docstring(UsersAPI.get_favorite_videos)
+    def get_favorite_videos(
         self,
         *,
         user_id: int | str | None = None,
@@ -1130,7 +1130,7 @@ class VideosAPI(TIDALResourceAPI):
         cursor: str | None = None,
         sort: str | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_videos(
+        return self._client.users.get_favorite_videos(
             user_id=user_id,
             country_code=country_code,
             locale=locale,

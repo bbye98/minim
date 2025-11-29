@@ -1774,8 +1774,8 @@ class TracksAPI(TIDALResourceAPI):
             "sourceFile", track_id, False, include=include
         )
 
-    @_copy_docstring(UsersAPI.get_saved_tracks)
-    def get_saved_tracks(
+    @_copy_docstring(UsersAPI.get_favorite_tracks)
+    def get_favorite_tracks(
         self,
         *,
         user_id: int | str | None = None,
@@ -1785,7 +1785,7 @@ class TracksAPI(TIDALResourceAPI):
         cursor: str | None = None,
         sort: str | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_tracks(
+        return self._client.users.get_favorite_tracks(
             user_id=user_id,
             country_code=country_code,
             locale=locale,

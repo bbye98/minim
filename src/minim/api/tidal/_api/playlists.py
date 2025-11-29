@@ -1521,8 +1521,8 @@ class PlaylistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_saved_playlists)
-    def get_saved_playlists(
+    @_copy_docstring(UsersAPI.get_favorite_playlists)
+    def get_favorite_playlists(
         self,
         *,
         user_id: int | str | None = None,
@@ -1533,7 +1533,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
         sort: str | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_playlists(
+        return self._client.users.get_favorite_playlists(
             user_id=user_id,
             country_code=country_code,
             locale=locale,

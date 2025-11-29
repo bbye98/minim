@@ -2079,8 +2079,8 @@ class ArtistsAPI(TIDALResourceAPI):
             "videos", artist_id, country_code, include=include, cursor=cursor
         )
 
-    @_copy_docstring(UsersAPI.get_saved_artists)
-    def get_saved_artists(
+    @_copy_docstring(UsersAPI.get_favorite_artists)
+    def get_favorite_artists(
         self,
         *,
         user_id: int | str | None = None,
@@ -2090,7 +2090,7 @@ class ArtistsAPI(TIDALResourceAPI):
         cursor: str | None = None,
         sort: str | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_artists(
+        return self._client.users.get_favorite_artists(
             user_id=user_id,
             country_code=country_code,
             locale=locale,

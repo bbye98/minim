@@ -353,7 +353,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         Parameters
         ----------
         spotify_ids : str or Collection[str], positional-only
-            (Comma-delimited) list of Spotify IDs.
+            Comma-delimited string or list containing Spotify IDs.
 
         limit : int, keyword-only
             Maximum number of Spotify IDs that can be sent in the
@@ -407,7 +407,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         Parameters
         ----------
         spotify_uris : str or Collection[str], positional-only
-            (Comma-delimited) list of Spotify URIs.
+            Comma-delimited string or list containing Spotify URIs.
 
         limit : int, keyword-only
             Maximum number of Spotify URIs that can be sent in the

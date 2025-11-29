@@ -1,7 +1,8 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import TTLCache, ResourceAPI
+from ..._shared import TTLCache, ResourceAPI, _copy_docstring
+from users import UsersAPI
 
 if TYPE_CHECKING:
     from .. import PrivateTIDALAPI
@@ -725,3 +726,50 @@ class AlbumsAPI(ResourceAPI):
         return self._client._request(
             "GET", f"v1/albums/{album_id}/similar", params=params
         ).json()
+
+    @_copy_docstring(UsersAPI.favorite_albums)
+    def get_favorite_albums(
+        self,
+        user_id: int | str | None = None,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+        sort: str | None = None,
+        reverse: bool | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_favorite_albums(
+            user_id,
+            country_code,
+            limit=limit,
+            offset=offset,
+            sort=sort,
+            reverse=reverse,
+        )
+
+    @_copy_docstring(UsersAPI.favorite_albums)
+    def favorite_albums(
+        self,
+        album_ids: int | str | Collection[int | str],
+        /,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+        *,
+        missing_ok: bool | None = None,
+    ) -> None:
+        self._client.users.favorite_albums(
+            album_ids,
+            user_id,
+            country_code,
+            missing_ok=missing_ok,
+        )
+
+    @_copy_docstring(UsersAPI.unfavorite_albums)
+    def unfavorite_albums(
+        self,
+        album_ids: int | str | Collection[int | str],
+        /,
+        user_id: int | str | None = None,
+    ) -> None:
+        self._client.users.unfavorite_albums(album_ids, user_id)

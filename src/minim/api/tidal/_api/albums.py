@@ -1891,8 +1891,8 @@ class AlbumsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_saved_albums)
-    def get_saved_albums(
+    @_copy_docstring(UsersAPI.get_favorite_albums)
+    def get_favorite_albums(
         self,
         *,
         user_id: int | str | None = None,
@@ -1902,7 +1902,7 @@ class AlbumsAPI(TIDALResourceAPI):
         cursor: str | None = None,
         sort: str | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_albums(
+        return self._client.users.get_favorite_albums(
             user_id=user_id,
             country_code=country_code,
             locale=locale,
