@@ -14,8 +14,9 @@ from ._api.search import SearchAPI
 from ._api.tracks import TracksAPI
 from ._api.users import UsersAPI
 from ._api.videos import VideosAPI
-from ._private_api.albums import AlbumsAPI as PrivateAlbumsAPI
-from ._private_api.users import UsersAPI as PrivateUsersAPI
+from ._private_api.albums import PrivateAlbumsAPI
+from ._private_api.artists import PrivateArtistsAPI
+from ._private_api.users import PrivateUsersAPI
 
 if TYPE_CHECKING:
     import httpx
@@ -509,7 +510,12 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         store: bool = True,
     ) -> None:
         """ """
+        # Initialize subclasses for endpoint groups
+        #: Albums API endpoints for the private TIDAL API.
         self.albums: PrivateAlbumsAPI = PrivateAlbumsAPI(self)
+        #: Artists API endpoints for the private TIDAL API.
+        self.artists: PrivateArtistsAPI = PrivateArtistsAPI(self)
+        #: Users API endpoints for the private TIDAL API.
         self.users: PrivateUsersAPI = PrivateUsersAPI(self)
 
         super().__init__(

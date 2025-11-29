@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from .. import PrivateTIDALAPI
 
 
-class UsersAPI(ResourceAPI):
+class PrivateUsersAPI(ResourceAPI):
     """ """
 
     _SORTS = {"DATE", "NAME"}

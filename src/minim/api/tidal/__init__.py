@@ -8,15 +8,15 @@ from ._api.search import SearchAPI
 from ._api.tracks import TracksAPI
 from ._api.users import UsersAPI
 from ._api.videos import VideosAPI
-from ._private_api.albums import AlbumsAPI as PrivateAlbumsAPI
+from ._private_api.albums import PrivateAlbumsAPI
+from ._private_api.artists import PrivateArtistsAPI
 
-# from ._private_api.artists import ArtistsAPI as PrivateArtistsAPI
-# from ._private_api.mixes import MixesAPI as PrivateMixesAPI
-# from ._private_api.pages import PagesAPI as PrivatePagesAPI
-# from ._private_api.playlists import PlaylistsAPI as PrivatePlaylistsAPI
-# from ._private_api.tracks import TracksAPI as PrivateTracksAPI
-from ._private_api.users import UsersAPI as PrivateUsersAPI
-# from ._private_api.videos import VideosAPI as PrivateVideosAPI
+# from ._private_api.mixes import PrivateMixesAPI
+# from ._private_api.pages import PrivatePagesAPI
+# from ._private_api.playlists import PrivatePlaylistsAPI
+# from ._private_api.tracks import PrivateTracksAPI
+from ._private_api.users import PrivateUsersAPI
+# from ._private_api.videos import PrivateVideosAPI
 
 __all__ = [
     "TIDALAPI",
@@ -31,7 +31,7 @@ __all__ = [
     "UsersAPI",
     "VideosAPI",
     "PrivateAlbumsAPI",
-    # "PrivateArtistsAPI",
+    "PrivateArtistsAPI",
     # "PrivateMixesAPI",
     # "PrivatePagesAPI",
     # "PrivatePlaylistsAPI",

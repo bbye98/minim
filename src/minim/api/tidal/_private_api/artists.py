@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI, _copy_docstring
-from .users import UsersAPI
+from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
     from .. import PrivateTIDALAPI
 
 
-class ArtistsAPI(ResourceAPI):
+class PrivateArtistsAPI(ResourceAPI):
     """
     Artists API endpoints for the private TIDAL API.
 
@@ -104,7 +104,7 @@ class ArtistsAPI(ResourceAPI):
     ) -> dict[str, Any]:
         """ """
 
-    # @_copy_docstring(UsersAPI.get_blocked_artists)
+    # @_copy_docstring(PrivateUsersAPI.get_blocked_artists)
     # def get_blocked_artists(
     #     self,
     #     user_id: int | str | None = None,
@@ -117,19 +117,19 @@ class ArtistsAPI(ResourceAPI):
     #         user_id, limit=limit, offset=offset
     #     )
 
-    # @_copy_docstring(UsersAPI.block_artists)
+    # @_copy_docstring(PrivateUsersAPI.block_artists)
     # def block_artists(
     #     self, artist_id: int | str, /, user_id: int | str | None = None
     # ) -> None:
     #     self._client.users.block_artists(artist_id, user_id)
 
-    # @_copy_docstring(UsersAPI.unblock_artists)
+    # @_copy_docstring(PrivateUsersAPI.unblock_artists)
     # def unblock_artists(
     #     self, artist_id: int | str, /, user_id: int | str | None = None
     # ) -> None:
     #     self._client.users.unblock_artists(artist_id, user_id)
 
-    # @_copy_docstring(UsersAPI.favorite_artists)
+    # @_copy_docstring(PrivateUsersAPI.favorite_artists)
     # def get_favorite_artists(
     #     self,
     #     user_id: int | str | None = None,
@@ -150,7 +150,7 @@ class ArtistsAPI(ResourceAPI):
     #         reverse=reverse,
     #     )
 
-    # @_copy_docstring(UsersAPI.favorite_artists)
+    # @_copy_docstring(PrivateUsersAPI.favorite_artists)
     # def favorite_artists(
     #     self,
     #     artist_ids: int | str | list[int | str],
@@ -167,7 +167,7 @@ class ArtistsAPI(ResourceAPI):
     #         missing_ok=missing_ok,
     #     )
 
-    # @_copy_docstring(UsersAPI.unfavorite_artists)
+    # @_copy_docstring(PrivateUsersAPI.unfavorite_artists)
     # def unfavorite_artists(
     #     self,
     #     artist_ids: int | str | list[int | str],

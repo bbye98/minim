@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI, _copy_docstring
-from .users import UsersAPI
+from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
     from .. import PrivateTIDALAPI
 
 
-class AlbumsAPI(ResourceAPI):
+class PrivateAlbumsAPI(ResourceAPI):
     """
     Albums API endpoints for the private TIDAL API.
 
@@ -726,7 +726,7 @@ class AlbumsAPI(ResourceAPI):
             "GET", f"v1/albums/{album_id}/similar", params=params
         ).json()
 
-    @_copy_docstring(UsersAPI.favorite_albums)
+    @_copy_docstring(PrivateUsersAPI.favorite_albums)
     def get_favorite_albums(
         self,
         user_id: int | str | None = None,
@@ -747,7 +747,7 @@ class AlbumsAPI(ResourceAPI):
             reverse=reverse,
         )
 
-    @_copy_docstring(UsersAPI.favorite_albums)
+    @_copy_docstring(PrivateUsersAPI.favorite_albums)
     def favorite_albums(
         self,
         album_ids: int | str | list[int | str],
@@ -764,7 +764,7 @@ class AlbumsAPI(ResourceAPI):
             missing_ok=missing_ok,
         )
 
-    @_copy_docstring(UsersAPI.unfavorite_albums)
+    @_copy_docstring(PrivateUsersAPI.unfavorite_albums)
     def unfavorite_albums(
         self,
         album_ids: int | str | list[int | str],
