@@ -13,6 +13,7 @@ class UsersAPI(ResourceAPI):
     _SORTS = {"DATE", "NAME"}
     _client: "PrivateTIDALAPI"
 
+    @TTLCache.cached_method(ttl="catalog")
     def get_my_profile(self) -> dict[str, Any]:
         """
         Get profile information for the current user.
@@ -59,6 +60,7 @@ class UsersAPI(ResourceAPI):
             "GET", "https://login.tidal.com/oauth2/me"
         ).json()
 
+    @TTLCache.cached_method(ttl="catalog")
     def get_session(self) -> dict[str, Any]:
         """
         Get information about the current private TIDAL API session.

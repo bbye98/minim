@@ -4,7 +4,7 @@ import time
 from typing import TYPE_CHECKING, Any
 import warnings
 
-from .._shared import OAuth2APIClient
+from .._shared import OAuth2APIClient, TTLCache
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI
@@ -584,11 +584,13 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
         .. note::
 
-           Accessing this property may call
+           Accessing this property may call :meth:`get_country_code` or
            :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
-           make a request to the private TIDAL API.
+           make requests to the private TIDAL API.
         """
-        country_code = self._my_profile.get("countryCode", None)
+        country_code = self._my_profile.get(
+            "countryCode", self.get_country_code()["country_code"]
+        )
         if not country_code:
             raise RuntimeError(
                 "Unable to determine the country associated with the "
@@ -610,6 +612,20 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
            make a request to the private TIDAL API.
         """
         return self.users.get_my_profile()
+
+    @TTLCache.cached_method(ttl="catalog")
+    def get_country_code(self) -> dict[str, str]:
+        """
+        Get the country code associated with the current user account.
+
+        Returns
+        -------
+        country_code : dict[str, str]
+            Country code.
+
+            **Sample response**: :code:`{"countryCode": "US"}`.
+        """
+        return self._request("GET", "v1/country").json()
 
     def _get_user_identifier(self):
         """
