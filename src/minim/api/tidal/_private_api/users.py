@@ -100,7 +100,7 @@ class PrivateUsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str; keyword-only; optional
+        user_id : int or str; positional-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
@@ -144,7 +144,7 @@ class PrivateUsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        user_id : int or str; keyword-only; optional
+        user_id : int or str; positional-only; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
@@ -182,9 +182,10 @@ class PrivateUsersAPI(ResourceAPI):
             **Default**: :code:`"DATE"`.
 
         reverse : bool; keyword-only; optional
-            Whether to reverse the sort order.
+            Whether to reverse the sort order from ascending
+            (:code:`False`) to descending (:code:`True`).
 
-            **Default**: :code:`False` (ascending order).
+            **Default**: :code:`False`.
 
         Returns
         -------
@@ -284,7 +285,7 @@ class PrivateUsersAPI(ResourceAPI):
             TIDAL IDs of albums, provided as either a comma-separated
             string or a list of integers and/or strings.
 
-        user_id : int or str; keyword-only; optional
+        user_id : int or str; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
@@ -298,6 +299,8 @@ class PrivateUsersAPI(ResourceAPI):
             Whether to skip albums that are not found in the
             TIDAL catalog (:code:`True`) or raise an error
             (:code:`False`).
+
+            **Default**: :code:`False`.
         """
         return self._favorite_resources(
             "albums", album_ids, user_id, country_code, missing_ok=missing_ok
@@ -318,11 +321,299 @@ class PrivateUsersAPI(ResourceAPI):
             TIDAL IDs of albums, provided as either a comma-separated
             string or a list of integers and/or strings.
 
-        user_id : int or str; keyword-only; optional
+        user_id : int or str; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """
         return self._unfavorite_resources("albums", album_ids, user_id)
+
+    def get_blocked_artists(
+        self,
+        user_id: int | str | None = None,
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str]:
+        """
+        Get TIDAL catalog information for artists blocked by a user.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        limit : int; keyword-only; optional
+            Maximum number of artists to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **Default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first artist to return. Use with `limit` to get
+            the next set of artists.
+
+            **Minimum value**: :code:`0`.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        artists : dict[str]
+            Pages of TIDAL catalog information for artists blocked by
+            the user.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "created": <str>,
+                        "item": {
+                          "artistRoles": [
+                            {
+                              "category": <str>,
+                              "categoryId": <int>
+                            }
+                          ],
+                          "artistTypes": <list[str]>,
+                          "banner": <str>,
+                          "handle": <str>,
+                          "id": <int>,
+                          "mixes": {
+                            "ARTIST_MIX": <str>
+                          },
+                          "name": <str>,
+                          "picture": <str>,
+                          "popularity": <int>,
+                          "selectedAlbumCoverFallback": <str>,
+                          "spotlighted": <bool>,
+                          "type": <str>,
+                          "url": <str>,
+                          "userId": <int>
+                        },
+                        "type": "ARTIST"
+                      }
+                    ],
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>
+                  }
+        """
+        if user_id is None:
+            user_id = self._client._get_user_identifier()
+        params = {}
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 100)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request(
+            "GET", f"v1/users/{user_id}/blocks/artists", params=params
+        ).json()
+
+    def block_artist(
+        self, artist_id: int | str, /, user_id: int | str | None = None
+    ) -> None:
+        """
+        Block an artist for a user.
+
+        Parameters
+        ----------
+        artist_id : int or str; positional-only
+            TIDAL ID of the artist.
+
+            **Examples**: :code:`1566`, :code:`"4676988"`.
+
+        user_id : int or str; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+        """
+        if user_id is None:
+            user_id = self._client._get_user_identifier()
+        self._client._request(
+            "POST",
+            f"v1/users/{user_id}/blocks/artists",
+            data={"artistId": artist_id},
+        )
+
+    def unblock_artist(
+        self, artist_id: int | str, /, user_id: int | str | None = None
+    ) -> None:
+        """
+        Unblock an artist for a user.
+
+        Parameters
+        ----------
+        artist_id : int or str; positional-only
+            TIDAL ID of the artist.
+
+            **Examples**: :code:`1566`, :code:`"4676988"`.
+
+        user_id : int or str; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+        """
+        if user_id is None:
+            user_id = self._client._get_user_identifier()
+        self._client._request(
+            "DELETE", f"v1/users/{user_id}/blocks/artists/{artist_id}"
+        )
+
+    def get_favorite_artists(
+        self,
+        user_id: int | str | None = None,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+        sort: str | None = None,
+        reverse: bool | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for artists in a user's
+        collection.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the user account is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of artists to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **Default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first artist to return. Use with `limit` to get
+            the next set of artists.
+
+            **Minimum value**: :code:`0`.
+
+            **Default**: :code:`0`.
+
+        sort : str; keyword-only; optional
+            Field to sort the albums by.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"DATE"` - Date added.
+               * :code:`"NAME"` - Artist name.
+
+            **Default**: :code:`"DATE"`.
+
+        reverse : bool; keyword-only; optional
+            Whether to reverse the sort order from ascending
+            (:code:`False`) to descending (:code:`True`).
+
+            **Default**: :code:`False`.
+
+        Returns
+        -------
+        artists : dict[str, Any]
+            TIDAL catalog information for artists in the user's
+            collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                    ],
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>
+                  }
+        """
+        return self._get_favorite_resources(
+            "artists",
+            user_id,
+            country_code,
+            limit=limit,
+            offset=offset,
+            sort=sort,
+            reverse=reverse,
+        )
+
+    def favorite_artists(
+        self,
+        artist_ids: int | str | list[int | str],
+        /,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+        *,
+        missing_ok: bool | None = None,
+    ) -> None:
+        """
+        Add albums to a user's collection.
+
+        Parameters
+        ----------
+        artist_ids : int, str, or list[int | str]; positional-only
+            TIDAL IDs of artists, provided as either a comma-separated
+            string or a list of integers and/or strings.
+
+        user_id : int or str; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the user account is used.
+
+            **Example**: :code:`"US"`.
+
+        missing_ok : bool; keyword-only; optional
+            Whether to skip artists that are not found in the
+            TIDAL catalog (:code:`True`) or raise an error
+            (:code:`False`).
+
+            **Default**: :code:`False`.
+        """
+        return self._favorite_resources(
+            "artists", artist_ids, user_id, country_code, missing_ok=missing_ok
+        )
+
+    def unfavorite_artists(
+        self,
+        artist_ids: int | str | list[int | str],
+        /,
+        user_id: int | str | None = None,
+    ) -> None:
+        """
+        Remove artists from a user's collection.
+
+        Parameters
+        ----------
+        artist_ids : int, str, or list[int | str]; positional-only
+            TIDAL IDs of artists, provided as either a comma-separated
+            string or a list of integers and/or strings.
+
+        user_id : int or str; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+        """
+        return self._unfavorite_resources("artists", artist_ids, user_id)
 
     def _get_favorite_resources(
         self,
@@ -348,7 +639,7 @@ class PrivateUsersAPI(ResourceAPI):
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"tracks"`, :code:`"videos"`.
 
-        user_id : int or str; keyword-only; optional
+        user_id : int or str; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
@@ -381,7 +672,7 @@ class PrivateUsersAPI(ResourceAPI):
             .. container::
 
                * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Album name.
+               * :code:`"NAME"` - Item name.
 
             **Default**: :code:`"DATE"`.
 
@@ -446,7 +737,7 @@ class PrivateUsersAPI(ResourceAPI):
             TIDAL IDs of items, provided as either a comma-separated
             string or a list of integers and/or strings.
 
-        user_id : int or str; keyword-only; optional
+        user_id : int or str; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
 
@@ -460,6 +751,8 @@ class PrivateUsersAPI(ResourceAPI):
             Whether to skip items that are not found in the
             TIDAL catalog (:code:`True`) or raise an error
             (:code:`False`).
+
+            **Default**: :code:`False`.
         """
         if user_id is None:
             user_id = self._client._get_user_identifier()
@@ -504,7 +797,7 @@ class PrivateUsersAPI(ResourceAPI):
             TIDAL IDs of items, provided as either a comma-separated
             string or a list of integers and/or strings.
 
-        user_id : int or str; keyword-only; optional
+        user_id : int or str; optional
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """

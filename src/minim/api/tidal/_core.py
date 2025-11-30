@@ -486,6 +486,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
     _ENV_VAR_PREFIX = "PRIVATE_TIDAL_API"
     _FLOWS = {"pkce", "device"}
     _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
+    _REDIRECT_URIS = {"tidal://login/auth"}
     _SCOPES = {"r_usr", "w_usr"}
     _TRUSTED_DEVICE = True
     _VERSION = "2025.11.19"
@@ -595,7 +596,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
            make requests to the private TIDAL API.
         """
         country_code = self._my_profile.get(
-            "countryCode", self.get_country_code()["country_code"]
+            "countryCode", self.get_country_code()["countryCode"]
         )
         if not country_code:
             raise RuntimeError(

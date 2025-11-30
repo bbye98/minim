@@ -31,7 +31,7 @@ class PrivateAlbumsAPI(ResourceAPI):
         album_id : int or str; positional-only
             TIDAL ID of the album.
 
-            **Examples**: :code:`46369321` or :code:`"46369321"`.
+            **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
@@ -124,7 +124,7 @@ class PrivateAlbumsAPI(ResourceAPI):
         album_id : int or str; positional-only
             TIDAL ID of the album.
 
-            **Examples**: :code:`46369321` or :code:`"46369321"`.
+            **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
@@ -154,15 +154,7 @@ class PrivateAlbumsAPI(ResourceAPI):
                     }
                   ]
         """
-        if country_code is None:
-            country_code = self._client._my_country_code
-        else:
-            self._client._validate_country_code(country_code)
-        return self._client._request(
-            "GET",
-            f"v1/albums/{album_id}/credits",
-            params={"countryCode": country_code},
-        ).json()
+        return self._get_album_resource("credits", album_id, country_code)
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album_items(
@@ -182,7 +174,7 @@ class PrivateAlbumsAPI(ResourceAPI):
         album_id : int or str; positional-only
             TIDAL ID of the album.
 
-            **Examples**: :code:`46369321` or :code:`"46369321"`.
+            **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
@@ -208,8 +200,8 @@ class PrivateAlbumsAPI(ResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            TIDAL catalog information for the tracks and videos in the
-            album.
+            Pages of TIDAL catalog information for the tracks and videos
+            in the album.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -337,17 +329,9 @@ class PrivateAlbumsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", f"v1/albums/{album_id}/items", params=params
-        ).json()
+        return self._get_album_resource(
+            "items", album_id, country_code, limit=limit, offset=offset
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album_item_credits(
@@ -368,7 +352,7 @@ class PrivateAlbumsAPI(ResourceAPI):
         album_id : int or str; positional-only
             TIDAL ID of the album.
 
-            **Examples**: :code:`46369321` or :code:`"46369321"`.
+            **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
@@ -394,8 +378,8 @@ class PrivateAlbumsAPI(ResourceAPI):
         Returns
         -------
         credits : dict[str, Any]
-            TIDAL catalog information for the credits of the tracks and
-            videos in the album.
+            Pages of TIDAL catalog information for the credits of the
+            tracks and videos in the album.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -543,17 +527,9 @@ class PrivateAlbumsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", f"v1/albums/{album_id}/items/credits", params=params
-        ).json()
+        return self._get_album_resource(
+            "items/credits", album_id, country_code, limit=limit, offset=offset
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album_review(
@@ -568,7 +544,7 @@ class PrivateAlbumsAPI(ResourceAPI):
         album_id : int or str; positional-only
             TIDAL ID of the album.
 
-            **Examples**: :code:`46369321` or :code:`"46369321"`.
+            **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
@@ -594,15 +570,7 @@ class PrivateAlbumsAPI(ResourceAPI):
                     "text": <str>,
                   }
         """
-        if country_code is None:
-            country_code = self._client._my_country_code
-        else:
-            self._client._validate_country_code(country_code)
-        return self._client._request(
-            "GET",
-            f"v1/albums/{album_id}/review",
-            params={"countryCode": country_code},
-        ).json()
+        return self._get_album_resource("review", album_id, country_code)
 
     @TTLCache.cached_method(ttl="catalog")
     def get_similar_albums(
@@ -623,7 +591,7 @@ class PrivateAlbumsAPI(ResourceAPI):
         album_id : int or str; positional-only
             TIDAL ID of the album.
 
-            **Examples**: :code:`46369321` or :code:`"46369321"`.
+            **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
@@ -649,7 +617,7 @@ class PrivateAlbumsAPI(ResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL catalog information for the similar albums.
+            Pages of TIDAL catalog information for the similar albums.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -714,17 +682,9 @@ class PrivateAlbumsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", f"v1/albums/{album_id}/similar", params=params
-        ).json()
+        return self._get_album_resource(
+            "similar", album_id, country_code, limit=limit, offset=offset
+        )
 
     @_copy_docstring(PrivateUsersAPI.favorite_albums)
     def get_favorite_albums(
@@ -772,3 +732,69 @@ class PrivateAlbumsAPI(ResourceAPI):
         user_id: int | str | None = None,
     ) -> None:
         self._client.users.unfavorite_albums(album_ids, user_id)
+
+    def _get_album_resource(
+        self,
+        resource: str,
+        album_id: int | str,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for a resource related to an
+        album.
+
+        Parameters
+        ----------
+        resource : str; positional-only
+            Related resource type.
+
+            **Valid values**: :code:`"credits"`, :code:`"items"`,
+            :code:`"items/credits"`, :code:`"reviews"`,
+            :code:`"similar"`.
+
+        album_id : int or str; positional-only
+            TIDAL ID of the album.
+
+            **Examples**: :code:`46369321`, :code:`"251380836"`.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the user account is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of items to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **Default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first item to return. Use with `limit` to get
+            the next set of items.
+
+            **Minimum value**: :code:`0`.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        resource : dict[str, Any]
+            Pages of TIDAL catalog information for the related resource.
+        """
+        params = {}
+        self._client._resolve_country_code(country_code, params)
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 100)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request(
+            "GET", f"v1/albums/{album_id}/{resource}", params=params
+        ).json()
