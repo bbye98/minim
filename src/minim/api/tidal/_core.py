@@ -631,8 +631,8 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             if dimensions not in (sizes := cls._IMAGE_SIZES[item_type]):
                 _sizes = "', '".join(sorted(sizes))
                 raise ValueError(
-                    f"Invalid dimensions {dimensions!r} for {item_type}s. "
-                    f"Valid values: '{_sizes}'."
+                    f"Invalid dimensions {dimensions!r} for "
+                    f"{item_type} artwork. Valid values: '{_sizes}'."
                 )
         return (
             f"{PrivateTIDALAPI.RESOURCE_URL}/{media_type}"
