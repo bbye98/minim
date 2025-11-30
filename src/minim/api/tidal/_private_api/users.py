@@ -762,7 +762,7 @@ class PrivateUsersAPI(ResourceAPI):
             self._client._validate_country_code(country_code)
         data = {
             f"{resource[:-1]}Ids": self._client._prepare_tidal_ids(
-                item_ids, limit=1000000
+                item_ids, limit=1_000
             )
         }
         if missing_ok is not None:
@@ -806,5 +806,5 @@ class PrivateUsersAPI(ResourceAPI):
         self._client._request(
             "DELETE",
             f"v1/users/{user_id}/favorites/{resource}"
-            f"/{self._client._prepare_tidal_ids(item_ids, limit=1000000)}",
+            f"/{self._client._prepare_tidal_ids(item_ids, limit=1_000)}",
         )
