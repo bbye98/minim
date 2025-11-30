@@ -563,7 +563,7 @@ class UsersAPI(ResourceAPI):
             not isinstance(time_range, str)
             or time_range not in self._TIME_RANGES
         ):
-            ranges_ = "', '".join(self._TIME_RANGES)
+            ranges_ = "', '".join(sorted(self._TIME_RANGES))
             raise ValueError(
                 f"Invalid time frame {time_range!r}. Valid values: '{ranges_}'."
             )

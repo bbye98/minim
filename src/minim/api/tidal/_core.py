@@ -40,7 +40,9 @@ class _BaseTIDALAPI(OAuth2APIClient):
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
 
     @classmethod
-    def get_scopes(cls, matches: str | list[str] | None = None) -> set[str]:
+    def resolve_scopes(
+        cls, matches: str | list[str] | None = None
+    ) -> set[str]:
         """
         Resolve one or more scope categories or substrings into a set of
         scopes.
@@ -66,7 +68,9 @@ class _BaseTIDALAPI(OAuth2APIClient):
 
         # Recursively gather scopes for multiple
         # categories/substrings
-        return {scope for match in matches for scope in cls.get_scopes(match)}
+        return {
+            scope for match in matches for scope in cls.resolve_scopes(match)
+        }
 
     @staticmethod
     def _validate_tidal_ids(
@@ -270,7 +274,7 @@ class TIDALAPI(_BaseTIDALAPI):
 
             .. seealso::
 
-               :meth:`get_scopes` – Get a set of scopes to request,
+               :meth:`resolve_scopes` – Get a set of scopes to request,
                filtered by substrings.
 
         access_token : str; keyword-only; optional
@@ -485,13 +489,28 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
     _ENV_VAR_PREFIX = "PRIVATE_TIDAL_API"
     _FLOWS = {"pkce", "device"}
+    _IMAGE_SIZES = {
+        "album": {
+            "1280x1280",
+            "1080x1080",
+            "750x750",
+            "640x640",
+            "320x320",
+            "160x160",
+            "80x80",
+        },
+        "artist": {"750x750", "480x480", "320x320", "160x160"},
+        "playlist": {"1280x1280", "480x480", "320x320", "160x160"},
+        "video": {"1280x720", "800x450", "640x360", "320x180", "160x90"},
+    }
     _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
     _REDIRECT_URIS = {"tidal://login/auth"}
-    _SCOPES = {"r_usr", "w_usr"}
+    _SCOPES = {"r_usr", "w_usr", "w_sub"}
     _TRUSTED_DEVICE = True
     _VERSION = "2025.11.19"
     DEVICE_AUTH_URL = "https://auth.tidal.com/v1/oauth2/device_authorization"
     BASE_URL = "https://api.tidal.com"
+    RESOURCE_URL = "https://resources.tidal.com"
 
     def __init__(
         self,
@@ -535,6 +554,90 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             store=store,
         )
         self._client.headers["x-tidal-client-version"] = self._VERSION
+
+    @classmethod
+    def build_artwork_url(
+        cls,
+        uuid: str,
+        /,
+        item_type: str | None = None,
+        *,
+        animated: bool = False,
+        dimensions: int | str | tuple[int | str, int | str] | None = None,
+    ) -> str:
+        """
+        Builds the URL for a TIDAL artwork.
+
+        Parameters
+        ----------
+        uuid : str; positional-only
+            TIDAL artwork UUID.
+
+        item_type : str; positional-only; optional
+            Type of item the artwork belongs to. If provided, the
+            desired dimensions specified in `dimensions` are validated
+            against the allowed dimensions for the item type.
+
+            **Valid values**: :code:`"artist"`, :code:`"album"`,
+            :code:`"playlist"`, :code:`"userProfile"`, :code:`"video"`.
+
+        animated : bool; keyword-only; default: :code:`False`
+            Whether the artwork is animated.
+
+        dimensions : int, str, or tuple[int | str, int | str]; \
+        keyword-only; optional
+            Dimensions of the artwork. If not specified, the original
+            dimensions (:code:`"origin"`) are used.
+
+            **Examples**: :code:`1280`, :code:`"1280"`,
+            :code:`"1280x1280"`, :code:`(640, 360)`,
+            :code:`("640", "360")`.
+        """
+        if animated:
+            extension = ".mp4"
+            media_type = "videos"
+        else:
+            extension = ".jpg"
+            media_type = "images"
+        if dimensions is None:
+            dimensions = "origin"
+        elif isinstance(dimensions, int):
+            dimensions = f"{dimensions}x{dimensions}"
+        elif isinstance(dimensions, str):
+            if "x" in dimensions:
+                if len(
+                    split_dimensions := dimensions.split("x", maxsplit=1)
+                ) != 2 or any(not dim.isdigit() for dim in split_dimensions):
+                    raise ValueError(f"Invalid dimensions {dimensions!r}.")
+            elif dimensions.isdigit():
+                dimensions = f"{dimensions}x{dimensions}"
+            else:
+                raise ValueError(f"Invalid dimensions {dimensions!r}.")
+        elif isinstance(dimensions, tuple | list) and len(dimensions) == 2:
+            for ax, dim in zip(("width", "height"), dimensions):
+                if isinstance(dim, str):
+                    if not dim.isdigit():
+                        raise ValueError(f"Invalid {ax} {dim!r}.")
+                elif not isinstance(dim, int):
+                    raise ValueError(f"Invalid {ax} {dim!r}.")
+            dimensions = f"{dimensions[0]}x{dimensions[1]}"
+        else:
+            raise ValueError(f"Invalid dimensions {dimensions!r}.")
+        if item_type is not None:
+            if item_type[-1] == "s":
+                item_type = item_type[:-1]
+            if item_type not in cls._IMAGE_SIZES:
+                raise ValueError(f"Invalid item type {item_type!r}.")
+            if dimensions not in (sizes := cls._IMAGE_SIZES[item_type]):
+                _sizes = "', '".join(sorted(sizes))
+                raise ValueError(
+                    f"Invalid dimensions {dimensions!r} for {item_type}s. "
+                    f"Valid values: '{_sizes}'."
+                )
+        return (
+            f"{PrivateTIDALAPI.RESOURCE_URL}/{media_type}"
+            f"/{uuid.replace('-', '/')}/{dimensions}{extension}"
+        )
 
     @staticmethod
     def _prepare_tidal_ids(

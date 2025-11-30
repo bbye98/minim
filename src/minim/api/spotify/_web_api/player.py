@@ -919,7 +919,7 @@ class PlayerAPI(ResourceAPI):
         )
         self._client._require_spotify_premium("player.set_repeat")
         if state not in self._PLAYBACK_STATES:
-            _states = "', '".join(self._PLAYBACK_STATES)
+            _states = "', '".join(sorted(self._PLAYBACK_STATES))
             raise ValueError(
                 f"Invalid playback state {state!r}. Valid values: '{_states}'."
             )

@@ -136,7 +136,7 @@ class SpotifyWebAPI(OAuth2APIClient):
 
             .. seealso::
 
-               :meth:`get_scopes` – Get a set of scopes to request,
+               :meth:`resolve_scopes` – Get a set of scopes to request,
                filtered by categories and/or substrings.
 
         access_token : str; keyword-only; optional
@@ -250,7 +250,9 @@ class SpotifyWebAPI(OAuth2APIClient):
         )
 
     @classmethod
-    def get_scopes(cls, matches: str | list[str] | None = None) -> set[str]:
+    def resolve_scopes(
+        cls, matches: str | list[str] | None = None
+    ) -> set[str]:
         """
         Resolve one or more scope categories or substrings into a set of
         scopes.
@@ -334,7 +336,9 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         # Recursively gather scopes for multiple
         # categories/substrings
-        return {scope for match in matches for scope in cls.get_scopes(match)}
+        return {
+            scope for match in matches for scope in cls.resolve_scopes(match)
+        }
 
     @staticmethod
     def _prepare_spotify_ids(
@@ -550,7 +554,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         types = set(types)
         for type_ in types:
             if type_ not in self._AUDIO_TYPES:
-                _types = "', '".join(self._AUDIO_TYPES)
+                _types = "', '".join(sorted(self._AUDIO_TYPES))
                 raise ValueError(
                     f"Invalid Spotify item type {type_!r}. "
                     f"Valid values: '{_types}'."
@@ -661,7 +665,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             or "markets" in self.__dict__
             and market not in self.available_markets
         ):
-            _markets = "', '".join(self.available_markets)
+            _markets = "', '".join(sorted(self.available_markets))
             raise ValueError(
                 f"{market!r} is not a market in which Spotify is "
                 f"available. Valid values: '{_markets}'."
@@ -681,7 +685,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             or "available_seed_genres" in self.__dict__
             and seed_genre not in self.available_seed_genres
         ):
-            _genres = "', '".join(self.available_seed_genres)
+            _genres = "', '".join(sorted(self.available_seed_genres))
             raise ValueError(
                 f"Invalid seed genre {seed_genre!r}. Valid values: '{_genres}'."
             )

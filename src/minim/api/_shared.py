@@ -1353,7 +1353,7 @@ class OAuth2APIClient(APIClient):
                access tokens for this API client.
         """
         if flow not in self._FLOWS:
-            _flows = "', '".join(self._FLOWS)
+            _flows = "', '".join(sorted(self._FLOWS))
             raise ValueError(
                 f"Invalid authorization flow {flow!r}. "
                 f"Valid values: '{_flows}'."
@@ -1404,7 +1404,7 @@ class OAuth2APIClient(APIClient):
             self._redirect_uri = redirect_uri
             if backend:
                 if backend not in self._BACKENDS:
-                    _backends = "', '".join(self._BACKENDS)
+                    _backends = "', '".join(sorted(self._BACKENDS))
                     raise ValueError(
                         f"Invalid backend {backend!r}. Valid values: '{_backends}'."
                     )

@@ -83,7 +83,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             if meta:
                 item_uuid = item_uuid[0]
         if item_type not in cls._ITEM_TYPES:
-            item_types = "', '".join(cls._ITEM_TYPES)
+            item_types = "', '".join(sorted(cls._ITEM_TYPES))
             raise ValueError(
                 f"Invalid item type {item_type!r}. Valid values: '{item_types}'."
             )
@@ -687,7 +687,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         if sort is not None:
             self._client._validate_type("sort", sort, str)
             if (sort[1:] if sort[0] == "-" else sort) not in self._SORTS:
-                sorts = "', '".join(self._SORTS)
+                sorts = "', '".join(sorted(self._SORTS))
                 raise ValueError(
                     f"Invalid sort field {sort!r}. Valid values: '{sorts}'."
                 )

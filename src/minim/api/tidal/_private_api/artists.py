@@ -199,7 +199,7 @@ class PrivateArtistsAPI(ResourceAPI):
         params = {}
         if filter is not None:
             if filter not in self._ALBUM_FILTERS:
-                filters = "', '".join(self._ALBUM_FILTERS)
+                filters = "', '".join(sorted(self._ALBUM_FILTERS))
                 raise ValueError(
                     f"Invalid filter {filter!r}. Valid values: '{filters}'."
                 )

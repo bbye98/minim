@@ -858,7 +858,7 @@ class ArtistsAPI(ResourceAPI):
         album_types = set(album_types)
         for album_type in album_types:
             if album_type not in self._ALBUM_TYPES:
-                _album_types = "', '".join(self._ALBUM_TYPES)
+                _album_types = "', '".join(sorted(self._ALBUM_TYPES))
                 raise ValueError(
                     f"Invalid album type {album_type!r}. "
                     f"Valid values: '{_album_types}'."

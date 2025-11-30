@@ -545,7 +545,7 @@ class iTunesSearchAPI(APIClient):
             self._validate_type("entity", entity, str)
             entities = self._MEDIA_RELATIONSHIPS["all"]["entities"]
             if entity not in entities:
-                entities = "', '".join(entities)
+                entities = "', '".join(sorted(entities))
                 raise ValueError(
                     f"Invalid entity {entity!r}. Valid values: '{entities}'."
                 )
@@ -931,7 +931,7 @@ class iTunesSearchAPI(APIClient):
         else:
             self._validate_type("media", media, str)
             if media not in self._MEDIA_RELATIONSHIPS:
-                _media = "', '".join(self._MEDIA_RELATIONSHIPS)
+                _media = "', '".join(sorted(self._MEDIA_RELATIONSHIPS))
                 raise ValueError(
                     f"Invalid media type {media!r}. Valid values: '{_media}'."
                 )
@@ -941,7 +941,7 @@ class iTunesSearchAPI(APIClient):
             self._validate_type("entity", entity, str)
             entities = self._MEDIA_RELATIONSHIPS[media or "all"]["entities"]
             if entity not in entities:
-                entities = "', '".join(entities)
+                entities = "', '".join(sorted(entities))
                 raise ValueError(
                     f"Invalid entity {entity!r}{emsg_suffix}. "
                     f"Valid values: '{entities}'."
@@ -952,7 +952,7 @@ class iTunesSearchAPI(APIClient):
                 "attributes"
             ]
             if attribute not in attributes:
-                attributes = "', '".join(attributes)
+                attributes = "', '".join(sorted(attributes))
                 raise ValueError(
                     f"Invalid attribute {attribute!r}{emsg_suffix}. "
                     f"Valid values: '{attributes}'."

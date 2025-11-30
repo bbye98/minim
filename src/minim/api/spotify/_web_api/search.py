@@ -520,7 +520,7 @@ class SearchAPI(ResourceAPI):
         types = set(types)
         for type_ in types:
             if type_ not in self._RESOURCE_TYPES:
-                _types = "', '".join(self._RESOURCE_TYPES)
+                _types = "', '".join(sorted(self._RESOURCE_TYPES))
                 raise ValueError(
                     f"Invalid Spotify item type {type_!r}. "
                     f"Valid values: '{_types}'."
