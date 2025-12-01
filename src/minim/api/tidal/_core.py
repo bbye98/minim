@@ -575,7 +575,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         dimensions: int | str | tuple[int | str, int | str] | None = None,
     ) -> str:
         """
-        Builds the URL for a TIDAL artwork.
+        Build the URL for a TIDAL artwork.
 
         Parameters
         ----------
