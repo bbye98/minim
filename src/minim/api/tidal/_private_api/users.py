@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import TTLCache, ResourceAPI
+from ..._shared import TTLCache, ResourceAPI, _copy_docstring
+from .mixes import PrivateMixesAPI
 
 if TYPE_CHECKING:
     from .. import PrivateTIDALAPI
@@ -615,6 +616,34 @@ class PrivateUsersAPI(ResourceAPI):
         """
         return self._unfavorite_resources("artists", artist_ids, user_id)
 
+    @_copy_docstring(PrivateMixesAPI.get_my_favorite_mixes)
+    def get_my_favorite_mixes(
+        self, *, limit: int = 50, cursor: str | None = None
+    ) -> dict[str, Any]:
+        return self._client.mixes.get_my_favorite_mixes(
+            limit=limit, cursor=cursor
+        )
+
+    @_copy_docstring(PrivateMixesAPI.get_my_favorite_mix_ids)
+    def get_my_favorite_mix_ids(
+        self, *, limit: int = 50, cursor: str | None = None
+    ) -> dict[str, Any]:
+        return self._client.mixes.get_my_favorite_mix_ids(
+            limit=limit, cursor=cursor
+        )
+
+    @_copy_docstring(PrivateMixesAPI.favorite_mixes)
+    def favorite_mixes(
+        self, mix_ids: str | list[str], /, *, missing_ok: bool | None = None
+    ) -> None:
+        return self._client.mixes.favorite_mixes(
+            mix_ids, missing_ok=missing_ok
+        )
+
+    @_copy_docstring(PrivateMixesAPI.unfavorite_mixes)
+    def unfavorite_mixes(self, mix_ids: str | list[str], /) -> None:
+        return self._client.mixes.unfavorite_mixes(mix_ids)
+
     def _get_favorite_resources(
         self,
         resource: str,
@@ -762,7 +791,7 @@ class PrivateUsersAPI(ResourceAPI):
             self._client._validate_country_code(country_code)
         data = {
             f"{resource[:-1]}Ids": self._client._prepare_tidal_ids(
-                item_ids, limit=1000000
+                item_ids, limit=1_000
             )
         }
         if missing_ok is not None:
@@ -806,5 +835,5 @@ class PrivateUsersAPI(ResourceAPI):
         self._client._request(
             "DELETE",
             f"v1/users/{user_id}/favorites/{resource}"
-            f"/{self._client._prepare_tidal_ids(item_ids, limit=1000000)}",
+            f"/{self._client._prepare_tidal_ids(item_ids, limit=1_000)}",
         )

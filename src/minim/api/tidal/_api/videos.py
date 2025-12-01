@@ -1021,7 +1021,7 @@ class VideosAPI(TIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="catalog")
-    def get_video_thumbnail_art(
+    def get_video_thumbnail(
         self,
         video_id: int | str,
         /,
@@ -1031,10 +1031,10 @@ class VideosAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Videos > Get Video Thumbnail Art <https://tidal-music.github.io
+        `Videos > Get Video Thumbnail <https://tidal-music.github.io
         /tidal-api-reference/#/videos
         /get_videos__id__relationships_thumbnailArt>`_: Get TIDAL
-        catalog information for a video's thumbnail art.
+        catalog information for a video's thumbnail.
 
         Parameters
         ----------
@@ -1051,7 +1051,7 @@ class VideosAPI(TIDALResourceAPI):
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
-            the video's thumbnail art.
+            the video's thumbnail.
 
         cursor : str; keyword-only; optional
             Cursor for pagination.
@@ -1060,8 +1060,8 @@ class VideosAPI(TIDALResourceAPI):
 
         Returns
         -------
-        thumbnail_art : dict[str, Any]
-            TIDAL catalog information for the video's thumbnail art.
+        thumbnail : dict[str, Any]
+            TIDAL catalog information for the video's thumbnail.
 
             .. admonition:: Sample response
                :class: dropdown

@@ -1820,7 +1820,7 @@ class AlbumsAPI(TIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="catalog")
-    def get_album_suggested_cover_arts(
+    def get_album_suggested_cover_art(
         self,
         album_id: int | str,
         /,
@@ -1830,10 +1830,10 @@ class AlbumsAPI(TIDALResourceAPI):
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Albums > Get Album's Suggested Cover Artworks
+        `Albums > Get Album's Suggested Cover Art
         <https://tidal-music.github.io/tidal-api-reference/#/albums
         /get_albums__id__relationships_suggestedCoverArts>`_: Get TIDAL
-        catalog information for an album's suggested cover artworks.
+        catalog information for an album's suggested cover art.
 
         Parameters
         ----------
@@ -1850,7 +1850,7 @@ class AlbumsAPI(TIDALResourceAPI):
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
-            the suggested cover artworks.
+            the suggested cover art.
 
         cursor : str; keyword-only; optional
             Cursor for pagination.
@@ -1859,9 +1859,9 @@ class AlbumsAPI(TIDALResourceAPI):
 
         Returns
         -------
-        cover_artworks : dict[str, Any]
+        cover_art : dict[str, Any]
             TIDAL catalog information for the album's suggested cover
-            artworks.
+            art.
 
             .. admonition:: Sample response
                :class: dropdown

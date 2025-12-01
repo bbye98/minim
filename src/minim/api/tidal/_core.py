@@ -16,6 +16,7 @@ from ._api.users import UsersAPI
 from ._api.videos import VideosAPI
 from ._private_api.albums import PrivateAlbumsAPI
 from ._private_api.artists import PrivateArtistsAPI
+from ._private_api.mixes import PrivateMixesAPI
 from ._private_api.users import PrivateUsersAPI
 
 if TYPE_CHECKING:
@@ -503,8 +504,14 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         "playlist": {"1280x1280", "480x480", "320x320", "160x160"},
         "video": {"1280x720", "800x450", "640x360", "320x180", "160x90"},
     }
+    _IMAGE_TYPES = {
+        "album": "cover art",
+        "artist": "profile art",
+        "playlist": "cover art",
+        "video": "thumbnail",
+    }
     _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
-    _REDIRECT_URIS = {"tidal://login/auth"}
+    _REDIRECT_URIS = {"tidal://login/auth", "https://tidal.com/login/auth"}
     _SCOPES = {"r_usr", "w_usr", "w_sub"}
     _TRUSTED_DEVICE = True
     _VERSION = "2025.11.19"
@@ -535,6 +542,8 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         self.albums: PrivateAlbumsAPI = PrivateAlbumsAPI(self)
         #: Artists API endpoints for the private TIDAL API.
         self.artists: PrivateArtistsAPI = PrivateArtistsAPI(self)
+        #: Mixes API endpoints for the private TIDAL API.
+        self.mixes: PrivateMixesAPI = PrivateMixesAPI(self)
         #: Users API endpoints for the private TIDAL API.
         self.users: PrivateUsersAPI = PrivateUsersAPI(self)
 
@@ -631,8 +640,9 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             if dimensions not in (sizes := cls._IMAGE_SIZES[item_type]):
                 _sizes = "', '".join(sorted(sizes))
                 raise ValueError(
-                    f"Invalid dimensions {dimensions!r} for "
-                    f"{item_type} artwork. Valid values: '{_sizes}'."
+                    f"Invalid dimensions {dimensions!r} for a(n) "
+                    f"{item_type} {cls._IMAGE_TYPES[item_type]}. "
+                    f"Valid values: '{_sizes}'."
                 )
         return (
             f"{PrivateTIDALAPI.RESOURCE_URL}/{media_type}"
