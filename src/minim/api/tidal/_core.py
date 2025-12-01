@@ -17,6 +17,7 @@ from ._api.videos import VideosAPI
 from ._private_api.albums import PrivateAlbumsAPI
 from ._private_api.artists import PrivateArtistsAPI
 from ._private_api.mixes import PrivateMixesAPI
+from ._private_api.pages import PrivatePagesAPI
 from ._private_api.users import PrivateUsersAPI
 
 if TYPE_CHECKING:
@@ -544,6 +545,8 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         self.artists: PrivateArtistsAPI = PrivateArtistsAPI(self)
         #: Mixes API endpoints for the private TIDAL API.
         self.mixes: PrivateMixesAPI = PrivateMixesAPI(self)
+        #: Pages API endpoints for the private TIDAL API.
+        self.pages: PrivatePagesAPI = PrivatePagesAPI(self)
         #: Users API endpoints for the private TIDAL API.
         self.users: PrivateUsersAPI = PrivateUsersAPI(self)
 
