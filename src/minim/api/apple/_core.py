@@ -525,7 +525,7 @@ class iTunesSearchAPI(APIClient):
                     arg = [arg]
                 if numeric:
                     for val in arg:
-                        if isinstance(val, str) and not val.isdigit():
+                        if isinstance(val, str) and not val.isdecimal():
                             raise ValueError(
                                 f"Values in `{arg_name}` must be numeric."
                             )

@@ -670,7 +670,13 @@ class PrivateArtistsAPI(ResourceAPI):
                         "adSupportedStreamReady": <bool>,
                         "adsPrePaywallOnly": <bool>,
                         "adsUrl": <str>,
-                        "album": <str>,
+                        "album": {
+                          "cover": <str>,
+                          "id": <int>,
+                          "title": <str>,
+                          "vibrantColor": <str>,
+                          "videoCover": <str>
+                        },
                         "allowStreaming": <bool>,
                         "artist": {
                           "handle": <str>,

@@ -632,7 +632,7 @@ class APIClient(ABC):
         barcode : int or str; positional-only
             UPC or EAN barcode.
         """
-        if not (barcode_ := str(barcode)).isdigit() or len(barcode_) not in {
+        if not (barcode_ := str(barcode)).isdecimal() or len(barcode_) not in {
             12,
             13,
         }:
@@ -695,7 +695,7 @@ class APIClient(ABC):
         """
         APIClient._validate_type("isrc", isrc, str)
         if len(isrc) != 12 or not (
-            isrc[:2].isalpha() and isrc[2:5].isalnum() and isrc[5:].isdigit()
+            isrc[:2].isalpha() and isrc[2:5].isalnum() and isrc[5:].isdecimal()
         ):
             raise ValueError(f"{isrc!r} is not a valid ISRC.")
 

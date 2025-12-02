@@ -91,7 +91,7 @@ class _BaseTIDALAPI(OAuth2APIClient):
             raise ValueError("At least one TIDAL ID must be specified.")
 
         if isinstance(tidal_ids, str):
-            if not tidal_ids.isdigit():
+            if not tidal_ids.isdecimal():
                 raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
         elif not isinstance(tidal_ids, int):
             if _recursive:
@@ -601,7 +601,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             Dimensions of the artwork. If not specified, the original
             dimensions (:code:`"origin"`) are used.
 
-            **Examples**: :code:`1280`, :code:`"1280"`,
+            **Examples**: :code:`1_280`, :code:`"1280"`,
             :code:`"1280x1280"`, :code:`(640, 360)`,
             :code:`("640", "360")`.
         """
@@ -619,16 +619,16 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             if "x" in dimensions:
                 if len(
                     split_dimensions := dimensions.split("x", maxsplit=1)
-                ) != 2 or any(not dim.isdigit() for dim in split_dimensions):
+                ) != 2 or any(not dim.isdecimal() for dim in split_dimensions):
                     raise ValueError(f"Invalid dimensions {dimensions!r}.")
-            elif dimensions.isdigit():
+            elif dimensions.isdecimal():
                 dimensions = f"{dimensions}x{dimensions}"
             else:
                 raise ValueError(f"Invalid dimensions {dimensions!r}.")
         elif isinstance(dimensions, tuple | list) and len(dimensions) == 2:
             for ax, dim in zip(("width", "height"), dimensions):
                 if isinstance(dim, str):
-                    if not dim.isdigit():
+                    if not dim.isdecimal():
                         raise ValueError(f"Invalid {ax} {dim!r}.")
                 elif not isinstance(dim, int):
                     raise ValueError(f"Invalid {ax} {dim!r}.")
@@ -694,7 +694,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
                 tidal_ids[idx] = str(id_)
             elif isinstance(id_, str):
                 tidal_ids[idx] = id_ = id_.strip()
-                if not id_.isdigit():
+                if not id_.isdecimal():
                     raise ValueError(f"Invalid TIDAL ID {id_!r}.")
             else:
                 raise ValueError(f"Invalid TIDAL ID {id_!r}.")

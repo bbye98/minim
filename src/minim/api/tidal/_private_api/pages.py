@@ -51,10 +51,10 @@ class PrivatePagesAPI(ResourceAPI):
 
             .. container::
 
-               * :code:`"BROWSER"` for a web browser.
-               * :code:`"DESKTOP"` for the desktop TIDAL application.
-               * :code:`"PHONE"` for the mobile TIDAL application.
-               * :code:`"TV"` for the smart TV TIDAL application.
+               * :code:`"BROWSER"` – Web browser.
+               * :code:`"DESKTOP"` – Desktop TIDAL application.
+               * :code:`"PHONE"` – Mobile TIDAL application.
+               * :code:`"TV"` – Smart TV TIDAL application.
 
         Returns
         -------
@@ -158,7 +158,7 @@ class PrivatePagesAPI(ResourceAPI):
                                 {
                                   "item": {
                                     "accessType": <str>,
-                                    "adSupportedStreamReady": true,
+                                    "adSupportedStreamReady": <bool>,
                                     "album": {
                                       "cover": <str>,
                                       "id": <int>,
@@ -168,7 +168,7 @@ class PrivatePagesAPI(ResourceAPI):
                                       "vibrantColor": <str>,
                                       "videoCover": <str>
                                     },
-                                    "allowStreaming": true,
+                                    "allowStreaming": <bool>,
                                     "artists": [
                                       {
                                         "handle": <str>,
@@ -218,10 +218,13 @@ class PrivatePagesAPI(ResourceAPI):
                             "preTitle": <str>,
                             "quickPlay": <bool>,
                             "releaseDate": <str>,
-                            "showMore": <str>,
+                            "showMore": {
+                              "apiPath": <str>,
+                              "title": "View all"
+                            },
                             "shuffleButton": <bool>,
                             "supportsPaging": <bool>,
-                            "title": "",
+                            "title": <str>,
                             "type": "ALBUM_ITEMS",
                             "width": <int>
                           }
@@ -231,10 +234,10 @@ class PrivatePagesAPI(ResourceAPI):
                         "modules": [
                           {
                             "description": <str>,
-                            "header": <Any>,
+                            "header": <str>,
                             "id": <str>,
-                            "layout": <Any>,
-                            "listFormat": <Any>,
+                            "layout": <str>,
+                            "listFormat": <str>,
                             "pagedList": {
                               "dataApiPath": <str>,
                               "items": [
@@ -282,10 +285,10 @@ class PrivatePagesAPI(ResourceAPI):
                             "scroll": <str>,
                             "showMore": {
                               "apiPath": <str>,
-                              "title": <str>
+                              "title": "View all"
                             },
                             "supportsPaging": <bool>,
-                            "title": f"More Albums by {artistName}",
+                            "title": <str>,
                             "type": "ALBUM_LIST",
                             "width": <int>
                           }
@@ -295,73 +298,9 @@ class PrivatePagesAPI(ResourceAPI):
                         "modules": [
                           {
                             "description": <str>,
-                            "header": <Any>,
+                            "header": <str>,
                             "id": <str>,
-                            "layout": <Any>,
-                            "listFormat": <Any>,
-                            "pagedList": {
-                              "dataApiPath": <str>,
-                              "items": [
-                                {
-                                  "allowStreaming": <bool>,
-                                  "artists": [
-                                    {
-                                      "contributionLinkUrl": <str>,
-                                      "handle": <str>,
-                                      "id": <int>,
-                                      "name": <str>,
-                                      "picture": <str>,
-                                      "type": <str>,
-                                      "userId": <int>
-                                    }
-                                  ],
-                                  "audioModes": <list[str]>,
-                                  "audioQuality": <str>,
-                                  "cover": <str>,
-                                  "duration": <int>,
-                                  "explicit": <bool>,
-                                  "id": <int>,
-                                  "mediaMetadata": {
-                                    "tags": <list[str]>
-                                  },
-                                  "numberOfTracks": <int>,
-                                  "numberOfVideos": <int>,
-                                  "payToStream": <bool>,
-                                  "releaseDate": <str>,
-                                  "streamReady": <bool>,
-                                  "streamStartDate": <str>,
-                                  "title": "Motion",
-                                  "upload": <bool>,
-                                  "url": <str>,
-                                  "vibrantColor": <str>,
-                                  "videoCover": <str>
-                                }
-                              ],
-                              "limit": <int>,
-                              "offset": <int>,
-                              "totalNumberOfItems": <int>
-                            },
-                            "preTitle": <str>,
-                            "quickPlay": <bool>,
-                            "scroll": <str>,
-                            "showMore": {
-                              "apiPath": <str>,
-                              "title": <str>
-                            },
-                            "supportsPaging": <bool>,
-                            "title": "Related Albums",
-                            "type": "ALBUM_LIST",
-                            "width": <int>
-                          }
-                        ]
-                      },
-                      {
-                        "modules": [
-                          {
-                            "description": <str>,
-                            "header": <Any>,
-                            "id": <str>,
-                            "layout": <Any>,
+                            "layout": <str>,
                             "pagedList": {
                               "dataApiPath": <str>,
                               "items": [
@@ -372,7 +311,7 @@ class PrivatePagesAPI(ResourceAPI):
                                       "categoryId": <int>
                                     }
                                   ],
-                                  "artistTypes": <Any>,
+                                  "artistTypes": <list[str]>,
                                   "id": <int>,
                                   "mixes": {
                                     "ARTIST_MIX": <str>
@@ -391,10 +330,10 @@ class PrivatePagesAPI(ResourceAPI):
                             "scroll": <str>,
                             "showMore": {
                               "apiPath": <str>,
-                              "title": <str>
+                              "title": "View all"
                             },
                             "supportsPaging": <bool>,
-                            "title": "Related Artists",
+                            "title": <str>,
                             "type": "ARTIST_LIST",
                             "width": <int>
                           }
@@ -437,14 +376,12 @@ class PrivatePagesAPI(ResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            **Valid values**:
-
             .. container::
 
-               * :code:`"BROWSER"` for a web browser.
-               * :code:`"DESKTOP"` for the desktop TIDAL application.
-               * :code:`"PHONE"` for the mobile TIDAL application.
-               * :code:`"TV"` for the smart TV TIDAL application.
+               * :code:`"BROWSER"` – Web browser.
+               * :code:`"DESKTOP"` – Desktop TIDAL application.
+               * :code:`"PHONE"` – Mobile TIDAL application.
+               * :code:`"TV"` – Smart TV TIDAL application.
 
         Returns
         -------
@@ -456,7 +393,374 @@ class PrivatePagesAPI(ResourceAPI):
 
                .. code::
 
-                  TODO
+                  {
+                    "id": <str>,
+                    "rows": [
+                      {
+                        "modules": [
+                          {
+                            "artist": {
+                              "artistTypes": <list[str]>,
+                              "handle": <str>,
+                              "id": <int>,
+                              "mixes": {
+                                "ARTIST_MIX": <str>
+                              },
+                              "name": <str>,
+                              "picture": <str>,
+                              "selectedAlbumCoverFallback": <str>,
+                              "url": <str>
+                            },
+                            "artistMix": {
+                              "id": <str>
+                            },
+                            "bio": {
+                              "source": <str>,
+                              "text": <str>
+                            },
+                            "description": <str>,
+                            "id": <str>,
+                            "mixes": {
+                              "ARTIST_MIX": <str>
+                            },
+                            "playbackControls": [
+                              {
+                                "icon": <str>,
+                                "playbackMode": <str>,
+                                "shuffle": <bool>,
+                                "targetModuleId": <str>,
+                                "title": <str>
+                              }
+                            ],
+                            "preTitle": <str>,
+                            "roleCategories": <Any>,
+                            "store": <Any>,
+                            "title": <str>,
+                            "type": "ARTIST_HEADER",
+                            "width": <int>
+                          }
+                        ]
+                      },
+                      {
+                        "modules": [
+                          {
+                            "description": <str>,
+                            "id": <str>,
+                            "layout": <str>,
+                            "listFormat": <str>,
+                            "pagedList": {
+                              "dataApiPath": <str>,
+                              "items": [
+                                {
+                                  "accessType": <str>,
+                                  "adSupportedStreamReady": <bool>,
+                                  "album": {
+                                    "cover": <str>,
+                                    "id": <int>,
+                                    "releaseDate": <str>,
+                                    "title": <str>,
+                                    "url": <str>,
+                                    "vibrantColor": <str>,
+                                    "videoCover": <str>
+                                  },
+                                  "allowStreaming": <bool>,
+                                  "artists": [
+                                    {
+                                      "handle": <str>,
+                                      "id": <int>,
+                                      "name": <str>,
+                                      "picture": <str>,
+                                      "type": <str>,
+                                      "userId": <int>
+                                    }
+                                  ],
+                                  "audioModes": <list[str]>,
+                                  "audioQuality": <str>,
+                                  "djReady": <bool>,
+                                  "doublePopularity": <float>,
+                                  "duration": <int>,
+                                  "editable": <bool>,
+                                  "explicit": <bool>,
+                                  "id": <int>,
+                                  "mediaMetadata": {
+                                    "tags": <list[str]>
+                                  },
+                                  "mixes": {
+                                    "TRACK_MIX": <str>
+                                  },
+                                  "payToStream": <bool>,
+                                  "popularity": <int>,
+                                  "replayGain": <float>,
+                                  "spotlighted": <bool>,
+                                  "stemReady": <bool>,
+                                  "streamReady": <bool>,
+                                  "streamStartDate": <str>,
+                                  "title": <str>,
+                                  "trackNumber": <int>,
+                                  "upload": <bool>,
+                                  "url": <str>,
+                                  "version": <str>,
+                                  "volumeNumber": <int>
+                                }
+                              ],
+                              "limit": <int>,
+                              "offset": <int>,
+                              "totalNumberOfItems": <int>
+                            },
+                            "preTitle": <str>,
+                            "quickPlay": <bool>,
+                            "scroll": <bool>,
+                            "showMore": {
+                              "apiPath": <str>,
+                              "title": "View all"
+                            },
+                            "showTableHeaders": <bool>,
+                            "supportsPaging": <bool>,
+                            "title": <str>,
+                            "type": "TRACK_LIST",
+                            "width": <int>
+                          }
+                        ]
+                      },
+                      {
+                        "modules": [
+                          {
+                            "description": <str>,
+                            "header": <str>,
+                            "id": <str>,
+                            "layout": <str>,
+                            "listFormat": <str>,
+                            "pagedList": {
+                              "dataApiPath": <str>,
+                              "items": [
+                                {
+                                  "allowStreaming": <bool>,
+                                  "artists": [
+                                    {
+                                      "contributionLinkUrl": <str>,
+                                      "handle": <str>,
+                                      "id": <int>,
+                                      "name": <str>,
+                                      "picture": <str>,
+                                      "type": <str>,
+                                      "userId": <int>
+                                    }
+                                  ],
+                                  "audioModes": <list[str]>,
+                                  "audioQuality": <str>,
+                                  "cover": <str>,
+                                  "duration": <int>,
+                                  "explicit": <bool>,
+                                  "id": <int>,
+                                  "mediaMetadata": {
+                                    "tags": <list[str]>
+                                  },
+                                  "numberOfTracks": <int>,
+                                  "numberOfVideos": <int>,
+                                  "payToStream": <bool>,
+                                  "releaseDate": <str>,
+                                  "streamReady": <bool>,
+                                  "streamStartDate": <str>,
+                                  "title": <str>,
+                                  "upload": <bool>,
+                                  "url":<str>,
+                                  "vibrantColor": <str>,
+                                  "videoCover": <str>
+                                }
+                              ],
+                              "limit": <int>,
+                              "offset": <int>,
+                              "totalNumberOfItems": <int>
+                            },
+                            "preTitle": <str>,
+                            "quickPlay": <bool>,
+                            "scroll": <str>,
+                            "showMore": {
+                              "apiPath": <str>,
+                              "title": "View all"
+                            },
+                            "supportsPaging": <bool>,
+                            "title": <str>,
+                            "type": "ALBUM_LIST",
+                            "width": <int>
+                          }
+                        ]
+                      },
+                      {
+                        "modules": [
+                          {
+                            "description": <str>,
+                            "id": <str>,
+                            "pagedList": {
+                              "dataApiPath": <str>,
+                              "items": [
+                                {
+                                  "item": {
+                                    "creators": [],
+                                    "description": <str>,
+                                    "duration": <int>,
+                                    "image": <str>,
+                                    "lastItemAddedAt": <str>,
+                                    "numberOfTracks": <int>,
+                                    "numberOfVideos": <int>,
+                                    "promotedArtists": [
+                                      {
+                                        "contributionLinkUrl": <str>,
+                                        "handle": <str>,
+                                        "id": <int>,
+                                        "name": <str>,
+                                        "picture": <str>,
+                                        "type": <str>,
+                                        "userId": <int>
+                                      }
+                                    ],
+                                    "squareImage": <str>,
+                                    "title": <str>,
+                                    "type": "EDITORIAL",
+                                    "url": <str>,
+                                    "uuid": <str>
+                                  },
+                                  "type": "PLAYLIST"
+                                }
+                              ],
+                              "limit": <int>,
+                              "offset": <int>,
+                              "totalNumberOfItems": <int>
+                            },
+                            "preTitle": <str>,
+                            "quickPlay": <bool>,
+                            "scroll": <str>,
+                            "showMore": {
+                              "apiPath": <str>,
+                              "title": "View all"
+                            },
+                            "supportsPaging": <bool>,
+                            "title": <str>,
+                            "type": "MIXED_TYPES_LIST",
+                            "width": <int>
+                          }
+                        ]
+                      },
+                      {
+                        "modules": [
+                          {
+                            "description": <str>,
+                            "id": <str>,
+                            "layout": <str>,
+                            "listFormat": <str>,
+                            "pagedList": {
+                              "dataApiPath": <str>,
+                              "items": [
+                                {
+                                  "adSupportedStreamReady": <bool>,
+                                  "adsPrePaywallOnly": <bool>,
+                                  "adsUrl": <str>,
+                                  "album": {
+                                    "cover": <str>,
+                                    "id": <int>,
+                                    "title": <str>,
+                                    "vibrantColor": <str>,
+                                    "videoCover": <str>
+                                  },
+                                  "allowStreaming": <bool>,
+                                  "artists": [
+                                    {
+                                      "handle": <str>,
+                                      "id": <int>,
+                                      "name": <str>,
+                                      "picture": <str>,
+                                      "type": <str>,
+                                      "userId": <int>
+                                    }
+                                  ],
+                                  "djReady": <bool>,
+                                  "doublePopularity": <float>,
+                                  "duration": <int>,
+                                  "explicit": <bool>,
+                                  "id": <int>,
+                                  "imageId": <str>,
+                                  "popularity": <int>,
+                                  "releaseDate": <str>,
+                                  "stemReady": <bool>,
+                                  "streamReady": <bool>,
+                                  "streamStartDate": <str>,
+                                  "title": <str>,
+                                  "trackNumber": <int>,
+                                  "type": "Music Video",
+                                  "url": <str>,
+                                  "version": <str>,
+                                  "vibrantColor": <str>,
+                                  "volumeNumber": <int>
+                                }
+                              ],
+                              "limit": <int>,
+                              "offset": <int>,
+                              "totalNumberOfItems": <int>
+                            },
+                            "preTitle": <str>,
+                            "quickPlay": <bool>,
+                            "scroll": <str>,
+                            "showMore": {
+                              "apiPath": <str>,
+                              "title": "View all"
+                            },
+                            "showTableHeaders": <bool>,
+                            "supportsPaging": <bool>,
+                            "title": <str>,
+                            "type": "VIDEO_LIST",
+                            "width": <int>
+                          }
+                        ]
+                      },
+                      {
+                        "modules": [
+                          {
+                            "description": <str>,
+                            "header": <str>,
+                            "id": <str>,
+                            "layout": <str>,
+                            "pagedList": {
+                              "dataApiPath": <str>,
+                              "items": [
+                                {
+                                  "artistRoles": [
+                                    {
+                                      "category": <str>,
+                                      "categoryId": <int>
+                                    }
+                                  ],
+                                  "artistTypes": <list[str]>,
+                                  "id": <int>,
+                                  "mixes": {
+                                    "ARTIST_MIX": <str>
+                                  },
+                                  "name": <str>,
+                                  "picture": <str>,
+                                  "selectedAlbumCoverFallback": <str>
+                                }
+                              ],
+                              "limit": <int>,
+                              "offset": <int>,
+                              "totalNumberOfItems": <int>
+                            },
+                            "preTitle": <str>,
+                            "quickPlay": <bool>,
+                            "scroll": <str>,
+                            "showMore": {
+                              "apiPath": <str>,
+                              "title": "View all"
+                            },
+                            "supportsPaging": <bool>,
+                            "title": <str>,
+                            "type": "ARTIST_LIST",
+                            "width": <int>
+                          }
+                        ]
+                      }
+                    ],
+                    "selfLink": <str>,
+                    "title": <str>
+                  }
         """
 
         return self._get_resource_page(
@@ -491,14 +795,12 @@ class PrivatePagesAPI(ResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            **Valid values**:
-
             .. container::
 
-               * :code:`"BROWSER"` for a web browser.
-               * :code:`"DESKTOP"` for the desktop TIDAL application.
-               * :code:`"PHONE"` for the mobile TIDAL application.
-               * :code:`"TV"` for the smart TV TIDAL application.
+               * :code:`"BROWSER"` – Web browser.
+               * :code:`"DESKTOP"` – Desktop TIDAL application.
+               * :code:`"PHONE"` – Mobile TIDAL application.
+               * :code:`"TV"` – Smart TV TIDAL application.
 
         Returns
         -------
@@ -510,7 +812,175 @@ class PrivatePagesAPI(ResourceAPI):
 
                .. code::
 
-                  TODO
+                  {
+                    "id": <str>,
+                    "rows": [
+                      {
+                        "modules": [
+                          {
+                            "description": <str>,
+                            "id": <str>,
+                            "mix": {
+                              "contentBehavior": <str>,
+                              "description": <str>,
+                              "descriptionColor": <str>,
+                              "detailImages": {
+                                "LARGE": {
+                                  "height": <int>,
+                                  "url": <str>,
+                                  "width": <int>
+                                },
+                                "MEDIUM": {
+                                  "height": <int>,
+                                  "url": <str>,
+                                  "width": <int>
+                                },
+                                "SMALL": {
+                                  "height": <int>,
+                                  "url": <str>,
+                                  "width": <int>
+                                }
+                              },
+                              "graphic": {
+                                "images": [
+                                  {
+                                    "id": <str>,
+                                    "type": "ARTIST",
+                                    "vibrantColor": <str>
+                                  }
+                                ],
+                                "text": <str>,
+                                "type": "SQUARES_GRID"
+                              },
+                              "id": <str>,
+                              "images": {
+                                "LARGE": {
+                                  "height": <int>,
+                                  "url": <str>,
+                                  "width": <int>
+                                },
+                                "MEDIUM": {
+                                  "height": <int>,
+                                  "url": <str>,
+                                  "width": <int>
+                                },
+                                "SMALL": {
+                                  "height": <int>,
+                                  "url": <str>,
+                                  "width": <int>
+                                }
+                              },
+                              "master": <bool>,
+                              "mixNumber": <int>,
+                              "mixType": <str>,
+                              "sharingImages": <Any>,
+                              "shortSubtitle": <str>,
+                              "subTitle": <str>,
+                              "subTitleColor": <str>,
+                              "title": <str>,
+                              "titleColor": <str>
+                            },
+                            "playbackControls": [
+                              {
+                                "icon": <str>,
+                                "playbackMode": <str>,
+                                "shuffle": <bool>,
+                                "targetModuleId": <str>,
+                                "title": <str>
+                              }
+                            ],
+                            "preTitle":<str>,
+                            "title": <str>,
+                            "type": "MIX_HEADER",
+                            "width": <int>
+                          }
+                        ]
+                      },
+                      {
+                        "modules": [
+                          {
+                            "description": <str>,
+                            "id": <str>,
+                            "layout": <str>,
+                            "listFormat": <str>,
+                            "pagedList": {
+                              "dataApiPath": <str>,
+                              "items": [
+                                {
+                                  "accessType": <str>,
+                                  "adSupportedStreamReady": <bool>,
+                                  "album": {
+                                    "cover": <str>,
+                                    "id": <int>,
+                                    "releaseDate": <str>,
+                                    "title": <str>,
+                                    "url": <str>,
+                                    "vibrantColor": <str>,
+                                    "videoCover": <str>
+                                  },
+                                  "allowStreaming": <bool>,
+                                  "artists": [
+                                    {
+                                      "handle": <str>,
+                                      "id": <int>,
+                                      "name": <str>,
+                                      "picture": <str>,
+                                      "type": <str>,
+                                      "userId": <int>
+                                    }
+                                  ],
+                                  "audioModes": <list[str]>,
+                                  "audioQuality": <str>,
+                                  "djReady": <bool>,
+                                  "doublePopularity": <float>,
+                                  "duration": <int>,
+                                  "editable": <bool>,
+                                  "explicit": <bool>,
+                                  "id": <int>,
+                                  "mediaMetadata": {
+                                    "tags": <list[str]>
+                                  },
+                                  "mixes": {
+                                    "TRACK_MIX": <str>
+                                  },
+                                  "payToStream": <bool>,
+                                  "popularity": <int>,
+                                  "replayGain": <float>,
+                                  "spotlighted": <bool>,
+                                  "stemReady": <bool>,
+                                  "streamReady": <bool>,
+                                  "streamStartDate": <str>,
+                                  "title": <str>,
+                                  "trackNumber": <int>,
+                                  "upload": <bool>,
+                                  "url": <str>,
+                                  "version": <str>,
+                                  "volumeNumber": <int>
+                                }
+                              ],
+                              "limit": <int>,
+                              "offset": <int>,
+                              "totalNumberOfItems": <int>
+                            },
+                            "preTitle": <str>,
+                            "quickPlay": <bool>,
+                            "scroll": <str>,
+                            "showMore": {
+                              "apiPath": <str>,
+                              "title": "View all"
+                            },
+                            "showTableHeaders": <bool>,
+                            "supportsPaging": <bool>,
+                            "title": <str>,
+                            "type": "TRACK_LIST",
+                            "width": <int>
+                          }
+                        ]
+                      }
+                    ],
+                    "selfLink": <str>,
+                    "title": <str>
+                  }
         """
         return self._get_resource_page(
             "mix", mix_id, country_code, device_type=device_type
@@ -544,14 +1014,12 @@ class PrivatePagesAPI(ResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            **Valid values**:
-
             .. container::
 
-               * :code:`"BROWSER"` for a web browser.
-               * :code:`"DESKTOP"` for the desktop TIDAL application.
-               * :code:`"PHONE"` for the mobile TIDAL application.
-               * :code:`"TV"` for the smart TV TIDAL application.
+               * :code:`"BROWSER"` – Web browser.
+               * :code:`"DESKTOP"` – Desktop TIDAL application.
+               * :code:`"PHONE"` – Mobile TIDAL application.
+               * :code:`"TV"` – Smart TV TIDAL application.
 
         Returns
         -------
@@ -563,7 +1031,162 @@ class PrivatePagesAPI(ResourceAPI):
 
                .. code::
 
-                  TODO
+                  {
+                    "id": <str>,
+                    "rows": [
+                      {
+                        "modules": [
+                          {
+                            "description": <str>,
+                            "id": <str>,
+                            "items": [
+                              {
+                                "artifactId": <str>,
+                                "featured": <bool>,
+                                "header": <str>,
+                                "imageId": <str>,
+                                "shortHeader": <str>,
+                                "shortSubHeader": <str>,
+                                "text": <str>,
+                                "type": "VIDEO"
+                              }
+                            ],
+                            "preTitle": <str>,
+                            "title": "Featured",
+                            "type": "MULTIPLE_TOP_PROMOTIONS",
+                            "width": <int>
+                          }
+                        ]
+                      },
+                      {
+                        "modules": [
+                          {
+                            "description": <str>,
+                            "id": <str>,
+                            "layout": <str>,
+                            "pagedList": {
+                              "dataApiPath": <str>,
+                              "items": [
+                                {
+                                  "creators": <list[Any]>,
+                                  "description": <str>,
+                                  "duration": <int>,
+                                  "image": <str>,
+                                  "lastItemAddedAt": <str>,
+                                  "numberOfTracks": <int>,
+                                  "numberOfVideos": <int>,
+                                  "promotedArtists": [
+                                    {
+                                      "contributionLinkUrl": <str>,
+                                      "handle": <str>,
+                                      "id": <int>,
+                                      "name": <str>,
+                                      "picture": <str>,
+                                      "type": <str>,
+                                      "userId": <int>
+                                    }
+                                  ],
+                                  "squareImage": <str>,
+                                  "title": <str>,
+                                  "type": "EDITORIAL",
+                                  "url": <str>,
+                                  "uuid": <str>
+                                }
+                              ],
+                              "limit": <int>,
+                              "offset": <int>,
+                              "totalNumberOfItems": <int>
+                            },
+                            "playlistStyle": <Any>,
+                            "preTitle": <str>,
+                            "quickPlay": <bool>,
+                            "scroll": <str>,
+                            "showMore": {
+                              "apiPath": <str>,
+                              "title": "View all"
+                            },
+                            "supportsPaging": <bool>,
+                            "title": <str>,
+                            "type": "PLAYLIST_LIST",
+                            "width": <int>
+                          }
+                        ]
+                      },
+                      {
+                        "modules": [
+                          {
+                            "description": <str>,
+                            "id": <str>,
+                            "layout": <str>,
+                            "listFormat": <str>,
+                            "pagedList": {
+                              "dataApiPath": <str>,
+                              "items": [
+                                {
+                                  "adSupportedStreamReady": <bool>,
+                                  "adsPrePaywallOnly": <bool>,
+                                  "adsUrl": <str>,
+                                  "album": {
+                                    "cover": <str>,
+                                    "id": <int>,
+                                    "title": <str>,
+                                    "vibrantColor": <str>,
+                                    "videoCover": <str>
+                                  },
+                                  "allowStreaming": <bool>,
+                                  "artists": [
+                                    {
+                                      "handle": <str>,
+                                      "id": <int>,
+                                      "name": <str>,
+                                      "picture": <str>,
+                                      "type": <str>,
+                                      "userId": <int>
+                                    }
+                                  ],
+                                  "djReady": <bool>,
+                                  "doublePopularity": <float>,
+                                  "duration": <int>,
+                                  "explicit": <bool>,
+                                  "id": <int>,
+                                  "imageId": <str>,
+                                  "popularity": <int>,
+                                  "releaseDate": <str>,
+                                  "stemReady": <bool>,
+                                  "streamReady": <bool>,
+                                  "streamStartDate": <str>,
+                                  "title": <str>,
+                                  "trackNumber": <int>,
+                                  "type": "Music Video",
+                                  "url": <str>,
+                                  "version": <str>,
+                                  "vibrantColor": <str>,
+                                  "volumeNumber": <int>
+                                }
+                              ],
+                              "limit": <int>,
+                              "offset": <int>,
+                              "totalNumberOfItems": <int>
+                            },
+                            "preTitle": <str>,
+                            "quickPlay": <bool>,
+                            "scroll": <str>,
+                            "showMore": {
+                              "apiPath": <str>,
+                              "title": "View all"
+                            },
+                            "showTableHeaders": <bool>,
+                            "supportsPaging": <bool>,
+                            "title": <str>,
+                            "type": "VIDEO_LIST",
+                            "width": <int>
+                          }
+                        ]
+                      }
+                    ],
+                    "selfLink": <str>,
+                    "title": "Videos"
+                  }
         """
         return self._get_resource_page(
             "video", video_id, country_code, device_type=device_type
@@ -601,14 +1224,12 @@ class PrivatePagesAPI(ResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            **Valid values**:
-
             .. container::
 
-               * :code:`"BROWSER"` for a web browser.
-               * :code:`"DESKTOP"` for the desktop TIDAL application.
-               * :code:`"PHONE"` for the mobile TIDAL application.
-               * :code:`"TV"` for the smart TV TIDAL application.
+               * :code:`"BROWSER"` – Web browser.
+               * :code:`"DESKTOP"` – Desktop TIDAL application.
+               * :code:`"PHONE"` – Mobile TIDAL application.
+               * :code:`"TV"` – Smart TV TIDAL application.
 
         Returns
         -------
@@ -623,6 +1244,8 @@ class PrivatePagesAPI(ResourceAPI):
             )
         params = {f"{resource}Id": str(resource_id), "deviceType": device_type}
         self._client._resolve_country_code(country_code, params)
+        if resource == "video":
+            resource = "videos"
         return self._client._request(
             "GET", f"v1/pages/{resource}", params=params
         ).json()
