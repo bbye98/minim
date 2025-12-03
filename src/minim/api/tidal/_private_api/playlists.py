@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import TTLCache, ResourceAPI
+from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
     from .. import PrivateTIDALAPI

@@ -9,7 +9,14 @@ if TYPE_CHECKING:
 
 
 class PrivateUsersAPI(ResourceAPI):
-    """ """
+    """
+    User Collections and Users API endpoints for the private TIDAL API.
+
+    .. important::
+
+       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
+       and should not be instantiated directly.
+    """
 
     _SORTS = {"DATE", "NAME"}
     _client: "PrivateTIDALAPI"
