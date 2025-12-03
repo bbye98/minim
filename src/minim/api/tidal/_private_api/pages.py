@@ -151,7 +151,7 @@ class PrivatePagesAPI(ResourceAPI):
                             "copyright": <str>,
                             "description": <str>,
                             "id": <str>,
-                            "listFormat": "NUMBERS",
+                            "listFormat": <str>,
                             "pagedList": {
                               "dataApiPath": <str>,
                               "items": [
@@ -1052,7 +1052,7 @@ class PrivatePagesAPI(ResourceAPI):
                               }
                             ],
                             "preTitle": <str>,
-                            "title": "Featured",
+                            "title": <str>,
                             "type": "MULTIPLE_TOP_PROMOTIONS",
                             "width": <int>
                           }

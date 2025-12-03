@@ -212,7 +212,7 @@ class PrivateAlbumsAPI(ResourceAPI):
                     "items": [
                       {
                         "item": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
                             "cover": <str>,
@@ -400,7 +400,7 @@ class PrivateAlbumsAPI(ResourceAPI):
                           }
                         ],
                         "item": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
                             "cover": <str>,

@@ -126,7 +126,7 @@ class SearchAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "barcodeId": <str>,
                           "copyright": {
@@ -317,7 +317,7 @@ class SearchAPI(TIDALResourceAPI):
                       },
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "bpm": <float>,
                           "copyright": {
@@ -550,7 +550,7 @@ class SearchAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "barcodeId": <str>,
                           "copyright": {
@@ -741,7 +741,7 @@ class SearchAPI(TIDALResourceAPI):
                       },
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "bpm": <float>,
                           "copyright": {
@@ -1485,7 +1485,7 @@ class SearchAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "barcodeId": <str>,
                           "copyright": {

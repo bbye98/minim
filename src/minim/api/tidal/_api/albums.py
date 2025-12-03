@@ -146,7 +146,7 @@ class AlbumsAPI(TIDALResourceAPI):
                      {
                        "data": {
                          "attributes": {
-                           "accessType": "PUBLIC",
+                           "accessType": <str>,
                            "availability": <list[str]>,
                            "barcodeId": <str>,
                            "copyright": {
@@ -264,7 +264,7 @@ class AlbumsAPI(TIDALResourceAPI):
                        "included": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -445,7 +445,7 @@ class AlbumsAPI(TIDALResourceAPI):
                          },
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "bpm": <float>,
                              "copyright": {
@@ -595,7 +595,7 @@ class AlbumsAPI(TIDALResourceAPI):
                        "data": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -714,7 +714,7 @@ class AlbumsAPI(TIDALResourceAPI):
                        "included": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -895,7 +895,7 @@ class AlbumsAPI(TIDALResourceAPI):
                          },
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "bpm": <float>,
                              "copyright": {
@@ -1385,7 +1385,7 @@ class AlbumsAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "bpm": <float>,
                           "copyright": {
@@ -1732,7 +1732,7 @@ class AlbumsAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "barcodeId": <str>,
                           "copyright": {

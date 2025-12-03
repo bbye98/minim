@@ -139,8 +139,9 @@ class PlaylistsAPI(TIDALResourceAPI):
                provided.
 
             **Examples**:
-            :code:`"550e8400-e29b-41d4-a716-446655440000"`,
-            :code:`["550e8400-e29b-41d4-a716-446655440000"]`.
+            :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`,
+            :code:`["36ea71a8-445e-41a4-82ab-6628c581535d"
+            "b0d95b5e-7c4f-4dae-b042-b8c6228c2ba4"]`.
 
         owner_ids : int, str, or list[int | str]; keyword-only; optional
             TIDAL IDs of the playlists' owners, provided either as an
@@ -286,7 +287,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                          },
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "bpm": <float>,
                              "copyright": {
@@ -522,7 +523,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                          },
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "bpm": <float>,
                              "copyright": {
@@ -912,7 +913,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
-            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+            **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
@@ -1008,7 +1009,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
-            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+            **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the
@@ -1057,7 +1058,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "bpm": <float>,
                           "copyright": {
@@ -1586,7 +1587,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
-            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+            **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. Only optional when the

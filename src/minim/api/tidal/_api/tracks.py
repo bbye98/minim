@@ -143,7 +143,7 @@ class TracksAPI(TIDALResourceAPI):
                      {
                        "data": {
                          "attributes": {
-                           "accessType": "PUBLIC",
+                           "accessType": <str>,
                            "availability": <list[str]>,
                            "bpm": <float>,
                            "copyright": {
@@ -270,7 +270,7 @@ class TracksAPI(TIDALResourceAPI):
                        "included": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -571,7 +571,7 @@ class TracksAPI(TIDALResourceAPI):
                        "data": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "bpm": <float>,
                              "copyright": {
@@ -699,7 +699,7 @@ class TracksAPI(TIDALResourceAPI):
                        "included": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -1082,7 +1082,7 @@ class TracksAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "barcodeId": <str>,
                           "copyright": {

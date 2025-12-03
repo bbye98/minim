@@ -310,7 +310,7 @@ class ArtistsAPI(TIDALResourceAPI):
                        "included": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -411,7 +411,7 @@ class ArtistsAPI(TIDALResourceAPI):
                          },
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "bounded": <bool>,
                              "createdAt": <str>,
                              "description": "Artist Radio",
@@ -710,7 +710,7 @@ class ArtistsAPI(TIDALResourceAPI):
                        "included": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -811,7 +811,7 @@ class ArtistsAPI(TIDALResourceAPI):
                          },
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "bounded": <bool>,
                              "createdAt": <str>,
                              "description": "Artist Radio",
@@ -1066,7 +1066,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "barcodeId": <str>,
                           "copyright": {
@@ -1427,7 +1427,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "bounded": <bool>,
                           "createdAt": <str>,
                           "description": "Artist Radio",
@@ -1851,7 +1851,7 @@ class ArtistsAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "bpm": <float>,
                           "copyright": {

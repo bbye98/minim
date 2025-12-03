@@ -177,7 +177,7 @@ class VideosAPI(TIDALResourceAPI):
                        "included": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -442,7 +442,7 @@ class VideosAPI(TIDALResourceAPI):
                        "included": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -710,7 +710,7 @@ class VideosAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "barcodeId": <str>,
                           "copyright": {
