@@ -296,6 +296,15 @@ class PrivatePlaylistsAPI(ResourceAPI):
         Get TIDAL catalog information for tracks recommended based on a
         given playlist.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
+
         Parameters
         ----------
         playlist_uuid : str; positional-only, optional

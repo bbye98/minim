@@ -24,6 +24,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Get profile information for the current user.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
+
         Returns
         -------
         profile : dict[str, Any]
@@ -72,6 +81,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Get information about the current private TIDAL API session.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
+
         Returns
         -------
         session : dict[str, Any]
@@ -105,6 +123,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Get TIDAL IDs or UUIDs of the albums, artists, playlists,
         tracks, and videos in the current user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
 
         Parameters
         ----------
@@ -150,6 +177,15 @@ class PrivateUsersAPI(ResourceAPI):
     ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for albums in a user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
 
         Parameters
         ----------
@@ -289,6 +325,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Add albums to a user's collection.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
+
         Parameters
         ----------
         album_ids : int, str, or list[int | str]; positional-only
@@ -326,6 +371,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Remove albums from a user's collection.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
+
         Parameters
         ----------
         album_ids : int, str, or list[int | str]; positional-only
@@ -349,6 +403,15 @@ class PrivateUsersAPI(ResourceAPI):
     ) -> dict[str]:
         """
         Get TIDAL catalog information for artists blocked by a user.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
 
         Parameters
         ----------
@@ -437,6 +500,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Block an artist for a user.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
+
         Parameters
         ----------
         artist_id : int or str; positional-only
@@ -462,6 +534,15 @@ class PrivateUsersAPI(ResourceAPI):
     ) -> None:
         """
         Unblock an artist for a user.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
 
         Parameters
         ----------
@@ -495,6 +576,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Get TIDAL catalog information for artists in a user's
         collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
 
         Parameters
         ----------
@@ -583,6 +673,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Add albums to a user's collection.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
+
         Parameters
         ----------
         artist_ids : int, str, or list[int | str]; positional-only
@@ -620,6 +719,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Remove artists from a user's collection.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
+
         Parameters
         ----------
         artist_ids : int, str, or list[int | str]; positional-only
@@ -634,11 +742,29 @@ class PrivateUsersAPI(ResourceAPI):
         return self._unfavorite_resources("artists", artist_ids, user_id)
 
     def get_my_favorite_mixes(  # TODO: Add missing params
-        self, *, limit: int = 50, cursor: str | None = None
+        self,
+        country_code: str | None = None,
+        *,
+        device_type: str | None = None,
+        locale: str | None = None,
+        limit: int = 50,
+        cursor: str | None = None,
+        offset: int | None = None,
+        sort: str | None = None,
+        reverse: bool | None = None,
     ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for mixes in the current user's
         collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
 
         Parameters
         ----------
@@ -730,10 +856,28 @@ class PrivateUsersAPI(ResourceAPI):
         ).json()
 
     def get_my_favorite_mix_ids(  # TODO: Add missing params
-        self, *, limit: int = 50, cursor: str | None = None
+        self,
+        country_code: str | None = None,
+        *,
+        device_type: str | None = None,
+        locale: str | None = None,
+        limit: int = 50,
+        cursor: str | None = None,
+        offset: int | None = None,
+        sort: str | None = None,
+        reverse: bool | None = None,
     ) -> dict[str, Any]:
         """
         Get TIDAL IDs of the mixes in the current user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
 
         Parameters
         ----------
@@ -769,6 +913,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Add mixes to the current user's collection.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
+
         Parameters
         ----------
         mix_ids : str or list[str]; positional-only
@@ -797,6 +950,15 @@ class PrivateUsersAPI(ResourceAPI):
     def unfavorite_mixes(self, mix_ids: str | list[str], /) -> None:
         """
         Remove mixes from the current user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations and modify user's
+                 collection.
 
         Parameters
         ----------

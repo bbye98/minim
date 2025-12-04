@@ -1410,7 +1410,7 @@ class UsersAPI(TIDALResourceAPI):
 
             .. container::
 
-               * :code:"f0d6f5c4-081f-4348-9b65-ae677d92767b"
+               * :code:`"f0d6f5c4-081f-4348-9b65-ae677d92767b"`
                * .. code::
 
                     {
@@ -1468,7 +1468,7 @@ class UsersAPI(TIDALResourceAPI):
 
             .. container::
 
-               * :code:"f0d6f5c4-081f-4348-9b65-ae677d92767b"
+               * :code:`"f0d6f5c4-081f-4348-9b65-ae677d92767b"`
                * .. code::
 
                     {
