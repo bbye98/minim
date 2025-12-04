@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI, _copy_docstring
+from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
@@ -812,6 +813,20 @@ class PrivateArtistsAPI(ResourceAPI):
             country_code,
             limit=limit,
             offset=offset,
+        )
+
+    @_copy_docstring(PrivatePagesAPI.get_artist_page)
+    def get_artist_page(
+        self,
+        artist_id: int | str,
+        /,
+        country_code: str | None = None,
+        *,
+        device_type: str = "BROWSER",
+        locale: str | None = None,
+    ) -> dict[str, Any]:
+        return self._client.pages.get_artist_page(
+            artist_id, country_code, device_type=device_type, locale=locale
         )
 
     @_copy_docstring(PrivateUsersAPI.get_blocked_artists)

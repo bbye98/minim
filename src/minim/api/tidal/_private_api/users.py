@@ -1,8 +1,6 @@
-from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import TTLCache, ResourceAPI, _copy_docstring
-from .mixes import PrivateMixesAPI
+from ..._shared import TTLCache, ResourceAPI
 
 if TYPE_CHECKING:
     from .. import PrivateTIDALAPI
@@ -64,6 +62,7 @@ class PrivateUsersAPI(ResourceAPI):
                     "username": <str>
                   }
         """
+        self._client._require_authentication("users.get_my_profile")
         return self._client._request(
             "GET", "https://login.tidal.com/oauth2/me"
         ).json()
@@ -97,6 +96,7 @@ class PrivateUsersAPI(ResourceAPI):
                     "userId": <int>
                   }
         """
+        self._client._require_authentication("users.get_session")
         return self._client._request("GET", "v1/sessions").json()
 
     def get_favorite_ids(
@@ -130,6 +130,7 @@ class PrivateUsersAPI(ResourceAPI):
                     "VIDEO": <list[str]>,
                   }
         """
+        self._client._require_authentication("users.get_favorite_ids")
         if user_id is None:
             user_id = self._client._get_user_identifier()
         return self._client._request(
@@ -265,6 +266,7 @@ class PrivateUsersAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
+        self._client._require_authentication("users.get_favorite_albums")
         return self._get_favorite_resources(
             "albums",
             user_id,
@@ -310,6 +312,7 @@ class PrivateUsersAPI(ResourceAPI):
 
             **Default**: :code:`False`.
         """
+        self._client._require_authentication("users.favorite_albums")
         return self._favorite_resources(
             "albums", album_ids, user_id, country_code, missing_ok=missing_ok
         )
@@ -333,6 +336,7 @@ class PrivateUsersAPI(ResourceAPI):
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """
+        self._client._require_authentication("users.unfavorite_albums")
         return self._unfavorite_resources("albums", album_ids, user_id)
 
     def get_blocked_artists(
@@ -413,6 +417,7 @@ class PrivateUsersAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
+        self._client._require_authentication("users.get_blocked_artists")
         if user_id is None:
             user_id = self._client._get_user_identifier()
         params = {}
@@ -443,6 +448,7 @@ class PrivateUsersAPI(ResourceAPI):
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """
+        self._client._require_authentication("users.block_artist")
         if user_id is None:
             user_id = self._client._get_user_identifier()
         self._client._request(
@@ -468,6 +474,7 @@ class PrivateUsersAPI(ResourceAPI):
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """
+        self._client._require_authentication("users.unblock_artist")
         if user_id is None:
             user_id = self._client._get_user_identifier()
         self._client._request(
@@ -553,6 +560,7 @@ class PrivateUsersAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
+        self._client._require_authentication("users.get_favorite_artists")
         return self._get_favorite_resources(
             "artists",
             user_id,
@@ -598,6 +606,7 @@ class PrivateUsersAPI(ResourceAPI):
 
             **Default**: :code:`False`.
         """
+        self._client._require_authentication("users.favorite_artists")
         return self._favorite_resources(
             "artists", artist_ids, user_id, country_code, missing_ok=missing_ok
         )
@@ -621,35 +630,228 @@ class PrivateUsersAPI(ResourceAPI):
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """
+        self._client._require_authentication("users.unfavorite_artists")
         return self._unfavorite_resources("artists", artist_ids, user_id)
 
-    @_copy_docstring(PrivateMixesAPI.get_my_favorite_mixes)
-    def get_my_favorite_mixes(
+    def get_my_favorite_mixes(  # TODO: Add missing params
         self, *, limit: int = 50, cursor: str | None = None
     ) -> dict[str, Any]:
-        return self._client.mixes.get_my_favorite_mixes(
-            limit=limit, cursor=cursor
-        )
+        """
+        Get TIDAL catalog information for mixes in the current user's
+        collection.
 
-    @_copy_docstring(PrivateMixesAPI.get_my_favorite_mix_ids)
-    def get_my_favorite_mix_ids(
+        Parameters
+        ----------
+        limit : int; keyword-only; default: :code:`50`
+            Maximum number of mixes to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+        cursor : str or None; keyword-only; default: :code:`None`
+            Cursor for pagination.
+
+        Returns
+        -------
+        mixes : dict[str, Any]
+            TIDAL catalog information for mixes in the user's
+            collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "cursor": <str>,
+                    "items": [
+                      {
+                        "dateAdded": <str>,
+                        "detailImages": {
+                          "LARGE": {
+                            "height": <int>,
+                            "url": <str>,
+                            "width": <int>
+                          },
+                          "MEDIUM": {
+                            "height": <int>,
+                            "url": <str>,
+                            "width": <int>
+                          },
+                          "SMALL": {
+                            "height": <int>,
+                            "url": <str>,
+                            "width": <int>
+                          }
+                        },
+                        "id": <str>,
+                        "images": {
+                          "LARGE": {
+                            "height": <int>,
+                            "url": <str>,
+                            "width": <int>
+                          },
+                          "MEDIUM": {
+                            "height": <int>,
+                            "url": <str>,
+                            "width": <int>
+                          },
+                          "SMALL": {
+                            "height": <int>,
+                            "url": <str>,
+                            "width": <int>
+                          }
+                        },
+                        "master": <bool>,
+                        "mixType": <str>,
+                        "subTitle": <str>,
+                        "subTitleTextInfo": {
+                          "color": <str>,
+                          "text": <str>
+                        },
+                        "title": <str>,
+                        "titleTextInfo": {
+                          "color": <str>,
+                          "text": <str>
+                        },
+                        "updated": <str>
+                      }
+                    ],
+                    "lastModifiedAt": <str>
+                  }
+        """
+        self._client._require_authentication("users.get_my_favorite_mixes")
+        self._client._validate_number("limit", limit, int, 1, 50)
+        params = {"limit": limit}
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET", "v2/favorites/mixes", params=params
+        ).json()
+
+    def get_my_favorite_mix_ids(  # TODO: Add missing params
         self, *, limit: int = 50, cursor: str | None = None
     ) -> dict[str, Any]:
-        return self._client.mixes.get_my_favorite_mix_ids(
-            limit=limit, cursor=cursor
-        )
+        """
+        Get TIDAL IDs of the mixes in the current user's collection.
 
-    @_copy_docstring(PrivateMixesAPI.favorite_mixes)
+        Parameters
+        ----------
+        limit : int; keyword-only; default: :code:`50`
+            Maximum number of mix IDs to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+        cursor : str or None; keyword-only; default: :code:`None`
+            Cursor for pagination.
+
+        Returns
+        -------
+        mix_ids : dict[str, Any]
+            TIDAL IDs of the mixes in the user's collection.
+
+            **Sample response**:
+            :code:`{"content": <list[str]>, "cursor": <str>}`
+        """
+        self._client._require_authentication("users.get_my_favorite_mix_ids")
+        self._client._validate_number("limit", limit, int, 1, 50)
+        params = {"limit": limit}
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET", "v2/favorites/mixes/ids", params=params
+        ).json()
+
     def favorite_mixes(
         self, mix_ids: str | list[str], /, *, missing_ok: bool | None = None
     ) -> None:
-        return self._client.mixes.favorite_mixes(
-            mix_ids, missing_ok=missing_ok
+        """
+        Add mixes to the current user's collection.
+
+        Parameters
+        ----------
+        mix_ids : str or list[str]; positional-only
+            TIDAL IDs of the mixes, provided as either a comma-separated
+            string or a list of strings.
+
+            **Examples**: :code:`"000ec0b01da1ddd752ec5dee553d48"`,
+            :code:`"000ec0b01da1ddd752ec5dee553d48,000dd748ceabd5508947c6a5d3880a"`,
+            :code:`["000ec0b01da1ddd752ec5dee553d48",
+            "000dd748ceabd5508947c6a5d3880a"]`.
+
+        missing_ok : bool; keyword-only; optional
+            Whether to skip albums that are not found in the
+            TIDAL catalog (:code:`True`) or raise an error
+            (:code:`False`).
+
+            **Default**: :code:`False`.
+        """
+        self._client._require_authentication("users.favorite_mixes")
+        data = {"mixIds": self._prepare_mix_ids(mix_ids)}
+        if missing_ok is not None:
+            self._client._validate_type("missing_ok", missing_ok, bool)
+            data["onArtifactNotFound"] = "SKIP" if missing_ok else "FAIL"
+        self._client._request("PUT", "v2/favorites/mixes/add", data=data)
+
+    def unfavorite_mixes(self, mix_ids: str | list[str], /) -> None:
+        """
+        Remove mixes from the current user's collection.
+
+        Parameters
+        ----------
+        mix_ids : str or list[str]; positional-only
+            TIDAL IDs of the mixes, provided as either a comma-separated
+            string or a list of strings.
+
+            **Examples**: :code:`"000ec0b01da1ddd752ec5dee553d48"`,
+            :code:`"000ec0b01da1ddd752ec5dee553d48,000dd748ceabd5508947c6a5d3880a"`,
+            :code:`["000ec0b01da1ddd752ec5dee553d48",
+            "000dd748ceabd5508947c6a5d3880a"]`.
+        """
+        self._client._require_authentication("users.unfavorite_mixes")
+        self._client._request(
+            "PUT",
+            "v2/favorites/mixes/remove",
+            data={"mixIds": self._prepare_mix_ids(mix_ids)},
         )
 
-    @_copy_docstring(PrivateMixesAPI.unfavorite_mixes)
-    def unfavorite_mixes(self, mix_ids: str | list[str], /) -> None:
-        return self._client.mixes.unfavorite_mixes(mix_ids)
+    def get_my_favorite_playlists(  # TODO: Finish implementation
+        self,
+        *,
+        limit: int = 50,
+        cursor: str | None = None,
+        folder_id: str | None = None,  # "root"
+        recursive: bool = False,
+        version: int = 2,
+    ) -> dict[str, Any]:
+        """ """
+        self._client._require_authentication("users.get_my_favorite_playlists")
+        if version == 1:
+            pass
+        else:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params = {"limit": limit}
+            if cursor is not None:
+                self._client._validate_type("cursor", cursor, str)
+                params["cursor"] = cursor
+            return self._client._request(
+                "GET",
+                f"v2/my-collection/playlists{'/folders' if recursive else ''}",
+                params=params,
+            ).json()
+
+    def favorite_playlists(  # TODO
+        self,
+    ) -> None: ...
+
+    def unfavorite_playlists(  # TODO
+        self,
+    ) -> None: ...
+
+    def move_favorite_playlists(  # TODO
+        self,
+    ) -> None: ...
 
     def _get_favorite_resources(
         self,

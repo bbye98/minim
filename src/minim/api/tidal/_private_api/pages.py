@@ -27,6 +27,7 @@ class PrivatePagesAPI(ResourceAPI):
         country_code: str | None = None,
         *,
         device_type: str = "BROWSER",
+        locale: str | None = None,
     ) -> dict[str, Any]:
         """
         Get the TIDAL page layout for an album.
@@ -55,6 +56,11 @@ class PrivatePagesAPI(ResourceAPI):
                * :code:`"DESKTOP"` – Desktop TIDAL application.
                * :code:`"PHONE"` – Mobile TIDAL application.
                * :code:`"TV"` – Smart TV TIDAL application.
+
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
 
         Returns
         -------
@@ -345,7 +351,11 @@ class PrivatePagesAPI(ResourceAPI):
                   }
         """
         return self._get_resource_page(
-            "album", album_id, country_code, device_type=device_type
+            "album",
+            album_id,
+            country_code,
+            device_type=device_type,
+            locale=locale,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -356,6 +366,7 @@ class PrivatePagesAPI(ResourceAPI):
         country_code: str | None = None,
         *,
         device_type: str = "BROWSER",
+        locale: str | None = None,
     ) -> dict[str, Any]:
         """
         Get the TIDAL page layout for an artist.
@@ -382,6 +393,11 @@ class PrivatePagesAPI(ResourceAPI):
                * :code:`"DESKTOP"` – Desktop TIDAL application.
                * :code:`"PHONE"` – Mobile TIDAL application.
                * :code:`"TV"` – Smart TV TIDAL application.
+
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
 
         Returns
         -------
@@ -764,7 +780,11 @@ class PrivatePagesAPI(ResourceAPI):
         """
 
         return self._get_resource_page(
-            "artist", artist_id, country_code, device_type=device_type
+            "artist",
+            artist_id,
+            country_code,
+            device_type=device_type,
+            locale=locale,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -775,6 +795,7 @@ class PrivatePagesAPI(ResourceAPI):
         country_code: str | None = None,
         *,
         device_type: str = "BROWSER",
+        locale: str | None = None,
     ) -> dict[str, Any]:
         """
         Get the TIDAL page layout for a mix.
@@ -801,6 +822,11 @@ class PrivatePagesAPI(ResourceAPI):
                * :code:`"DESKTOP"` – Desktop TIDAL application.
                * :code:`"PHONE"` – Mobile TIDAL application.
                * :code:`"TV"` – Smart TV TIDAL application.
+
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
 
         Returns
         -------
@@ -983,7 +1009,81 @@ class PrivatePagesAPI(ResourceAPI):
                   }
         """
         return self._get_resource_page(
-            "mix", mix_id, country_code, device_type=device_type
+            "mix", mix_id, country_code, device_type=device_type, locale=locale
+        )
+
+    @TTLCache.cached_method(ttl="catalog")
+    def get_personalized_mixes_page(
+        self,
+        country_code: str | None = None,
+        *,
+        device_type: str = "BROWSER",
+        locale: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get the TIDAL page layout for personalized mixes.
+
+        Parameters
+        ----------
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the user account is used.
+
+            **Example**: :code:`"US"`.
+
+        device_type : str; keyword-only; default: :code:`"BROWSER"`
+            Device type.
+
+            .. container::
+
+               * :code:`"BROWSER"` – Web browser.
+               * :code:`"DESKTOP"` – Desktop TIDAL application.
+               * :code:`"PHONE"` – Mobile TIDAL application.
+               * :code:`"TV"` – Smart TV TIDAL application.
+
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
+        Returns
+        -------
+        page : dict[str, Any]
+            Page layout for the personalized mixes.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "id": <str>,
+                    "rows": [
+                      {
+                        "modules": [
+                          {
+                            "collapse": <bool>,
+                            "description": <str>,
+                            "icon": <str>,
+                            "id": <str>,
+                            "preTitle": <str>,
+                            "text":<str>,
+                            "title": <str>,
+                            "type": "TEXT_BLOCK",
+                            "width": <int>
+                          }
+                        ]
+                      }
+                    ],
+                    "selfLink": <str>,
+                    "title": <str>
+                  }
+        """
+        return self._get_resource_page(
+            "my_collection_my_mixes",
+            country_code=country_code,
+            device_type=device_type,
+            locale=locale,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -994,6 +1094,7 @@ class PrivatePagesAPI(ResourceAPI):
         country_code: str | None = None,
         *,
         device_type: str = "BROWSER",
+        locale: str | None = None,
     ) -> dict[str, Any]:
         """
         Get the TIDAL page layout for a video.
@@ -1020,6 +1121,11 @@ class PrivatePagesAPI(ResourceAPI):
                * :code:`"DESKTOP"` – Desktop TIDAL application.
                * :code:`"PHONE"` – Mobile TIDAL application.
                * :code:`"TV"` – Smart TV TIDAL application.
+
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
 
         Returns
         -------
@@ -1189,17 +1295,22 @@ class PrivatePagesAPI(ResourceAPI):
                   }
         """
         return self._get_resource_page(
-            "video", video_id, country_code, device_type=device_type
+            "video",
+            video_id,
+            country_code,
+            device_type=device_type,
+            locale=locale,
         )
 
     def _get_resource_page(
         self,
         resource: str,
-        resource_id: int | str,
+        resource_id: int | str | None = None,
         /,
         country_code: str | None = None,
         *,
         device_type: str = "BROWSER",
+        locale: str | None = None,
     ) -> dict[str, Any]:
         """
         Get the TIDAL page layout for a specific resource type.
@@ -1210,9 +1321,10 @@ class PrivatePagesAPI(ResourceAPI):
             Resource type.
 
             **Valid values**: :code:`"album"`, :code:`"artist"`,
-            :code:`"mix"`, :code:`"video"`.
+            :code:`"mix"`, :code:`"my_collection_my_mixes"`,
+            :code:`"video"`.
 
-        resource_id : int or str; positional-only
+        resource_id : int or str; positional-only; optional
             TIDAL ID of the resource.
 
         country_code : str; optional
@@ -1231,6 +1343,11 @@ class PrivatePagesAPI(ResourceAPI):
                * :code:`"PHONE"` – Mobile TIDAL application.
                * :code:`"TV"` – Smart TV TIDAL application.
 
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag.
+
+            **Default**: :code:`"en_US"` – English (U.S.).
+
         Returns
         -------
         page : dict[str, Any]
@@ -1242,8 +1359,13 @@ class PrivatePagesAPI(ResourceAPI):
                 f"Invalid device type {device_type!r}. "
                 f"Valid values: '{device_types}'."
             )
-        params = {f"{resource}Id": str(resource_id), "deviceType": device_type}
+        params = {"deviceType": device_type}
         self._client._resolve_country_code(country_code, params)
+        if resource_id is not None:
+            params[f"{resource}Id"] = str(resource_id)
+        if locale is not None:
+            self._client._validate_type("locale", locale, str)
+            params["locale"] = locale
         if resource == "video":
             resource = "videos"
         return self._client._request(

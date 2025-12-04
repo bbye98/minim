@@ -408,6 +408,9 @@ class PrivatePlaylistsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
+        self._client._require_authentication(
+            "playlists.get_playlist_recommended_tracks"
+        )
         params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:

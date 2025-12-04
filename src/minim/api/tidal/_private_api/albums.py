@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI, _copy_docstring
+from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
@@ -684,6 +685,20 @@ class PrivateAlbumsAPI(ResourceAPI):
         """
         return self._get_album_resource(
             "similar", album_id, country_code, limit=limit, offset=offset
+        )
+
+    @_copy_docstring(PrivatePagesAPI.get_album_page)
+    def get_album_page(
+        self,
+        album_id: int | str,
+        /,
+        country_code: str | None = None,
+        *,
+        device_type: str = "BROWSER",
+        locale: str | None = None,
+    ) -> dict[str, Any]:
+        return self._client.pages.get_album_page(
+            album_id, country_code, device_type=device_type, locale=locale
         )
 
     @_copy_docstring(PrivateUsersAPI.favorite_albums)

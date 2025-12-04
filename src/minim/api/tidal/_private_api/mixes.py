@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import TTLCache, ResourceAPI
+from ..._shared import TTLCache, ResourceAPI, _copy_docstring
+from .pages import PrivatePagesAPI
+from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
     from .. import PrivateTIDALAPI
@@ -130,184 +132,59 @@ class PrivateMixesAPI(ResourceAPI):
             params={"countryCode": country_code},
         ).json()
 
+    @_copy_docstring(PrivatePagesAPI.get_mix_page)
+    def get_mix_page(
+        self,
+        mix_id: str,
+        /,
+        country_code: str | None = None,
+        *,
+        device_type: str = "BROWSER",
+        locale: str | None = None,
+    ) -> dict[str, Any]:
+        return self._client.pages.get_mix_page(
+            mix_id, country_code, device_type=device_type, locale=locale
+        )
+
+    @_copy_docstring(PrivatePagesAPI.get_personalized_mixes_page)
+    def get_personalized_mixes_page(
+        self,
+        country_code: str | None = None,
+        *,
+        device_type: str = "BROWSER",
+        locale: str | None = None,
+    ) -> dict[str, Any]:
+        return self._client.pages.get_personalized_mixes_page(
+            country_code, device_type=device_type, locale=locale
+        )
+
+    @_copy_docstring(PrivateUsersAPI.get_my_favorite_mixes)
     def get_my_favorite_mixes(
         self, *, limit: int = 50, cursor: str | None = None
     ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for mixes in the current user's
-        collection.
+        return self._client.mixes.get_my_favorite_mixes(
+            limit=limit, cursor=cursor
+        )
 
-        Parameters
-        ----------
-        limit : int; keyword-only; default: :code:`50`
-            Maximum number of mixes to return.
-
-            **Valid range**: :code:`1` to :code:`50`.
-
-        cursor : str or None; keyword-only; default: :code:`None`
-            Cursor for pagination.
-
-        Returns
-        -------
-        mixes : dict[str, Any]
-            TIDAL catalog information for mixes in the user's
-            collection.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "cursor": <str>,
-                    "items": [
-                      {
-                        "dateAdded": <str>,
-                        "detailImages": {
-                          "LARGE": {
-                            "height": <int>,
-                            "url": <str>,
-                            "width": <int>
-                          },
-                          "MEDIUM": {
-                            "height": <int>,
-                            "url": <str>,
-                            "width": <int>
-                          },
-                          "SMALL": {
-                            "height": <int>,
-                            "url": <str>,
-                            "width": <int>
-                          }
-                        },
-                        "id": <str>,
-                        "images": {
-                          "LARGE": {
-                            "height": <int>,
-                            "url": <str>,
-                            "width": <int>
-                          },
-                          "MEDIUM": {
-                            "height": <int>,
-                            "url": <str>,
-                            "width": <int>
-                          },
-                          "SMALL": {
-                            "height": <int>,
-                            "url": <str>,
-                            "width": <int>
-                          }
-                        },
-                        "master": <bool>,
-                        "mixType": <str>,
-                        "subTitle": <str>,
-                        "subTitleTextInfo": {
-                          "color": <str>,
-                          "text": <str>
-                        },
-                        "title": <str>,
-                        "titleTextInfo": {
-                          "color": <str>,
-                          "text": <str>
-                        },
-                        "updated": <str>
-                      }
-                    ],
-                    "lastModifiedAt": <str>
-                  }
-        """
-        self._client._validate_number("limit", limit, int, 1, 50)
-        params = {"limit": limit}
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET", "v2/favorites/mixes", params=params
-        ).json()
-
+    @_copy_docstring(PrivateUsersAPI.get_my_favorite_mix_ids)
     def get_my_favorite_mix_ids(
         self, *, limit: int = 50, cursor: str | None = None
     ) -> dict[str, Any]:
-        """
-        Get TIDAL IDs of the mixes in the current user's collection.
+        return self._client.mixes.get_my_favorite_mix_ids(
+            limit=limit, cursor=cursor
+        )
 
-        Parameters
-        ----------
-        limit : int; keyword-only; default: :code:`50`
-            Maximum number of mix IDs to return.
-
-            **Valid range**: :code:`1` to :code:`50`.
-
-        cursor : str or None; keyword-only; default: :code:`None`
-            Cursor for pagination.
-
-        Returns
-        -------
-        mix_ids : dict[str, Any]
-            TIDAL IDs of the mixes in the user's collection.
-
-            **Sample response**:
-            :code:`{"content": <list[str]>, "cursor": <str>}`
-        """
-        self._client._validate_number("limit", limit, int, 1, 50)
-        params = {"limit": limit}
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        return self._client._request(
-            "GET", "v2/favorites/mixes/ids", params=params
-        ).json()
-
+    @_copy_docstring(PrivateUsersAPI.favorite_mixes)
     def favorite_mixes(
         self, mix_ids: str | list[str], /, *, missing_ok: bool | None = None
     ) -> None:
-        """
-        Add mixes to the current user's collection.
-
-        Parameters
-        ----------
-        mix_ids : str or list[str]; positional-only
-            TIDAL IDs of the mixes, provided as either a comma-separated
-            string or a list of strings.
-
-            **Examples**: :code:`"000ec0b01da1ddd752ec5dee553d48"`,
-            :code:`"000ec0b01da1ddd752ec5dee553d48,000dd748ceabd5508947c6a5d3880a"`,
-            :code:`["000ec0b01da1ddd752ec5dee553d48",
-            "000dd748ceabd5508947c6a5d3880a"]`.
-
-        missing_ok : bool; keyword-only; optional
-            Whether to skip albums that are not found in the
-            TIDAL catalog (:code:`True`) or raise an error
-            (:code:`False`).
-
-            **Default**: :code:`False`.
-        """
-        data = {"mixIds": self._prepare_mix_ids(mix_ids)}
-        if missing_ok is not None:
-            self._client._validate_type("missing_ok", missing_ok, bool)
-            data["onArtifactNotFound"] = "SKIP" if missing_ok else "FAIL"
-        self._client._request("PUT", "v2/favorites/mixes/add", data=data)
-
-    def unfavorite_mixes(self, mix_ids: str | list[str], /) -> None:
-        """
-        Remove mixes from the current user's collection.
-
-        Parameters
-        ----------
-        mix_ids : str or list[str]; positional-only
-            TIDAL IDs of the mixes, provided as either a comma-separated
-            string or a list of strings.
-
-            **Examples**: :code:`"000ec0b01da1ddd752ec5dee553d48"`,
-            :code:`"000ec0b01da1ddd752ec5dee553d48,000dd748ceabd5508947c6a5d3880a"`,
-            :code:`["000ec0b01da1ddd752ec5dee553d48",
-            "000dd748ceabd5508947c6a5d3880a"]`.
-        """
-        self._client._request(
-            "PUT",
-            "v2/favorites/mixes/remove",
-            data={"mixIds": self._prepare_mix_ids(mix_ids)},
+        return self._client.mixes.favorite_mixes(
+            mix_ids, missing_ok=missing_ok
         )
+
+    @_copy_docstring(PrivateUsersAPI.unfavorite_mixes)
+    def unfavorite_mixes(self, mix_ids: str | list[str], /) -> None:
+        return self._client.mixes.unfavorite_mixes(mix_ids)
 
     @staticmethod
     def _prepare_mix_ids(

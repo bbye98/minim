@@ -842,6 +842,7 @@ class OAuth2APIClient(APIClient):
     _BACKENDS = {"http.server", "playwright"}
     _FLOWS: set[str] = ...
     _OAUTH_FLOWS_NAMES = {
+        None: "No Authorization Flow",
         "auth_code": "Authorization Code Flow",
         "pkce": "Authorization Code Flow with Proof Key for Code Exchange (PKCE)",
         "client_credentials": "Client Credentials Flow",
@@ -862,7 +863,7 @@ class OAuth2APIClient(APIClient):
     def __init__(
         self,
         *,
-        flow: str,
+        flow: str | None,
         client_id: str | None = None,
         client_secret: str | None = None,
         user_identifier: str | None = None,
@@ -876,17 +877,19 @@ class OAuth2APIClient(APIClient):
         browser: bool = False,
         cache: bool = True,
         store: bool = True,
+        _is_public: bool = False,
     ) -> None:
         """
         Parameters
         ----------
-        flow : str; keyword-only
+        flow : str or None; keyword-only
             OAuth 2.0 authorization flow.
 
             .. container::
 
                **Valid values**:
 
+               * :code:`None` – No authentication.
                * :code:`"auth_code"` – Authorization Code Flow.
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
                  for Code Exchange (PKCE).
@@ -1007,32 +1010,36 @@ class OAuth2APIClient(APIClient):
                 f"{self._ENV_VAR_PREFIX}_CLIENT_SECRET"
             )
 
-        # Ensure `flow` and `client_id` are not empty/null
-        if not (flow and client_id):
+        # Ensure `client_id` and `flow` are not empty/null
+        if client_id is None:
             raise ValueError(
-                "At a minimum, a client ID and an authorization flow "
-                "must be provided via the `client_id` and `flow` "
-                "parameters, respectively."
+                "A client ID must be provided via the `client_id` parameter."
+            )
+        if not _is_public and flow is None:
+            raise ValueError(
+                "An authorization flow must be specified via the "
+                "`flow` parameter."
             )
 
         # If an access token is not provided, try to retrieve it from
         # local token storage
-        if user_identifier and user_identifier[0] == "~":
-            user_identifier = user_identifier[1:]
-        elif account := TokenDatabase.get_token(
-            self.__class__.__name__,
-            flow=flow,
-            client_id=client_id,
-            user_identifier=user_identifier,
-        ):
-            access_token = account["access_token"]
-            client_secret = account["client_secret"]
-            scopes = account["scopes"]
-            redirect_uri = account["redirect_uri"]
-            token_type = account["token_type"]
-            refresh_token = account["refresh_token"]
-            expiry = account["expiry"]
-            self._token_extras = json.loads(account["extras"])
+        if flow is not None:
+            if user_identifier and user_identifier[0] == "~":
+                user_identifier = user_identifier[1:]
+            elif account := TokenDatabase.get_token(
+                self.__class__.__name__,
+                flow=flow,
+                client_id=client_id,
+                user_identifier=user_identifier,
+            ):
+                access_token = account["access_token"]
+                client_secret = account["client_secret"]
+                scopes = account["scopes"]
+                redirect_uri = account["redirect_uri"]
+                token_type = account["token_type"]
+                refresh_token = account["refresh_token"]
+                expiry = account["expiry"]
+                self._token_extras = json.loads(account["extras"])
 
         self.set_flow(
             flow,
@@ -1046,15 +1053,16 @@ class OAuth2APIClient(APIClient):
             authorize=False,
             store=store,
         )
-        if access_token:
-            self.set_access_token(
-                access_token,
-                token_type,
-                refresh_token=refresh_token,
-                expiry=expiry,
-            )
-        else:
-            self._obtain_access_token()
+        if flow is not None:
+            if access_token:
+                self.set_access_token(
+                    access_token,
+                    token_type,
+                    refresh_token=refresh_token,
+                    expiry=expiry,
+                )
+            else:
+                self._obtain_access_token()
 
     @abstractmethod
     def _get_user_identifier(self) -> str:
@@ -1233,7 +1241,7 @@ class OAuth2APIClient(APIClient):
 
     def set_flow(
         self,
-        flow: str,
+        flow: str | None,
         /,
         *,
         client_id: str,
@@ -1257,13 +1265,14 @@ class OAuth2APIClient(APIClient):
 
         Parameters
         ----------
-        flow : str; keyword-only
+        flow : str or None; keyword-only
             OAuth 2.0 authorization flow.
 
             .. container::
 
                **Valid values**:
 
+               * :code:`None` – No authentication.
                * :code:`"auth_code"` – Authorization Code Flow.
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
                  for Code Exchange (PKCE).
@@ -1278,9 +1287,10 @@ class OAuth2APIClient(APIClient):
 
         client_secret : str; keyword-only; optional
             Client secret. Required for the Authorization Code, Client
-            Credentials, and Resource Owner Password Credential flows.
-            Must be provided unless it is set as a system environment
-            variable or stored in Minim's local token storage.
+            Credentials, and Resource Owner Password Credential flows,
+            and must be provided unless it is set as a system
+            environment variable or stored in Minim's local token
+            storage.
 
         user_identifier : str; keyword-only; optional
             Unique identifier for the user account to log into for all
@@ -1353,17 +1363,17 @@ class OAuth2APIClient(APIClient):
                access tokens for this API client.
         """
         if flow not in self._FLOWS:
-            _flows = "', '".join(sorted(self._FLOWS))
+            _flows = "', '".join(sorted(f for f in self._FLOWS if f))
             raise ValueError(
                 f"Invalid authorization flow {flow!r}. "
                 f"Valid values: '{_flows}'."
             )
         self._flow = flow
-        if flow == "client_credentials" and scopes:
+        if flow in {None, "client_credentials"} and scopes:
             warnings.warn(
                 "Scopes were specified in the `scopes` parameter, but "
-                f"the {self._OAUTH_FLOWS_NAMES['client_credentials']} "
-                "does not support scopes."
+                f"the {self._OAUTH_FLOWS_NAMES[flow]} does not support "
+                "scopes."
             )
             scopes = ""
         self._scopes = (
@@ -1374,7 +1384,8 @@ class OAuth2APIClient(APIClient):
         self._client_id = client_id
         if (
             flow in {"auth_code", "client_credentials", "password"}
-            or self._TRUSTED_DEVICE
+            or flow is not None
+            and self._TRUSTED_DEVICE
         ) and not client_secret:
             raise ValueError(
                 f"The {self._OAUTH_FLOWS_NAMES[flow]} requires a "
@@ -1504,7 +1515,11 @@ class OAuth2APIClient(APIClient):
 
             with sync_playwright() as playwright:
                 browser = playwright.firefox.launch(headless=False)
-                context = browser.new_context()
+                context = browser.new_context(
+                    locale="en-US",
+                    timezone_id="America/Los_Angeles",
+                    **playwright.devices["Desktop Firefox HiDPI"],
+                )
                 page = context.new_page()
                 with page.expect_request(f"{self._redirect_uri}*", timeout=0):
                     page.goto(auth_url)
