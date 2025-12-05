@@ -5915,7 +5915,7 @@ class PrivateAPI:
                         f"{self.LOGIN_URL}/oauth2/token", json=data
                     ).json()
                 elif self._flow == "device_code":
-                    if not self._client_id:
+                    if not self._client_secret:
                         emsg = "Private TIDAL API client secret not provided."
                         raise ValueError(emsg)
 
@@ -6560,7 +6560,7 @@ class PrivateAPI:
         offset: int = None,
         order: str = "DATE",
         order_direction: str = "DESC",
-    ) -> None:
+    ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for albums in the current user's
         collection.
@@ -7637,7 +7637,7 @@ class PrivateAPI:
         offset: int = None,
         order: str = "DATE",
         order_direction: str = "DESC",
-    ) -> None:
+    ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for artists in the current user's
         collection.
@@ -7966,7 +7966,6 @@ class PrivateAPI:
     def get_image(
         self,
         uuid: str,
-        type: str = None,
         animated: bool = False,
         *,
         width: int = None,
@@ -7988,23 +7987,18 @@ class PrivateAPI:
 
             **Example**: :code:`"d3c4372b-a652-40e0-bdb1-fc8d032708f6"`.
 
-        type : `str`
-            Item type.
-
-            **Valid values**: :code:`"artist"`, :code:`"album"`,
-            :code:`"playlist"`, :code:`"track"`, :code:`"userProfile"`,
-            and :code:`"video"`.
-
         animated : `bool`, default: :code:`False`
             Specifies whether the image is animated.
 
         width : `int`, keyword-only, optional
-            Valid image width for the item type. If not specified, the
-            default size for the item type is used.
+            Valid image width for the item type. If `width` or `height`
+            is not specified, the original dimensions of the image is
+            used.
 
         height : `int`, keyword-only, optional
-            Valid image height for the item type. If not specified, the
-            default size for the item type is used.
+            Valid image height for the item type. If `width` or `height`
+            is not specified, the original dimensions of the image is
+            used.
 
         filename : `str` or `pathlib.Path`, keyword-only, optional
             Filename with the :code:`.jpg` or :code:`.mp4` extension. If
@@ -8018,24 +8012,10 @@ class PrivateAPI:
             instead.
         """
 
-        IMAGE_SIZES = {
-            "artist": (750, 750),
-            "album": (1280, 1280),
-            "playlist": (1080, 1080),
-            "track": (1280, 1280),
-            "userProfile": (1080, 1080),
-            "video": (640, 360),
-        }
-
         if width is None or height is None:
-            if type and type in IMAGE_SIZES.keys():
-                width, height = IMAGE_SIZES[type.lower()]
-            else:
-                emsg = (
-                    "Either the image dimensions or a valid item "
-                    "type must be specified."
-                )
-                raise ValueError(emsg)
+            dimensions = "origin"
+        else:
+            dimensions = f"{width}x{height}"
 
         if animated:
             extension = ".mp4"
@@ -8047,7 +8027,7 @@ class PrivateAPI:
         with self.session.get(
             f"{self.RESOURCES_URL}/{media_type}"
             f"/{uuid.replace('-', '/')}"
-            f"/{width}x{height}.{extension}"
+            f"/{dimensions}{extension}"
         ) as r:
             image = r.content
 
