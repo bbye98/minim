@@ -16,7 +16,6 @@ class PrivatePagesAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _DEVICE_TYPES = {"BROWSER", "DESKTOP", "PHONE", "TV"}
     _client: "PrivateTIDALAPI"
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1353,8 +1352,8 @@ class PrivatePagesAPI(ResourceAPI):
         page : dict[str, Any]
             Page layout for the specified resource.
         """
-        if device_type not in self._DEVICE_TYPES:
-            device_types = "', '".join(self._DEVICE_TYPES)
+        if device_type not in self._client._DEVICE_TYPES:
+            device_types = "', '".join(self._client._DEVICE_TYPES)
             raise ValueError(
                 f"Invalid device type {device_type!r}. "
                 f"Valid values: '{device_types}'."

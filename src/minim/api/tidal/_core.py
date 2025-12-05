@@ -491,6 +491,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
     Private TIDAL API client.
     """
 
+    _DEVICE_TYPES = {"BROWSER", "DESKTOP", "PHONE", "TV"}
     _ENV_VAR_PREFIX = "PRIVATE_TIDAL_API"
     _FLOWS = {None, "pkce", "device"}
     _IMAGE_SIZES = {
@@ -953,8 +954,12 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         if isinstance(error, str):
             raise RuntimeError(f"{resp.status_code} {error}")
         if "status" in error:
+            if "subStatus" in error:
+                raise RuntimeError(
+                    f"{error['status']}.{error['subStatus']} – {error['userMessage']}"
+                )
             raise RuntimeError(
-                f"{error['status']}.{error['subStatus']} – {error['userMessage']}"
+                f"{error['status']} {error['title']} – {error['detail']}"
             )
         raise RuntimeError(
             f"{error['httpStatus']}.{error['subStatus']} {error['error']} – {error['description']}"

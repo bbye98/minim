@@ -741,15 +741,11 @@ class PrivateUsersAPI(ResourceAPI):
         self._client._require_authentication("users.unfavorite_artists")
         return self._unfavorite_resources("artists", artist_ids, user_id)
 
-    def get_my_favorite_mixes(  # TODO: Add missing params
+    def get_my_favorite_mixes(
         self,
-        country_code: str | None = None,
         *,
-        device_type: str | None = None,
-        locale: str | None = None,
         limit: int = 50,
         cursor: str | None = None,
-        offset: int | None = None,
         sort: str | None = None,
         reverse: bool | None = None,
     ) -> dict[str, Any]:
@@ -775,6 +771,24 @@ class PrivateUsersAPI(ResourceAPI):
 
         cursor : str or None; keyword-only; default: :code:`None`
             Cursor for pagination.
+
+        sort : str; keyword-only; optional
+            Field to sort the mixes by.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"DATE"` - Date added.
+               * :code:`"NAME"` - Mix name.
+
+            **Default**: :code:`"DATE"`.
+
+        reverse : bool; keyword-only; optional
+            Whether to reverse the sort order from ascending
+            (:code:`False`) to descending (:code:`True`).
+
+            **Default**: :code:`False`.
 
         Returns
         -------
@@ -851,21 +865,22 @@ class PrivateUsersAPI(ResourceAPI):
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
             params["cursor"] = cursor
+        if sort is not None:
+            if sort not in self._SORTS:
+                sorts = "', '".join(sorted(self._SORTS))
+                raise ValueError(
+                    f"Invalid sort field {sort!r}. Valid values: '{sorts}'."
+                )
+            params["order"] = sort
+        if reverse is not None:
+            self._client._validate_type("reverse", reverse, bool)
+            params["orderDirection"] = "DESC" if reverse else "ASC"
         return self._client._request(
             "GET", "v2/favorites/mixes", params=params
         ).json()
 
-    def get_my_favorite_mix_ids(  # TODO: Add missing params
-        self,
-        country_code: str | None = None,
-        *,
-        device_type: str | None = None,
-        locale: str | None = None,
-        limit: int = 50,
-        cursor: str | None = None,
-        offset: int | None = None,
-        sort: str | None = None,
-        reverse: bool | None = None,
+    def get_my_favorite_mix_ids(
+        self, *, limit: int = 50, cursor: str | None = None
     ) -> dict[str, Any]:
         """
         Get TIDAL IDs of the mixes in the current user's collection.
@@ -978,20 +993,21 @@ class PrivateUsersAPI(ResourceAPI):
             data={"mixIds": self._prepare_mix_ids(mix_ids)},
         )
 
-    def get_my_favorite_playlists(  # TODO: Finish implementation
+    def get_my_playlists(  # TODO: Finish implementation
         self,
         *,
         limit: int = 50,
         cursor: str | None = None,
         folder_id: str | None = None,  # "root"
+        include_only: list[str] | None = None,  # ?
+        sort: str | None = None,  # ?
+        reverse: bool | None = None,  # ?
         recursive: bool = False,
         version: int = 2,
     ) -> dict[str, Any]:
         """ """
-        self._client._require_authentication("users.get_my_favorite_playlists")
-        if version == 1:
-            pass
-        else:
+        self._client._require_authentication("users.get_my_playlists")
+        if version == 2:
             self._client._validate_number("limit", limit, int, 1, 50)
             params = {"limit": limit}
             if cursor is not None:
@@ -1002,18 +1018,39 @@ class PrivateUsersAPI(ResourceAPI):
                 f"v2/my-collection/playlists{'/folders' if recursive else ''}",
                 params=params,
             ).json()
+        else:
+            ...
+            # return self.get_user_playlists(...)
+
+    def get_user_playlists(  # TODO
+        self,
+    ) -> dict[str, Any]:
+        """ """
+        # v1/users/{user_id}/playlistsAndFavoritePlaylists?countryCode={country_code}
+
+    def get_user_favorite_playlists(  # TODO
+        self,
+    ) -> dict[str, Any]:
+        """ """
+        # v1/users/{user_id}/favorites/playlists?countryCode={country_code}
 
     def favorite_playlists(  # TODO
         self,
-    ) -> None: ...
+    ) -> None:
+        """ """
+        ...
 
     def unfavorite_playlists(  # TODO
         self,
-    ) -> None: ...
+    ) -> None:
+        """ """
+        ...
 
     def move_favorite_playlists(  # TODO
         self,
-    ) -> None: ...
+    ) -> None:
+        """ """
+        ...
 
     def _get_favorite_resources(
         self,

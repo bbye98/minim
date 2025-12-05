@@ -330,7 +330,7 @@ class PrivateArtistsAPI(ResourceAPI):
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_mix_id(
         self, artist_id: int | str, /, country_code: str | None = None
-    ) -> dict[str, Any]:
+    ) -> dict[str, str]:
         """
         Get the TIDAL ID of an artist's mix.
 
@@ -349,7 +349,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
         Returns
         -------
-        mix_id : dict[str, Any]
+        mix_id : dict[str, str]
             TIDAL ID of the artist's mix.
 
             **Sample response**: :code:`{"id": <str>}`.
