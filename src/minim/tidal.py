@@ -4330,7 +4330,7 @@ class API:
         /userCollections
         /get_userCollections__id__relationships_owners>`_: Get TIDAL
         catalog information for owners of a user's collection.
-        
+
         Parameters
         ----------
         include : bool, keyword-only, default: :code:`False`
@@ -8179,7 +8179,13 @@ class PrivateAPI:
         )
 
     def get_favorite_mixes(
-        self, *, ids: bool = False, limit: int = 50, cursor: str = None
+        self,
+        *,
+        ids: bool = False,
+        limit: int = 50,
+        cursor: str = None,
+        order: str = "DATE",
+        order_direction: str = "DESC",
     ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for or IDs of mixes in the
@@ -8206,6 +8212,16 @@ class PrivateAPI:
         cursor : `str`, keyword-only, optional
             Cursor position of the last item in previous search results.
             Use with `limit` to get the next page of search results.
+
+        order : `str`, keyword-only, default: :code:`"DATE"`
+            Sorting order.
+
+            **Valid values**: :code:`"DATE"` and :code:`"NAME"`.
+
+        order_direction : `str`, keyword-only, default: :code:`"DESC"`
+            Sorting order direction.
+
+            **Valid values**: :code:`"DESC"` and :code:`"ASC"`.
 
         Returns
         -------
@@ -8283,7 +8299,15 @@ class PrivateAPI:
         url = f"{self.API_URL}/v2/favorites/mixes"
         if ids:
             url += "/ids"
-        return self._get_json(url, params={"limit": limit, "cursor": cursor})
+        return self._get_json(
+            url,
+            params={
+                "limit": limit,
+                "cursor": cursor,
+                "order": order,
+                "orderDirection": order_direction,
+            },
+        )
 
     def favorite_mixes(
         self,
