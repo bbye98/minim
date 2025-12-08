@@ -1042,7 +1042,7 @@ class ArtistsAPI(TIDALResourceAPI):
             the artist's albums.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1241,7 +1241,7 @@ class ArtistsAPI(TIDALResourceAPI):
             the artist's owners.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1305,7 +1305,7 @@ class ArtistsAPI(TIDALResourceAPI):
             the artist's profile art.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1403,7 +1403,7 @@ class ArtistsAPI(TIDALResourceAPI):
             the artist radio.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1504,7 +1504,7 @@ class ArtistsAPI(TIDALResourceAPI):
             the artist's roles.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1582,7 +1582,7 @@ class ArtistsAPI(TIDALResourceAPI):
             the similar artists.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1735,7 +1735,7 @@ class ArtistsAPI(TIDALResourceAPI):
             the artist's track providers.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1827,7 +1827,7 @@ class ArtistsAPI(TIDALResourceAPI):
             the artist's tracks.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1995,7 +1995,7 @@ class ArtistsAPI(TIDALResourceAPI):
             the artist's videos.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -2085,7 +2085,7 @@ class ArtistsAPI(TIDALResourceAPI):
         locale: str | None = None,
         include: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_favorite_artists(
             user_id=user_id,
@@ -2093,7 +2093,7 @@ class ArtistsAPI(TIDALResourceAPI):
             locale=locale,
             include=include,
             cursor=cursor,
-            sort=sort,
+            sort_by=sort_by,
         )
 
     @_copy_docstring(UsersAPI.favorite_artists)
@@ -2170,7 +2170,7 @@ class ArtistsAPI(TIDALResourceAPI):
             the artist's videos.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 

@@ -103,7 +103,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         country_code: str | None = None,
         include: str | list[str] | None = None,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
     ) -> dict[str, Any]:
         """
         `Playlists > Get Single Playlist <https://tidal-music.github.io
@@ -174,7 +174,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str; keyword-only; optional
+        sort_by : str; keyword-only; optional
             Field to sort the returned playlists by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
@@ -685,14 +685,16 @@ class PlaylistsAPI(TIDALResourceAPI):
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
             params["page[cursor]"] = cursor
-        if sort is not None:
-            self._client._validate_type("sort", sort, str)
-            if (sort[1:] if sort[0] == "-" else sort) not in self._SORTS:
+        if sort_by is not None:
+            self._client._validate_type("sort", sort_by, str)
+            if (
+                sort_by[1:] if sort_by[0] == "-" else sort_by
+            ) not in self._SORTS:
                 sorts = "', '".join(sorted(self._SORTS))
                 raise ValueError(
-                    f"Invalid sort field {sort!r}. Valid values: '{sorts}'."
+                    f"Invalid sort field {sort_by!r}. Valid values: '{sorts}'."
                 )
-            params["sort"] = sort
+            params["sort"] = sort_by
         return self._client._request("GET", "playlists", params=params).json()
 
     def create_playlist(
@@ -726,7 +728,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         public : bool; keyword-only; optional
             Whether the playlist is displayed on the user's profile.
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
 
         Returns
         -------
@@ -835,7 +837,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         public : bool; keyword-only; optional
             Whether the playlist is displayed on the user's profile.
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
         """
         self._client._require_scopes(
             "playlists.update_playlist_details", "playlists.write"
@@ -926,7 +928,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             the playlist cover art.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1022,7 +1024,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             the items in the playlist.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1484,7 +1486,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             the playlist's owners.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1528,7 +1530,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         folders: bool = False,
         include: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_favorite_playlists(
             user_id=user_id,
@@ -1537,7 +1539,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             folders=folders,
             include=include,
             cursor=cursor,
-            sort=sort,
+            sort_by=sort_by,
         )
 
     @_copy_docstring(UsersAPI.favorite_playlists)
@@ -1600,7 +1602,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             the related resource.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 

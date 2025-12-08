@@ -319,7 +319,7 @@ class ShowsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first show episode to return. Use with `limit`
@@ -327,7 +327,7 @@ class ShowsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -428,7 +428,7 @@ class ShowsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first show to return. Use with `limit` to get
@@ -436,7 +436,7 @@ class ShowsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------

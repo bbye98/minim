@@ -69,7 +69,7 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         include : str or list[str]; keyword-only; optional
             Related resources to include in the response.
@@ -548,7 +548,7 @@ class UsersAPI(TIDALResourceAPI):
         locale: str | None = None,
         include: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
     ) -> dict[str, Any]:
         """
         `User Collections > Get Albums in User's Collection
@@ -579,18 +579,18 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the albums in the user's collection.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str; keyword-only; optional
+        sort_by : str; keyword-only; optional
             Field to sort the returned albums by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
@@ -710,7 +710,7 @@ class UsersAPI(TIDALResourceAPI):
             locale=locale,
             include=include,
             cursor=cursor,
-            sort=sort,
+            sort_by=sort_by,
             sort_fields={"addedAt", "artists.name", "releaseDate", "title"},
         )
 
@@ -840,7 +840,7 @@ class UsersAPI(TIDALResourceAPI):
         locale: str | None = None,
         include: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
     ) -> dict[str, Any]:
         """
         `User Collections > Get Artists in User's Collection
@@ -871,18 +871,18 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the artists in the user's collection.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str; keyword-only; optional
+        sort_by : str; keyword-only; optional
             Field to sort the returned artists by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
@@ -1009,7 +1009,7 @@ class UsersAPI(TIDALResourceAPI):
             locale=locale,
             include=include,
             cursor=cursor,
-            sort=sort,
+            sort_by=sort_by,
             sort_fields={"addedAt", "name"},
         )
 
@@ -1171,7 +1171,7 @@ class UsersAPI(TIDALResourceAPI):
             the owners of the user's collection.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1228,7 +1228,7 @@ class UsersAPI(TIDALResourceAPI):
         folders: bool = False,
         include: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
     ) -> dict[str, Any]:
         """
         `User Collections > Get Playlists in User's Collection
@@ -1259,7 +1259,7 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         folders : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
@@ -1270,11 +1270,11 @@ class UsersAPI(TIDALResourceAPI):
             the playlists in the user's collection.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str; keyword-only; optional
+        sort_by : str; keyword-only; optional
             Field to sort the returned playlists by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
@@ -1372,7 +1372,7 @@ class UsersAPI(TIDALResourceAPI):
             locale=locale,
             include=include,
             cursor=cursor,
-            sort=sort,
+            sort_by=sort_by,
             sort_fields={"addedAt", "lastUpdatedAt", "name"},
             params=params,
         )
@@ -1501,7 +1501,7 @@ class UsersAPI(TIDALResourceAPI):
         locale: str | None = None,
         include: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
     ) -> dict[str, Any]:
         """
         `User Collections > Get Tracks in User's Collection
@@ -1532,18 +1532,18 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the tracks in the user's collection.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str; keyword-only; optional
+        sort_by : str; keyword-only; optional
             Field to sort the returned tracks by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
@@ -1681,7 +1681,7 @@ class UsersAPI(TIDALResourceAPI):
             locale=locale,
             include=include,
             cursor=cursor,
-            sort=sort,
+            sort_by=sort_by,
             sort_fields={
                 "addedAt",
                 "albums.title",
@@ -1817,7 +1817,7 @@ class UsersAPI(TIDALResourceAPI):
         locale: str | None = None,
         include: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
     ) -> dict[str, Any]:
         """
         `User Collections > Get Videos in User's Collection
@@ -1848,18 +1848,18 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the videos in the user's collection.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str; keyword-only; optional
+        sort_by : str; keyword-only; optional
             Field to sort the returned videos by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
@@ -1954,7 +1954,7 @@ class UsersAPI(TIDALResourceAPI):
             locale=locale,
             include=include,
             cursor=cursor,
-            sort=sort,
+            sort_by=sort_by,
             sort_fields={"addedAt", "artists.name", "duration", "title"},
         )
 
@@ -2168,7 +2168,7 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         include : str or list[str]; keyword-only; optional
             Related resources to include in the response.
@@ -2278,14 +2278,14 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the user's Discovery Mixes.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -2359,14 +2359,14 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the user's mixes.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -2440,14 +2440,14 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the user's New Arrival Mixes.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -2601,7 +2601,7 @@ class UsersAPI(TIDALResourceAPI):
         locale: str | None = None,
         include: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
         sort_fields: set[str] | None = None,
         params: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
@@ -2630,24 +2630,24 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the specified resource.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str; keyword-only; optional
+        sort_by : str; keyword-only; optional
             Field to sort the returned items by. Values are sorted
             in descending order with the :code:`-` prefix and in
             ascending order without.
 
         sort_fields : set[str]; keyword-only; optional
-            Valid fields for `sort` to sort by.
+            Valid fields for `sort_by` to sort by.
 
         params : dict[str, Any]; keyword-only; optional
             Existing dictionary holding URL query parameters. If not
@@ -2679,21 +2679,21 @@ class UsersAPI(TIDALResourceAPI):
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
             params["page[cursor]"] = cursor
-        if sort is not None:
-            self._client._validate_type("sort", sort, str)
-            descending = sort[0] == "-"
+        if sort_by is not None:
+            self._client._validate_type("sort_by", sort_by, str)
+            descending = sort_by[0] == "-"
             if (
-                "." not in (_sort := sort[1:] if descending else sort)
+                "." not in (_sort := sort_by[1:] if descending else sort_by)
                 or (sort_values := _sort.split(".", maxsplit=1))[0] != resource
                 or sort_values[1] not in sort_fields
             ):
                 sorts = f"', '{resource}.".join(sort_fields)
                 raise ValueError(
-                    f"Invalid sort field {sort!r}. "
+                    f"Invalid sort field {sort_by!r}. "
                     f"Valid values: '{resource}.{sorts}'."
                 )
             params["sort"] = (
-                f"{sort[:descending]}{resource}.{sort[descending:]}"
+                f"{sort_by[:descending]}{resource}.{sort_by[descending:]}"
             )
         return self._client._request(
             "GET",
@@ -2795,14 +2795,14 @@ class UsersAPI(TIDALResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the specified resource.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 

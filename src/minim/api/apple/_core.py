@@ -170,7 +170,7 @@ class iTunesSearchAPI(APIClient):
         upcs: int | str | list[int | str] | None = None,
         entity: str | None = None,
         limit: int | str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
     ) -> dict[str, Any]:
         """
         Search for content using iTunes IDs, All Music Guide (AMG) IDs,
@@ -302,7 +302,7 @@ class iTunesSearchAPI(APIClient):
                * :code:`[075678671173, "602448438034"]`
 
         entity : str; keyword-only; optional
-            Type of resource to return.
+            Resource type to return.
 
             .. seealso::
 
@@ -315,14 +315,14 @@ class iTunesSearchAPI(APIClient):
             **Example**: :code:`"movieArtist"`.
 
         limit : int; keyword-only; optional
-            Maximum number of items to return.
+            Maximum number of results to return.
 
             **Valid range**: :code:`1` to :code:`200`.
 
-            **Default**: :code:`50`.
+            **API default**: :code:`50`.
 
-        sort : str; keyword-only; optional
-            Sort applied to the lookup results.
+        sort_by : str; keyword-only; optional
+            Sort order for the results.
 
             **Valid value**: :code:`"recent"`.
 
@@ -552,10 +552,10 @@ class iTunesSearchAPI(APIClient):
         if limit is not None:
             self._validate_number("limit", limit, int, 1, 200)
             params["limit"] = limit
-        if sort is not None:
-            if sort != "recent":
+        if sort_by is not None:
+            if sort_by != "recent":
                 raise ValueError("Invalid sort value. Valid value: 'recent'.")
-            params["sort"] = sort
+            params["sort"] = sort_by
         return self._request("GET", "lookup", params=params).json()
 
     @TTLCache.cached_method(ttl="search")
@@ -587,7 +587,7 @@ class iTunesSearchAPI(APIClient):
             ISO 3166-1 alpha-2 country code for the storefront to search
             in.
 
-            **Default**: :code:`"US"`.
+            **API default**: :code:`"US"`.
 
         media : str; keyword-only; optional
             Media type to search across.
@@ -597,7 +597,7 @@ class iTunesSearchAPI(APIClient):
             :code:`"musicVideo"`, :code:`"podcast"`,
             :code:`"shortFilm"`, :code:`"software"`, :code:`"tvShow"`.
 
-            **Default**: :code:`"all"`.
+            **API default**: :code:`"all"`.
 
         entity : str; keyword-only; optional
             Type of resource to return for the specified `media`.
@@ -632,7 +632,7 @@ class iTunesSearchAPI(APIClient):
 
             **Valid range**: :code:`1` to :code:`200`.
 
-            **Default**: :code:`50`.
+            **API default**: :code:`50`.
 
         language : str; keyword-only; optional
             Locale identifier consisting of an ISO 639-1 language
@@ -647,14 +647,14 @@ class iTunesSearchAPI(APIClient):
                * :code:`"en_us"` – English
                * :code:`"ja_jp"` – Japanese
 
-            **Default**: :code:`"en_us"`.
+            **API default**: :code:`"en_us"`.
 
         version : int; keyword-only; optional
             Search result key version.
 
             **Valid values**: :code:`1`, :code:`2`.
 
-            **Default**: :code:`2`.
+            **API default**: :code:`2`.
 
         explicit : bool or str; keyword-only; optional
             Whether to include explicit content in the search results.
@@ -662,7 +662,7 @@ class iTunesSearchAPI(APIClient):
             **Valid values**: :code:`"Yes"` (or :code:`True`),
             :code:`"No"` (or :code:`False`).
 
-            **Default**: :code:`"Yes"`.
+            **API default**: :code:`"Yes"`.
 
         Returns
         -------

@@ -62,7 +62,7 @@ class PlayerAPI(ResourceAPI):
                to maintain their current behavior and might be
                deprecated in the future.
 
-            **Default**: :code:`"track"`.
+            **API default**: :code:`"track"`.
 
             **Valid values**: :code:`"track"`, :code:`"episode"`.
 
@@ -371,7 +371,7 @@ class PlayerAPI(ResourceAPI):
                to maintain their current behavior and might be
                deprecated in the future.
 
-            **Default**: :code:`"track"`.
+            **API default**: :code:`"track"`.
 
             **Valid values**: :code:`"track"`, :code:`"episode"`.
 
@@ -1092,7 +1092,7 @@ class PlayerAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         Returns
         -------

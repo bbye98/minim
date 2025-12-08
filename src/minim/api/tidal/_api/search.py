@@ -57,7 +57,7 @@ class SearchAPI(TIDALResourceAPI):
         explicit : bool; keyword-only; optional
             Whether to include items with explicit language.
 
-            **Default**: :code:`True`.
+            **API default**: :code:`True`.
 
         include : str or list[str]; keyword-only; optional
             Related resources to include in the response.
@@ -503,14 +503,14 @@ class SearchAPI(TIDALResourceAPI):
         explicit : bool; keyword-only; optional
             Whether to include items with explicit language.
 
-            **Default**: :code:`True`.
+            **API default**: :code:`True`.
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the direct hits.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -938,7 +938,7 @@ class SearchAPI(TIDALResourceAPI):
         explicit : bool; keyword-only; optional
             Whether to include items with explicit language.
 
-            **Default**: :code:`True`.
+            **API default**: :code:`True`.
 
         include : str or list[str]; keyword-only; optional
             Related resources to include in the response.
@@ -1454,14 +1454,14 @@ class SearchAPI(TIDALResourceAPI):
         explicit : bool; keyword-only; optional
             Whether to include items with explicit language.
 
-            **Default**: :code:`True`.
+            **API default**: :code:`True`.
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the matching albums.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1612,14 +1612,14 @@ class SearchAPI(TIDALResourceAPI):
         explicit : bool; keyword-only; optional
             Whether to include items with explicit language.
 
-            **Default**: :code:`True`.
+            **API default**: :code:`True`.
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the matching artists.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1779,14 +1779,14 @@ class SearchAPI(TIDALResourceAPI):
         explicit : bool; keyword-only; optional
             Whether to include items with explicit language.
 
-            **Default**: :code:`True`.
+            **API default**: :code:`True`.
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the matching playlists.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1907,14 +1907,14 @@ class SearchAPI(TIDALResourceAPI):
         explicit : bool; keyword-only; optional
             Whether to include items with explicit language.
 
-            **Default**: :code:`True`.
+            **API default**: :code:`True`.
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the matching top hits.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -2337,14 +2337,14 @@ class SearchAPI(TIDALResourceAPI):
         explicit : bool; keyword-only; optional
             Whether to include items with explicit language.
 
-            **Default**: :code:`True`.
+            **API default**: :code:`True`.
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the matching tracks.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -2513,14 +2513,14 @@ class SearchAPI(TIDALResourceAPI):
         explicit : bool; keyword-only; optional
             Whether to include items with explicit language.
 
-            **Default**: :code:`True`.
+            **API default**: :code:`True`.
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the matching videos.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -2644,14 +2644,14 @@ class SearchAPI(TIDALResourceAPI):
         explicit : bool; keyword-only; optional
             Whether to include items with explicit language.
 
-            **Default**: :code:`True`.
+            **API default**: :code:`True`.
 
         include : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for
             the resource.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 

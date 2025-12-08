@@ -176,7 +176,7 @@ class ArtistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
@@ -184,7 +184,7 @@ class ArtistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -521,14 +521,14 @@ class ArtistsAPI(ResourceAPI):
                * :code:`"short_term"` – Approximately the last four
                  weeks of data.
 
-            **Default**: :code:`"medium_term"`.
+            **API default**: :code:`"medium_term"`.
 
         limit : int; keyword-only; optional
             Maximum number of artists to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
@@ -536,7 +536,7 @@ class ArtistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -628,7 +628,7 @@ class ArtistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         Returns
         -------

@@ -72,7 +72,7 @@ class PlaylistsAPI(ResourceAPI):
                to maintain their current behavior and might be
                deprecated in the future.
 
-            **Default**: :code:`"track"`.
+            **API default**: :code:`"track"`.
 
             **Valid values**: :code:`"track"`, :code:`"episode"`.
 
@@ -480,7 +480,7 @@ class PlaylistsAPI(ResourceAPI):
                to maintain their current behavior and might be
                deprecated in the future.
 
-            **Default**: :code:`"track"`.
+            **API default**: :code:`"track"`.
 
             **Valid values**: :code:`"track"`, :code:`"episode"`.
 
@@ -526,7 +526,7 @@ class PlaylistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
@@ -534,7 +534,7 @@ class PlaylistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -905,7 +905,7 @@ class PlaylistsAPI(ResourceAPI):
             Number of items, starting from `range_start`, to be
             reordered.
 
-            **Default**: :code:`1`.
+            **API default**: :code:`1`.
 
         snapshot_id : str; keyword-only; optional
             Version identifier for the playlist against which to make
@@ -1133,7 +1133,7 @@ class PlaylistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
@@ -1141,7 +1141,7 @@ class PlaylistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -1257,7 +1257,7 @@ class PlaylistsAPI(ResourceAPI):
         public : bool; keyword-only; optional
             Whether the playlist is displayed on the user's profile.
 
-            **Default**: :code:`True`.
+            **API default**: :code:`True`.
 
         collaborative : bool; keyword-only; optional
             Whether other users can modify the playlist.
@@ -1268,7 +1268,7 @@ class PlaylistsAPI(ResourceAPI):
                :code:`collaborative=True` to create a collaborative
                playlist.
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
 
         Returns
         -------
@@ -1387,7 +1387,7 @@ class PlaylistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
@@ -1395,7 +1395,7 @@ class PlaylistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -1512,7 +1512,7 @@ class PlaylistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
@@ -1520,7 +1520,7 @@ class PlaylistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -1734,7 +1734,7 @@ class PlaylistsAPI(ResourceAPI):
             Whether the playlist will be included in the current user's
             public playlists.
 
-            **Default**: :code:`True`.
+            **API default**: :code:`True`.
         """
         self._client._validate_spotify_id(playlist_id)
         payload = {}

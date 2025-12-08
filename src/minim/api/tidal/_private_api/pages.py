@@ -59,7 +59,7 @@ class PrivatePagesAPI(ResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         Returns
         -------
@@ -396,7 +396,7 @@ class PrivatePagesAPI(ResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         Returns
         -------
@@ -825,7 +825,7 @@ class PrivatePagesAPI(ResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         Returns
         -------
@@ -1043,7 +1043,7 @@ class PrivatePagesAPI(ResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         Returns
         -------
@@ -1124,7 +1124,7 @@ class PrivatePagesAPI(ResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         Returns
         -------
@@ -1345,7 +1345,7 @@ class PrivatePagesAPI(ResourceAPI):
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
-            **Default**: :code:`"en_US"` – English (U.S.).
+            **API default**: :code:`"en_US"` – English (U.S.).
 
         Returns
         -------

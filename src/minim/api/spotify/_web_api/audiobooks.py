@@ -340,7 +340,7 @@ class AudiobooksAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first audiobook chapter to return. Use with
@@ -348,7 +348,7 @@ class AudiobooksAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -466,7 +466,7 @@ class AudiobooksAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first audiobook to return. Use with `limit` to
@@ -474,7 +474,7 @@ class AudiobooksAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------

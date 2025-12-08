@@ -1057,7 +1057,7 @@ class TracksAPI(TIDALResourceAPI):
             the albums containing the track.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1199,7 +1199,7 @@ class TracksAPI(TIDALResourceAPI):
             the track's artists.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1342,7 +1342,7 @@ class TracksAPI(TIDALResourceAPI):
             the track's artists.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1406,7 +1406,7 @@ class TracksAPI(TIDALResourceAPI):
             the track's providers.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1476,7 +1476,7 @@ class TracksAPI(TIDALResourceAPI):
             the track radio.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1585,7 +1585,7 @@ class TracksAPI(TIDALResourceAPI):
             the similar tracks.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1740,7 +1740,7 @@ class TracksAPI(TIDALResourceAPI):
             the track's source file.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1778,7 +1778,7 @@ class TracksAPI(TIDALResourceAPI):
         locale: str | None = None,
         include: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_favorite_tracks(
             user_id=user_id,
@@ -1786,7 +1786,7 @@ class TracksAPI(TIDALResourceAPI):
             locale=locale,
             include=include,
             cursor=cursor,
-            sort=sort,
+            sort_by=sort_by,
         )
 
     @_copy_docstring(UsersAPI.favorite_tracks)
@@ -1862,7 +1862,7 @@ class TracksAPI(TIDALResourceAPI):
             the related resource.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 

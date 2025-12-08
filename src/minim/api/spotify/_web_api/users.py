@@ -428,7 +428,7 @@ class UsersAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
@@ -436,7 +436,7 @@ class UsersAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------

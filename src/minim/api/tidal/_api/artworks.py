@@ -194,7 +194,7 @@ class ArtworksAPI(TIDALResourceAPI):
             the artwork's owners.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 

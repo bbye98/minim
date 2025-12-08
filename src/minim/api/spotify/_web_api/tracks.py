@@ -325,7 +325,7 @@ class TracksAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
@@ -333,7 +333,7 @@ class TracksAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -1030,7 +1030,7 @@ class TracksAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         acousticness : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of whether a track is acoustic.
@@ -1435,14 +1435,14 @@ class TracksAPI(ResourceAPI):
                * :code:`"short_term"` – Approximately the last four
                  weeks of data.
 
-            **Default**: :code:`"medium_term"`.
+            **API default**: :code:`"medium_term"`.
 
         limit : int; keyword-only; optional
             Maximum number of tracks to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
@@ -1450,7 +1450,7 @@ class TracksAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------

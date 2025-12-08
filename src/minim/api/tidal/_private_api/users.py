@@ -16,8 +16,34 @@ class PrivateUsersAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
+    _FILTERS = {"FOLDER", "PLAYLIST", "FAVORITE_PLAYLIST", "USER_PLAYLIST"}
     _SORTS = {"DATE", "NAME"}
     _client: "PrivateTIDALAPI"
+
+    @classmethod
+    def _validate_filters(cls, filters: str | list[str]) -> None:
+        """
+        Validate one or more playlist types to filter by.
+
+        Parameters
+        ----------
+        filters : str or list[str]; keyword-only; optional
+            Playlist types to include in the results.
+        """
+        if isinstance(filters, str):
+            if filters not in cls._FILTERS:
+                _filters = "', '".join(cls._FILTERS)
+                raise ValueError(
+                    f"Invalid playlist type {filters!r}. "
+                    f"Valid values: '{_filters}'."
+                )
+        elif isinstance(filters, tuple | list):
+            for filter in filters:
+                cls._validate_filters(filter)
+        else:
+            raise TypeError(
+                "`filter_by` must be a string or a list of strings."
+            )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_my_profile(self) -> dict[str, Any]:
@@ -172,7 +198,7 @@ class PrivateUsersAPI(ResourceAPI):
         *,
         limit: int | None = None,
         offset: int | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
         reverse: bool | None = None,
     ) -> dict[str, Any]:
         """
@@ -204,7 +230,7 @@ class PrivateUsersAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`100`.
 
-            **Default**: :code:`10`.
+            **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
@@ -212,9 +238,9 @@ class PrivateUsersAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
-        sort : str; keyword-only; optional
+        sort_by : str; keyword-only; optional
             Field to sort the albums by.
 
             **Valid values**:
@@ -224,13 +250,13 @@ class PrivateUsersAPI(ResourceAPI):
                * :code:`"DATE"` - Date added.
                * :code:`"NAME"` - Album name.
 
-            **Default**: :code:`"DATE"`.
+            **API default**: :code:`"DATE"`.
 
         reverse : bool; keyword-only; optional
-            Whether to reverse the sort order from ascending
-            (:code:`False`) to descending (:code:`True`).
+            Whether to reverse the sort order from ascending to
+            descending.
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
 
         Returns
         -------
@@ -309,7 +335,7 @@ class PrivateUsersAPI(ResourceAPI):
             country_code,
             limit=limit,
             offset=offset,
-            sort=sort,
+            sort_by=sort_by,
             reverse=reverse,
         )
 
@@ -355,7 +381,7 @@ class PrivateUsersAPI(ResourceAPI):
             TIDAL catalog (:code:`True`) or raise an error
             (:code:`False`).
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
         """
         self._client._require_authentication("users.favorite_albums")
         return self._favorite_resources(
@@ -424,7 +450,7 @@ class PrivateUsersAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`100`.
 
-            **Default**: :code:`10`.
+            **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
@@ -432,7 +458,7 @@ class PrivateUsersAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -570,7 +596,7 @@ class PrivateUsersAPI(ResourceAPI):
         *,
         limit: int | None = None,
         offset: int | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
         reverse: bool | None = None,
     ) -> dict[str, Any]:
         """
@@ -603,7 +629,7 @@ class PrivateUsersAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`100`.
 
-            **Default**: :code:`10`.
+            **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
@@ -611,9 +637,9 @@ class PrivateUsersAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
-        sort : str; keyword-only; optional
+        sort_by : str; keyword-only; optional
             Field to sort the albums by.
 
             **Valid values**:
@@ -623,13 +649,13 @@ class PrivateUsersAPI(ResourceAPI):
                * :code:`"DATE"` - Date added.
                * :code:`"NAME"` - Artist name.
 
-            **Default**: :code:`"DATE"`.
+            **API default**: :code:`"DATE"`.
 
         reverse : bool; keyword-only; optional
-            Whether to reverse the sort order from ascending
-            (:code:`False`) to descending (:code:`True`).
+            Whether to reverse the sort order from ascending to
+            descending.
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
 
         Returns
         -------
@@ -657,7 +683,7 @@ class PrivateUsersAPI(ResourceAPI):
             country_code,
             limit=limit,
             offset=offset,
-            sort=sort,
+            sort_by=sort_by,
             reverse=reverse,
         )
 
@@ -703,7 +729,7 @@ class PrivateUsersAPI(ResourceAPI):
             TIDAL catalog (:code:`True`) or raise an error
             (:code:`False`).
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
         """
         self._client._require_authentication("users.favorite_artists")
         return self._favorite_resources(
@@ -746,7 +772,7 @@ class PrivateUsersAPI(ResourceAPI):
         *,
         limit: int = 50,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
         reverse: bool | None = None,
     ) -> dict[str, Any]:
         """
@@ -769,10 +795,10 @@ class PrivateUsersAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-        cursor : str or None; keyword-only; default: :code:`None`
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
-        sort : str; keyword-only; optional
+        sort_by : str; keyword-only; optional
             Field to sort the mixes by.
 
             **Valid values**:
@@ -782,13 +808,13 @@ class PrivateUsersAPI(ResourceAPI):
                * :code:`"DATE"` - Date added.
                * :code:`"NAME"` - Mix name.
 
-            **Default**: :code:`"DATE"`.
+            **API default**: :code:`"DATE"`.
 
         reverse : bool; keyword-only; optional
-            Whether to reverse the sort order from ascending
-            (:code:`False`) to descending (:code:`True`).
+            Whether to reverse the sort order from ascending to
+            descending.
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
 
         Returns
         -------
@@ -865,13 +891,13 @@ class PrivateUsersAPI(ResourceAPI):
         if cursor is not None:
             self._client._validate_type("cursor", cursor, str)
             params["cursor"] = cursor
-        if sort is not None:
-            if sort not in self._SORTS:
+        if sort_by is not None:
+            if sort_by not in self._SORTS:
                 sorts = "', '".join(sorted(self._SORTS))
                 raise ValueError(
-                    f"Invalid sort field {sort!r}. Valid values: '{sorts}'."
+                    f"Invalid sort field {sort_by!r}. Valid values: '{sorts}'."
                 )
-            params["order"] = sort
+            params["order"] = sort_by
         if reverse is not None:
             self._client._validate_type("reverse", reverse, bool)
             params["orderDirection"] = "DESC" if reverse else "ASC"
@@ -901,8 +927,8 @@ class PrivateUsersAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`50`.
 
-        cursor : str or None; keyword-only; default: :code:`None`
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
         Returns
         -------
@@ -953,7 +979,7 @@ class PrivateUsersAPI(ResourceAPI):
             TIDAL catalog (:code:`True`) or raise an error
             (:code:`False`).
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
         """
         self._client._require_authentication("users.favorite_mixes")
         data = {"mixIds": self._prepare_mix_ids(mix_ids)}
@@ -993,34 +1019,179 @@ class PrivateUsersAPI(ResourceAPI):
             data={"mixIds": self._prepare_mix_ids(mix_ids)},
         )
 
-    def get_my_playlists(  # TODO: Finish implementation
+    def get_my_playlists(
         self,
         *,
         limit: int = 50,
         cursor: str | None = None,
-        folder_id: str | None = None,  # "root"
-        include_only: list[str] | None = None,  # ?
-        sort: str | None = None,  # ?
-        reverse: bool | None = None,  # ?
-        recursive: bool = False,
-        version: int = 2,
+        folder_uuid: str | None = None,
+        filter_by: str | list[str] | None = None,
+        sort_by: str | None = None,
+        reverse: bool | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for playlists in the current
+        user's collection.
+
+        Parameters
+        ----------
+        limit : int; keyword-only; default: :code:`50`
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+        folder_uuid : str; keyword-only; optional
+            UUID of playlist folder to retrieve playlists from. Use
+            :code:`"root"` to target the top-level "Playlists" folder.
+
+            **API default**: :code:`"root"`.
+
+        filter_by : str or list[str]; keyword-only; optional
+            Playlist types to include in the results. If not specified,
+            all playlists are returned.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`FOLDER` – Playlist folders.
+               * :code:`PLAYLIST` – All playlists.
+               * :code:`FAVORITE_PLAYLIST` – Favorited playlists.
+               * :code:`USER_PLAYLIST` – User-created playlists.
+
+        sort_by : str; keyword-only; optional
+            Field to sort the playlists by.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"DATE"` - Date added.
+               * :code:`"NAME"` - Playlist name.
+
+            **API default**: :code:`"DATE"`.
+
+        reverse : bool; keyword-only; optional
+            Whether to reverse the sort order from ascending to
+            descending.
+
+            **API default**: :code:`False`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            TIDAL content metadata for the playlists in the current
+            user's collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "cursor": <str>,
+                    "items": [
+                      {
+                        "addedAt": <str>,
+                        "data": {
+                          "createdAt": <str>,
+                          "id": <str>,
+                          "itemType": "FOLDER",
+                          "lastModifiedAt": <str>,
+                          "name": <str>,
+                          "totalNumberOfItems": <int>,
+                          "trn": <str>,
+                        },
+                        "itemType": "FOLDER",
+                        "lastModifiedAt": <str>,
+                        "name": <str>,
+                        "parent": {
+                          "id": <str>,
+                          "name": <str>
+                        },
+                        "trn": <str>,
+                      },
+                      {
+                        "addedAt": <str>,
+                        "data": {
+                          "contentBehavior": <str>,
+                          "created": <str>,
+                          "creator": {
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": <Any>,
+                            "type": <str>
+                          },
+                          "curators": <list[Any]>,
+                          "customImageUrl": <str>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": <str>,
+                          "itemType": "PLAYLIST",
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
+                          "numberOfTracks": 1,
+                          "numberOfVideos": 1,
+                          "promotedArtists": <list[Any]>,
+                          "sharingLevel": <str>,
+                          "source": <str>,
+                          "squareImage": <str>,
+                          "status": <str>,
+                          "title": <str>,
+                          "trn": <str>,
+                          "type": <str>,
+                          "url": <str>,
+                          "uuid": <str>
+                        },
+                        "itemType": "PLAYLIST",
+                        "lastModifiedAt": <str>,
+                        "name": <str>,
+                        "parent": {
+                          "id": <str>,
+                          "name": <str>
+                        },
+                        "trn": <str>
+                      }
+                    ],
+                    "lastModifiedAt": <str>
+                  }
+        """
+        self._client._require_authentication("users.get_my_playlists")
+        self._client._validate_number("limit", limit, int, 1, 50)
+        params = {"limit": limit}
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        if folder_uuid is not None:
+            if folder_uuid != "root":
+                self._client._validate_uuid(folder_uuid)
+            params["folderId"] = folder_uuid
+        if filter_by is not None:
+            self._validate_filters(filter_by)
+            params["includeOnly"] = filter_by
+        if sort_by is not None:
+            if sort_by not in self._SORTS:
+                sorts = "', '".join(sorted(self._SORTS))
+                raise ValueError(
+                    f"Invalid sort field {sort_by!r}. Valid values: '{sorts}'."
+                )
+            params["order"] = sort_by
+        if reverse is not None:
+            self._client._validate_type("reverse", reverse, bool)
+            params["orderDirection"] = "DESC" if reverse else "ASC"
+        return self._client._request(
+            "GET", "v2/my-collection/playlists", params=params
+        ).json()
+
+    def get_my_playlist_folders(  # TODO
+        self,
     ) -> dict[str, Any]:
         """ """
-        self._client._require_authentication("users.get_my_playlists")
-        if version == 2:
-            self._client._validate_number("limit", limit, int, 1, 50)
-            params = {"limit": limit}
-            if cursor is not None:
-                self._client._validate_type("cursor", cursor, str)
-                params["cursor"] = cursor
-            return self._client._request(
-                "GET",
-                f"v2/my-collection/playlists{'/folders' if recursive else ''}",
-                params=params,
-            ).json()
-        else:
-            ...
-            # return self.get_user_playlists(...)
+        # v2/my-collection/playlists/folders
+        # v2/my-collection/playlists/folders/flattened
 
     def get_user_playlists(  # TODO
         self,
@@ -1061,7 +1232,7 @@ class PrivateUsersAPI(ResourceAPI):
         *,
         limit: int | None = None,
         offset: int | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
         reverse: bool | None = None,
     ) -> dict[str, Any]:
         """
@@ -1091,7 +1262,7 @@ class PrivateUsersAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`100`.
 
-            **Default**: :code:`10`.
+            **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
@@ -1099,9 +1270,9 @@ class PrivateUsersAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
-        sort : str; keyword-only; optional
+        sort_by : str; keyword-only; optional
             Field to sort the items by.
 
             **Valid values**:
@@ -1111,13 +1282,13 @@ class PrivateUsersAPI(ResourceAPI):
                * :code:`"DATE"` - Date added.
                * :code:`"NAME"` - Item name.
 
-            **Default**: :code:`"DATE"`.
+            **API default**: :code:`"DATE"`.
 
         reverse : bool; keyword-only; optional
-            Whether to reverse the sort order from ascending
-            (:code:`False`) to descending (:code:`True`).
+            Whether to reverse the sort order from ascending to
+            descending.
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
 
         Returns
         -------
@@ -1135,13 +1306,13 @@ class PrivateUsersAPI(ResourceAPI):
         if offset is not None:
             self._client._validate_number("offset", offset, int, 0)
             params["offset"] = offset
-        if sort is not None:
-            if sort not in self._SORTS:
+        if sort_by is not None:
+            if sort_by not in self._SORTS:
                 sorts = "', '".join(sorted(self._SORTS))
                 raise ValueError(
-                    f"Invalid sort field {sort!r}. Valid values: '{sorts}'."
+                    f"Invalid sort field {sort_by!r}. Valid values: '{sorts}'."
                 )
-            params["order"] = sort
+            params["order"] = sort_by
         if reverse is not None:
             self._client._validate_type("reverse", reverse, bool)
             params["orderDirection"] = "DESC" if reverse else "ASC"
@@ -1189,7 +1360,7 @@ class PrivateUsersAPI(ResourceAPI):
             TIDAL catalog (:code:`True`) or raise an error
             (:code:`False`).
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
         """
         if user_id is None:
             user_id = self._client._get_user_identifier()

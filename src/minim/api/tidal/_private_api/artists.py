@@ -120,7 +120,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`100`.
 
-            **Default**: :code:`10`.
+            **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
@@ -128,7 +128,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -285,7 +285,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`100`.
 
-            **Default**: :code:`10`.
+            **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
             Index of the first link to return. Use with `limit` to get
@@ -293,7 +293,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -388,7 +388,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`100`.
 
-            **Default**: :code:`10`.
+            **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
@@ -396,7 +396,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -516,7 +516,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`100`.
 
-            **Default**: :code:`10`.
+            **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
@@ -524,7 +524,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -645,7 +645,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`100`.
 
-            **Default**: :code:`10`.
+            **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
             Index of the first video to return. Use with `limit` to get
@@ -653,7 +653,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -759,7 +759,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`100`.
 
-            **Default**: :code:`10`.
+            **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
@@ -767,7 +767,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
@@ -863,7 +863,7 @@ class PrivateArtistsAPI(ResourceAPI):
         *,
         limit: int | None = None,
         offset: int | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
         reverse: bool | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_favorite_artists(
@@ -871,7 +871,7 @@ class PrivateArtistsAPI(ResourceAPI):
             country_code,
             limit=limit,
             offset=offset,
-            sort=sort,
+            sort_by=sort_by,
             reverse=reverse,
         )
 
@@ -941,7 +941,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Valid range**: :code:`1` to :code:`100`.
 
-            **Default**: :code:`10`.
+            **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
@@ -949,7 +949,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         params : dict[str, Any]; keyword-only; optional
             Existing dictionary holding URL query parameters. If not

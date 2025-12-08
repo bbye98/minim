@@ -685,7 +685,7 @@ class VideosAPI(TIDALResourceAPI):
             the albums containing the video.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -827,7 +827,7 @@ class VideosAPI(TIDALResourceAPI):
             the video's artists.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -977,7 +977,7 @@ class VideosAPI(TIDALResourceAPI):
             the video's providers.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1054,7 +1054,7 @@ class VideosAPI(TIDALResourceAPI):
             the video's thumbnail.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1126,7 +1126,7 @@ class VideosAPI(TIDALResourceAPI):
         locale: str | None = None,
         include: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_favorite_videos(
             user_id=user_id,
@@ -1134,7 +1134,7 @@ class VideosAPI(TIDALResourceAPI):
             locale=locale,
             include=include,
             cursor=cursor,
-            sort=sort,
+            sort_by=sort_by,
         )
 
     @_copy_docstring(UsersAPI.favorite_videos)
@@ -1203,7 +1203,7 @@ class VideosAPI(TIDALResourceAPI):
             the related resource.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 

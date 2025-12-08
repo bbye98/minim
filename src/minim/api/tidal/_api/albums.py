@@ -1105,7 +1105,7 @@ class AlbumsAPI(TIDALResourceAPI):
             the album artists.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1255,7 +1255,7 @@ class AlbumsAPI(TIDALResourceAPI):
             the album's cover art.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1348,7 +1348,7 @@ class AlbumsAPI(TIDALResourceAPI):
             the tracks and videos in the album.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1566,7 +1566,7 @@ class AlbumsAPI(TIDALResourceAPI):
             the album's owners.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1630,7 +1630,7 @@ class AlbumsAPI(TIDALResourceAPI):
             the album's providers.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1708,7 +1708,7 @@ class AlbumsAPI(TIDALResourceAPI):
             the similar albums.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1853,7 +1853,7 @@ class AlbumsAPI(TIDALResourceAPI):
             the suggested cover art.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
@@ -1897,7 +1897,7 @@ class AlbumsAPI(TIDALResourceAPI):
         locale: str | None = None,
         include: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_favorite_albums(
             user_id=user_id,
@@ -1905,7 +1905,7 @@ class AlbumsAPI(TIDALResourceAPI):
             locale=locale,
             include=include,
             cursor=cursor,
-            sort=sort,
+            sort_by=sort_by,
         )
 
     @_copy_docstring(UsersAPI.favorite_albums)
@@ -1979,7 +1979,7 @@ class AlbumsAPI(TIDALResourceAPI):
             the related resource.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination.
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
