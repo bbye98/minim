@@ -66,7 +66,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
                         "handle": <str>,
                         "id": <int>,
                         "name": <str>,
-                        "picture": null,
+                        "picture": <str>,
                         "type": <str>
                       }
                     ],
@@ -78,6 +78,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
                     "uuid": <str>
                   }
         """
+        self._client._validate_uuid(playlist_uuid)
         if country_code is None:
             country_code = self._client._my_country_code
         else:
@@ -271,6 +272,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
+        self._client._validate_uuid(playlist_uuid)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:
@@ -302,7 +304,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and modify user's
+                 Access user recommendations, and view and modify user's
                  collection.
 
         Parameters
@@ -420,6 +422,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         self._client._require_authentication(
             "playlists.get_playlist_recommended_tracks"
         )
+        self._client._validate_uuid(playlist_uuid)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:

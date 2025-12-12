@@ -39,13 +39,13 @@ def _copy_docstring(
     source: Callable[..., Any],
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
-    Create a decorator that copies the docstring from a function to
-    another function.
+    Create a decorator that copies the docstring from one function to
+    another.
 
     Parameters
     ----------
     source : Callable[..., Any]
-        Source function.
+        Function whose docstring should be copied.
 
     Returns
     -------

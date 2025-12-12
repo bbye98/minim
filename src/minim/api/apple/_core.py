@@ -170,7 +170,7 @@ class iTunesSearchAPI(APIClient):
         upcs: int | str | list[int | str] | None = None,
         entity: str | None = None,
         limit: int | str | None = None,
-        sort_by: str | None = None,
+        sort: str | None = None,
     ) -> dict[str, Any]:
         """
         Search for content using iTunes IDs, All Music Guide (AMG) IDs,
@@ -321,7 +321,7 @@ class iTunesSearchAPI(APIClient):
 
             **API default**: :code:`50`.
 
-        sort_by : str; keyword-only; optional
+        sort : str; keyword-only; optional
             Sort order for the results.
 
             **Valid value**: :code:`"recent"`.
@@ -552,10 +552,10 @@ class iTunesSearchAPI(APIClient):
         if limit is not None:
             self._validate_number("limit", limit, int, 1, 200)
             params["limit"] = limit
-        if sort_by is not None:
-            if sort_by != "recent":
+        if sort is not None:
+            if sort != "recent":
                 raise ValueError("Invalid sort value. Valid value: 'recent'.")
-            params["sort"] = sort_by
+            params["sort"] = sort
         return self._request("GET", "lookup", params=params).json()
 
     @TTLCache.cached_method(ttl="search")
