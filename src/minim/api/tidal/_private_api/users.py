@@ -8,7 +8,8 @@ if TYPE_CHECKING:
 
 class PrivateUsersAPI(ResourceAPI):
     """
-    User Collections and Users API endpoints for the private TIDAL API.
+    User Collections, User Playlists, and Users API endpoints for the
+    private TIDAL API.
 
     .. important::
 
@@ -736,7 +737,7 @@ class PrivateUsersAPI(ResourceAPI):
         missing_ok: bool | None = None,
     ) -> None:
         """
-        Add albums to a user's collection.
+        Add artists to a user's collection.
 
         .. admonition:: User authentication
            :class: authorization-scope
@@ -1056,6 +1057,173 @@ class PrivateUsersAPI(ResourceAPI):
             data={"mixIds": self._prepare_mix_ids(mix_ids)},
         )
 
+    def get_playlist(
+        self,
+        playlist_uuid: str,
+        /,
+        *,
+        country_code: str | None = None,
+        version: int = 2,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for a playlist.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
+
+        Parameters
+        ----------
+        playlist_uuid : str; positional-only; optional
+            Playlist UUID.
+
+            **Example**: :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`.
+
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the user account is used. Only
+            applicable when :code:`version=1`.
+
+            **Example**: :code:`"US"`.
+
+        version : int; keyword-only; default: :code:`2`
+            Selects which version of the private TIDAL API to use.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`1` – legacy
+                 :code:`GET v1/playlists/{playlist_uuid}` endpoint.
+               * :code:`2` – current
+                 :code:`GET v2/user-playlists/{playlist_uuid}` endpoint.
+
+        Returns
+        -------
+        playlist : dict[str, Any]
+            TIDAL catalog information for the playlist.
+
+            .. admonition:: Sample responses
+               :class: dropdown
+
+               .. tab:: Current (:code:`v2`) endpoint
+
+                  .. code::
+
+                     {
+                       "followInfo": {
+                         "followType": "PLAYLIST",
+                         "followed": <bool>,
+                         "nrOfFollowers": <int>,
+                         "tidalResourceName": <str>
+                       },
+                       "playlist": {
+                         "contentBehavior": <str>,
+                         "created": <str>,
+                         "creator": {
+                           "id": <int>,
+                           "name": <str>,
+                           "picture": <str>,
+                           "type": "USER"
+                         },
+                         "curators": [
+                           {
+                             "handle": <str>,
+                             "id": <int>,
+                             "name": <str>,
+                             "picture": <str>
+                           }
+                         ],
+                         "customImageUrl": <str>,
+                         "description": <str>,
+                         "duration": <int>,
+                         "image": <str>,
+                         "lastItemAddedAt": <str>,
+                         "lastUpdated": <str>,
+                         "numberOfTracks": <int>,
+                         "numberOfVideos": <int>,
+                         "promotedArtists": [
+                           {
+                             "contributionLinkUrl": <str>,
+                             "handle": <str>,
+                             "id": <int>,
+                             "name": <str>,
+                             "picture": <str>,
+                             "type": <str>,
+                             "userId": <int>
+                           }
+                         ],
+                         "sharingLevel": "PUBLIC",
+                         "source": <str>,
+                         "squareImage": <str>,
+                         "status": <str>,
+                         "title": <str>,
+                         "trn": <str>,
+                         "type": "USER",
+                         "url": <str>,
+                         "uuid": <str>
+                       },
+                       "profile": {
+                         "color": <list[str]>,
+                         "name": <str>,
+                         "userId": <int>
+                       }
+                     }
+
+               .. tab:: Legacy (:code:`v1`) endpoint
+
+                  .. code::
+
+                     {
+                       "created": <str>,
+                       "creator": {
+                         "id": <int>
+                       },
+                       "customImageUrl": <str>,
+                       "description": <str>,
+                       "duration": <int>,
+                       "image": <str>,
+                       "lastItemAddedAt": <str>,
+                       "lastUpdated": <str>,
+                       "numberOfTracks": <int>,
+                       "numberOfVideos": <int>,
+                       "popularity": <int>,
+                       "promotedArtists": [
+                         {
+                           "handle": <str>,
+                           "id": <int>,
+                           "name": <str>,
+                           "picture": <str>,
+                           "type": <str>
+                         }
+                       ],
+                       "publicPlaylist": <bool>,
+                       "squareImage": <str>,
+                       "title": <str>,
+                       "type": <str>,
+                       "url": <str>,
+                       "uuid": <str>
+                     }
+        """
+        if version == 1:
+            if country_code is None:
+                country_code = self._client._my_country_code
+            else:
+                self._client._validate_country_code(country_code)
+            return self._client._request(
+                "GET",
+                f"v1/playlists/{playlist_uuid}",
+                params={"countryCode": country_code},
+            ).json()
+        return self._client._request(
+            "GET", f"v2/user-playlists/{playlist_uuid}"
+        ).json()
+
     def get_my_playlists(
         self,
         *,
@@ -1068,6 +1236,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Get TIDAL catalog information for playlists in the current
         user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
 
         Parameters
         ----------
@@ -1237,6 +1414,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Get TIDAL catalog information for playlists in a playlist folder
         in the current user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
 
         Parameters
         ----------
@@ -1414,6 +1600,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Get TIDAL catalog information for all playlists and playlist
         folders in the current user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
 
         Parameters
         ----------
@@ -1756,11 +1951,249 @@ class PrivateUsersAPI(ResourceAPI):
             params=params,
         ).json()
 
-    def get_user_public_playlists(self):
-        pass
+    def get_user_created_playlists(
+        self,
+        user_id: int | str | None = None,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for user-created playlists in a
+        user's collection.
 
-    def get_user_created_playlists(self):
-        pass
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the user account is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first playlist to return. Use with `limit` to
+            get the next set of playlists.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            TIDAL catalog information for user-created playlists in the
+            user's collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "created": <str>,
+                        "playlist": {
+                          "created": <str>,
+                          "creator": {
+                            "id": <int>
+                          },
+                          "customImageUrl": <str>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": <str>,
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos":<int>,
+                          "popularity": <int>,
+                          "promotedArtists": [
+                            {
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "publicPlaylist": <bool>,
+                          "squareImage": <str>,
+                          "title": <str>,
+                          "type": <str>,
+                          "url": <str>,
+                          "uuid": <str>
+                        },
+                        "type": "USER_CREATED"
+                      }
+                    ],
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>
+                  }
+        """
+        self._client._require_authentication(
+            "users.get_user_created_playlists"
+        )
+        if user_id is None:
+            user_id = self._client._get_user_identifier()
+        params = {}
+        self._client._resolve_country_code(country_code, params)
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 10_000)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request(
+            "GET", f"v1/users/{user_id}/playlists", params=params
+        ).json()
+
+    def get_user_public_playlists(
+        self,
+        user_id: int | str | None = None,
+        /,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for public playlists in a user's
+        collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        limit : int; keyword-only; optional
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`10_000`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            TIDAL content metadata for the public playlists in a user's
+            collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "cursor": <str>,
+                    "items": [
+                      {
+                        "followInfo": {
+                          "followType": "PLAYLIST",
+                          "followed": <bool>,
+                          "nrOfFollowers": <int>,
+                          "tidalResourceName": <str>
+                        },
+                        "playlist": {
+                          "contentBehavior": <str>,
+                          "created": <str>,
+                          "creator": {
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": <str>,
+                            "type": "USER"
+                          },
+                          "curators": [
+                            {
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>
+                            }
+                          ],
+                          "customImageUrl": <str>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": <str>,
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "promotedArtists": [
+                            {
+                              "contributionLinkUrl": <str>,
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "type": <str>,
+                              "userId": <int>
+                            }
+                          ],
+                          "sharingLevel": "PUBLIC",
+                          "source": <str>,
+                          "squareImage": <str>,
+                          "status": <str>,
+                          "title": <str>,
+                          "trn": <str>,
+                          "type": "USER",
+                          "url": <str>,
+                          "uuid": <str>
+                        },
+                        "profile": {
+                          "color": <list[str]>,
+                          "name": <str>,
+                          "userId": <int>
+                        }
+                      }
+                    ]
+                  }
+        """
+        self._client._require_authentication("users.get_user_public_playlists")
+        if user_id is None:
+            user_id = self._client._get_user_identifier()
+        params = {}
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET", f"v2/user-playlists/{user_id}/public", params=params
+        ).json()
 
     def get_favorite_playlists(
         self,
@@ -1906,6 +2339,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Add playlists to a user's collection.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
+
         Parameters
         ----------
         playlist_uuids : str or list[str]; positional-only; optional
@@ -1992,6 +2434,15 @@ class PrivateUsersAPI(ResourceAPI):
         """
         Remove playlists from a user's collection.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
+
         Parameters
         ----------
         playlist_uuids : str or list[str]; positional-only; optional
@@ -2058,6 +2509,15 @@ class PrivateUsersAPI(ResourceAPI):
     ) -> None:
         """
         Move playlists in the current user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
 
         Parameters
         ----------

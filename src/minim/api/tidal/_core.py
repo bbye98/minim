@@ -1,11 +1,10 @@
 from abc import abstractmethod
 from datetime import datetime
-import os
 import time
 from typing import TYPE_CHECKING, Any
 import warnings
 
-from .._shared import APIClient, OAuth2APIClient, TTLCache
+from .._shared import OAuth2APIClient, TTLCache
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI
@@ -526,11 +525,11 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
     def __init__(
         self,
         *,
-        flow: str,
+        flow: str | None,
         client_id: str | None = None,
         client_secret: str | None = None,
         user_identifier: str | None = None,
-        redirect_uri: str = "tidal://login/auth",
+        redirect_uri: str | None = None,
         scopes: str | set[str] = "",
         access_token: str | None = None,
         refresh_token: str | None = None,
@@ -941,6 +940,12 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         """
         if self._expiry and datetime.now() > self._expiry:
             self._refresh_access_token()
+
+        if self._flow == "device" and "r_usr" not in self._scopes:
+            raise RuntimeError(
+                "The 'r_usr' scope is required when using the private "
+                "TIDAL API with the Device Authorization Flow."
+            )
 
         resp = self._client.request(method, endpoint, **kwargs)
         status = resp.status_code
