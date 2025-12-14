@@ -9572,6 +9572,7 @@ class PrivateAPI:
         playlist_uuid: str,
         items: Union[int, str, list[Union[int, str]]] = None,
         *,
+        from_album_id: str = None,
         from_playlist_uuid: str = None,
         on_duplicate: str = "FAIL",
         on_artifact_not_found: str = "FAIL",
@@ -9626,10 +9627,12 @@ class PrivateAPI:
 
         data = {
             "onArtifactNotFound": on_artifact_not_found,
-            "onDuplicate": on_duplicate,
+            "onDupes": on_duplicate,
         }
         if items:
             data |= {"trackIds": items}
+        elif from_album_id:
+            data |= {"fromAlbumId": from_album_id}
         else:
             data |= {"fromPlaylistUuid": from_playlist_uuid}
         self._request(
@@ -9855,7 +9858,7 @@ class PrivateAPI:
 
     def create_playlist_folder(
         self, name: str, *, folder_uuid: str = "root"
-    ) -> None:
+    ) -> dict[str, Any]:
         """
         Create a user playlist folder.
 
@@ -9880,7 +9883,7 @@ class PrivateAPI:
             "create_playlist_folder", "r_usr", flows={"device_code"}
         )
 
-        self._request(
+        return self._request(
             "put",
             f"{self.API_URL}/v2/my-collection/playlists/folders/create-folder",
             params={"name": name, "folderId": folder_uuid},
