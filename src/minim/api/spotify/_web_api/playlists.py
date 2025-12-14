@@ -362,7 +362,7 @@ class PlaylistsAPI(ResourceAPI):
         `Playlists > Change Playlist Details
         <https://developer.spotify.com/documentation/web-api/reference
         /change-playlist-details>`_: Update the details of a playlist
-        owend by the current user.
+        owned by the current user.
 
         .. admonition:: Authorization scopes
            :class: authorization-scope

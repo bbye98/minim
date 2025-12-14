@@ -4,7 +4,7 @@ import time
 from typing import TYPE_CHECKING, Any
 import warnings
 
-from .._shared import OAuth2APIClient, TTLCache
+from .._shared import APIClient, OAuth2APIClient, TTLCache
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI
@@ -704,6 +704,55 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             else:
                 raise ValueError(f"Invalid TIDAL ID {id_!r}.")
         return ",".join(tidal_ids)
+
+    @staticmethod
+    def _prepare_uuids(
+        resource: str, uuids: str | list[str], /, *, prefix: bool = False
+    ) -> str:
+        """
+        Stringify a list of UUIDs into a comma-delimited string.
+
+        Parameters
+        ----------
+        resource : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"folder"`, :code:`"playlist"`.
+
+        uuids : str or list[str]; positional-only
+            UUIDs of playlists or playlist folders.
+
+        prefix : bool; keyword-only; default: :code:`False`
+            Whether UUIDs are prefixed with :code:`trn:{type}:`.
+
+        Returns
+        -------
+        uuids : str
+            Comma-delimited string containing UUIDs of playlists or
+            playlist folders.
+        """
+        if not uuids:
+            raise ValueError(
+                f"At least one {resource} UUID must be specified."
+            )
+
+        if isinstance(uuids, str):
+            return PrivateTIDALAPI._prepare_uuids(uuids.split(","))
+        elif isinstance(uuids, tuple | list):
+            for idx, uuid in enumerate(uuids):
+                if prefix:
+                    if uuid.startswith(f"trn:{resource}:"):
+                        uuid = uuid[13:]
+                    else:
+                        uuids[idx] = f"trn:{resource}:{uuid}"
+                APIClient._validate_uuid(uuid)
+        else:
+            raise TypeError(
+                f"`{resource}_uuids` must be a comma-separated string or "
+                "a list of strings."
+            )
+
+        return ",".join(uuids)
 
     @property
     def _my_country_code(self) -> str:

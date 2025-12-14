@@ -1393,15 +1393,16 @@ class OAuth2APIClient(APIClient):
                 "parameter."
             )
         self._client_secret = client_secret
-        has_redirect = flow in {"auth_code", "pkce", "implicit"}
-        if has_redirect and not redirect_uri:
+        requires_redirect = flow in {"auth_code", "pkce", "implicit"}
+        has_redirect = redirect_uri is not None
+        if requires_redirect and not has_redirect:
             raise ValueError(
                 f"The {self._OAUTH_FLOWS_NAMES[flow]} requires a "
                 "redirect URI to be provided via the `redirect_uri` "
                 "parameter."
             )
         self._user_identifier = user_identifier
-        if has_redirect:
+        if requires_redirect:
             parsed = urlparse(redirect_uri)
             self._port = (
                 port
@@ -1430,11 +1431,13 @@ class OAuth2APIClient(APIClient):
             self._backend = backend
             self._browser = browser
         else:
-            warnings.warn(
-                "A redirect URI was provided via the `redirect_uri` "
-                f"parameter, but the {self._OAUTH_FLOWS_NAMES[flow]} "
-                "does not use redirects."
-            )
+            if has_redirect:
+                warnings.warn(
+                    "A redirect URI was provided via the "
+                    "`redirect_uri`  parameter, but the "
+                    f"{self._OAUTH_FLOWS_NAMES[flow]} does not use "
+                    "redirects."
+                )
             self._redirect_uri = None
             self._backend = None
             self._browser = None
