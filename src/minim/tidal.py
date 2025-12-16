@@ -9642,10 +9642,10 @@ class PrivateAPI:
             headers={"If-None-Match": self.get_playlist_etag(playlist_uuid)},
         )
 
-    def move_playlist_item(
+    def move_playlist_items(
         self,
         playlist_uuid: str,
-        from_index: Union[int, str],
+        from_indices: Union[int, str],
         to_index: Union[int, str],
     ) -> None:
         """
@@ -9664,8 +9664,9 @@ class PrivateAPI:
 
             **Example**: :code:`"e09ab9ce-2e87-41b8-b404-3cd712bf706e"`.
 
-        from_index : `int` or `str`
-            Current item index.
+        from_indices : `int` or `str`
+            Current item indices, provided as an integer or a
+            comma-separated string.
 
         to_index : `int` or `str`
             Desired item index.
@@ -9675,16 +9676,52 @@ class PrivateAPI:
 
         self._request(
             "post",
-            f"{self.API_URL}/v1/playlists/{playlist_uuid}/items/{from_index}",
+            f"{self.API_URL}/v1/playlists/{playlist_uuid}/items/{from_indices}",
             params={"toIndex": to_index},
             headers={"If-None-Match": self.get_playlist_etag(playlist_uuid)},
         )
 
-    def delete_playlist_item(
-        self, playlist_uuid: str, index: Union[int, str]
+    def replace_playlist_item(
+        self, playlist_uuid: str, index: Union[int, str], item: Union[int, str]
     ) -> None:
         """
-        Delete an item from a playlist owned by the current user.
+        Replace an item in a playlist owned by the current user with
+        another item.
+
+        Parameters
+        ----------
+        playlist_uuid : `str`
+            TIDAL playlist UUID.
+
+            **Example**: :code:`"e09ab9ce-2e87-41b8-b404-3cd712bf706e"`.
+
+        index : int or str; positional-only
+            Zero-based index of the item to be replaced.
+
+             **Examples**: :code:`1`, :code:`"2"`.
+
+        item : int or str; positional-only
+            TIDAL ID of the track or video to replace the item at index
+            `index`.
+
+            **Examples**: :code:`46369325`, :code:`"75413016"`.
+        """
+        self._check_scope(
+            "replace_playlist_item", "r_usr", flows={"device_code"}
+        )
+
+        self._request(
+            "post",
+            f"{self.API_URL}/v1/playlists/{playlist_uuid}/items/{index}",
+            data={"itemId": item},
+            headers={"If-None-Match": self.get_playlist_etag(playlist_uuid)},
+        )
+
+    def delete_playlist_items(
+        self, playlist_uuid: str, indices: Union[int, str]
+    ) -> None:
+        """
+        Delete items from a playlist owned by the current user.
 
         .. admonition:: User authentication and authorization scope
            :class: warning
@@ -9699,8 +9736,9 @@ class PrivateAPI:
 
             **Example**: :code:`"e09ab9ce-2e87-41b8-b404-3cd712bf706e"`.
 
-        index : `int` or `str`
-            Item index.
+        indices : `int` or `str`
+            Item indices, provided as an integer or a comma-separated
+            string.
         """
 
         self._check_scope(
@@ -9709,7 +9747,7 @@ class PrivateAPI:
 
         self._request(
             "delete",
-            f"{self.API_URL}/v1/playlists/{playlist_uuid}/items/{index}",
+            f"{self.API_URL}/v1/playlists/{playlist_uuid}/items/{indices}",
             headers={"If-None-Match": self.get_playlist_etag(playlist_uuid)},
         )
 
