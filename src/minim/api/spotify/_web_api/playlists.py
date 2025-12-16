@@ -940,8 +940,8 @@ class PlaylistsAPI(ResourceAPI):
         """
         `Playlists > Update Playlist Items
         <https://developer.spotify.com/documentation/web-api/reference
-        /reorder-or-replace-playlists-tracks>`__: Replace items in a
-        playlist owned by the current user.
+        /reorder-or-replace-playlists-tracks>`__: Clear and replace
+        items in a playlist owned by the current user.
 
         .. admonition:: Authorization scopes
            :class: authorization-scope

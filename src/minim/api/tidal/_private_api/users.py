@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, ResourceAPI
-from .playlists import PrivatePlaylistsAPI
 
 if TYPE_CHECKING:
     from .. import PrivateTIDALAPI
@@ -1331,6 +1330,1000 @@ class PrivateUsersAPI(ResourceAPI):
                     )
                 },
             )
+
+    def get_my_playlists(
+        self,
+        *,
+        limit: int = 50,
+        cursor: str | None = None,
+        filter_by: str | list[str] | None = None,
+        sort_by: str | None = None,
+        reverse: bool | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for playlists in the current
+        user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
+
+        Parameters
+        ----------
+        limit : int; keyword-only; default: :code:`50`
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+        filter_by : str or list[str]; keyword-only; optional
+            Playlist types to include in the results, provided as either
+            a comma-separated string or a list of strings. If not
+            specified, all playlists are returned.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"FOLDER"` – Playlist folders.
+               * :code:`"PLAYLIST"` – All playlists.
+               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
+               * :code:`"USER_PLAYLIST"` – User-created playlists.
+
+            **Examples**: :code:`"USER_PLAYLIST"`,
+            :code:`"FOLDER,USER_PLAYLIST"`,
+            :code:`["FOLDER", "USER_PLAYLIST"]`.
+
+        sort_by : str; keyword-only; optional
+            Field to sort the playlists by.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"DATE"` - Date added.
+               * :code:`"NAME"` - Playlist name.
+
+            **API default**: :code:`"DATE"`.
+
+        reverse : bool; keyword-only; optional
+            Whether to reverse the sort order from ascending to
+            descending.
+
+            **API default**: :code:`False`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            TIDAL content metadata for the playlists in the current
+            user's collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "cursor": <str>,
+                    "items": [
+                      {
+                        "addedAt": <str>,
+                        "data": {
+                          "createdAt": <str>,
+                          "id": <str>,
+                          "itemType": "FOLDER",
+                          "lastModifiedAt": <str>,
+                          "name": <str>,
+                          "totalNumberOfItems": <int>,
+                          "trn": <str>,
+                        },
+                        "itemType": "FOLDER",
+                        "lastModifiedAt": <str>,
+                        "name": <str>,
+                        "parent": {
+                          "id": <str>,
+                          "name": <str>
+                        },
+                        "trn": <str>,
+                      },
+                      {
+                        "addedAt": <str>,
+                        "data": {
+                          "contentBehavior": <str>,
+                          "created": <str>,
+                          "creator": {
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": <str>,
+                            "type": <str>
+                          },
+                          "curators": [
+                            {
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>
+                            }
+                          ],
+                          "customImageUrl": <str>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": <str>,
+                          "itemType": "PLAYLIST",
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
+                          "numberOfTracks": 1,
+                          "numberOfVideos": 1,
+                          "promotedArtists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "sharingLevel": <str>,
+                          "source": <str>,
+                          "squareImage": <str>,
+                          "status": <str>,
+                          "title": <str>,
+                          "trn": <str>,
+                          "type": <str>,
+                          "url": <str>,
+                          "uuid": <str>
+                        },
+                        "itemType": "PLAYLIST",
+                        "lastModifiedAt": <str>,
+                        "name": <str>,
+                        "parent": {
+                          "id": <str>,
+                          "name": <str>
+                        },
+                        "trn": <str>
+                      }
+                    ],
+                    "lastModifiedAt": <str>
+                  }
+        """
+        self._client._require_authentication("playlists.get_my_playlists")
+        self._client._validate_number("limit", limit, int, 1, 50)
+        params = {"limit": limit}
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        if filter_by is not None:
+            self._validate_filters(filter_by)
+            params["includeOnly"] = filter_by
+        if sort_by is not None:
+            if sort_by not in self._SORTS:
+                sorts = "', '".join(sorted(self._SORTS))
+                raise ValueError(
+                    f"Invalid sort field {sort_by!r}. Valid values: '{sorts}'."
+                )
+            params["order"] = sort_by
+        if reverse is not None:
+            self._client._validate_type("reverse", reverse, bool)
+            params["orderDirection"] = "DESC" if reverse else "ASC"
+        return self._client._request(
+            "GET", "v2/my-collection/playlists", params=params
+        ).json()
+
+    def get_my_folder(
+        self,
+        folder_uuid: str | None = None,
+        /,
+        *,
+        limit: int = 50,
+        cursor: str | None = None,
+        filter_by: str | list[str] | None = None,
+        sort_by: str | None = None,
+        reverse: bool | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for playlists in a playlist folder
+        in the current user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
+
+        Parameters
+        ----------
+        folder_uuid : str; positional-only; optional
+            UUID of TIDAL playlist folder to retrieve playlists from.
+            Use :code:`"root"` or leave blank to target the top-level
+            "Playlists" folder.
+
+        limit : int; keyword-only; default: :code:`50`
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+        filter_by : str or list[str]; keyword-only; optional
+            Playlist types to include in the results, provided as either
+            a comma-separated string or a list of strings. If not
+            specified, all playlists are returned.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"FOLDER"` – Playlist folders.
+               * :code:`"PLAYLIST"` – All playlists.
+               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
+               * :code:`"USER_PLAYLIST"` – User-created playlists.
+
+            **Examples**: :code:`"USER_PLAYLIST"`,
+            :code:`"FOLDER,USER_PLAYLIST"`,
+            :code:`["FOLDER", "USER_PLAYLIST"]`.
+
+        sort_by : str; keyword-only; optional
+            Field to sort the playlists by.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"DATE"` - Date added.
+               * :code:`"NAME"` - Playlist name.
+
+            **API default**: :code:`"DATE"`.
+
+        reverse : bool; keyword-only; optional
+            Whether to reverse the sort order from ascending to
+            descending.
+
+            **API default**: :code:`False`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            TIDAL content metadata for the playlists in the playlist
+            folder in the current user's collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "cursor": <str>,
+                    "items": [
+                      {
+                        "addedAt": <str>,
+                        "data": {
+                          "createdAt": <str>,
+                          "id": <str>,
+                          "itemType": "FOLDER",
+                          "lastModifiedAt": <str>,
+                          "name": <str>,
+                          "totalNumberOfItems": <int>,
+                          "trn": <str>,
+                        },
+                        "itemType": "FOLDER",
+                        "lastModifiedAt": <str>,
+                        "name": <str>,
+                        "parent": {
+                          "id": <str>,
+                          "name": <str>
+                        },
+                        "trn": <str>,
+                      },
+                      {
+                        "addedAt": <str>,
+                        "data": {
+                          "contentBehavior": <str>,
+                          "created": <str>,
+                          "creator": {
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": <str>,
+                            "type": <str>
+                          },
+                          "curators": [
+                            {
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>
+                            }
+                          ],
+                          "customImageUrl": <str>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": <str>,
+                          "itemType": "PLAYLIST",
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
+                          "numberOfTracks": 1,
+                          "numberOfVideos": 1,
+                          "promotedArtists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "sharingLevel": <str>,
+                          "source": <str>,
+                          "squareImage": <str>,
+                          "status": <str>,
+                          "title": <str>,
+                          "trn": <str>,
+                          "type": <str>,
+                          "url": <str>,
+                          "uuid": <str>
+                        },
+                        "itemType": "PLAYLIST",
+                        "lastModifiedAt": <str>,
+                        "name": <str>,
+                        "parent": {
+                          "id": <str>,
+                          "name": <str>
+                        },
+                        "trn": <str>
+                      }
+                    ],
+                    "lastModifiedAt": <str>,
+                    "totalNumberOfItems": <int>
+                  }
+        """
+        self._client._require_authentication("playlists.get_my_folder")
+        self._client._validate_number("limit", limit, int, 1, 50)
+        params = {"limit": limit}
+        if folder_uuid is not None:
+            if folder_uuid != "root":
+                self._client._validate_uuid(folder_uuid)
+            params["folderId"] = folder_uuid
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        if filter_by is not None:
+            self._validate_filters(filter_by)
+            params["includeOnly"] = filter_by
+        if sort_by is not None:
+            if sort_by not in self._SORTS:
+                sorts = "', '".join(sorted(self._SORTS))
+                raise ValueError(
+                    f"Invalid sort field {sort_by!r}. Valid values: '{sorts}'."
+                )
+            params["order"] = sort_by
+        if reverse is not None:
+            self._client._validate_type("reverse", reverse, bool)
+            params["orderDirection"] = "DESC" if reverse else "ASC"
+        return self._client._request(
+            "GET", "v2/my-collection/playlists/folders", params=params
+        )
+
+    def get_my_folders_and_playlists(
+        self,
+        *,
+        limit: int = 50,
+        cursor: str | None = None,
+        filter_by: str | list[str] | None = None,
+        sort_by: str | None = None,
+        reverse: bool | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for all playlist folders and
+        playlists in the current user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
+
+        Parameters
+        ----------
+        limit : int; keyword-only; default: :code:`50`
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+        filter_by : str or list[str]; keyword-only; optional
+            Playlist types to include in the results, provided as either
+            a comma-separated string or a list of strings. If not
+            specified, all playlists are returned.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"FOLDER"` – Playlist folders.
+               * :code:`"PLAYLIST"` – All playlists.
+               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
+               * :code:`"USER_PLAYLIST"` – User-created playlists.
+
+            **Examples**: :code:`"USER_PLAYLIST"`,
+            :code:`"FOLDER,USER_PLAYLIST"`,
+            :code:`["FOLDER", "USER_PLAYLIST"]`.
+
+        sort_by : str; keyword-only; optional
+            Field to sort the playlists by.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"DATE"` - Date added.
+               * :code:`"NAME"` - Playlist name.
+
+            **API default**: :code:`"DATE"`.
+
+        reverse : bool; keyword-only; optional
+            Whether to reverse the sort order from ascending to
+            descending.
+
+            **API default**: :code:`False`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            TIDAL content metadata for the playlist folders and
+            playlists in the current user's collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "cursor": <str>,
+                    "items": [
+                      {
+                        "addedAt": <str>,
+                        "data": {
+                          "createdAt": <str>,
+                          "id": <str>,
+                          "itemType": "FOLDER",
+                          "lastModifiedAt": <str>,
+                          "name": <str>,
+                          "totalNumberOfItems": <int>,
+                          "trn": <str>,
+                        },
+                        "itemType": "FOLDER",
+                        "lastModifiedAt": <str>,
+                        "name": <str>,
+                        "parent": {
+                          "id": <str>,
+                          "name": <str>
+                        },
+                        "trn": <str>,
+                      },
+                      {
+                        "addedAt": <str>,
+                        "data": {
+                          "contentBehavior": <str>,
+                          "created": <str>,
+                          "creator": {
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": <str>,
+                            "type": <str>
+                          },
+                          "curators": [
+                            {
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>
+                            }
+                          ],
+                          "customImageUrl": <str>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": <str>,
+                          "itemType": "PLAYLIST",
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
+                          "numberOfTracks": 1,
+                          "numberOfVideos": 1,
+                          "promotedArtists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "sharingLevel": <str>,
+                          "source": <str>,
+                          "squareImage": <str>,
+                          "status": <str>,
+                          "title": <str>,
+                          "trn": <str>,
+                          "type": <str>,
+                          "url": <str>,
+                          "uuid": <str>
+                        },
+                        "itemType": "PLAYLIST",
+                        "lastModifiedAt": <str>,
+                        "name": <str>,
+                        "parent": {
+                          "id": <str>,
+                          "name": <str>
+                        },
+                        "trn": <str>
+                      }
+                    ],
+                    "lastModifiedAt": <str>,
+                  }
+        """
+        self._client._require_authentication(
+            "users.get_my_folders_and_playlists"
+        )
+        self._client._validate_number("limit", limit, int, 1, 50)
+        params = {"limit": limit}
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        if filter_by is not None:
+            self._validate_filters(filter_by)
+            params["includeOnly"] = filter_by
+        if sort_by is not None:
+            if sort_by not in self._SORTS:
+                sorts = "', '".join(sorted(self._SORTS))
+                raise ValueError(
+                    f"Invalid sort field {sort_by!r}. Valid values: '{sorts}'."
+                )
+            params["order"] = sort_by
+        if reverse is not None:
+            self._client._validate_type("reverse", reverse, bool)
+            params["orderDirection"] = "DESC" if reverse else "ASC"
+        return self._client._request(
+            "GET",
+            "v2/my-collection/playlists/folders/flattened",
+            params=params,
+        )
+
+    def get_user_playlists(
+        self,
+        user_id: int | str | None = None,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+        sort_by: str | None = None,
+        reverse: bool | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for editorial and user-created
+        playlists in a user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the user account is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first playlist to return. Use with `limit` to
+            get the next set of playlists.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        sort_by : str; keyword-only; optional
+            Field to sort the playlists by.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"DATE"` - Date added.
+               * :code:`"NAME"` - Playlist name.
+
+            **API default**: :code:`"DATE"`.
+
+        reverse : bool; keyword-only; optional
+            Whether to reverse the sort order from ascending to
+            descending.
+
+            **API default**: :code:`False`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            TIDAL catalog information for editorial and user-created
+            playlists in the user's collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "created": <str>,
+                        "playlist": {
+                          "created": <str>,
+                          "creator": {
+                            "id": <int>
+                          },
+                          "customImageUrl": <str>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": <str>,
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos":<int>,
+                          "popularity": <int>,
+                          "promotedArtists": [
+                            {
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "publicPlaylist": <bool>,
+                          "squareImage": <str>,
+                          "title": <str>,
+                          "type": <str>,
+                          "url": <str>,
+                          "uuid": <str>
+                        },
+                        "type": "USER_CREATED"
+                      },
+                      {
+                        "created": <str>,
+                        "playlist": {
+                          "created": <str>,
+                          "creator": {
+                            "id": <int>
+                          },
+                          "customImageUrl": <str>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": <str>,
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos":<int>,
+                          "popularity": <int>,
+                          "promotedArtists": [
+                            {
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "publicPlaylist": <bool>,
+                          "squareImage": <str>,
+                          "title": <str>,
+                          "type": <str>,
+                          "url": <str>,
+                          "uuid": <str>
+                        },
+                        "type": "USER_FAVORITE"
+                      }
+                    ],
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>
+                  }
+        """
+        self._client._require_authentication("playlists.get_user_playlists")
+        if user_id is None:
+            user_id = self._client._get_user_identifier()
+        params = {}
+        self._client._resolve_country_code(country_code, params)
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 100)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        if sort_by is not None:
+            if sort_by not in self._SORTS:
+                sorts = "', '".join(sorted(self._SORTS))
+                raise ValueError(
+                    f"Invalid sort field {sort_by!r}. Valid values: '{sorts}'."
+                )
+            params["order"] = sort_by
+        if reverse is not None:
+            self._client._validate_type("reverse", reverse, bool)
+            params["orderDirection"] = "DESC" if reverse else "ASC"
+        return self._client._request(
+            "GET",
+            f"v1/users/{user_id}/playlistsAndFavoritePlaylists",
+            params=params,
+        ).json()
+
+    def get_user_created_playlists(
+        self,
+        user_id: int | str | None = None,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for user-created playlists in a
+        user's collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the user account is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first playlist to return. Use with `limit` to
+            get the next set of playlists.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            TIDAL catalog information for user-created playlists in the
+            user's collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "created": <str>,
+                        "playlist": {
+                          "created": <str>,
+                          "creator": {
+                            "id": <int>
+                          },
+                          "customImageUrl": <str>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": <str>,
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos":<int>,
+                          "popularity": <int>,
+                          "promotedArtists": [
+                            {
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "publicPlaylist": <bool>,
+                          "squareImage": <str>,
+                          "title": <str>,
+                          "type": <str>,
+                          "url": <str>,
+                          "uuid": <str>
+                        },
+                        "type": "USER_CREATED"
+                      }
+                    ],
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>
+                  }
+        """
+        self._client._require_authentication(
+            "users.get_user_created_playlists"
+        )
+        if user_id is None:
+            user_id = self._client._get_user_identifier()
+        params = {}
+        self._client._resolve_country_code(country_code, params)
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 10_000)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request(
+            "GET", f"v1/users/{user_id}/playlists", params=params
+        ).json()
+
+    def get_user_public_playlists(
+        self,
+        user_id: int | str | None = None,
+        /,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for public playlists in a user's
+        collection.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access user recommendations, and view and modify user's
+                 collection.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        limit : int; keyword-only; optional
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`10_000`.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            TIDAL content metadata for the public playlists in a user's
+            collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "cursor": <str>,
+                    "items": [
+                      {
+                        "followInfo": {
+                          "followType": "PLAYLIST",
+                          "followed": <bool>,
+                          "nrOfFollowers": <int>,
+                          "tidalResourceName": <str>
+                        },
+                        "playlist": {
+                          "contentBehavior": <str>,
+                          "created": <str>,
+                          "creator": {
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": <str>,
+                            "type": "USER"
+                          },
+                          "curators": [
+                            {
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>
+                            }
+                          ],
+                          "customImageUrl": <str>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": <str>,
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "promotedArtists": [
+                            {
+                              "contributionLinkUrl": <str>,
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "type": <str>,
+                              "userId": <int>
+                            }
+                          ],
+                          "sharingLevel": "PUBLIC",
+                          "source": <str>,
+                          "squareImage": <str>,
+                          "status": <str>,
+                          "title": <str>,
+                          "trn": <str>,
+                          "type": "USER",
+                          "url": <str>,
+                          "uuid": <str>
+                        },
+                        "profile": {
+                          "color": <list[str]>,
+                          "name": <str>,
+                          "userId": <int>
+                        }
+                      }
+                    ]
+                  }
+        """
+        self._client._require_authentication(
+            "playlists.get_user_public_playlists"
+        )
+        if user_id is None:
+            user_id = self._client._get_user_identifier()
+        params = {}
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if cursor is not None:
+            self._client._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        return self._client._request(
+            "GET", f"v2/user-playlists/{user_id}/public", params=params
+        ).json()
 
     def _get_favorite_resources(
         self,
