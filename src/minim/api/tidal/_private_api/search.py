@@ -1,0 +1,927 @@
+from typing import TYPE_CHECKING, Any
+
+from ..._shared import TTLCache, ResourceAPI
+
+if TYPE_CHECKING:
+    from .. import PrivateTIDALAPI
+
+
+class PrivateSearchAPI(ResourceAPI):
+    """
+    Search API endpoints for the private TIDAL API.
+
+    .. important::
+
+       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
+       and should not be instantiated directly.
+    """
+
+    _client: "PrivateTIDALAPI"
+
+    @TTLCache.cached_method(ttl="search")
+    def search(
+        self,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for albums, artists, playlists,
+        tracks, and videos that match a search query.
+
+        Parameters
+        ----------
+        query : str; positional-only
+            Search query.
+
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of items to return for each entity type.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first item to return for each entity type. Use
+            with `limit` to get the next batch of items.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        results : dict[str, Any]
+            Search results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "albums": {
+                      "items": [
+                        {
+                          "adSupportedStreamReady": <bool>,
+                          "allowStreaming": <bool>,
+                          "artists": [
+                            {
+                              "handle": None,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "type": <str>
+                            }
+                          ],
+                          "audioModes": <list[str]>,
+                          "audioQuality": <str>,
+                          "copyright": <str>,
+                          "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "djReady": <bool>,
+                          "duration": <int>,
+                          "explicit": <bool>,
+                          "id": <int>,
+                          "mediaMetadata": {
+                            "tags": <list[str]>
+                          },
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "numberOfVolumes": <int>,
+                          "payToStream": <bool>,
+                          "popularity": <int>,
+                          "premiumStreamingOnly": <bool>,
+                          "releaseDate": "YYYY-MM-DD",
+                          "stemReady": <bool>,
+                          "streamReady": <bool>,
+                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "title": <str>,
+                          "type": "ALBUM",
+                          "upc": <str>,
+                          "upload": <bool>,
+                          "url": f"http://www.tidal.com/album/{id}",
+                          "version": None,
+                          "vibrantColor": "#rrggbb",
+                          "videoCover": None
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "totalNumberOfItems": <int>
+                    },
+                    "artists": {
+                      "items": [
+                        {
+                          "artistRoles": [
+                            {
+                              "category": <str>,
+                              "categoryId": <int>
+                            }
+                          ],
+                          "artistTypes": <list[str]>
+                          "handle": None,
+                          "id": <int>,
+                          "mixes": {
+                            "ARTIST_MIX": <str>
+                          },
+                          "name": <str>,
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "popularity": <int>,
+                          "selectedAlbumCoverFallback": None,
+                          "spotlighted": <bool>,
+                          "url": f"http://www.tidal.com/artist/{id}",
+                          "userId": None
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "totalNumberOfItems": <int>
+                    },
+                    "playlists": {
+                      "items": [
+                        {
+                          "created": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "creator": {
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "selectedAlbumCoverFallback": None,
+                            "type": None
+                          },
+                          "customImageUrl": None,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "lastItemAddedAt": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "lastUpdated": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "popularity": <int>,
+                          "promotedArtists": [
+                            {
+                              "handle": None,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "type": "MAIN"
+                            }
+                          ],
+                          "publicPlaylist": <bool>,
+                          "squareImage": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "title": <str>,
+                          "type": <str>,
+                          "url": f"http://www.tidal.com/playlist/{uuid}",
+                          "uuid": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "totalNumberOfItems": <int>
+                    },
+                    "topHit": {
+                      "type": "ARTISTS",
+                      "value": {
+                        "artistRoles": [
+                          {
+                            "category": <str>,
+                            "categoryId": <int>
+                          }
+                        ],
+                        "artistTypes": <list[str]>,
+                        "handle": None,
+                        "id": <int>,
+                        "mixes": {
+                          "ARTIST_MIX": <str>
+                        },
+                        "name": <str>,
+                        "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "popularity": <int>,
+                        "selectedAlbumCoverFallback": None,
+                        "spotlighted": <bool>,
+                        "url": f"http://www.tidal.com/artist/{id}",
+                        "userId": null
+                      }
+                    },
+                    "tracks": {
+                      "items": [
+                        {
+                          "accessType": None,
+                          "adSupportedStreamReady": <bool>,
+                          "album": {
+                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "id": <int>,
+                            "releaseDate": "YYYY-MM-DD",
+                            "title": <str>,
+                            "vibrantColor": "#rrggbb",
+                            "videoCover": None
+                          },
+                          "allowStreaming": <bool>,
+                          "artists": [
+                            {
+                              "handle": None,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "type": <str>
+                            }
+                          ],
+                          "audioModes": <list[str]>,
+                          "audioQuality": <str>,
+                          "bpm": <int>,
+                          "copyright": <str>,
+                          "djReady": <bool>,
+                          "duration": <int>,
+                          "editable": <bool>,
+                          "explicit": <bool>,
+                          "id": <int>,
+                          "isrc": <str>,
+                          "key": <str>,
+                          "keyScale": <str>,
+                          "mediaMetadata": {
+                            "tags": <list[str]>
+                          },
+                          "mixes": {
+                            "TRACK_MIX": <str>
+                          },
+                          "payToStream": <bool>,
+                          "peak": <float>,
+                          "popularity": <int>,
+                          "premiumStreamingOnly": <bool>,
+                          "replayGain": <float>,
+                          "spotlighted": <bool>,
+                          "stemReady": <bool>,
+                          "streamReady": <bool>,
+                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "title": <str>,
+                          "trackNumber": <int>,
+                          "upload": <bool>,
+                          "url": f"http://www.tidal.com/track/{id}",
+                          "version": None,
+                          "volumeNumber": <int>
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "totalNumberOfItems": <int>
+                    },
+                    "videos": {
+                      "items": [
+                        {
+                          "adSupportedStreamReady": <bool>,
+                          "adsPrePaywallOnly": <bool>,
+                          "adsUrl": None,
+                          "album": None,
+                          "allowStreaming": <bool>,
+                          "artists": [
+                            {
+                              "handle": None,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "type": <str>
+                            }
+                          ],
+                          "djReady": <bool>,
+                          "duration": <int>,
+                          "explicit": <bool>,
+                          "id": <int>,
+                          "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "imagePath": None,
+                          "popularity": <int>,
+                          "quality": <int>,
+                          "releaseDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "stemReady": <bool>,
+                          "streamReady": <bool>,
+                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "title": <str>,
+                          "trackNumber": <int>,
+                          "type": "Music Video",
+                          "vibrantColor": "#rrggbb",
+                          "volumeNumber": <int>
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "totalNumberOfItems": <int>
+                    }
+                  }
+        """
+        return self._search_entity(
+            None, query, country_code=country_code, limit=limit, offset=offset
+        )
+
+    @TTLCache.cached_method(ttl="search")
+    def search_albums(
+        self,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for albums that match a search
+        query.
+
+        Parameters
+        ----------
+        query : str; positional-only
+            Search query.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of albums to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first album to return. Use with `limit` to get
+            the next batch of albums.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        albums : dict[str, Any]
+            TIDAL catalog information for the matching albums.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "adSupportedStreamReady": <bool>,
+                        "allowStreaming": <bool>,
+                        "artist": {
+                          "handle": None,
+                          "id": <int>,
+                          "name": <str>,
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "type": "MAIN"
+                        },
+                        "artists": [
+                          {
+                            "handle": None,
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "type": <str>
+                          }
+                        ],
+                        "audioModes": <list[str]>,
+                        "audioQuality": <str>,
+                        "copyright": <str>,
+                        "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "djReady": <bool>,
+                        "duration": <int>,
+                        "explicit": <bool>,
+                        "id": <int>,
+                        "mediaMetadata": {
+                          "tags": <list[str]>
+                        },
+                        "numberOfTracks": <int>,
+                        "numberOfVideos": <int>,
+                        "numberOfVolumes": <int>,
+                        "payToStream": <bool>,
+                        "popularity": <int>,
+                        "premiumStreamingOnly": <bool>,
+                        "releaseDate": "YYYY-MM-DD",
+                        "stemReady": <bool>,
+                        "streamReady": <bool>,
+                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "title": <str>,
+                        "type": "ALBUM",
+                        "upc": <str>,
+                        "upload": <bool>,
+                        "url": f"http://www.tidal.com/album/{id}",
+                        "version": None,
+                        "vibrantColor": "#rrggbb",
+                        "videoCover": None
+                      }
+                    ],
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>
+                  }
+        """
+        return self._search_entity(
+            "albums",
+            query,
+            country_code=country_code,
+            limit=limit,
+            offset=offset,
+        )
+
+    @TTLCache.cached_method(ttl="search")
+    def search_artists(
+        self,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for artists that match a search
+        query.
+
+        Parameters
+        ----------
+        query : str; positional-only
+            Search query.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of artists to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first artist to return. Use with `limit` to get
+            the next batch of artists.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        artists : dict[str, Any]
+            TIDAL catalog information for the matching artists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "artistRoles": [
+                          {
+                            "category": <str>,
+                            "categoryId": <int>
+                          }
+                        ],
+                        "artistTypes": <list[str]>
+                        "handle": None,
+                        "id": <int>,
+                        "mixes": {
+                          "ARTIST_MIX": <str>
+                        },
+                        "name": <str>,
+                        "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "popularity": <int>,
+                        "selectedAlbumCoverFallback": None,
+                        "spotlighted": <bool>,
+                        "url": f"http://www.tidal.com/artist/{id}",
+                        "userId": None
+                      }
+                    ],
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>
+                  }
+        """
+        return self._search_entity(
+            "artists",
+            query,
+            country_code=country_code,
+            limit=limit,
+            offset=offset,
+        )
+
+    @TTLCache.cached_method(ttl="search")
+    def search_playlists(
+        self,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for playlists that match a search
+        query.
+
+        Parameters
+        ----------
+        query : str; positional-only
+            Search query.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first playlist to return. Use with `limit` to
+            get the next batch of playlists.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            TIDAL catalog information for the matching playlists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "created": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "creator": {
+                          "id": <int>,
+                          "name": <str>,
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "selectedAlbumCoverFallback": None,
+                          "type": None
+                        },
+                        "customImageUrl": None,
+                        "description": <str>,
+                        "duration": <int>,
+                        "image": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "lastItemAddedAt": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "lastUpdated": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "numberOfTracks": <int>,
+                        "numberOfVideos": <int>,
+                        "popularity": <int>,
+                        "promotedArtists": [
+                          {
+                            "handle": None,
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "type": "MAIN"
+                          }
+                        ],
+                        "publicPlaylist": <bool>,
+                        "squareImage": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "title": <str>,
+                        "type": <str>,
+                        "url": f"http://www.tidal.com/playlist/{uuid}",
+                        "uuid": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                      }
+                    ],
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>
+                  }
+        """
+        return self._search_entity(
+            "playlists",
+            query,
+            country_code=country_code,
+            limit=limit,
+            offset=offset,
+        )
+
+    @TTLCache.cached_method(ttl="search")
+    def search_tracks(
+        self,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for tracks that match a search
+        query.
+
+        Parameters
+        ----------
+        query : str; positional-only
+            Search query.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of tracks to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first track to return. Use with `limit` to
+            get the next batch of tracks.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        tracks : dict[str, Any]
+            TIDAL catalog information for the matching tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "accessType": None,
+                        "adSupportedStreamReady": <bool>,
+                        "album": {
+                          "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "id": <int>,
+                          "title": <str>,
+                          "vibrantColor": "#rrggbb",
+                          "videoCover": None
+                        },
+                        "allowStreaming": <bool>,
+                        "artist": {
+                          "handle": None,
+                          "id": <int>,
+                          "name": <str>,
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "type": "MAIN"
+                        },
+                        "artists": [
+                          {
+                            "handle": None,
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "type": <str>
+                          }
+                        ],
+                        "audioModes": <list[str]>,
+                        "audioQuality": <str>,
+                        "bpm": <int>,
+                        "copyright": <str>,
+                        "djReady": <bool>,
+                        "duration": <int>,
+                        "editable": <bool>,
+                        "explicit": <bool>,
+                        "id": <int>,
+                        "isrc": <str>,
+                        "key": <str>,
+                        "keyScale": <str>,
+                        "mediaMetadata": {
+                          "tags": <list[str]>
+                        },
+                        "mixes": {
+                          "TRACK_MIX": <str>
+                        },
+                        "payToStream": <bool>,
+                        "peak": <float>,
+                        "popularity": <int>,
+                        "premiumStreamingOnly": <bool>,
+                        "replayGain": <float>,
+                        "spotlighted": <bool>,
+                        "stemReady": <bool>,
+                        "streamReady": <bool>,
+                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "title": <str>,
+                        "trackNumber": <int>,
+                        "upload": <bool>,
+                        "url": f"http://www.tidal.com/track/{id}",
+                        "version": None,
+                        "volumeNumber": <int>
+                      }
+                    ],
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>
+                  }
+        """
+        return self._search_entity(
+            "tracks",
+            query,
+            country_code=country_code,
+            limit=limit,
+            offset=offset,
+        )
+
+    @TTLCache.cached_method(ttl="search")
+    def search_videos(
+        self,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for videos that match a search
+        query.
+
+        Parameters
+        ----------
+        query : str; positional-only
+            Search query.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of videos to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first video to return. Use with `limit` to
+            get the next batch of videos.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        videos : dict[str, Any]
+            TIDAL catalog information for the matching videos.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "items": [
+                      {
+                        "adSupportedStreamReady": <bool>,
+                        "adsPrePaywallOnly": <bool>,
+                        "adsUrl": None,
+                        "album": None,
+                        "allowStreaming": <bool>,
+                        "artist": {
+                          "handle": None,
+                          "id": <int>,
+                          "name": <str>,
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "type": "MAIN"
+                        },
+                        "artists": [
+                          {
+                            "handle": None,
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "type": <str>
+                          }
+                        ],
+                        "djReady": <bool>,
+                        "duration": <int>,
+                        "explicit": <bool>,
+                        "id": <int>,
+                        "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "imagePath": None,
+                        "popularity": <int>,
+                        "quality": <int>,
+                        "releaseDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "stemReady": <bool>,
+                        "streamReady": <bool>,
+                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "title": <str>,
+                        "trackNumber": <int>,
+                        "type": "Music Video",
+                        "vibrantColor": "#rrggbb",
+                        "volumeNumber": <int>
+                      }
+                    ],
+                    "limit": <int>,
+                    "offset": <int>,
+                    "totalNumberOfItems": <int>
+                  }
+        """
+        return self._search_entity(
+            "videos",
+            query,
+            country_code=country_code,
+            limit=limit,
+            offset=offset,
+        )
+
+    def _search_entity(
+        self,
+        entity_type: str | None,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for albums, artists, playlists,
+        tracks, and/or videos that match a keyword string.
+
+        Parameters
+        ----------
+        entity_type : str or None; positional-only
+            Target entity to search for.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"playlists"`, :code:`"tracks"`, :code:`"videos"`.
+
+        query : str; positional-only
+            Search query.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of items to return for each entity type.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first item to return for each entity type. Use
+            with `limit` to get the next batch of items.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        results : dict[str, Any]
+            Search results.
+        """
+        endpoint = "v1/search"
+        if entity_type is not None:
+            endpoint += f"/{entity_type}"
+        self._client._validate_type("query", query, str)
+        params = {"query": query}
+        self._client._resolve_country_code(country_code, params=params)
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 100)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request("GET", endpoint, params=params).json()
