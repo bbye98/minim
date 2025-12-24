@@ -57,26 +57,26 @@ class PrivateMixesAPI(ResourceAPI):
                           "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
-                            "cover": <str>,
+                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "id": <int>,
                             "title": <str>,
-                            "vibrantColor": <str>,
-                            "videoCover": <str>
+                            "vibrantColor": "#rrggbb",
+                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           },
                           "artists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
@@ -89,7 +89,7 @@ class PrivateMixesAPI(ResourceAPI):
                           "editable": <bool>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "isrc": <str>,
+                          "isrc": "CCXXXYYNNNNN",
                           "key": <str>,
                           "keyScale": <str>,
                           "mediaMetadata": {
@@ -106,7 +106,7 @@ class PrivateMixesAPI(ResourceAPI):
                           "spotlighted": <bool>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": <str>,
+                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                           "title": <str>,
                           "trackNumber": <int>,
                           "upload": <bool>,

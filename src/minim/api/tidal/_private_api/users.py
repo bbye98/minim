@@ -242,7 +242,7 @@ class PrivateUsersAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
-            the next set of albums.
+            the next batch of albums.
 
             **Minimum value**: :code:`0`.
 
@@ -285,25 +285,25 @@ class PrivateUsersAPI(ResourceAPI):
                           "adSupportedStreamReady": <bool>,
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           },
                           "artists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
                           "audioModes": <list[str]>,
                           "audioQuality": <str>,
                           "copyright": <str>,
-                          "cover": <str>,
+                          "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                           "djReady": <bool>,
                           "duration": <int>,
                           "explicit": <bool>
@@ -320,15 +320,15 @@ class PrivateUsersAPI(ResourceAPI):
                           "releaseDate": <str>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": <str>,
+                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                           "title": <str>,
                           "type": "ALBUM",
                           "upc": <str>,
                           "upload": <bool>,
                           "url": <str>,
                           "version": <str>,
-                          "vibrantColor": <str>,
-                          "videoCover": <str>
+                          "vibrantColor": "#rrggbb",
+                          "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                         }
                     ],
                     "limit": <int>,
@@ -459,7 +459,7 @@ class PrivateUsersAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
-            the next set of artists.
+            the next batch of artists.
 
             **Minimum value**: :code:`0`.
 
@@ -489,13 +489,13 @@ class PrivateUsersAPI(ResourceAPI):
                           ],
                           "artistTypes": <list[str]>,
                           "banner": <str>,
-                          "handle": <str>,
+                          "handle": None,
                           "id": <int>,
                           "mixes": {
                             "ARTIST_MIX": <str>
                           },
                           "name": <str>,
-                          "picture": <str>,
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                           "popularity": <int>,
                           "selectedAlbumCoverFallback": <str>,
                           "spotlighted": <bool>,
@@ -513,7 +513,7 @@ class PrivateUsersAPI(ResourceAPI):
         """
         self._client._require_authentication("users.get_blocked_artists")
         if user_id is None:
-            user_id = self._client._get_user_identifier()
+            user_id = self._client._resolve_user_identifier()
         params = {}
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 100)
@@ -553,7 +553,7 @@ class PrivateUsersAPI(ResourceAPI):
         """
         self._client._require_authentication("users.block_artist")
         if user_id is None:
-            user_id = self._client._get_user_identifier()
+            user_id = self._client._resolve_user_identifier()
         self._client._request(
             "POST",
             f"v1/users/{user_id}/blocks/artists",
@@ -588,7 +588,7 @@ class PrivateUsersAPI(ResourceAPI):
         """
         self._client._require_authentication("users.unblock_artist")
         if user_id is None:
-            user_id = self._client._get_user_identifier()
+            user_id = self._client._resolve_user_identifier()
         self._client._request(
             "DELETE", f"v1/users/{user_id}/blocks/artists/{artist_id}"
         )
@@ -638,7 +638,7 @@ class PrivateUsersAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
-            the next set of artists.
+            the next batch of artists.
 
             **Minimum value**: :code:`0`.
 
@@ -1066,7 +1066,7 @@ class PrivateUsersAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
-            get the next set of playlists.
+            get the next batch of playlists.
 
             **Minimum value**: :code:`0`.
 
@@ -1108,7 +1108,10 @@ class PrivateUsersAPI(ResourceAPI):
                         "item": {
                           "created": <str>,
                           "creator": {
-                            "id": <int>
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "type": <str>
                           },
                           "customImageUrl": <str>,
                           "description": <str>,
@@ -1121,10 +1124,10 @@ class PrivateUsersAPI(ResourceAPI):
                           "popularity": <int>,
                           "promotedArtists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
@@ -1163,65 +1166,63 @@ class PrivateUsersAPI(ResourceAPI):
         version: int = 2,
     ) -> None:
         """
-        Add playlists to a user's collection.
+               Add playlists to a user's collection.
 
-        .. admonition:: User authentication
-           :class: authorization-scope
+               .. admonition:: User authentication
+                  :class: authorization-scope
 
-           .. tab:: Required
+                  .. tab:: Required
 
-              User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                     User authentication
+                        Access user recommendations, and view and modify user's
+                        collection.
 
-        Parameters
-        ----------
-        playlist_uuids : str or list[str]; positional-only; optional
-            Playlist UUIDs, provided as either a comma-separated string
-            or a list of strings.
+               Parameters
+               ----------
+               playlist_uuids : str or list[str]; positional-only; optional
+                   Playlist UUIDs, provided as either a comma-separated string
+                   or a list of strings.
 
-            **Examples**:
+                   **Examples**:
 
-            .. container::
+                   .. container::
 
-               * :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
-               * :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
-               * .. code::
+                      * :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
+                      * :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
+                      * .. code::
 
-                    [
-                        "0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
-                        "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e",
-                    ]
+                           [
+                               "0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
+                               "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e",
+                           ]
 
-        user_id : int or str; keyword-only; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used. Only applicable when :code:`version=1`.
+               user_id : int or str; keyword-only; optional
+                   TIDAL ID of the user. If not specified, the current user's
+                   TIDAL ID is used. Only applicable when :code:`version=1`.
 
-        country_code : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used. Only
-            applicable when :code:`version=1`.
+        Only
+                   applicable when :code:`version=1`.
 
-            **Example**: :code:`"US"`.
+                   **Example**: :code:`"US"`.
 
-        folder_uuid : str; keyword-only; optional
-            UUID of TIDAL playlist folder to add playlists to. Use
-            :code:`"root"` or leave blank to target the top-level
-            "Playlists" folder. Only applicable when :code:`version=2`.
+               folder_uuid : str; keyword-only; optional
+                   UUID of TIDAL playlist folder to add playlists to. Use
+                   :code:`"root"` or leave blank to target the top-level
+                   "Playlists" folder. Only applicable when :code:`version=2`.
 
-        version : int; keyword-only; default: :code:`2`
-            Selects which version of the private TIDAL API to use.
+               version : int; keyword-only; default: :code:`2`
+                   Selects which version of the private TIDAL API to use.
 
-            **Valid values**:
+                   **Valid values**:
 
-            .. container::
+                   .. container::
 
-               * :code:`1` – legacy
-                 :code:`POST v1/users/{user_id}/favorites/playlists`
-                 endpoint.
-               * :code:`2` – current
-                 :code:`PUT v2/my-collection/playlists/folders/add-favorites`
-                 endpoint.
+                      * :code:`1` – legacy
+                        :code:`POST v1/users/{user_id}/favorites/playlists`
+                        endpoint.
+                      * :code:`2` – current
+                        :code:`PUT v2/my-collection/playlists/folders/add-favorites`
+                        endpoint.
         """
         self._client._require_authentication("users.favorite_playlists")
         params = {
@@ -1230,7 +1231,7 @@ class PrivateUsersAPI(ResourceAPI):
         self._client._validate_number("version", version, int, 1, 2)
         if version == 1:
             if user_id is None:
-                user_id = self._client._get_user_identifier()
+                user_id = self._client._resolve_user_identifier()
             if country_code is None:
                 country_code = self._client._my_country_code
             else:
@@ -1314,7 +1315,7 @@ class PrivateUsersAPI(ResourceAPI):
         self._client._validate_number("version", version, int, 1, 2)
         if version == 1:
             if user_id is None:
-                user_id = self._client._get_user_identifier()
+                user_id = self._client._resolve_user_identifier()
             self._client._request(
                 "DELETE",
                 f"v1/users/{user_id}/favorites/playlists"
@@ -1326,7 +1327,7 @@ class PrivateUsersAPI(ResourceAPI):
                 "v2/my-collection/playlists/folders/remove",
                 params={
                     "trns": self._client._prepare_uuids(
-                        "playlist", playlist_uuids, prefix=True
+                        "playlist", playlist_uuids, has_prefix=True
                     )
                 },
             )
@@ -1441,15 +1442,15 @@ class PrivateUsersAPI(ResourceAPI):
                           "creator": {
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           },
                           "curators": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                             }
                           ],
                           "customImageUrl": <str>,
@@ -1631,15 +1632,15 @@ class PrivateUsersAPI(ResourceAPI):
                           "creator": {
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           },
                           "curators": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                             }
                           ],
                           "customImageUrl": <str>,
@@ -1819,15 +1820,15 @@ class PrivateUsersAPI(ResourceAPI):
                           "creator": {
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           },
                           "curators": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                             }
                           ],
                           "customImageUrl": <str>,
@@ -1941,7 +1942,7 @@ class PrivateUsersAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
-            get the next set of playlists.
+            get the next batch of playlists.
 
             **Minimum value**: :code:`0`.
 
@@ -1983,7 +1984,10 @@ class PrivateUsersAPI(ResourceAPI):
                         "playlist": {
                           "created": <str>,
                           "creator": {
-                            "id": <int>
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "type": <str>
                           },
                           "customImageUrl": <str>,
                           "description": <str>,
@@ -1996,10 +2000,10 @@ class PrivateUsersAPI(ResourceAPI):
                           "popularity": <int>,
                           "promotedArtists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
@@ -2017,7 +2021,10 @@ class PrivateUsersAPI(ResourceAPI):
                         "playlist": {
                           "created": <str>,
                           "creator": {
-                            "id": <int>
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "type": <str>
                           },
                           "customImageUrl": <str>,
                           "description": <str>,
@@ -2030,10 +2037,10 @@ class PrivateUsersAPI(ResourceAPI):
                           "popularity": <int>,
                           "promotedArtists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
@@ -2054,7 +2061,7 @@ class PrivateUsersAPI(ResourceAPI):
         """
         self._client._require_authentication("playlists.get_user_playlists")
         if user_id is None:
-            user_id = self._client._get_user_identifier()
+            user_id = self._client._resolve_user_identifier()
         params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:
@@ -2122,7 +2129,7 @@ class PrivateUsersAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
-            get the next set of playlists.
+            get the next batch of playlists.
 
             **Minimum value**: :code:`0`.
 
@@ -2146,7 +2153,10 @@ class PrivateUsersAPI(ResourceAPI):
                         "playlist": {
                           "created": <str>,
                           "creator": {
-                            "id": <int>
+                            "id": <int>,
+                            "name": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "type": <str>
                           },
                           "customImageUrl": <str>,
                           "description": <str>,
@@ -2159,10 +2169,10 @@ class PrivateUsersAPI(ResourceAPI):
                           "popularity": <int>,
                           "promotedArtists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
@@ -2185,7 +2195,7 @@ class PrivateUsersAPI(ResourceAPI):
             "users.get_user_created_playlists"
         )
         if user_id is None:
-            user_id = self._client._get_user_identifier()
+            user_id = self._client._resolve_user_identifier()
         params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:
@@ -2260,15 +2270,15 @@ class PrivateUsersAPI(ResourceAPI):
                           "creator": {
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": "USER"
                           },
                           "curators": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                             }
                           ],
                           "customImageUrl": <str>,
@@ -2282,10 +2292,10 @@ class PrivateUsersAPI(ResourceAPI):
                           "promotedArtists": [
                             {
                               "contributionLinkUrl": <str>,
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>,
                               "userId": <int>
                             }
@@ -2313,7 +2323,7 @@ class PrivateUsersAPI(ResourceAPI):
             "playlists.get_user_public_playlists"
         )
         if user_id is None:
-            user_id = self._client._get_user_identifier()
+            user_id = self._client._resolve_user_identifier()
         params = {}
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 50)
@@ -2368,7 +2378,7 @@ class PrivateUsersAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
-            the next set of items.
+            the next batch of items.
 
             **Minimum value**: :code:`0`.
 
@@ -2400,7 +2410,7 @@ class PrivateUsersAPI(ResourceAPI):
         """
         self._client._require_authentication(f"users.get_favorite_{resource}")
         if user_id is None:
-            user_id = self._client._get_user_identifier()
+            user_id = self._client._resolve_user_identifier()
         params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:
@@ -2467,7 +2477,7 @@ class PrivateUsersAPI(ResourceAPI):
         """
         self._client._require_authentication(f"users.favorite_{resource}")
         if user_id is None:
-            user_id = self._client._get_user_identifier()
+            user_id = self._client._resolve_user_identifier()
         if country_code is None:
             country_code = self._client._my_country_code
         else:
@@ -2515,7 +2525,7 @@ class PrivateUsersAPI(ResourceAPI):
         """
         self._client._require_authentication(f"users.unfavorite_{resource}")
         if user_id is None:
-            user_id = self._client._get_user_identifier()
+            user_id = self._client._resolve_user_identifier()
         self._client._request(
             "DELETE",
             f"v1/users/{user_id}/favorites/{resource}"

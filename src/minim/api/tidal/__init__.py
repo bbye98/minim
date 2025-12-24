@@ -13,6 +13,7 @@ from ._private_api.artists import PrivateArtistsAPI
 from ._private_api.mixes import PrivateMixesAPI
 from ._private_api.pages import PrivatePagesAPI
 from ._private_api.playlists import PrivatePlaylistsAPI
+from ._private_api.search import PrivateSearchAPI
 
 # from ._private_api.tracks import PrivateTracksAPI
 from ._private_api.users import PrivateUsersAPI

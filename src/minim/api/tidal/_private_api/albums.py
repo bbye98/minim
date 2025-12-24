@@ -36,7 +36,8 @@ class PrivateAlbumsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -54,28 +55,28 @@ class PrivateAlbumsAPI(ResourceAPI):
                     "adSupportedStreamReady": <bool>,
                     "allowStreaming": <bool>,
                     "artist": {
-                      "handle": <str>,
+                      "handle": None,
                       "id": <int>,
                       "name": <str>,
-                      "picture": <str>,
-                      "type": <str>
+                      "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                      "type": "MAIN"
                     },
                     "artists": [
                       {
-                        "handle": <str>,
+                        "handle": None,
                         "id": <int>,
                         "name": <str>,
-                        "picture": <str>,
+                        "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                         "type": <str>
                       }
                     ],
                     "audioModes": <list[str]>,
                     "audioQuality": <str>,
                     "copyright": <str>,
-                    "cover": <str>,
+                    "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                     "djReady": <bool>,
                     "duration": <int>,
-                    "explicit": <bool>
+                    "explicit": <bool>,
                     "id": <int>,
                     "mediaMetadata": {
                       "tags": <list[str]>
@@ -86,18 +87,18 @@ class PrivateAlbumsAPI(ResourceAPI):
                     "payToStream": <bool>,
                     "popularity": <int>,
                     "premiumStreamingOnly": <bool>,
-                    "releaseDate": <str>,
+                    "releaseDate": "YYYY-MM-DD",
                     "stemReady": <bool>,
                     "streamReady": <bool>,
-                    "streamStartDate": <str>,
+                    "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                     "title": <str>,
                     "type": "ALBUM",
                     "upc": <str>,
                     "upload": <bool>,
-                    "url": <str>,
-                    "version": <str>,
-                    "vibrantColor": <str>,
-                    "videoCover": <str>
+                    "url": f"http://www.tidal.com/album/{id}",
+                    "version": None,
+                    "vibrantColor": "#rrggbb",
+                    "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                   }
         """
         if country_code is None:
@@ -112,10 +113,7 @@ class PrivateAlbumsAPI(ResourceAPI):
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album_credits(
-        self,
-        album_id: int | str,
-        /,
-        country_code: str | None = None,
+        self, album_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for an album's contributors.
@@ -129,7 +127,8 @@ class PrivateAlbumsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -179,7 +178,8 @@ class PrivateAlbumsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -192,7 +192,7 @@ class PrivateAlbumsAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
-            the next set of items.
+            the next batch of items.
 
             **Minimum value**: :code:`0`.
 
@@ -216,26 +216,26 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
-                            "cover": <str>,
+                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "id": <int>,
                             "title": <str>,
-                            "vibrantColor": <str>,
-                            "videoCover": <str>
+                            "vibrantColor": "#rrggbb",
+                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
-                            "type": <str>
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "type": "MAIN"
                           },
                           "artists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
@@ -248,7 +248,7 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "editable": <bool>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "isrc": <str>,
+                          "isrc": "CCXXXYYNNNNN",
                           "key": <str>,
                           "keyScale": <str>,
                           "mediaMetadata": {
@@ -265,12 +265,12 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "spotlighted": <bool>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": <str>,
+                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                           "title": <str>,
                           "trackNumber": <int>,
                           "upload": <bool>,
-                          "url": <str>,
-                          "version": <str>,
+                          "url": f"http://www.tidal.com/track/{id}",
+                          "version": None,
                           "volumeNumber": <int>
                         },
                         "type": "track"
@@ -279,28 +279,28 @@ class PrivateAlbumsAPI(ResourceAPI):
                         "item": {
                           "adSupportedStreamReady": <bool>,
                           "adsPrePaywallOnly": <bool>,
-                          "adsUrl": <str>,
+                          "adsUrl": None,
                           "album": {
-                            "cover": <str>,
+                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "id": <int>,
                             "title": <str>,
-                            "vibrantColor": <str>,
-                            "videoCover": <str>
+                            "vibrantColor": "#rrggbb",
+                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
-                            "type": <str>
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "type": "MAIN"
                           },
                           "artists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
@@ -308,18 +308,18 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "duration": <int>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "imageId": <str>,
-                          "imagePath": <str>,
+                          "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "imagePath": None,
                           "popularity": <int>,
                           "quality": <str>,
-                          "releaseDate": <str>,
+                          "releaseDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": <str>,
+                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                           "title": <str>,
                           "trackNumber": <int>,
-                          "type": <str>,
-                          "vibrantColor": <str>,
+                          "type": "Music Video",
+                          "vibrantColor": "#rrggbb",
                           "volumeNumber": <int>
                         },
                         "type": "video"
@@ -357,7 +357,8 @@ class PrivateAlbumsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -370,7 +371,7 @@ class PrivateAlbumsAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first credit to return. Use with `limit` to get
-            the next set of credits.
+            the next batch of credits.
 
             **Minimum value**: :code:`0`.
 
@@ -404,26 +405,26 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
-                            "cover": <str>,
+                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "id": <int>,
                             "title": <str>,
-                            "vibrantColor": <str>,
-                            "videoCover": <str>
+                            "vibrantColor": "#rrggbb",
+                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
-                            "type": <str>
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "type": "MAIN"
                           },
                           "artists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
@@ -436,7 +437,7 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "editable": <bool>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "isrc": <str>,
+                          "isrc": "CCXXXYYNNNNN",
                           "key": <str>,
                           "keyScale": <str>,
                           "mediaMetadata": {
@@ -453,12 +454,12 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "spotlighted": <bool>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": <str>,
+                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                           "title": <str>,
                           "trackNumber": <int>,
                           "upload": <bool>,
-                          "url": <str>,
-                          "version": <str>,
+                          "url": f"http://www.tidal.com/track/{id}",
+                          "version": None,
                           "volumeNumber": <int>
                         },
                         "type": "track"
@@ -477,28 +478,28 @@ class PrivateAlbumsAPI(ResourceAPI):
                         "item": {
                           "adSupportedStreamReady": <bool>,
                           "adsPrePaywallOnly": <bool>,
-                          "adsUrl": <str>,
+                          "adsUrl": None,
                           "album": {
-                            "cover": <str>,
+                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "id": <int>,
                             "title": <str>,
-                            "vibrantColor": <str>,
-                            "videoCover": <str>
+                            "vibrantColor": "#rrggbb",
+                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
-                            "type": <str>
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "type": "MAIN"
                           },
                           "artists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
@@ -506,18 +507,18 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "duration": <int>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "imageId": <str>,
-                          "imagePath": <str>,
+                          "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "imagePath": None,
                           "popularity": <int>,
                           "quality": <str>,
-                          "releaseDate": <str>,
+                          "releaseDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": <str>,
+                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                           "title": <str>,
                           "trackNumber": <int>,
-                          "type": <str>,
-                          "vibrantColor": <str>,
+                          "type": "Music Video",
+                          "vibrantColor": "#rrggbb",
                           "volumeNumber": <int>
                         },
                         "type": "video"
@@ -549,7 +550,8 @@ class PrivateAlbumsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -565,7 +567,7 @@ class PrivateAlbumsAPI(ResourceAPI):
                .. code::
 
                   {
-                    "lastUpdated": <str>,
+                    "lastUpdated": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                     "source": <str>,
                     "summary": <str>,
                     "text": <str>,
@@ -584,8 +586,8 @@ class PrivateAlbumsAPI(ResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for other albums that are similar
-        to an album.
+        Get TIDAL catalog information for albums similar to the
+        specified album.
 
         Parameters
         ----------
@@ -596,7 +598,8 @@ class PrivateAlbumsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -609,7 +612,7 @@ class PrivateAlbumsAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
-            the next set of albums.
+            the next batch of albums.
 
             **Minimum value**: :code:`0`.
 
@@ -631,25 +634,25 @@ class PrivateAlbumsAPI(ResourceAPI):
                         "adSupportedStreamReady": <bool>,
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": <str>,
+                          "handle": None,
                           "id": <int>,
                           "name": <str>,
-                          "picture": <str>,
-                          "type": <str>
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "type": "MAIN"
                         },
                         "artists": [
                           {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           }
                         ],
                         "audioModes": <list[str]>,
                         "audioQuality": <str>,
                         "copyright": <str>,
-                        "cover": <str>,
+                        "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                         "djReady": <bool>,
                         "duration": <int>,
                         "explicit": <bool>
@@ -663,18 +666,18 @@ class PrivateAlbumsAPI(ResourceAPI):
                         "payToStream": <bool>,
                         "popularity": <int>,
                         "premiumStreamingOnly": <bool>,
-                        "releaseDate": <str>,
+                        "releaseDate": "YYYY-MM-DD",
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": <str>,
+                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                         "title": <str>,
                         "type": "ALBUM",
                         "upc": <str>,
                         "upload": <bool>,
-                        "url": <str>,
+                        "url": "http://www.tidal.com/album/{id},
                         "version": <str>,
-                        "vibrantColor": <str>,
-                        "videoCover": <str>
+                        "vibrantColor": "#rrggbb",
+                        "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                       }
                     ],
                     "limit": <int>,
@@ -791,7 +794,7 @@ class PrivateAlbumsAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
-            the next set of items.
+            the next batch of items.
 
             **Minimum value**: :code:`0`.
 

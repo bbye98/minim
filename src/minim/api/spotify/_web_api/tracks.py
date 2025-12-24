@@ -2,7 +2,9 @@ from datetime import datetime
 from numbers import Number
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import TTLCache, ResourceAPI
+from ..._shared import TTLCache, _copy_docstring
+from ._shared import SpotifyResourceAPI
+from .users import UsersAPI
 
 if TYPE_CHECKING:
     from .. import SpotifyWebAPI
@@ -20,7 +22,7 @@ FloatAttributeSpec = (
 )
 
 
-class TracksAPI(ResourceAPI):
+class TracksAPI(SpotifyResourceAPI):
     """
     Tracks API endpoints for the Spotify Web API.
 
@@ -34,7 +36,7 @@ class TracksAPI(ResourceAPI):
 
     @TTLCache.cached_method(ttl="catalog")
     def get_tracks(
-        self, track_ids: str | list[str], /, *, market: str | None = None
+        self, track_ids: str | list[str], /, *, country_code: str | None = None
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track <https://developer.spotify.com/documentation
@@ -57,9 +59,8 @@ class TracksAPI(ResourceAPI):
         Parameters
         ----------
         track_ids : str or list[str]; positional-only
-            Spotify IDs of the tracks, provided as either a
-            comma-separated string or a list of strings. A maximum of 50
-            IDs can be sent in a request.
+            Spotify IDs of the tracks. A maximum of 50 IDs can be sent
+            in a request.
 
             **Examples**:
 
@@ -69,17 +70,17 @@ class TracksAPI(ResourceAPI):
                * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
                * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
 
-        market : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. If specified, only content
-            available in that market is returned. When a valid user
-            access token accompanies the request, the country associated
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If provided, only content
+            available in that market is returned. When a user access
+            token accompanies the request, the country associated
             with the user account takes priority over this parameter.
 
             .. note::
 
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
+               If neither a country code is provided nor a country can
+               be determined from the user account, the content is
+               considered unavailable for the client.
 
             **Example**: :code:`"ES"`.
 
@@ -259,199 +260,23 @@ class TracksAPI(ResourceAPI):
                        ]
                      }
         """
-        is_string = isinstance(track_ids, str)
-        track_ids, num_ids = self._client._prepare_spotify_ids(
-            track_ids, limit=50
+        return self._get_resources(
+            "tracks", track_ids, country_code=country_code
         )
-        params = {}
-        if market is not None:
-            self._client._validate_market(market)
-            params["market"] = market
-        if is_string and num_ids == 1:
-            return self._client._request(
-                "GET", f"tracks/{track_ids}", params=params
-            ).json()
 
-        params["ids"] = track_ids
-        return self._client._request("GET", "tracks", params=params).json()
-
+    @_copy_docstring(UsersAPI.get_my_saved_tracks)
     def get_my_saved_tracks(
         self,
         *,
-        market: str | None = None,
+        country_code: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        """
-        `Tracks > Get User's Saved Tracks <https://developer.spotify.com
-        /documentation/web-api/reference/get-users-saved-tracks>`_: Get
-        the tracks saved in the current user's library.
-
-        .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
-
-           .. tab:: Optional
-
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
-
-        Parameters
-        ----------
-        market : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. If specified, only content
-            available in that market is returned. When a valid user
-            access token accompanies the request, the country associated
-            with the user account takes priority over this parameter.
-
-            .. note::
-
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
-
-            **Example**: :code:`"ES"`.
-
-        limit : int; keyword-only; optional
-            Maximum number of tracks to return.
-
-            **Valid range**: :code:`1` to :code:`50`.
-
-            **API default**: :code:`20`.
-
-        offset : int; keyword-only; optional
-            Index of the first track to return. Use with `limit` to get
-            the next set of tracks.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        tracks : dict[str, Any]
-            Pages of Spotify content metadata for the user's saved
-            tracks.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "href": <str>,
-                    "items": [
-                      {
-                        "added_at": <str>,
-                        "track": {
-                          "album": {
-                            "album_type": <str>,
-                            "artists": [
-                              {
-                                "external_urls": {
-                                  "spotify": <str>
-                                },
-                                "href": <str>,
-                                "id": <str>,
-                                "name": <str>,
-                                "type": "artist",
-                                "uri": <str>
-                              }
-                            ],
-                            "available_markets": <list[str]>,
-                            "external_urls": {
-                              "spotify": <str>
-                            },
-                            "href": <str>,
-                            "id": <str>,
-                            "images": [
-                              {
-                                "height": <int>,
-                                "url": <str>,
-                                "width": <int>
-                              }
-                            ],
-                            "name": <str>,
-                            "release_date": <str>,
-                            "release_date_precision": <str>,
-                            "restrictions": {
-                              "reason": <str>
-                            },
-                            "total_tracks": <int>,
-                            "type": "album",
-                            "uri": <str>
-                          },
-                          "artists": [
-                            {
-                              "external_urls": {
-                                "spotify": <str>
-                              },
-                              "href": <str>,
-                              "id": <str>,
-                              "name": <str>,
-                              "type": "artist",
-                              "uri": <str>
-                            }
-                          ],
-                          "available_markets": <list[str]>,
-                          "disc_number": <int>,
-                          "duration_ms": <int>,
-                          "explicit": <bool>,
-                          "external_ids": {
-                            "ean": <str>,
-                            "isrc": <str>,
-                            "upc": <str>
-                          },
-                          "external_urls": {
-                            "spotify": <str>
-                          },
-                          "href": <str>,
-                          "id": <str>,
-                          "is_local": <bool>,
-                          "is_playable": <bool>,
-                          "linked_from": <dict[str, Any]>,
-                          "name": <str>,
-                          "popularity": <int>,
-                          "preview_url": <str>,
-                          "restrictions": {
-                            "reason": <str>
-                          },
-                          "track_number": <int>,
-                          "type": "track",
-                          "uri": <str>
-                        }
-                      }
-                    ],
-                    "limit": <int>,
-                    "next": <str>,
-                    "offset": <int>,
-                    "previous": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client._require_scopes(
-            "tracks.get_my_saved_tracks", "user-library-read"
+        return self._client.users.get_my_saved_tracks(
+            country_code=country_code, limit=limit, offset=offset
         )
-        params = {}
-        if market is not None:
-            self._client._validate_market(market)
-            params["market"] = market
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request("GET", "me/tracks", params=params).json()
 
+    @_copy_docstring(UsersAPI.save_tracks)
     def save_tracks(
         self,
         track_ids: str
@@ -460,195 +285,15 @@ class TracksAPI(ResourceAPI):
         | list[str | tuple[str, str | datetime] | dict[str, str | datetime]],
         /,
     ) -> None:
-        """
-        `Tracks > Save Tracks for Current User
-        <https://developer.spotify.com/documentation/web-api/reference
-        /save-tracks-user>`_: Save one or more tracks to the current
-        user's library.
+        self._client.users.save_tracks(track_ids)
 
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
-
-        Parameters
-        ----------
-        track_ids : str, tuple[str, str | datetime], \
-        dict[str, str | datetime], or \
-        list[str | tuple[str, str | datetime] | dict[str, str | datetime]]; \
-        positional-only
-            Spotify IDs of the tracks, optionally accompanied by
-            timestamps to maintain a specific chronological order in the
-            user's library. A maximum of 50 IDs can be sent in one
-            request.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`"4iV5W9uYEdYUVa79Axb7Rh"`
-               * :code:`("4iV5W9uYEdYUVa79Axb7Rh", "2010-01-01T00:00:00Z")`
-               * :code:`{"id": "4iV5W9uYEdYUVa79Axb7Rh",
-                 "added_at": "2010-01-01T00:00:00Z"}`
-               * .. code::
-
-                    [
-                        "4iV5W9uYEdYUVa79Axb7Rh",
-                        ("11dFghVXANMlKmJXsNCbNl", "2017-05-26T00:00:00Z"),
-                        {"id": "7ouMYWpwJ422jRcDASZB7P", "added_at": "2006-06-28T00:00:00Z"}
-                    ]
-        """
-        self._client._require_scopes(
-            "tracks.save_tracks", "user-library-modify"
-        )
-        if isinstance(track_ids, str):
-            track_ids = [
-                {
-                    "id": track_ids,
-                    "added_at": datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
-                }
-            ]
-        elif isinstance(track_ids, dict):
-            track_ids = [track_ids]
-        elif (
-            isinstance(track_ids, tuple)
-            and len(track_ids) == 2
-            and (
-                timestamp_is_str := isinstance(track_ids[1], str)
-                and len(track_ids[1]) == 20
-                or isinstance(track_ids[1], datetime)
-            )
-        ):
-            track_ids = [
-                {
-                    "id": track_ids[0],
-                    "added_at": track_ids[1]
-                    if timestamp_is_str
-                    else track_ids[1].strftime("%Y-%m-%dT%H:%M:%SZ"),
-                }
-            ]
-        else:  # list
-            for idx, track in enumerate(track_ids):
-                if isinstance(track, str):
-                    track_ids[idx] = {
-                        "id": track,
-                        "added_at": datetime.now().strftime(
-                            "%Y-%m-%dT%H:%M:%SZ"
-                        ),
-                    }
-                elif isinstance(track, tuple):
-                    track_ids[idx] = {
-                        "id": track[0],
-                        "added_at": timestamp
-                        if isinstance(timestamp := track[1], str)
-                        else timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                    }
-        self._client._request(
-            "PUT", "me/tracks", json={"timestamped_ids": track_ids}
-        )
-
+    @_copy_docstring(UsersAPI.remove_saved_tracks)
     def remove_saved_tracks(self, track_ids: str | list[str], /) -> None:
-        """
-        `Tracks > Remove User's Saved Tracks
-        <https://developer.spotify.com/documentation/web-api/reference
-        /remove-tracks-user>`_: Remove one or more tracks from the
-        current user's library.
+        self._client.users.remove_saved_tracks(track_ids)
 
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
-
-        Parameters
-        ----------
-        track_ids : str or list[str]; positional-only
-            Spotify IDs of the tracks, provided as either a
-            comma-separated string or a list of strings. A maximum of 50
-            IDs can be sent in a request.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
-               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
-               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
-        """
-        self._client._require_scopes(
-            "tracks.remove_saved_tracks", "user-library-modify"
-        )
-        self._client._request(
-            "DELETE",
-            "me/tracks",
-            params={
-                "ids": self._client._prepare_spotify_ids(track_ids, limit=50)[
-                    0
-                ]
-            },
-        )
-
+    @_copy_docstring(UsersAPI.are_tracks_saved)
     def are_tracks_saved(self, track_ids: str | list[str], /) -> list[bool]:
-        """
-        `Tracks > Check User's Saved Tracks
-        <https://developer.spotify.com/documentation/web-api/reference
-        /check-users-saved-tracks>`_: Check whether one or more tracks
-        are saved in the current user's library.
-
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
-
-        Parameters
-        ----------
-        track_ids : str or list[str]; positional-only
-            Spotify IDs of the tracks, provided as either a
-            comma-separated string or a list of strings. A maximum of 50
-            IDs can be sent in a request.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
-               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
-               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
-
-        Returns
-        -------
-        saved : list[bool]
-            Whether the current user has each of the specified tracks
-            saved in their library.
-
-            **Sample response**: :code:`[False, True]`.
-        """
-        self._client._require_scopes(
-            "tracks.are_tracks_saved", "user-library-read"
-        )
-        return self._client._request(
-            "GET",
-            "me/tracks/contains",
-            params={
-                "ids": self._client._prepare_spotify_ids(track_ids, limit=50)[
-                    0
-                ]
-            },
-        ).json()
+        return self._client.users.are_tracks_saved(track_ids)
 
     @TTLCache.cached_method(ttl="catalog")
     def get_audio_features(
@@ -677,9 +322,8 @@ class TracksAPI(ResourceAPI):
         Parameters
         ----------
         track_ids : str or list[str]; positional-only
-            Spotify IDs of the tracks, provided as either a
-            comma-separated string or a list of strings. A maximum of 50
-            IDs can be sent in a request.
+            Spotify IDs of the tracks. A maximum of 50 IDs can be sent
+            in a request.
 
             **Examples**:
 
@@ -751,18 +395,7 @@ class TracksAPI(ResourceAPI):
                        ]
                      }
         """
-        is_string = isinstance(track_ids, str)
-        track_ids, num_ids = self._client._prepare_spotify_ids(
-            track_ids, limit=100
-        )
-        if is_string and num_ids == 1:
-            return self._client._request(
-                "GET", f"audio-features/{track_ids}"
-            ).json()
-
-        return self._client._request(
-            "GET", "audio-features", params={"ids": track_ids}
-        ).json()
+        return self._get_resources("audio-features", track_ids, limit=100)
 
     @TTLCache.cached_method(ttl="catalog")
     def get_audio_analysis(self, track_id: str, /) -> dict[str, Any]:
@@ -782,7 +415,6 @@ class TracksAPI(ResourceAPI):
                   Access the :code:`/audio-analysis/{id}` endpoint.
                   `Learn more. <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
-
 
         Parameters
         ----------
@@ -903,7 +535,7 @@ class TracksAPI(ResourceAPI):
         seed_genres: str | list[str] | None = None,
         seed_tracks: str | list[str] | None = None,
         *,
-        market: str | None = None,
+        country_code: str | None = None,
         limit: int | None = None,
         acousticness: FloatAttributeSpec | None = None,
         danceability: FloatAttributeSpec | None = None,
@@ -941,13 +573,18 @@ class TracksAPI(ResourceAPI):
            For very new or obscure artists and tracks, there might not
            be enough data to generate recommendations.
 
+        .. important::
+
+           Up to 5 seed values may be provided in any combination of
+           :code:`seed_artists`, :code:`seed_genres` and
+           :code:`seed_tracks`.
+
         .. hint::
 
            Track attribute parameters (`acousticness`, `danceability`,
-           `duration_ms`, etc.) can be specified in one of the following
+           `duration_ms`, etc.) can be provided in one of the following
            ways:
 
-           .. _track-attribute-hint:
            .. table:: Track attribute specifications
 
               ============================= ===================================
@@ -961,14 +598,7 @@ class TracksAPI(ResourceAPI):
         Parameters
         ----------
         seed_artists : str or list[str]; optional
-            Spotify IDs of seed artists, provided as either a
-            comma-separated string or a list of strings.
-
-            .. note::
-
-               Up to 5 seed values may be provided in any combination of
-               :code:`seed_artists`, :code:`seed_genres` and
-               :code:`seed_tracks`.
+            Spotify IDs of seed artists.
 
             **Examples**:
 
@@ -979,14 +609,7 @@ class TracksAPI(ResourceAPI):
                * :code:`["0TnOYISbd1XYRBk9myaseg", "57dN52uHvrHOxijzpIgu3E"]`
 
         seed_genres : str or list[str]; optional
-            Spotify IDs of seed genres, provided as either a
-            comma-separated string or a list of strings.
-
-            .. note::
-
-               Up to 5 seed values may be provided in any combination of
-               :code:`seed_artists`, :code:`seed_genres` and
-               :code:`seed_tracks`.
+            Spotify IDs of seed genres.
 
             .. seealso::
 
@@ -994,14 +617,7 @@ class TracksAPI(ResourceAPI):
                 – Get available seed genres.
 
         seed_tracks : str or list[str]; optional
-            Spotify IDs of seed tracks, provided as either a
-            comma-separated string or a list of strings.
-
-            .. note::
-
-               Up to 5 seed values may be provided in any combination of
-               :code:`seed_artists`, :code:`seed_genres` and
-               :code:`seed_tracks`.
+            Spotify IDs of seed tracks.
 
             **Examples**:
 
@@ -1011,17 +627,17 @@ class TracksAPI(ResourceAPI):
                * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
                * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
 
-        market : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. If specified, only content
-            available in that market is returned. When a valid user
-            access token accompanies the request, the country associated
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If provided, only content
+            available in that market is returned. When a user access
+            token accompanies the request, the country associated
             with the user account takes priority over this parameter.
 
             .. note::
 
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
+               If neither a country code is provided nor a country can
+               be determined from the user account, the content is
+               considered unavailable for the client.
 
             **Example**: :code:`"ES"`.
 
@@ -1035,11 +651,6 @@ class TracksAPI(ResourceAPI):
         acousticness : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of whether a track is acoustic.
 
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
-
             **Valid range**: :code:`0.0` (electronic) to :code:`1.0`
             (acoustic).
 
@@ -1050,11 +661,6 @@ class TracksAPI(ResourceAPI):
             musical elements, including tempo, rhythim stability, beat
             strength, and overall regularity.
 
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
-
             **Valid range**: :code:`0.0` (least danceable) to
             :code:`1.0` (most danceable).
 
@@ -1062,11 +668,6 @@ class TracksAPI(ResourceAPI):
 
         duration_ms : int or tuple[int, ...]; keyword-only; optional
             Track duration in milliseconds.
-
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
 
             **Minimum value**: :code:`0`.
 
@@ -1077,11 +678,6 @@ class TracksAPI(ResourceAPI):
             on its dynamic range, perceived loudness, timbre, onset rate,
             and general entropy.
 
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
-
             **Valid range**: :code:`0.0` (e.g., Bach prelude) to
             :code:`1.0` (e.g., death metal).
 
@@ -1090,11 +686,6 @@ class TracksAPI(ResourceAPI):
         instrumentalness : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of whether a track contains no vocals.
 
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
-
             **Valid range**: :code:`0.0` (vocal) to :code:`1.0`
             (instrumental).
 
@@ -1102,11 +693,6 @@ class TracksAPI(ResourceAPI):
 
         key : int or tuple[int, ...]; keyword-only; optional
             Key a track is in using standard pitch class notation.
-
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
 
             **Valid values**:
 
@@ -1130,11 +716,6 @@ class TracksAPI(ResourceAPI):
             Confidence measure of whether a track was performed live
             based on the presence of an audience in the recording.
 
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
-
             **Valid range**: :code:`0.0` (studio) to :code:`1.0` (live).
 
             **Example**: :code:`0.0866`.
@@ -1142,22 +723,12 @@ class TracksAPI(ResourceAPI):
         loudness : float or tuple[float, ...]; keyword-only; optional
             Overall loudness of a track in decibels.
 
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
-
             **Maximum value**: :code:`0.0`.
 
             **Example**: :code:`-5.883`.
 
         mode : int or tuple[int, ...]; keyword-only; optional
             Musical mode of a track.
-
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
 
             **Valid values**: :code:`0` for minor scale, :code:`1` for
             major scale.
@@ -1171,21 +742,11 @@ class TracksAPI(ResourceAPI):
                The popularity value is not updated in real time and may
                lag actual value by a few days.
 
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
-
             **Valid range**: :code:`0` (least popular) to :code:`100`
             (most popular).
 
         speechiness : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of whether a track contains spoken words.
-
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
 
             **Valid range**: :code:`0.0` (music) to :code:`1.0`
             (speech-like).
@@ -1195,22 +756,12 @@ class TracksAPI(ResourceAPI):
         tempo : float or tuple[float, ...]; keyword-only; optional
             Overall estimated tempo of a track in beats per minute.
 
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
-
             **Minimum value**: :code:`0.0`.
 
             **Example**: :code:`118.211`.
 
         time_signature : int or tuple[int, ...]; keyword-only; optional
             Estimated time signature of the track.
-
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
 
             **Valid values**:
 
@@ -1225,11 +776,6 @@ class TracksAPI(ResourceAPI):
         valence : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of the musical positiveness conveyed by a
             track.
-
-            .. seealso::
-
-               :ref:`track-attribute-hint` – How to specify minimum,
-               maximum, and/or target values.
 
             **Valid range**: :code:`0.0` (e.g., happy, cheerful,
             euphoric) to :code:`1.0` (e.g., sad, depressed, angry).
@@ -1340,9 +886,9 @@ class TracksAPI(ResourceAPI):
                   }
         """
         params = {}
-        if market is not None:
-            self._client._validate_market(market)
-            params["market"] = market
+        if country_code is not None:
+            self._client._validate_market(country_code)
+            params["market"] = country_code
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
@@ -1388,7 +934,6 @@ class TracksAPI(ResourceAPI):
             "GET", "recommendations", params=params
         ).json()
 
-    @TTLCache.cached_method(ttl="top")
     def get_my_top_tracks(
         self,
         *,
@@ -1397,7 +942,7 @@ class TracksAPI(ResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        `Users > Get User's Top Tracks
+        `Users > Get Current User's Top Tracks
         <https://developer.spotify.com/documentation/web-api/reference
         /get-users-top-artists-and-tracks>`_: Get Spotify catalog
         information for the current user's top tracks.
@@ -1422,7 +967,8 @@ class TracksAPI(ResourceAPI):
         Parameters
         ----------
         time_range : str; keyword-only; optional
-            Time frame over which the affinities are computed.
+            Time frame over which the current user's listening history
+            is analyzed to determine top tracks.
 
             **Valid values**:
 
@@ -1446,7 +992,7 @@ class TracksAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
-            the next set of tracks.
+            the next batch of tracks.
 
             **Minimum value**: :code:`0`.
 
@@ -1454,8 +1000,8 @@ class TracksAPI(ResourceAPI):
 
         Returns
         -------
-        top_tracks : dict[str, Any]
-            Pages of Spotify content metadata for the current user's top
+        items : dict[str, Any]
+            Page of Spotify content metadata for the current user's top
             tracks.
 
             .. admonition:: Sample response
@@ -1543,20 +1089,9 @@ class TracksAPI(ResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_scopes("users.get_top_tracks", "user-top-read")
-        params = {}
-        if time_range:
-            self._client.users._validate_time_range(time_range)
-            params["time_range"] = time_range
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "me/top/tracks", params=params
-        ).json()
+        return self._client.users.get_my_top_items(
+            "tracks", time_range=time_range, limit=limit, offset=offset
+        )
 
     def _parse_attribute(
         self,
@@ -1587,12 +1122,12 @@ class TracksAPI(ResourceAPI):
             Track attribute value.
 
         data_type : type
-            Data type accepted for the track attribute.
+            Allowed data type for the track attribute.
 
             **Valid values**: :code:`int` or :code:`float`.
 
         range_ : tuple[int | float | None, int | float | None]
-            Valid range for track attribute.
+            Valid range for the track attribute.
 
         params : dict[str, Any]
             Query parameters for the GET request.
@@ -1614,7 +1149,7 @@ class TracksAPI(ResourceAPI):
             ):
                 raise ValueError(
                     f"Values for track attribute {attribute!r} must "
-                    "all be integers (or None)."
+                    "be integers (or None)."
                 )
             elif any(
                 not (
@@ -1627,13 +1162,13 @@ class TracksAPI(ResourceAPI):
             ):
                 raise ValueError(
                     f"Values for track attribute {attribute!r} must "
-                    "all be numbers (or None)."
+                    "be numbers (or None)."
                 )
             length = len(value)
             if length not in range(2, 4):
                 raise ValueError(
                     "The tuple provided for track attribute "
-                    f"{attribute!r} must have length 2 or 3, but is "
+                    f"{attribute!r} must have length 2 or 3, not "
                     f"length {length}."
                 )
             else:
@@ -1655,7 +1190,7 @@ class TracksAPI(ResourceAPI):
             raise ValueError(
                 f"The value provided for track attribute {attribute!r} "
                 f"must be a {(dtype := data_type.__name__)} or a "
-                f"tuple of {dtype}s, but is a {type(value).__name__}."
+                f"tuple of {dtype}s, not a {type(value).__name__}."
             )
 
     def _parse_seeds(
@@ -1711,7 +1246,7 @@ class TracksAPI(ResourceAPI):
         self, seed_genres: str | list[str], /, limit: int
     ) -> tuple[str, int]:
         """
-        Stringify a list of seed genres into a comma-separated string.
+        Normalize, validate, and serialize seed genres.
 
         Parameters
         ----------
@@ -1719,19 +1254,19 @@ class TracksAPI(ResourceAPI):
             Seed genres.
 
         limit : int; keyword-only
-            Maximum number of seed genres that can be sent in the
+            Maximum number of seed genres that can be sent in a
             request.
 
         Returns
         -------
         seed_genres : str
-            comma-separated string containing seed genres.
+            Comma-separated string of seed genres.
 
         n_seed_genres : int
             Number of seed genres.
         """
         if isinstance(seed_genres, str):
-            return self._prepare_seed_genres(seed_genres.split(","))
+            return self._prepare_seed_genres(seed_genres.strip().split(","))
 
         seed_genres = set(seed_genres)
         n_genres = len(seed_genres)

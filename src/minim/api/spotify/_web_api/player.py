@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import ResourceAPI
+from ._shared import SpotifyResourceAPI
 
 if TYPE_CHECKING:
     from .. import SpotifyWebAPI
 
 
-class PlayerAPI(ResourceAPI):
+class PlayerAPI(SpotifyResourceAPI):
     """
     Player API endpoints for the Spotify Web API.
 
@@ -17,14 +17,14 @@ class PlayerAPI(ResourceAPI):
     """
 
     _CONTEXT_TYPES = {"album", "artist", "playlist"}
-    _PLAYBACK_STATES = {"track", "context", "off"}
+    _REPEAT_MODES = {"track", "context", "off"}
     _client: "SpotifyWebAPI"
 
     def get_playback_state(
         self,
         *,
-        additional_types: str | list[str] | None = None,
-        market: str | None = None,
+        supported_item_types: str | list[str] | None = None,
+        country_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Player > Get Playback State <https://developer.spotify.com
@@ -52,31 +52,33 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        additional_types : str or list[str]; keyword-only; optional
-            Item types supported by the API client, provided as either a
-            comma-separated string or a list of strings.
+        supported_item_types : str or list[str]; keyword-only; optional
+            Item types supported by the client.
 
             .. note::
 
                This parameter was introduced to allow existing clients
-               to maintain their current behavior and might be
-               deprecated in the future.
-
-            **API default**: :code:`"track"`.
+               to maintain their current behavior and may be deprecated
+               in the future.
 
             **Valid values**: :code:`"track"`, :code:`"episode"`.
 
-        market : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. If specified, only content
-            available in that market is returned. When a valid user
-            access token accompanies the request, the country associated
+            **API default**: :code:`"track"`.
+
+            **Examples**: :code:`"track"`, :code:`"track,episode"`,
+            :code:`["track", "episode"]`.
+
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If provided, only content
+            available in that market is returned. When a user access
+            token accompanies the request, the country associated
             with the user account takes priority over this parameter.
 
             .. note::
 
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
+               If neither a country code is provided nor a country can
+               be determined from the user account, the content is
+               considered unavailable for the client.
 
             **Example**: :code:`"ES"`.
 
@@ -219,12 +221,14 @@ class PlayerAPI(ResourceAPI):
             "player.get_playback_state", "user-read-playback-state"
         )
         params = {}
-        if market is not None:
-            self._client._validate_market(market)
-            params["market"] = market
-        if additional_types is not None:
-            params["additional_types"] = self._client._prepare_audio_types(
-                additional_types
+        if country_code is not None:
+            self._client._validate_market(country_code)
+            params["market"] = country_code
+        if supported_item_types is not None:
+            params["additional_types"] = self._prepare_types(
+                supported_item_types,
+                allowed_types=self._AUDIO_TYPES,
+                type_prefix="audio",
             )
         return self._client._request("GET", "me/player", params=params).json()
 
@@ -254,12 +258,13 @@ class PlayerAPI(ResourceAPI):
         .. caution::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints in the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web
+           API.
 
         Parameters
         ----------
         device_id : str; positional-only
-            Playback device ID.
+            ID of the target playback device.
 
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
@@ -269,10 +274,10 @@ class PlayerAPI(ResourceAPI):
             :code:`True`, playback begins immediately. If :code:`False`,
             the current playback state is preserved.
         """
+        self._client._require_spotify_premium("player.transfer_playback")
         self._client._require_scopes(
             "player.transfer_playback", "user-modify-playback-state"
         )
-        self._client._require_spotify_premium("player.transfer_playback")
         self._client._validate_spotify_id(device_id)
         payload = {"device_id": device_id}
         if play is not None:
@@ -333,8 +338,8 @@ class PlayerAPI(ResourceAPI):
     def get_currently_playing(
         self,
         *,
-        additional_types: str | list[str] | None = None,
-        market: str | None = None,
+        supported_item_types: str | list[str] | None = None,
+        country_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Player > Get Currently Playing Track
@@ -361,31 +366,33 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
-        additional_types : str or list[str]; keyword-only; optional
-            Item types supported by the API client, provided as either a
-            comma-separated string or a list of strings.
+        supported_item_types : str or list[str]; keyword-only; optional
+            Item types supported by the client.
 
             .. note::
 
                This parameter was introduced to allow existing clients
-               to maintain their current behavior and might be
-               deprecated in the future.
-
-            **API default**: :code:`"track"`.
+               to maintain their current behavior and may be deprecated
+               in the future.
 
             **Valid values**: :code:`"track"`, :code:`"episode"`.
 
-        market : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. If specified, only content
-            available in that market is returned. When a valid user
-            access token accompanies the request, the country associated
+            **API default**: :code:`"track"`.
+
+            **Examples**: :code:`"track"`, :code:`"track,episode"`,
+            :code:`["track", "episode"]`.
+
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If provided, only content
+            available in that market is returned. When a user access
+            token accompanies the request, the country associated
             with the user account takes priority over this parameter.
 
             .. note::
 
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
+               If neither a country code is provided nor a country can
+               be determined from the user account, the content is
+               considered unavailable for the client.
 
             **Example**: :code:`"ES"`.
 
@@ -528,12 +535,14 @@ class PlayerAPI(ResourceAPI):
             "player.get_currently_playing", "user-read-currently-playing"
         )
         params = {}
-        if market is not None:
-            self._client._validate_market(market)
-            params["market"] = market
-        if additional_types is not None:
-            params["additional_types"] = self._client._prepare_audio_types(
-                additional_types
+        if country_code is not None:
+            self._client._validate_market(country_code)
+            params["market"] = country_code
+        if supported_item_types is not None:
+            params["additional_types"] = self._prepare_types(
+                supported_item_types,
+                allowed_types=self._AUDIO_TYPES,
+                type_prefix="audio",
             )
         return self._client._request(
             "GET", "me/player/currently-playing", params=params
@@ -541,11 +550,11 @@ class PlayerAPI(ResourceAPI):
 
     def start_playback(
         self,
+        uris: str | list[str],
+        /,
         *,
         device_id: str | None = None,
-        context_uri: str | None = None,
         offset: int | str | None = None,
-        uris: str | list[str] | None = None,
         position_ms: int | None = None,
     ) -> None:
         """
@@ -570,26 +579,33 @@ class PlayerAPI(ResourceAPI):
 
         Parameters
         ----------
+        uris : str or list[str]; positional-only
+            Spotify URIs to play. For context playback, provide a single
+            album, artist, or playlist URI. For item playback, provide
+            one or more track URIs.
+
+            **Examples**:
+
+            .. container::
+
+               * :code:`"spotify:album:1Je1IMUlBXcx1Fz0WE7oPT"`
+               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh"`
+               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`
+               * :code:`["spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+                 "spotify:track:1301WleyT98MSxVHPZCA6M"]`
+
         device_id : str; keyword-only; optional
-            Playback device ID. If not specified, the currently active
-            device is the target.
+            ID of the target playback device. If not specified, the
+            currently active device is the target.
 
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
 
-        context_uri : str; keyword-only; optional
-            Spotify URI of the album, artist, or playlist to play.
-
-            .. note::
-
-               Only one of `context_uri` or `uris` can be specified.
-
-            **Example**: :code:`"spotify:album:1Je1IMUlBXcx1Fz0WE7oPT"`.
-
         offset : int or str; keyword-only; optional
             Zero-based index or Spotify URI of the item within the
-            context specified by `context_uri` at which to start
-            playback. Used only when `context_uri` is specified.
+            context specified by `uris` at which playback should start.
+            Only used when `uris` contains a context (album, artist, or
+            playlist).
 
             **Examples**:
 
@@ -599,75 +615,54 @@ class PlayerAPI(ResourceAPI):
                * :code:`spotify:track:1301WleyT98MSxVHPZCA6M` – Specific
                  item in the context.
 
-        uris : str or list[str]; keyword-only; optional
-            Spotify URIs of items to play, provided as either a
-            comma-separated string or a list of strings.
-
-            .. note::
-
-               Only one of `context_uri` or `uris` can be specified.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh"`
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`
-               * :code:`["spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
-                 "spotify:track:1301WleyT98MSxVHPZCA6M"]`
-
         position_ms : int; keyword-only; optional
-            Position in milliseconds within the first item at which to
-            start playback. If a position greater than the length of
-            that item is specified, the player will start playing the
-            next item.
+            Playback start position within the first track, in
+            milliseconds. If the specified position exceeds the length
+            of the track, playback will start at the next track.
 
             **Minimum value**: :code:`0`.
 
             **Example**: :code:`25_000`.
         """
-        self._client._require_scopes(
-            "player.start_playback", "user-modify-playback-state"
-        )
-        self._client._require_spotify_premium("player.start_playback")
-        params = {}
-        if device_id is not None:
-            self._client._validate_spotify_id(device_id)
-            params["device_id"] = device_id
         payload = {}
-        if context_uri is not None:
-            if uris is not None:
-                raise ValueError(
-                    "Only one of `context_uri` or `uris` can be provided."
+        multiple = True
+        if isinstance(uris, str):
+            uris = uris.strip().split(",")
+        if len(uris) == 1:
+            uri = uris[0]
+            try:
+                self._client._validate_spotify_uri(
+                    uri, resource_types={"track"}
                 )
-            self._client._validate_spotify_uri(
-                context_uri, item_types=self._CONTEXT_TYPES
+                payload["context_uri"] = uri
+                multiple = False
+            except ValueError:
+                payload["uris"] = self._client._prepare_spotify_uris(
+                    uri, limit=1, resource_types=self._CONTEXT_TYPES
+                )
+        else:
+            payload["uris"] = self._client._prepare_spotify_uris(
+                uris, limit=100, resource_types=self._CONTEXT_TYPES
             )
-            payload["context_uri"] = context_uri
-            if offset is not None:
-                if isinstance(offset, int):
-                    self._client._validate_number("offset", offset, int, 0)
-                    payload["offset"] = {"position": offset}
-                elif isinstance(offset, str):
-                    self._client._validate_spotify_uri(
-                        offset, item_types={"track"}
-                    )
-                    payload["offset"] = {"uri": offset}
-                else:
-                    raise ValueError(
-                        "`offset` must be either a zero-based index "
-                        "(int) or a Spotify track URI (str)."
-                    )
-        elif uris is not None:
-            _item_types = {"track"}
-            for uri in uris:
-                self._client._validate_spotify_uri(uri, item_types=_item_types)
-            payload["uris"] = list(uris)
+        if multiple and offset is not None:
+            if isinstance(offset, int):
+                self._client._validate_number("offset", offset, int, 0)
+                payload["offset"] = {"position": offset}
+            elif isinstance(offset, str):
+                self._client._validate_spotify_uri(
+                    offset, resource_types={"track"}
+                )
+                payload["offset"] = {"uri": offset}
+            else:
+                raise ValueError(
+                    "`offset` must be either a zero-based index "
+                    "(int) or a Spotify track URI (str)."
+                )
         if position_ms is not None:
             self._client._validate_number("position_ms", position_ms, int, 0)
             payload["position_ms"] = position_ms
-        self._client._request(
-            "PUT", "me/player/play", params=params, json=payload
+        self._control_playback(
+            "start_playback", "play", device_id=device_id, payload=payload
         )
 
     def pause_playback(self, *, device_id: str | None = None) -> None:
@@ -694,26 +689,19 @@ class PlayerAPI(ResourceAPI):
         .. caution::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints in the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web
+           API.
 
         Parameters
         ----------
         device_id : str; keyword-only; optional
-            Playback device ID. If not specified, the currently active
-            device is the target.
+            ID of the target playback device. If not specified, the
+            currently active device is the target.
 
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_scopes(
-            "player.pause_playback", "user-modify-playback-state"
-        )
-        self._client._require_spotify_premium("player.pause_playback")
-        params = {}
-        if device_id is not None:
-            self._client._validate_spotify_id(device_id)
-            params["device_id"] = device_id
-        self._client._request("PUT", "me/player/pause", params=params)
+        self._control_playback("pause_playback", "pause", device_id=device_id)
 
     def skip_to_next(self, *, device_id: str | None = None) -> None:
         """
@@ -740,26 +728,19 @@ class PlayerAPI(ResourceAPI):
         .. caution::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints in the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web
+           API.
 
         Parameters
         ----------
         device_id : str; keyword-only; optional
-            Playback device ID. If not specified, the currently active
-            device is the target.
+            ID of the target playback device. If not specified, the
+            currently active device is the target.
 
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_scopes(
-            "player.skip_to_next", "user-modify-playback-state"
-        )
-        self._client._require_spotify_premium("player.skip_to_next")
-        params = {}
-        if device_id is not None:
-            self._client._validate_spotify_id(device_id)
-            params["device_id"] = device_id
-        self._client._request("POST", "me/player/next", params=params)
+        self._control_playback("skip_to_next", "next", device_id=device_id)
 
     def skip_to_previous(self, *, device_id: str | None = None) -> None:
         """
@@ -791,21 +772,15 @@ class PlayerAPI(ResourceAPI):
         Parameters
         ----------
         device_id : str; keyword-only; optional
-            Playback device ID. If not specified, the currently active
-            device is the target.
+            ID of the target playback device. If not specified, the
+            currently active device is the target.
 
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_scopes(
-            "player.skip_to_previous", "user-modify-playback-state"
+        self._control_playback(
+            "skip_to_previous", "previous", device_id=device_id
         )
-        self._client._require_spotify_premium("player.skip_to_previous")
-        params = {}
-        if device_id is not None:
-            self._client._validate_spotify_id(device_id)
-            params["device_id"] = device_id
-        self._client._request("POST", "me/player/next", params=params)
 
     def seek_to_position(
         self, position_ms: int, /, *, device_id: str | None = None
@@ -834,39 +809,37 @@ class PlayerAPI(ResourceAPI):
         .. caution::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints in the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web
+           API.
 
         Parameters
         ----------
         position_ms : int; positional-only
-            Position in milliseconds to seek to. If a position greater
-            than the length of the item is specified, the player will
-            start playing the next item.
+            Playback position to seek to, in milliseconds. If the
+            specified position exceeds the length of the track, the next
+            track will start playing.
 
             **Minimum value**: :code:`0`.
 
             **Example**: :code:`25_000`.
 
         device_id : str; keyword-only; optional
-            Playback device ID. If not specified, the currently active
-            device is the target.
+            ID of the target playback device. If not specified, the
+            currently active device is the target.
 
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_scopes(
-            "player.seek_to_position", "user-modify-playback-state"
-        )
-        self._client._require_spotify_premium("player.seek_to_position")
         self._client._validate_number("position_ms", position_ms, int, 0)
-        params = {"position_ms": position_ms}
-        if device_id is not None:
-            self._client._validate_spotify_id(device_id)
-            params["device_id"] = device_id
-        self._client._request("PUT", "me/player/seek", params=params)
+        self._control_playback(
+            "seek_to_position",
+            "seek",
+            device_id=device_id,
+            params={"position_ms": position_ms},
+        )
 
     def set_repeat(
-        self, state: str, /, *, device_id: str | None = None
+        self, repeat_mode: str, /, *, device_id: str | None = None
     ) -> None:
         """
         `Player > Set Repeat Mode <https://developer.spotify.com
@@ -891,11 +864,12 @@ class PlayerAPI(ResourceAPI):
         .. caution::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints in the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web
+           API.
 
         Parameters
         ----------
-        state : str; positional-only
+        repeat_mode : str; positional-only
             Playback repeat mode.
 
             **Valid values**:
@@ -903,31 +877,29 @@ class PlayerAPI(ResourceAPI):
             .. container::
 
                * :code:`"track"` – Repeat the current track.
-               * :code:`"context"` – Repeat the current album, artist,
-                 or playlist.
+               * :code:`"context"` – Repeat tracks in the current
+                 context (album, artist, or playlist).
                * :code:`"off"` – Turn repeat off.
 
         device_id : str; keyword-only; optional
-            Playback device ID. If not specified, the currently active
-            device is the target.
+            ID of the target playback device. If not specified, the
+            currently active device is the target.
 
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_scopes(
-            "player.set_repeat", "user-modify-playback-state"
-        )
-        self._client._require_spotify_premium("player.set_repeat")
-        if state not in self._PLAYBACK_STATES:
-            _states = "', '".join(sorted(self._PLAYBACK_STATES))
+        if repeat_mode not in self._REPEAT_MODES:
+            repeat_modes_str = "', '".join(sorted(self._REPEAT_MODES))
             raise ValueError(
-                f"Invalid playback state {state!r}. Valid values: '{_states}'."
+                f"Invalid repeat mode {repeat_mode!r}. "
+                f"Valid values: '{repeat_modes_str}'."
             )
-        params = {"state": state}
-        if device_id is not None:
-            self._client._validate_spotify_id(device_id)
-            params["device_id"] = device_id
-        self._client._request("PUT", "me/player/repeat", params=params)
+        self._control_playback(
+            "set_repeat",
+            "repeat",
+            device_id=device_id,
+            params={"state": repeat_mode},
+        )
 
     def set_volume(
         self, volume_percent: int, /, *, device_id: str | None = None
@@ -955,7 +927,8 @@ class PlayerAPI(ResourceAPI):
         .. caution::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints in the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web
+           API.
 
         Parameters
         ----------
@@ -965,27 +938,24 @@ class PlayerAPI(ResourceAPI):
             **Valid range**: :code:`0` to :code:`100`.
 
         device_id : str; keyword-only; optional
-            Playback device ID. If not specified, the currently active
-            device is the target.
+            ID of the target playback device. If not specified, the
+            currently active device is the target.
 
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_scopes(
-            "player.set_volume", "user-modify-playback-state"
-        )
-        self._client._require_spotify_premium("player.set_volume")
         self._client._validate_number(
             "volume_percent", volume_percent, int, 0, 100
         )
-        params = {"volume_percent": volume_percent}
-        if device_id is not None:
-            self._client._validate_spotify_id(device_id)
-            params["device_id"] = device_id
-        self._client._request("PUT", "me/player/volume", params=params)
+        self._control_playback(
+            "set_volume",
+            "volume",
+            device_id=device_id,
+            params={"volume_percent": volume_percent},
+        )
 
     def set_shuffle(
-        self, state: bool, /, *, device_id: str | None = None
+        self, shuffle: bool, /, *, device_id: str | None = None
     ) -> None:
         """
         `Player > Toggle Playback Shuffle <https://developer.spotify.com
@@ -1010,36 +980,34 @@ class PlayerAPI(ResourceAPI):
         .. caution::
 
            The order of execution is not guaranteed when this endpoint
-           is used with other Player API endpoints in the Spotify Web API.
+           is used with other Player API endpoints in the Spotify Web
+           API.
 
         Parameters
         ----------
-        state : bool; positional-only
+        shuffle : bool; positional-only
             Whether to shuffle playback.
 
         device_id : str; keyword-only; optional
-            Playback device ID. If not specified, the currently active
-            device is the target.
+            ID of the target playback device. If not specified, the
+            currently active device is the target.
 
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._client._require_scopes(
-            "player.set_shuffle", "user-modify-playback-state"
+        self._client._validate_type("shuffle", shuffle, bool)
+        self._control_playback(
+            "set_shuffle",
+            "shuffle",
+            device_id=device_id,
+            params={"state": shuffle},
         )
-        self._client._require_spotify_premium("player.set_shuffle")
-        self._client._validate_type("state", state, bool)
-        params = {"state": state}
-        if device_id is not None:
-            self._client._validate_spotify_id(device_id)
-            params["device_id"] = device_id
-        self._client._request("PUT", "me/player/shuffle", params=params)
 
     def get_recently_played(
         self,
         *,
-        after: int | None = None,
-        before: int | None = None,
+        played_after: int | None = None,
+        played_before: int | None = None,
         limit: int | None = None,
     ) -> dict[str, Any]:
         """
@@ -1065,25 +1033,22 @@ class PlayerAPI(ResourceAPI):
                   <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
 
+        .. note::
+
+           Exactly one of `played_after` or `played_before` must be
+           provided.
+
         Parameters
         ----------
-        after : int; keyword-only; optional
-            Only return items played after the time indicated by this
-            Unix timestamp in milliseconds.
-
-            .. note::
-
-               Only one of `after` or `before` can be specified.
+        played_after : int; keyword-only; optional
+            Only return items played after this Unix timestamp, in
+            milliseconds.
 
             **Minimum value**: :code:`0`.
 
-        before : int; keyword-only; optional
-            Only return items played before the time indicated by this
-            Unix timestamp in milliseconds.
-
-            .. note::
-
-               Only one of `after` or `before` can be specified.
+        played_before : int; keyword-only; optional
+            Only return items played before this Unix timestamp, in
+            milliseconds.
 
             **Minimum value**: :code:`0`.
 
@@ -1097,7 +1062,8 @@ class PlayerAPI(ResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Pages of Spotify content metadata for the recently played items.
+            Page of Spotify content metadata for the recently played
+            items.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1216,18 +1182,19 @@ class PlayerAPI(ResourceAPI):
         self._client._require_scopes(
             "player.get_recently_played", "user-read-recently-played"
         )
-        self._client._request("GET", "me/player/recently-played")
         params = {}
-        if after is not None:
-            if before is not None:
+        if played_after is not None:
+            if played_before is not None:
                 raise ValueError(
-                    "Only one of `after` or `before` can be provided."
+                    "Exactly one of `played_after` or `played_before` must be provided."
                 )
-            self._client._validate_number("after", after, int, 0)
-            params["after"] = after
-        elif before is not None:
-            self._client._validate_number("before", before, int, 0)
-            params["before"] = before
+            self._client._validate_number("played_after", played_after, int, 0)
+            params["after"] = played_after
+        elif played_before is not None:
+            self._client._validate_number(
+                "played_before", played_before, int, 0
+            )
+            params["before"] = played_before
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
@@ -1484,11 +1451,11 @@ class PlayerAPI(ResourceAPI):
         uri : str; positional-only
             Spotify URI of the track or episode to add to the queue.
 
-            **Example**: :code:`spotif:track:4iV5W9uYEdYUVa79Axb7Rh`.
+            **Example**: :code:`spotify:track:4iV5W9uYEdYUVa79Axb7Rh`.
 
         device_id : str; keyword-only; optional
-            Playback device ID. If not specified, the currently active
-            device is the target.
+            ID of the target playback device. If not specified, the
+            currently active device is the target.
 
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
@@ -1498,10 +1465,60 @@ class PlayerAPI(ResourceAPI):
         )
         self._client._require_spotify_premium("player.add_to_queue")
         self._client._validate_spotify_uri(
-            uri, item_types=self._client._AUDIO_TYPES
+            uri, resource_types=self._AUDIO_TYPES
         )
         params = {"uri": uri}
         if device_id is not None:
             self._client._validate_spotify_id(device_id)
             params["device_id"] = device_id
         self._client._request("POST", "me/player/queue", params=params)
+
+    def _control_playback(
+        self,
+        endpoint_method: str,
+        subresource: str,
+        /,
+        *,
+        device_id: str | None = None,
+        params: dict[str, Any] | None = None,
+        payload: dict[str, Any] | None = None,
+    ) -> None:
+        """
+        Control playback.
+
+        Parameters
+        ----------
+        endpoint_method : str; positional-only
+            Name of the Player API endpoint method.
+
+        subresource : str; positional-only
+            Subresource of the endpoint to call.
+
+        device_id : str; keyword-only; optional
+            Playback device ID. If not specified, the currently active
+            device is the target.
+
+            **Example**:
+            :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
+
+        params : dict[str, Any]; keyword-only; optional
+            Additional query parameters to include in the request.
+
+            .. note::
+
+               This `dict` is updated in-place.
+
+        payload : dict[str, Any]; keyword-only; optional
+            JSON payload to include in the request.
+        """
+        qual_name = f"player.{endpoint_method}"
+        self._client._require_spotify_premium(qual_name)
+        self._client._require_scopes(qual_name, "user-modify-playback-state")
+        if params is None:
+            params = {}
+        if device_id is not None:
+            self._client._validate_spotify_id(device_id)
+            params["device_id"] = device_id
+        self._client._request(
+            "PUT", f"me/player/{subresource}", params=params, json=payload
+        )

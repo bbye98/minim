@@ -59,13 +59,13 @@ class PrivateArtistsAPI(ResourceAPI):
                       }
                     ],
                     "artistTypes": <list[str]>,
-                    "handle": <str>,
+                    "handle": None,
                     "id": <int>,
                     "mixes": {
                       "ARTIST_MIX": <str>
                     },
                     "name": <str>,
-                    "picture": <str>,
+                    "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                     "popularity": <int>,
                     "selectedAlbumCoverFallback": <str>,
                     "spotlighted": <bool>,
@@ -124,7 +124,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
-            the next set of albums.
+            the next batch of albums.
 
             **Minimum value**: :code:`0`.
 
@@ -146,25 +146,25 @@ class PrivateArtistsAPI(ResourceAPI):
                         "adSupportedStreamReady": <bool>,
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": <str>,
+                          "handle": None,
                           "id": <int>,
                           "name": <str>,
-                          "picture": <str>,
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                           "type": <str>
                         },
                         "artists": [
                           {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           }
                         ],
                         "audioModes": <list[str]>,
                         "audioQuality": <str>,
                         "copyright": <str>,
-                        "cover": <str>,
+                        "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                         "djReady": <bool>,
                         "duration": <int>,
                         "explicit": <bool>,
@@ -181,15 +181,15 @@ class PrivateArtistsAPI(ResourceAPI):
                         "releaseDate": <str>,
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": <str>,
+                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                         "title": <str>,
                         "type": <str>,
                         "upc": <str>,
                         "upload": <bool>,
                         "url": <str>,
                         "version": <str>,
-                        "vibrantColor": <str>,
-                        "videoCover": <str>
+                        "vibrantColor": "#rrggbb",
+                        "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                       }
                     ],
                     "limit": <int>,
@@ -289,7 +289,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first link to return. Use with `limit` to get
-            the next set of links.
+            the next batch of links.
 
             **Minimum value**: :code:`0`.
 
@@ -392,7 +392,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
-            the next set of items.
+            the next batch of items.
 
             **Minimum value**: :code:`0`.
 
@@ -414,26 +414,26 @@ class PrivateArtistsAPI(ResourceAPI):
                         "accessType": <str>,
                         "adSupportedStreamReady": <bool>,
                         "album": {
-                          "cover": <str>,
+                          "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                           "id": <int>,
                           "title": <str>,
-                          "vibrantColor": <str>,
-                          "videoCover": <str>
+                          "vibrantColor": "#rrggbb",
+                          "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                         },
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": <str>,
+                          "handle": None,
                           "id": <int>,
                           "name": <str>,
-                          "picture": <str>,
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                           "type": <str>
                         },
                         "artists": [
                           {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           }
                         ],
@@ -446,7 +446,7 @@ class PrivateArtistsAPI(ResourceAPI):
                         "editable": <bool>,
                         "explicit": <bool>,
                         "id": <int>,
-                        "isrc": <str>,
+                        "isrc": "CCXXXYYNNNNN",
                         "key": <str>,
                         "keyScale": <str>,
                         "mediaMetadata": {
@@ -463,7 +463,7 @@ class PrivateArtistsAPI(ResourceAPI):
                         "spotlighted": <bool>,
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": <str>,
+                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                         "title": <str>,
                         "trackNumber": <int>,
                         "upload": <bool>,
@@ -520,7 +520,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
-            the next set of tracks.
+            the next batch of tracks.
 
             **Minimum value**: :code:`0`.
 
@@ -543,26 +543,26 @@ class PrivateArtistsAPI(ResourceAPI):
                         "accessType": <str>,
                         "adSupportedStreamReady": <bool>,
                         "album": {
-                          "cover": <str>,
+                          "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                           "id": <int>,
                           "title": <str>,
-                          "vibrantColor": <str>,
-                          "videoCover": <str>
+                          "vibrantColor": "#rrggbb",
+                          "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                         },
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": <str>,
+                          "handle": None,
                           "id": <int>,
                           "name": <str>,
-                          "picture": <str>,
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                           "type": <str>
                         },
                         "artists": [
                           {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           }
                         ],
@@ -575,7 +575,7 @@ class PrivateArtistsAPI(ResourceAPI):
                         "editable": <bool>,
                         "explicit": <bool>,
                         "id": <int>,
-                        "isrc": <str>,
+                        "isrc": "CCXXXYYNNNNN",
                         "key": <str>,
                         "keyScale": <str>,
                         "mediaMetadata": {
@@ -592,7 +592,7 @@ class PrivateArtistsAPI(ResourceAPI):
                         "spotlighted": <bool>,
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": <str>,
+                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                         "title": <str>,
                         "trackNumber": <int>,
                         "upload": <bool>,
@@ -649,7 +649,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first video to return. Use with `limit` to get
-            the next set of videos.
+            the next batch of videos.
 
             **Minimum value**: :code:`0`.
 
@@ -672,26 +672,26 @@ class PrivateArtistsAPI(ResourceAPI):
                         "adsPrePaywallOnly": <bool>,
                         "adsUrl": <str>,
                         "album": {
-                          "cover": <str>,
+                          "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                           "id": <int>,
                           "title": <str>,
-                          "vibrantColor": <str>,
-                          "videoCover": <str>
+                          "vibrantColor": "#rrggbb",
+                          "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                         },
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": <str>,
+                          "handle": None,
                           "id": <int>,
                           "name": <str>,
-                          "picture": <str>,
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                           "type": <str>
                         },
                         "artists": [
                           {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           }
                         ],
@@ -699,18 +699,18 @@ class PrivateArtistsAPI(ResourceAPI):
                         "duration": <int>,
                         "explicit": <bool>,
                         "id": <int>,
-                        "imageId": <str>,
-                        "imagePath": <str>,
+                        "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "imagePath": None,
                         "popularity": <int>,
                         "quality": <str>,
                         "releaseDate": <str>,
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": <str>,
+                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                         "title": <str>,
                         "trackNumber": <int>,
                         "type": <str>,
-                        "vibrantColor": <str>,
+                        "vibrantColor": "#rrggbb",
                         "volumeNumber": <int>
                       }
                     ],
@@ -763,7 +763,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
-            the next set of artists.
+            the next batch of artists.
 
             **Minimum value**: :code:`0`.
 
@@ -785,13 +785,13 @@ class PrivateArtistsAPI(ResourceAPI):
                         "artistRoles": <list[str]>,
                         "artistTypes": <list[str]>,
                         "banner": <str>,
-                        "handle": <str>,
+                        "handle": None,
                         "id": <int>,
                         "mixes": {
                           "ARTIST_MIX": <str>
                         },
                         "name": <str>,
-                        "picture": <str>,
+                        "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                         "popularity": <int>,
                         "relationType": <str>,
                         "selectedAlbumCoverFallback": <str>,
@@ -945,7 +945,7 @@ class PrivateArtistsAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
-            the next set of items.
+            the next batch of items.
 
             **Minimum value**: :code:`0`.
 

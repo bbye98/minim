@@ -19,6 +19,7 @@ from ._private_api.artists import PrivateArtistsAPI
 from ._private_api.mixes import PrivateMixesAPI
 from ._private_api.pages import PrivatePagesAPI
 from ._private_api.playlists import PrivatePlaylistsAPI
+from ._private_api.search import PrivateSearchAPI
 from ._private_api.users import PrivateUsersAPI
 
 if TYPE_CHECKING:
@@ -30,10 +31,10 @@ class _BaseTIDALAPI(OAuth2APIClient):
     Base class for TIDAL API clients.
     """
 
+    _ALLOWED_AUTH_FLOWS: set[str]
+    _ALLOWED_SCOPES: set[str]
     _ENV_VAR_PREFIX: str
-    _FLOWS: set[str]
     _QUAL_NAME: str
-    _SCOPES: set[str]
     _VERSION: str
     AUTH_URL: str
     BASE_URL: str
@@ -63,11 +64,11 @@ class _BaseTIDALAPI(OAuth2APIClient):
         """
         # Return all scopes if no matches are provided
         if matches is None:
-            return cls._SCOPES.copy()
+            return cls._ALLOWED_SCOPES.copy()
 
         # Return scopes containing a substring
         if isinstance(matches, str):
-            return {scope for scope in cls._SCOPES if matches in scope}
+            return {scope for scope in cls._ALLOWED_SCOPES if matches in scope}
 
         # Recursively gather scopes for multiple
         # categories/substrings
@@ -85,8 +86,7 @@ class _BaseTIDALAPI(OAuth2APIClient):
         Parameters
         ----------
         tidal_ids : int, str, or list[int | str]; positional-only
-            One or more TIDAL IDs, provided as an integer, a string, or
-            a list of integers and/or strings.
+            TIDAL IDs.
         """
         if not isinstance(tidal_ids, int) and not tidal_ids:
             raise ValueError("At least one TIDAL ID must be specified.")
@@ -120,10 +120,10 @@ class _BaseTIDALAPI(OAuth2APIClient):
         ...
 
     @abstractmethod
-    def _get_user_identifier(self) -> str:
+    def _resolve_user_identifier(self) -> str:
         """
-        Assign the TIDAL user ID as the user identifier for the current
-        account.
+        Return the TIDAL user ID as the user identifier for the
+        current account.
         """
         ...
 
@@ -166,13 +166,14 @@ class _BaseTIDALAPI(OAuth2APIClient):
         self, country_code: str | None, /, params: dict[str, Any]
     ) -> None:
         """
-        Resolve or validate a country code for a TIDAL API request.
+        Resolve or validate the country code for a TIDAL API request.
 
         Parameters
         ----------
         country_code : str; positional-only
-            ISO 3166-1 alpha-2 country code. If :code:`None`, the country
-            associated with the current user account is used.
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
         """
         if country_code is None:
             params["countryCode"] = self._my_country_code
@@ -186,10 +187,8 @@ class TIDALAPI(_BaseTIDALAPI):
     TIDAL API client.
     """
 
-    _ENV_VAR_PREFIX = "TIDAL_API"
-    _FLOWS = {"pkce", "client_credentials"}
-    _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
-    _SCOPES = {
+    _ALLOWED_AUTH_FLOWS = {"pkce", "client_credentials"}
+    _ALLOWED_SCOPES = {
         "collection.read",
         "collection.write",
         "playlists.read",
@@ -201,13 +200,15 @@ class TIDALAPI(_BaseTIDALAPI):
         "search.read",
         "search.write",
     }
+    _ENV_VAR_PREFIX = "TIDAL_API"
+    _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
     _VERSION = "1.0.5"
     BASE_URL = "https://openapi.tidal.com/v2"
 
     def __init__(
         self,
         *,
-        flow: str,
+        authorization_flow: str,
         client_id: str | None = None,
         client_secret: str | None = None,
         user_identifier: str | None = None,
@@ -215,16 +216,16 @@ class TIDALAPI(_BaseTIDALAPI):
         scopes: str | set[str] = "",
         access_token: str | None = None,
         refresh_token: str | None = None,
-        expiry: str | datetime | None = None,
-        backend: str | None = None,
-        browser: bool = False,
-        cache: bool = True,
-        store: bool = True,
+        expires_at: str | datetime | None = None,
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
+        enable_cache: bool = True,
+        store_tokens: bool = True,
     ) -> None:
         """
         Parameters
         ----------
-        flow : str; keyword-only
+        authorization_flow : str; keyword-only
             Authorization flow.
 
             .. container::
@@ -236,69 +237,66 @@ class TIDALAPI(_BaseTIDALAPI):
                * :code:`"client_credentials"` – Client Credentials Flow.
 
         client_id : str; keyword-only; optional
-            Client ID. Must be provided unless it is set as system
-            environment variable :code:`TIDAL_API_CLIENT_ID` or stored
-            in Minim's local token storage.
+            Client ID. Required unless set as system environment
+            variable :code:`TIDAL_API_CLIENT_ID` or stored in the local
+            token storage.
 
         client_secret : str; keyword-only; optional
-            Client secret. Required for the Client Credentials flow and
-            must be provided unless it is set as system environment
-            variable :code:`TIDAL_API_CLIENT_SECRET` or stored in
-            Minim's local token storage.
+            Client secret. Required for the Client Credentials flow
+            unless set as system environment variable
+            :code:`TIDAL_API_CLIENT_SECRET` or stored in the local token
+            storage.
 
         user_identifier : str; keyword-only; optional
-            Unique identifier for the user account to log into for all
-            authorization flows but the Client Credentials flow. Used
-            when :code:`store=True` to distinguish between multiple
-            user accounts for the same client ID and authorization flow.
+            Identifier for the user account. Used when
+            :code:`store_tokens=True` to distinguish between multiple
+            accounts for the same client ID and authorization flow.
 
-            If provided, it is used to locate existing access tokens or
-            store new tokens in Minim's local token storage.
+            If provided, it is used with the client ID and authorization
+            flow to locate a matching stored token. If none is found, a
+            new token is obtained and stored under this identifier.
 
-            If not provided, the last accessed account for the specified
-            authorization flow in `flow` is selected if it exists in
-            local storage. Otherwise, a new entry is created using a
-            the client ID, authorization flow, and an available user
-            identifier (e.g., user ID) after successful authorization.
+            If not provided, the most recently accessed token for the
+            client ID and authorization flow is used. If none exists, a
+            new token is obtained and stored using the TIDAL user ID
+            acquired from a successful authorization.
 
-            Prepending the identifier with a tilde (:code:`~`) skips
-            token retrieval from local storage, and the suffix will be
-            used as the identifier for storing future tokens.
+            Prefixing the identifier with a tilde (:code:`~`) bypasses
+            token retrieval, forces reauthorization, and stores the new
+            token under the suffix.
 
         redirect_uri : str; keyword-only; optional
-            Redirect URI. Required for the Authorization Code and
-            Authorization Code with PKCE flows. If the host is not
-            :code:`localhost` or :code:`127.0.0.1`, redirect handling is
-            not available.
+            Redirect URI. Required for the Authorization Code with PKCE
+            flow.
 
         scopes : str or set[str]; keyword-only; optional
-            Authorization scopes the client requests to access user
+            Authorization scopes requested by the client to access user
             resources.
 
             .. seealso::
 
-               :meth:`resolve_scopes` – Get a set of scopes to request,
-               filtered by substrings.
+               :meth:`resolve_scopes` – Resolve scope categories and/or
+                substrings into a set of scopes.
 
         access_token : str; keyword-only; optional
-            Access token. If provided or found in Minim's local token
-            storage, the authorization process is bypassed. If provided,
-            all other relevant keyword parameters should also be
-            specified to enable automatic token refresh upon expiration.
+            Access token. If provided, the authorization process is
+            bypassed, and automatic token refresh is enabled when
+            relevant metadata (refresh token, expiry, etc.) is also
+            supplied.
 
         refresh_token : str; keyword-only; optional
-            Refresh token accompanying the access token in
-            `access_token`. If not provided, the user will be
-            reauthorized via the authorization flow in `flow` when the
-            access token expires.
+            Refresh token for renewing the access token. If not
+            provided, the user will be reauthorized via the specified
+            authorization flow when the access token expires.
 
-        expiry : str or datetime.datetime; keyword-only; optional
-            Expiry of the access token in `access_token`. If provided as
-            a string, it must be in ISO 8601 format
-            (:code:`%Y-%m-%dT%H:%M:%SZ`).
+        expires_at : str or datetime.datetime; keyword-only; optional
+            Expiration time of the access token. If a string, it must be
+            in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
-        backend : str; keyword-only; optional
-            Backend to handle redirects during the authorization flow.
+        redirect_handler : str; keyword-only; optional
+            Backend for handling redirects during the authorization
+            flow. Redirect handling is only available for hosts
+            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
             .. container::
 
@@ -306,37 +304,38 @@ class TIDALAPI(_BaseTIDALAPI):
 
                * :code:`None` – Manually paste the redirect URL into
                  the terminal.
-               * :code:`"http.server"` – Simple HTTP server.
-               * :code:`"playwright"` – Playwright Firefox browser.
+               * :code:`"http.server"` – Run a simple HTTP server.
+               * :code:`"playwright"` – Open a Playwright Firefox
+                 browser.
 
-        browser : bool; keyword-only; default: :code:`False`
+        open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
             default web browser for the Authorization Code with PKCE
-            flow. If :code:`False`, the authorization URL is printed to
-            the terminal.
+            flow. If :code:`False`, the URL is printed to the terminal.
 
-        cache : bool; keyword-only; default: :code:`True`
+        enable_cache : bool; keyword-only; default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for between 10 minutes and 1 day, depending on their
-            expected update frequency.
+            cached for 10 minutes to 1 day, depending on their expected
+            update frequency.
 
             .. seealso::
 
                :meth:`clear_cache` – Clear specific or all cache
-               entries for this API client.
+               entries for this client.
 
-        store : bool; keyword-only; default: :code:`True`
-            Whether to enable Minim's local token storage for
-            this client. If :code:`True`, newly acquired access tokens
-            and related information are stored. If :code:`False`, the
-            client will not retrieve or store access tokens.
+        store_tokens : bool; keyword-only; default: :code:`True`
+            Whether to enable the local token storage for this client.
+            If :code:`True`, existing access tokens are retrieved when
+            found in local storage, and newly acquired tokens and their
+            metadata are stored for future retrieval. If :code:`False`,
+            the client neither retrieves nor stores access tokens.
 
             .. seealso::
 
                :meth:`remove_tokens` – Remove specific or all stored
-               access tokens for this API client.
+               access tokens for this client.
         """
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the TIDAL API.
@@ -360,7 +359,7 @@ class TIDALAPI(_BaseTIDALAPI):
         self.videos: VideosAPI = VideosAPI(self)
 
         super().__init__(
-            flow=flow,
+            authorization_flow=authorization_flow,
             client_id=client_id,
             client_secret=client_secret,
             user_identifier=user_identifier,
@@ -368,11 +367,11 @@ class TIDALAPI(_BaseTIDALAPI):
             scopes=scopes,
             access_token=access_token,
             refresh_token=refresh_token,
-            expiry=expiry,
-            backend=backend,
-            browser=browser,
-            cache=cache,
-            store=store,
+            expires_at=expires_at,
+            redirect_handler=redirect_handler,
+            open_browser=open_browser,
+            enable_cache=enable_cache,
+            store_tokens=store_tokens,
         )
 
     @property
@@ -409,14 +408,14 @@ class TIDALAPI(_BaseTIDALAPI):
         """
         return (
             {}
-            if self._flow == "client_credentials"
+            if self._auth_flow == "client_credentials"
             else self.users.get_my_profile()["data"]
         )
 
-    def _get_user_identifier(self) -> str:
+    def _resolve_user_identifier(self) -> str:
         """
-        Assign the TIDAL user ID as the user identifier for the current
-        account.
+        Return the TIDAL user ID as the user identifier for the
+        current account.
 
         .. note::
 
@@ -458,7 +457,7 @@ class TIDALAPI(_BaseTIDALAPI):
         response : httpx.Response
             HTTP response.
         """
-        if self._expiry and datetime.now() > self._expiry:
+        if self._expires_at and datetime.now() > self._expires_at:
             self._refresh_access_token()
 
         resp = self._client.request(method, endpoint, **kwargs)
@@ -466,7 +465,7 @@ class TIDALAPI(_BaseTIDALAPI):
         if 200 <= status < 300:
             return resp
 
-        if status == 401 and not self._expiry and retry:
+        if status == 401 and not self._expires_at and retry:
             self._refresh_access_token()
             return self._request(method, endpoint, retry=False, **kwargs)
         if status == 429 and retry:
@@ -490,9 +489,10 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
     Private TIDAL API client.
     """
 
+    _ALLOWED_AUTH_FLOWS = {None, "pkce", "device"}
+    _ALLOWED_SCOPES = {"r_usr", "w_usr", "w_sub"}
     _DEVICE_TYPES = {"BROWSER", "DESKTOP", "PHONE", "TV"}
     _ENV_VAR_PREFIX = "PRIVATE_TIDAL_API"
-    _FLOWS = {None, "pkce", "device"}
     _IMAGE_SIZES = {
         "album": {
             "1280x1280",
@@ -513,19 +513,19 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         "playlist": "cover art",
         "video": "thumbnail",
     }
+    _IS_TRUSTED_CLIENT = True
+    _OPTIONAL_AUTH = True
     _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
     _REDIRECT_URIS = {"tidal://login/auth", "https://tidal.com/login/auth"}
-    _SCOPES = {"r_usr", "w_usr", "w_sub"}
-    _TRUSTED_DEVICE = True
     _VERSION = "2025.11.19"
-    DEVICE_AUTH_URL = "https://auth.tidal.com/v1/oauth2/device_authorization"
     BASE_URL = "https://api.tidal.com"
+    DEVICE_AUTH_URL = "https://auth.tidal.com/v1/oauth2/device_authorization"
     RESOURCE_URL = "https://resources.tidal.com"
 
     def __init__(
         self,
         *,
-        flow: str | None,
+        authorization_flow: str | None,
         client_id: str | None = None,
         client_secret: str | None = None,
         user_identifier: str | None = None,
@@ -533,13 +533,131 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         scopes: str | set[str] = "",
         access_token: str | None = None,
         refresh_token: str | None = None,
-        expiry: str | datetime | None = None,
-        backend: str | None = None,
-        browser: bool = False,
-        cache: bool = True,
-        store: bool = True,
+        expires_at: str | datetime | None = None,
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
+        enable_cache: bool = True,
+        store_tokens: bool = True,
     ) -> None:
-        """ """
+        """
+        Parameters
+        ----------
+        authorization_flow : str or None; keyword-only
+            Authorization flow.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`None` – No authentication.
+               * :code:`"pkce"` – Authorization Code Flow with Proof Key
+                 for Code Exchange (PKCE).
+               * :code:`"device"` – Device Authorization Flow.
+
+        client_id : str; keyword-only; optional
+            Client ID. Required unless set as system environment
+            variable :code:`PRIVATE_TIDAL_API_CLIENT_ID` or stored in
+            the local token storage.
+
+        client_secret : str; keyword-only; optional
+            Client secret. Required for the Client Credentials flow
+            unless set as system environment variable
+            :code:`PRIVATE_TIDAL_API_CLIENT_SECRET` or stored in the
+            local token storage.
+
+        user_identifier : str; keyword-only; optional
+            Identifier for the user account. Used when
+            :code:`store_tokens=True` to distinguish between multiple
+            accounts for the same client ID and authorization flow.
+
+            If provided, it is used with the client ID and authorization
+            flow to locate a matching stored token. If none is found, a
+            new token is obtained and stored under this identifier.
+
+            If not provided, the most recently accessed token for the
+            client ID and authorization flow is used. If none exists, a
+            new token is obtained and stored using the TIDAL user ID
+            acquired from a successful authorization.
+
+            Prefixing the identifier with a tilde (:code:`~`) bypasses
+            token retrieval, forces reauthorization, and stores the new
+            token under the suffix.
+
+        redirect_uri : str; keyword-only; optional
+            Redirect URI. Required for the Authorization Code with PKCE
+            flow.
+
+            **Valid values**: :code:`"tidal://login/auth"`,
+            :code:`"https://tidal.com/login/auth"`.
+
+        scopes : str or set[str]; keyword-only; optional
+            Authorization scopes requested by the client to access user
+            resources.
+
+            .. seealso::
+
+               :meth:`resolve_scopes` – Resolve scope categories and/or
+                substrings into a set of scopes.
+
+        access_token : str; keyword-only; optional
+            Access token. If provided, the authorization process is
+            bypassed, and automatic token refresh is enabled when
+            relevant metadata (refresh token, expiry, etc.) is also
+            supplied.
+
+        refresh_token : str; keyword-only; optional
+            Refresh token for renewing the access token. If not
+            provided, the user will be reauthorized via the specified
+            authorization flow when the access token expires.
+
+        expires_at : str or datetime.datetime; keyword-only; optional
+            Expiration time of the access token. If a string, it must be
+            in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
+
+        redirect_handler : str; keyword-only; optional
+            Backend for handling redirects during the authorization
+            flow. Redirect handling is only available for hosts
+            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
+
+            .. container::
+
+               **Valid values**:
+
+               * :code:`None` – Manually paste the redirect URL into
+                 the terminal.
+               * :code:`"http.server"` – Run a simple HTTP server.
+               * :code:`"playwright"` – Open a Playwright Firefox
+                 browser.
+
+        open_browser : bool; keyword-only; default: :code:`False`
+            Whether to automatically open the authorization URL in the
+            default web browser for the Authorization Code with PKCE
+            flow. If :code:`False`, the URL is printed to the terminal.
+
+        enable_cache : bool; keyword-only; default: :code:`True`
+            Whether to enable an in-memory time-to-live (TTL) cache with
+            a least recently used (LRU) eviction policy for this client.
+            If :code:`True`, responses from semi-static endpoints are
+            cached for 10 minutes to 1 day, depending on their expected
+            update frequency.
+
+            .. seealso::
+
+               :meth:`clear_cache` – Clear specific or all cache
+               entries for this client.
+
+        store_tokens : bool; keyword-only; default: :code:`True`
+            Whether to enable the local token storage for this client.
+            If :code:`True`, existing access tokens are retrieved when
+            found in local storage, and newly acquired tokens and their
+            metadata are stored for future retrieval. If :code:`False`,
+            the client neither retrieves nor stores access tokens.
+
+            .. seealso::
+
+               :meth:`remove_tokens` – Remove specific or all stored
+               access tokens for this client.
+        """
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the private TIDAL API.
         self.albums: PrivateAlbumsAPI = PrivateAlbumsAPI(self)
@@ -551,11 +669,13 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         self.pages: PrivatePagesAPI = PrivatePagesAPI(self)
         #: Playlists API endpoints for the private TIDAL API.
         self.playlists: PrivatePlaylistsAPI = PrivatePlaylistsAPI(self)
+        #: Search API endpoints for the private TIDAL API.
+        self.search: PrivateSearchAPI = PrivateSearchAPI(self)
         #: Users API endpoints for the private TIDAL API.
         self.users: PrivateUsersAPI = PrivateUsersAPI(self)
 
         super().__init__(
-            flow=flow,
+            authorization_flow=authorization_flow,
             client_id=client_id,
             client_secret=client_secret,
             user_identifier=user_identifier,
@@ -563,21 +683,20 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             scopes=scopes,
             access_token=access_token,
             refresh_token=refresh_token,
-            expiry=expiry,
-            backend=backend,
-            browser=browser,
-            cache=cache,
-            store=store,
-            _is_public=True,
+            expires_at=expires_at,
+            redirect_handler=redirect_handler,
+            open_browser=open_browser,
+            enable_cache=enable_cache,
+            store_tokens=store_tokens,
         )
         self._client.headers["x-tidal-client-version"] = self._VERSION
 
     @classmethod
     def build_artwork_url(
         cls,
-        uuid: str,
+        artwork_uuid: str,
         /,
-        item_type: str | None = None,
+        resource_type: str | None = None,
         *,
         animated: bool = False,
         dimensions: int | str | tuple[int | str, int | str] | None = None,
@@ -587,11 +706,11 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
         Parameters
         ----------
-        uuid : str; positional-only
+        artwork_uuid : str; positional-only
             TIDAL artwork UUID.
 
-        item_type : str; positional-only; optional
-            Type of item the artwork belongs to. If provided, the
+        resource_type : str; positional-only; optional
+            Type of resource the artwork belongs to. If provided, the
             desired dimensions specified in `dimensions` are validated
             against the allowed dimensions for the item type.
 
@@ -640,21 +759,25 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             dimensions = f"{dimensions[0]}x{dimensions[1]}"
         else:
             raise ValueError(f"Invalid dimensions {dimensions!r}.")
-        if item_type is not None:
-            if item_type[-1] == "s":
-                item_type = item_type[:-1]
-            if item_type not in cls._IMAGE_SIZES:
-                raise ValueError(f"Invalid item type {item_type!r}.")
-            if dimensions not in (sizes := cls._IMAGE_SIZES[item_type]):
+        if resource_type is not None:
+            if resource_type[-1] == "s":
+                resource_type = resource_type[:-1]
+            if resource_type not in cls._IMAGE_SIZES:
+                resource_types_str = "', '".join(cls._IMAGE_SIZES)
+                raise ValueError(
+                    f"Invalid resource type {resource_type!r}. "
+                    f"Valid values: '{resource_types_str}'."
+                )
+            if dimensions not in (sizes := cls._IMAGE_SIZES[resource_type]):
                 _sizes = "', '".join(sorted(sizes))
                 raise ValueError(
                     f"Invalid dimensions {dimensions!r} for a(n) "
-                    f"{item_type} {cls._IMAGE_TYPES[item_type]}. "
+                    f"{resource_type} {cls._IMAGE_TYPES[resource_type]}. "
                     f"Valid values: '{_sizes}'."
                 )
         return (
             f"{PrivateTIDALAPI.RESOURCE_URL}/{media_type}"
-            f"/{uuid.replace('-', '/')}/{dimensions}{extension}"
+            f"/{artwork_uuid.replace('-', '/')}/{dimensions}{extension}"
         )
 
     @staticmethod
@@ -662,12 +785,12 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         tidal_ids: str | list[str], /, *, limit: int = 500
     ) -> str:
         """
-        Stringify a list of TIDAL IDs into a comma-delimited string.
+        Normalize, validate, and serialize TIDAL IDs.
 
         Parameters
         ----------
         tidal_ids : int, str, or list[str]; positional-only
-            Comma-delimited string or list containing TIDAL IDs.
+            Comma-delimited string or list of TIDAL IDs.
 
         limit : int; keyword-only, default: :code:`500`
             Maximum number of TIDAL IDs that can be sent in the
@@ -676,7 +799,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         Returns
         -------
         tidal_ids : str
-            Comma-delimited string containing TIDAL IDs.
+            Comma-delimited string of TIDAL IDs.
         """
         if not tidal_ids:
             raise ValueError("At least one TIDAL ID must be specified.")
@@ -707,52 +830,56 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
     @staticmethod
     def _prepare_uuids(
-        resource: str, uuids: str | list[str], /, *, prefix: bool = False
+        resource_type: str,
+        resource_uuids: str | list[str],
+        /,
+        *,
+        has_prefix: bool = False,
     ) -> str:
         """
-        Stringify a list of UUIDs into a comma-delimited string.
+        Normalize, validate, and serialize UUIDs.
 
         Parameters
         ----------
-        resource : str; positional-only
+        resource_type : str; positional-only
             Resource type.
 
             **Valid values**: :code:`"folder"`, :code:`"playlist"`.
 
-        uuids : str or list[str]; positional-only
+        resource_uuids : str or list[str]; positional-only
             UUIDs of playlists or playlist folders.
 
-        prefix : bool; keyword-only; default: :code:`False`
+        has_prefix : bool; keyword-only; default: :code:`False`
             Whether UUIDs are prefixed with :code:`trn:{type}:`.
 
         Returns
         -------
-        uuids : str
+        resource_uuids : str
             Comma-delimited string containing UUIDs of playlists or
             playlist folders.
         """
-        if not uuids:
+        if not resource_uuids:
             raise ValueError(
-                f"At least one {resource} UUID must be specified."
+                f"At least one {resource_type} UUID must be specified."
             )
 
-        if isinstance(uuids, str):
-            return PrivateTIDALAPI._prepare_uuids(uuids.split(","))
-        elif isinstance(uuids, tuple | list):
-            for idx, uuid in enumerate(uuids):
-                if prefix:
-                    if uuid.startswith(f"trn:{resource}:"):
+        if isinstance(resource_uuids, str):
+            return PrivateTIDALAPI._prepare_uuids(resource_uuids.split(","))
+        elif isinstance(resource_uuids, tuple | list):
+            for idx, uuid in enumerate(resource_uuids):
+                if has_prefix:
+                    if uuid.startswith(f"trn:{resource_type}:"):
                         uuid = uuid[13:]
                     else:
-                        uuids[idx] = f"trn:{resource}:{uuid}"
+                        resource_uuids[idx] = f"trn:{resource_type}:{uuid}"
                 APIClient._validate_uuid(uuid)
         else:
             raise TypeError(
-                f"`{resource}_uuids` must be a comma-separated string or "
+                f"`{resource_type}_uuids` must be a comma-separated string or "
                 "a list of strings."
             )
 
-        return ",".join(uuids)
+        return ",".join(resource_uuids)
 
     @property
     def _my_country_code(self) -> str:
@@ -765,7 +892,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
            :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
            make requests to the private TIDAL API.
         """
-        if self._flow is None:
+        if self._auth_flow is None:
             return self.get_country_code()["countryCode"]
         return self._my_profile.get(
             "countryCode", self.get_country_code()["countryCode"]
@@ -782,7 +909,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
            :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
            make a request to the private TIDAL API.
         """
-        if self._flow is not None:
+        if self._auth_flow is not None:
             return self.users.get_my_profile()
 
     @TTLCache.cached_method(ttl="catalog")
@@ -801,7 +928,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
     def set_flow(
         self,
-        flow: str | None,
+        authorization_flow: str | None,
         /,
         *,
         client_id: str,
@@ -809,10 +936,10 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
         scopes: str | set[str] = "",
-        backend: str | None = None,
-        browser: bool = False,
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
         authorize: bool = True,
-        store: bool = True,
+        store_tokens: bool = True,
     ) -> None:
         """
         Set or update the authorization flow and related information.
@@ -825,7 +952,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
         Parameters
         ----------
-        flow : str or None; keyword-only
+        authorization_flow : str or None; keyword-only
             OAuth 2.0 authorization flow.
 
             .. container::
@@ -838,33 +965,33 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
                * :code:`"device"` – Device Authorization Flow.
 
         client_id : str; keyword-only; optional
-            Client ID. Must be provided unless it is set as a system
-            environment variable or stored in Minim's local token
-            storage.
+            Client ID. Required unless set as system environment
+            variable :code:`PRIVATE_TIDAL_API_CLIENT_ID` or stored in
+            the local token storage.
 
         client_secret : str; keyword-only; optional
-            Client secret. Required for all authorization flows and must
-            be provided unless it is set as a system environment
-            variable or stored in Minim's local token storage.
+            Client secret. Required for the Client Credentials flow
+            unless set as system environment variable
+            :code:`PRIVATE_TIDAL_API_CLIENT_SECRET` or stored in the
+            local token storage.
 
         user_identifier : str; keyword-only; optional
-            Unique identifier for the user account to log into for all
-            authorization flows. Used when :code:`store=True` to
-            distinguish between multiple user accounts for the same
-            client ID and authorization flow.
+            Identifier for the user account. Used when
+            :code:`store_tokens=True` to distinguish between multiple
+            accounts for the same client ID and authorization flow.
 
-            If provided, it is used to locate existing access tokens or
-            store new tokens in Minim's local token storage.
+            If provided, it is used with the client ID and authorization
+            flow to locate a matching stored token. If none is found, a
+            new token is obtained and stored under this identifier.
 
-            If not provided, the last accessed account for the specified
-            authorization flow in `flow` is selected if it exists in
-            local storage. Otherwise, a new entry is created using a
-            the client ID, authorization flow, and an available user
-            identifier (e.g., user ID) after successful authorization.
+            If not provided, the most recently accessed token for the
+            client ID and authorization flow is used. If none exists, a
+            new token is obtained and stored using the TIDAL user ID
+            acquired from a successful authorization.
 
-            Prepending the identifier with a tilde (:code:`~`) skips
-            token retrieval from local storage, and the suffix will be
-            used as the identifier for storing future tokens.
+            Prefixing the identifier with a tilde (:code:`~`) bypasses
+            token retrieval, forces reauthorization, and stores the new
+            token under the suffix.
 
         redirect_uri : str; keyword-only; optional
             Redirect URI. Required for the Authorization Code with PKCE
@@ -874,11 +1001,18 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             :code:`"https://tidal.com/login/auth"`.
 
         scopes : str or set[str]; keyword-only; optional
-            Authorization scopes the client requests to access user
+            Authorization scopes requested by the client to access user
             resources.
 
-        backend : str; keyword-only; optional
-            Backend to handle redirects during the authorization flow.
+            .. seealso::
+
+               :meth:`resolve_scopes` – Resolve scope categories and/or
+                substrings into a set of scopes.
+
+        redirect_handler : str; keyword-only; optional
+            Backend for handling redirects during the authorization
+            flow. Redirect handling is only available for hosts
+            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
             .. container::
 
@@ -886,63 +1020,65 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
                * :code:`None` – Manually paste the redirect URL into
                  the terminal.
-               * :code:`"http.server"` – Simple HTTP server.
-               * :code:`"playwright"` – Playwright Firefox browser.
+               * :code:`"http.server"` – Run a simple HTTP server.
+               * :code:`"playwright"` – Open a Playwright Firefox
+                 browser.
 
-        browser : bool; keyword-only; default: :code:`False`
-            Whether to automatically open the authorization
-            URL in the default web browser for the Authorization Code
-            with PKCE flow. If :code:`False`, the authorization URL is
-            printed to the terminal.
+        open_browser : bool; keyword-only; default: :code:`False`
+            Whether to automatically open the authorization URL in the
+            default web browser for the Authorization Code with PKCE
+            flow. If :code:`False`, the URL is printed to the terminal.
 
-        authorize : bool; keyword-only; default: :code:`True`
-            Whether to immediately initiate the authorization
-            flow to acquire an access token.
+        enable_cache : bool; keyword-only; default: :code:`True`
+            Whether to enable an in-memory time-to-live (TTL) cache with
+            a least recently used (LRU) eviction policy for this client.
+            If :code:`True`, responses from semi-static endpoints are
+            cached for 10 minutes to 1 day, depending on their expected
+            update frequency.
 
-            .. important::
+            .. seealso::
 
-               Unless :meth:`set_access_token` is immediately called
-               afterwards, this should be left as :code:`True` to ensure
-               that the client's existing access token is compatible
-               with the new authorization flow and/or scopes.
+               :meth:`clear_cache` – Clear specific or all cache
+               entries for this client.
 
-        store : bool; keyword-only; default: :code:`True`
-            Whether to enable Minim's local token storage for
-            this client. If :code:`True`, newly acquired access tokens
-            and related information are stored. If :code:`False`, the
-            client will not retrieve or store access tokens.
+        store_tokens : bool; keyword-only; default: :code:`True`
+            Whether to enable the local token storage for this client.
+            If :code:`True`, existing access tokens are retrieved when
+            found in local storage, and newly acquired tokens and their
+            metadata are stored for future retrieval. If :code:`False`,
+            the client neither retrieves nor stores access tokens.
 
             .. seealso::
 
                :meth:`remove_tokens` – Remove specific or all stored
-               access tokens for this API client.
+               access tokens for this client.
         """
-        if flow is None:
+        if authorization_flow is None:
             self._client.headers["x-tidal-token"] = client_id
             if "Authorization" in self._client.headers:
                 del self._client.headers["Authorization"]
-            self._expiry = datetime.max
+            self._expires_at = datetime.max
         else:
             if "x-tidal-token" in self._client.headers:
                 del self._client.headers["x-tidal-token"]
 
         super().set_flow(
-            flow,
+            authorization_flow,
             client_id=client_id,
             client_secret=client_secret,
             user_identifier=user_identifier,
             redirect_uri=redirect_uri,
             scopes=scopes,
-            backend=backend,
-            browser=browser,
-            authorize=authorize and flow is not None,
-            store=store,
+            redirect_handler=redirect_handler,
+            open_browser=open_browser,
+            authorize=authorize and authorization_flow is not None,
+            store_tokens=store_tokens,
         )
 
-    def _get_user_identifier(self) -> str | None:
+    def _resolve_user_identifier(self) -> str | None:
         """
-        Assign the TIDAL user ID as the user identifier for the current
-        account.
+        Return the TIDAL user ID as the user identifier for the
+        current account.
 
         .. note::
 
@@ -950,7 +1086,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
            :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
            make a request to the private TIDAL API.
         """
-        if self._flow is not None:
+        if self._auth_flow is not None:
             return self._token_extras.get(
                 "user_id", self._my_profile["userId"]
             )
@@ -987,10 +1123,10 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         response : httpx.Response
             HTTP response.
         """
-        if self._expiry and datetime.now() > self._expiry:
+        if self._expires_at and datetime.now() > self._expires_at:
             self._refresh_access_token()
 
-        if self._flow == "device" and "r_usr" not in self._scopes:
+        if self._auth_flow == "device" and "r_usr" not in self._scopes:
             raise RuntimeError(
                 "The 'r_usr' scope is required when using the private "
                 "TIDAL API with the Device Authorization Flow."
@@ -1001,7 +1137,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         if 200 <= status < 300:
             return resp
 
-        if status == 401 and not self._expiry and retry:
+        if status == 401 and not self._expires_at and retry:
             self._refresh_access_token()
             return self._request(method, endpoint, retry=False, **kwargs)
         error = resp.json()
@@ -1029,7 +1165,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         endpoint_method : str
             Name of the endpoint method.
         """
-        if self._flow is None:
+        if self._auth_flow is None:
             raise RuntimeError(
                 f"{self._QUAL_NAME}.{endpoint_method}() requires "
                 f"user authentication via an OAuth 2.0 authorization "

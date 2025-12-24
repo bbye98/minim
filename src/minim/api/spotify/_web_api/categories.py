@@ -36,10 +36,10 @@ class CategoriesAPI(ResourceAPI):
             **Examples**: :code:`"dinner"`, :code:`"party"`.
 
         locale : str; keyword-only; optional
-            Locale identifier consisting of an ISO 639-1 language
+            IETF BCP 47 language tag consisting of an ISO 639-1 language
             code and an ISO 3166-1 alpha-2 country code joined by an
-            underscore. When this parameter is provided, categories
-            are returned in the specified language.
+            underscore. If provided, categories are returned in the
+            specified language.
 
             .. note::
 
@@ -97,10 +97,10 @@ class CategoriesAPI(ResourceAPI):
         Parameters
         ----------
         locale : str; keyword-only; optional
-            Locale identifier consisting of an ISO 639-1 language
+            IETF BCP 47 language tag consisting of an ISO 639-1 language
             code and an ISO 3166-1 alpha-2 country code joined by an
-            underscore. When this parameter is provided, categories
-            are returned in the specified language.
+            underscore. If provided, categories are returned in the
+            specified language.
 
             .. note::
 
@@ -119,7 +119,7 @@ class CategoriesAPI(ResourceAPI):
 
         offset : int; keyword-only; optional
             Index of the first category to return. Use with `limit` to
-            get the next set of categories.
+            get the next batch of categories.
 
             **Minimum value**: :code:`0`.
 
@@ -128,7 +128,7 @@ class CategoriesAPI(ResourceAPI):
         Returns
         -------
         categories : dict[str, Any]
-            Pages of Spotify content metadata for available categories.
+            Page of Spotify content metadata for available categories.
 
             .. admonition:: Sample response
                :class: dropdown

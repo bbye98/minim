@@ -45,15 +45,15 @@ class PrivateSearchAPI(ResourceAPI):
             **Example**: :code:`"US"`.
 
         limit : int; keyword-only; optional
-            Maximum number of items to return for each entity type.
+            Maximum number of items to return for each resource type.
 
             **Valid range**: :code:`1` to :code:`100`.
 
             **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
-            Index of the first item to return for each entity type. Use
-            with `limit` to get the next batch of items.
+            Index of the first item to return for each resource type.
+            Use with `limit` to get the next batch of items.
 
             **Minimum value**: :code:`0`.
 
@@ -80,14 +80,14 @@ class PrivateSearchAPI(ResourceAPI):
                               "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "picture": <str>,
                               "type": <str>
                             }
                           ],
                           "audioModes": <list[str]>,
                           "audioQuality": <str>,
                           "copyright": <str>,
-                          "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "cover": <str>,
                           "djReady": <bool>,
                           "duration": <int>,
                           "explicit": <bool>,
@@ -101,18 +101,18 @@ class PrivateSearchAPI(ResourceAPI):
                           "payToStream": <bool>,
                           "popularity": <int>,
                           "premiumStreamingOnly": <bool>,
-                          "releaseDate": "YYYY-MM-DD",
+                          "releaseDate": <str>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "streamStartDate": <str>,
                           "title": <str>,
                           "type": "ALBUM",
                           "upc": <str>,
                           "upload": <bool>,
-                          "url": f"http://www.tidal.com/album/{id}",
+                          "url": <str>,
                           "version": None,
-                          "vibrantColor": "#rrggbb",
-                          "videoCover": None
+                          "vibrantColor": <str>,
+                          "videoCover": <str>
                         }
                       ],
                       "limit": <int>,
@@ -135,11 +135,11 @@ class PrivateSearchAPI(ResourceAPI):
                             "ARTIST_MIX": <str>
                           },
                           "name": <str>,
-                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "picture": <str>,
                           "popularity": <int>,
                           "selectedAlbumCoverFallback": None,
                           "spotlighted": <bool>,
-                          "url": f"http://www.tidal.com/artist/{id}",
+                          "url": <str>,
                           "userId": None
                         }
                       ],
@@ -150,20 +150,20 @@ class PrivateSearchAPI(ResourceAPI):
                     "playlists": {
                       "items": [
                         {
-                          "created": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "created": <str>,
                           "creator": {
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "selectedAlbumCoverFallback": None,
                             "type": None
                           },
                           "customImageUrl": None,
                           "description": <str>,
                           "duration": <int>,
-                          "image": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
-                          "lastItemAddedAt": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
-                          "lastUpdated": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "image": <str>,
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
                           "numberOfTracks": <int>,
                           "numberOfVideos": <int>,
                           "popularity": <int>,
@@ -172,16 +172,16 @@ class PrivateSearchAPI(ResourceAPI):
                               "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "picture": <str>,
                               "type": "MAIN"
                             }
                           ],
                           "publicPlaylist": <bool>,
-                          "squareImage": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "squareImage": <str>,
                           "title": <str>,
                           "type": <str>,
                           "url": f"http://www.tidal.com/playlist/{uuid}",
-                          "uuid": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                          "uuid": <str>
                         }
                       ],
                       "limit": <int>,
@@ -204,11 +204,11 @@ class PrivateSearchAPI(ResourceAPI):
                           "ARTIST_MIX": <str>
                         },
                         "name": <str>,
-                        "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "picture": <str>,
                         "popularity": <int>,
                         "selectedAlbumCoverFallback": None,
                         "spotlighted": <bool>,
-                        "url": f"http://www.tidal.com/artist/{id}",
+                        "url": <str>,
                         "userId": null
                       }
                     },
@@ -218,12 +218,12 @@ class PrivateSearchAPI(ResourceAPI):
                           "accessType": None,
                           "adSupportedStreamReady": <bool>,
                           "album": {
-                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "cover": <str>,
                             "id": <int>,
-                            "releaseDate": "YYYY-MM-DD",
+                            "releaseDate": <str>,
                             "title": <str>,
-                            "vibrantColor": "#rrggbb",
-                            "videoCover": None
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
                           },
                           "allowStreaming": <bool>,
                           "artists": [
@@ -231,7 +231,7 @@ class PrivateSearchAPI(ResourceAPI):
                               "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "picture": <str>,
                               "type": <str>
                             }
                           ],
@@ -261,7 +261,7 @@ class PrivateSearchAPI(ResourceAPI):
                           "spotlighted": <bool>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "streamStartDate": <str>,
                           "title": <str>,
                           "trackNumber": <int>,
                           "upload": <bool>,
@@ -287,7 +287,7 @@ class PrivateSearchAPI(ResourceAPI):
                               "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "picture": <str>,
                               "type": <str>
                             }
                           ],
@@ -295,18 +295,18 @@ class PrivateSearchAPI(ResourceAPI):
                           "duration": <int>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "imageId": <str>,
                           "imagePath": None,
                           "popularity": <int>,
                           "quality": <int>,
-                          "releaseDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "releaseDate": <str>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "streamStartDate": <str>,
                           "title": <str>,
                           "trackNumber": <int>,
                           "type": "Music Video",
-                          "vibrantColor": "#rrggbb",
+                          "vibrantColor": <str>,
                           "volumeNumber": <int>
                         }
                       ],
@@ -316,7 +316,7 @@ class PrivateSearchAPI(ResourceAPI):
                     }
                   }
         """
-        return self._search_entity(
+        return self._search_resource(
             None, query, country_code=country_code, limit=limit, offset=offset
         )
 
@@ -380,7 +380,7 @@ class PrivateSearchAPI(ResourceAPI):
                           "handle": None,
                           "id": <int>,
                           "name": <str>,
-                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "picture": <str>,
                           "type": "MAIN"
                         },
                         "artists": [
@@ -388,14 +388,14 @@ class PrivateSearchAPI(ResourceAPI):
                             "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": <str>
                           }
                         ],
                         "audioModes": <list[str]>,
                         "audioQuality": <str>,
                         "copyright": <str>,
-                        "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "cover": <str>,
                         "djReady": <bool>,
                         "duration": <int>,
                         "explicit": <bool>,
@@ -409,18 +409,18 @@ class PrivateSearchAPI(ResourceAPI):
                         "payToStream": <bool>,
                         "popularity": <int>,
                         "premiumStreamingOnly": <bool>,
-                        "releaseDate": "YYYY-MM-DD",
+                        "releaseDate": <str>,
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "streamStartDate": <str>,
                         "title": <str>,
                         "type": "ALBUM",
                         "upc": <str>,
                         "upload": <bool>,
-                        "url": f"http://www.tidal.com/album/{id}",
+                        "url": <str>,
                         "version": None,
-                        "vibrantColor": "#rrggbb",
-                        "videoCover": None
+                        "vibrantColor": <str>,
+                        "videoCover": <str>
                       }
                     ],
                     "limit": <int>,
@@ -428,7 +428,7 @@ class PrivateSearchAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._search_entity(
+        return self._search_resource(
             "albums",
             query,
             country_code=country_code,
@@ -503,11 +503,11 @@ class PrivateSearchAPI(ResourceAPI):
                           "ARTIST_MIX": <str>
                         },
                         "name": <str>,
-                        "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "picture": <str>,
                         "popularity": <int>,
                         "selectedAlbumCoverFallback": None,
                         "spotlighted": <bool>,
-                        "url": f"http://www.tidal.com/artist/{id}",
+                        "url": <str>,
                         "userId": None
                       }
                     ],
@@ -516,7 +516,7 @@ class PrivateSearchAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._search_entity(
+        return self._search_resource(
             "artists",
             query,
             country_code=country_code,
@@ -578,20 +578,20 @@ class PrivateSearchAPI(ResourceAPI):
                   {
                     "items": [
                       {
-                        "created": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "created": <str>,
                         "creator": {
                           "id": <int>,
                           "name": <str>,
-                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "picture": <str>,
                           "selectedAlbumCoverFallback": None,
                           "type": None
                         },
                         "customImageUrl": None,
                         "description": <str>,
                         "duration": <int>,
-                        "image": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
-                        "lastItemAddedAt": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
-                        "lastUpdated": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "image": <str>,
+                        "lastItemAddedAt": <str>,
+                        "lastUpdated": <str>,
                         "numberOfTracks": <int>,
                         "numberOfVideos": <int>,
                         "popularity": <int>,
@@ -600,16 +600,16 @@ class PrivateSearchAPI(ResourceAPI):
                             "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": "MAIN"
                           }
                         ],
                         "publicPlaylist": <bool>,
-                        "squareImage": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "squareImage": <str>,
                         "title": <str>,
                         "type": <str>,
-                        "url": f"http://www.tidal.com/playlist/{uuid}",
-                        "uuid": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                        "url": <str>,
+                        "uuid": <str>
                       }
                     ],
                     "limit": <int>,
@@ -617,7 +617,7 @@ class PrivateSearchAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._search_entity(
+        return self._search_resource(
             "playlists",
             query,
             country_code=country_code,
@@ -682,18 +682,18 @@ class PrivateSearchAPI(ResourceAPI):
                         "accessType": None,
                         "adSupportedStreamReady": <bool>,
                         "album": {
-                          "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "cover": <str>,
                           "id": <int>,
                           "title": <str>,
-                          "vibrantColor": "#rrggbb",
-                          "videoCover": None
+                          "vibrantColor": <str>,
+                          "videoCover": <str>
                         },
                         "allowStreaming": <bool>,
                         "artist": {
                           "handle": None,
                           "id": <int>,
                           "name": <str>,
-                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "picture": <str>,
                           "type": "MAIN"
                         },
                         "artists": [
@@ -701,7 +701,7 @@ class PrivateSearchAPI(ResourceAPI):
                             "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": <str>
                           }
                         ],
@@ -731,11 +731,11 @@ class PrivateSearchAPI(ResourceAPI):
                         "spotlighted": <bool>,
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "streamStartDate": <str>,
                         "title": <str>,
                         "trackNumber": <int>,
                         "upload": <bool>,
-                        "url": f"http://www.tidal.com/track/{id}",
+                        "url": <str>,
                         "version": None,
                         "volumeNumber": <int>
                       }
@@ -745,7 +745,7 @@ class PrivateSearchAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._search_entity(
+        return self._search_resource(
             "tracks",
             query,
             country_code=country_code,
@@ -816,7 +816,7 @@ class PrivateSearchAPI(ResourceAPI):
                           "handle": None,
                           "id": <int>,
                           "name": <str>,
-                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "picture": <str>,
                           "type": "MAIN"
                         },
                         "artists": [
@@ -824,7 +824,7 @@ class PrivateSearchAPI(ResourceAPI):
                             "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": <str>
                           }
                         ],
@@ -832,18 +832,18 @@ class PrivateSearchAPI(ResourceAPI):
                         "duration": <int>,
                         "explicit": <bool>,
                         "id": <int>,
-                        "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "imageId": <str>,
                         "imagePath": None,
                         "popularity": <int>,
                         "quality": <int>,
-                        "releaseDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "releaseDate": <str>,
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "streamStartDate": <str>,
                         "title": <str>,
                         "trackNumber": <int>,
                         "type": "Music Video",
-                        "vibrantColor": "#rrggbb",
+                        "vibrantColor": <str>,
                         "volumeNumber": <int>
                       }
                     ],
@@ -852,7 +852,7 @@ class PrivateSearchAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._search_entity(
+        return self._search_resource(
             "videos",
             query,
             country_code=country_code,
@@ -860,9 +860,9 @@ class PrivateSearchAPI(ResourceAPI):
             offset=offset,
         )
 
-    def _search_entity(
+    def _search_resource(
         self,
-        entity_type: str | None,
+        resource_type: str | None,
         query: str,
         /,
         country_code: str | None = None,
@@ -876,8 +876,8 @@ class PrivateSearchAPI(ResourceAPI):
 
         Parameters
         ----------
-        entity_type : str or None; positional-only
-            Target entity to search for.
+        resource_type : str or None; positional-only
+            Resource type.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"playlists"`, :code:`"tracks"`, :code:`"videos"`.
@@ -893,15 +893,15 @@ class PrivateSearchAPI(ResourceAPI):
             **Example**: :code:`"US"`.
 
         limit : int; keyword-only; optional
-            Maximum number of items to return for each entity type.
+            Maximum number of items to return for each resource type.
 
             **Valid range**: :code:`1` to :code:`100`.
 
             **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
-            Index of the first item to return for each entity type. Use
-            with `limit` to get the next batch of items.
+            Index of the first item to return for each resource type.
+            Use with `limit` to get the next batch of items.
 
             **Minimum value**: :code:`0`.
 
@@ -913,8 +913,8 @@ class PrivateSearchAPI(ResourceAPI):
             Search results.
         """
         endpoint = "v1/search"
-        if entity_type is not None:
-            endpoint += f"/{entity_type}"
+        if resource_type is not None:
+            endpoint += f"/{resource_type}"
         self._client._validate_type("query", query, str)
         params = {"query": query}
         self._client._resolve_country_code(country_code, params=params)

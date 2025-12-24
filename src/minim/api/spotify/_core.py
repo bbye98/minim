@@ -30,12 +30,8 @@ class SpotifyWebAPI(OAuth2APIClient):
     Spotify Web API client.
     """
 
-    _AUDIO_TYPES = {"episode", "track"}
-    _ENV_VAR_PREFIX = "SPOTIFY_WEB_API"
-    _FLOWS = {"auth_code", "pkce", "client_credentials"}
-    _PROVIDER = "Spotify"
-    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
-    _SCOPES = {
+    _ALLOWED_AUTH_FLOWS = {"auth_code", "pkce", "client_credentials"}
+    _ALLOWED_SCOPES = {
         "images": {"ugc-image-upload"},
         "spotify_connect": {
             "user-read-playback-state",
@@ -58,6 +54,9 @@ class SpotifyWebAPI(OAuth2APIClient):
         "library": {"user-library-modify", "user-library-read"},
         "users": {"user-read-email", "user-read-private"},
     }
+    _ENV_VAR_PREFIX = "SPOTIFY_WEB_API"
+    _PROVIDER = "Spotify"
+    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
     AUTH_URL = "https://accounts.spotify.com/authorize"
     BASE_URL = "https://api.spotify.com/v1"
     TOKEN_URL = "https://accounts.spotify.com/api/token"
@@ -65,7 +64,7 @@ class SpotifyWebAPI(OAuth2APIClient):
     def __init__(
         self,
         *,
-        flow: str,
+        authorization_flow: str,
         client_id: str | None = None,
         client_secret: str | None = None,
         user_identifier: str | None = None,
@@ -73,16 +72,16 @@ class SpotifyWebAPI(OAuth2APIClient):
         scopes: str | set[str] = "",
         access_token: str | None = None,
         refresh_token: str | None = None,
-        expiry: str | datetime | None = None,
-        backend: str | None = None,
-        browser: bool = False,
-        cache: bool = True,
-        store: bool = True,
+        expires_at: str | datetime | None = None,
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
+        enable_cache: bool = True,
+        store_tokens: bool = True,
     ) -> None:
         """
         Parameters
         ----------
-        flow : str; keyword-only
+        authorization_flow : str; keyword-only
             Authorization flow.
 
             .. container::
@@ -95,69 +94,66 @@ class SpotifyWebAPI(OAuth2APIClient):
                * :code:`"client_credentials"` – Client Credentials Flow.
 
         client_id : str; keyword-only; optional
-            Client ID. Must be provided unless it is set as system
-            environment variable :code:`SPOTIFY_WEB_API_CLIENT_ID` or
-            stored in Minim's local token storage.
+            Client ID. Required unless set as system environment
+            variable :code:`SPOTIFY_WEB_API_CLIENT_ID` or stored in the
+            local token storage.
 
         client_secret : str; keyword-only; optional
             Client secret. Required for the Authorization Code and
-            Client Credentials flows and must be provided unless it is
-            set as system environment variable
-            :code:`SPOTIFY_WEB_API_CLIENT_SECRET` or stored in Minim's
-            local token storage.
+            Client Credentials flows unless set as system environment
+            variable :code:`SPOTIFY_WEB_API_CLIENT_SECRET` or stored in
+            the local token storage.
 
         user_identifier : str; keyword-only; optional
-            Unique identifier for the user account to log into for all
-            authorization flows but the Client Credentials flow. Used
-            when :code:`store=True` to distinguish between multiple
-            user accounts for the same client ID and authorization flow.
+            Identifier for the user account. Used when
+            :code:`store_tokens=True` to distinguish between multiple
+            accounts for the same client ID and authorization flow.
 
-            If provided, it is used to locate existing access tokens or
-            store new tokens in Minim's local token storage.
+            If provided, it is used with the client ID and authorization
+            flow to locate a matching stored token. If none is found, a
+            new token is obtained and stored under this identifier.
 
-            If not provided, the last accessed account for the specified
-            authorization flow in `flow` is selected if it exists in
-            local storage. Otherwise, a new entry is created using a
-            the client ID, authorization flow, and an available user
-            identifier (e.g., user ID) after successful authorization.
+            If not provided, the most recently accessed token for the
+            client ID and authorization flow is used. If none exists, a
+            new token is obtained and stored using the Spotify user ID
+            acquired from a successful authorization.
 
-            Prepending the identifier with a tilde (:code:`~`) skips
-            token retrieval from local storage, and the suffix will be
-            used as the identifier for storing future tokens.
+            Prefixing the identifier with a tilde (:code:`~`) bypasses
+            token retrieval, forces reauthorization, and stores the new
+            token under the suffix.
 
         redirect_uri : str; keyword-only; optional
             Redirect URI. Required for the Authorization Code and
-            Authorization Code with PKCE flows. If the host is not
-            :code:`127.0.0.1`, redirect handling is not available.
+            Authorization Code with PKCE flows.
 
         scopes : str or set[str]; keyword-only; optional
-            Authorization scopes the client requests to access user
+            Authorization scopes requested by the client to access user
             resources.
 
             .. seealso::
 
-               :meth:`resolve_scopes` – Get a set of scopes to request,
-               filtered by categories and/or substrings.
+               :meth:`resolve_scopes` – Resolve scope categories and/or
+                substrings into a set of scopes.
 
         access_token : str; keyword-only; optional
-            Access token. If provided or found in Minim's local token
-            storage, the authorization process is bypassed. If provided,
-            all other relevant keyword arguments should also be
-            specified to enable automatic token refresh upon expiration.
+            Access token. If provided, the authorization process is
+            bypassed, and automatic token refresh is enabled when
+            relevant metadata (refresh token, expiry, etc.) is also
+            supplied.
 
         refresh_token : str; keyword-only; optional
-            Refresh token accompanying the access token in
-            `access_token`. If not provided, the user will be
-            reauthorized via the authorization flow in `flow` when the
-            access token expires.
+            Refresh token for renewing the access token. If not
+            provided, the user will be reauthorized via the specified
+            authorization flow when the access token expires.
 
-        expiry : str or datetime.datetime; keyword-only; optional
-            Expiry of the access token in `access_token`. If provided as
-            a string, it must be in ISO 8601 format
-            (:code:`%Y-%m-%dT%H:%M:%SZ`).
+        expires_at : str or datetime.datetime; keyword-only; optional
+            Expiration time of the access token. If a string, it must be
+            in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
-        backend : str; keyword-only; optional
-            Backend to handle redirects during the authorization flow.
+        redirect_handler : str; keyword-only; optional
+            Backend for handling redirects during the authorization
+            flow. Redirect handling is only available for hosts
+            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
             .. container::
 
@@ -165,37 +161,39 @@ class SpotifyWebAPI(OAuth2APIClient):
 
                * :code:`None` – Manually paste the redirect URL into
                  the terminal.
-               * :code:`"http.server"` – Simple HTTP server.
-               * :code:`"playwright"` – Playwright Firefox browser.
+               * :code:`"http.server"` – Run a simple HTTP server.
+               * :code:`"playwright"` – Open a Playwright Firefox
+                 browser.
 
-        browser : bool; keyword-only; default: :code:`False`
+        open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
             default web browser for the Authorization Code and
             Authorization Code with PKCE flows. If :code:`False`, the
-            authorization URL is printed to the terminal.
+            URL is printed to the terminal.
 
-        cache : bool; keyword-only; default: :code:`True`
+        enable_cache : bool; keyword-only; default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for between 10 minutes and 1 day, depending on their
-            expected update frequency.
+            cached for 10 minutes to 1 day, depending on their expected
+            update frequency.
 
             .. seealso::
 
                :meth:`clear_cache` – Clear specific or all cache
-               entries for this API client.
+               entries for this client.
 
-        store : bool; keyword-only; default: :code:`True`
-            Whether to enable Minim's local token storage for
-            this client. If :code:`True`, newly acquired access tokens
-            and related information are stored. If :code:`False`, the
-            client will not retrieve or store access tokens.
+        store_tokens : bool; keyword-only; default: :code:`True`
+            Whether to enable the local token storage for this client.
+            If :code:`True`, existing access tokens are retrieved when
+            found in local storage, and newly acquired tokens and their
+            metadata are stored for future retrieval. If :code:`False`,
+            the client neither retrieves nor stores access tokens.
 
             .. seealso::
 
                :meth:`remove_tokens` – Remove specific or all stored
-               access tokens for this API client.
+               access tokens for this client.
         """
         if urlparse(redirect_uri).scheme == "http":
             raise ValueError(
@@ -234,7 +232,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         self.users: UsersAPI = UsersAPI(self)
 
         super().__init__(
-            flow=flow,
+            authorization_flow=authorization_flow,
             client_id=client_id,
             client_secret=client_secret,
             user_identifier=user_identifier,
@@ -242,11 +240,11 @@ class SpotifyWebAPI(OAuth2APIClient):
             scopes=scopes,
             access_token=access_token,
             refresh_token=refresh_token,
-            expiry=expiry,
-            backend=backend,
-            browser=browser,
-            cache=cache,
-            store=store,
+            expires_at=expires_at,
+            redirect_handler=redirect_handler,
+            open_browser=open_browser,
+            enable_cache=enable_cache,
+            store_tokens=store_tokens,
         )
 
     @classmethod
@@ -319,17 +317,17 @@ class SpotifyWebAPI(OAuth2APIClient):
         """
         # Return all scopes if no matches are provided
         if matches is None:
-            return set().union(*cls._SCOPES.values())
+            return set().union(*cls._ALLOWED_SCOPES.values())
 
         if isinstance(matches, str):
             # Return scopes for a specific category
-            if matches in cls._SCOPES:
-                return cls._SCOPES[matches]
+            if matches in cls._ALLOWED_SCOPES:
+                return cls._ALLOWED_SCOPES[matches]
 
             # Return scopes containing a substring
             return {
                 scope
-                for scopes in cls._SCOPES.values()
+                for scopes in cls._ALLOWED_SCOPES.values()
                 for scope in scopes
                 if matches in scope
             }
@@ -346,27 +344,28 @@ class SpotifyWebAPI(OAuth2APIClient):
         /,
         *,
         limit: int,
-        strict_length: bool = True,
+        enforce_length: bool = True,
     ) -> tuple[str, int]:
         """
-        Stringify a list of Spotify IDs into a comma-delimited string.
+        Normalize, validate, and serialize Spotify IDs.
 
         Parameters
         ----------
         spotify_ids : str or list[str]; positional-only
-            Comma-delimited string or list containing Spotify IDs.
+            Comma-delimited string or list of Spotify IDs.
 
         limit : int; keyword-only
             Maximum number of Spotify IDs that can be sent in the
             request.
 
-        strict_length : bool; keyword-only; default: :code:`True`
-            Whether to only allow 22-character-long Spotify IDs.
+        enforce_length : bool; keyword-only; default: :code:`True`
+            Whether to enforce the canonical 22-character Spotify ID
+            length.
 
         Returns
         -------
         spotify_ids : str
-            Comma-delimited string containing Spotify IDs.
+            Comma-delimited string of Spotify IDs.
 
         num_ids : int
             Number of Spotify IDs.
@@ -376,9 +375,9 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         if isinstance(spotify_ids, str):
             return SpotifyWebAPI._prepare_spotify_ids(
-                spotify_ids.split(","),
+                spotify_ids.strip().split(","),
                 limit=limit,
-                strict_length=strict_length,
+                enforce_length=enforce_length,
             )
 
         num_ids = len(spotify_ids)
@@ -386,32 +385,38 @@ class SpotifyWebAPI(OAuth2APIClient):
             raise ValueError(
                 f"A maximum of {limit} Spotify IDs can be sent in a request."
             )
-        for idx, id_ in enumerate(spotify_ids):
-            spotify_ids[idx] = id_ = id_.strip()
+        spotify_ids_ = []
+        for id_ in spotify_ids:
+            id_ = id_.strip()
             SpotifyWebAPI._validate_spotify_id(
-                id_, strict_length=strict_length
+                id_, enforce_length=enforce_length
             )
-        return ",".join(spotify_ids), num_ids
+            spotify_ids_.append(id_)
+        return ",".join(spotify_ids_), num_ids
 
     @staticmethod
     def _prepare_spotify_uris(
-        spotify_uris: str | list[str], /, *, limit: int, item_types: set[str]
+        spotify_uris: str | list[str],
+        /,
+        *,
+        limit: int,
+        resource_types: set[str],
     ) -> list[str]:
         """
-        Prepare a list of Spotify Uniform Resource Identifiers (URIs) to
-        include in the body of a HTTP request.
+        Normalize, validate, and prepare Spotify Uniform Resource
+        Identifiers (URIs).
 
         Parameters
         ----------
         spotify_uris : str or list[str]; positional-only
-            Comma-delimited string or list containing Spotify URIs.
+            Comma-delimited string or list of Spotify URIs.
 
         limit : int; keyword-only
             Maximum number of Spotify URIs that can be sent in the
             request.
 
-        item_types : set[str]
-            Allowed Spotify item types.
+        resource_types : set[str]
+            Allowed Spotify resource types.
 
         Returns
         -------
@@ -423,21 +428,27 @@ class SpotifyWebAPI(OAuth2APIClient):
 
         if isinstance(spotify_uris, str):
             return SpotifyWebAPI._prepare_spotify_uris(
-                spotify_uris.split(","), limit=limit, item_types=item_types
+                spotify_uris.strip().split(","),
+                limit=limit,
+                resource_types=resource_types,
             )
 
         if len(spotify_uris) > limit:
             raise ValueError(
                 f"A maximum of {limit} Spotify URIs can be sent in a request."
             )
-        for idx, uri in enumerate(spotify_uris):
-            spotify_uris[idx] = uri = uri.strip()
-            SpotifyWebAPI._validate_spotify_uri(uri, item_types=item_types)
+        spotify_uris_ = []
+        for uri in spotify_uris:
+            uri = uri.strip()
+            SpotifyWebAPI._validate_spotify_uri(
+                uri, resource_types=resource_types
+            )
+            spotify_uris_.append(uri)
         return spotify_uris
 
     @staticmethod
     def _validate_spotify_id(
-        spotify_id: str, /, *, strict_length: bool = True
+        spotify_id: str, /, *, enforce_length: bool = True
     ) -> None:
         """
         Validate a Spotify ID.
@@ -447,20 +458,21 @@ class SpotifyWebAPI(OAuth2APIClient):
         spotify_id : str; positional-only
             Spotify ID.
 
-        strict_length : bool; keyword-only; default: :code:`True`
-            Whether to only allow 22-character-long Spotify IDs.
+        enforce_length : bool; keyword-only; default: :code:`True`
+            Whether to enforce the canonical 22-character Spotify ID
+            length.
         """
         if (
             not isinstance(spotify_id, str)
-            or strict_length
+            or enforce_length
             and len(spotify_id) != 22
             or not spotify_id.isalnum()
         ):
-            raise ValueError(f"Invalid Spotify ID {spotify_id!r}.")
+            raise ValueError(f"{spotify_id!r} is not a valid Spotify ID.")
 
     @staticmethod
     def _validate_spotify_uri(
-        spotify_uri: str, /, *, item_types: set[str]
+        spotify_uri: str, /, *, resource_types: set[str]
     ) -> None:
         """
         Validate a Spotify Uniform Resource Identifier (URI).
@@ -470,18 +482,18 @@ class SpotifyWebAPI(OAuth2APIClient):
         spotify_uri : str; positional-only
             Spotify URI.
 
-        item_types : set[str]
-            Allowed Spotify item types.
+        resource_types : set[str]
+            Allowed Spotify resource types.
         """
         if (
             not isinstance(spotify_uri, str)
-            or len(uri_parts := spotify_uri.split(":")) != 3
+            or len(uri_parts := spotify_uri.strip().split(":")) != 3
             or uri_parts[0] != "spotify"
-            or uri_parts[1] not in item_types
+            or uri_parts[1] not in resource_types
             or len(spotify_id := uri_parts[2]) != 22
             or not spotify_id.isalnum()
         ):
-            raise ValueError(f"Invalid Spotify URI {spotify_uri!r}.")
+            raise ValueError(f"{spotify_uri!r} is not a valid Spotify URI.")
 
     @property
     def available_seed_genres(self) -> list[str]:
@@ -520,46 +532,18 @@ class SpotifyWebAPI(OAuth2APIClient):
         """
         return self.markets.get_available_markets()["markets"]
 
-    def _get_user_identifier(self) -> str:
+    def _resolve_user_identifier(self) -> str:
         """
-        Assign the Spotify user ID as the user identifier for the
+        Return the Spotify user ID as the user identifier for the
         current account.
 
         .. note::
 
            Invoking this method may call
-           :meth:`~minim.api.spotify.UsersAPI.get_user_profile` and
+           :meth:`~minim.api.spotify.UsersAPI.get_my_profile` and
            make a request to the Spotify Web API.
         """
-        return self.users.get_user_profile()["id"]
-
-    def _prepare_audio_types(self, types: str | list[str], /) -> str:
-        """
-        Stringify a list of Spotify item types into a comma-delimited
-        string.
-
-        Parameters
-        ----------
-        types : str or list[str]; positional-only
-            Spotify item types.
-
-        Returns
-        -------
-        types : str
-            Comma-delimited string containing Spotify item types.
-        """
-        if isinstance(types, str):
-            return self._prepare_audio_types(types.split(","))
-
-        types = set(types)
-        for type_ in types:
-            if type_ not in self._AUDIO_TYPES:
-                _types = "', '".join(sorted(self._AUDIO_TYPES))
-                raise ValueError(
-                    f"Invalid Spotify item type {type_!r}. "
-                    f"Valid values: '{_types}'."
-                )
-        return ",".join(sorted(types))
+        return self.users.get_my_profile()["id"]
 
     def _request(
         self,
@@ -582,7 +566,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             Spotify Web API endpoint.
 
         retry : bool; keyword-only; default: :code:`True`
-            Whether to retry the request if the first attempt returns a
+            Whether to retry the request if it returns
             :code:`401 Unauthorized` or :code:`429 Too Many Requests`.
 
         **kwargs : dict[str, Any]
@@ -593,7 +577,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         response : httpx.Response
             HTTP response.
         """
-        if self._expiry and datetime.now() > self._expiry:
+        if self._expires_at and datetime.now() > self._expires_at:
             self._refresh_access_token()
 
         resp = self._client.request(method, endpoint, **kwargs)
@@ -601,7 +585,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         if 200 <= status < 300:
             return resp
 
-        if status == 401 and not self._expiry and retry:
+        if status == 401 and not self._expires_at and retry:
             self._refresh_access_token()
             return self._request(method, endpoint, retry=False, **kwargs)
         if status == 429 and retry:
@@ -633,7 +617,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         .. note::
 
            Invoking this method may call
-           :meth:`~minim.api.spotify.UsersAPI.get_user_profile` and
+           :meth:`~minim.api.spotify.UsersAPI.get_my_profile` and
            make a request to the Spotify Web API.
 
         Parameters
@@ -641,9 +625,10 @@ class SpotifyWebAPI(OAuth2APIClient):
         endpoint_method : str; positional-only
             Name of the endpoint method.
         """
-        if (
-            self._flow == "client_credentials"
-            or self.users.get_user_profile()["product"] != "premium"
+        if self._auth_flow == "client_credentials" or (
+            (subscription := self.users.get_my_profile().get("product"))
+            is not None
+            and subscription != "premium"
         ):
             raise RuntimeError(
                 f"{self._QUAL_NAME}.{endpoint_method}() requires "
@@ -659,16 +644,12 @@ class SpotifyWebAPI(OAuth2APIClient):
         market : str; positional-only
             ISO 3166-1 alpha-2 country code.
         """
-        if (
-            not isinstance(market, str)
-            or len(market) != 2
-            or "markets" in self.__dict__
-            and market not in self.available_markets
-        ):
-            _markets = "', '".join(sorted(self.available_markets))
+        self._validate_country_code(market)
+        if "markets" in self.__dict__ and market not in self.available_markets:
+            markets_str = "', '".join(self.available_markets)
             raise ValueError(
                 f"{market!r} is not a market in which Spotify is "
-                f"available. Valid values: '{_markets}'."
+                f"available. Valid values: '{markets_str}'."
             )
 
     def _validate_seed_genre(self, seed_genre: str, /) -> None:
@@ -680,12 +661,14 @@ class SpotifyWebAPI(OAuth2APIClient):
         seed_genre : str; positional-only
             Seed genre.
         """
-        if (
-            not isinstance(seed_genre, str)
-            or "available_seed_genres" in self.__dict__
-            and seed_genre not in self.available_seed_genres
-        ):
-            _genres = "', '".join(sorted(self.available_seed_genres))
-            raise ValueError(
-                f"Invalid seed genre {seed_genre!r}. Valid values: '{_genres}'."
-            )
+        if "available_seed_genres" in self.__dict__:
+            if seed_genre not in self.available_seed_genres:
+                seed_genres_str = "', '".join(
+                    sorted(self.available_seed_genres)
+                )
+                raise ValueError(
+                    f"Invalid seed genre {seed_genre!r}. "
+                    f"Valid values: '{seed_genres_str}'."
+                )
+        else:
+            self._validate_type("seed_genre", seed_genre, str)

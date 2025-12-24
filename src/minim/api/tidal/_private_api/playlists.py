@@ -120,15 +120,15 @@ class PrivatePlaylistsAPI(ResourceAPI):
                          "creator": {
                            "id": <int>,
                            "name": <str>,
-                           "picture": <str>,
+                           "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                            "type": "USER"
                          },
                          "curators": [
                            {
-                             "handle": <str>,
+                             "handle": None,
                              "id": <int>,
                              "name": <str>,
-                             "picture": <str>
+                             "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                            }
                          ],
                          "customImageUrl": <str>,
@@ -142,10 +142,10 @@ class PrivatePlaylistsAPI(ResourceAPI):
                          "promotedArtists": [
                            {
                              "contributionLinkUrl": <str>,
-                             "handle": <str>,
+                             "handle": None,
                              "id": <int>,
                              "name": <str>,
-                             "picture": <str>,
+                             "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                              "type": <str>,
                              "userId": <int>
                            }
@@ -187,10 +187,10 @@ class PrivatePlaylistsAPI(ResourceAPI):
                        "popularity": <int>,
                        "promotedArtists": [
                          {
-                           "handle": <str>,
+                           "handle": None,
                            "id": <int>,
                            "name": <str>,
-                           "picture": <str>,
+                           "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                            "type": <str>
                          }
                        ],
@@ -279,27 +279,27 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
-                            "cover": <str>,
+                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "id": <int>,
                             "releaseDate": <str>,
                             "title": <str>,
-                            "vibrantColor": <str>,
-                            "videoCover": <str>
+                            "vibrantColor": "#rrggbb",
+                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           },
                           "artists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
@@ -315,7 +315,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "explicit": <bool>,
                           "id": <int>,
                           "index": <int>,
-                          "isrc": <str>,
+                          "isrc": "CCXXXYYNNNNN",
                           "itemUuid": <str>,
                           "key": <str>,
                           "keyScale": <str>,
@@ -333,7 +333,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "spotlighted": <bool>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": <str>,
+                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                           "title": <str>,
                           "trackNumber": <int>,
                           "upload": <bool>,
@@ -350,26 +350,26 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "adsPrePaywallOnly": <bool>,
                           "adsUrl": <str>,
                           "album": {
-                            "cover": <str>,
+                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "id": <int>,
                             "title": <str>,
-                            "vibrantColor": <str>,
-                            "videoCover": <str>
+                            "vibrantColor": "#rrggbb",
+                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           },
                           "artists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
@@ -378,8 +378,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "duration": <int>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "imageId": <str>,
-                          "imagePath": <str>,
+                          "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "imagePath": None,
                           "index": <int>,
                           "itemUuid": <str>,
                           "popularity": <int>,
@@ -387,11 +387,11 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "releaseDate": <str>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": <str>,
+                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                           "title": <str>,
                           "trackNumber": <int>,
                           "type": <str>,
-                          "vibrantColor": <str>,
+                          "vibrantColor": "#rrggbb",
                           "volumeNumber": <int>
                         },
                         "type": "video"
@@ -483,28 +483,28 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
-                            "cover": <str>,
+                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "id": <int>,
                             "releaseDate": <str>,
                             "title": <str>,
                             "url": <str>,
-                            "vibrantColor": <str>,
-                            "videoCover": <str>
+                            "vibrantColor": "#rrggbb",
+                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": <str>,
+                            "handle": None,
                             "id": <int>,
                             "name": <str>,
-                            "picture": <str>,
+                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                             "type": <str>
                           },
                           "artists": [
                             {
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "type": <str>
                             }
                           ],
@@ -518,7 +518,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "editable": <bool>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "isrc": <str>,
+                          "isrc": "CCXXXYYNNNNN",
                           "mediaMetadata": {
                             "tags": <list[str]>
                           },
@@ -533,7 +533,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "spotlighted": <bool>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": <str>,
+                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                           "title": <str>,
                           "trackNumber": <int>,
                           "upload": <bool>,
@@ -734,15 +734,15 @@ class PrivatePlaylistsAPI(ResourceAPI):
                       "creator": {
                         "id": <int>,
                         "name": <str>,
-                        "picture": <str>,
+                        "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                         "type": "USER"
                       },
                       "curators": [
                         {
-                          "handle": <str>,
+                          "handle": None,
                           "id": <int>,
                           "name": <str>,
-                          "picture": <str>
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                         }
                       ],
                       "customImageUrl": <str>,
@@ -756,10 +756,10 @@ class PrivatePlaylistsAPI(ResourceAPI):
                       "numberOfVideos": 0,
                       "promotedArtists": [
                         {
-                          "handle": <str>,
+                          "handle": None,
                           "id": <int>,
                           "name": <str>,
-                          "picture": <str>,
+                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                           "type": <str>
                         }
                       ],
@@ -850,7 +850,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         self._client._require_authentication("playlists.move_playlists")
         params = {
             "trns": self._client._prepare_uuids(
-                "playlist", playlist_uuids, prefix=True
+                "playlist", playlist_uuids, has_prefix=True
             ),
         }
         if folder_uuid is not None:
@@ -1464,7 +1464,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
             "v2/my-collection/playlists/folders/remove",
             params={
                 "trns": self._client._prepare_uuids(
-                    resource, uuids, prefix=True
+                    resource, uuids, has_prefix=True
                 )
             },
         )

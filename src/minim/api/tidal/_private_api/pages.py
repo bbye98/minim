@@ -82,10 +82,10 @@ class PrivatePagesAPI(ResourceAPI):
                               "artists": [
                                 {
                                   "contributionLinkUrl": <str>,
-                                  "handle": <str>,
+                                  "handle": None,
                                   "id": <int>,
                                   "name": <str>,
-                                  "picture": <str>,
+                                  "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                   "type": <str>,
                                   "userId": <int>
                                 }
@@ -93,7 +93,7 @@ class PrivatePagesAPI(ResourceAPI):
                               "audioModes": <list[str]>,
                               "audioQuality": <str>,
                               "copyright": <str>,
-                              "cover": <str>,
+                              "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "duration": <int>,
                               "explicit": <bool>,
                               "id": <int>,
@@ -107,13 +107,13 @@ class PrivatePagesAPI(ResourceAPI):
                               "popularity": <int>,
                               "releaseDate": <str>,
                               "streamReady": <bool>,
-                              "streamStartDate": <str>,
+                              "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                               "title": <str>,
                               "type": "ALBUM",
                               "upload": <bool>,
                               "url": <str>,
                               "version": <str>,
-                              "videoCover": <str>
+                              "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                             },
                             "credits": {
                               "items": [
@@ -165,21 +165,21 @@ class PrivatePagesAPI(ResourceAPI):
                                     "accessType": <str>,
                                     "adSupportedStreamReady": <bool>,
                                     "album": {
-                                      "cover": <str>,
+                                      "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                       "id": <int>,
                                       "releaseDate": <str>,
                                       "title": <str>,
                                       "url": <str>,
-                                      "vibrantColor": <str>,
-                                      "videoCover": <str>
+                                      "vibrantColor": "#rrggbb",
+                                      "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                                     },
                                     "allowStreaming": <bool>,
                                     "artists": [
                                       {
-                                        "handle": <str>,
+                                        "handle": None,
                                         "id": <int>,
                                         "name": <str>,
-                                        "picture": <str>,
+                                        "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                         "type": <str>,
                                         "userId": <int>
                                       }
@@ -204,7 +204,7 @@ class PrivatePagesAPI(ResourceAPI):
                                     "spotlighted": <bool>,
                                     "stemReady": <bool>,
                                     "streamReady": <bool>,
-                                    "streamStartDate": <str>,
+                                    "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                                     "title": <str>,
                                     "trackNumber": <int>,
                                     "upload": <bool>,
@@ -251,17 +251,17 @@ class PrivatePagesAPI(ResourceAPI):
                                   "artists": [
                                     {
                                       "contributionLinkUrl": <str>,
-                                      "handle": <str>,
+                                      "handle": None,
                                       "id": <int>,
                                       "name": <str>,
-                                      "picture": <str>,
+                                      "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                       "type": <str>,
                                       "userId": <int>
                                     }
                                   ],
                                   "audioModes": <list[str]>,
                                   "audioQuality": <str>,
-                                  "cover": <str>,
+                                  "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                   "duration": <int>,
                                   "explicit": <bool>,
                                   "id": <int>,
@@ -273,12 +273,12 @@ class PrivatePagesAPI(ResourceAPI):
                                   "payToStream": <bool>,
                                   "releaseDate": <str>,
                                   "streamReady": <bool>,
-                                  "streamStartDate": <str>,
+                                  "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                                   "title": <str>,
                                   "upload": <bool>,
                                   "url": <str>,
-                                  "vibrantColor": <str>,
-                                  "videoCover": <str>
+                                  "vibrantColor": "#rrggbb",
+                                  "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                                 }
                               ],
                               "limit": <int>,
@@ -322,7 +322,7 @@ class PrivatePagesAPI(ResourceAPI):
                                     "ARTIST_MIX": <str>
                                   },
                                   "name": <str>,
-                                  "picture": <str>,
+                                  "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                   "selectedAlbumCoverFallback": <str>
                                 }
                               ],
@@ -349,10 +349,10 @@ class PrivatePagesAPI(ResourceAPI):
                     "title": <str>
                   }
         """
-        return self._get_resource_page(
+        return self._get_entity_page(
             "album",
             album_id,
-            country_code,
+            country_code=country_code,
             device_type=device_type,
             locale=locale,
         )
@@ -416,13 +416,13 @@ class PrivatePagesAPI(ResourceAPI):
                           {
                             "artist": {
                               "artistTypes": <list[str]>,
-                              "handle": <str>,
+                              "handle": None,
                               "id": <int>,
                               "mixes": {
                                 "ARTIST_MIX": <str>
                               },
                               "name": <str>,
-                              "picture": <str>,
+                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                               "selectedAlbumCoverFallback": <str>,
                               "url": <str>
                             },
@@ -470,21 +470,21 @@ class PrivatePagesAPI(ResourceAPI):
                                   "accessType": <str>,
                                   "adSupportedStreamReady": <bool>,
                                   "album": {
-                                    "cover": <str>,
+                                    "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                     "id": <int>,
                                     "releaseDate": <str>,
                                     "title": <str>,
                                     "url": <str>,
-                                    "vibrantColor": <str>,
-                                    "videoCover": <str>
+                                    "vibrantColor": "#rrggbb",
+                                    "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                                   },
                                   "allowStreaming": <bool>,
                                   "artists": [
                                     {
-                                      "handle": <str>,
+                                      "handle": None,
                                       "id": <int>,
                                       "name": <str>,
-                                      "picture": <str>,
+                                      "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                       "type": <str>,
                                       "userId": <int>
                                     }
@@ -509,7 +509,7 @@ class PrivatePagesAPI(ResourceAPI):
                                   "spotlighted": <bool>,
                                   "stemReady": <bool>,
                                   "streamReady": <bool>,
-                                  "streamStartDate": <str>,
+                                  "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                                   "title": <str>,
                                   "trackNumber": <int>,
                                   "upload": <bool>,
@@ -553,17 +553,17 @@ class PrivatePagesAPI(ResourceAPI):
                                   "artists": [
                                     {
                                       "contributionLinkUrl": <str>,
-                                      "handle": <str>,
+                                      "handle": None,
                                       "id": <int>,
                                       "name": <str>,
-                                      "picture": <str>,
+                                      "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                       "type": <str>,
                                       "userId": <int>
                                     }
                                   ],
                                   "audioModes": <list[str]>,
                                   "audioQuality": <str>,
-                                  "cover": <str>,
+                                  "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                   "duration": <int>,
                                   "explicit": <bool>,
                                   "id": <int>,
@@ -575,12 +575,12 @@ class PrivatePagesAPI(ResourceAPI):
                                   "payToStream": <bool>,
                                   "releaseDate": <str>,
                                   "streamReady": <bool>,
-                                  "streamStartDate": <str>,
+                                  "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                                   "title": <str>,
                                   "upload": <bool>,
                                   "url":<str>,
-                                  "vibrantColor": <str>,
-                                  "videoCover": <str>
+                                  "vibrantColor": "#rrggbb",
+                                  "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                                 }
                               ],
                               "limit": <int>,
@@ -621,10 +621,10 @@ class PrivatePagesAPI(ResourceAPI):
                                     "promotedArtists": [
                                       {
                                         "contributionLinkUrl": <str>,
-                                        "handle": <str>,
+                                        "handle": None,
                                         "id": <int>,
                                         "name": <str>,
-                                        "picture": <str>,
+                                        "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                         "type": <str>,
                                         "userId": <int>
                                       }
@@ -671,19 +671,19 @@ class PrivatePagesAPI(ResourceAPI):
                                   "adsPrePaywallOnly": <bool>,
                                   "adsUrl": <str>,
                                   "album": {
-                                    "cover": <str>,
+                                    "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                     "id": <int>,
                                     "title": <str>,
-                                    "vibrantColor": <str>,
-                                    "videoCover": <str>
+                                    "vibrantColor": "#rrggbb",
+                                    "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                                   },
                                   "allowStreaming": <bool>,
                                   "artists": [
                                     {
-                                      "handle": <str>,
+                                      "handle": None,
                                       "id": <int>,
                                       "name": <str>,
-                                      "picture": <str>,
+                                      "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                       "type": <str>,
                                       "userId": <int>
                                     }
@@ -693,18 +693,18 @@ class PrivatePagesAPI(ResourceAPI):
                                   "duration": <int>,
                                   "explicit": <bool>,
                                   "id": <int>,
-                                  "imageId": <str>,
+                                  "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                   "popularity": <int>,
                                   "releaseDate": <str>,
                                   "stemReady": <bool>,
                                   "streamReady": <bool>,
-                                  "streamStartDate": <str>,
+                                  "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                                   "title": <str>,
                                   "trackNumber": <int>,
                                   "type": "Music Video",
                                   "url": <str>,
                                   "version": <str>,
-                                  "vibrantColor": <str>,
+                                  "vibrantColor": "#rrggbb",
                                   "volumeNumber": <int>
                                 }
                               ],
@@ -750,7 +750,7 @@ class PrivatePagesAPI(ResourceAPI):
                                     "ARTIST_MIX": <str>
                                   },
                                   "name": <str>,
-                                  "picture": <str>,
+                                  "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                   "selectedAlbumCoverFallback": <str>
                                 }
                               ],
@@ -778,10 +778,10 @@ class PrivatePagesAPI(ResourceAPI):
                   }
         """
 
-        return self._get_resource_page(
+        return self._get_entity_page(
             "artist",
             artist_id,
-            country_code,
+            country_code=country_code,
             device_type=device_type,
             locale=locale,
         )
@@ -871,7 +871,7 @@ class PrivatePagesAPI(ResourceAPI):
                                   {
                                     "id": <str>,
                                     "type": "ARTIST",
-                                    "vibrantColor": <str>
+                                    "vibrantColor": "#rrggbb"
                                   }
                                 ],
                                 "text": <str>,
@@ -935,21 +935,21 @@ class PrivatePagesAPI(ResourceAPI):
                                   "accessType": <str>,
                                   "adSupportedStreamReady": <bool>,
                                   "album": {
-                                    "cover": <str>,
+                                    "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                     "id": <int>,
                                     "releaseDate": <str>,
                                     "title": <str>,
                                     "url": <str>,
-                                    "vibrantColor": <str>,
-                                    "videoCover": <str>
+                                    "vibrantColor": "#rrggbb",
+                                    "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                                   },
                                   "allowStreaming": <bool>,
                                   "artists": [
                                     {
-                                      "handle": <str>,
+                                      "handle": None,
                                       "id": <int>,
                                       "name": <str>,
-                                      "picture": <str>,
+                                      "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                       "type": <str>,
                                       "userId": <int>
                                     }
@@ -974,7 +974,7 @@ class PrivatePagesAPI(ResourceAPI):
                                   "spotlighted": <bool>,
                                   "stemReady": <bool>,
                                   "streamReady": <bool>,
-                                  "streamStartDate": <str>,
+                                  "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                                   "title": <str>,
                                   "trackNumber": <int>,
                                   "upload": <bool>,
@@ -1007,8 +1007,12 @@ class PrivatePagesAPI(ResourceAPI):
                     "title": <str>
                   }
         """
-        return self._get_resource_page(
-            "mix", mix_id, country_code, device_type=device_type, locale=locale
+        return self._get_entity_page(
+            "mix",
+            mix_id,
+            country_code=country_code,
+            device_type=device_type,
+            locale=locale,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1078,7 +1082,7 @@ class PrivatePagesAPI(ResourceAPI):
                     "title": <str>
                   }
         """
-        return self._get_resource_page(
+        return self._get_entity_page(
             "my_collection_my_mixes",
             country_code=country_code,
             device_type=device_type,
@@ -1149,7 +1153,7 @@ class PrivatePagesAPI(ResourceAPI):
                                 "artifactId": <str>,
                                 "featured": <bool>,
                                 "header": <str>,
-                                "imageId": <str>,
+                                "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                 "shortHeader": <str>,
                                 "shortSubHeader": <str>,
                                 "text": <str>,
@@ -1183,10 +1187,10 @@ class PrivatePagesAPI(ResourceAPI):
                                   "promotedArtists": [
                                     {
                                       "contributionLinkUrl": <str>,
-                                      "handle": <str>,
+                                      "handle": None,
                                       "id": <int>,
                                       "name": <str>,
-                                      "picture": <str>,
+                                      "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                       "type": <str>,
                                       "userId": <int>
                                     }
@@ -1232,19 +1236,19 @@ class PrivatePagesAPI(ResourceAPI):
                                   "adsPrePaywallOnly": <bool>,
                                   "adsUrl": <str>,
                                   "album": {
-                                    "cover": <str>,
+                                    "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                     "id": <int>,
                                     "title": <str>,
-                                    "vibrantColor": <str>,
-                                    "videoCover": <str>
+                                    "vibrantColor": "#rrggbb",
+                                    "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
                                   },
                                   "allowStreaming": <bool>,
                                   "artists": [
                                     {
-                                      "handle": <str>,
+                                      "handle": None,
                                       "id": <int>,
                                       "name": <str>,
-                                      "picture": <str>,
+                                      "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                       "type": <str>,
                                       "userId": <int>
                                     }
@@ -1254,18 +1258,18 @@ class PrivatePagesAPI(ResourceAPI):
                                   "duration": <int>,
                                   "explicit": <bool>,
                                   "id": <int>,
-                                  "imageId": <str>,
+                                  "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
                                   "popularity": <int>,
                                   "releaseDate": <str>,
                                   "stemReady": <bool>,
                                   "streamReady": <bool>,
-                                  "streamStartDate": <str>,
+                                  "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
                                   "title": <str>,
                                   "trackNumber": <int>,
                                   "type": "Music Video",
                                   "url": <str>,
                                   "version": <str>,
-                                  "vibrantColor": <str>,
+                                  "vibrantColor": "#rrggbb",
                                   "volumeNumber": <int>
                                 }
                               ],
@@ -1293,18 +1297,18 @@ class PrivatePagesAPI(ResourceAPI):
                     "title": "Videos"
                   }
         """
-        return self._get_resource_page(
+        return self._get_entity_page(
             "video",
             video_id,
-            country_code,
+            country_code=country_code,
             device_type=device_type,
             locale=locale,
         )
 
-    def _get_resource_page(
+    def _get_entity_page(
         self,
-        resource: str,
-        resource_id: int | str | None = None,
+        entity_type: str,
+        entity_id: int | str | None = None,
         /,
         country_code: str | None = None,
         *,
@@ -1312,23 +1316,25 @@ class PrivatePagesAPI(ResourceAPI):
         locale: str | None = None,
     ) -> dict[str, Any]:
         """
-        Get the TIDAL page layout for a specific resource type.
+        Get the TIDAL page layout for a specific entity.
 
         Parameters
         ----------
-        resource : str; positional-only
-            Resource type.
+        entity_type : str; positional-only
+            Entity type.
 
             **Valid values**: :code:`"album"`, :code:`"artist"`,
             :code:`"mix"`, :code:`"my_collection_my_mixes"`,
             :code:`"video"`.
 
-        resource_id : int or str; positional-only; optional
-            TIDAL ID of the resource.
+        entity_id : int or str; positional-only; optional
+            TIDAL ID of the entity. Optional only when
+            :code:`entity_type="my_collection_my_mixes"`.
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -1359,14 +1365,14 @@ class PrivatePagesAPI(ResourceAPI):
                 f"Valid values: '{device_types}'."
             )
         params = {"deviceType": device_type}
-        self._client._resolve_country_code(country_code, params)
-        if resource_id is not None:
-            params[f"{resource}Id"] = str(resource_id)
+        self._client._resolve_country_code(country_code, params=params)
+        if entity_id is not None:
+            params[f"{entity_type}Id"] = str(entity_id)
         if locale is not None:
             self._client._validate_type("locale", locale, str)
             params["locale"] = locale
-        if resource == "video":
-            resource = "videos"
+        if entity_type == "video":
+            entity_type = "videos"
         return self._client._request(
-            "GET", f"v1/pages/{resource}", params=params
+            "GET", f"v1/pages/{entity_type}", params=params
         ).json()

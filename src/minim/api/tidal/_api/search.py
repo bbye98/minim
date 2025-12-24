@@ -1415,6 +1415,7 @@ class SearchAPI(TIDALResourceAPI):
             "GET", f"searchResults/{query}", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl="search")
     def search_albums(
         self,
         query: str,
@@ -1573,6 +1574,7 @@ class SearchAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
+    @TTLCache.cached_method(ttl="search")
     def search_artists(
         self,
         query: str,
@@ -1740,6 +1742,7 @@ class SearchAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
+    @TTLCache.cached_method(ttl="search")
     def search_playlists(
         self,
         query: str,
@@ -1868,6 +1871,7 @@ class SearchAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
+    @TTLCache.cached_method(ttl="search")
     def search_top_hits(
         self,
         query: str,
@@ -2298,6 +2302,7 @@ class SearchAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
+    @TTLCache.cached_method(ttl="search")
     def search_tracks(
         self,
         query: str,
@@ -2474,6 +2479,7 @@ class SearchAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
+    @TTLCache.cached_method(ttl="search")
     def search_videos(
         self,
         query: str,
