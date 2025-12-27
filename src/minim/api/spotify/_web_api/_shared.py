@@ -64,9 +64,8 @@ class SpotifyResourceAPI(ResourceAPI):
     def _get_resources(
         self,
         resource_type: str,
-        resource_ids: str | list,
+        resource_ids: str | list[str],
         /,
-        scopes: str | set[str] = None,
         *,
         country_code: str | None = None,
         limit: int = 50,
@@ -87,9 +86,6 @@ class SpotifyResourceAPI(ResourceAPI):
 
         resource_ids : str or list[str]; positional-only
             Spotify IDs of the resources.
-
-        scopes : str or set[str]; optional
-            Required authorization scopes.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -112,10 +108,6 @@ class SpotifyResourceAPI(ResourceAPI):
         resources : dict[str, Any]
             Spotify content metadata for the resources.
         """
-        if scopes is not None:
-            self._client._require_scopes(
-                f"{resource_type}.get_{resource_type}", scopes
-            )
         is_string = isinstance(resource_ids, str)
         resource_ids, num_ids = self._client._prepare_spotify_ids(
             resource_ids, limit=limit
@@ -139,7 +131,6 @@ class SpotifyResourceAPI(ResourceAPI):
         resource_id: str,
         item_type: str,
         /,
-        scopes: str | set[str] = None,
         *,
         country_code: str | None = None,
         limit: int | None = None,
@@ -161,7 +152,6 @@ class SpotifyResourceAPI(ResourceAPI):
         resource_id : str; positional-only
             Spotify ID of the resource.
 
-
         item_type : str; positional-only
             Item type belonging to the given resource type.
 
@@ -173,9 +163,6 @@ class SpotifyResourceAPI(ResourceAPI):
                * :code:`"chapters"` for audiobooks.
                * :code:`"episodes"` for shows.
                * :code:`"tracks"` for albums and playlists.
-
-        scopes : str or set[str]; optional
-            Required authorization scopes.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -205,7 +192,8 @@ class SpotifyResourceAPI(ResourceAPI):
             **API default**: :code:`0`.
 
         params : dict[str, Any]; keyword-only; optional
-            Additional query parameters to include in the request.
+            Dictionary of additional query parameters to include in the
+            request. If not provided, a new dictionary will be created.
 
             .. note::
 
@@ -217,10 +205,6 @@ class SpotifyResourceAPI(ResourceAPI):
             Page of Spotify content metadata for the items in the
             resource.
         """
-        if scopes is not None:
-            self._client._require_scopes(
-                f"{resource_type}.get_{resource_type[:-1]}_{item_type}", scopes
-            )
         self._client._validate_spotify_id(resource_id)
         if params is None:
             params = {}

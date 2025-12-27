@@ -1,9 +1,6 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ._shared import SpotifyResourceAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
 
 
 class PlayerAPI(SpotifyResourceAPI):
@@ -18,7 +15,6 @@ class PlayerAPI(SpotifyResourceAPI):
 
     _CONTEXT_TYPES = {"album", "artist", "playlist"}
     _REPEAT_MODES = {"track", "context", "off"}
-    _client: "SpotifyWebAPI"
 
     def get_playback_state(
         self,
@@ -604,8 +600,8 @@ class PlayerAPI(SpotifyResourceAPI):
         offset : int or str; keyword-only; optional
             Zero-based index or Spotify URI of the item within the
             context specified by `uris` at which playback should start.
-            Only used when `uris` contains a context (album, artist, or
-            playlist).
+            Only applicable when `uris` contains a context (album,
+            artist, or playlist).
 
             **Examples**:
 
@@ -624,6 +620,10 @@ class PlayerAPI(SpotifyResourceAPI):
 
             **Example**: :code:`25_000`.
         """
+        self._client._require_spotify_premium("player.start_playback")
+        self._client._require_scopes(
+            "player.start_playback", "user-modify-playback-state"
+        )
         payload = {}
         multiple = True
         if isinstance(uris, str):
@@ -661,9 +661,7 @@ class PlayerAPI(SpotifyResourceAPI):
         if position_ms is not None:
             self._client._validate_number("position_ms", position_ms, int, 0)
             payload["position_ms"] = position_ms
-        self._control_playback(
-            "start_playback", "play", device_id=device_id, payload=payload
-        )
+        self._control_playback("play", device_id=device_id, payload=payload)
 
     def pause_playback(self, *, device_id: str | None = None) -> None:
         """
@@ -701,7 +699,11 @@ class PlayerAPI(SpotifyResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._control_playback("pause_playback", "pause", device_id=device_id)
+        self._client._require_spotify_premium("player.pause_playback")
+        self._client._require_scopes(
+            "player.pause_playback", "user-modify-playback-state"
+        )
+        self._control_playback("pause", device_id=device_id)
 
     def skip_to_next(self, *, device_id: str | None = None) -> None:
         """
@@ -740,7 +742,11 @@ class PlayerAPI(SpotifyResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._control_playback("skip_to_next", "next", device_id=device_id)
+        self._client._require_spotify_premium("player.skip_to_next")
+        self._client._require_scopes(
+            "player.skip_to_next", "user-modify-playback-state"
+        )
+        self._control_playback("next", device_id=device_id)
 
     def skip_to_previous(self, *, device_id: str | None = None) -> None:
         """
@@ -778,9 +784,11 @@ class PlayerAPI(SpotifyResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
-        self._control_playback(
-            "skip_to_previous", "previous", device_id=device_id
+        self._client._require_spotify_premium("player.skip_to_previous")
+        self._client._require_scopes(
+            "player.skip_to_previous", "user-modify-playback-state"
         )
+        self._control_playback("previous", device_id=device_id)
 
     def seek_to_position(
         self, position_ms: int, /, *, device_id: str | None = None
@@ -830,12 +838,13 @@ class PlayerAPI(SpotifyResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
+        self._client._require_spotify_premium("player.seek_to_position")
+        self._client._require_scopes(
+            "player.seek_to_position", "user-modify-playback-state"
+        )
         self._client._validate_number("position_ms", position_ms, int, 0)
         self._control_playback(
-            "seek_to_position",
-            "seek",
-            device_id=device_id,
-            params={"position_ms": position_ms},
+            "seek", device_id=device_id, params={"position_ms": position_ms}
         )
 
     def set_repeat(
@@ -888,6 +897,10 @@ class PlayerAPI(SpotifyResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
+        self._client._require_spotify_premium("player.set_repeat")
+        self._client._require_scopes(
+            "player.set_repeat", "user-modify-playback-state"
+        )
         if repeat_mode not in self._REPEAT_MODES:
             repeat_modes_str = "', '".join(sorted(self._REPEAT_MODES))
             raise ValueError(
@@ -895,10 +908,7 @@ class PlayerAPI(SpotifyResourceAPI):
                 f"Valid values: '{repeat_modes_str}'."
             )
         self._control_playback(
-            "set_repeat",
-            "repeat",
-            device_id=device_id,
-            params={"state": repeat_mode},
+            "repeat", device_id=device_id, params={"state": repeat_mode}
         )
 
     def set_volume(
@@ -944,11 +954,14 @@ class PlayerAPI(SpotifyResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
+        self._client._require_spotify_premium("player.set_volume")
+        self._client._require_scopes(
+            "player.set_volume", "user-modify-playback-state"
+        )
         self._client._validate_number(
             "volume_percent", volume_percent, int, 0, 100
         )
         self._control_playback(
-            "set_volume",
             "volume",
             device_id=device_id,
             params={"volume_percent": volume_percent},
@@ -995,12 +1008,13 @@ class PlayerAPI(SpotifyResourceAPI):
             **Example**:
             :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
         """
+        self._client._require_spotify_premium("player.set_shuffle")
+        self._client._require_scopes(
+            "player.set_shuffle", "user-modify-playback-state"
+        )
         self._client._validate_type("shuffle", shuffle, bool)
         self._control_playback(
-            "set_shuffle",
-            "shuffle",
-            device_id=device_id,
-            params={"state": shuffle},
+            "shuffle", device_id=device_id, params={"state": shuffle}
         )
 
     def get_recently_played(
@@ -1475,7 +1489,6 @@ class PlayerAPI(SpotifyResourceAPI):
 
     def _control_playback(
         self,
-        endpoint_method: str,
         subresource: str,
         /,
         *,
@@ -1488,9 +1501,6 @@ class PlayerAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        endpoint_method : str; positional-only
-            Name of the Player API endpoint method.
-
         subresource : str; positional-only
             Subresource of the endpoint to call.
 
@@ -1498,11 +1508,9 @@ class PlayerAPI(SpotifyResourceAPI):
             Playback device ID. If not specified, the currently active
             device is the target.
 
-            **Example**:
-            :code:`"0d1841b0976bae2a3a310dd74c0f3df354899bc8"`.
-
         params : dict[str, Any]; keyword-only; optional
-            Additional query parameters to include in the request.
+            Dictionary of additional query parameters to include in the
+            request. If not provided, a new dictionary will be created.
 
             .. note::
 
@@ -1511,9 +1519,6 @@ class PlayerAPI(SpotifyResourceAPI):
         payload : dict[str, Any]; keyword-only; optional
             JSON payload to include in the request.
         """
-        qual_name = f"player.{endpoint_method}"
-        self._client._require_spotify_premium(qual_name)
-        self._client._require_scopes(qual_name, "user-modify-playback-state")
         if params is None:
             params = {}
         if device_id is not None:

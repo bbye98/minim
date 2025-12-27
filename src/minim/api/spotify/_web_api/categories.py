@@ -1,9 +1,6 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
 
 
 class CategoriesAPI(ResourceAPI):
@@ -15,8 +12,6 @@ class CategoriesAPI(ResourceAPI):
        This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
        and should not be instantiated directly.
     """
-
-    _client: "SpotifyWebAPI"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_category(

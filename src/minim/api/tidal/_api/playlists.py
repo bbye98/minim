@@ -170,7 +170,8 @@ class PlaylistsAPI(TIDALResourceAPI):
             :code:`"owners"`.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination when requesting multiple playlists.
+            Cursor for fetching the next page of results when requesting
+            multiple playlists.
 
             **Example**: :code:`"3nI1Esi"`.
 

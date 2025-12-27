@@ -1,11 +1,8 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
 
 
 class ArtistsAPI(SpotifyResourceAPI):
@@ -19,7 +16,6 @@ class ArtistsAPI(SpotifyResourceAPI):
     """
 
     _ALBUM_TYPES = {"album", "single", "appears_on", "compilation"}
-    _client: "SpotifyWebAPI"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artists(self, artist_ids: str | list[str], /) -> dict[str, Any]:

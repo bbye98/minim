@@ -1,11 +1,8 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
 
 
 class ShowsAPI(SpotifyResourceAPI):
@@ -17,8 +14,6 @@ class ShowsAPI(SpotifyResourceAPI):
        This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
        and should not be instantiated directly.
     """
-
-    _client: "SpotifyWebAPI"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_shows(
@@ -374,11 +369,13 @@ class ShowsAPI(SpotifyResourceAPI):
                     "total": <int>
                   }
         """
+        self._client._require_scopes(
+            "shows.get_show_episodes", "user-read-playback-position"
+        )
         return self._get_resource_items(
             "shows",
             show_id,
             "episodes",
-            scopes="user-read-playback-position",
             country_code=country_code,
             limit=limit,
             offset=offset,

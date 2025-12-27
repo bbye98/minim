@@ -1,12 +1,9 @@
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
 
 
 class PlaylistsAPI(SpotifyResourceAPI):
@@ -18,8 +15,6 @@ class PlaylistsAPI(SpotifyResourceAPI):
        This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
        and should not be instantiated directly.
     """
-
-    _client: "SpotifyWebAPI"
 
     def get_playlist(
         self,
@@ -392,12 +387,12 @@ class PlaylistsAPI(SpotifyResourceAPI):
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
 
         name : str; keyword-only; optional
-            Playlist name.
+            New playlist name.
 
             **Example**: :code:`"My New Playlist Title"`.
 
         description : str; keyword-only; optional
-            Playlist description.
+            New playlist description.
 
         public : bool; keyword-only; optional
             Whether the playlist is displayed on the current user's

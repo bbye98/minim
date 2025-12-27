@@ -1,10 +1,7 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
 
 
 class SearchAPI(SpotifyResourceAPI):
@@ -26,7 +23,6 @@ class SearchAPI(SpotifyResourceAPI):
         "show",
         "track",
     }
-    _client: "SpotifyWebAPI"
 
     @TTLCache.cached_method(ttl="search")
     def search(

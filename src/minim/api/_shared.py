@@ -285,6 +285,7 @@ class TTLCache:
         "featured": 43_200,
         "top": 3_600,
         "search": 600,
+        "user": 120,
     }
 
     def __init__(self, *, max_size: int = 1_024) -> None:

@@ -1,13 +1,10 @@
 from datetime import datetime
 from numbers import Number
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import SpotifyResourceAPI
 from .users import UsersAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
 
 
 IntAttributeSpec = (
@@ -31,8 +28,6 @@ class TracksAPI(SpotifyResourceAPI):
        This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
        and should not be instantiated directly.
     """
-
-    _client: "SpotifyWebAPI"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_tracks(
@@ -1130,7 +1125,7 @@ class TracksAPI(SpotifyResourceAPI):
             Valid range for the track attribute.
 
         params : dict[str, Any]
-            Query parameters for the GET request.
+            Query parameters to include in the request.
 
             .. note::
 
@@ -1219,7 +1214,7 @@ class TracksAPI(SpotifyResourceAPI):
             Starting number of seed values.
 
         params : dict[str, Any]
-            Query parameters for the GET request.
+            Query parameters to include in the request.
 
             .. note::
 

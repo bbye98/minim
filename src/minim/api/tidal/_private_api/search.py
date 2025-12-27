@@ -77,7 +77,7 @@ class PrivateSearchAPI(ResourceAPI):
                           "allowStreaming": <bool>,
                           "artists": [
                             {
-                              "handle": None,
+                              "handle": <str>,
                               "id": <int>,
                               "name": <str>,
                               "picture": <str>,
@@ -110,7 +110,7 @@ class PrivateSearchAPI(ResourceAPI):
                           "upc": <str>,
                           "upload": <bool>,
                           "url": <str>,
-                          "version": None,
+                          "version": <str>,
                           "vibrantColor": <str>,
                           "videoCover": <str>
                         }
@@ -129,7 +129,7 @@ class PrivateSearchAPI(ResourceAPI):
                             }
                           ],
                           "artistTypes": <list[str]>
-                          "handle": None,
+                          "handle": <str>,
                           "id": <int>,
                           "mixes": {
                             "ARTIST_MIX": <str>
@@ -140,7 +140,7 @@ class PrivateSearchAPI(ResourceAPI):
                           "selectedAlbumCoverFallback": None,
                           "spotlighted": <bool>,
                           "url": <str>,
-                          "userId": None
+                          "userId": <int>
                         }
                       ],
                       "limit": <int>,
@@ -156,9 +156,9 @@ class PrivateSearchAPI(ResourceAPI):
                             "name": <str>,
                             "picture": <str>,
                             "selectedAlbumCoverFallback": None,
-                            "type": None
+                            "type": <str>
                           },
-                          "customImageUrl": None,
+                          "customImageUrl": <str>,
                           "description": <str>,
                           "duration": <int>,
                           "image": <str>,
@@ -169,7 +169,7 @@ class PrivateSearchAPI(ResourceAPI):
                           "popularity": <int>,
                           "promotedArtists": [
                             {
-                              "handle": None,
+                              "handle": <str>,
                               "id": <int>,
                               "name": <str>,
                               "picture": <str>,
@@ -198,7 +198,7 @@ class PrivateSearchAPI(ResourceAPI):
                           }
                         ],
                         "artistTypes": <list[str]>,
-                        "handle": None,
+                        "handle": <str>,
                         "id": <int>,
                         "mixes": {
                           "ARTIST_MIX": <str>
@@ -209,13 +209,13 @@ class PrivateSearchAPI(ResourceAPI):
                         "selectedAlbumCoverFallback": None,
                         "spotlighted": <bool>,
                         "url": <str>,
-                        "userId": null
+                        "userId": <int>
                       }
                     },
                     "tracks": {
                       "items": [
                         {
-                          "accessType": None,
+                          "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
                             "cover": <str>,
@@ -228,7 +228,7 @@ class PrivateSearchAPI(ResourceAPI):
                           "allowStreaming": <bool>,
                           "artists": [
                             {
-                              "handle": None,
+                              "handle": <str>,
                               "id": <int>,
                               "name": <str>,
                               "picture": <str>,
@@ -266,7 +266,7 @@ class PrivateSearchAPI(ResourceAPI):
                           "trackNumber": <int>,
                           "upload": <bool>,
                           "url": f"http://www.tidal.com/track/{id}",
-                          "version": None,
+                          "version": <str>,
                           "volumeNumber": <int>
                         }
                       ],
@@ -279,12 +279,18 @@ class PrivateSearchAPI(ResourceAPI):
                         {
                           "adSupportedStreamReady": <bool>,
                           "adsPrePaywallOnly": <bool>,
-                          "adsUrl": None,
-                          "album": None,
+                          "adsUrl": <str>,
+                          "album": {
+                            "cover": <str>,
+                            "id": <int>,
+                            "title": <str>,
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
+                          },
                           "allowStreaming": <bool>,
                           "artists": [
                             {
-                              "handle": None,
+                              "handle": <str>,
                               "id": <int>,
                               "name": <str>,
                               "picture": <str>,
@@ -296,7 +302,7 @@ class PrivateSearchAPI(ResourceAPI):
                           "explicit": <bool>,
                           "id": <int>,
                           "imageId": <str>,
-                          "imagePath": None,
+                          "imagePath": <str>,
                           "popularity": <int>,
                           "quality": <int>,
                           "releaseDate": <str>,
@@ -377,7 +383,7 @@ class PrivateSearchAPI(ResourceAPI):
                         "adSupportedStreamReady": <bool>,
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": None,
+                          "handle": <str>,
                           "id": <int>,
                           "name": <str>,
                           "picture": <str>,
@@ -385,7 +391,7 @@ class PrivateSearchAPI(ResourceAPI):
                         },
                         "artists": [
                           {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
                             "picture": <str>,
@@ -418,7 +424,7 @@ class PrivateSearchAPI(ResourceAPI):
                         "upc": <str>,
                         "upload": <bool>,
                         "url": <str>,
-                        "version": None,
+                        "version": <str>,
                         "vibrantColor": <str>,
                         "videoCover": <str>
                       }
@@ -497,7 +503,7 @@ class PrivateSearchAPI(ResourceAPI):
                           }
                         ],
                         "artistTypes": <list[str]>
-                        "handle": None,
+                        "handle": <str>,
                         "id": <int>,
                         "mixes": {
                           "ARTIST_MIX": <str>
@@ -508,7 +514,7 @@ class PrivateSearchAPI(ResourceAPI):
                         "selectedAlbumCoverFallback": None,
                         "spotlighted": <bool>,
                         "url": <str>,
-                        "userId": None
+                        "userId": <int>
                       }
                     ],
                     "limit": <int>,
@@ -584,9 +590,9 @@ class PrivateSearchAPI(ResourceAPI):
                           "name": <str>,
                           "picture": <str>,
                           "selectedAlbumCoverFallback": None,
-                          "type": None
+                          "type": <str>
                         },
-                        "customImageUrl": None,
+                        "customImageUrl": <str>,
                         "description": <str>,
                         "duration": <int>,
                         "image": <str>,
@@ -597,7 +603,7 @@ class PrivateSearchAPI(ResourceAPI):
                         "popularity": <int>,
                         "promotedArtists": [
                           {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
                             "picture": <str>,
@@ -679,7 +685,7 @@ class PrivateSearchAPI(ResourceAPI):
                   {
                     "items": [
                       {
-                        "accessType": None,
+                        "accessType": <str>,
                         "adSupportedStreamReady": <bool>,
                         "album": {
                           "cover": <str>,
@@ -690,7 +696,7 @@ class PrivateSearchAPI(ResourceAPI):
                         },
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": None,
+                          "handle": <str>,
                           "id": <int>,
                           "name": <str>,
                           "picture": <str>,
@@ -698,7 +704,7 @@ class PrivateSearchAPI(ResourceAPI):
                         },
                         "artists": [
                           {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
                             "picture": <str>,
@@ -736,7 +742,7 @@ class PrivateSearchAPI(ResourceAPI):
                         "trackNumber": <int>,
                         "upload": <bool>,
                         "url": <str>,
-                        "version": None,
+                        "version": <str>,
                         "volumeNumber": <int>
                       }
                     ],
@@ -809,11 +815,17 @@ class PrivateSearchAPI(ResourceAPI):
                       {
                         "adSupportedStreamReady": <bool>,
                         "adsPrePaywallOnly": <bool>,
-                        "adsUrl": None,
-                        "album": None,
+                        "adsUrl": <str>,
+                        "album": {
+                            "cover": <str>,
+                            "id": <int>,
+                            "title": <str>,
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
+                          },
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": None,
+                          "handle": <str>,
                           "id": <int>,
                           "name": <str>,
                           "picture": <str>,
@@ -821,7 +833,7 @@ class PrivateSearchAPI(ResourceAPI):
                         },
                         "artists": [
                           {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
                             "picture": <str>,
@@ -833,7 +845,7 @@ class PrivateSearchAPI(ResourceAPI):
                         "explicit": <bool>,
                         "id": <int>,
                         "imageId": <str>,
-                        "imagePath": None,
+                        "imagePath": <str>,
                         "popularity": <int>,
                         "quality": <int>,
                         "releaseDate": <str>,

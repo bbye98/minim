@@ -1,14 +1,12 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI, _copy_docstring
+from ..._shared import TTLCache, _copy_docstring
+from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
 
-if TYPE_CHECKING:
-    from .. import PrivateTIDALAPI
 
-
-class PrivateArtistsAPI(ResourceAPI):
+class PrivateArtistsAPI(PrivateTIDALResourceAPI):
     """
     Artists API endpoints for the private TIDAL API.
 
@@ -18,8 +16,7 @@ class PrivateArtistsAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _ALBUM_FILTERS = {"COMPILATIONS", "EPSANDSINGLES"}
-    _client: "PrivateTIDALAPI"
+    _ALBUM_TYPES = {"COMPILATIONS", "EPSANDSINGLES"}
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist(
@@ -37,7 +34,8 @@ class PrivateArtistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -59,29 +57,23 @@ class PrivateArtistsAPI(ResourceAPI):
                       }
                     ],
                     "artistTypes": <list[str]>,
-                    "handle": None,
+                    "handle": <str>,
                     "id": <int>,
                     "mixes": {
                       "ARTIST_MIX": <str>
                     },
                     "name": <str>,
-                    "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                    "picture": <str>,
                     "popularity": <int>,
-                    "selectedAlbumCoverFallback": <str>,
+                    "selectedAlbumCoverFallback": None,
                     "spotlighted": <bool>,
                     "url": <str>,
                     "userId": <int>
                   }
         """
-        if country_code is None:
-            country_code = self._client._my_country_code
-        else:
-            self._client._validate_country_code(country_code)
-        return self._client._request(
-            "GET",
-            f"v1/artists/{artist_id}",
-            params={"countryCode": country_code},
-        ).json()
+        return self._get_resource(
+            "artists", artist_id, country_code=country_code
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_albums(
@@ -90,7 +82,7 @@ class PrivateArtistsAPI(ResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        filter: str | None = None,
+        album_type: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
@@ -106,12 +98,13 @@ class PrivateArtistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
-        filter : str; keyword-only; optional
-            Filter for the types of albums to return.
+        album_type : str; keyword-only; optional
+            Album type to include in the results.
 
             **Valid values**: :code:`"COMPILATIONS"`, :code:`"EPSANDSINGLES"`.
 
@@ -133,7 +126,7 @@ class PrivateArtistsAPI(ResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Pages of TIDAL catalog information for the artist's albums.
+            Page of TIDAL content metadata for the artist's albums.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -146,25 +139,25 @@ class PrivateArtistsAPI(ResourceAPI):
                         "adSupportedStreamReady": <bool>,
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": None,
+                          "handle": <str>,
                           "id": <int>,
                           "name": <str>,
-                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "picture": <str>,
                           "type": <str>
                         },
                         "artists": [
                           {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": <str>
                           }
                         ],
                         "audioModes": <list[str]>,
                         "audioQuality": <str>,
                         "copyright": <str>,
-                        "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "cover": <str>,
                         "djReady": <bool>,
                         "duration": <int>,
                         "explicit": <bool>,
@@ -181,15 +174,15 @@ class PrivateArtistsAPI(ResourceAPI):
                         "releaseDate": <str>,
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "streamStartDate": <str>,
                         "title": <str>,
                         "type": <str>,
                         "upc": <str>,
                         "upload": <bool>,
                         "url": <str>,
                         "version": <str>,
-                        "vibrantColor": "#rrggbb",
-                        "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                        "vibrantColor": <str>,
+                        "videoCover": <str>
                       }
                     ],
                     "limit": <int>,
@@ -198,17 +191,19 @@ class PrivateArtistsAPI(ResourceAPI):
                   }
         """
         params = {}
-        if filter is not None:
-            if filter not in self._ALBUM_FILTERS:
-                filters = "', '".join(sorted(self._ALBUM_FILTERS))
+        if album_type is not None:
+            if album_type not in self._ALBUM_TYPES:
+                album_types_str = "', '".join(sorted(self._ALBUM_TYPES))
                 raise ValueError(
-                    f"Invalid filter {filter!r}. Valid values: '{filters}'."
+                    f"Invalid album type {album_type!r}. "
+                    f"Valid values: '{album_types_str}'."
                 )
-            params["filter"] = filter
-        return self._get_artist_resource(
-            "albums",
+            params["filter"] = album_type
+        return self._get_resource_relationship(
+            "artists",
             artist_id,
-            country_code,
+            "albums",
+            country_code=country_code,
             limit=limit,
             offset=offset,
             params=params,
@@ -230,14 +225,15 @@ class PrivateArtistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
         Returns
         -------
         biography : dict[str, Any]
-            TIDAL catalog information for the artist's biography.
+            TIDAL content metadata for the artist's biography.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -251,7 +247,9 @@ class PrivateArtistsAPI(ResourceAPI):
                     "text": <str>
                   }
         """
-        return self._get_artist_resource("bio", artist_id, country_code)
+        return self._get_resource_relationship(
+            "artists", artist_id, "bio", country_code=country_code
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_links(
@@ -276,7 +274,8 @@ class PrivateArtistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -298,7 +297,7 @@ class PrivateArtistsAPI(ResourceAPI):
         Returns
         -------
         links : dict[str, Any]
-            Pages of TIDAL catalog information for links to websites
+            Page of TIDAL content metadata for links to websites
             associated with an artist.
 
             .. admonition:: Sample response
@@ -319,10 +318,11 @@ class PrivateArtistsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._get_artist_resource(
-            "links",
+        return self._get_resource_relationship(
+            "artists",
             artist_id,
-            country_code,
+            "links",
+            country_code=country_code,
             limit=limit,
             offset=offset,
         )
@@ -343,7 +343,8 @@ class PrivateArtistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -354,7 +355,9 @@ class PrivateArtistsAPI(ResourceAPI):
 
             **Sample response**: :code:`{"id": <str>}`.
         """
-        return self._get_artist_resource("mix", artist_id, country_code)
+        return self._get_resource_relationship(
+            "artists", artist_id, "mix", country_code=country_code
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artist_radio(
@@ -379,7 +382,8 @@ class PrivateArtistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -401,7 +405,8 @@ class PrivateArtistsAPI(ResourceAPI):
         Returns
         -------
         radio : dict[str, Any]
-            Pages of TIDAL catalog information for the artist radio.
+            Page of TIDAL content metadata for the items in the artist
+            radio.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -414,26 +419,26 @@ class PrivateArtistsAPI(ResourceAPI):
                         "accessType": <str>,
                         "adSupportedStreamReady": <bool>,
                         "album": {
-                          "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "cover": <str>,
                           "id": <int>,
                           "title": <str>,
-                          "vibrantColor": "#rrggbb",
-                          "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                          "vibrantColor": <str>,
+                          "videoCover": <str>
                         },
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": None,
+                          "handle": <str>,
                           "id": <int>,
                           "name": <str>,
-                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "picture": <str>,
                           "type": <str>
                         },
                         "artists": [
                           {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": <str>
                           }
                         ],
@@ -446,7 +451,7 @@ class PrivateArtistsAPI(ResourceAPI):
                         "editable": <bool>,
                         "explicit": <bool>,
                         "id": <int>,
-                        "isrc": "CCXXXYYNNNNN",
+                        "isrc": <str>,
                         "key": <str>,
                         "keyScale": <str>,
                         "mediaMetadata": {
@@ -463,7 +468,7 @@ class PrivateArtistsAPI(ResourceAPI):
                         "spotlighted": <bool>,
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "streamStartDate": <str>,
                         "title": <str>,
                         "trackNumber": <int>,
                         "upload": <bool>,
@@ -477,10 +482,11 @@ class PrivateArtistsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._get_artist_resource(
-            "radio",
+        return self._get_resource_relationship(
+            "artists",
             artist_id,
-            country_code,
+            "radio",
+            country_code=country_code,
             limit=limit,
             offset=offset,
         )
@@ -507,7 +513,8 @@ class PrivateArtistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -529,8 +536,7 @@ class PrivateArtistsAPI(ResourceAPI):
         Returns
         -------
         top_tracks : dict[str, Any]
-            Pages of TIDAL catalog information for the artist's top
-            tracks.
+            Page of TIDAL content metadata for the artist's top tracks.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -543,26 +549,26 @@ class PrivateArtistsAPI(ResourceAPI):
                         "accessType": <str>,
                         "adSupportedStreamReady": <bool>,
                         "album": {
-                          "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "cover": <str>,
                           "id": <int>,
                           "title": <str>,
-                          "vibrantColor": "#rrggbb",
-                          "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                          "vibrantColor": <str>,
+                          "videoCover": <str>
                         },
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": None,
+                          "handle": <str>,
                           "id": <int>,
                           "name": <str>,
-                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "picture": <str>,
                           "type": <str>
                         },
                         "artists": [
                           {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": <str>
                           }
                         ],
@@ -575,7 +581,7 @@ class PrivateArtistsAPI(ResourceAPI):
                         "editable": <bool>,
                         "explicit": <bool>,
                         "id": <int>,
-                        "isrc": "CCXXXYYNNNNN",
+                        "isrc": <str>,
                         "key": <str>,
                         "keyScale": <str>,
                         "mediaMetadata": {
@@ -592,7 +598,7 @@ class PrivateArtistsAPI(ResourceAPI):
                         "spotlighted": <bool>,
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "streamStartDate": <str>,
                         "title": <str>,
                         "trackNumber": <int>,
                         "upload": <bool>,
@@ -606,10 +612,11 @@ class PrivateArtistsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._get_artist_resource(
-            "toptracks",
+        return self._get_resource_relationship(
+            "artists",
             artist_id,
-            country_code,
+            "toptracks",
+            country_code=country_code,
             limit=limit,
             offset=offset,
         )
@@ -636,7 +643,8 @@ class PrivateArtistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -658,7 +666,7 @@ class PrivateArtistsAPI(ResourceAPI):
         Returns
         -------
         videos : dict[str, Any]
-            Pages of TIDAL catalog information for the artist's videos.
+            Page of TIDAL content metadata for the artist's videos.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -672,26 +680,26 @@ class PrivateArtistsAPI(ResourceAPI):
                         "adsPrePaywallOnly": <bool>,
                         "adsUrl": <str>,
                         "album": {
-                          "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "cover": <str>,
                           "id": <int>,
                           "title": <str>,
-                          "vibrantColor": "#rrggbb",
-                          "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                          "vibrantColor": <str>,
+                          "videoCover": <str>
                         },
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": None,
+                          "handle": <str>,
                           "id": <int>,
                           "name": <str>,
-                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "picture": <str>,
                           "type": <str>
                         },
                         "artists": [
                           {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": <str>
                           }
                         ],
@@ -699,18 +707,18 @@ class PrivateArtistsAPI(ResourceAPI):
                         "duration": <int>,
                         "explicit": <bool>,
                         "id": <int>,
-                        "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
-                        "imagePath": None,
+                        "imageId": <str>,
+                        "imagePath": <str>,
                         "popularity": <int>,
                         "quality": <str>,
                         "releaseDate": <str>,
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "streamStartDate": <str>,
                         "title": <str>,
                         "trackNumber": <int>,
                         "type": <str>,
-                        "vibrantColor": "#rrggbb",
+                        "vibrantColor": <str>,
                         "volumeNumber": <int>
                       }
                     ],
@@ -719,10 +727,11 @@ class PrivateArtistsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._get_artist_resource(
-            "videos",
+        return self._get_resource_relationship(
+            "artists",
             artist_id,
-            country_code,
+            "videos",
+            country_code=country_code,
             limit=limit,
             offset=offset,
         )
@@ -785,16 +794,16 @@ class PrivateArtistsAPI(ResourceAPI):
                         "artistRoles": <list[str]>,
                         "artistTypes": <list[str]>,
                         "banner": <str>,
-                        "handle": None,
+                        "handle": <str>,
                         "id": <int>,
                         "mixes": {
                           "ARTIST_MIX": <str>
                         },
                         "name": <str>,
-                        "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "picture": <str>,
                         "popularity": <int>,
                         "relationType": <str>,
-                        "selectedAlbumCoverFallback": <str>,
+                        "selectedAlbumCoverFallback": None,
                         "spotlighted": <bool>,
                         "type": <str>,
                         "url": <str>,
@@ -807,10 +816,11 @@ class PrivateArtistsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._get_artist_resource(
-            "similar",
+        return self._get_resource_relationship(
+            "artists",
             artist_id,
-            country_code,
+            "similar",
+            country_code=country_code,
             limit=limit,
             offset=offset,
         )
@@ -864,7 +874,7 @@ class PrivateArtistsAPI(ResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
         sort_by: str | None = None,
-        reverse: bool | None = None,
+        descending: bool | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_favorite_artists(
             user_id,
@@ -872,7 +882,7 @@ class PrivateArtistsAPI(ResourceAPI):
             limit=limit,
             offset=offset,
             sort_by=sort_by,
-            reverse=reverse,
+            descending=descending,
         )
 
     @_copy_docstring(PrivateUsersAPI.favorite_artists)
@@ -900,75 +910,3 @@ class PrivateArtistsAPI(ResourceAPI):
         user_id: int | str | None = None,
     ) -> None:
         self._client.users.unfavorite_artists(artist_ids, user_id)
-
-    def _get_artist_resource(
-        self,
-        resource: str,
-        artist_id: int | str,
-        /,
-        country_code: str | None = None,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-        params: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for a resource related to an
-        artist.
-
-        Parameters
-        ----------
-        resource : str; positional-only
-            Related resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"bio"`,
-            :code:`"links"`, :code:`"mix"`, :code:`"radio"`,
-            :code:`"toptracks"`, :code:`"videos"`, :code:`"similar"`.
-
-        artist_id : int or str; positional-only
-            TIDAL ID of the artist.
-
-            **Examples**: :code:`1566`, :code:`"4676988"`.
-
-        country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
-
-            **Example**: :code:`"US"`.
-
-        limit : int; keyword-only; optional
-            Maximum number of items to return.
-
-            **Valid range**: :code:`1` to :code:`100`.
-
-            **API default**: :code:`10`.
-
-        offset : int; keyword-only; optional
-            Index of the first item to return. Use with `limit` to get
-            the next batch of items.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        params : dict[str, Any]; keyword-only; optional
-            Existing dictionary holding URL query parameters. If not
-            provided, a new dictionary will be created.
-
-        Returns
-        -------
-        resource : dict[str, Any]
-            Pages of TIDAL catalog information for the related resource.
-        """
-        if params is None:
-            params = {}
-        self._client._resolve_country_code(country_code, params)
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", f"v1/artists/{artist_id}/{resource}", params=params
-        ).json()

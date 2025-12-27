@@ -17,36 +17,42 @@ class PrivatePlaylistsAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _SORTS = {"DATE", "NAME"}
+    _PLAYLIST_TYPES = {
+        "FOLDER",
+        "PLAYLIST",
+        "FAVORITE_PLAYLIST",
+        "USER_PLAYLIST",
+    }
+    _SORT_FIELDS = {"DATE", "NAME"}
     _client: "PrivateTIDALAPI"
 
     @classmethod
-    def _validate_filters(cls, filters: str | list[str], /) -> None:
+    def _validate_types(cls, playlist_types: str | list[str], /) -> None:
         """
         Validate one or more playlist types to filter by.
 
         Parameters
         ----------
-        filters : str or list[str]; positional-only; optional
+        playlist_types : str or list[str]; positional-only; optional
             Playlist types to include in the results.
         """
-        if not filters:
+        if not playlist_types:
             raise ValueError("At least one playlist type must be specified.")
 
-        if isinstance(filters, str):
-            cls._validate_filters(filters.split(","))
-        elif isinstance(filters, tuple | list):
-            for filter in filters:
-                if filter not in cls._FILTERS:
-                    _filters = "', '".join(cls._FILTERS)
+        if isinstance(playlist_types, str):
+            cls._validate_types(playlist_types.split(","))
+        elif isinstance(playlist_types, tuple | list):
+            for playlist_type in playlist_types:
+                if playlist_type not in cls._PLAYLIST_TYPES:
+                    playlist_types_str = "', '".join(cls._PLAYLIST_TYPES)
                     raise ValueError(
-                        f"Invalid playlist type {filter!r}. "
-                        f"Valid values: '{_filters}'."
+                        f"Invalid playlist type {playlist_type!r}. "
+                        f"Valid values: '{playlist_types_str}'."
                     )
         else:
             raise TypeError(
-                "`filter_by` must be a comma-separated string or a "
-                "list of strings."
+                "`playlist_types` must be a comma-separated string or "
+                "a list of strings."
             )
 
     def get_playlist(
@@ -55,7 +61,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         /,
         *,
         country_code: str | None = None,
-        version: int = 2,
+        api_version: int = 2,
     ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for a playlist.
@@ -66,8 +72,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Conditional
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
 
         Parameters
         ----------
@@ -76,15 +82,15 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
             **Example**: :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`.
 
-        country_code : str; keyword-only; optional
+        country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used. Only
-            applicable when :code:`version=1`.
+            country associated with the current user account or IP
+            address is used. Only applicable when :code:`version=1`.
 
             **Example**: :code:`"US"`.
 
-        version : int; keyword-only; default: :code:`2`
-            Selects which version of the private TIDAL API to use.
+        api_version : int; keyword-only; default: :code:`2`
+            Private TIDAL API version.
 
             **Valid values**:
 
@@ -98,7 +104,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         Returns
         -------
         playlist : dict[str, Any]
-            TIDAL catalog information for the playlist.
+            TIDAL content metadata for the playlist.
 
             .. admonition:: Sample responses
                :class: dropdown
@@ -120,15 +126,15 @@ class PrivatePlaylistsAPI(ResourceAPI):
                          "creator": {
                            "id": <int>,
                            "name": <str>,
-                           "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                           "picture": <str>,
                            "type": "USER"
                          },
                          "curators": [
                            {
-                             "handle": None,
+                             "handle": <str>,
                              "id": <int>,
                              "name": <str>,
-                             "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                             "picture": <str>
                            }
                          ],
                          "customImageUrl": <str>,
@@ -142,10 +148,10 @@ class PrivatePlaylistsAPI(ResourceAPI):
                          "promotedArtists": [
                            {
                              "contributionLinkUrl": <str>,
-                             "handle": None,
+                             "handle": <str>,
                              "id": <int>,
                              "name": <str>,
-                             "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                             "picture": <str>,
                              "type": <str>,
                              "userId": <int>
                            }
@@ -187,10 +193,10 @@ class PrivatePlaylistsAPI(ResourceAPI):
                        "popularity": <int>,
                        "promotedArtists": [
                          {
-                           "handle": None,
+                           "handle": <str>,
                            "id": <int>,
                            "name": <str>,
-                           "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                           "picture": <str>,
                            "type": <str>
                          }
                        ],
@@ -203,8 +209,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
                      }
         """
         self._client._validate_uuid(playlist_uuid)
-        self._client._validate_number("version", version, int, 1, 2)
-        if version == 1:
+        self._client._validate_number("version", api_version, int, 1, 2)
+        if api_version == 1:
             if country_code is None:
                 country_code = self._client._my_country_code
             else:
@@ -241,7 +247,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -263,8 +270,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Pages of TIDAL catalog information for the tracks and videos
-            in the playlist.
+            Page of TIDAL content metadata for the tracks and videos in
+            the playlist.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -279,27 +286,27 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
-                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "cover": <str>,
                             "id": <int>,
                             "releaseDate": <str>,
                             "title": <str>,
-                            "vibrantColor": "#rrggbb",
-                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": <str>
                           },
                           "artists": [
                             {
-                              "handle": None,
+                              "handle": <str>,
                               "id": <int>,
                               "name": <str>,
-                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "picture": <str>,
                               "type": <str>
                             }
                           ],
@@ -315,7 +322,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "explicit": <bool>,
                           "id": <int>,
                           "index": <int>,
-                          "isrc": "CCXXXYYNNNNN",
+                          "isrc": <str>,
                           "itemUuid": <str>,
                           "key": <str>,
                           "keyScale": <str>,
@@ -333,7 +340,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "spotlighted": <bool>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "streamStartDate": <str>,
                           "title": <str>,
                           "trackNumber": <int>,
                           "upload": <bool>,
@@ -350,26 +357,26 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "adsPrePaywallOnly": <bool>,
                           "adsUrl": <str>,
                           "album": {
-                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "cover": <str>,
                             "id": <int>,
                             "title": <str>,
-                            "vibrantColor": "#rrggbb",
-                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": <str>
                           },
                           "artists": [
                             {
-                              "handle": None,
+                              "handle": <str>,
                               "id": <int>,
                               "name": <str>,
-                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "picture": <str>,
                               "type": <str>
                             }
                           ],
@@ -378,8 +385,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "duration": <int>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
-                          "imagePath": None,
+                          "imageId": <str>,
+                          "imagePath": <str>,
                           "index": <int>,
                           "itemUuid": <str>,
                           "popularity": <int>,
@@ -387,11 +394,11 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "releaseDate": <str>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "streamStartDate": <str>,
                           "title": <str>,
                           "trackNumber": <int>,
                           "type": <str>,
-                          "vibrantColor": "#rrggbb",
+                          "vibrantColor": <str>,
                           "volumeNumber": <int>
                         },
                         "type": "video"
@@ -434,8 +441,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
 
         Parameters
         ----------
@@ -446,7 +453,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
@@ -468,8 +476,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Pages of TIDAL catalog information for the recommended
-            tracks.
+            Page of TIDAL content metadata for the recommended tracks.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -483,28 +490,28 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
-                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "cover": <str>,
                             "id": <int>,
                             "releaseDate": <str>,
                             "title": <str>,
                             "url": <str>,
-                            "vibrantColor": "#rrggbb",
-                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": <str>
                           },
                           "artists": [
                             {
-                              "handle": None,
+                              "handle": <str>,
                               "id": <int>,
                               "name": <str>,
-                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "picture": <str>,
                               "type": <str>
                             }
                           ],
@@ -518,7 +525,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "editable": <bool>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "isrc": "CCXXXYYNNNNN",
+                          "isrc": <str>,
                           "mediaMetadata": {
                             "tags": <list[str]>
                           },
@@ -533,7 +540,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
                           "spotlighted": <bool>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "streamStartDate": <str>,
                           "title": <str>,
                           "trackNumber": <int>,
                           "upload": <bool>,
@@ -579,8 +586,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
 
         Parameters
         ----------
@@ -651,15 +658,13 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
 
         Parameters
         ----------
         folder_uuids : str; positional-only
-            UUIDs or TIDAL resource names of the playlist folders,
-            provided as either a comma-separated string or a list of
-            strings.
+            UUIDs or TIDAL resource names of the playlist folders.
 
             **Examples**:
 
@@ -667,13 +672,10 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
                * :code:`"trn:folder:618ff600-dce1-4326-8724-9f0a51f63439"`
                * :code:`"trn:folder:618ff600-dce1-4326-8724-9f0a51f63439,550e8400-e29b-41d4-a716-446655440000"`
-               * .. code::
-
-                    [
-                        "trn:folder:618ff600-dce1-4326-8724-9f0a51f63439",
-                        "550e8400-e29b-41d4-a716-446655440000",
-                    ]
+               * :code:`["trn:folder:618ff600-dce1-4326-8724-9f0a51f63439",
+                 "550e8400-e29b-41d4-a716-446655440000"]`
         """
+        self._client._require_authentication("users.delete_folders")
         return self._delete_resources("folder", folder_uuids)
 
     def create_playlist(
@@ -693,8 +695,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
 
         Parameters
         ----------
@@ -734,15 +736,15 @@ class PrivatePlaylistsAPI(ResourceAPI):
                       "creator": {
                         "id": <int>,
                         "name": <str>,
-                        "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "picture": <str>,
                         "type": "USER"
                       },
                       "curators": [
                         {
-                          "handle": None,
+                          "handle": <str>,
                           "id": <int>,
                           "name": <str>,
-                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                          "picture": <str>
                         }
                       ],
                       "customImageUrl": <str>,
@@ -756,10 +758,10 @@ class PrivatePlaylistsAPI(ResourceAPI):
                       "numberOfVideos": 0,
                       "promotedArtists": [
                         {
-                          "handle": None,
+                          "handle": <str>,
                           "id": <int>,
                           "name": <str>,
-                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "picture": <str>,
                           "type": <str>
                         }
                       ],
@@ -819,15 +821,13 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
 
         Parameters
         ----------
         playlist_uuids : str or list[str]; positional-only; optional
-            Playlist UUIDs, provided as either a comma-separated string
-            or a list of strings. TIDAL resource names may be provided
-            only when :code:`version=2`.
+            UUIDs or TIDAL resource names of the playlists.
 
             **Examples**:
 
@@ -835,12 +835,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
                * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
                * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
-               * .. code::
-
-                    [
-                        "trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
-                        "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e",
-                    ]
+               * :code:`["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
+                 "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
 
         folder_uuid : str; keyword-only; optional
             UUID of TIDAL playlist folder to add playlists to. Use
@@ -873,8 +869,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
 
         Parameters
         ----------
@@ -911,8 +907,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
 
         Parameters
         ----------
@@ -920,6 +916,12 @@ class PrivatePlaylistsAPI(ResourceAPI):
             UUID of the TIDAL playlist.
 
             **Example**: :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`.
+
+        name : str; keyword-only; optional
+            New playlist name.
+
+        description : str; keyword-only; optional
+            New playlist description.
         """
         self._client._require_authentication(
             "playlists.update_playlist_details"
@@ -950,15 +952,13 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
 
         Parameters
         ----------
         playlist_uuids : str; positional-only
-            UUIDs or TIDAL resource names of the playlists, provided as
-            either a comma-separated string or a list of
-            strings.
+            UUIDs or TIDAL resource names of the playlists.
 
             **Examples**:
 
@@ -966,13 +966,10 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
                * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
                * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
-               * .. code::
-
-                    [
-                        "trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
-                        "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e",
-                    ]
+               * :code:`["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
+                 "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
         """
+        self._client._require_authentication("users.delete_playlists")
         return self._delete_resources("playlist", playlist_uuids)
 
     def add_playlist_items(
@@ -995,8 +992,13 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
+
+        .. note::
+
+           Exactly one of `item_ids`, `from_album_id`, or
+           `from_playlist_uuid` must be provided.
 
         Parameters
         ----------
@@ -1007,47 +1009,25 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
         item_ids : int, str, or list[int | str]; keyword-only; optional
-            TIDAL IDs of the tracks and videos, provided as either an
-            integer, a comma-separated string, or a list of integers
-            and/or strings.
+            TIDAL IDs of the tracks and videos.
 
-            .. note::
-
-               Exactly one of `item_ids`, `from_album_id`, or
-               `from_playlist_uuid` must be provided.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`46369325`
-               * :code:`"75413016"`
-               * :code:`"46369325,75413016"`
-               * :code:`[46369325, "75413016"]`
+            **Examples**: :code:`46369325`, :code:`"75413016"`,
+            :code:`"46369325,75413016"`, :code:`[46369325, "75413016"]`.
 
         from_album_id : int or str; keyword-only; optional
             TIDAL ID of the album to transfer tracks and videos from.
-
-            .. note::
-
-               Exactly one of `item_ids`, `from_album_id`, or
-               `from_playlist_uuid` must be provided.
 
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         from_playlist_uuid : str; keyword-only; optional
             UUID of the TIDAL playlist to transfer tracks and videos
             from.
-
-            .. note::
-
-               Exactly one of `item_ids`, `from_album_id`, or
-               `from_playlist_uuid` must be provided.
 
             **Example**: :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`.
 
@@ -1120,8 +1100,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
 
         Parameters
         ----------
@@ -1143,7 +1123,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
         """
@@ -1187,8 +1168,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
 
         Parameters
         ----------
@@ -1203,14 +1184,15 @@ class PrivatePlaylistsAPI(ResourceAPI):
              **Examples**: :code:`1`, :code:`"2"`.
 
         item_id : int or str; positional-only
-            TIDAL ID of the track or video to replace the item at index
-            `item_index`.
+            TIDAL ID of the track or video to replace the item at the
+            specified index.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
         """
@@ -1246,8 +1228,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+                 Access user recommendations and view or modify the
+                 user's collection.
 
         Parameters
         ----------
@@ -1264,7 +1246,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
         """
@@ -1294,7 +1277,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
         sort_by: str | None = None,
-        reverse: bool | None = None,
+        descending: bool | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_favorite_playlists(
             user_id,
@@ -1302,7 +1285,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
             limit=limit,
             offset=offset,
             sort_by=sort_by,
-            reverse=reverse,
+            descending=descending,
         )
 
     @_copy_docstring(PrivateUsersAPI.favorite_playlists)
@@ -1314,14 +1297,14 @@ class PrivatePlaylistsAPI(ResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
         folder_uuid: str | None = None,
-        version: int = 2,
+        api_version: int = 2,
     ) -> None:
         self._client.users.favorite_playlists(
             playlist_uuids,
             user_id=user_id,
             country_code=country_code,
             folder_uuid=folder_uuid,
-            version=version,
+            api_version=api_version,
         )
 
     @_copy_docstring(PrivateUsersAPI.unfavorite_playlists)
@@ -1331,28 +1314,28 @@ class PrivatePlaylistsAPI(ResourceAPI):
         /,
         *,
         user_id: int | str | None = None,
-        version: int = 2,
+        api_version: int = 2,
     ) -> None:
         self._client.users.unfavorite_playlists(
-            playlist_uuids, user_id=user_id, version=version
+            playlist_uuids, user_id=user_id, api_version=api_version
         )
 
     @_copy_docstring(PrivateUsersAPI.get_my_playlists)
     def get_my_playlists(
         self,
         *,
-        limit: int = 50,
         cursor: str | None = None,
-        filter_by: str | list[str] | None = None,
+        limit: int = 50,
+        playlist_types: str | list[str] | None = None,
         sort_by: str | None = None,
-        reverse: bool | None = None,
+        descending: bool | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_my_playlists(
-            limit=limit,
             cursor=cursor,
-            filter_by=filter_by,
+            limit=limit,
+            playlist_types=playlist_types,
             sort_by=sort_by,
-            reverse=reverse,
+            descending=descending,
         )
 
     @_copy_docstring(PrivateUsersAPI.get_my_folder)
@@ -1361,37 +1344,37 @@ class PrivatePlaylistsAPI(ResourceAPI):
         folder_uuid: str | None = None,
         /,
         *,
-        limit: int = 50,
         cursor: str | None = None,
-        filter_by: str | list[str] | None = None,
+        limit: int = 50,
+        playlist_types: str | list[str] | None = None,
         sort_by: str | None = None,
-        reverse: bool | None = None,
+        descending: bool | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_my_folder(
             folder_uuid,
-            limit=limit,
             cursor=cursor,
-            filter_by=filter_by,
+            limit=limit,
+            playlist_types=playlist_types,
             sort_by=sort_by,
-            reverse=reverse,
+            descending=descending,
         )
 
     @_copy_docstring(PrivateUsersAPI.get_my_folders_and_playlists)
     def get_my_folders_and_playlists(
         self,
         *,
-        limit: int = 50,
         cursor: str | None = None,
-        filter_by: str | list[str] | None = None,
+        limit: int = 50,
+        playlist_types: str | list[str] | None = None,
         sort_by: str | None = None,
-        reverse: bool | None = None,
+        descending: bool | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_my_folders_and_playlists(
-            limit=limit,
             cursor=cursor,
-            filter_by=filter_by,
+            limit=limit,
+            playlist_types=playlist_types,
             sort_by=sort_by,
-            reverse=reverse,
+            descending=descending,
         )
 
     @_copy_docstring(PrivateUsersAPI.get_user_playlists)
@@ -1404,15 +1387,15 @@ class PrivatePlaylistsAPI(ResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
         sort_by: str | None = None,
-        reverse: bool | None = None,
+        descending: bool | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_user_playlists(
             user_id,
-            country_code,
+            country_code=country_code,
             limit=limit,
             offset=offset,
             sort_by=sort_by,
-            reverse=reverse,
+            descending=descending,
         )
 
     @_copy_docstring(PrivateUsersAPI.get_user_created_playlists)
@@ -1426,7 +1409,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_user_created_playlists(
-            user_id, country_code, limit=limit, offset=offset
+            user_id, country_code=country_code, limit=limit, offset=offset
         )
 
     @_copy_docstring(PrivateUsersAPI.get_user_public_playlists)
@@ -1435,22 +1418,22 @@ class PrivatePlaylistsAPI(ResourceAPI):
         user_id: int | str | None = None,
         /,
         *,
-        limit: int | None = None,
         cursor: str | None = None,
+        limit: int | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_user_public_playlists(
-            user_id, limit=limit, cursor=cursor
+            user_id, cursor=cursor, limit=limit
         )
 
     def _delete_resources(
-        self, resource: str, uuids: str | list[str], /
+        self, resource_type: str, uuids: str | list[str], /
     ) -> None:
         """
         Delete playlist folders or playlists.
 
         Parameters
         ----------
-        resource : str; positional-only
+        resource_type : str; positional-only
             Resource type.
 
             **Valid values**: :code:`"folder"`, :code:`"playlist"`.
@@ -1458,13 +1441,12 @@ class PrivatePlaylistsAPI(ResourceAPI):
         uuids : str or list[str]; positional-only
             UUIDs of playlists or playlist folders.
         """
-        self._client._require_authentication(f"users.delete_{resource}s")
         self._client._request(
             "PUT",
             "v2/my-collection/playlists/folders/remove",
             params={
                 "trns": self._client._prepare_uuids(
-                    resource, uuids, has_prefix=True
+                    resource_type, uuids, has_prefix=True
                 )
             },
         )
@@ -1480,13 +1462,10 @@ class PrivatePlaylistsAPI(ResourceAPI):
         playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
-            **Example**: :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`.
-
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
-
-            **Example**: :code:`"US"`.
+            country associated with the current user account or IP
+            address is used.
 
         Returns
         -------

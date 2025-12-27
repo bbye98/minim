@@ -1,14 +1,12 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI, _copy_docstring
+from ..._shared import TTLCache, _copy_docstring
+from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
 
-if TYPE_CHECKING:
-    from .. import PrivateTIDALAPI
 
-
-class PrivateAlbumsAPI(ResourceAPI):
+class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
     """
     Albums API endpoints for the private TIDAL API.
 
@@ -17,8 +15,6 @@ class PrivateAlbumsAPI(ResourceAPI):
        This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
        and should not be instantiated directly.
     """
-
-    _client: "PrivateTIDALAPI"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album(
@@ -55,25 +51,25 @@ class PrivateAlbumsAPI(ResourceAPI):
                     "adSupportedStreamReady": <bool>,
                     "allowStreaming": <bool>,
                     "artist": {
-                      "handle": None,
+                      "handle": <str>,
                       "id": <int>,
                       "name": <str>,
-                      "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                      "picture": <str>,
                       "type": "MAIN"
                     },
                     "artists": [
                       {
-                        "handle": None,
+                        "handle": <str>,
                         "id": <int>,
                         "name": <str>,
-                        "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "picture": <str>,
                         "type": <str>
                       }
                     ],
                     "audioModes": <list[str]>,
                     "audioQuality": <str>,
                     "copyright": <str>,
-                    "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                    "cover": <str>,
                     "djReady": <bool>,
                     "duration": <int>,
                     "explicit": <bool>,
@@ -87,36 +83,30 @@ class PrivateAlbumsAPI(ResourceAPI):
                     "payToStream": <bool>,
                     "popularity": <int>,
                     "premiumStreamingOnly": <bool>,
-                    "releaseDate": "YYYY-MM-DD",
+                    "releaseDate": <str>,
                     "stemReady": <bool>,
                     "streamReady": <bool>,
-                    "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                    "streamStartDate": <str>,
                     "title": <str>,
                     "type": "ALBUM",
                     "upc": <str>,
                     "upload": <bool>,
-                    "url": f"http://www.tidal.com/album/{id}",
-                    "version": None,
-                    "vibrantColor": "#rrggbb",
-                    "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                    "url": <str>,
+                    "version": <str>,
+                    "vibrantColor": <str>,
+                    "videoCover": <str>
                   }
         """
-        if country_code is None:
-            country_code = self._client._my_country_code
-        else:
-            self._client._validate_country_code(country_code)
-        return self._client._request(
-            "GET",
-            f"v1/albums/{album_id}",
-            params={"countryCode": country_code},
-        ).json()
+        return self._get_resource(
+            "albums", album_id, country_code=country_code
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album_credits(
         self, album_id: int | str, /, country_code: str | None = None
-    ) -> dict[str, Any]:
+    ) -> list[dict[str, Any]]:
         """
-        Get TIDAL catalog information for an album's contributors.
+        Get TIDAL catalog information for an album's credits.
 
         Parameters
         ----------
@@ -135,7 +125,7 @@ class PrivateAlbumsAPI(ResourceAPI):
         Returns
         -------
         credits : dict[str, Any]
-            TIDAL content metadata for the album's contributors.
+            TIDAL content metadata for the album's credits.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -154,7 +144,9 @@ class PrivateAlbumsAPI(ResourceAPI):
                     }
                   ]
         """
-        return self._get_album_resource("credits", album_id, country_code)
+        return self._get_resource_relationship(
+            "albums", album_id, "credits", country_code=country_code
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album_items(
@@ -201,8 +193,8 @@ class PrivateAlbumsAPI(ResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Pages of TIDAL catalog information for the tracks and videos
-            in the album.
+            Page of TIDAL content metadata for the tracks and videos in
+            the album.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -216,26 +208,26 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
-                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "cover": <str>,
                             "id": <int>,
                             "title": <str>,
-                            "vibrantColor": "#rrggbb",
-                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": "MAIN"
                           },
                           "artists": [
                             {
-                              "handle": None,
+                              "handle": <str>,
                               "id": <int>,
                               "name": <str>,
-                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "picture": <str>,
                               "type": <str>
                             }
                           ],
@@ -248,7 +240,7 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "editable": <bool>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "isrc": "CCXXXYYNNNNN",
+                          "isrc": <str>,
                           "key": <str>,
                           "keyScale": <str>,
                           "mediaMetadata": {
@@ -265,12 +257,12 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "spotlighted": <bool>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "streamStartDate": <str>,
                           "title": <str>,
                           "trackNumber": <int>,
                           "upload": <bool>,
-                          "url": f"http://www.tidal.com/track/{id}",
-                          "version": None,
+                          "url": <str>,
+                          "version": <str>,
                           "volumeNumber": <int>
                         },
                         "type": "track"
@@ -279,28 +271,28 @@ class PrivateAlbumsAPI(ResourceAPI):
                         "item": {
                           "adSupportedStreamReady": <bool>,
                           "adsPrePaywallOnly": <bool>,
-                          "adsUrl": None,
+                          "adsUrl": <str>,
                           "album": {
-                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "cover": <str>,
                             "id": <int>,
                             "title": <str>,
-                            "vibrantColor": "#rrggbb",
-                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": "MAIN"
                           },
                           "artists": [
                             {
-                              "handle": None,
+                              "handle": <str>,
                               "id": <int>,
                               "name": <str>,
-                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "picture": <str>,
                               "type": <str>
                             }
                           ],
@@ -308,18 +300,18 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "duration": <int>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
-                          "imagePath": None,
+                          "imageId": <str>,
+                          "imagePath": <str>,
                           "popularity": <int>,
                           "quality": <str>,
-                          "releaseDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "releaseDate": <str>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "streamStartDate": <str>,
                           "title": <str>,
                           "trackNumber": <int>,
                           "type": "Music Video",
-                          "vibrantColor": "#rrggbb",
+                          "vibrantColor": <str>,
                           "volumeNumber": <int>
                         },
                         "type": "video"
@@ -330,8 +322,13 @@ class PrivateAlbumsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._get_album_resource(
-            "items", album_id, country_code, limit=limit, offset=offset
+        return self._get_resource_relationship(
+            "albums",
+            album_id,
+            "items",
+            country_code=country_code,
+            limit=limit,
+            offset=offset,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -380,8 +377,8 @@ class PrivateAlbumsAPI(ResourceAPI):
         Returns
         -------
         credits : dict[str, Any]
-            Pages of TIDAL catalog information for the credits of the
-            tracks and videos in the album.
+            Page of TIDAL content metadata for the credits of the tracks
+            and videos in the album.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -405,26 +402,26 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
-                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "cover": <str>,
                             "id": <int>,
                             "title": <str>,
-                            "vibrantColor": "#rrggbb",
-                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": "MAIN"
                           },
                           "artists": [
                             {
-                              "handle": None,
+                              "handle": <str>,
                               "id": <int>,
                               "name": <str>,
-                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "picture": <str>,
                               "type": <str>
                             }
                           ],
@@ -437,7 +434,7 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "editable": <bool>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "isrc": "CCXXXYYNNNNN",
+                          "isrc": <str>,
                           "key": <str>,
                           "keyScale": <str>,
                           "mediaMetadata": {
@@ -454,12 +451,12 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "spotlighted": <bool>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "streamStartDate": <str>,
                           "title": <str>,
                           "trackNumber": <int>,
                           "upload": <bool>,
-                          "url": f"http://www.tidal.com/track/{id}",
-                          "version": None,
+                          "url": <str>,
+                          "version": <str>,
                           "volumeNumber": <int>
                         },
                         "type": "track"
@@ -478,28 +475,28 @@ class PrivateAlbumsAPI(ResourceAPI):
                         "item": {
                           "adSupportedStreamReady": <bool>,
                           "adsPrePaywallOnly": <bool>,
-                          "adsUrl": None,
+                          "adsUrl": <str>,
                           "album": {
-                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "cover": <str>,
                             "id": <int>,
                             "title": <str>,
-                            "vibrantColor": "#rrggbb",
-                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": "MAIN"
                           },
                           "artists": [
                             {
-                              "handle": None,
+                              "handle": <str>,
                               "id": <int>,
                               "name": <str>,
-                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "picture": <str>,
                               "type": <str>
                             }
                           ],
@@ -507,18 +504,18 @@ class PrivateAlbumsAPI(ResourceAPI):
                           "duration": <int>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "imageId": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
-                          "imagePath": None,
+                          "imageId": <str>,
+                          "imagePath": <str>,
                           "popularity": <int>,
                           "quality": <str>,
-                          "releaseDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "releaseDate": <str>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "streamStartDate": <str>,
                           "title": <str>,
                           "trackNumber": <int>,
                           "type": "Music Video",
-                          "vibrantColor": "#rrggbb",
+                          "vibrantColor": <str>,
                           "volumeNumber": <int>
                         },
                         "type": "video"
@@ -529,8 +526,13 @@ class PrivateAlbumsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._get_album_resource(
-            "items/credits", album_id, country_code, limit=limit, offset=offset
+        return self._get_resource_relationship(
+            "albums",
+            album_id,
+            "items/credits",
+            country_code=country_code,
+            limit=limit,
+            offset=offset,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -558,8 +560,8 @@ class PrivateAlbumsAPI(ResourceAPI):
         Returns
         -------
         review : dict[str, Any]
-            TIDAL catalog information for the review of or synopsis for
-            the album.
+            TIDAL content metadata for the review of or synopsis for the
+            album.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -567,13 +569,15 @@ class PrivateAlbumsAPI(ResourceAPI):
                .. code::
 
                   {
-                    "lastUpdated": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                    "lastUpdated": <str>,
                     "source": <str>,
                     "summary": <str>,
                     "text": <str>,
                   }
         """
-        return self._get_album_resource("review", album_id, country_code)
+        return self._get_resource_relationship(
+            "albums", album_id, "review", country_code=country_code
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_similar_albums(
@@ -621,7 +625,7 @@ class PrivateAlbumsAPI(ResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Pages of TIDAL catalog information for the similar albums.
+            Page of TIDAL content metadata for the similar albums.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -634,25 +638,25 @@ class PrivateAlbumsAPI(ResourceAPI):
                         "adSupportedStreamReady": <bool>,
                         "allowStreaming": <bool>,
                         "artist": {
-                          "handle": None,
+                          "handle": <str>,
                           "id": <int>,
                           "name": <str>,
-                          "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                          "picture": <str>,
                           "type": "MAIN"
                         },
                         "artists": [
                           {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": <str>
                           }
                         ],
                         "audioModes": <list[str]>,
                         "audioQuality": <str>,
                         "copyright": <str>,
-                        "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                        "cover": <str>,
                         "djReady": <bool>,
                         "duration": <int>,
                         "explicit": <bool>
@@ -666,18 +670,18 @@ class PrivateAlbumsAPI(ResourceAPI):
                         "payToStream": <bool>,
                         "popularity": <int>,
                         "premiumStreamingOnly": <bool>,
-                        "releaseDate": "YYYY-MM-DD",
+                        "releaseDate": <str>,
                         "stemReady": <bool>,
                         "streamReady": <bool>,
-                        "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                        "streamStartDate": <str>,
                         "title": <str>,
                         "type": "ALBUM",
                         "upc": <str>,
                         "upload": <bool>,
-                        "url": "http://www.tidal.com/album/{id},
+                        "url": <str>,
                         "version": <str>,
-                        "vibrantColor": "#rrggbb",
-                        "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                        "vibrantColor": <str>,
+                        "videoCover": <str>
                       }
                     ],
                     "limit": <int>,
@@ -686,8 +690,13 @@ class PrivateAlbumsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        return self._get_album_resource(
-            "similar", album_id, country_code, limit=limit, offset=offset
+        return self._get_resource_relationship(
+            "albums",
+            album_id,
+            "similar",
+            country_code=country_code,
+            limit=limit,
+            offset=offset,
         )
 
     @_copy_docstring(PrivatePagesAPI.get_album_page)
@@ -714,7 +723,7 @@ class PrivateAlbumsAPI(ResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
         sort_by: str | None = None,
-        reverse: bool | None = None,
+        descending: bool | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_favorite_albums(
             user_id,
@@ -722,7 +731,7 @@ class PrivateAlbumsAPI(ResourceAPI):
             limit=limit,
             offset=offset,
             sort_by=sort_by,
-            reverse=reverse,
+            descending=descending,
         )
 
     @_copy_docstring(PrivateUsersAPI.favorite_albums)
@@ -750,69 +759,3 @@ class PrivateAlbumsAPI(ResourceAPI):
         user_id: int | str | None = None,
     ) -> None:
         self._client.users.unfavorite_albums(album_ids, user_id)
-
-    def _get_album_resource(
-        self,
-        resource: str,
-        album_id: int | str,
-        /,
-        country_code: str | None = None,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for a resource related to an
-        album.
-
-        Parameters
-        ----------
-        resource : str; positional-only
-            Related resource type.
-
-            **Valid values**: :code:`"credits"`, :code:`"items"`,
-            :code:`"items/credits"`, :code:`"reviews"`,
-            :code:`"similar"`.
-
-        album_id : int or str; positional-only
-            TIDAL ID of the album.
-
-            **Examples**: :code:`46369321`, :code:`"251380836"`.
-
-        country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
-
-            **Example**: :code:`"US"`.
-
-        limit : int; keyword-only; optional
-            Maximum number of items to return.
-
-            **Valid range**: :code:`1` to :code:`100`.
-
-            **API default**: :code:`10`.
-
-        offset : int; keyword-only; optional
-            Index of the first item to return. Use with `limit` to get
-            the next batch of items.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        resource : dict[str, Any]
-            Pages of TIDAL catalog information for the related resource.
-        """
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", f"v1/albums/{album_id}/{resource}", params=params
-        ).json()

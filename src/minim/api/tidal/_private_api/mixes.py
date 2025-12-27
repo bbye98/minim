@@ -36,14 +36,15 @@ class PrivateMixesAPI(ResourceAPI):
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the user account is used.
+            country associated with the current user account or IP
+            address is used.
 
             **Example**: :code:`"US"`.
 
         Returns
         -------
         items : dict[str, Any]
-            TIDAL catalog information for tracks in the mix.
+            TIDAL content metadata for the tracks in the mix.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -57,26 +58,26 @@ class PrivateMixesAPI(ResourceAPI):
                           "accessType": <str>,
                           "adSupportedStreamReady": <bool>,
                           "album": {
-                            "cover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "cover": <str>,
                             "id": <int>,
                             "title": <str>,
-                            "vibrantColor": "#rrggbb",
-                            "videoCover": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx"
+                            "vibrantColor": <str>,
+                            "videoCover": <str>
                           },
                           "allowStreaming": <bool>,
                           "artist": {
-                            "handle": None,
+                            "handle": <str>,
                             "id": <int>,
                             "name": <str>,
-                            "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                            "picture": <str>,
                             "type": <str>
                           },
                           "artists": [
                             {
-                              "handle": None,
+                              "handle": <str>,
                               "id": <int>,
                               "name": <str>,
-                              "picture": "xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx",
+                              "picture": <str>,
                               "type": <str>
                             }
                           ],
@@ -89,7 +90,7 @@ class PrivateMixesAPI(ResourceAPI):
                           "editable": <bool>,
                           "explicit": <bool>,
                           "id": <int>,
-                          "isrc": "CCXXXYYNNNNN",
+                          "isrc": <str>,
                           "key": <str>,
                           "keyScale": <str>,
                           "mediaMetadata": {
@@ -106,7 +107,7 @@ class PrivateMixesAPI(ResourceAPI):
                           "spotlighted": <bool>,
                           "stemReady": <bool>,
                           "streamReady": <bool>,
-                          "streamStartDate": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
+                          "streamStartDate": <str>,
                           "title": <str>,
                           "trackNumber": <int>,
                           "upload": <bool>,
@@ -143,7 +144,10 @@ class PrivateMixesAPI(ResourceAPI):
         locale: str | None = None,
     ) -> dict[str, Any]:
         return self._client.pages.get_mix_page(
-            mix_id, country_code, device_type=device_type, locale=locale
+            mix_id,
+            country_code=country_code,
+            device_type=device_type,
+            locale=locale,
         )
 
     @_copy_docstring(PrivatePagesAPI.get_personalized_mixes_page)
@@ -155,7 +159,7 @@ class PrivateMixesAPI(ResourceAPI):
         locale: str | None = None,
     ) -> dict[str, Any]:
         return self._client.pages.get_personalized_mixes_page(
-            country_code, device_type=device_type, locale=locale
+            country_code=country_code, device_type=device_type, locale=locale
         )
 
     @_copy_docstring(PrivateUsersAPI.get_my_favorite_mixes)
@@ -163,7 +167,7 @@ class PrivateMixesAPI(ResourceAPI):
         self, *, limit: int = 50, cursor: str | None = None
     ) -> dict[str, Any]:
         return self._client.mixes.get_my_favorite_mixes(
-            limit=limit, cursor=cursor
+            cursor=cursor, limit=limit
         )
 
     @_copy_docstring(PrivateUsersAPI.get_my_favorite_mix_ids)
@@ -171,15 +175,15 @@ class PrivateMixesAPI(ResourceAPI):
         self, *, limit: int = 50, cursor: str | None = None
     ) -> dict[str, Any]:
         return self._client.mixes.get_my_favorite_mix_ids(
-            limit=limit, cursor=cursor
+            cursor=cursor, limit=limit
         )
 
     @_copy_docstring(PrivateUsersAPI.favorite_mixes)
     def favorite_mixes(
-        self, mix_ids: str | list[str], /, *, missing_ok: bool | None = None
+        self, mix_ids: str | list[str], /, *, on_missing: str | None = None
     ) -> None:
         return self._client.mixes.favorite_mixes(
-            mix_ids, missing_ok=missing_ok
+            mix_ids, on_missing=on_missing
         )
 
     @_copy_docstring(PrivateUsersAPI.unfavorite_mixes)

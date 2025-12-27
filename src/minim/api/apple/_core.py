@@ -569,7 +569,7 @@ class iTunesSearchAPI(APIClient):
         search_field: str | None = None,
         limit: int | None = None,
         locale: str | None = None,
-        result_version: int | None = None,
+        api_version: int | None = None,
         allow_explicit: bool | str | None = None,
     ) -> dict[str, Any]:
         """
@@ -651,7 +651,7 @@ class iTunesSearchAPI(APIClient):
 
             **API default**: :code:`"en_us"`.
 
-        result_version : int; keyword-only; optional
+        api_version : int; keyword-only; optional
             Search result key version.
 
             **Valid values**: :code:`1`, :code:`2`.
@@ -674,64 +674,7 @@ class iTunesSearchAPI(APIClient):
             .. admonition:: Sample responses
                :class: dropdown
 
-               .. tab:: :code:`result_version=1`
-
-                  .. code::
-
-                     {
-                       "resultCount": <int>,
-                       "results": [
-                         {
-                           "amgArtistId": <int>,
-                           "artistId": <int>,
-                           "artistName": <str>,
-                           "artworkUrl100": <str>,
-                           "artworkUrl60": <str>,
-                           "collectionId": <int>,
-                           "copyright": <str>,
-                           "country": <str>,
-                           "currency": <str>,
-                           "itemExplicitness": <str>,
-                           "itemId": <int>,
-                           "itemLinkUrl": <str>,
-                           "itemPrice": <str>,
-                           "primaryGenreId": <int>,
-                           "primaryGenreName": <str>,
-                           "releaseDate": <str>,
-                           "wrapperType": "audiobook"
-                         },
-                         {
-                           "artistLinkUrl": <str>,
-                           "artistName": <str>,
-                           "artworkUrl100": <str>,
-                           "artworkUrl60": <str>,
-                           "country": <str>,
-                           "currency": <str>,
-                           "discCount": <int>,
-                           "discNumber": <int>,
-                           "itemCensoredName": <str>,
-                           "itemExplicitness": <str>,
-                           "itemLinkUrl": <str>,
-                           "itemName": <str>,
-                           "itemParentCensoredName": <str>,
-                           "itemParentExplicitness": <str>,
-                           "itemParentLinkUrl": <str>,
-                           "itemParentName": <str>,
-                           "itemParentPrice": <str>,
-                           "itemPrice": <str>,
-                           "kind": <str>,
-                           "mediaType": <str>,
-                           "previewUrl": <str>,
-                           "primaryGenreName": <str>,
-                           "trackCount": <int>,
-                           "trackNumber": <int>,
-                           "trackTime": <int>,
-                           "wrapperType": "track"
-                         },
-                       ]
-                     }
-
-               .. tab:: :code:`result_version=2`
+               .. tab:: Current (:code:`v2`) response
 
                   .. code::
 
@@ -935,6 +878,63 @@ class iTunesSearchAPI(APIClient):
                          }
                        ]
                      }
+
+               .. tab:: Legacy (:code:`v1`) response
+
+                  .. code::
+
+                     {
+                       "resultCount": <int>,
+                       "results": [
+                         {
+                           "amgArtistId": <int>,
+                           "artistId": <int>,
+                           "artistName": <str>,
+                           "artworkUrl100": <str>,
+                           "artworkUrl60": <str>,
+                           "collectionId": <int>,
+                           "copyright": <str>,
+                           "country": <str>,
+                           "currency": <str>,
+                           "itemExplicitness": <str>,
+                           "itemId": <int>,
+                           "itemLinkUrl": <str>,
+                           "itemPrice": <str>,
+                           "primaryGenreId": <int>,
+                           "primaryGenreName": <str>,
+                           "releaseDate": <str>,
+                           "wrapperType": "audiobook"
+                         },
+                         {
+                           "artistLinkUrl": <str>,
+                           "artistName": <str>,
+                           "artworkUrl100": <str>,
+                           "artworkUrl60": <str>,
+                           "country": <str>,
+                           "currency": <str>,
+                           "discCount": <int>,
+                           "discNumber": <int>,
+                           "itemCensoredName": <str>,
+                           "itemExplicitness": <str>,
+                           "itemLinkUrl": <str>,
+                           "itemName": <str>,
+                           "itemParentCensoredName": <str>,
+                           "itemParentExplicitness": <str>,
+                           "itemParentLinkUrl": <str>,
+                           "itemParentName": <str>,
+                           "itemParentPrice": <str>,
+                           "itemPrice": <str>,
+                           "kind": <str>,
+                           "mediaType": <str>,
+                           "previewUrl": <str>,
+                           "primaryGenreName": <str>,
+                           "trackCount": <int>,
+                           "trackNumber": <int>,
+                           "trackTime": <int>,
+                           "wrapperType": "track"
+                         },
+                       ]
+                     }
         """
         self._validate_type("query", query, str)
         if not len(query):
@@ -983,9 +983,9 @@ class iTunesSearchAPI(APIClient):
                     "Valid values: 'en_us', 'ja_jp'."
                 )
             params["lang"] = locale
-        if result_version is not None:
-            self._validate_number("result_version", result_version, int, 1, 2)
-            params["version"] = result_version
+        if api_version is not None:
+            self._validate_number("api_version", api_version, int, 1, 2)
+            params["version"] = api_version
         if allow_explicit is not None:
             self._validate_type("allow_explicit", allow_explicit, bool | str)
             if isinstance(allow_explicit, bool):

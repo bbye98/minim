@@ -2650,8 +2650,12 @@ class UsersAPI(TIDALResourceAPI):
             Valid fields for `sort_by` to sort by.
 
         params : dict[str, Any]; keyword-only; optional
-            Existing dictionary holding URL query parameters. If not
-            provided, a new dictionary will be created.
+            Dictionary of additional query parameters to include in the
+            request. If not provided, a new dictionary will be created.
+
+            .. note::
+
+               This `dict` is updated in-place.
 
         Returns
         -------

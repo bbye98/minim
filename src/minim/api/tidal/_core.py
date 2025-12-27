@@ -20,7 +20,9 @@ from ._private_api.mixes import PrivateMixesAPI
 from ._private_api.pages import PrivatePagesAPI
 from ._private_api.playlists import PrivatePlaylistsAPI
 from ._private_api.search import PrivateSearchAPI
+from ._private_api.tracks import PrivateTracksAPI
 from ._private_api.users import PrivateUsersAPI
+from ._private_api.videos import PrivateVideosAPI
 
 if TYPE_CHECKING:
     import httpx
@@ -671,8 +673,12 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         self.playlists: PrivatePlaylistsAPI = PrivatePlaylistsAPI(self)
         #: Search API endpoints for the private TIDAL API.
         self.search: PrivateSearchAPI = PrivateSearchAPI(self)
+        #: Tracks API endpoints for the private TIDAL API.
+        self.tracks: PrivateTracksAPI = PrivateTracksAPI(self)
         #: Users API endpoints for the private TIDAL API.
         self.users: PrivateUsersAPI = PrivateUsersAPI(self)
+        #: Videos API endpoint for the private TIDAL API.
+        self.videos: PrivateVideosAPI = PrivateVideosAPI(self)
 
         super().__init__(
             authorization_flow=authorization_flow,
@@ -790,7 +796,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         Parameters
         ----------
         tidal_ids : int, str, or list[str]; positional-only
-            Comma-delimited string or list of TIDAL IDs.
+            Comma-separated string or list of TIDAL IDs.
 
         limit : int; keyword-only, default: :code:`500`
             Maximum number of TIDAL IDs that can be sent in the
@@ -799,7 +805,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         Returns
         -------
         tidal_ids : str
-            Comma-delimited string of TIDAL IDs.
+            Comma-separated string of TIDAL IDs.
         """
         if not tidal_ids:
             raise ValueError("At least one TIDAL ID must be specified.")
@@ -855,7 +861,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         Returns
         -------
         resource_uuids : str
-            Comma-delimited string containing UUIDs of playlists or
+            Comma-separated string containing UUIDs of playlists or
             playlist folders.
         """
         if not resource_uuids:
@@ -938,8 +944,8 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         scopes: str | set[str] = "",
         redirect_handler: str | None = None,
         open_browser: bool = False,
-        authorize: bool = True,
         store_tokens: bool = True,
+        authenticate: bool = True,
     ) -> None:
         """
         Set or update the authorization flow and related information.
@@ -1029,18 +1035,6 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             default web browser for the Authorization Code with PKCE
             flow. If :code:`False`, the URL is printed to the terminal.
 
-        enable_cache : bool; keyword-only; default: :code:`True`
-            Whether to enable an in-memory time-to-live (TTL) cache with
-            a least recently used (LRU) eviction policy for this client.
-            If :code:`True`, responses from semi-static endpoints are
-            cached for 10 minutes to 1 day, depending on their expected
-            update frequency.
-
-            .. seealso::
-
-               :meth:`clear_cache` – Clear specific or all cache
-               entries for this client.
-
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.
             If :code:`True`, existing access tokens are retrieved when
@@ -1052,6 +1046,17 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
+
+        authenticate : bool; keyword-only; default: :code:`True`
+            Whether to immediately initiate the authorization
+            flow to acquire an access token.
+
+            .. important::
+
+               Unless :meth:`set_access_token` is called immediately
+               after, this should be left as :code:`True` to ensure the
+               client's existing access token is compatible with the new
+               authorization flow and/or scopes.
         """
         if authorization_flow is None:
             self._client.headers["x-tidal-token"] = client_id
@@ -1071,8 +1076,8 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             scopes=scopes,
             redirect_handler=redirect_handler,
             open_browser=open_browser,
-            authorize=authorize and authorization_flow is not None,
             store_tokens=store_tokens,
+            authenticate=authenticate and authorization_flow is not None,
         )
 
     def _resolve_user_identifier(self) -> str | None:
@@ -1148,6 +1153,10 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
                 raise RuntimeError(
                     f"{error['status']}.{error['subStatus']} – {error['userMessage']}"
                 )
+            if "path" in error:
+                raise RuntimeError(
+                    f"{error['status']} {error['error']} – {error['path']}"
+                )
             raise RuntimeError(
                 f"{error['status']} {error['title']} – {error['detail']}"
             )
@@ -1155,14 +1164,14 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             f"{error['httpStatus']}.{error['subStatus']} {error['error']} – {error['description']}"
         )
 
-    def _require_authentication(self, endpoint_method: str) -> None:
+    def _require_authentication(self, endpoint_method: str, /) -> None:
         """
         Ensure that the user authentication has been performed for a
         protected endpoint.
 
         Parameters
         ----------
-        endpoint_method : str
+        endpoint_method : str; positional-only
             Name of the endpoint method.
         """
         if self._auth_flow is None:
@@ -1170,4 +1179,12 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
                 f"{self._QUAL_NAME}.{endpoint_method}() requires "
                 f"user authentication via an OAuth 2.0 authorization "
                 "flow."
+            )
+
+    def _require_subscription(self, endpoint_method: str, /) -> None:
+        """ """
+        if not self.users.get_user_subscription().get("premiumAccess", False):
+            raise RuntimeError(
+                f"{self._QUAL_NAME}.{endpoint_method}() requires "
+                "an active TIDAL streaming plan."
             )

@@ -539,8 +539,8 @@ class UsersAPI(ResourceAPI):
         Parameters
         ----------
         cursor : str; keyword-only; optional
-            Cursor for pagination (Spotify ID of the last artist
-            retrieved in the previous request).
+            Cursor (Spotify ID of the last artist retrieved in the
+            previous request) for fetching the next page of results.
 
             **Example**: :code:`"0I2XqVXqHScXjHhk6AYYRe"`.
 
@@ -645,7 +645,10 @@ class UsersAPI(ResourceAPI):
                * :code:`["2CIMQHirSU0MQqyYHq0eOx",
                  "57dN52uHvrHOxijzpIgu3E"]`
         """
-        return self._manage_followed_people("artists", "PUT", artist_ids)
+        self._client._require_scopes(
+            "users.follow_artists", "user-follow-modify"
+        )
+        return self._manage_followed_people("PUT", "artists", artist_ids)
 
     def follow_users(self, user_ids: str | list[str], /) -> None:
         """
@@ -672,7 +675,10 @@ class UsersAPI(ResourceAPI):
             **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
             :code:`["smedjan", "bbye98"]`.
         """
-        return self._manage_followed_people("users", "PUT", user_ids)
+        self._client._require_scopes(
+            "users.follow_users", "user-follow-modify"
+        )
+        return self._manage_followed_people("PUT, users", user_ids)
 
     def unfollow_artists(self, artist_ids: str | list[str], /) -> None:
         """
@@ -705,7 +711,10 @@ class UsersAPI(ResourceAPI):
                * :code:`["2CIMQHirSU0MQqyYHq0eOx",
                  "57dN52uHvrHOxijzpIgu3E"]`
         """
-        return self._manage_followed_people("artists", "DELETE", artist_ids)
+        self._client._require_scopes(
+            "users.unfollow_artists", "user-follow-modify"
+        )
+        return self._manage_followed_people("DELETE", "artists", artist_ids)
 
     def unfollow_users(self, user_ids: str | list[str], /) -> None:
         """
@@ -732,7 +741,10 @@ class UsersAPI(ResourceAPI):
             **Examples**: :code:`"smedjan"`, :code:`"smedjan,bbye98"`,
             :code:`["smedjan", "bbye98"]`.
         """
-        return self._manage_followed_people("users", "DELETE", user_ids)
+        self._client._require_scopes(
+            "users.unfollow_users", "user-follow-modify"
+        )
+        return self._manage_followed_people("DELETE", "users", user_ids)
 
     def is_following_artists(
         self, artist_ids: str | list[str], /
@@ -775,6 +787,9 @@ class UsersAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
+        self._client._require_scopes(
+            "users.is_following_artists", "user-follow-read"
+        )
         return self._is_following_people("artists", artist_ids)
 
     def is_following_users(self, user_ids: str | list[str], /) -> list[bool]:
@@ -810,6 +825,9 @@ class UsersAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
+        self._client._require_scopes(
+            "users.is_following_users", "user-follow-read"
+        )
         return self._is_following_people("users", user_ids)
 
     def is_following_playlist(self, playlist_id: str, /) -> list[bool]:
@@ -1037,6 +1055,9 @@ class UsersAPI(ResourceAPI):
                     "total": <int>
                   }
         """
+        self._client._require_scopes(
+            "albums.get_my_saved_albums", "user-library-read"
+        )
         return self._get_my_saved_entities(
             "albums", country_code=country_code, limit=limit, offset=offset
         )
@@ -1073,7 +1094,10 @@ class UsersAPI(ResourceAPI):
                * :code:`["382ObEPsp2rxGrnsizN5TX",
                  "1A2GTWGtFfWp7KSQTwWOyo"]`
         """
-        self._manage_saved_entities("albums", "PUT", album_ids, limit=20)
+        self._client._require_scopes(
+            "albums.save_albums", "user-library-modify"
+        )
+        self._manage_saved_entities("PUT", "albums", album_ids, limit=20)
 
     def remove_saved_albums(self, album_ids: str | list[str], /) -> None:
         """
@@ -1107,7 +1131,10 @@ class UsersAPI(ResourceAPI):
                * :code:`["382ObEPsp2rxGrnsizN5TX",
                  "1A2GTWGtFfWp7KSQTwWOyo"]`
         """
-        self._manage_saved_entities("albums", "DELETE", album_ids, limit=20)
+        self._client._require_scopes(
+            "albums.remove_saved_albums", "user-library-modify"
+        )
+        self._manage_saved_entities("DELETE", "albums", album_ids, limit=20)
 
     def are_albums_saved(self, album_ids: str | list[str], /) -> list[bool]:
         """
@@ -1149,6 +1176,9 @@ class UsersAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
+        self._client._require_scopes(
+            "albums.are_albums_saved", "user-library-read"
+        )
         return self._are_entities_saved("albums", album_ids, limit=20)
 
     def get_my_saved_audiobooks(
@@ -1269,6 +1299,9 @@ class UsersAPI(ResourceAPI):
                     "total": <int>
                   }
         """
+        self._client._require_scopes(
+            "audiobooks.get_my_saved_audiobooks", "user-library-read"
+        )
         return self._get_my_saved_entities(
             "audiobooks", country_code=country_code, limit=limit, offset=offset
         )
@@ -1305,7 +1338,10 @@ class UsersAPI(ResourceAPI):
                * :code:`["18yVqkdbdRvS24c0Ilj2ci",
                  "1HGw3J3NxZO1TP1BTtVhpZ"]`
         """
-        self._manage_saved_entities("audiobooks", "PUT", audiobook_ids)
+        self._client._require_scopes(
+            "audiobooks.save_audiobooks", "user-library-modify"
+        )
+        self._manage_saved_entities("PUT", "audiobooks", audiobook_ids)
 
     def remove_saved_audiobooks(
         self, audiobook_ids: str | list[str], /
@@ -1341,7 +1377,10 @@ class UsersAPI(ResourceAPI):
                * :code:`["18yVqkdbdRvS24c0Ilj2ci",
                  "1HGw3J3NxZO1TP1BTtVhpZ"]`
         """
-        self._manage_saved_entities("audiobooks", "DELETE", audiobook_ids)
+        self._client._require_scopes(
+            "audiobooks.remove_saved_audiobooks", "user-library-modify"
+        )
+        self._manage_saved_entities("DELETE", "audiobooks", audiobook_ids)
 
     def are_audiobooks_saved(
         self, audiobook_ids: str | list[str], /
@@ -1385,6 +1424,9 @@ class UsersAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
+        self._client._require_scopes(
+            "audiobooks.are_audiobooks_saved", "user-library-read"
+        )
         return self._are_entities_saved("audiobooks", audiobook_ids)
 
     def get_my_saved_episodes(
@@ -1545,9 +1587,12 @@ class UsersAPI(ResourceAPI):
                     "total": <int>
                   }
         """
+        self._client._require_scopes(
+            "episodes.get_my_saved_episodes",
+            {"user-library-read", "user-read-playback-position"},
+        )
         return self._get_my_saved_entities(
             "episodes",
-            scopes={"user-library-read", "user-read-playback-position"},
             country_code=country_code,
             limit=limit,
             offset=offset,
@@ -1585,7 +1630,10 @@ class UsersAPI(ResourceAPI):
                * :code:`["77o6BIVlYM3msb4MMIL1jH",
                  "0Q86acNRm6V9GYx55SXKwf"]`
         """
-        self._manage_saved_entities("episodes", "PUT", episode_ids)
+        self._client._require_scopes(
+            "episodes.save_episodes", "user-library-modify"
+        )
+        self._manage_saved_entities("PUT", "episodes", episode_ids)
 
     def remove_saved_episodes(self, episode_ids: str | list[str], /) -> None:
         """
@@ -1619,7 +1667,10 @@ class UsersAPI(ResourceAPI):
                * :code:`["77o6BIVlYM3msb4MMIL1jH",
                  "0Q86acNRm6V9GYx55SXKwf"]`
         """
-        self._manage_saved_entities("episodes", "DELETE", episode_ids)
+        self._client._require_scopes(
+            "episodes.remove_saved_episodes", "user-library-modify"
+        )
+        self._manage_saved_entities("DELETE", "episodes", episode_ids)
 
     def are_episodes_saved(
         self, episode_ids: str | list[str], /
@@ -1663,6 +1714,9 @@ class UsersAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
+        self._client._require_scopes(
+            "episodes.are_episodes_saved", "user-library-read"
+        )
         return self._are_entities_saved("episodes", episode_ids)
 
     def get_my_playlists(
@@ -1989,6 +2043,9 @@ class UsersAPI(ResourceAPI):
                     "total": <int>
                   }
         """
+        self._client._require_scopes(
+            "shows.get_my_saved_shows", "user-library-read"
+        )
         return self._get_my_saved_entities("shows", limit=limit, offset=offset)
 
     def save_shows(self, show_ids: str | list[str], /) -> None:
@@ -2023,7 +2080,8 @@ class UsersAPI(ResourceAPI):
                * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
                  "5as3aKmN2k11yfDDDSrvaZ"]`
         """
-        self._manage_saved_entities("shows", "PUT", show_ids)
+        self._client._require_scopes("shows.save_shows", "user-library-modify")
+        self._manage_saved_entities("PUT", "shows", show_ids)
 
     def remove_saved_shows(self, show_ids: str | list[str], /) -> None:
         """
@@ -2057,7 +2115,10 @@ class UsersAPI(ResourceAPI):
                * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
                  "5as3aKmN2k11yfDDDSrvaZ"]`
         """
-        self._manage_saved_entities("shows", "DELETE", show_ids)
+        self._client._require_scopes(
+            "shows.remove_saved_shows", "user-library-modify"
+        )
+        self._manage_saved_entities("DELETE", "shows", show_ids)
 
     def are_shows_saved(self, show_ids: str | list[str], /) -> list[bool]:
         """
@@ -2099,6 +2160,9 @@ class UsersAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
+        self._client._require_scopes(
+            "shows.are_shows_saved", "user-library-read"
+        )
         return self._are_entities_saved("shows", show_ids)
 
     def get_my_saved_tracks(
@@ -2263,6 +2327,9 @@ class UsersAPI(ResourceAPI):
                     "total": <int>
                   }
         """
+        self._client._require_scopes(
+            "tracks.get_my_saved_tracks", "user-library-read"
+        )
         return self._get_my_saved_entities(
             "tracks", country_code=country_code, limit=limit, offset=offset
         )
@@ -2401,7 +2468,10 @@ class UsersAPI(ResourceAPI):
                * :code:`["7ouMYWpwJ422jRcDASZB7P",
                  "4VqPOruhp5EdPBeR92t6lQ"]`
         """
-        self._manage_saved_entities("tracks", "DELETE", track_ids)
+        self._client._require_scopes(
+            "tracks.remove_saved_tracks", "user-library-modify"
+        )
+        self._manage_saved_entities("DELETE", "tracks", track_ids)
 
     def are_tracks_saved(self, track_ids: str | list[str], /) -> list[bool]:
         """
@@ -2443,13 +2513,16 @@ class UsersAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
+        self._client._require_scopes(
+            "tracks.are_tracks_saved", "user-library-read"
+        )
         return self._are_entities_saved("tracks", track_ids)
 
     def _manage_followed_people(
-        self, resource_type: str, method: str, resource_ids: str | list[str], /
+        self, method: str, resource_type: str, resource_ids: str | list[str], /
     ) -> None:
         """
-        Follow one or more artists or Spotify users.
+        Follow or unfollow one or more artists or Spotify users.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -2463,24 +2536,20 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"artists"`, :code:`"users"`.
-
         method : str; positional-only
             HTTP method.
 
             **Valid values**: :code:`"PUT"`, :code:`"DELETE"`.
 
+        resource_type : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"artists"`, :code:`"users"`.
+
         resource_ids : str or list[str]; positional-only
             Spotify IDs of the artists or users. A maximum of 50 IDs can
             be sent in a request.
         """
-        self._client._require_scopes(
-            f"users.{'un' if method == 'DELETE' else ''}follow_{resource_type}",
-            "user-follow-modify",
-        )
         self._client._request(
             method,
             "me/following",
@@ -2530,9 +2599,6 @@ class UsersAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
-        self._client._require_scopes(
-            f"users.is_following_{resource_type}", "user-follow-read"
-        )
         return self._client._request(
             "GET",
             "me/following/contains",
@@ -2550,7 +2616,6 @@ class UsersAPI(ResourceAPI):
         self,
         resource_type: str,
         /,
-        scopes: str | set[str] = "user-library-read",
         *,
         country_code: str | None = None,
         limit: int | None = None,
@@ -2585,9 +2650,6 @@ class UsersAPI(ResourceAPI):
             **Valid values**: :code:`"albums"`, :code:`"audiobooks"`,
             :code:`"episodes"`, :code:`"shows"`, :code:`"tracks"`.
 
-        scopes : str or set[str]; default: :code:`"user-library-read"`
-            Required authorization scopes.
-
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
             available in that market is returned. When a user access
@@ -2621,9 +2683,6 @@ class UsersAPI(ResourceAPI):
             Page of Spotify content metadata for the user's saved
             items.
         """
-        self._client._require_scopes(
-            f"{resource_type}.get_my_saved_{resource_type}", scopes
-        )
         params = {}
         if country_code is not None:
             self._client._validate_market(country_code)
@@ -2640,16 +2699,16 @@ class UsersAPI(ResourceAPI):
 
     def _manage_saved_entities(
         self,
-        resource_type: str,
         method: str,
+        resource_type: str,
         resource_ids: str | list[str],
         /,
         *,
         limit: int = 50,
     ) -> None:
         """
-        Save/remove one or more items of a resource type to/from the
-        current user's library.
+        Save or remove one or more items of a resource type to or from
+        the current user's library.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -2663,16 +2722,16 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
+        method : str; positional-only
+            HTTP method.
+
+            **Valid values**: :code:`"PUT"`, :code:`"DELETE"`.
+
         resource_type : str; positional-only
             Resource type.
 
             **Valid values**: :code:`"albums"`, :code:`"audiobooks"`,
             :code:`"episodes"`, :code:`"shows"`.
-
-        method : str; positional-only
-            HTTP method.
-
-            **Valid values**: :code:`"PUT"`, :code:`"DELETE"`.
 
         resource_ids : str or list[str]; positional-only
             Spotify IDs of the items, provided as either a
@@ -2682,11 +2741,6 @@ class UsersAPI(ResourceAPI):
             Maximum number of Spotify IDs that can be sent in the
             request.
         """
-        self._client._require_scopes(
-            f"{resource_type}"
-            f".{'save' if method == 'PUT' else 'remove_saved'}_{resource_type}",
-            "user-library-modify",
-        )
         self._client._request(
             method,
             f"me/{resource_type}",
@@ -2743,9 +2797,6 @@ class UsersAPI(ResourceAPI):
 
             **Sample response**: :code:`[False, True]`.
         """
-        self._client._require_scopes(
-            f"{resource_type}.are_{resource_type}_saved", "user-library-read"
-        )
         return self._client._request(
             "GET",
             f"me/{resource_type}/contains",

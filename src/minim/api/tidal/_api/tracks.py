@@ -124,7 +124,8 @@ class TracksAPI(TIDALResourceAPI):
             :code:`"trackStatistics"`.
 
         cursor : str; keyword-only; optional
-            Cursor for pagination when requesting multiple tracks.
+            Cursor for fetching the next page of results when requesting
+            multiple tracks.
 
             **Example**: :code:`"3nI1Esi"`.
 
