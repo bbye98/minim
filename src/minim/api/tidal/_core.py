@@ -295,7 +295,7 @@ class TIDALAPI(_BaseTIDALAPI):
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
-        redirect_handler : str; keyword-only; optional
+        redirect_handler : str or None; keyword-only; optional
             Backend for handling redirects during the authorization
             flow. Redirect handling is only available for hosts
             :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
@@ -515,11 +515,12 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         "playlist": "cover art",
         "video": "thumbnail",
     }
-    _IS_TRUSTED_CLIENT = True
+    _IS_TRUSTED_DEVICE = True
     _OPTIONAL_AUTH = True
     _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
+    _REDIRECT_HANDLERS = {}
     _REDIRECT_URIS = {"tidal://login/auth", "https://tidal.com/login/auth"}
-    _VERSION = "2025.11.19"
+    _VERSION = "2025.12.18"
     BASE_URL = "https://api.tidal.com"
     DEVICE_AUTH_URL = "https://auth.tidal.com/v1/oauth2/device_authorization"
     RESOURCE_URL = "https://resources.tidal.com"
@@ -616,20 +617,13 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
-        redirect_handler : str; keyword-only; optional
+        redirect_handler : None; keyword-only; optional
             Backend for handling redirects during the authorization
             flow. Redirect handling is only available for hosts
             :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
-            .. container::
-
-               **Valid values**:
-
-               * :code:`None` – Manually paste the redirect URL into
-                 the terminal.
-               * :code:`"http.server"` – Run a simple HTTP server.
-               * :code:`"playwright"` – Open a Playwright Firefox
-                 browser.
+            **Valid value**: :code:`None` – Manually paste the redirect
+            URL into the terminal.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -1015,20 +1009,13 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
                :meth:`resolve_scopes` – Resolve scope categories and/or
                 substrings into a set of scopes.
 
-        redirect_handler : str; keyword-only; optional
+        redirect_handler : None; keyword-only; optional
             Backend for handling redirects during the authorization
             flow. Redirect handling is only available for hosts
             :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
-            .. container::
-
-               **Valid values**:
-
-               * :code:`None` – Manually paste the redirect URL into
-                 the terminal.
-               * :code:`"http.server"` – Run a simple HTTP server.
-               * :code:`"playwright"` – Open a Playwright Firefox
-                 browser.
+            **Valid value**: :code:`None` – Manually paste the redirect
+            URL into the terminal.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the

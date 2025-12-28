@@ -205,6 +205,7 @@ class SpotifyResourceAPI(ResourceAPI):
             Page of Spotify content metadata for the items in the
             resource.
         """
+        resource_id = resource_id.strip()
         self._client._validate_spotify_id(resource_id)
         if params is None:
             params = {}

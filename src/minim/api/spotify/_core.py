@@ -150,7 +150,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
-        redirect_handler : str; keyword-only; optional
+        redirect_handler : str or None; keyword-only; optional
             Backend for handling redirects during the authorization
             flow. Redirect handling is only available for hosts
             :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.

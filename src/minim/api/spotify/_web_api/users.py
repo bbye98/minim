@@ -416,7 +416,7 @@ class UsersAPI(ResourceAPI):
                      }
         """
         self._client._validate_type("resource_type", resource_type, str)
-        resource_type = resource_type.lower()
+        resource_type = resource_type.strip().lower()
         if resource_type not in {"artists", "tracks"}:
             raise ValueError(
                 f"Invalid resource type {resource_type!r}. "
@@ -426,7 +426,7 @@ class UsersAPI(ResourceAPI):
             f"users.get_top_{resource_type}", "user-top-read"
         )
         params = {}
-        if time_range:
+        if time_range is not None:
             self._client.users._validate_time_range(time_range)
             params["time_range"] = time_range
         if limit is not None:

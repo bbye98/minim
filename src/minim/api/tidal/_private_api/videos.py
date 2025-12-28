@@ -16,6 +16,8 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
        and should not be instantiated directly.
     """
 
+    _VIDEO_QUALITIES = {"AUDIO_ONLY", "LOW", "MEDIUM", "HIGH"}
+
     @TTLCache.cached_method(ttl="catalog")
     def get_video(
         self, video_id: int | str, /, country_code: str | None = None
@@ -182,6 +184,124 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             locale=locale,
         )
 
+    @TTLCache.cached_method(ttl="catalog")
+    def get_video_playback_info(
+        self,
+        video_id: int | str,
+        /,
+        *,
+        video_quality: str = "HIGH",
+        asset_presentation: str = "FULL",
+        playback_mode: str = "STREAM",
+    ) -> dict[str, Any]:
+        """
+        Get playback information for a video.
+
+        .. admonition:: Subscription
+           :class: authorization-scope dropdown
+
+           .. tab:: Required
+
+              TIDAL streaming plan
+                 Stream full-length videos.
+                 `Learn more. <https://tidal.com/pricing>`__
+
+        Parameters
+        ----------
+        video_id : int or str; positional-only
+            TIDAL ID of the video.
+
+            **Examples**: :code:`29597422`, :code:`"59727844"`.
+
+        video_quality : str; keyword-only; default: :code:`"HIGH"`
+            Video quality.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"AUDIO_ONLY"` – 96 kbps AAC audio only.
+               * :code:`"LOW"` – Up to 360p H.264 video, AAC-LC audio.
+               * :code:`"MEDIUM"` – Up to 720p H.264 video, AAC-LC
+                 audio.
+               * :code:`"HIGH"` – Up to 1080p H.264 video, AAC-LC audio.
+
+        playback_mode : str; keyword-only; default: :code:`"STREAM"`
+            Playback mode.
+
+            **Valid values**: :code:`"STREAM"`, :code:`"OFFLINE"`.
+
+        asset_presentation : str; keyword-only; default: :code:`"FULL"`
+            Asset presentation.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"FULL"` – Full video.
+               * :code:`"PREVIEW"` – 30-second preview of the video.
+
+        Returns
+        -------
+        playback_info : dict[str, Any]
+            Playback information for the video.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "assetPresentation": <str>,
+                    "licenseSecurityToken": <str>,
+                    "manifest": <str>,
+                    "manifestHash": <str>,
+                    "manifestMimeType": <str>,
+                    "streamType": <str>,
+                    "trackPeakAmplitude": <float>,
+                    "trackReplayGain": <float>,
+                    "videoId": <int>,
+                    "videoQuality": <str>
+                  }
+        """
+        self._client._require_subscription("videos.get_video_playback_info")
+        self._client._validate_tidal_ids(video_id, _recursive=False)
+        self._client._validate_type("video_quality", video_quality, str)
+        video_quality = video_quality.strip().upper()
+        if video_quality not in self._VIDEO_QUALITIES:
+            video_qualities_str = "', '".join(self._VIDEO_QUALITIES)
+            raise ValueError(
+                f"Invalid video quality {video_quality!r}. "
+                f"Valid values: '{video_qualities_str}'."
+            )
+        self._client._validate_type("playback_mode", playback_mode, str)
+        playback_mode = playback_mode.strip().upper()
+        if playback_mode not in self._PLAYBACK_MODES:
+            playback_modes_str = "', '".join(self._PLAYBACK_MODES)
+            raise ValueError(
+                f"Invalid playback mode {playback_mode!r}. "
+                f"Valid values: '{playback_modes_str}'."
+            )
+        self._client._validate_type(
+            "asset_presentation", asset_presentation, str
+        )
+        asset_presentation = asset_presentation.strip().upper()
+        if asset_presentation not in self._ASSET_PRESENTATIONS:
+            asset_presentation_str = "', '".join(self._ASSET_PRESENTATIONS)
+            raise ValueError(
+                f"Invalid asset presentation {asset_presentation!r}. "
+                f"Valid values: '{asset_presentation_str}'."
+            )
+        return self._client._request(
+            "GET",
+            f"v1/videos/{video_id}/playbackinfo",
+            params={
+                "videoquality": video_quality,
+                "assetpresentation": asset_presentation,
+                "playbackmode": playback_mode,
+            },
+        ).json()
+
     @_copy_docstring(PrivateUsersAPI.get_favorite_videos)
     def get_favorite_videos(
         self,
@@ -253,23 +373,3 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         self, video_id: int | str, /, user_id: int | str | None = None
     ) -> None:
         self._client.users.unblock_video(video_id, user_id=user_id)
-
-    @TTLCache.cached_method(ttl="catalog")
-    def get_video_pre_paywall_playback_info(
-        self, video_id: int | str, /
-    ) -> dict[str, Any]:
-        """ """
-        pass  # TODO
-
-    @TTLCache.cached_method(ttl="catalog")
-    def get_video_post_paywall_playback_info(
-        self, video_id: int | str, /
-    ) -> dict[str, Any]:
-        """ """
-        pass  # TODO
-
-    def _get_video_playback_info(
-        self, video_id: int | str, paywall_phase: str, /
-    ) -> dict[str, Any]:
-        """ """
-        pass  # TODO

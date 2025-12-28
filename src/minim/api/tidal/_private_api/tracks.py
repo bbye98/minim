@@ -15,6 +15,8 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
        and should not be instantiated directly.
     """
 
+    _AUDIO_QUALITIES = {"LOW", "HIGH", "LOSSLESS", "HI_RES", "HI_RES_LOSSLESS"}
+
     @TTLCache.cached_method(ttl="catalog")
     def get_track(
         self, track_id: int | str, /, country_code: str | None = None
@@ -467,6 +469,129 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
+    @TTLCache.cached_method(ttl="catalog")
+    def get_track_playback_info(
+        self,
+        track_id: int | str,
+        /,
+        *,
+        audio_quality: str = "HI_RES_LOSSLESS",
+        asset_presentation: str = "FULL",
+        playback_mode: str = "STREAM",
+    ) -> dict[str, Any]:
+        """
+        Get playback information for a track.
+
+        .. admonition:: Subscription
+           :class: authorization-scope dropdown
+
+           .. tab:: Optional
+
+              TIDAL streaming plan
+                 Stream full-length and high-resolution audio.
+                 `Learn more. <https://tidal.com/pricing>`__
+
+        Parameters
+        ----------
+        track_id : int or str; positional-only
+            TIDAL ID of the track.
+
+            **Examples**: :code:`46369325`, :code:`"251380837"`.
+
+        audio_quality : str; keyword-only; default: :code:`"HI_RES_LOSSLESS"`
+            Audio quality.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"LOW"` – 64 kbps (22.05 kHz) MP3 without user
+                 authentication or 96 kbps AAC with user authentication.
+               * :code:`"HIGH"` – 320 kbps AAC.
+               * :code:`"LOSSLESS"` – 1411 kbps (16-bit, 44.1 kHz) ALAC
+                 or FLAC.
+               * :code:`"HI_RES_LOSSLESS"` – Up to 9216 kbps (24-bit,
+                 192 kHz) FLAC.
+
+        playback_mode : str; keyword-only; default: :code:`"STREAM"`
+            Playback mode.
+
+            **Valid values**: :code:`"STREAM"`, :code:`"OFFLINE"`.
+
+        asset_presentation : str; keyword-only; default: :code:`"FULL"`
+            Asset presentation.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"FULL"` – Full track.
+               * :code:`"PREVIEW"` – 30-second preview of the track.
+
+        Returns
+        -------
+        playback_info : dict[str, Any]
+            Playback information for the track.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "albumPeakAmplitude": <float>,
+                    "albumReplayGain": <float>,
+                    "assetPresentation": <str>,
+                    "audioMode": <str>,
+                    "audioQuality": <str>,
+                    "bitDepth": <int>,
+                    "licenseSecurityToken": <str>,
+                    "manifest": <str>,
+                    "manifestHash": <str>,
+                    "manifestMimeType": <str>,
+                    "sampleRate": <int>,
+                    "trackId": <int>,
+                    "trackPeakAmplitude": <float>,
+                    "trackReplayGain": <float>
+                  }
+        """
+        self._client._validate_tidal_ids(track_id, _recursive=False)
+        self._client._validate_type("audio_quality", audio_quality, str)
+        audio_quality = audio_quality.strip().upper()
+        if audio_quality not in self._AUDIO_QUALITIES:
+            audio_qualities_str = "', '".join(self._AUDIO_QUALITIES)
+            raise ValueError(
+                f"Invalid audio quality {audio_quality!r}. "
+                f"Valid values: '{audio_qualities_str}'."
+            )
+        self._client._validate_type("playback_mode", playback_mode, str)
+        playback_mode = playback_mode.strip().upper()
+        if playback_mode not in self._PLAYBACK_MODES:
+            playback_modes_str = "', '".join(self._PLAYBACK_MODES)
+            raise ValueError(
+                f"Invalid playback mode {playback_mode!r}. "
+                f"Valid values: '{playback_modes_str}'."
+            )
+        self._client._validate_type(
+            "asset_presentation", asset_presentation, str
+        )
+        asset_presentation = asset_presentation.strip().upper()
+        if asset_presentation not in self._ASSET_PRESENTATIONS:
+            asset_presentation_str = "', '".join(self._ASSET_PRESENTATIONS)
+            raise ValueError(
+                f"Invalid asset presentation {asset_presentation!r}. "
+                f"Valid values: '{asset_presentation_str}'."
+            )
+        return self._client._request(
+            "GET",
+            f"v1/tracks/{track_id}/playbackinfo",
+            params={
+                "audioquality": audio_quality,
+                "assetpresentation": asset_presentation,
+                "playbackmode": playback_mode,
+            },
+        ).json()
+
     @_copy_docstring(PrivateUsersAPI.get_favorite_tracks)
     def get_favorite_tracks(
         self,
@@ -538,23 +663,3 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         self, track_id: int | str, /, user_id: int | str | None = None
     ) -> None:
         self._client.users.unblock_track(track_id, user_id=user_id)
-
-    @TTLCache.cached_method(ttl="catalog")
-    def get_track_pre_paywall_playback_info(
-        self, track_id: int | str, /
-    ) -> dict[str, Any]:
-        """ """
-        pass  # TODO
-
-    @TTLCache.cached_method(ttl="catalog")
-    def get_track_post_paywall_playback_info(
-        self, track_id: int | str, /
-    ) -> dict[str, Any]:
-        """ """
-        pass  # TODO
-
-    def _get_track_playback_info(
-        self, track_id: int | str, paywall_phase: str, /
-    ) -> dict[str, Any]:
-        """ """
-        pass  # TODO

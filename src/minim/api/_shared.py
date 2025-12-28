@@ -541,7 +541,7 @@ class APIClient(ABC):
 
     _ALLOWED_AUTH_FLOWS: set[str | None] = ...
     _ENV_VAR_PREFIX: str = ...
-    _IS_TRUSTED_CLIENT: bool = False
+    _IS_TRUSTED_DEVICE: bool = False
     _OPTIONAL_AUTH: bool = False
     _PROVIDER: str = ...
     _QUAL_NAME: str = ...
@@ -565,7 +565,7 @@ class APIClient(ABC):
                entries for this client.
         """
         self._cache = TTLCache() if enable_cache else None
-        self._client = httpx.Client(base_url=self.BASE_URL)
+        self._client = httpx.Client(base_url=self.BASE_URL, http2=False)
 
     def __enter__(self) -> "APIClient":
         """
@@ -1023,7 +1023,7 @@ class OAuth2APIClient(APIClient):
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
-        redirect_handler : str; keyword-only; optional
+        redirect_handler : str or None; keyword-only; optional
             Backend for handling redirects during the authorization
             flow. Redirect handling is only available for hosts
             :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
@@ -1387,7 +1387,7 @@ class OAuth2APIClient(APIClient):
             Authorization scopes requested by the client to access user
             resources.
 
-        redirect_handler : str; keyword-only; optional
+        redirect_handler : str or None; keyword-only; optional
             Backend for handling redirects during the authorization
             flow. Redirect handling is only available for hosts
             :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
@@ -1456,8 +1456,8 @@ class OAuth2APIClient(APIClient):
         if (
             authorization_flow
             in {"auth_code", "client_credentials", "password"}
-            or authorization_flow is not None
-            and self._IS_TRUSTED_CLIENT
+            or authorization_flow == "device"
+            and self._IS_TRUSTED_DEVICE
         ) and not client_secret:
             raise ValueError(
                 f"The {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
@@ -1490,22 +1490,25 @@ class OAuth2APIClient(APIClient):
                 else None
             )
             self._redirect_uri = redirect_uri
-            if redirect_handler:
+            if redirect_handler is not None:
                 if redirect_handler not in self._REDIRECT_HANDLERS:
                     handlers_str = "', '".join(sorted(self._REDIRECT_HANDLERS))
+                    if handlers_str:
+                        handlers_str = f", '{handlers_str}'"
                     raise ValueError(
                         f"Invalid backend {redirect_handler!r}. "
-                        f"Valid values: '{handlers_str}'."
+                        f"Valid value(s): None{handlers_str}."
                     )
                 if (hostname := parsed.hostname) not in {
                     "localhost",
                     "127.0.0.1",
                     "::1",
-                }:  # TODO: Handle TIDAL redirects
+                }:
                     warnings.warn(
                         "Redirect handling is not available for host "
                         f"{hostname!r}."
                     )
+                    redirect_handler = None
             self._redirect_handler = redirect_handler
             self._open_browser = open_browser
         else:
@@ -1596,6 +1599,7 @@ class OAuth2APIClient(APIClient):
             with sync_playwright() as playwright:
                 browser = playwright.firefox.launch(headless=False)
                 context = browser.new_context(
+                    color_scheme="dark",
                     locale="en-US",
                     timezone_id="America/Los_Angeles",
                     **playwright.devices["Desktop Firefox HiDPI"],
@@ -1767,7 +1771,7 @@ class OAuth2APIClient(APIClient):
                 resp_json = httpx.post(
                     self.TOKEN_URL,
                     auth=(self._client_id, self._client_secret)
-                    if self._IS_TRUSTED_CLIENT
+                    if self._IS_TRUSTED_DEVICE
                     else None,
                     data=data,
                 ).json()
