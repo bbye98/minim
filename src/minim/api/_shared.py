@@ -565,7 +565,7 @@ class APIClient(ABC):
                entries for this client.
         """
         self._cache = TTLCache() if enable_cache else None
-        self._client = httpx.Client(base_url=self.BASE_URL, http2=False)
+        self._client = httpx.Client(base_url=self.BASE_URL)
 
     def __enter__(self) -> "APIClient":
         """

@@ -711,8 +711,8 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
         resource_type : str; positional-only; optional
             Type of resource the artwork belongs to. If provided, the
-            desired dimensions specified in `dimensions` are validated
-            against the allowed dimensions for the item type.
+            specified dimensions are validated against the allowed 
+            dimensions for the item type.
 
             **Valid values**: :code:`"artist"`, :code:`"album"`,
             :code:`"playlist"`, :code:`"userProfile"`, :code:`"video"`.
@@ -722,11 +722,11 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
         dimensions : int, str, or tuple[int | str, int | str]; \
         keyword-only; optional
-            Dimensions of the artwork. If not specified, the original
-            dimensions (:code:`"origin"`) are used.
+            Dimensions of the artwork. Use :code:`"origin"` or leave
+            blank to get artwork in its original dimensions.
 
-            **Examples**: :code:`1_280`, :code:`"1280"`,
-            :code:`"1280x1280"`, :code:`(640, 360)`,
+            **Examples**: :code:`"origin"`, :code:`1_280`, 
+            :code:`"1280"`, :code:`"1280x1280"`, :code:`(640, 360)`,
             :code:`("640", "360")`.
         """
         if animated:
