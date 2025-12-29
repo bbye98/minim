@@ -10,6 +10,7 @@ from ._api.users import UsersAPI
 from ._api.videos import VideosAPI
 from ._private_api.albums import PrivateAlbumsAPI
 from ._private_api.artists import PrivateArtistsAPI
+from ._private_api.feed import PrivateFeedAPI
 from ._private_api.mixes import PrivateMixesAPI
 from ._private_api.pages import PrivatePagesAPI
 from ._private_api.playlists import PrivatePlaylistsAPI
@@ -32,6 +33,7 @@ __all__ = [
     "VideosAPI",
     "PrivateAlbumsAPI",
     "PrivateArtistsAPI",
+    "PrivateFeedAPI",
     "PrivateMixesAPI",
     "PrivatePagesAPI",
     "PrivatePlaylistsAPI",

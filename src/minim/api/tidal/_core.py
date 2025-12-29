@@ -16,6 +16,7 @@ from ._api.users import UsersAPI
 from ._api.videos import VideosAPI
 from ._private_api.albums import PrivateAlbumsAPI
 from ._private_api.artists import PrivateArtistsAPI
+from ._private_api.feed import PrivateFeedAPI
 from ._private_api.mixes import PrivateMixesAPI
 from ._private_api.pages import PrivatePagesAPI
 from ._private_api.playlists import PrivatePlaylistsAPI
@@ -204,7 +205,7 @@ class TIDALAPI(_BaseTIDALAPI):
     }
     _ENV_VAR_PREFIX = "TIDAL_API"
     _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
-    _VERSION = "1.0.5"
+    _VERSION = "1.0.30"
     BASE_URL = "https://openapi.tidal.com/v2"
 
     def __init__(
@@ -414,7 +415,7 @@ class TIDALAPI(_BaseTIDALAPI):
             else self.users.get_my_profile()["data"]
         )
 
-    def _resolve_user_identifier(self) -> str:
+    def _resolve_user_identifier(self) -> str | None:
         """
         Return the TIDAL user ID as the user identifier for the
         current account.
@@ -425,7 +426,7 @@ class TIDALAPI(_BaseTIDALAPI):
            :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
            make a request to the TIDAL API.
         """
-        return self.users.get_my_profile()["data"]["id"]
+        return self._my_profile.get("id")
 
     def _request(
         self,
@@ -523,6 +524,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
     _VERSION = "2025.12.18"
     BASE_URL = "https://api.tidal.com"
     DEVICE_AUTH_URL = "https://auth.tidal.com/v1/oauth2/device_authorization"
+    #: URL for artwork resources.
     RESOURCE_URL = "https://resources.tidal.com"
 
     def __init__(
@@ -659,6 +661,8 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         self.albums: PrivateAlbumsAPI = PrivateAlbumsAPI(self)
         #: Artists API endpoints for the private TIDAL API.
         self.artists: PrivateArtistsAPI = PrivateArtistsAPI(self)
+        #: Feed API endpoints for the private TIDAL API.
+        self.feed: PrivateFeedAPI = PrivateFeedAPI(self)
         #: Mixes API endpoints for the private TIDAL API.
         self.mixes: PrivateMixesAPI = PrivateMixesAPI(self)
         #: Pages API endpoints for the private TIDAL API.

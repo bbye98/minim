@@ -18,7 +18,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
     def _get_resource(
         self,
         resource_type: str,
-        resource_id: str | list[str],
+        resource_id: str,
         /,
         country_code: str | None = None,
     ) -> dict[str, Any]:
@@ -35,7 +35,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
             :code:`"chapters"`, :code:`"episodes"`, :code:`"shows"`,
             :code:`"tracks"`.
 
-        resource_id : str or list[str]; positional-only
+        resource_id : str; positional-only
             Spotify ID of the resource.
 
         country_code : str; optional
