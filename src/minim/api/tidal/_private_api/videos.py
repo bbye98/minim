@@ -1,4 +1,9 @@
+import base64
+import json
+import re
 from typing import Any
+
+import httpx
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateTIDALResourceAPI
@@ -373,3 +378,57 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         self, video_id: int | str, /, user_id: int | str | None = None
     ) -> None:
         self._client.users.unblock_video(video_id, user_id=user_id)
+
+    def _get_video_stream(self, manifest: bytes | str, /) -> tuple[str, bytes]:
+        """
+        Get the video stream data for a music video.
+
+        .. admonition:: Subscription
+           :class: authorization-scope dropdown
+
+           .. tab:: Optional
+
+              TIDAL streaming plan
+                 Stream full-length and high-resolution audio.
+                 `Learn more. <https://tidal.com/pricing>`__
+
+        Parameters
+        ----------
+        manifest : bytes or str; positional-only
+            Metadata for the video's source files.
+
+        Returns
+        -------
+        codec : str
+            Video codec.
+
+        stream : bytes
+            Video stream data.
+        """
+        self._client._validate_type("manifest", manifest, bytes | str)
+        if isinstance(manifest, str):
+            manifest = base64.b64decode(manifest)
+
+        if manifest[0] == 123:  # JSON
+            _, codec, m3u = max(
+                re.compile(
+                    r"#EXT-X-STREAM-INF:(?=[^\n]*BANDWIDTH=(\d+))"
+                    r'(?=[^\n]*CODECS="([^"]+)")[^\n]+\n(\S+)'
+                ).findall(
+                    httpx.get(json.loads(manifest)["urls"][0]).content.decode()
+                ),
+                key=lambda m3u: int(m3u[0]),
+            )
+            return codec, b"".join(
+                httpx.get(ts).content
+                for ts in re.compile("(?<=\n).*(http.*)").findall(
+                    httpx.get(m3u).content.decode()
+                )
+            )
+        elif manifest[0] == 60:  # XML (audio-only)
+            return self._client.tracks._get_track_stream(manifest)
+        else:
+            raise ValueError(
+                "`manifest`, when decoded, is not in the JSON format "
+                "or XML format."
+            )

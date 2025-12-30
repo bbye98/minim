@@ -1,4 +1,10 @@
+import base64
 from typing import Any
+import xml.etree.ElementTree as ET
+
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+import httpx
+import json
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateTIDALResourceAPI
@@ -663,3 +669,93 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         self, track_id: int | str, /, user_id: int | str | None = None
     ) -> None:
         self._client.users.unblock_track(track_id, user_id=user_id)
+
+    def _get_track_stream(self, manifest: bytes | str, /) -> tuple[str, bytes]:
+        """
+        Get the audio stream data for a track.
+
+        .. admonition:: Subscription
+           :class: authorization-scope dropdown
+
+           .. tab:: Optional
+
+              TIDAL streaming plan
+                 Stream full-length and high-resolution audio.
+                 `Learn more. <https://tidal.com/pricing>`__
+
+        Parameters
+        ----------
+        manifest : bytes or str; positional-only
+            Metadata for the track's source files.
+
+        Returns
+        -------
+        codec : str
+            Audio codec.
+
+        stream : bytes
+            Audio stream data.
+        """
+        self._client._validate_type("manifest", manifest, bytes | str)
+        if isinstance(manifest, str):
+            manifest = base64.b64decode(manifest)
+
+        if manifest[0] == 123:  # JSON
+            manifest = json.loads(manifest)
+            codec = manifest["codecs"]
+            stream = httpx.get(manifest["urls"][0]).content
+            if (encryption_type := manifest["encryptionType"]) == "OLD_AES":
+                key_id = base64.b64decode(manifest["keyId"])
+                key_nonce = (
+                    Cipher(
+                        algorithms.AES(
+                            b"P\x89SLC&\x98\xb7\xc6\xa3\n?P.\xb4\xc7"
+                            b"a\xf8\xe5n\x8cth\x13E\xfa?\xbah8\xef\x9e"
+                        ),
+                        modes.CBC(key_id[:16]),
+                    )
+                    .decryptor()
+                    .update(key_id[16:])
+                )
+                stream = (
+                    Cipher(
+                        algorithms.AES(key_nonce[:16]),
+                        modes.CTR(key_nonce[16:32]),
+                    )
+                    .decryptor()
+                    .update(stream)
+                )
+            elif encryption_type != "NONE":
+                raise RuntimeError(
+                    f"Unknown encryption type {encryption_type!r}."
+                )
+        elif manifest[0] == 60:  # XML
+            manifest = ET.fromstring(manifest)
+            namespace = ".//{urn:mpeg:dash:schema:mpd:2011}"
+            codec = manifest.find(
+                f"{namespace}Representation",
+            ).get("codecs")
+            segments = manifest.find(
+                f"{namespace}SegmentTemplate",
+            )
+            segment_template = segments.get("media").replace("$Number$", "{}")
+            stream = httpx.get(
+                segments.get("initialization")
+            ).content + b"".join(
+                httpx.get(segment_template.format(num)).content
+                for num in range(
+                    1,
+                    sum(
+                        int(segment.get("r") or 1)
+                        for segment in segments.findall(f"{namespace}S")
+                    )
+                    + 2,
+                )
+            )
+        else:
+            raise ValueError(
+                "`manifest`, when decoded, is not in the JSON format "
+                "or XML format."
+            )
+
+        return codec, stream
