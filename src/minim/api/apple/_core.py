@@ -167,7 +167,7 @@ class iTunesSearchAPI(APIClient):
         amg_video_ids: int | str | list[int | str] | None = None,
         bundle_ids: str | list[str] | None = None,
         isbns: int | str | list[int | str] | None = None,
-        gtins: int | str | list[int | str] | None = None,
+        barcodes: int | str | list[int | str] | None = None,
         resource_type: str | None = None,
         limit: int | str | None = None,
         order: str | None = None,
@@ -183,7 +183,7 @@ class iTunesSearchAPI(APIClient):
 
            Exactly one of `itunes_ids`, `amg_album_ids`,
            `amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`,
-           or `gtins` must be provided.
+           or `barcodes` must be provided.
 
         Parameters
         ----------
@@ -229,8 +229,8 @@ class iTunesSearchAPI(APIClient):
             :code:`"9781705142110"`,
             :code:`[9781637993415, "9781705142110"]`.
 
-        gtins : int, str, or list[int | str]; keyword-only; optional
-            Global Trade Item Numbers (GTINs) – UPCs and/or EANs.
+        barcodes : int, str, or list[int | str]; keyword-only; optional
+            Barcodes (UPCs and/or EANs).
 
             **Examples**: :code:`602448438034`, :code:`"075678671173"`,
             :code:`[602448438034, "075678671173"]`.
@@ -507,7 +507,7 @@ class iTunesSearchAPI(APIClient):
         emsg = (
             "Exactly one of `itunes_ids`, `amg_album_ids`, "
             "`amg_artist_ids`, `amg_video_ids`, `bundle_ids`, `isbns`, "
-            "or `gtins` must be provided."
+            "or `barcodes` must be provided."
         )
         params = {}
         _locals = locals()
@@ -518,7 +518,7 @@ class iTunesSearchAPI(APIClient):
             ("amg_video_ids", "amgVideoId", True),
             ("bundle_ids", "bundleId", False),
             ("isbns", "isbn", True),
-            ("gtins", "upc", True),
+            ("barcodes", "upc", True),
         ]:
             if (arg := _locals.get(arg_name)) is not None:
                 if len(params):
@@ -570,7 +570,7 @@ class iTunesSearchAPI(APIClient):
         limit: int | None = None,
         locale: str | None = None,
         api_version: int | None = None,
-        allow_explicit: bool | str | None = None,
+        include_explicit: bool | str | None = None,
     ) -> dict[str, Any]:
         """
         Get Apple catalog information for audiobooks, ebooks, movies,
@@ -658,7 +658,7 @@ class iTunesSearchAPI(APIClient):
 
             **API default**: :code:`2`.
 
-        allow_explicit : bool or str; keyword-only; optional
+        include_explicit : bool or str; keyword-only; optional
             Whether to include explicit content in the results.
 
             **Valid values**: :code:`"Yes"` (or :code:`True`),
@@ -986,15 +986,17 @@ class iTunesSearchAPI(APIClient):
         if api_version is not None:
             self._validate_number("api_version", api_version, int, 1, 2)
             params["version"] = api_version
-        if allow_explicit is not None:
-            self._validate_type("allow_explicit", allow_explicit, bool | str)
-            if isinstance(allow_explicit, bool):
-                params["explicit"] = "Yes" if allow_explicit else "No"
-            elif allow_explicit.lower() in {"yes", "no"}:
-                params["explicit"] = allow_explicit
+        if include_explicit is not None:
+            self._validate_type(
+                "include_explicit", include_explicit, bool | str
+            )
+            if isinstance(include_explicit, bool):
+                params["explicit"] = "Yes" if include_explicit else "No"
+            elif include_explicit.lower() in {"yes", "no"}:
+                params["explicit"] = include_explicit
             else:
                 raise ValueError(
-                    "`allow_explicit` can only be 'Yes'/True or 'No'/False."
+                    "`include_explicit` can only be 'Yes'/True or 'No'/False."
                 )
         return self._request("GET", "search", params=params).json()
 

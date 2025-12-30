@@ -524,7 +524,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
     _VERSION = "2025.12.18"
     BASE_URL = "https://api.tidal.com"
     DEVICE_AUTH_URL = "https://auth.tidal.com/v1/oauth2/device_authorization"
-    #: URL for artwork resources.
+    #: URL for image resources.
     RESOURCE_URL = "https://resources.tidal.com"
 
     def __init__(

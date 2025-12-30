@@ -30,24 +30,13 @@ class PrivateTIDALResourceAPI(ResourceAPI):
         resource_type : str; positional-only
             Resource type.
 
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"audio-features"`, :code:`"audiobooks"`,
-            :code:`"chapters"`, :code:`"episodes"`, :code:`"shows"`,
-            :code:`"tracks"`.
-
         resource_id : str; positional-only
-            Spotify ID of the resource.
+            TIDAL ID of the resource.
 
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country associated with the current user account or IP
             address is used.
-
-            .. note::
-
-               If neither a country code is provided nor a country can
-               be determined from the user account, the content is
-               considered unavailable for the client.
 
         Returns
         -------
@@ -77,15 +66,12 @@ class PrivateTIDALResourceAPI(ResourceAPI):
         params: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for a resource related to a track.
+        Get TIDAL catalog information for a resource related to an item.
 
         Parameters
         ----------
         resource_type : str; positional-only
             Resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"tracks"`, :code:`"videos"`.
 
         resource_id : str; positional-only
             TIDAL ID of the resource.

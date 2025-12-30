@@ -1,11 +1,8 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
 from .users import UsersAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class AlbumsAPI(TIDALResourceAPI):
@@ -18,7 +15,7 @@ class AlbumsAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RESOURCES = {
+    _RELATIONSHIPS = {
         "artists",
         "coverArt",
         "genres",
@@ -28,7 +25,6 @@ class AlbumsAPI(TIDALResourceAPI):
         "similarAlbums",
         "suggestedCoverArts",
     }
-    _client: "TIDALAPI"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_albums(
@@ -39,8 +35,9 @@ class AlbumsAPI(TIDALResourceAPI):
         barcodes: int | str | list[int | str] | None = None,
         owner_ids: int | str | list[int | str] | None = None,
         country_code: str | None = None,
-        include: str | list[str] | None = None,
+        expand: str | list[str] | None = None,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Albums > Get Single Album <https://tidal-music.github.io
@@ -58,78 +55,58 @@ class AlbumsAPI(TIDALResourceAPI):
               User authentication
                  Access information on an item's owners.
 
+        .. note::
+
+           Exactly one of `album_ids`, `barcodes`, or `owner_ids` must 
+           be provided. When `barcodes` or `owner_ids` is specified, the
+           request will always be sent to the endpoint for multiple 
+           albums.
+
         Parameters
         ----------
         album_ids : int, str, or list[int | str]; positional-only; \
         optional
-            TIDAL IDs of the albums, provided as either an integer, a
-            string, or a list of integers and/or strings.
+            TIDAL IDs of the albums.
 
-            .. note::
-
-               Exactly one of `album_ids`, `barcodes`, or `owner_ids`
-               must be provided.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`46369321`
-               * :code:`"46369321"`
-               * :code:`[46369321, "251380836"]`
+            **Examples**: :code:`46369321`, :code:`"251380836"`,
+            :code:`[46369321, "251380836"]`.
 
         barcodes : int, str, or list[int | str]; keyword-only; optional
-            Barcodes of the albums, provided as either an integer, a
-            string, or a list of integers and/or strings.
+            Barcodes (UPCs and/or EANs) of the albums.
 
-            .. note::
-
-               Exactly one of `album_ids`, `barcodes`, or `owner_ids`
-               must be provided. When this parameter is specified, the
-               request will always be sent to the endpoint for multiple
-               albums.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`075678671173`
-               * :code:`"075678671173"`
-               * :code:`[075678671173, "602448438034"]`
+            **Examples**: :code:`602448438034`, :code:`"075678671173"`,
+            :code:`[602448438034, "075678671173"]`
 
         owner_ids : int, str, or list[int | str]; keyword-only; optional
-            TIDAL IDs of the albums' owners, provided either as an
-            integer, a string, or a list of integers and/or
-            strings.
+            TIDAL IDs of the albums' owners.
 
-            .. note::
-
-               Exactly one of `album_ids`, `barcodes`, or `owner_ids`
-               must be provided. When this parameter is specified, the
-               request will always be sent to the endpoint for multiple
-               albums.
-
-            **Examples**: :code:`123456`, :code:`"123456"`,
-            :code:`["123456"]`.
+            **Examples**: :code:`123456`, :code:`"654321"`,
+            :code:`[123456, "654321"]`.
 
         country_code : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code. If not specified, it will 
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : str or list[str]; keyword-only; optional
-            Related resources to include in the response.
+        expand : str or list[str]; keyword-only; optional
+            Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"artists"`, :code:`"coverArt"`,
             :code:`"genres"`, :code:`"items"`, :code:`"owners"`,
             :code:`"providers"`, :code:`"similarAlbums"`,
             :code:`"suggestedCoverArts"`.
 
+            **Examples**: :code:`"coverArt"`, ["artists", "items"].
+
         cursor : str; keyword-only; optional
-            Cursor for pagination when requesting multiple albums.
+            Cursor for for fetching the next page of results when 
+            retrieving multiple albums.
 
             **Example**: :code:`"3nI1Esi"`.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
 
         Returns
         -------
@@ -1037,39 +1014,39 @@ class AlbumsAPI(TIDALResourceAPI):
                        }
                      }
         """
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include is not None:
-            params["include"] = self._prepare_include(include)
         if (
-            sum(arg is not None for arg in (album_ids, barcodes, owner_ids))
+            sum(arg is not None for arg in [album_ids, barcodes, owner_ids])
             != 1
         ):
             raise ValueError(
                 "Exactly one of `album_ids`, `barcodes`, or "
                 "`owner_ids` must be provided."
             )
-        if album_ids is not None:
-            self._client._validate_tidal_ids(album_ids)
-            if isinstance(album_ids, int | str):
-                return self._client._request(
-                    "GET", f"albums/{album_ids}", params=params
-                ).json()
-            params["filter[id]"] = album_ids
-        elif barcodes is not None:
+        params = {}
+        if barcodes is not None:
             if isinstance(barcodes, int | str):
                 self._client._validate_barcode(barcodes)
-            else:
+            elif isinstance(barcodes, list | tuple):
                 for barcode in barcodes:
                     self._client._validate_barcode(barcode)
+            else:
+                raise ValueError(
+                    "`barcodes` must be an integer, a string, or a "
+                    "list of integers and/or strings."
+                )
             params["filter[barcodeId]"] = barcodes
-        else:
+        elif owner_ids is not None:
             self._client._validate_tidal_ids(owner_ids)
             params["filter[owners.id]"] = owner_ids
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["page[cursor]"] = cursor
-        return self._client._request("GET", "albums", params=params).json()
+        return self._get_resources(
+            "albums",
+            album_ids,
+            country_code=country_code,
+            expand=expand,
+            cursor=cursor,
+            share_code=share_code,
+            params=params,
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_album_artists(
@@ -1078,8 +1055,9 @@ class AlbumsAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Albums > Get Album Artists
@@ -1095,24 +1073,27 @@ class AlbumsAPI(TIDALResourceAPI):
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
-            the album artists.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the album
+            artists.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL catalog information for the album artists.
+            TIDAL content metadata for the album artists.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1217,8 +1198,14 @@ class AlbumsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_album_resource(
-            "artists", album_id, country_code, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "albums",
+            album_id,
+            "artists",
+            country_code=country_code,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            share_code=share_code,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1228,8 +1215,9 @@ class AlbumsAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Albums > Get Album Cover Art
@@ -1245,24 +1233,27 @@ class AlbumsAPI(TIDALResourceAPI):
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
-            the album's cover art.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the album's
+            cover art.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
         Returns
         -------
         cover_art : dict[str, Any]
-            TIDAL catalog information for the album's cover art.
+            TIDAL content metadata for the album's cover art.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1310,8 +1301,14 @@ class AlbumsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_album_resource(
-            "coverArt", album_id, country_code, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "albums",
+            album_id,
+            "coverArt",
+            country_code=country_code,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            share_code=share_code,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1321,8 +1318,9 @@ class AlbumsAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Albums > Get Album Items
@@ -1338,24 +1336,27 @@ class AlbumsAPI(TIDALResourceAPI):
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
-            the tracks and videos in the album.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the tracks and
+            videos in the album.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
         Returns
         -------
         items : dict[str, Any]
-            TIDAL catalog information for the tracks and videos in the
+            TIDAL content metadata for the tracks and videos in the
             album.
 
             .. admonition:: Sample response
@@ -1527,8 +1528,14 @@ class AlbumsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_album_resource(
-            "items", album_id, country_code, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "albums",
+            album_id,
+            "items",
+            country_code=country_code,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            share_code=share_code,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1537,8 +1544,9 @@ class AlbumsAPI(TIDALResourceAPI):
         album_id: int | str,
         /,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Albums > Get Album Owners
@@ -1561,19 +1569,22 @@ class AlbumsAPI(TIDALResourceAPI):
 
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
-        include : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
-            the album's owners.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the album's
+            owners.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL catalog information for the album's owners.
+            TIDAL content metadata for the album's owners.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1592,8 +1603,14 @@ class AlbumsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_album_resource(
-            "owners", album_id, False, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "albums",
+            album_id,
+            "owners",
+            country_code=False,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            share_code=share_code,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1603,8 +1620,9 @@ class AlbumsAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Albums > Get Album Providers
@@ -1620,24 +1638,27 @@ class AlbumsAPI(TIDALResourceAPI):
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
-            the album's providers.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the album's
+            providers.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
         Returns
         -------
         providers : dict[str, Any]
-            TIDAL catalog information for the album's providers.
+            TIDAL content metadata for the album's providers.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1669,8 +1690,14 @@ class AlbumsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_album_resource(
-            "providers", album_id, country_code, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "albums",
+            album_id,
+            "providers",
+            country_code=country_code,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            share_code=share_code,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1680,8 +1707,9 @@ class AlbumsAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Albums > Get Similar Albums
@@ -1698,24 +1726,27 @@ class AlbumsAPI(TIDALResourceAPI):
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
-            the similar albums.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the similar
+            albums.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL catalog information for the similar albums.
+            TIDAL content metadata for the similar albums.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1811,12 +1842,14 @@ class AlbumsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_album_resource(
-            "similarAlbums",
+        return self._get_resource_relationship(
+            "albums",
             album_id,
-            country_code,
-            include=include,
+            "similarAlbums",
+            country_code=country_code,
+            include_metadata=include_metadata,
             cursor=cursor,
+            share_code=share_code,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1826,8 +1859,9 @@ class AlbumsAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Albums > Get Album's Suggested Cover Art
@@ -1843,24 +1877,26 @@ class AlbumsAPI(TIDALResourceAPI):
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        include : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
-            the suggested cover art.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the suggested
+            cover art.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
         Returns
         -------
         cover_art : dict[str, Any]
-            TIDAL catalog information for the album's suggested cover
+            TIDAL content metadata for the album's suggested cover
             art.
 
             .. admonition:: Sample response
@@ -1880,12 +1916,14 @@ class AlbumsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_album_resource(
-            "suggestedCoverArts",
+        return self._get_resource_relationship(
+            "albums",
             album_id,
-            country_code,
-            include=include,
+            "suggestedCoverArts",
+            country_code=country_code,
+            include_metadata=include_metadata,
             cursor=cursor,
+            share_code=share_code,
         )
 
     @_copy_docstring(UsersAPI.get_favorite_albums)
@@ -1895,17 +1933,19 @@ class AlbumsAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
         locale: str | None = None,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
         sort_by: str | None = None,
+        descending: bool | None = None,
     ) -> dict[str, Any]:
         return self._client.users.get_favorite_albums(
             user_id=user_id,
             country_code=country_code,
             locale=locale,
-            include=include,
+            include_metadata=include_metadata,
             cursor=cursor,
             sort_by=sort_by,
+            descending=descending,
         )
 
     @_copy_docstring(UsersAPI.favorite_albums)
@@ -1921,7 +1961,9 @@ class AlbumsAPI(TIDALResourceAPI):
         country_code: str | None = None,
     ) -> None:
         self._client.users.favorite_albums(
-            album_ids, user_id=user_id, country_code=country_code
+            album_ids,
+            user_id=user_id,
+            country_code=country_code,
         )
 
     @_copy_docstring(UsersAPI.unfavorite_albums)
@@ -1937,70 +1979,7 @@ class AlbumsAPI(TIDALResourceAPI):
         country_code: str | None = None,
     ) -> None:
         self._client.users.unfavorite_albums(
-            album_ids, user_id=user_id, country_code=country_code
+            album_ids,
+            user_id=user_id,
+            country_code=country_code,
         )
-
-    def _get_album_resource(
-        self,
-        resource: str,
-        album_id: int | str,
-        /,
-        country_code: bool | str | None = None,
-        *,
-        include: bool = False,
-        cursor: str | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for a resource related to an
-        album.
-
-        Parameters
-        ----------
-        resource : str; positional-only
-            Related resource type.
-
-            **Valid values**: :code:`"artists"`, :code:`"coverArt"`,
-            :code:`"genres"`, :code:`"items"`, :code:`"owners"`,
-            :code:`"providers"`, :code:`"similarAlbums"`.
-
-        album_id : int or str; positional-only
-            TIDAL ID of the album.
-
-            **Examples**: :code:`46369321`, :code:`"251380836"`.
-
-        country_code : bool or str; optional
-            ISO 3166-1 alpha-2 country code. If :code:`False`, the
-            country code is not included in the request.
-
-            **Example**: :code:`"US"`.
-
-        include : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for
-            the related resource.
-
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
-            **Example**: :code:`"3nI1Esi"`.
-
-        Returns
-        -------
-        resource : dict[str, Any]
-            TIDAL catalog information for the related resource.
-        """
-        self._client._validate_tidal_ids(album_id, _recursive=False)
-        params = {}
-        if country_code is not False:
-            self._client._resolve_country_code(country_code, params)
-        if include is not None:
-            self._client._validate_type("include", include, bool)
-            if include:
-                params["include"] = resource
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["page[cursor]"] = cursor
-        return self._client._request(
-            "GET",
-            f"albums/{album_id}/relationships/{resource}",
-            params=params,
-        ).json()

@@ -1777,7 +1777,7 @@ class PrivatePagesAPI(ResourceAPI):
         if resource_id is not None:
             params[f"{resource_type}Id"] = str(resource_id)
         if locale is not None:
-            self._client._validate_type("locale", locale, str)
+            self._client._validate_locale(locale)
             params["locale"] = locale
         if resource_type == "video":
             resource_type = "videos"

@@ -35,8 +35,7 @@ class ProvidersAPI(TIDALResourceAPI):
         Parameters
         ----------
         provider_ids : int, str, or list[int | str]; positional-only
-            TIDAL IDs of the providers, provided as either an integer, a
-            string, or a list of integers and/or strings.
+            TIDAL IDs of the providers.
 
             **Examples**: :code:`771`, :code:`"772"`,
             :code:`[771, "772"]`.
@@ -85,11 +84,6 @@ class ProvidersAPI(TIDALResourceAPI):
                        }
                      }
         """
-        self._client._validate_tidal_ids(provider_ids)
-        if isinstance(provider_ids, int | str):
-            return self._client._request(
-                "GET", f"providers/{provider_ids}"
-            ).json()
-        return self._client._request(
-            "GET", "providers", params={"filter[id]": provider_ids}
-        ).json()
+        return self._get_resources(
+            "providers", provider_ids, country_code=False
+        )
