@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, _copy_docstring
@@ -20,8 +19,8 @@ class PlaylistsAPI(TIDALResourceAPI):
     """
 
     _ITEM_TYPES = {"tracks", "videos"}
-    _RESOURCES = {"coverArt", "items", "owners"}
-    _SORTS = {"createdAt", "lastModifiedAt", "name"}
+    _RELATIONSHIPS = {"coverArt", "items", "ownerProfiles", "owners"}
+    _SORT_FIELDS = {"createdAt", "lastModifiedAt", "name"}
     _client: "TIDALAPI"
 
     @classmethod
@@ -30,7 +29,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         items: tuple[int | str, str]
         | tuple[int | str, str, str]
         | dict[str, Any]
-        | Collection[
+        | list[
             tuple[int | str, str] | tuple[int | str, str, str] | dict[str, Any]
         ],
         /,
@@ -45,14 +44,14 @@ class PlaylistsAPI(TIDALResourceAPI):
         Parameters
         ----------
         items : tuple[int | str, ...], dict[str, Any], or \
-        Collection[tuple[int | str, ...] | dict[str, Any]], \
+        list[tuple[int | str, ...] | dict[str, Any]]; \
         positional-only
             TIDAL IDs (and UUIDs) of tracks and videos, provided as
             tuples of the ID (and UUID) and the item type, or properly
             formatted dictionaries.
 
-        meta : bool, keyword-only, default: :code:`True`
-            Specifies whether the items have UUID information.
+        meta : bool; keyword-only; default: :code:`True`
+            Whether the items have UUID information.
 
         Returns
         -------
@@ -84,7 +83,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             if meta:
                 item_uuid = item_uuid[0]
         if item_type not in cls._ITEM_TYPES:
-            item_types = "', '".join(cls._ITEM_TYPES)
+            item_types = "', '".join(sorted(cls._ITEM_TYPES))
             raise ValueError(
                 f"Invalid item type {item_type!r}. Valid values: '{item_types}'."
             )
@@ -97,22 +96,23 @@ class PlaylistsAPI(TIDALResourceAPI):
 
     def get_playlists(
         self,
-        playlist_uuids: str | Collection[str] | None = None,
+        playlist_uuids: str | list[str] | None = None,
         /,
         *,
-        owner_ids: int | str | Collection[int | str] | None = None,
+        owner_ids: int | str | list[int | str] | None = None,
         country_code: str | None = None,
-        include: str | Collection[str] | None = None,
+        expand: str | list[str] | None = None,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
+        descending: bool | None = None,
     ) -> dict[str, Any]:
         """
         `Playlists > Get Single Playlist <https://tidal-music.github.io
-        /tidal-api-reference/#/playlists/get_playlists__id_>`_: Get 
+        /tidal-api-reference/#/playlists/get_playlists__id_>`_: Get
         TIDAL catalog information for a single playlist․
-        `Playlists > Get Multiple Playlists 
+        `Playlists > Get Multiple Playlists
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
-        /get_playlists>`_: Get TIDAL catalog information for multiple 
+        /get_playlists>`_: Get TIDAL catalog information for multiple
         playlists.
 
         .. admonition:: User authentication and authorization scope
@@ -128,63 +128,55 @@ class PlaylistsAPI(TIDALResourceAPI):
               User authentication
                  Access information on an item's owners.
 
+        .. note::
+
+           Exactly one of `playlist_uuids` or `owner_ids` must be
+           provided. When `owner_ids` is specified, the request will
+           always be sent to the endpoint for multiple playlists.
+
         Parameters
         ----------
-        playlist_uuids : str or Collection[str], positional-only, \
-        optional
-            UUIDs of the TIDAL playlists, provided either as a string or
-            a collection of strings.
+        playlist_uuids : str or list[str]; positional-only, optional
+            UUIDs of the TIDAL playlists.
 
-            .. note::
+            **Examples**:
+            :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`,
+            :code:`["36ea71a8-445e-41a4-82ab-6628c581535d",
+            "b0d95b5e-7c4f-4dae-b042-b8c6228c2ba4"]`.
 
-               Exactly one of `playlist_uuids` or `owner_ids` must be 
-               provided.
+        owner_ids : int, str, or list[int | str]; keyword-only; optional
+            TIDAL IDs of the playlists' owners.
 
-            **Examples**: 
-            :code:`"550e8400-e29b-41d4-a716-446655440000"`,
-            :code:`["550e8400-e29b-41d4-a716-446655440000"]`.
+            **Examples**: :code:`123456`, :code:`"654321"`,
+            :code:`[123456, "654321"]`.
 
-        owner_ids : int, str, or Collection[int | str], keyword-only, \
-        optional
-            TIDAL IDs of the playlists' owners, provided either as an 
-            integer, a string, or a collection of integers and/or 
-            strings.
-
-            .. note::
-
-               Exactly one of `playlist_uuids` or `owner_ids` must be 
-               provided. When this parameter is specified, the request
-               will always be sent to the endpoint for multiple
-               playlists.
-
-            **Examples**: :code:`123456`, :code:`"123456"`, 
-            :code:`["123456"]`.
-
-        country_code : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the 
-            country code can be retrieved from the user's profile.
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        include : str or Collection[str], keyword-only, optional
-            Related resources to include in the response.
+        expand : str or list[str]; keyword-only; optional
+            Related resources to include metadata for in the response.
 
-            **Valid values**: :code:`"coverArt"`, :code:`"items"`, 
-            :code:`"owners"`.
+            **Valid values**: :code:`"coverArt"`, :code:`"items"`,
+            :code:`"ownerProfiles"`, :code:`"owners"`.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination when requesting multiple playlists.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results when requesting
+            multiple playlists.
 
             **Example**: :code:`"3nI1Esi"`.
 
-        sort : str, keyword-only, optional
-            Field to sort the returned playlists by. Values are sorted
-            in descending order with the :code:`-` prefix and in
-            ascending order without.
-        
-            **Valid values**: :code:`"createdAt"`, :code:`"-createdAt`,
-            :code:`"lastModifiedAt`, :code:`"-lastModifiedAt"`,
-            :code:`"name"`, :code:`"-name"`.
+        sort_by : str; keyword-only; optional
+            Field to sort the playlists by.
+
+            **Valid values**: :code:`"createdAt"`,
+            :code:`"lastModifiedAt`, :code:`"name"`.
+
+        descending : bool; keyword-only; optional
+            Whether to sort in descending order.
+
+            **API default**: :code:`False`.
 
         Returns
         -------
@@ -255,6 +247,12 @@ class PlaylistsAPI(TIDALResourceAPI):
                                "self": <str>
                              }
                            },
+                           "ownerProfiles": {
+                             "data": [],
+                             "links": {
+                               "self": <str>
+                             }
+                           },
                            "owners": {
                              "data": [],
                              "links": {
@@ -290,7 +288,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                          },
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "bpm": <float>,
                              "copyright": {
@@ -490,6 +488,12 @@ class PlaylistsAPI(TIDALResourceAPI):
                                  "self": <str>
                                }
                              },
+                             "ownerProfiles": {
+                               "data": [],
+                               "links": {
+                                 "self": <str>
+                               }
+                             }
                              "owners": {
                                "data": [],
                                "links": {
@@ -526,7 +530,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                          },
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "bpm": <float>,
                              "copyright": {
@@ -664,43 +668,37 @@ class PlaylistsAPI(TIDALResourceAPI):
                        }
                      }
         """
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include is not None:
-            params["include"] = self._prepare_include(include)
         if sum(arg is not None for arg in (playlist_uuids, owner_ids)) != 1:
             raise ValueError(
                 "Exactly one of `playlist_uuids` or `owner_ids` must "
                 "be provided."
             )
-        if playlist_uuids is not None:
-            if isinstance(playlist_uuids, str):
-                self._client._validate_uuid(playlist_uuids)
-                return self._client._request(
-                    "GET", f"playlists/{playlist_uuids}", params=params
-                ).json()
-            for playlist_uuid in playlist_uuids:
-                self._client._validate_uuid(playlist_uuid)
-            params["filter[id]"] = playlist_uuids
-        else:
+        params = {}
+        if owner_ids is not None:
             self._client._validate_tidal_ids(owner_ids)
             params["filter[owners.id]"] = owner_ids
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["page[cursor]"] = cursor
-        if sort is not None:
-            self._client._validate_type("sort", sort, str)
-            if (sort[1:] if sort[0] == "-" else sort) not in self._SORTS:
-                sorts = "', '".join(self._SORTS)
-                raise ValueError(
-                    f"Invalid sort field {sort!r}. Valid values: '{sorts}'."
-                )
-            params["sort"] = sort
-        return self._client._request("GET", "playlists", params=params).json()
+        if sort_by is not None:
+            self._process_sort(
+                sort_by,
+                descending=descending,
+                prefix="",
+                sort_fields=self._SORT_FIELDS,
+                params=params,
+            )
+        return self._get_resources(
+            "playlists",
+            playlist_uuids,
+            country_code=country_code,
+            expand=expand,
+            cursor=cursor,
+            resource_identifier_type="uuid",
+            params=params,
+        )
 
     def create_playlist(
         self,
         name: str,
+        country_code: str | None = None,
         *,
         description: str | None = None,
         public: bool | None = None,
@@ -723,13 +721,16 @@ class PlaylistsAPI(TIDALResourceAPI):
         name : str
             Playlist name.
 
-        description : str, keyword-only, optional
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code.
+
+        description : str; keyword-only; optional
             Playlist description.
 
-        public : bool, keyword-only, optional
+        public : bool; keyword-only; optional
             Whether the playlist is displayed on the user's profile.
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
 
         Returns
         -------
@@ -787,6 +788,10 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.create_playlist", "playlists.write"
         )
+        params = {}
+        if country_code is not None:
+            self._client._validate_country_code(country_code)
+            params["countryCode"] = country_code
         self._client._validate_type("name", name, str)
         if not len(name):
             raise ValueError("The playlist name cannot be blank.")
@@ -798,12 +803,15 @@ class PlaylistsAPI(TIDALResourceAPI):
         if public is not None:
             self._client._validate_type("public", public, bool)
             attrs["accessType"] = "PUBLIC" if public else "UNLISTED"
-        return self._client._request("POST", "playlists", json=payload).json()
+        return self._client._request(
+            "POST", "playlists", params=params, json=payload
+        ).json()
 
     def update_playlist_details(
         self,
         playlist_uuid: str,
         /,
+        country_code: str | None = None,
         *,
         name: str | None = None,
         description: str | None = None,
@@ -824,25 +832,32 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuid : str , positional-only
+        playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
 
-        name : str, keyword-only, optional
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code.
+
+        name : str; keyword-only; optional
             Playlist name.
 
-        description : str, keyword-only, optional
+        description : str; keyword-only; optional
             Playlist description.
 
-        public : bool, keyword-only, optional
+        public : bool; keyword-only; optional
             Whether the playlist is displayed on the user's profile.
 
-            **Default**: :code:`False`.
+            **API default**: :code:`False`.
         """
         self._client._require_scopes(
             "playlists.update_playlist_details", "playlists.write"
         )
+        params = {}
+        if country_code is not None:
+            self._client._validate_country_code(country_code)
+            params["countryCode"] = country_code
         self._client._validate_uuid(playlist_uuid)
         payload = {
             "data": {
@@ -866,7 +881,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         if not attrs:
             raise ValueError("At least one change must be specified.")
         self._client._request(
-            "PATCH", f"playlists/{playlist_uuid}", json=payload
+            "PATCH", f"playlists/{playlist_uuid}", params=params, json=payload
         )
 
     def delete_playlist(self, playlist_uuid: str, /) -> None:
@@ -885,7 +900,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuid : str , positional-only
+        playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
@@ -902,7 +917,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -913,30 +928,29 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuid : str , positional-only
+        playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
-            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+            **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
 
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the playlist cover art.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
         Returns
         -------
         cover_art : dict[str, Any]
-            TIDAL catalog information for the playlist cover art.
+            TIDAL content metadata for the playlist cover art.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -984,12 +998,14 @@ class PlaylistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_playlist_resource(
-            "coverArt",
+        return self._get_resource_relationship(
+            "playlists",
             playlist_uuid,
-            country_code,
-            include=include,
+            "coverArt",
+            country_code=country_code,
+            include_metadata=include_metadata,
             cursor=cursor,
+            resource_identifier_type="uuid",
         )
 
     def get_playlist_items(
@@ -998,7 +1014,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -1009,30 +1025,30 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuid : str , positional-only
+        playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
-            **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
+            **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
 
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the items in the playlist.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
         Returns
         -------
         cover_art : dict[str, Any]
-            TIDAL catalog information for the items in the playlist.
+            TIDAL content metadata for the items in the playlist.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1061,7 +1077,7 @@ class PlaylistsAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "bpm": <float>,
                           "copyright": {
@@ -1203,12 +1219,14 @@ class PlaylistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_playlist_resource(
-            "items",
+        return self._get_resource_relationship(
+            "playlists",
             playlist_uuid,
-            country_code,
-            include=include,
+            "items",
+            country_code=country_code,
+            include_metadata=include_metadata,
             cursor=cursor,
+            resource_identifier_type="uuid",
         )
 
     def add_playlist_items(
@@ -1217,10 +1235,10 @@ class PlaylistsAPI(TIDALResourceAPI):
         /,
         items: tuple[int | str, str]
         | dict[str, int | str]
-        | Collection[tuple[int | str, str] | dict[str, int | str]],
+        | list[tuple[int | str, str] | dict[str, int | str]],
         *,
         country_code: str | None = None,
-        before: str | None = None,
+        insert_before: str | None = None,
     ) -> None:
         """
         `Playlists > Add Items to Playlist
@@ -1238,15 +1256,14 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuid : str , positional-only
+        playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
 
         items : tuple[int | str, str], dict[str, int | str], or \
-        Collection[tuple[int | str, str] | dict[str, int | str]]
-            TIDAL IDs of tracks and videos, provided as tuples of the ID
-            and the item type, or as properly formatted dictionaries.
+        list[tuple[int | str, str] | dict[str, int | str]]
+            TIDAL IDs and types of the items.
 
             **Examples**:
 
@@ -1258,14 +1275,14 @@ class PlaylistsAPI(TIDALResourceAPI):
                * :code:`[(458584456, "tracks"), ("29597422", "videos"),
                  {"id": "35633900", "types": "tracks"}]`
 
-        country_code : str, keyword-only, optional
+        country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        before : str, keyword-only, optional
+        insert_before : str; keyword-only; optional
             UUID of the item in the playlist before which to insert the
-            items in `items`. If not specified, the items are appended 
+            items in `items`. If not specified, the items are appended
             to the end of the playlist.
 
             **Example**: :code:`"3794bdb3-1529-48d7-8a99-ef2cb0cf22c3"`.
@@ -1278,8 +1295,8 @@ class PlaylistsAPI(TIDALResourceAPI):
         if country_code is not None:
             self._client._resolve_country_code(country_code, params)
         payload = {"data": self._process_playlist_items(items, meta=False)}
-        if before is not None:
-            payload["meta"] = {"positionBefore": before}
+        if insert_before is not None:
+            payload["meta"] = {"positionBefore": insert_before}
         self._client._request(
             "POST",
             f"playlists/{playlist_uuid}/relationships/items",
@@ -1293,8 +1310,8 @@ class PlaylistsAPI(TIDALResourceAPI):
         /,
         items: tuple[int | str, str, str]
         | dict[str, Any]
-        | Collection[tuple[int | str, str, str] | dict[str, Any]],
-        before: str,
+        | list[tuple[int | str, str, str] | dict[str, Any]],
+        insert_before: str,
     ) -> None:
         """
         `Playlists > Reorder Playlist Items
@@ -1312,16 +1329,14 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuid : str , positional-only
+        playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
 
         items : tuple[int | str, str, str], dict[str, Any], or \
-        Collection[tuple[int | str, str, str] | dict[str, Any]]
-            TIDAL IDs and UUIDs of tracks and videos, provided as tuples
-            of the ID, the UUID, and the item type, or as properly 
-            formatted dictionaries.
+        list[tuple[int | str, str, str] | dict[str, Any]]
+            TIDAL IDs, playlist item UUIDs, and types of the items.
 
             **Examples**:
 
@@ -1330,12 +1345,12 @@ class PlaylistsAPI(TIDALResourceAPI):
                * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks")`
                * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos")`
                * .. code::
-                 
+
                     {
-                        "id": "35633900", 
+                        "id": "35633900",
                         "meta": {
                             "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                        }, 
+                        },
                         "types": "tracks"
                     }
                * .. code::
@@ -1344,17 +1359,17 @@ class PlaylistsAPI(TIDALResourceAPI):
                         (458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks"),
                         ("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos"),
                         {
-                            "id": "35633900", 
+                            "id": "35633900",
                             "meta": {
                                 "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                            }, 
+                            },
                             "types": "tracks",
                         },
                     ]
 
-        before : str
+        insert_before : str
             UUID of the item in the playlist before which to insert the
-            items in `items`.
+            items .
 
             **Example**: :code:`"3794bdb3-1529-48d7-8a99-ef2cb0cf22c3"`.
         """
@@ -1363,8 +1378,8 @@ class PlaylistsAPI(TIDALResourceAPI):
         )
         self._client._validate_uuid(playlist_uuid)
         payload = {"data": self._process_playlist_items(items)}
-        if before is not None:
-            payload["meta"] = {"positionBefore": before}
+        if insert_before is not None:
+            payload["meta"] = {"positionBefore": insert_before}
         self._client._request(
             "PATCH",
             f"playlists/{playlist_uuid}/relationships/items",
@@ -1377,7 +1392,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         /,
         items: tuple[int | str, str, str]
         | dict[str, Any]
-        | Collection[tuple[int | str, str, str] | dict[str, Any]],
+        | list[tuple[int | str, str, str] | dict[str, Any]],
     ) -> None:
         """
         `Playlists > Remove Playlist Items
@@ -1395,16 +1410,14 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuid : str , positional-only
+        playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
 
         items : tuple[int | str, str, str], dict[str, Any], or \
-        Collection[tuple[int | str, str, str] | dict[str, Any]]
-            TIDAL IDs and UUIDs of tracks and videos, provided as tuples
-            of the ID, the UUID, and the item type, or as properly 
-            formatted dictionaries.
+        list[tuple[int | str, str, str] | dict[str, Any]]
+            TIDAL IDs, playlist item UUIDs, and types of the items.
 
             **Examples**:
 
@@ -1413,12 +1426,12 @@ class PlaylistsAPI(TIDALResourceAPI):
                * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks")`
                * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos")`
                * .. code::
-                 
+
                     {
-                        "id": "35633900", 
+                        "id": "35633900",
                         "meta": {
                             "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                        }, 
+                        },
                         "types": "tracks"
                     }
                * .. code::
@@ -1427,10 +1440,10 @@ class PlaylistsAPI(TIDALResourceAPI):
                         (458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks"),
                         ("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos"),
                         {
-                            "id": "35633900", 
+                            "id": "35633900",
                             "meta": {
                                 "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                            }, 
+                            },
                             "types": "tracks",
                         },
                     ]
@@ -1452,7 +1465,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -1471,30 +1484,30 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        playlist_uuid : str , positional-only
+        playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
 
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
             the playlist's owners.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL catalog information for the playlist's owners.
+            TIDAL content metadata for the playlist's owners.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1513,119 +1526,132 @@ class PlaylistsAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_playlist_resource(
-            "owners",
+        return self._get_resource_relationship(
+            "playlists",
             playlist_uuid,
-            country_code,
-            include=include,
-            cursor=cursor,
-        )
-
-    @_copy_docstring(UsersAPI.get_saved_playlists)
-    def get_saved_playlists(
-        self,
-        *,
-        user_id: int | str | None = None,
-        country_code: str | None = None,
-        locale: str | None = None,
-        folders: bool = False,
-        include: bool = False,
-        cursor: str | None = None,
-        sort: str | None = None,
-    ) -> dict[str, Any]:
-        return self._client.users.get_saved_playlists(
-            user_id=user_id,
+            "owners",
             country_code=country_code,
-            locale=locale,
-            folders=folders,
-            include=include,
+            include_metadata=include_metadata,
             cursor=cursor,
-            sort=sort,
+            resource_identifier_type="uuid",
         )
 
-    @_copy_docstring(UsersAPI.save_playlists)
-    def save_playlists(
+    @TTLCache.cached_method(ttl="catalog")
+    def get_playlist_owner_profiles(
         self,
-        playlist_uuids: str
-        | dict[str, str]
-        | Collection[str | dict[str, str]],
-        /,
-        *,
-        user_id: int | str | None = None,
-    ) -> None:
-        self._client.users.save_playlists(playlist_uuids, user_id=user_id)
-
-    @_copy_docstring(UsersAPI.remove_saved_playlists)
-    def remove_saved_playlists(
-        self,
-        playlist_uuids: str
-        | dict[str, str]
-        | Collection[str | dict[str, str]],
-        /,
-        *,
-        user_id: int | str | None = None,
-    ) -> None:
-        self._client.users.remove_saved_playlists(
-            playlist_uuids, user_id=user_id
-        )
-
-    def _get_playlist_resource(
-        self,
-        resource: str,
         playlist_uuid: str,
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for a resource related to a
-        playlist.
+        `Playlists > Get Playlist Owners' Profiles
+        <https://tidal-music.github.io/tidal-api-reference/#/playlists
+        /get_playlists__id__relationships_owners>`_: Get TIDAL
+        catalog information for an playlist's owners' profiles.
+
+        .. admonition:: User authentication
+           :class: authorization-scope dropdown
+
+           .. tab:: Optional
+
+              User authentication
+                 Access information on an item's owners.
 
         Parameters
         ----------
-        resource : str, positional-only
-            Related resource type.
-
-            **Valid values**: :code:`"coverArt"`, :code:`"items"`,
-            :code:`"owners"`.
-
-        playlist_uuid : str , positional-only
+        playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
 
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the related resource.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for
+            the playlist's owners' profiles.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
         Returns
         -------
-        resource : dict[str, Any]
-            TIDAL catalog information for the related resource.
+        owner_profiles : dict[str, Any]
+            TIDAL content metadata for the playlist's owners' profiles.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [],
+                    "included": [],
+                    "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
+                      "self": <str>
+                    }
+                  }
         """
-        self._client._validate_uuid(playlist_uuid)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = resource
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["page[cursor]"] = cursor
-        return self._client._request(
-            "GET",
-            f"playlists/{playlist_uuid}/relationships/{resource}",
-            params=params,
-        ).json()
+        return self._get_resource_relationship(
+            "playlists",
+            playlist_uuid,
+            "ownerProfiles",
+            country_code=country_code,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            resource_identifier_type="uuid",
+        )
+
+    @_copy_docstring(UsersAPI.get_favorite_playlists)
+    def get_favorite_playlists(
+        self,
+        *,
+        user_id: int | str | None = None,
+        include_folders: bool = False,
+        include_metadata: bool = False,
+        cursor: str | None = None,
+        sort_by: str | None = None,
+        descending: bool | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_favorite_playlists(
+            user_id=user_id,
+            include_folders=include_folders,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            sort_by=sort_by,
+            descending=descending,
+        )
+
+    @_copy_docstring(UsersAPI.favorite_playlists)
+    def favorite_playlists(
+        self,
+        playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
+        /,
+        *,
+        user_id: int | str | None = None,
+    ) -> None:
+        self._client.users.favorite_playlists(playlist_uuids, user_id=user_id)
+
+    @_copy_docstring(UsersAPI.unfavorite_playlists)
+    def unfavorite_playlists(
+        self,
+        playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
+        /,
+        *,
+        user_id: int | str | None = None,
+    ) -> None:
+        self._client.users.unfavorite_playlists(
+            playlist_uuids, user_id=user_id
+        )

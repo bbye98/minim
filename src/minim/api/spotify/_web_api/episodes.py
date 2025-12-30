@@ -1,13 +1,11 @@
-from collections.abc import Collection
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
+from ..._shared import TTLCache, _copy_docstring
+from ._shared import SpotifyResourceAPI
+from .users import UsersAPI
 
 
-class EpisodesAPI(ResourceAPI):
+class EpisodesAPI(SpotifyResourceAPI):
     """
     Episodes API endpoints for the Spotify Web API.
 
@@ -17,15 +15,13 @@ class EpisodesAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _client: "SpotifyWebAPI"
-
     @TTLCache.cached_method(ttl="catalog")
     def get_episodes(
         self,
-        episode_ids: str | Collection[str],
+        episode_ids: str | list[str],
         /,
         *,
-        market: str | None = None,
+        country_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Episodes > Get Episode <https://developer.spotify.com
@@ -54,10 +50,9 @@ class EpisodesAPI(ResourceAPI):
 
         Parameters
         ----------
-        episode_ids : str or Collection[str], positional-only
-            Spotify IDs of the show episodes, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+        episode_ids : str or list[str]; positional-only
+            Spotify IDs of the show episodes. A maximum of 50 IDs can be
+            sent in a request.
 
             **Examples**:
 
@@ -65,19 +60,20 @@ class EpisodesAPI(ResourceAPI):
 
                * :code:`"77o6BIVlYM3msb4MMIL1jH"`
                * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
-               * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
+               * :code:`["77o6BIVlYM3msb4MMIL1jH",
+                 "0Q86acNRm6V9GYx55SXKwf"]`
 
-        market : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. If specified, only content
-            available in that market is returned. When a valid user
-            access token accompanies the request, the country associated
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If provided, only content
+            available in that market is returned. When a user access
+            token accompanies the request, the country associated
             with the user account takes priority over this parameter.
 
             .. note::
 
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
+               If neither a country code is provided nor a country can
+               be determined from the user account, the content is
+               considered unavailable for the client.
 
             **Example**: :code:`"ES"`.
 
@@ -237,341 +233,35 @@ class EpisodesAPI(ResourceAPI):
                        ]
                      }
         """
-        is_string = isinstance(episode_ids, str)
-        episode_ids, num_ids = self._client._prepare_spotify_ids(
-            episode_ids, limit=50
+        self._client._require_scopes(
+            "episodes.get_episodes", "user-read-playback-position"
         )
-        params = {}
-        if market is not None:
-            self._client._validate_market(market)
-            params["market"] = market
-        if is_string and num_ids == 1:
-            return self._client._request(
-                "GET", f"episodes/{episode_ids}", params=params
-            ).json()
+        return self._get_resources(
+            "episodes", episode_ids, country_code=country_code
+        )
 
-        params["ids"] = episode_ids
-        return self._client._request("GET", "episodes", params=params).json()
-
+    @_copy_docstring(UsersAPI.get_my_saved_episodes)
     def get_my_saved_episodes(
         self,
         *,
-        market: str | None = None,
+        country_code: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        """
-        `Episodes > Get User's Saved Episodes
-        <https://developer.spotify.com/documentation/web-api/reference
-        /get-multiple-episodes>`_: Get Spotify catalog information for
-        the show episodes saved in the current user's library.
-
-        .. admonition:: Authorization scopes and third-party application mode
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
-
-              :code:`user-read-playback-position` scope
-                 Read your position in content you have played. `Learn
-                 more. <https://developer.spotify.com/documentation
-                 /web-api/concepts/scopes#user-read-playback-position>`__
-
-           .. tab:: Optional
-
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
-
-        Parameters
-        ----------
-        market : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. If specified, only content
-            available in that market is returned. When a valid user
-            access token accompanies the request, the country associated
-            with the user account takes priority over this parameter.
-
-            .. note::
-
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
-
-            **Example**: :code:`"ES"`.
-
-        limit : int, keyword-only, optional
-            Maximum number of show episodes to return.
-
-            **Valid range**: :code:`1` to :code:`50`.
-
-            **Default**: :code:`20`.
-
-        offset : int, keyword-only, optional
-            Index of the first show episode to return. Use with `limit`
-            to get the next set of show episodes.
-
-            **Minimum value**: :code:`0`.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        episodes : dict[str, Any]
-            Pages of Spotify content metadata for the user's saved show
-            episodes.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "href": <str>,
-                    "items": [
-                      {
-                        "added_at": <str>,
-                        "episode": {
-                          "audio_preview_url": <str>,
-                          "description": <str>,
-                          "duration_ms": <int>,
-                          "explicit": <bool>,
-                          "external_urls": {
-                            "spotify": <str>
-                          },
-                          "href": <str>,
-                          "html_description": <str>,
-                          "id": <str>,
-                          "images": [
-                            {
-                              "height": <int>,
-                              "url": <str>,
-                              "width": <int>
-                            }
-                          ],
-                          "is_externally_hosted": <bool>,
-                          "is_playable": <bool>,
-                          "language": <str>,
-                          "languages": <list[str]>,
-                          "name": <str>,
-                          "release_date": <str>,
-                          "release_date_precision": <str>,
-                          "restrictions": {
-                            "reason": <str>
-                          },
-                          "resume_point": {
-                            "fully_played": <bool>,
-                            "resume_position_ms": <int>
-                          },
-                          "show": {
-                            "available_markets": <list[str]>,
-                            "copyrights": [
-                              {
-                                "text": <str>,
-                                "type": <str>
-                              }
-                            ],
-                            "description": <str>,
-                            "explicit": <bool>,
-                            "external_urls": {
-                              "spotify": <str>
-                            },
-                            "href": <str>,
-                            "html_description": <str>,
-                            "id": <str>,
-                            "images": [
-                              {
-                                "height": <int>,
-                                "url": <str>,
-                                "width": <int>
-                              }
-                            ],
-                            "is_externally_hosted": <bool>,
-                            "languages": <list[str]>,
-                            "media_type": <str>,
-                            "name": <str>,
-                            "publisher": <str>,
-                            "total_episodes": <int>,
-                            "type": "show",
-                            "uri": <str>
-                          },
-                          "type": "episode",
-                          "uri": <str>
-                        }
-                      }
-                    ],
-                    "limit": <int>,
-                    "next": <str>,
-                    "offset": <int>,
-                    "previous": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client._require_scopes(
-            "episodes.get_my_saved_episodes",
-            {"user-library-read", "user-read-playback-position"},
-        )
-        params = {}
-        if market is not None:
-            self._client._validate_market(market)
-            params["market"] = market
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "me/episodes", params=params
-        ).json()
-
-    def save_episodes(self, episode_ids: str | Collection[str], /) -> None:
-        """
-        `Episodes > Save Episodes for Current User
-        <https://developer.spotify.com/documentation/web-api/reference
-        /save-episodes-user>`_: Save one or more show episodes to the
-        current user's library.
-
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
-
-        Parameters
-        ----------
-        episode_ids : str or Collection[str], positional-only
-            Spotify IDs of the show episodes, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
-               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
-               * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
-        """
-        self._client._require_scopes(
-            "episodes.save_episodes", "user-library-modify"
-        )
-        self._client._request(
-            "PUT",
-            "me/episodes",
-            params={
-                "ids": self._client._prepare_spotify_ids(
-                    episode_ids, limit=50
-                )[0]
-            },
+        return self._client.users.get_my_saved_episodes(
+            country_code=country_code, limit=limit, offset=offset
         )
 
-    def remove_saved_episodes(
-        self, episode_ids: str | Collection[str], /
-    ) -> None:
-        """
-        `Episodes > Remove User's Saved Episodes
-        <https://developer.spotify.com/documentation/web-api/reference
-        /remove-episodes-user>`_: Remove one or more show episodes from
-        the current user's library.
+    @_copy_docstring(UsersAPI.save_episodes)
+    def save_episodes(self, episode_ids: str | list[str], /) -> None:
+        self._client.users.save_episodes(episode_ids)
 
-        .. admonition:: Authorization scope
-           :class: authorization-scope
+    @_copy_docstring(UsersAPI.remove_saved_episodes)
+    def remove_saved_episodes(self, episode_ids: str | list[str], /) -> None:
+        self._client.users.remove_saved_episodes(episode_ids)
 
-           .. tab:: Required
-
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
-
-        Parameters
-        ----------
-        episode_ids : str or Collection[str], positional-only
-            Spotify IDs of the show episodes, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
-               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
-               * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
-        """
-        self._client._require_scopes(
-            "episodes.remove_saved_episodes", "user-library-modify"
-        )
-        self._client._request(
-            "DELETE",
-            "me/episodes",
-            params={
-                "ids": self._client._prepare_spotify_ids(
-                    episode_ids, limit=50
-                )[0]
-            },
-        )
-
+    @_copy_docstring(UsersAPI.are_episodes_saved)
     def are_episodes_saved(
-        self, episode_ids: str | Collection[str], /
+        self, episode_ids: str | list[str], /
     ) -> list[bool]:
-        """
-        `Episodes > Check User's Saved Episodes
-        <https://developer.spotify.com/documentation/web-api/reference
-        /check-users-saved-episodes>`_: Check whether one or more show
-        episodes are saved in the current user's library.
-
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
-
-        Parameters
-        ----------
-        episode_ids : str or Collection[str], positional-only
-            Spotify IDs of the show episodes, provided as either a
-            comma-separated string or a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
-               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
-               * :code:`["77o6BIVlYM3msb4MMIL1jH", "0Q86acNRm6V9GYx55SXKwf"]`
-
-        Returns
-        -------
-        saved : list[bool]
-            Whether the current user has each of the specified show
-            episodes saved in their library.
-
-            **Sample response**: :code:`[False, True]`.
-        """
-        self._client._require_scopes(
-            "episodes.are_episodes_saved", "user-library-read"
-        )
-        return self._client._request(
-            "GET",
-            "me/episodes/contains",
-            params={
-                "ids": self._client._prepare_spotify_ids(
-                    episode_ids, limit=50
-                )[0]
-            },
-        ).json()
+        return self._client.users.are_episodes_saved(episode_ids)

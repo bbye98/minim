@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache
@@ -18,17 +17,17 @@ class ArtworksAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RESOURCES = {"owners"}
+    _RELATIONSHIPS = {"owners"}
     _client: "TIDALAPI"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artworks(
         self,
-        artwork_ids: str | Collection[str],
+        artwork_ids: str | list[str],
         /,
         country_code: str | None = None,
         *,
-        include: str | Collection[str] | None = None,
+        expand: str | list[str] | None = None,
     ) -> dict[str, Any]:
         """
         `Artworks > Get Single Artwork <https://tidal-music.github.io
@@ -48,21 +47,21 @@ class ArtworksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artwork_ids : str or Collection[str], positional-only
+        artwork_ids : str or list[str]; positional-only
             TIDAL ID(s) of the artwork(s), provided as either a string
-            or a collection of strings.
+            or a list of strings.
 
             **Examples**: :code:`"2xpmpI1s9DzeAPMlmNh9kM"`,
             :code:`["2xpmpI1s9DzeAPMlmNh9kM", "iWOu0yW0IPH0H5O42lAP"]`.
 
-        country_code : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : str or Collection[str], keyword-only, optional
-            Related resources to include in the response.
+        expand : str or list[str]; keyword-only; optional
+            Related resources to include metadata for in the response.
 
             **Valid value**: :code:`"owners"`.
 
@@ -146,19 +145,9 @@ class ArtworksAPI(TIDALResourceAPI):
                        }
                      }
         """
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include is not None:
-            params["include"] = self._prepare_include(include)
-        if isinstance(artwork_ids, str):
-            return self._client._request(
-                "GET", f"artworks/{artwork_ids}", params=params
-            ).json()
-        for artwork_id in artwork_ids:
-            if not isinstance(artwork_id, str):
-                raise ValueError("Artwork IDs must be strings.")
-        params["filter[id]"] = artwork_ids
-        return self._client._request("GET", "artworks", params=params).json()
+        return self._get_resources(
+            "artworks", artwork_ids, country_code=country_code, expand=expand
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_artwork_owners(
@@ -166,7 +155,7 @@ class ArtworksAPI(TIDALResourceAPI):
         artwork_id: str,
         /,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -185,24 +174,24 @@ class ArtworksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        artwork_id : int, str, or Collection[int | str], positional-only
+        artwork_id : str; positional-only
             TIDAL ID of the artwork.
 
             **Example**: :code:`"2xpmpI1s9DzeAPMlmNh9kM"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the artwork's owners.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the artwork's
+            owners.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
         Returns
         -------
         owners : dict[str, Any]
-            TIDAL catalog information for the artwork's owners.
+            TIDAL content metadata for the artwork's owners.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -217,12 +206,11 @@ class ArtworksAPI(TIDALResourceAPI):
                     }
                   }
         """
-        params = {}
-        if include is not None:
-            params["include"] = "owners"
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["page[cursor]"] = cursor
-        return self._client._request(
-            "GET", f"artworks/{artwork_id}/relationships/owners", params=params
-        ).json()
+        return self._get_resource_relationship(
+            "artworks",
+            artwork_id,
+            "owners",
+            country_code=False,
+            include_metadata=include_metadata,
+            cursor=cursor,
+        )

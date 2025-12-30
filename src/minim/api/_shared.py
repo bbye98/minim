@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 import base64
 from collections import OrderedDict
-from collections.abc import Collection
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 import hashlib
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import ipaddress
+import json
 import os
 from pathlib import Path
 import secrets
@@ -39,13 +39,13 @@ def _copy_docstring(
     source: Callable[..., Any],
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
-    Create a decorator that copies the docstring from a function to
-    another function.
+    Return a decorator that copies the docstring from one function to
+    another.
 
     Parameters
     ----------
     source : Callable[..., Any]
-        Source function.
+        Function whose docstring should be copied.
 
     Returns
     -------
@@ -63,121 +63,128 @@ def _copy_docstring(
 
 class TokenDatabase:
     """
-    Application programming interface (API) for the local token storage.
+    API for storing and managing access tokens in local storage.
     """
 
     @staticmethod
     def get_token(
-        client: str,
+        client_name: str,
         *,
-        flow: str | None,
+        authorization_flow: str | None,
         client_id: str,
         user_identifier: str | None,
     ) -> dict[str, Any] | None:
         """
-        Retrieves a access token and its related information from the
-        local storage.
+        Retrieve an access token and its metadata from local storage.
 
         Parameters
         ----------
-        flow : str or None, keyword-only
+        client_name : str
+            Class name of the client.
+
+        authorization_flow : str or None; keyword-only
             Authorization flow.
 
-        client_id : str, keyword-only
+        client_id : str; keyword-only
             Client ID.
 
-        user_identifier : str or None, keyword-only
-            Unique identifier for the user account to log into.
+        user_identifier : str or None; keyword-only
+            Identifier for the user account.
 
         Returns
         -------
-        token : dict[str, Any]
-            Access token and its related information.
+        token : dict[str, Any] or None
+            Access token and its metadata. Returns :code:`None` if no
+            matching token is found.
         """
         if user_identifier is None:
-            clause = "ORDER BY added DESC"
-            params = client, flow, client_id
+            clause = "ORDER BY added_at DESC"
+            params = client_name, authorization_flow, client_id
         else:
             clause = "AND user_identifier = ?"
-            params = client, flow, client_id, user_identifier
+            params = (
+                client_name,
+                authorization_flow,
+                client_id,
+                user_identifier,
+            )
         db_cursor.execute(
             f"""
             SELECT *
             FROM tokens
-            WHERE client = ?
-            AND flow = ?
+            WHERE client_name = ?
+            AND authorization_flow = ?
             AND client_id = ?
             {clause}
             LIMIT 1
             """,
             params,
         )
-        row = db_cursor.fetchone()
-        if row is None:
-            return None
-        return dict(zip((col for col, *_ in db_cursor.description), row))
+        if (row := db_cursor.fetchone()) is not None:
+            return dict(zip((col for col, *_ in db_cursor.description), row))
 
     @staticmethod
     def add_token(
-        client: str,
+        client_name: str,
         *,
-        flow: str,
+        authorization_flow: str,
         client_id: str,
         client_secret: str | None,
         user_identifier: str | None,
         redirect_uri: str | None,
-        scopes: str | Collection[str],
+        scopes: str | set[str],
         token_type: str,
         access_token: str,
-        expiry: str | datetime | None,
+        expires_at: str | datetime | None,
         refresh_token: str | None,
+        extras: dict[str, Any] | None = None,
     ) -> None:
         """
-        Adds an access token and its related information to the local
-        storage.
+        Add an access token and its metadata to local storage.
 
         Parameters
         ----------
-        flow : str or None, keyword-only
+        client_name : str
+            Class name of the client.
+
+        authorization_flow : str; keyword-only
             Authorization flow.
 
-        client_id : str, keyword-only
+        client_id : str; keyword-only
             Client ID.
 
-        client_secret : str or None, keyword-only
+        client_secret : str or None; keyword-only
             Client secret.
 
-        user_identifier : str or None, keyword-only
-            Unique identifier for the user account to log into.
+        user_identifier : str or None; keyword-only
+            Identifier for the user account.
 
-        redirect_uri : str, keyword-only, optional
-            Redirect URI. Required for the Authorization Code,
-            Authorization Code with PKCE, and Implicit Grant flows. If
-            the host is not :code:`localhost`, :code:`127.0.0.1`, or
-            :code:`::1`, redirect handling is not available.
+        redirect_uri : str; keyword-only; optional
+            Redirect URI.
 
-        scopes : str or Collection[str], keyword-only
-            Authorization scopes the client requests to access user
-            resources.
+        scopes : str or set[str]; keyword-only
+            Authorization scopes.
 
-        token_type : str, keyword-only
-            Type of the access token in `access_token`.
+        token_type : str; keyword-only
+            Type of the access token.
 
-        access_token : str, keyword-only
+        access_token : str; keyword-only
             Access token.
 
-        expiry : str, datetime.datetime, or None, keyword-only
-            Expiry of the access token in `access_token`.
+        expires_at : str, datetime.datetime, or None; keyword-only
+            Expiration time of the access token.
 
-        refresh_token : str or None, keyword-only
-            Refresh token accompanying the access token in
-            `access_token`.
+        refresh_token : str or None; keyword-only
+            Refresh token for renewing the access token.
+
+        extras : dict[str, Any]; keyword-only; optional
+            Optional extra metadata associated with the access token.
         """
         db_cursor.execute(
             """
             INSERT OR REPLACE INTO tokens (
-                flow,
-                client,
+                authorization_flow,
+                client_name,
                 client_id,
                 client_secret,
                 user_identifier,
@@ -185,13 +192,14 @@ class TokenDatabase:
                 scopes,
                 token_type,
                 access_token,
-                expiry,
-                refresh_token
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                expires_at,
+                refresh_token,
+                extras
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                flow,
-                client,
+                authorization_flow,
+                client_name,
                 client_id,
                 client_secret,
                 user_identifier or "",
@@ -201,53 +209,51 @@ class TokenDatabase:
                 else " ".join(sorted(scopes)),
                 token_type,
                 access_token,
-                expiry
-                if isinstance(expiry, str)
-                else expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                expires_at.strftime("%Y-%m-%dT%H:%M:%SZ")
+                if isinstance(expires_at, datetime)
+                else expires_at,
                 refresh_token,
+                json.dumps(extras or {}),
             ),
         )
         db_connection.commit()
 
     @staticmethod
     def remove_tokens(
-        client: str,
+        client_name: str,
         *,
-        flows: str | Collection[str] | None = None,
-        client_ids: str | Collection[str] | None = None,
-        user_identifiers: str | Collection[str] | None = None,
+        authorization_flows: str | list[str] | None = None,
+        client_ids: str | list[str] | None = None,
+        user_identifiers: str | list[str] | None = None,
     ) -> None:
         """
-        Remove specific or all access tokens and their related
-        information from the local storage.
+        Remove specific or all access tokens and their metadata from
+        local storage.
 
         .. warning::
 
-           If `flows`, `client_ids`, and `user_identifiers` are all not
-           provided, all tokens in the local storage for the specified
-           API client are removed.
+           If none of `authorization_flows`, `client_ids`, or
+           `user_identifiers` are provided, all tokens for the specified
+           client will be removed from local storage.
 
         Parameters
         ----------
-        client : str
-            API client.
+        client_name : str
+            Class name of the client.
 
-        flows : str or Collection[str], optional
-            Authorization flows for which tokens should be removed.
+        authorization_flows : str or list[str]; keyword-only; optional
+            Authorization flows.
 
-        client_ids : str or Collection[str], optional
-            Client IDs for which tokens should be removed.
+        client_ids : str or list[str]; keyword-only; optional
+            Client IDs.
 
-        user_identifiers : str or Collection[str], optional
-            Unique identifiers for the user accounts for which tokens
-            should be removed.
+        user_identifiers : str or list[str]; keyword-only; optional
+            Identifiers for the user accounts.
         """
         query = "DELETE FROM tokens WHERE client = ?"
-        params = [client]
+        params = [client_name]
 
-        def make_filter_clause(
-            field: str, values: str | Collection[str]
-        ) -> str:
+        def make_filter_clause(field: str, values: str | list[str]) -> str:
             if isinstance(values, str):
                 params.append(values)
                 return f" AND {field} = ?"
@@ -255,8 +261,10 @@ class TokenDatabase:
                 params.extend(values)
                 return f" AND {field} IN ({', '.join('?' for _ in values)})"
 
-        if flows is not None:
-            query += make_filter_clause("flow", flows)
+        if authorization_flows is not None:
+            query += make_filter_clause(
+                "authorization_flow", authorization_flows
+            )
         if client_ids is not None:
             query += make_filter_clause("client_id", client_ids)
         if user_identifiers is not None:
@@ -272,20 +280,26 @@ class TTLCache:
     policy.
     """
 
-    _TTL = {"catalog": 86_400, "featured": 43_200, "top": 3_600, "search": 600}
+    _PREDEFINED_TTLS = {
+        "catalog": 86_400,
+        "featured": 43_200,
+        "top": 3_600,
+        "search": 600,
+        "user": 120,
+    }
 
-    def __init__(self, max_size: int = 1_024) -> None:
+    def __init__(self, *, max_size: int = 1_024) -> None:
         """
         Parameters
         ----------
-        max_size : int, default: :code:`1_024`
+        max_size : int; keyword-only; default: :code:`1_024`
             Maximum number of entries to retain in the cache.
         """
         self._store = OrderedDict()
         self._max_size = max_size
 
     @staticmethod
-    def _make_hashable(obj: Any) -> Any:
+    def _make_hashable(obj: Any, /) -> Any:
         """
         Convert an object into a hashable form for use as a cache key.
 
@@ -296,7 +310,7 @@ class TTLCache:
 
         Returns
         -------
-        obj: Any
+        hashable_obj: Any
             Hashable equivalent of the input object.
         """
         if isinstance(obj, list):
@@ -314,29 +328,27 @@ class TTLCache:
         *, ttl: int | float | str
     ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
         """
-        Create a decorator that marks an API endpoint method for
-        caching.
+        Return a decorator that marks a function for caching.
 
         Parameters
         ----------
-        ttl : int, float, or str, keyword-only
-            Time-to-live (TTL) in seconds (or key referring to a
-            predefined TTL) for cached entries.
+        ttl : int, float, or str; keyword-only
+            Time-to-live (TTL) (in seconds) or a key referring to a
+            predefined TTL for cache entries.
 
             **Valid keys**:
 
             .. container::
 
-               * :code:`"catalog"` – 1 day
-               * :code:`"featured"` – 12 hours
-               * :code:`"top"` – 1 hour
-               * :code:`"search"` – 10 minutes
+               * :code:`"catalog"` – 1 day.
+               * :code:`"featured"` – 12 hours.
+               * :code:`"top"` – 1 hour.
+               * :code:`"search"` – 10 minutes.
 
         Returns
         -------
         decorator : Callable[[Callable[..., Any]], Callable[..., Any]]
-            Decorator that enables TTL-based caching for an API endpoint
-            method.
+            Decorator that enables TTL-based caching for a function.
         """
 
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -360,25 +372,21 @@ class TTLCache:
 
     def clear(
         self,
-        funcs: Callable[..., Any]
-        | Collection[Callable[..., Any]]
-        | None = None,
+        funcs: Callable[..., Any] | list[Callable[..., Any]] | None = None,
         /,
         *,
         _recursive: bool = True,
     ) -> None:
         """
-        Clear cached entries.
+        Clear specific or all cache entries.
 
         .. warning::
 
-           If no parameters are specified, all entries in the cache are
-           cleared.
+           If `funcs` is not provided, all cache entries are cleared.
 
         Parameters
         ----------
-        funcs : Callable or Collection[Callable], positional-only, \
-        optional
+        funcs : Callable or list[Callable]; positional-only; optional
             Functions whose cache entries should be cleared.
         """
         if funcs is None:
@@ -387,7 +395,7 @@ class TTLCache:
             funcs = funcs.__qualname__
             for key in [k for k in self._store if k[0] == funcs]:
                 del self._store[key]
-        elif _recursive and isinstance(funcs, Collection):
+        elif _recursive and isinstance(funcs, tuple | list | set):
             for func in funcs:
                 self.clear(func, _recursive=False)
         else:
@@ -404,27 +412,27 @@ class TTLCache:
 
         Parameters
         ----------
-        ttl : int, float, or str, keyword-only
-            Time-to-live (TTL) in seconds (or key referring to a
-            predefined TTL) for cached entries.
+        ttl : int, float, or str; keyword-only
+            Time-to-live (TTL) (in seconds) or a key referring to a
+            predefined TTL for cache entries.
 
             **Valid keys**:
 
             .. container::
 
-               * :code:`"catalog"` – 1 day
-               * :code:`"featured"` – 12 hours
-               * :code:`"top"` – 1 hour
-               * :code:`"search"` – 10 minutes
+               * :code:`"catalog"` – 1 day.
+               * :code:`"featured"` – 12 hours.
+               * :code:`"top"` – 1 hour.
+               * :code:`"search"` – 10 minutes.
 
         Returns
         -------
         decorator : Callable[[Callable[..., Any]], Callable[..., Any]]
-            Decorator that applies TTL-based caching to an API endpoint
-            method.
+            Decorator that applies TTL- and LRU-based caching to a
+            function.
         """
         if isinstance(ttl, str):
-            ttl = self._TTL[ttl]
+            ttl = self._PREDEFINED_TTLS[ttl]
 
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             @wraps(func)
@@ -444,8 +452,8 @@ class TTLCache:
                 now = time.time()
 
                 if (entry := self._store.get(key)) is not None:
-                    value, expiry = entry
-                    if expiry is None or expiry > now:
+                    value, expires_at = entry
+                    if expires_at is None or expires_at > now:
                         self._store.move_to_end(key)
                         return value
                     else:
@@ -511,15 +519,15 @@ class OAuth2RedirectHandler(BaseHTTPRequestHandler):
         self, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> None:
         """
-        Silence the HTTP server logging output.
+        Suppress the HTTP server logging output.
 
         Parameters
         ----------
-        *args : tuple[Any, ...], optional
+        *args : tuple[Any, ...]; optional
             Positional arguments to pass to
             :meth:`http.server.BaseHTTPRequestHandler.log_message`.
 
-        **kwargs : dict[str, Any], optional
+        **kwargs : dict[str, Any]; optional
             Keyword arguments to pass to
             :meth:`http.server.BaseHTTPRequestHandler.log_message`.
         """
@@ -528,20 +536,23 @@ class OAuth2RedirectHandler(BaseHTTPRequestHandler):
 
 class APIClient(ABC):
     """
-    Abstract base class for application programming interface (API)
-    clients.
+    Abstract base class for API clients.
     """
 
+    _ALLOWED_AUTH_FLOWS: set[str | None] = ...
+    _ENV_VAR_PREFIX: str = ...
+    _IS_TRUSTED_DEVICE: bool = False
+    _OPTIONAL_AUTH: bool = False
     _PROVIDER: str = ...
     _QUAL_NAME: str = ...
     #: Base URL for API endpoints.
     BASE_URL: str = ...
 
-    def __init__(self, *, cache: bool = True) -> None:
+    def __init__(self, *, enable_cache: bool = True) -> None:
         """
         Parameters
         ----------
-        cache : bool, keyword-only, default: :code:`True`
+        enable_cache : bool; keyword-only; default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
@@ -551,19 +562,19 @@ class APIClient(ABC):
             .. seealso::
 
                :meth:`clear_cache` – Clear specific or all cache
-               entries for this API client.
+               entries for this client.
         """
-        self._cache = TTLCache() if cache else None
+        self._cache = TTLCache() if enable_cache else None
         self._client = httpx.Client(base_url=self.BASE_URL)
 
     def __enter__(self) -> "APIClient":
         """
-        Enter the runtime context related to this API client.
+        Enter the runtime context related to this client.
 
         Returns
         -------
         client : APIClient
-            This API client.
+            This client.
         """
         if self._client is None:
             raise RuntimeError(
@@ -578,17 +589,17 @@ class APIClient(ABC):
         exc_tb: types.TracebackType | None,
     ) -> None:
         """
-        Exit the runtime context related to this API client.
+        Exit the runtime context related to this client.
 
         Parameters
         ----------
-        exc_type : type, optional
+        exc_type : type; optional
             Exception type.
 
-        exc_value : Exception, optional
+        exc_value : Exception; optional
             Exception value.
 
-        exc_tb : TracebackType, optional
+        exc_tb : TracebackType; optional
             Traceback.
         """
         self.close()
@@ -602,10 +613,10 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        method : str, positional-only
+        method : str; positional-only
             HTTP method.
 
-        endpoint : str, positional-only
+        endpoint : str; positional-only
             API endpoint.
 
         **kwargs : dict[str, Any]
@@ -626,10 +637,10 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        barcode : int or str, positional-only
+        barcode : int or str; positional-only
             UPC or EAN barcode.
         """
-        if not (barcode_ := str(barcode)).isdigit() or len(barcode_) not in {
+        if not (barcode_ := str(barcode)).isdecimal() or len(barcode_) not in {
             12,
             13,
         }:
@@ -638,11 +649,11 @@ class APIClient(ABC):
     @staticmethod
     def _validate_country_code(country_code: str, /) -> None:
         """
-        Validate a country code.
+        Validate a ISO 3166-1 alpha-2 country code.
 
         Parameters
         ----------
-        country_code : str, positional-only
+        country_code : str; positional-only
             ISO 3166-1 alpha-2 country code.
         """
         if (
@@ -658,26 +669,26 @@ class APIClient(ABC):
     @staticmethod
     def _validate_locale(locale: str, /) -> None:
         """
-        Validate a Internet Engineering Task Force (IETF) Best Current
+        Validate an Internet Engineering Task Force (IETF) Best Current
         Practice (BCP) 47 language tag, as defined in Request for
         Comments (RFC) 1766.
 
         Parameters
         ----------
-        locale : str, positional-only
-            Locale identifier.
+        locale : str; positional-only
+            IETF BCP 47 language tag.
         """
-        APIClient._validate_type("locale", locale, str)
         if (
-            len(locale) != 5
+            not isinstance(locale, str)
+            or len(locale) != 5
             or not locale[:2].isalpha()
             or locale[2] != "_"
             or not locale[3:].isalpha()
         ):
             raise ValueError(
-                f"{locale!r} is not a valid locale consisting of a "
-                "an ISO 639-1 language code and an ISO 3166-1 alpha-2 "
-                "country code joined by an underscore."
+                f"{locale!r} is not a valid IETF BCP 47 language tag "
+                "consisting of an ISO 639-1 language code and an ISO "
+                "3166-1 alpha-2 country code joined by an underscore."
             )
 
     @staticmethod
@@ -687,81 +698,148 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        isrc : str, positional-only
+        isrc : str; positional-only
             ISRC.
         """
-        APIClient._validate_type("isrc", isrc, str)
-        if len(isrc) != 12 or not (
-            isrc[:2].isalpha() and isrc[2:5].isalnum() and isrc[5:].isdigit()
+        if (
+            not isinstance(isrc, str)
+            or len(isrc) != 12
+            or not (
+                isrc[:2].isalpha()
+                and isrc[2:5].isalnum()
+                and isrc[5:].isdecimal()
+            )
         ):
             raise ValueError(f"{isrc!r} is not a valid ISRC.")
 
     @staticmethod
     def _validate_number(
         name: str,
-        value: int,
-        data_type: type,
-        lower_bound: int | None = None,
-        upper_bound: int | None = None,
+        value: int | float,
+        data_type: type | types.UnionType,
+        /,
+        lower_bound: int | float | None = None,
+        upper_bound: int | float | None = None,
     ) -> None:
         """
-        Validate an integer value.
+        Validate the value of a variable containing a number.
 
         Parameters
         ----------
-        name : str
+        name : str; positional-only
             Variable name.
 
-        value : int
-            Integer value.
+        value : int or float; positional-only
+            Variable value.
 
-        data_type : type
-            Data type.
+        data_type : type or types.UnionType; positional-only
+            Allowed numeric data types.
 
-        lower_bound : int, optional
+        lower_bound : int or float; optional
             Lower bound, inclusive.
 
-        upper_bound : int, optional
+        upper_bound : int or float; optional
             Upper bound, inclusive.
         """
-        if lower_bound is None:
-            if upper_bound is None:
-                emsg_suffix = ""
-            else:
-                emsg_suffix = f" less than {upper_bound}, inclusive"
-        else:
-            if upper_bound is None:
-                emsg_suffix = f" greater than {lower_bound}, inclusive"
-            else:
+        has_lower_bound = lower_bound is not None
+        has_upper_bound = upper_bound is not None
+        if has_lower_bound:
+            if has_upper_bound:
                 emsg_suffix = (
                     f" between {lower_bound} and {upper_bound}, inclusive"
                 )
-        if not (
-            isinstance(value, data_type)
-            and (lower_bound is None or value >= lower_bound)
-            and (upper_bound is None or value <= upper_bound)
+            else:
+                emsg_suffix = f" greater than {lower_bound}, inclusive"
+        else:
+            if has_upper_bound:
+                emsg_suffix = f" less than {upper_bound}, inclusive"
+            else:
+                emsg_suffix = ""
+        if (
+            not isinstance(value, data_type)
+            or (has_lower_bound and value < lower_bound)
+            or (has_upper_bound and value > upper_bound)
         ):
-            raise ValueError(f"`{name}` must be an integer{emsg_suffix}.")
+            data_type_str = (
+                data_type.__name__
+                if isinstance(data_type, type)
+                else str(data_type)
+            )
+            raise ValueError(
+                f"`{name}` must be a(n) {data_type_str}{emsg_suffix}."
+            )
 
     @staticmethod
-    def _validate_type(name: str, value: Any, data_type: type) -> None:
+    def _validate_numeric(
+        name: str,
+        value: int | float | str,
+        data_type: type,
+        /,
+        lower_bound: int | float | None = None,
+        upper_bound: int | float | None = None,
+    ) -> None:
+        """
+        Validate the value of a variable containing a numeric value.
+
+        Parameters
+        ----------
+        name : str; positional-only
+            Variable name.
+
+        value : int, float, or str; positional-only
+            Variable value.
+
+        data_type : type; positional-only
+            Allowed numeric data type.
+
+        lower_bound : int or float; optional
+            Lower bound, inclusive.
+
+        upper_bound : int or float; optional
+            Upper bound, inclusive.
+        """
+        try:
+            if isinstance(value, str):
+                value = data_type(value)
+            APIClient._validate_number(
+                name,
+                value,
+                data_type,
+                lower_bound=lower_bound,
+                upper_bound=upper_bound,
+            )
+        except ValueError:
+            raise ValueError(
+                f"`{name}` must be a(n) {data_type.__name__} or its "
+                "string representation."
+            )
+
+    @staticmethod
+    def _validate_type(
+        name: str, value: Any, data_type: type | types.UnionType, /
+    ) -> None:
         """
         Validate the data type of a variable.
 
         Parameters
         ----------
-        name : str
+        name : str; positional-only
             Variable name.
 
-        value : Any
+        value : Any; positional-only
             Variable value.
 
-        data_type : type
+        data_type : type or types.UnionTypes; positional-only
             Allowed data type.
         """
         if not isinstance(value, data_type):
+            data_type_str = (
+                data_type.__name__
+                if isinstance(data_type, type)
+                else str(data_type)
+            )
             raise ValueError(
-                f"`{name}` must be {data_type.__name__}, not "
+                f"`{name}` must be a(n) {data_type_str}, not a(n)"
                 f"{type(value).__name__}."
             )
 
@@ -772,7 +850,7 @@ class APIClient(ABC):
 
         Parameters
         ----------
-        uuid_ : str, positional-only
+        uuid_ : str; positional-only
             UUID.
         """
         try:
@@ -783,21 +861,22 @@ class APIClient(ABC):
     def clear_cache(
         self,
         endpoint_methods: Callable[..., Any]
-        | Collection[Callable[..., Any]]
+        | list[Callable[..., Any]]
         | None = None,
+        /,
     ) -> None:
         """
-        Clear specific or all cache entries for this API client.
+        Clear specific or all cache entries for this client.
 
         .. warning::
 
            If `endpoint_methods` is not provided, all cache entries for
-           this API client are cleared.
+           this client are cleared.
 
         Parameters
         ----------
-        endpoint_methods : Callable or Collection[Callable], \
-        positional-only, optional
+        endpoint_methods : Callable or list[Callable]; positional-only; \
+        optional
             Endpoint methods whose cache entries should be cleared.
 
             **Examples**: :code:`minim.api.spotify.SearchAPI.search`,
@@ -815,13 +894,13 @@ class APIClient(ABC):
             self._client.close()
             self._client = None
 
-    def set_cache_enabled(self, enable: bool) -> None:
+    def set_cache_enabled(self, enable: bool, /) -> None:
         """
-        Enable or disable the in-memory TTL cache for this API client.
+        Enable or disable the in-memory TTL cache for this client.
 
         Parameters
         ----------
-        enable : bool
+        enable : bool; positional-only
             Whether to enable the cache.
         """
         if enable and self._cache is None:
@@ -836,120 +915,118 @@ class OAuth2APIClient(APIClient):
     Abstract base class for OAuth 2.0-based API clients.
     """
 
-    _BACKENDS = {"http.server", "playwright"}
-    _FLOWS: set[str] = ...
-    _OAUTH_FLOWS_NAMES = {
+    _ALLOWED_SCOPES: Any = ...
+    _OAUTH_AUTH_FLOWS = {
+        None: "No Authorization Flow",
         "auth_code": "Authorization Code Flow",
         "pkce": "Authorization Code Flow with Proof Key for Code Exchange (PKCE)",
         "client_credentials": "Client Credentials Flow",
-        # "device": "Device Authorization Flow",
+        "device": "Device Authorization Flow",
         "implicit": "Implicit Grant Flow",
         # "password": "Resource Owner Password Credentials Flow"
     }
-    _ENV_VAR_PREFIX: str = ...
-    _SCOPES: Any = ...
+    _REDIRECT_HANDLERS = {"http.server", "playwright"}
     #: Authorization endpoint.
     AUTH_URL: str = ...
+    #: Device authorization endpoint.
+    DEVICE_AUTH_URL: str = ...
     #: Token endpoint.
     TOKEN_URL: str = ...
 
     def __init__(
         self,
         *,
-        flow: str,
+        authorization_flow: str | None,
         client_id: str | None = None,
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
-        scopes: str | Collection[str] = "",
+        scopes: str | set[str] = "",
         token_type: str = "Bearer",
         access_token: str | None = None,
         refresh_token: str | None = None,
-        expiry: str | datetime | None = None,
-        backend: str | None = None,
-        browser: bool = False,
-        cache: bool = True,
-        store: bool = True,
+        expires_at: str | datetime | None = None,
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
+        enable_cache: bool = True,
+        store_tokens: bool = True,
     ) -> None:
         """
         Parameters
         ----------
-        flow : str, keyword-only
+        authorization_flow : str or None; keyword-only
             OAuth 2.0 authorization flow.
 
             .. container::
 
                **Valid values**:
 
+               * :code:`None` – No authentication.
                * :code:`"auth_code"` – Authorization Code Flow.
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
                  for Code Exchange (PKCE).
                * :code:`"client_credentials"` – Client Credentials Flow.
+               * :code:`"device"` – Device Authorization Flow.
                * :code:`"implicit"` – Implicit Grant Flow.
 
-        client_id : str, keyword-only, optional
-            Client ID. Must be provided unless it is set as a system
-            environment variable or stored in Minim's local token
-            storage.
+        client_id : str; keyword-only; optional
+            Client ID. Required unless set as a system environment
+            variable or stored in the local token storage.
 
-        client_secret : str, keyword-only, optional
-            Client secret. Required for the Authorization Code, Client
-            Credentials, and Resource Owner Password Credential flows,
-            and must be provided unless it is set as a system
-            environment variable or stored in Minim's local token
-            storage.
+        client_secret : str; keyword-only; optional
+            Client secret. Required for the Authorization Code,
+            Client Credentials, and Resource Owner Password Credential
+            flows unless set as a system environment variable or
+            stored in the local token storage.
 
-        user_identifier : str, keyword-only, optional
-            Unique identifier for the user account to log into for all
-            authorization flows but the Client Credentials flow. Used
-            when :code:`store=True` to distinguish between multiple
-            user accounts for the same client ID and authorization flow.
+        user_identifier : str; keyword-only; optional
+            Identifier for the user account. Used when
+            :code:`store_tokens=True` to distinguish between multiple
+            accounts for the same client ID and authorization flow.
 
-            If provided, it is used to locate existing access tokens or
-            store new tokens in Minim's local token storage.
+            If provided, it is used with the client ID and authorization
+            flow to locate a matching stored token. If none is found, a
+            new token is obtained and stored under this identifier.
 
-            If not provided, the last accessed account for the specified
-            authorization flow in `flow` is selected if it exists in
-            local storage. Otherwise, a new entry is created using a
-            the client ID, authorization flow, and an available user
-            identifier (e.g., user ID) after successful authorization.
+            If not provided, the most recently accessed token for the
+            client ID and authorization flow is used. If none exists, a
+            new token is obtained and stored using a user identifier
+            (e.g., user ID) acquired from a successful authorization.
 
-            Prepending the identifier with a tilde (:code:`~`) skips
-            token retrieval from local storage, and the suffix will be
-            used as the identifier for storing future tokens.
+            Prefixing the identifier with a tilde (:code:`~`) bypasses
+            token retrieval, forces reauthorization, and stores the new
+            token under the suffix.
 
-        redirect_uri : str, keyword-only, optional
+        redirect_uri : str; keyword-only; optional
             Redirect URI. Required for the Authorization Code,
-            Authorization Code with PKCE, and Implicit Grant flows. If
-            the host is not :code:`localhost`, :code:`127.0.0.1`, or
-            :code:`::1`, redirect handling is not available.
+            Authorization Code with PKCE, and Implicit Grant flows.
 
-        scopes : str or Collection[str], keyword-only, optional
-            Authorization scopes the client requests to access user
+        scopes : str or set[str]; keyword-only; optional
+            Authorization scopes requested by the client to access user
             resources.
 
-        token_type : str, keyword-only, default: :code:`"Bearer"`
-            Type of the access token in `access_token`.
+        token_type : str; keyword-only; default: :code:`"Bearer"`
+            Type of the access token.
 
-        access_token : str, keyword-only, optional
-            Access token. If provided or found in Minim's local token
-            storage, the authorization process is bypassed. If provided,
-            all other relevant keyword parameters should also be
-            specified to enable automatic token refresh upon expiration.
+        access_token : str; keyword-only; optional
+            Access token. If provided, the authorization process is
+            bypassed, and automatic token refresh is enabled when
+            relevant metadata (refresh token, expiry, etc.) is also
+            supplied.
 
-        refresh_token : str, keyword-only, optional
-            Refresh token accompanying the access token in
-            `access_token`. If not provided, the user will be
-            reauthorized via the authorization flow in `flow` when the
-            access token expires.
+        refresh_token : str; keyword-only; optional
+            Refresh token for renewing the access token. If not
+            provided, the user will be reauthorized via the specified
+            authorization flow when the access token expires.
 
-        expiry : str or datetime.datetime, keyword-only, optional
-            Expiry of the access token in `access_token`. If provided as
-            a string, it must be in ISO 8601 format
-            (:code:`%Y-%m-%dT%H:%M:%SZ`).
+        expires_at : str or datetime.datetime; keyword-only; optional
+            Expiration time of the access token. If a string, it must be
+            in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
 
-        backend : str, keyword-only, optional
-            Backend to handle redirects during the authorization flow.
+        redirect_handler : str or None; keyword-only; optional
+            Backend for handling redirects during the authorization
+            flow. Redirect handling is only available for hosts
+            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
             .. container::
 
@@ -957,40 +1034,41 @@ class OAuth2APIClient(APIClient):
 
                * :code:`None` – Manually paste the redirect URL into
                  the terminal.
-               * :code:`"http.server"` – Simple HTTP server.
-               * :code:`"playwright"` – Playwright Firefox browser.
+               * :code:`"http.server"` – Run a simple HTTP server.
+               * :code:`"playwright"` – Open a Playwright Firefox
+                 browser.
 
-        browser : bool, keyword-only, default: :code:`False`
-            Whether to automatically open the authorization
-            URL in the default web browser for the Authorization Code,
+        open_browser : bool; keyword-only; default: :code:`False`
+            Whether to automatically open the authorization URL in the
+            default web browser for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
-            :code:`False`, the authorization URL is printed to the
-            terminal.
+            :code:`False`, the URL is printed to the terminal.
 
-        cache : bool, keyword-only, default: :code:`True`
+        enable_cache : bool; keyword-only; default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for between 10 minutes and 1 day, depending on their
-            expected update frequency.
+            cached for 10 minutes to 1 day, depending on their expected
+            update frequency.
 
             .. seealso::
 
                :meth:`clear_cache` – Clear specific or all cache
-               entries for this API client.
+               entries for this client.
 
-        store : bool, keyword-only, default: :code:`True`
-            Whether to enable Minim's local token storage for
-            this client. If :code:`True`, newly acquired access tokens
-            and related information are stored. If :code:`False`, the
-            client will not retrieve or store access tokens.
+        store_tokens : bool; keyword-only; default: :code:`True`
+            Whether to enable the local token storage for this client.
+            If :code:`True`, existing access tokens are retrieved when
+            found in local storage, and newly acquired tokens and their
+            metadata are stored for future retrieval. If :code:`False`,
+            the client neither retrieves nor stores access tokens.
 
             .. seealso::
 
                :meth:`remove_tokens` – Remove specific or all stored
-               access tokens for this API client.
+               access tokens for this client.
         """
-        super().__init__(cache=cache)
+        super().__init__(enable_cache=enable_cache)
 
         # If a client ID is not provided, try to retrieve it and its
         # corresponding client secret from environment variables
@@ -1000,58 +1078,64 @@ class OAuth2APIClient(APIClient):
                 f"{self._ENV_VAR_PREFIX}_CLIENT_SECRET"
             )
 
-        # Ensure `flow` and `client_id` are not empty/null
-        if not (flow and client_id):
+        # Ensure `client_id` and `authorization_flow` are not empty/null
+        if client_id is None:
             raise ValueError(
-                "At a minimum, a client ID and an authorization flow "
-                "must be provided via the `client_id` and `flow` "
-                "parameters, respectively."
+                "A client ID must be provided via the `client_id` parameter."
+            )
+        if not self._OPTIONAL_AUTH and authorization_flow is None:
+            raise ValueError(
+                "An authorization flow must be provided via the "
+                "`authorization_flow` parameter."
             )
 
         # If an access token is not provided, try to retrieve it from
         # local token storage
-        if user_identifier and user_identifier[0] == "~":
-            user_identifier = user_identifier[1:]
-        elif account := TokenDatabase.get_token(
-            self.__class__.__name__,
-            flow=flow,
-            client_id=client_id,
-            user_identifier=user_identifier,
-        ):
-            access_token = account["access_token"]
-            client_secret = account["client_secret"]
-            scopes = account["scopes"]
-            redirect_uri = account["redirect_uri"]
-            token_type = account["token_type"]
-            refresh_token = account["refresh_token"]
-            expiry = account["expiry"]
+        if authorization_flow is not None:
+            if user_identifier and user_identifier[0] == "~":
+                user_identifier = user_identifier[1:]
+            elif account := TokenDatabase.get_token(
+                self.__class__.__name__,
+                authorization_flow=authorization_flow,
+                client_id=client_id,
+                user_identifier=user_identifier,
+            ):
+                access_token = account["access_token"]
+                client_secret = account["client_secret"]
+                scopes = account["scopes"]
+                redirect_uri = account["redirect_uri"]
+                token_type = account["token_type"]
+                refresh_token = account["refresh_token"]
+                expires_at = account["expires_at"]
+                self._token_extras = json.loads(account["extras"])
 
         self.set_flow(
-            flow,
+            authorization_flow,
             client_id=client_id,
             client_secret=client_secret,
             user_identifier=user_identifier,
             redirect_uri=redirect_uri,
             scopes=scopes,
-            backend=backend,
-            browser=browser,
-            authorize=False,
-            store=store,
+            redirect_handler=redirect_handler,
+            open_browser=open_browser,
+            store_tokens=store_tokens,
+            authenticate=False,
         )
-        if access_token:
-            self.set_access_token(
-                access_token,
-                token_type,
-                refresh_token=refresh_token,
-                expiry=expiry,
-            )
-        else:
-            self._obtain_access_token()
+        if authorization_flow is not None:
+            if access_token:
+                self.set_access_token(
+                    access_token,
+                    token_type,
+                    refresh_token=refresh_token,
+                    expires_at=expires_at,
+                )
+            else:
+                self._obtain_access_token()
 
     @abstractmethod
-    def _get_user_identifier(self) -> str:
+    def _resolve_user_identifier(self) -> str:
         """
-        Resolve and assign a user identifier for the current account.
+        Resolve the best user identifier for the current account.
         """
         ...
 
@@ -1059,42 +1143,43 @@ class OAuth2APIClient(APIClient):
     def remove_tokens(
         cls,
         *,
-        flows: str | Collection[str] | None = None,
-        client_ids: str | Collection[str] | None = None,
-        user_identifiers: str | Collection[str] | None = None,
+        authorization_flows: str | list[str] | None = None,
+        client_ids: str | list[str] | None = None,
+        user_identifiers: str | list[str] | None = None,
     ) -> None:
         """
-        Remove specific or all access tokens and their related
-        information for this API client from the local token storage.
+        Remove specific or all access tokens and their metadata for this
+        client from local storage.
 
         .. warning::
 
-           If no parameters are specified, all tokens in the local
-           storage for this API client are removed.
+           If none of `authorization_flows`, `client_ids`, or
+           `user_identifiers` are provided, all tokens for this client
+           will be removed from local storage.
 
         Parameters
         ----------
-        flows : str or Collection[str], optional
-            Authorization flows for which tokens should be removed.
+        authorization_flows : str or list[str]; keyword-only; optional
+            Authorization flows.
 
-        client_ids : str or Collection[str], optional
-            Client IDs for which tokens should be removed.
+        client_ids : str or list[str]; keyword-only; optional
+            Client IDs.
 
-        user_identifiers : str or Collection[str], optional
-            Unique identifiers for the user accounts for which tokens
-            should be removed.
+        user_identifiers : str or list[str]; keyword-only; optional
+            Identifiers for the user accounts.
         """
         TokenDatabase.remove_tokens(
             cls.__name__,
-            flows=flows,
+            authorization_flows=authorization_flows,
             client_ids=client_ids,
             user_identifiers=user_identifiers,
         )
 
     @staticmethod
-    def _generate_self_signed_certificate() -> None:
+    def _generate_local_https_certificate() -> None:
         """
-        Generate a self-signed certificate to handle HTTPS redirects.
+        Generate a self-signed certificate for handling local HTTPS
+        redirects.
         """
         subject = x509.Name(
             [
@@ -1145,7 +1230,7 @@ class OAuth2APIClient(APIClient):
 
         Parameters
         ----------
-        certificate_file : str or pathlib.Path, positional-only
+        certificate_file : str or pathlib.Path; positional-only
             Name of or path to the certificate file.
 
         Returns
@@ -1173,20 +1258,20 @@ class OAuth2APIClient(APIClient):
         token_type: str = "Bearer",
         *,
         refresh_token: str | None = None,
-        expiry: str | datetime | None = None,
+        expires_at: str | datetime | None = None,
     ) -> None:
         """
-        Set or update the access token and related information.
+        Set or update the access token and its related metadata.
 
         .. warning::
 
            Calling this method replaces all existing values with the
-           specified parameters. Parameters not specified explicitly
+           provided parameters. Parameters not provided explicitly
            will be overwritten by their default values.
 
         Parameters
         ----------
-        access_token : str, positional-only
+        access_token : str; positional-only
             Access token.
 
             .. important::
@@ -1196,114 +1281,116 @@ class OAuth2APIClient(APIClient):
                to ensure that all other relevant authorization
                parameters are set correctly.
 
-        token_type : str, default: :code:`"Bearer"`
-            Type of the access token in `access_token`.
+        token_type : str; default: :code:`"Bearer"`
+            Type of the access token.
 
-        refresh_token : str, keyword-only, optional
-            Refresh token accompanying the access token in
-            `access_token`. If not provided, the user will be
-            reauthorized when the access token expires.
+        refresh_token : str; keyword-only; optional
+            Refresh token for renewing the access token. If not
+            provided, the user will be reauthorized via the current
+            authorization flow when the access token expires.
 
-        expiry : str or datetime.datetime, keyword-only, optional
-            Expiry of the access token in `access_token`. If provided
-            as a string, it must be in ISO 8601 format
-            (:code:`%Y-%m-%dT%H:%M:%SZ`).
+        expires_at : str or datetime.datetime; keyword-only; optional
+            Expiration time of the access token. If a string, it must be
+            in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
         """
         self._client.headers["Authorization"] = f"{token_type} {access_token}"
-        if refresh_token and self._flow in {"client_credentials", "implicit"}:
+        if refresh_token and self._auth_flow in {
+            "client_credentials",
+            "implicit",
+        }:
             raise ValueError(
-                f"The {self._OAUTH_FLOWS_NAMES[self._flow]} does not "
-                "support refresh tokens, but one was provided via the "
-                "`refresh_token` parameter."
+                f"The {self._OAUTH_AUTH_FLOWS[self._auth_flow]} does "
+                "not support refresh tokens, but one was provided via "
+                "the `refresh_token` parameter."
             )
         self._refresh_token = refresh_token
-        self._expiry = (
-            datetime.strptime(expiry, "%Y-%m-%dT%H:%M:%SZ")
-            if expiry and isinstance(expiry, str)
-            else expiry
+        self._expires_at = (
+            datetime.strptime(expires_at, "%Y-%m-%dT%H:%M:%SZ")
+            if expires_at and isinstance(expires_at, str)
+            else expires_at
         )
 
     def set_flow(
         self,
-        flow: str,
+        authorization_flow: str | None,
         /,
         *,
         client_id: str,
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
-        scopes: str | Collection[str] = "",
-        backend: str | None = None,
-        browser: bool = False,
-        authorize: bool = True,
-        store: bool = True,
+        scopes: str | set[str] = "",
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
+        store_tokens: bool = True,
+        authenticate: bool = True,
     ) -> None:
         """
-        Set or update the authorization flow and related information.
+        Set or update the authorization flow and related parameters.
 
         .. warning::
 
            Calling this method replaces all existing values with the
-           specified parameters. Parameters not specified explicitly
+           provided parameters. Parameters not provided explicitly
            will be overwritten by their default values.
 
         Parameters
         ----------
-        flow : str, keyword-only
+        authorization_flow : str or None; keyword-only
             OAuth 2.0 authorization flow.
 
             .. container::
 
                **Valid values**:
 
+               * :code:`None` – No authentication.
                * :code:`"auth_code"` – Authorization Code Flow.
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
                  for Code Exchange (PKCE).
                * :code:`"client_credentials"` – Client Credentials Flow.
+               * :code:`"device"` – Device Authorization Flow.
                * :code:`"implicit"` – Implicit Grant Flow.
 
-        client_id : str, keyword-only, optional
-            Client ID. Must be provided unless it is set as a system
-            environment variable or stored in Minim's local token
-            storage.
+        client_id : str; keyword-only; optional
+            Client ID. Required unless set as a system environment
+            variable or stored in the local token storage.
 
-        client_secret : str, keyword-only, optional
-            Client secret. Required for the Authorization Code, Client
-            Credentials, and Resource Owner Password Credential flows.
-            Must be provided unless it is set as a system environment
-            variable or stored in Minim's local token storage.
+        client_secret : str; keyword-only; optional
+            Client secret. Required for the Authorization Code,
+            Client Credentials, and Resource Owner Password Credential
+            flows unless set as a system environment variable or
+            stored in the local token storage.
 
-        user_identifier : str, keyword-only, optional
-            Unique identifier for the user account to log into for all
-            authorization flows but the Client Credentials flow. Used
-            when :code:`store=True` to distinguish between multiple
-            user accounts for the same client ID and authorization flow.
+        user_identifier : str; keyword-only; optional
+            Identifier for the user account. Used when
+            :code:`store_tokens=True` to distinguish between multiple
+            accounts for the same client ID and authorization flow.
 
-            If provided, it is used to locate existing access tokens or
-            store new tokens in Minim's local token storage.
+            If provided, it is used with the client ID and authorization
+            flow to locate a matching stored token. If none is found, a
+            new token is obtained and stored under this identifier.
 
-            If not provided, the last accessed account for the specified
-            authorization flow in `flow` is selected if it exists in
-            local storage. Otherwise, a new entry is created using a
-            the client ID, authorization flow, and an available user
-            identifier (e.g., user ID) after successful authorization.
+            If not provided, the most recently accessed token for the
+            client ID and authorization flow is used. If none exists, a
+            new token is obtained and stored using a user identifier
+            (e.g., user ID) acquired from a successful authorization.
 
-            Prepending the identifier with a tilde (:code:`~`) skips
-            token retrieval from local storage, and the suffix will be
-            used as the identifier for storing future tokens.
+            Prefixing the identifier with a tilde (:code:`~`) bypasses
+            token retrieval, forces reauthorization, and stores the new
+            token under the suffix.
 
-        redirect_uri : str, keyword-only, optional
+        redirect_uri : str; keyword-only; optional
             Redirect URI. Required for the Authorization Code,
-            Authorization Code with PKCE, and Implicit Grant flows. If
-            the host is not :code:`localhost`, :code:`127.0.0.1`, or
-            :code:`::1`, redirect handling is not available.
+            Authorization Code with PKCE, and Implicit Grant flows.
 
-        scopes : str or Collection[str], keyword-only, optional
-            Authorization scopes the client requests to access user
+        scopes : str or set[str]; keyword-only; optional
+            Authorization scopes requested by the client to access user
             resources.
 
-        backend : str, keyword-only, optional
-            Backend to handle redirects during the authorization flow.
+        redirect_handler : str or None; keyword-only; optional
+            Backend for handling redirects during the authorization
+            flow. Redirect handling is only available for hosts
+            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
             .. container::
 
@@ -1311,49 +1398,52 @@ class OAuth2APIClient(APIClient):
 
                * :code:`None` – Manually paste the redirect URL into
                  the terminal.
-               * :code:`"http.server"` – Simple HTTP server.
-               * :code:`"playwright"` – Playwright Firefox browser.
+               * :code:`"http.server"` – Run a simple HTTP server.
+               * :code:`"playwright"` – Open a Playwright Firefox
+                 browser.
 
-        browser : bool, keyword-only, default: :code:`False`
-            Whether to automatically open the authorization
-            URL in the default web browser for the Authorization Code,
+        open_browser : bool; keyword-only; default: :code:`False`
+            Whether to automatically open the authorization URL in the
+            default web browser for the Authorization Code,
             Authorization Code with PKCE, and Implicit Grant flows. If
-            :code:`False`, the authorization URL is printed to the
-            terminal.
+            :code:`False`, the URL is printed to the terminal.
 
-        authorize : bool, keyword-only, default: :code:`True`
+        store_tokens : bool; keyword-only; default: :code:`True`
+            Whether to enable the local token storage for this client.
+            If :code:`True`, existing access tokens are retrieved when
+            found in local storage, and newly acquired tokens and their
+            metadata are stored for future retrieval. If :code:`False`,
+            the client neither retrieves nor stores access tokens.
+
+            .. seealso::
+
+               :meth:`remove_tokens` – Remove specific or all stored
+               access tokens for this client.
+
+        authenticate : bool; keyword-only; default: :code:`True`
             Whether to immediately initiate the authorization
             flow to acquire an access token.
 
             .. important::
 
-               Unless :meth:`set_access_token` is immediately called
-               afterwards, this should be left as :code:`True` to ensure
-               that the client's existing access token is compatible
-               with the new authorization flow and/or scopes.
-
-        store : bool, keyword-only, default: :code:`True`
-            Whether to enable Minim's local token storage for
-            this client. If :code:`True`, newly acquired access tokens
-            and related information are stored. If :code:`False`, the
-            client will not retrieve or store access tokens.
-
-            .. seealso::
-
-               :meth:`remove_tokens` – Remove specific or all stored
-               access tokens for this API client.
+               Unless :meth:`set_access_token` is called immediately
+               after, this should be left as :code:`True` to ensure the
+               client's existing access token is compatible with the new
+               authorization flow and/or scopes.
         """
-        if flow not in self._FLOWS:
-            _flows = "', '".join(self._FLOWS)
-            raise ValueError(
-                f"Invalid authorization flow {flow!r}. "
-                f"Valid values: '{_flows}'."
+        if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
+            flows_str = "', '".join(
+                sorted(f for f in self._ALLOWED_AUTH_FLOWS if f)
             )
-        self._flow = flow
-        if flow == "client_credentials" and scopes:
+            raise ValueError(
+                f"Invalid authorization flow {authorization_flow!r}. "
+                f"Valid values: '{flows_str}'."
+            )
+        self._auth_flow = authorization_flow
+        if authorization_flow in {None, "client_credentials"} and scopes:
             warnings.warn(
                 "Scopes were specified in the `scopes` parameter, but "
-                f"the {self._OAUTH_FLOWS_NAMES['client_credentials']} "
+                f"the {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
                 "does not support scopes."
             )
             scopes = ""
@@ -1364,24 +1454,31 @@ class OAuth2APIClient(APIClient):
         )
         self._client_id = client_id
         if (
-            flow in {"auth_code", "client_credentials", "password"}
-            and not client_secret
-        ):
+            authorization_flow
+            in {"auth_code", "client_credentials", "password"}
+            or authorization_flow == "device"
+            and self._IS_TRUSTED_DEVICE
+        ) and not client_secret:
             raise ValueError(
-                f"The {self._OAUTH_FLOWS_NAMES[flow]} requires a "
-                "a client secret to be provided via the "
+                f"The {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
+                "requires a client secret to be provided via the "
                 "`client_secret` parameter."
             )
         self._client_secret = client_secret
-        has_redirect = flow in {"auth_code", "pkce", "implicit"}
-        if has_redirect and not redirect_uri:
+        requires_redirect = authorization_flow in {
+            "auth_code",
+            "pkce",
+            "implicit",
+        }
+        has_redirect = redirect_uri is not None
+        if requires_redirect and not has_redirect:
             raise ValueError(
-                f"The {self._OAUTH_FLOWS_NAMES[flow]} requires a "
-                "redirect URI to be provided via the `redirect_uri` "
-                "parameter."
+                f"The {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
+                "requires a redirect URI to be provided via the "
+                "`redirect_uri` parameter."
             )
         self._user_identifier = user_identifier
-        if has_redirect:
+        if requires_redirect:
             parsed = urlparse(redirect_uri)
             self._port = (
                 port
@@ -1393,11 +1490,14 @@ class OAuth2APIClient(APIClient):
                 else None
             )
             self._redirect_uri = redirect_uri
-            if backend:
-                if backend not in self._BACKENDS:
-                    _backends = "', '".join(self._BACKENDS)
+            if redirect_handler is not None:
+                if redirect_handler not in self._REDIRECT_HANDLERS:
+                    handlers_str = "', '".join(sorted(self._REDIRECT_HANDLERS))
+                    if handlers_str:
+                        handlers_str = f", '{handlers_str}'"
                     raise ValueError(
-                        f"Invalid backend {backend!r}. Valid values: '{_backends}'."
+                        f"Invalid backend {redirect_handler!r}. "
+                        f"Valid value(s): None{handlers_str}."
                     )
                 if (hostname := parsed.hostname) not in {
                     "localhost",
@@ -1405,22 +1505,26 @@ class OAuth2APIClient(APIClient):
                     "::1",
                 }:
                     warnings.warn(
-                        f"Redirect handling is not available for host {hostname!r}."
+                        "Redirect handling is not available for host "
+                        f"{hostname!r}."
                     )
-            self._backend = backend
-            self._browser = browser
+                    redirect_handler = None
+            self._redirect_handler = redirect_handler
+            self._open_browser = open_browser
         else:
-            warnings.warn(
-                "A redirect URI was provided via the `redirect_uri` "
-                f"parameter, but the {self._OAUTH_FLOWS_NAMES[flow]} "
-                "does not use redirects."
-            )
+            if has_redirect:
+                warnings.warn(
+                    "A redirect URI was provided via the "
+                    "`redirect_uri` parameter, but the "
+                    f"{self._OAUTH_AUTH_FLOWS[authorization_flow]} "
+                    "does not use redirects."
+                )
             self._redirect_uri = None
-            self._backend = None
-            self._browser = None
-        self._store = store
+            self._redirect_handler = None
+            self._open_browser = None
+        self._store_tokens = store_tokens
 
-        if authorize:
+        if authenticate:
             self._obtain_access_token()
 
     def _get_authorization_code(
@@ -1432,13 +1536,13 @@ class OAuth2APIClient(APIClient):
 
         Parameters
         ----------
-        code_challenge : str, optional
-            Code challenge derived from the code verifier for the
+        code_challenge : str; optional
+            Code challenge derived from the code verifier used in the
             Authorization Code with PKCE flow.
 
         Returns
         -------
-        code : str
+        authorization_code : str
             Authorization code.
         """
         params = {
@@ -1453,7 +1557,7 @@ class OAuth2APIClient(APIClient):
             params["code_challenge"] = code_challenge
             params["code_challenge_method"] = "S256"
         queries = self._handle_redirect(
-            f"{self.AUTH_URL}?{urlencode(params)}", "query"
+            f"{self.AUTH_URL}?{urlencode(params)}", url_component="query"
         )
         if error := queries.get("error"):
             raise RuntimeError(f"Authorization failed. Error: {error}")
@@ -1462,40 +1566,44 @@ class OAuth2APIClient(APIClient):
         return queries["code"]
 
     def _handle_redirect(
-        self, auth_url: str, part: str
+        self, auth_url: str, /, url_component: str
     ) -> dict[str, int | str]:
         """
-        Handle redirects during the authorization flow.
+        Handle the redirect during an authorization flow.
 
         Parameters
         ----------
-        auth_url : str
-            Authorization URL to visit.
+        auth_url : str; positional-only
+            Authorization URL.
 
-        part : str
-            Part of the redirect URL to extract the authorization
-            response from.
+        url_component : str
+            Part of the redirect URL to extract parameters from.
 
             **Valid values**: :code:`"query"`, :code:`"fragment"`.
 
         Returns
         -------
         queries : dict[str, int | str]
-            Parsed key-value pairs from the specified part of the
+            Key-value pairs parsed from the specified part of the
             redirect URL.
         """
-        if self._backend == "playwright":
+        if self._redirect_handler == "playwright":
             if not FOUND["playwright"]:
                 raise RuntimeError(
-                    f"The {self._OAUTH_FLOWS_NAMES[self._flow]} with "
-                    f"`backend={self._backend!r}` requires the "
-                    "`playwright` library, but it could not be found "
-                    "or imported."
+                    f"The {self._OAUTH_AUTH_FLOWS[self._auth_flow]} "
+                    f"with `redirect_handler={self._redirect_handler!r}` "
+                    "requires the `playwright` library, but it could "
+                    "not be found or imported."
                 )
 
             with sync_playwright() as playwright:
                 browser = playwright.firefox.launch(headless=False)
-                context = browser.new_context()
+                context = browser.new_context(
+                    color_scheme="dark",
+                    locale="en-US",
+                    timezone_id="America/Los_Angeles",
+                    **playwright.devices["Desktop Firefox HiDPI"],
+                )
                 page = context.new_page()
                 with page.expect_request(f"{self._redirect_uri}*", timeout=0):
                     page.goto(auth_url)
@@ -1505,17 +1613,12 @@ class OAuth2APIClient(APIClient):
                         break
                     time.sleep(0.1)
                 queries = dict(
-                    parse_qsl(
-                        getattr(
-                            urlparse(redirect_url),
-                            part,
-                        )
-                    )
+                    parse_qsl(getattr(urlparse(redirect_url), url_component))
                 )
                 context.close()
                 browser.close()
         else:
-            if self._browser:
+            if self._open_browser:
                 webbrowser.open(auth_url)
             else:
                 print(
@@ -1524,7 +1627,7 @@ class OAuth2APIClient(APIClient):
                     f"browser:\n\n{auth_url}\n"
                 )
 
-            if self._backend == "http.server":
+            if self._redirect_handler == "http.server":
                 httpd = HTTPServer(
                     (urlparse(self._redirect_uri).hostname, self._port),
                     OAuth2RedirectHandler,
@@ -1537,7 +1640,7 @@ class OAuth2APIClient(APIClient):
                         or not private_key_file.exists()
                         or not self._is_certificate_valid(certificate_file)
                     ):
-                        self._generate_self_signed_certificate()
+                        self._generate_local_https_certificate()
                     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
                     context.load_cert_chain(
                         certfile=certificate_file,
@@ -1559,16 +1662,18 @@ class OAuth2APIClient(APIClient):
 
         return queries
 
-    def _obtain_access_token(self, flow: str | None = None) -> None:
+    def _obtain_access_token(
+        self, authorization_flow: str | None = None
+    ) -> None:
         """
-        Get and set a new access token via the specified or current
+        Get and set a new access token via the provided or current
         authorization flow.
 
         Parameters
         ----------
-        flow : str, optional
+        authorization_flow : str; optional
             Authorization flow. If not provided, the current
-            authorization flow in :attr:`_flow` is used.
+            authorization flow in :attr:`_auth_flow` is used.
 
             .. container::
 
@@ -1581,10 +1686,10 @@ class OAuth2APIClient(APIClient):
                * :code:`"implicit"` – Implicit Grant Flow.
                * :code:`"refresh_token"` – Refresh Token Flow.
         """
-        if not flow:
-            flow = self._flow
+        if not authorization_flow:
+            authorization_flow = self._auth_flow
 
-        if flow == "refresh_token":
+        if authorization_flow == "refresh_token":
             data = {
                 "grant_type": "refresh_token",
                 "refresh_token": self._refresh_token,
@@ -1603,13 +1708,13 @@ class OAuth2APIClient(APIClient):
                         f"Encountered {error!r} error – "
                         f"{resp_json['error_description']}. "
                         "Reauthorizing via the "
-                        f"{self._OAUTH_FLOWS_NAMES[self._flow]}.",
+                        f"{self._OAUTH_AUTH_FLOWS[self._auth_flow]}.",
                     )
-                    return self._obtain_access_token(self._flow)
+                    return self._obtain_access_token(self._auth_flow)
             else:
                 data["client_id"] = self._client_id
                 resp_json = httpx.post(self.TOKEN_URL, data=data).json()
-        elif flow == "client_credentials":
+        elif authorization_flow == "client_credentials":
             b64_client_credentials = base64.urlsafe_b64encode(
                 f"{self._client_id}:{self._client_secret}".encode()
             ).decode()
@@ -1621,7 +1726,7 @@ class OAuth2APIClient(APIClient):
                 },
                 headers={"Authorization": f"Basic {b64_client_credentials}"},
             ).json()
-        elif flow == "implicit":
+        elif authorization_flow == "implicit":
             params = {
                 "client_id": self._client_id,
                 "redirect_uri": self._redirect_uri,
@@ -1630,7 +1735,8 @@ class OAuth2APIClient(APIClient):
                 "state": secrets.token_urlsafe(),
             }
             resp_json = self._handle_redirect(
-                f"{self.AUTH_URL}?{urlencode(params)}", "fragment"
+                f"{self.AUTH_URL}?{urlencode(params)}",
+                url_component="fragment",
             )
             if error := resp_json.get("error"):
                 raise RuntimeError(f"Authorization failed. Error: {error}")
@@ -1638,18 +1744,53 @@ class OAuth2APIClient(APIClient):
                 raise RuntimeError(
                     "Authorization failed due to state mismatch."
                 )
+        elif authorization_flow == "device":
+            data = {
+                "client_id": self._client_id,
+                "scope": " ".join(self._scopes),
+            }
+            resp_json = httpx.post(self.DEVICE_AUTH_URL, data=data).json()
+            if error := resp_json.get("error"):
+                raise RuntimeError(f"Authorization failed. Error: {error}")
+            data["device_code"] = resp_json["deviceCode"]
+            data["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code"
+            verification_uri = (
+                f"https://{resp_json['verificationUriComplete']}"
+            )
+            if self._open_browser:
+                webbrowser.open(verification_uri)
+            else:
+                print(
+                    f"To grant Minim access to {self._PROVIDER} data "
+                    "and features, open the following link in your web "
+                    f"browser:\n\n{verification_uri}\n"
+                )
+            polling_interval = resp_json.get("interval", 2)
+            while True:
+                time.sleep(polling_interval)
+                resp_json = httpx.post(
+                    self.TOKEN_URL,
+                    auth=(self._client_id, self._client_secret)
+                    if self._IS_TRUSTED_DEVICE
+                    else None,
+                    data=data,
+                ).json()
+                if not (error := resp_json.get("error")):
+                    break
+                elif error != "authorization_pending":
+                    raise RuntimeError(f"Authorization failed. Error: {error}")
         else:  # "auth_code" or "pkce"
             data = {
                 "grant_type": "authorization_code",
                 "redirect_uri": self._redirect_uri,
             }
-            if flow == "pkce":
+            if authorization_flow == "pkce":
                 data["client_id"] = self._client_id
                 data["code_verifier"] = code_verifier = secrets.token_urlsafe(
                     96
                 )
                 data["code"] = self._get_authorization_code(
-                    base64.urlsafe_b64encode(
+                    code_challenge=base64.urlsafe_b64encode(
                         hashlib.sha256(code_verifier.encode()).digest()
                     )
                     .decode()
@@ -1669,37 +1810,39 @@ class OAuth2APIClient(APIClient):
             else:
                 resp_json = httpx.post(self.TOKEN_URL, data=data).json()
 
-        access_token = resp_json["access_token"]
-        token_type = resp_json["token_type"].capitalize()
-        if scopes := resp_json.get("scopes"):
+        access_token = resp_json.pop("access_token")
+        token_type = resp_json.pop("token_type").capitalize()
+        if scopes := resp_json.pop("scope", None):
             self._scopes = set(scopes.split())
         self.set_access_token(
             access_token,
             token_type,
-            refresh_token=resp_json.get(
+            refresh_token=resp_json.pop(
                 "refresh_token", getattr(self, "_refresh_token", None)
             ),
-            expiry=datetime.now()
-            + timedelta(seconds=int(resp_json["expires_in"])),
+            expires_at=datetime.now()
+            + timedelta(seconds=int(resp_json.pop("expires_in"))),
         )
-        if self._store:
+        self._token_extras = resp_json
+        if self._store_tokens:
             TokenDatabase.add_token(
                 self.__class__.__name__,
-                flow=self._flow,
+                authorization_flow=self._auth_flow,
                 client_id=self._client_id,
                 client_secret=self._client_secret,
                 user_identifier=getattr(self, "_user_identifier")
                 or (
                     None
-                    if self._flow == "client_credentials"
-                    else self._get_user_identifier()
+                    if self._auth_flow == "client_credentials"
+                    else self._resolve_user_identifier()
                 ),
                 redirect_uri=self._redirect_uri,
                 scopes=self._scopes,
                 token_type=token_type,
                 access_token=access_token,
                 refresh_token=getattr(self, "_refresh_token", None),
-                expiry=getattr(self, "_expiry", None),
+                expires_at=getattr(self, "_expires_at", None),
+                extras=resp_json,
             )
 
     def _refresh_access_token(self) -> None:
@@ -1707,22 +1850,22 @@ class OAuth2APIClient(APIClient):
         Refresh the access token.
         """
         self._obtain_access_token(
-            "refresh_token" if self._refresh_token else self._flow
+            "refresh_token" if self._refresh_token else self._auth_flow
         )
 
     def _require_scopes(
-        self, endpoint_method: str, scopes: str | Collection[str]
+        self, endpoint_method: str, scopes: str | set[str], /
     ) -> None:
         """
         Ensure that the required authorization scopes for an endpoint
-        method are granted.
+        method have been granted.
 
         Parameters
         ----------
-        endpoint_method : str
+        endpoint_method : str; positional-only
             Name of the endpoint method.
 
-        scopes : str or Collection[str]
+        scopes : str or set[str]; positional-only
             Required authorization scopes.
         """
         if isinstance(scopes, str):

@@ -1,13 +1,10 @@
-from collections.abc import Collection
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
+from ..._shared import TTLCache
+from ._shared import SpotifyResourceAPI
 
 
-class ChaptersAPI(ResourceAPI):
+class ChaptersAPI(SpotifyResourceAPI):
     """
     Chapters API endpoints for the Spotify Web API.
 
@@ -22,11 +19,9 @@ class ChaptersAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _client: "SpotifyWebAPI"
-
     @TTLCache.cached_method(ttl="catalog")
     def get_chapters(
-        self, chapter_ids: str | Collection[str], /, *, market: str
+        self, chapter_ids: str | list[str], /, *, country_code: str
     ) -> dict[str, Any]:
         """
         `Chapters > Get a Chapter <https://developer.spotify.com
@@ -48,10 +43,9 @@ class ChaptersAPI(ResourceAPI):
 
         Parameters
         ----------
-        chapter_ids : str or Collection[str], positional-only
-            Spotify IDs of the audiobook chapters, provided as either a
-            comma-separated string or a collection of strings. A maximum
-            of 50 IDs can be sent in a request.
+        chapter_ids : str or list[str]; positional-only
+            Spotify IDs of the audiobook chapters. A maximum of 50 IDs
+            can be sent in a request.
 
             **Examples**:
 
@@ -59,19 +53,20 @@ class ChaptersAPI(ResourceAPI):
 
                * :code:`"0IsXVP0JmcB2adSE338GkK"`
                * :code:`"0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU"`
-               * :code:`["0IsXVP0JmcB2adSE338GkK", "3ZXb8FKZGU0EHALYX6uCzU"]`
+               * :code:`["0IsXVP0JmcB2adSE338GkK",
+                 "3ZXb8FKZGU0EHALYX6uCzU"]`
 
-        market : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. If specified, only content
-            available in that market is returned. When a valid user
-            access token accompanies the request, the country associated
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If provided, only content
+            available in that market is returned. When a user access
+            token accompanies the request, the country associated
             with the user account takes priority over this parameter.
 
             .. note::
 
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
+               If neither a country code is provided nor a country can
+               be determined from the user account, the content is
+               considered unavailable for the client.
 
             **Example**: :code:`"ES"`.
 
@@ -251,15 +246,6 @@ class ChaptersAPI(ResourceAPI):
                        ]
                      }
         """
-        is_string = isinstance(chapter_ids, str)
-        chapter_ids, num_ids = self._client._prepare_spotify_ids(
-            chapter_ids, limit=50
+        return self._get_resources(
+            "chapters", chapter_ids, country_code=country_code
         )
-        if is_string and num_ids == 1:
-            return self._client._request(
-                "GET", f"chapters/{chapter_ids}", params={"market": market}
-            ).json()
-
-        return self._client._request(
-            "GET", "chapters", params={"ids": chapter_ids, "market": market}
-        ).json()

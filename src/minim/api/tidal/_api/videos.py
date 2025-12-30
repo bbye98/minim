@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, _copy_docstring
@@ -19,7 +18,7 @@ class VideosAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RESOURCES = {"albums", "artists", "providers", "thumbnailArt"}
+    _RELATIONSHIPS = {"albums", "artists", "providers", "thumbnailArt"}
     _client: "TIDALAPI"
 
     @TTLCache.cached_method(ttl="catalog")
@@ -28,9 +27,9 @@ class VideosAPI(TIDALResourceAPI):
         video_ids,
         /,
         *,
-        isrcs: str | Collection[str] | None = None,
+        isrcs: str | list[str] | None = None,
         country_code: str | None = None,
-        include: str | Collection[str] | None = None,
+        expand: str | list[str] | None = None,
     ) -> dict[str, Any]:
         """
         `Videos > Get Single Video <https://tidal-music.github.io
@@ -48,47 +47,36 @@ class VideosAPI(TIDALResourceAPI):
               User authentication
                  Access information on an item's owners.
 
+        .. note::
+
+           Exactly one of `video_ids` or `isrcs` must be provided. If
+           `video_ids` is specified, the request will always be sent to
+           the endpoint for multiple videos.
+
         Parameters
         ----------
-        video_ids : int, str, or Collection[int | str], \
-        positional-only, optional
-            TIDAL IDs of the videos, provided as either an integer, a
-            string, or a collection of integers and/or strings.
+        video_ids : int, str, or list[int | str]; positional-only;
+        optional
+            TIDAL IDs of the videos.
 
-            .. note::
+            **Examples**: :code:`53315642`, :code:`"75623239"`,
+            :code:`[53315642, "75623239"]`.
 
-               Exactly one of `video_ids` or `isrcs` must be provided.
+        isrcs : str, or list[str]; keyword-only; optional
+            International Standard Recording Codes (ISRCs) of the
+            videos.
 
-            **Examples**: 
-            
-            .. container::
-
-               * :code:`53315642`
-               * :code:`"75623239"`
-               * :code:`[53315642, "75623239"]`
-
-        isrcs : str, or Collection[str], keyword-only, optional
-            International Standard Recording Codes (ISRCs) of the 
-            videos, provided as either a string or a collection of 
-            strings.
-
-            .. note::
-
-               Exactly one of `video_ids` or `isrcs` must be provided.
-               When this parameter is specified, the request will always
-               be sent to the endpoint for multiple videos.
-               
             **Examples**: :code:`"QMJMT1701237"`,
             :code:`[QMJMT1701237, "USAT21404265"]`.
 
-        country_code : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the 
-            country code can be retrieved from the user's profile.
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : str or Collection[str], keyword-only, optional
-            Related resources to include in the response.
+        expand : str or list[str]; keyword-only; optional
+            Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"providers"`, :code:`"thumbnailArt"`.
@@ -179,7 +167,7 @@ class VideosAPI(TIDALResourceAPI):
                        "included": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -444,7 +432,7 @@ class VideosAPI(TIDALResourceAPI):
                        "included": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -629,29 +617,28 @@ class VideosAPI(TIDALResourceAPI):
                        }
                      }
         """
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include is not None:
-            params["include"] = self._prepare_include(include)
-        if sum(arg is not None for arg in (video_ids, isrcs)) != 1:
+        if sum(arg is not None for arg in [video_ids, isrcs]) != 1:
             raise ValueError(
                 "Exactly one of `video_ids` or `isrcs` must be provided."
             )
-        if video_ids is not None:
-            self._client._validate_tidal_ids(video_ids)
-            if isinstance(video_ids, int | str):
-                return self._client._request(
-                    "GET", f"videos/{video_ids}", params=params
-                ).json()
-            params["filter[id]"] = video_ids
-        else:
+        params = {}
+        if isrcs is not None:
             if isinstance(isrcs, str):
                 self._client._validate_isrc(isrcs)
-            else:
+            elif isinstance(isrcs, list | tuple):
                 for isrc in isrcs:
                     self._client._validate_isrc(isrc)
+            else:
+                raise ValueError(
+                    "`isrcs` must be a string or a list of strings."
+                )
             params["filter[isrc]"] = isrcs
-        return self._client._request("GET", "videos", params=params).json()
+        return self._get_resources(
+            "videos",
+            video_ids,
+            country_code=country_code,
+            expand=expand,
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_video_albums(
@@ -660,7 +647,7 @@ class VideosAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -671,31 +658,30 @@ class VideosAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        video_id : int or str, positional-only
+        video_id : int or str; positional-only
             TIDAL ID of the video.
 
             **Examples**: :code:`53315642`, :code:`"75623239"`.
 
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the albums containing the video.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the albums
+            containing the video.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL catalog information for the albums containing the
-            videos.
+            TIDAL content metadata for the albums containing the videos.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -712,7 +698,7 @@ class VideosAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "barcodeId": <str>,
                           "copyright": {
@@ -791,8 +777,13 @@ class VideosAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_video_resource(
-            "albums", video_id, country_code, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "videos",
+            video_id,
+            "albums",
+            country_code=country_code,
+            include_metadata=include_metadata,
+            cursor=cursor,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -802,7 +793,7 @@ class VideosAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -813,30 +804,30 @@ class VideosAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        video_id : int or str, positional-only
+        video_id : int or str; positional-only
             TIDAL ID of the video.
 
             **Examples**: :code:`53315642`, :code:`"75623239"`.
 
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the video's artists.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the video's
+            artists.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL catalog information for the video's artists
+            TIDAL content metadata for the video's artists
 
             .. admonition:: Sample response
                :class: dropdown
@@ -941,8 +932,13 @@ class VideosAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_video_resource(
-            "artists", video_id, country_code, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "videos",
+            video_id,
+            "artists",
+            country_code=country_code,
+            include_metadata=include_metadata,
+            cursor=cursor,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -952,7 +948,7 @@ class VideosAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -963,30 +959,30 @@ class VideosAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        video_id : int or str, positional-only
+        video_id : int or str; positional-only
             TIDAL ID of the video.
 
             **Examples**: :code:`53315642`, :code:`"75623239"`.
 
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the video's providers.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the video's
+            providers.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
         Returns
         -------
         providers : dict[str, Any]
-            TIDAL catalog information for the video's providers.
+            TIDAL content metadata for the video's providers.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1018,52 +1014,57 @@ class VideosAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_video_resource(
-            "providers", video_id, country_code, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "videos",
+            video_id,
+            "providers",
+            country_code=country_code,
+            include_metadata=include_metadata,
+            cursor=cursor,
         )
 
     @TTLCache.cached_method(ttl="catalog")
-    def get_video_thumbnail_art(
+    def get_video_thumbnail(
         self,
         video_id: int | str,
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Videos > Get Video Thumbnail Art <https://tidal-music.github.io
+        `Videos > Get Video Thumbnail <https://tidal-music.github.io
         /tidal-api-reference/#/videos
         /get_videos__id__relationships_thumbnailArt>`_: Get TIDAL
-        catalog information for a video's thumbnail art.
+        catalog information for a video's thumbnail.
 
         Parameters
         ----------
-        video_id : int or str, positional-only
+        video_id : int or str; positional-only
             TIDAL ID of the video.
 
             **Examples**: :code:`53315642`, :code:`"75623239"`.
 
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the video's thumbnail art.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the video's
+            thumbnail.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
         Returns
         -------
-        thumbnail_art : dict[str, Any]
-            TIDAL catalog information for the video's thumbnail art.
+        thumbnail : dict[str, Any]
+            TIDAL content metadata for the video's thumbnail.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1111,119 +1112,63 @@ class VideosAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_video_resource(
-            "thumbnailArt",
+        return self._get_resource_relationship(
+            "videos",
             video_id,
-            country_code,
-            include=include,
+            "thumbnailArt",
+            country_code=country_code,
+            include_metadata=include_metadata,
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_saved_videos)
-    def get_saved_videos(
+    @_copy_docstring(UsersAPI.get_favorite_videos)
+    def get_favorite_videos(
         self,
         *,
         user_id: int | str | None = None,
         country_code: str | None = None,
         locale: str | None = None,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
+        descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_videos(
+        return self._client.users.get_favorite_videos(
             user_id=user_id,
             country_code=country_code,
             locale=locale,
-            include=include,
+            include_metadata=include_metadata,
             cursor=cursor,
-            sort=sort,
+            sort_by=sort_by,
+            descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.save_videos)
-    def save_videos(
+    @_copy_docstring(UsersAPI.favorite_videos)
+    def favorite_videos(
         self,
         video_ids: str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.save_videos(
+        self._client.users.favorite_videos(
             video_ids, user_id=user_id, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.remove_saved_videos)
-    def remove_saved_videos(
+    @_copy_docstring(UsersAPI.unfavorite_videos)
+    def unfavorite_videos(
         self,
         video_ids: str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.remove_saved_videos(
+        self._client.users.unfavorite_videos(
             video_ids, user_id=user_id, country_code=country_code
         )
-
-    def _get_video_resource(
-        self,
-        resource: str,
-        video_id: int | str,
-        /,
-        country_code: str | None = None,
-        *,
-        include: bool = False,
-        cursor: str | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for a resource related to a video.
-
-        Parameters
-        ----------
-        resource : str, positional-only
-            Related resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"providers"`, :code:`"thumbnailArt"`.
-
-        video_id : int or str, positional-only
-            TIDAL ID of the video.
-
-            **Examples**: :code:`53315642`, :code:`"75623239"`.
-
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code.
-
-            **Example**: :code:`"US"`.
-
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the related resource.
-
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
-
-            **Example**: :code:`"3nI1Esi"`.
-
-        Returns
-        -------
-        resource : dict[str, Any]
-            TIDAL catalog information for the related resource.
-        """
-        self._client._validate_tidal_ids(video_id, _recursive=False)
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = resource
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["page[cursor]"] = cursor
-        return self._client._request(
-            "GET",
-            f"videos/{video_id}/relationships/{resource}",
-            params=params,
-        ).json()

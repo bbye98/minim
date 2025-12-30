@@ -1,9 +1,6 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
 
 
 class CategoriesAPI(ResourceAPI):
@@ -15,8 +12,6 @@ class CategoriesAPI(ResourceAPI):
        This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
        and should not be instantiated directly.
     """
-
-    _client: "SpotifyWebAPI"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_category(
@@ -30,16 +25,16 @@ class CategoriesAPI(ResourceAPI):
 
         Parameters
         ----------
-        category_id : str
+        category_id : str; positional-only
             Spotify category ID.
 
             **Examples**: :code:`"dinner"`, :code:`"party"`.
 
-        locale : str, keyword-only, optional
-            Locale identifier consisting of an ISO 639-1 language
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag consisting of an ISO 639-1 language
             code and an ISO 3166-1 alpha-2 country code joined by an
-            underscore. When this parameter is provided, categories
-            are returned in the specified language.
+            underscore. If provided, categories are returned in the
+            specified language.
 
             .. note::
 
@@ -96,11 +91,11 @@ class CategoriesAPI(ResourceAPI):
 
         Parameters
         ----------
-        locale : str, keyword-only, optional
-            Locale identifier consisting of an ISO 639-1 language
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag consisting of an ISO 639-1 language
             code and an ISO 3166-1 alpha-2 country code joined by an
-            underscore. When this parameter is provided, categories
-            are returned in the specified language.
+            underscore. If provided, categories are returned in the
+            specified language.
 
             .. note::
 
@@ -110,25 +105,25 @@ class CategoriesAPI(ResourceAPI):
 
             **Example**: :code:`"es_MX"` – Spanish (Mexico).
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of categories to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first category to return. Use with `limit` to
-            get the next set of categories.
+            get the next batch of categories.
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
         categories : dict[str, Any]
-            Pages of Spotify content metadata for available categories.
+            Page of Spotify content metadata for available categories.
 
             .. admonition:: Sample response
                :class: dropdown

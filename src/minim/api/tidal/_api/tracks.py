@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, _copy_docstring
@@ -19,7 +18,7 @@ class TracksAPI(TIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    _RESOURCES = {
+    _RELATIONSHIPS = {
         "albums",
         "artists",
         "genres",
@@ -37,14 +36,15 @@ class TracksAPI(TIDALResourceAPI):
     @TTLCache.cached_method(ttl="catalog")
     def get_tracks(
         self,
-        track_ids: int | str | Collection[int | str] | None = None,
+        track_ids: int | str | list[int | str] | None = None,
         /,
         *,
-        isrcs: str | Collection[str] | None = None,
-        owner_ids: int | str | Collection[int | str] | None = None,
+        isrcs: str | list[str] | None = None,
+        owner_ids: int | str | list[int | str] | None = None,
         country_code: str | None = None,
-        include: str | Collection[str] | None = None,
+        expand: str | list[str] | None = None,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Tracks > Get Single Track <https://tidal-music.github.io
@@ -62,76 +62,61 @@ class TracksAPI(TIDALResourceAPI):
               User authentication
                  Access information on an item's owners.
 
+        .. note::
+
+           Exactly one of `track_ids`, `isrcs`, or `owner_ids` must
+           be provided. When `isrcs` or `owner_ids` is specified, the
+           request will always be sent to the endpoint for multiple
+           tracks.
+
         Parameters
         ----------
-        track_ids : int, str, or Collection[int | str], \
-        positional-only, optional
-            TIDAL IDs of the tracks, provided as either an integer, a
-            string, or a collection of integers and/or strings.
+        track_ids : int, str, or list[int | str]; positional-only; optional
+            TIDAL IDs of the tracks.
 
-            .. note::
+            **Examples**:
 
-               Exactly one of `track_ids`, `isrcs`, or `owner_ids` must
-               be provided.
-
-            **Examples**: 
-            
             .. container::
 
                * :code:`46369325`
                * :code:`"75413016"`
                * :code:`[46369325, "75413016"]`
 
-        isrcs : str, or Collection[str], keyword-only, optional
-            International Standard Recording Codes (ISRCs) of the 
-            tracks, provided as either a string or a collection of 
-            strings.
+        isrcs : str or list[str]; keyword-only; optional
+            International Standard Recording Codes (ISRCs) of the
+            tracks.
 
-            .. note::
-
-               Exactly one of `track_ids`, `isrcs`, or `owner_ids` must
-               be provided. When this parameter is specified, the 
-               request will always be sent to the endpoint for multiple
-               tracks.
-               
             **Examples**: :code:`"QMJMT1701237"`,
-            :code:`[QMJMT1701237, "USAT21404265"]`.
+            :code:`["QMJMT1701237", "USAT21404265"]`.
 
-        owner_ids : int, str, or Collection[int | str], keyword-only, \
-        optional
-            TIDAL IDs of the tracks' owners, provided either as an 
-            integer, a string, or a collection of integers and/or 
-            strings.
+        owner_ids : int, str, or list[int | str]; keyword-only; optional
+            TIDAL IDs of the tracks' owners.
 
-            .. note::
+            **Examples**: :code:`123456`, :code:`"123456"`,
+            :code:`[123456, "654321"]`.
 
-               Exactly one of `track_ids`, `isrcs`, or `owner_ids` must
-               be provided. When this parameter is specified, the 
-               request will always be sent to the endpoint for multiple
-               albums.
-
-            **Examples**: :code:`123456`, :code:`"123456"`, 
-            :code:`["123456"]`.
-
-        country_code : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the 
-            country code can be retrieved from the user's profile.
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
-        include : str or Collection[str], keyword-only, optional
-            Related resources to include in the response.
+        expand : str or list[str]; keyword-only; optional
+            Related resources to include metadata for in the response.
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"genres"`, :code:`"lyrics"`, :code:`"owners"`, 
+            :code:`"genres"`, :code:`"lyrics"`, :code:`"owners"`,
             :code:`"providers"`, :code:`"radio"`, :code:`"shares"`,
             :code:`"similarTracks"`, :code:`"sourceFile"`,
             :code:`"trackStatistics"`.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination when requesting multiple tracks.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results when requesting
+            multiple tracks.
 
             **Example**: :code:`"3nI1Esi"`.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
 
         Returns
         -------
@@ -148,7 +133,7 @@ class TracksAPI(TIDALResourceAPI):
                      {
                        "data": {
                          "attributes": {
-                           "accessType": "PUBLIC",
+                           "accessType": <str>,
                            "availability": <list[str]>,
                            "bpm": <float>,
                            "copyright": {
@@ -275,7 +260,7 @@ class TracksAPI(TIDALResourceAPI):
                        "included": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -576,7 +561,7 @@ class TracksAPI(TIDALResourceAPI):
                        "data": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "bpm": <float>,
                              "copyright": {
@@ -704,7 +689,7 @@ class TracksAPI(TIDALResourceAPI):
                        "included": [
                          {
                            "attributes": {
-                             "accessType": "PUBLIC",
+                             "accessType": <str>,
                              "availability": <list[str]>,
                              "barcodeId": <str>,
                              "copyright": {
@@ -997,36 +982,34 @@ class TracksAPI(TIDALResourceAPI):
                        }
                      }
         """
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if include is not None:
-            params["include"] = self._prepare_include(include)
-        if sum(arg is not None for arg in (track_ids, isrcs, owner_ids)) != 1:
+        if sum(arg is not None for arg in [track_ids, isrcs, owner_ids]) != 1:
             raise ValueError(
                 "Exactly one of `track_ids`, `isrcs`, or "
                 "`owner_ids` must be provided."
             )
-        if track_ids is not None:
-            self._client._validate_tidal_ids(track_ids)
-            if isinstance(track_ids, int | str):
-                return self._client._request(
-                    "GET", f"tracks/{track_ids}", params=params
-                ).json()
-            params["filter[id]"] = track_ids
-        elif isrcs is not None:
+        params = {}
+        if isrcs is not None:
             if isinstance(isrcs, str):
                 self._client._validate_isrc(isrcs)
-            else:
+            elif isinstance(isrcs, list | tuple):
                 for isrc in isrcs:
                     self._client._validate_isrc(isrc)
+            else:
+                raise ValueError(
+                    "`isrcs` must be a string or a list of strings."
+                )
             params["filter[isrc]"] = isrcs
-        else:
+        elif owner_ids is not None:
             self._client._validate_tidal_ids(owner_ids)
             params["filter[owners.id]"] = owner_ids
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["page[cursor]"] = cursor
-        return self._client._request("GET", "tracks", params=params).json()
+        return self._get_resources(
+            "tracks",
+            track_ids,
+            country_code=country_code,
+            expand=expand,
+            cursor=cursor,
+            share_code=share_code,
+        )
 
     @TTLCache.cached_method(ttl="catalog")
     def get_track_albums(
@@ -1035,8 +1018,9 @@ class TracksAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track Albums <https://tidal-music.github.io
@@ -1046,31 +1030,33 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the albums containing the track.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the albums
+            containing the track.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
 
         Returns
         -------
         albums : dict[str, Any]
-            TIDAL catalog information for the albums containing the
-            track.
+            TIDAL content metadata for the albums containing the track.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1087,7 +1073,7 @@ class TracksAPI(TIDALResourceAPI):
                     "included": [
                       {
                         "attributes": {
-                          "accessType": "PUBLIC",
+                          "accessType": <str>,
                           "availability": <list[str]>,
                           "barcodeId": <str>,
                           "copyright": {
@@ -1166,8 +1152,14 @@ class TracksAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_track_resource(
-            "albums", track_id, country_code, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "tracks",
+            track_id,
+            "albums",
+            country_code=country_code,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            share_code=share_code,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1177,8 +1169,9 @@ class TracksAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track Artists <https://tidal-music.github.io
@@ -1188,30 +1181,33 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the track's artists.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the track's
+            artists.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
 
         Returns
         -------
         artists : dict[str, Any]
-            TIDAL catalog information for the track's artists.
+            TIDAL content metadata for the track's artists.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1316,8 +1312,14 @@ class TracksAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_track_resource(
-            "artists", track_id, country_code, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "tracks",
+            track_id,
+            "artists",
+            country_code=country_code,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            share_code=share_code,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1326,35 +1328,39 @@ class TracksAPI(TIDALResourceAPI):
         track_id: str,
         /,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track Owners <https://tidal-music.github.io
         /tidal-api-reference/#/tracks
         /get_tracks__id__relationships_owners>`_: Get TIDAL catalog
-        information for a track's artists.
+        information for a track's owners.
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the track's artists.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the track's
+            owners.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
 
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
         Returns
         -------
-        artists : dict[str, Any]
-            TIDAL catalog information for the track's artists.
+        owners : dict[str, Any]
+            TIDAL content metadata for the track's owners.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1373,8 +1379,14 @@ class TracksAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_track_resource(
-            "owners", track_id, False, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "tracks",
+            track_id,
+            "owners",
+            country_code=False,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            share_code=share_code,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1384,8 +1396,9 @@ class TracksAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track Providers <https://tidal-music.github.io
@@ -1395,30 +1408,33 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the track's providers.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the track's
+            providers.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
 
         Returns
         -------
         providers : dict[str, Any]
-            TIDAL catalog information for the track's providers.
+            TIDAL content metadata for the track's providers.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1450,8 +1466,14 @@ class TracksAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_track_resource(
-            "providers", track_id, country_code, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "tracks",
+            track_id,
+            "providers",
+            country_code=country_code,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            share_code=share_code,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1460,8 +1482,9 @@ class TracksAPI(TIDALResourceAPI):
         track_id: str,
         /,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track Radio <https://tidal-music.github.io
@@ -1471,24 +1494,27 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the track radio.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the track
+            radio.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
 
         Returns
         -------
         radio : dict[str, Any]
-            TIDAL catalog information for the track radio.
+            TIDAL content metadata for the track radio.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1551,8 +1577,14 @@ class TracksAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_track_resource(
-            "radio", track_id, False, include=include, cursor=cursor
+        return self._get_resource_relationship(
+            "tracks",
+            track_id,
+            "radio",
+            country_code=False,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            share_code=share_code,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1562,8 +1594,9 @@ class TracksAPI(TIDALResourceAPI):
         /,
         country_code: str | None = None,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Tracks > Get Similar Tracks <https://tidal-music.github.io
@@ -1574,30 +1607,33 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        country_code : str, optional
-            ISO 3166-1 alpha-2 country code. Only optional when the
-            country code can be retrieved from the user's profile.
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not specified, it will
+            be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the similar tracks.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the similar
+            tracks.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
 
         Returns
         -------
         tracks : dict[str, Any]
-            TIDAL catalog information for the similar tracks.
+            TIDAL content metadata for the similar tracks.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1711,12 +1747,14 @@ class TracksAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_track_resource(
-            "similarTracks",
+        return self._get_resource_relationship(
+            "tracks",
             track_id,
-            country_code,
-            include=include,
+            "similarTracks",
+            country_code=country_code,
+            include_metadata=include_metadata,
             cursor=cursor,
+            share_code=share_code,
         )
 
     @TTLCache.cached_method(ttl="catalog")
@@ -1725,7 +1763,8 @@ class TracksAPI(TIDALResourceAPI):
         track_id: str,
         /,
         *,
-        include: bool = False,
+        include_metadata: bool = False,
+        share_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Tracks > Get Track Source File <https://tidal-music.github.io
@@ -1735,24 +1774,27 @@ class TracksAPI(TIDALResourceAPI):
 
         Parameters
         ----------
-        track_id : int or str, positional-only
+        track_id : int or str; positional-only
             TIDAL ID of the track.
 
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the track's source file.
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the track's
+            source file.
 
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
 
             **Example**: :code:`"3nI1Esi"`.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
 
         Returns
         -------
         source_file : dict[str, Any]
-            TIDAL catalog information for the track's source file.
+            TIDAL content metadata for the track's source file.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -1770,123 +1812,65 @@ class TracksAPI(TIDALResourceAPI):
                     }
                   }
         """
-        return self._get_track_resource(
-            "sourceFile", track_id, False, include=include
+        return self._get_resource_relationship(
+            "tracks",
+            track_id,
+            "sourceFile",
+            country_code=False,
+            include_metadata=include_metadata,
+            share_code=share_code,
         )
 
-    @_copy_docstring(UsersAPI.get_saved_tracks)
-    def get_saved_tracks(
+    @_copy_docstring(UsersAPI.get_favorite_tracks)
+    def get_favorite_tracks(
         self,
         *,
         user_id: int | str | None = None,
         country_code: str | None = None,
         locale: str | None = None,
-        include: bool = False,
+        include_metadata: bool = False,
         cursor: str | None = None,
-        sort: str | None = None,
+        sort_by: str | None = None,
+        descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_saved_tracks(
+        return self._client.users.get_favorite_tracks(
             user_id=user_id,
             country_code=country_code,
             locale=locale,
-            include=include,
+            include_metadata=include_metadata,
             cursor=cursor,
-            sort=sort,
+            sort_by=sort_by,
+            descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.save_tracks)
-    def save_tracks(
+    @_copy_docstring(UsersAPI.favorite_tracks)
+    def favorite_tracks(
         self,
         track_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.save_tracks(
+        self._client.users.favorite_tracks(
             track_ids, user_id=user_id, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.remove_saved_tracks)
-    def remove_saved_tracks(
+    @_copy_docstring(UsersAPI.unfavorite_tracks)
+    def unfavorite_tracks(
         self,
         track_ids: int
         | str
         | dict[str, int | str]
-        | Collection[int | str | dict[str, int | str]],
+        | list[int | str | dict[str, int | str]],
         /,
         *,
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.remove_saved_tracks(
+        self._client.users.unfavorite_tracks(
             track_ids, user_id=user_id, country_code=country_code
         )
-
-    def _get_track_resource(
-        self,
-        resource: str,
-        track_id: int | str,
-        /,
-        country_code: bool | str | None = None,
-        *,
-        include: bool = False,
-        cursor: str | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for a resource related to an
-        track.
-
-        Parameters
-        ----------
-        resource : str, positional-only
-            Related resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"genres"`, :code:`"lyrics"`, :code:`"owners"`,
-            :code:`"providers"`, :code:`"radio"`, :code:`"shares"`,
-            :code:`"similarTracks"`, :code:`"sourceFile"`,
-            :code:`"trackStatistics"`.
-
-        track_id : int or str, positional-only
-            TIDAL ID of the track.
-
-            **Examples**: :code:`46369325`, :code:`"75413016"`.
-
-        country_code : bool or str, optional
-            ISO 3166-1 alpha-2 country code. If :code:`False`, the
-            country code is not included in the request.
-
-            **Example**: :code:`"US"`.
-
-        include : bool, keyword-only, default: :code:`False`
-            Specifies whether to include TIDAL content metadata for
-            the related resource.
-
-        cursor : str, keyword-only, optional
-            Cursor for pagination.
-
-            **Example**: :code:`"3nI1Esi"`.
-
-        Returns
-        -------
-        resource : dict[str, Any]
-            TIDAL catalog information for the related resource.
-        """
-        self._client._validate_tidal_ids(track_id, _recursive=False)
-        params = {}
-        if country_code is not False:
-            self._client._resolve_country_code(country_code, params)
-        if include:
-            params["include"] = resource
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["page[cursor]"] = cursor
-        return self._client._request(
-            "GET",
-            f"tracks/{track_id}/relationships/{resource}",
-            params=params,
-        ).json()

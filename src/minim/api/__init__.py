@@ -10,9 +10,9 @@ db_cursor = db_connection.cursor()
 db_cursor.execute(
     """
     CREATE TABLE IF NOT EXISTS tokens (
-        added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        client TEXT,
-        flow TEXT,
+        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        client_name TEXT,
+        authorization_flow TEXT,
         client_id TEXT,
         client_secret TEXT,
         user_identifier TEXT,
@@ -20,9 +20,15 @@ db_cursor.execute(
         scopes TEXT,
         token_type TEXT,
         access_token TEXT,
-        expiry TIMESTAMP,
+        expires_at TIMESTAMP,
         refresh_token TEXT,
-        PRIMARY KEY (client, flow, client_id, user_identifier)
+        extras TEXT,
+        PRIMARY KEY (
+            client_name, 
+            authorization_flow, 
+            client_id, 
+            user_identifier
+        )
     )
     """
 )

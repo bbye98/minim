@@ -1,13 +1,11 @@
-from collections.abc import Collection
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
+from ..._shared import TTLCache, _copy_docstring
+from ._shared import SpotifyResourceAPI
+from .users import UsersAPI
 
 
-class AudiobooksAPI(ResourceAPI):
+class AudiobooksAPI(SpotifyResourceAPI):
     """
     Audiobooks API endpoints for the Spotify Web API.
 
@@ -22,15 +20,13 @@ class AudiobooksAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _client: "SpotifyWebAPI"
-
     @TTLCache.cached_method(ttl="catalog")
     def get_audiobooks(
         self,
-        audiobook_ids: str | Collection[str],
+        audiobook_ids: str | list[str],
         /,
         *,
-        market: str | None = None,
+        country_code: str | None = None,
     ) -> dict[str, Any]:
         """
         `Audiobooks > Get an Audiobook <https://developer.spotify.com
@@ -52,10 +48,9 @@ class AudiobooksAPI(ResourceAPI):
 
         Parameters
         ----------
-        audiobook_ids : str or Collection[str], positional-only
-            Spotify IDs of the audiobooks, provided as either a
-            comma-delimited string or as a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
+        audiobook_ids : str or list[str]; positional-only
+            Spotify IDs of the audiobooks. A maximum of 50 IDs can be
+            sent in a request.
 
             **Examples**:
 
@@ -63,19 +58,20 @@ class AudiobooksAPI(ResourceAPI):
 
                * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
                * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
-               * :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`
+               * :code:`["18yVqkdbdRvS24c0Ilj2ci",
+                 "1HGw3J3NxZO1TP1BTtVhpZ"]`
 
-        market : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. If specified, only content
-            available in that market is returned. When a valid user
-            access token accompanies the request, the country associated
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If provided, only content
+            available in that market is returned. When a user access
+            token accompanies the request, the country associated
             with the user account takes priority over this parameter.
 
             .. note::
 
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
+               If neither a country code is provided nor a country can
+               be determined from the user account, the content is
+               considered unavailable for the client.
 
             **Example**: :code:`"ES"`.
 
@@ -277,21 +273,9 @@ class AudiobooksAPI(ResourceAPI):
                        ]
                      }
         """
-        is_string = isinstance(audiobook_ids, str)
-        audiobook_ids, num_ids = self._client._prepare_spotify_ids(
-            audiobook_ids, limit=50
+        return self._get_resources(
+            "audiobooks", audiobook_ids, country_code=country_code
         )
-        params = {}
-        if market is not None:
-            self._client._validate_market(market)
-            params["market"] = market
-        if is_string and num_ids == 1:
-            return self._client._request(
-                "GET", f"audiobooks/{audiobook_ids}", params
-            ).json()
-
-        params["ids"] = audiobook_ids
-        return self._client._request("GET", "audiobooks", params=params).json()
 
     @TTLCache.cached_method(ttl="catalog")
     def get_audiobook_chapters(
@@ -299,7 +283,7 @@ class AudiobooksAPI(ResourceAPI):
         audiobook_id: str,
         /,
         *,
-        market: str | None = None,
+        country_code: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
@@ -321,44 +305,44 @@ class AudiobooksAPI(ResourceAPI):
 
         Parameters
         ----------
-        audiobook_id : str
+        audiobook_id : str; positional-only
             Spotify ID of the audiobook.
 
             **Examples**: :code:`"18yVqkdbdRvS24c0Ilj2ci"`.
 
-        market : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. If specified, only content
-            available in that market is returned. When a valid user
-            access token accompanies the request, the country associated
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If provided, only content
+            available in that market is returned. When a user access
+            token accompanies the request, the country associated
             with the user account takes priority over this parameter.
 
             .. note::
 
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
+               If neither a country code is provided nor a country can
+               be determined from the user account, the content is
+               considered unavailable for the client.
 
             **Example**: :code:`"ES"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of audiobook chapters to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first audiobook chapter to return. Use with
-            `limit` to get the next set of audiobook chapters.
+            `limit` to get the next batch of audiobook chapters.
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
         chapters : dict[str, Any]
-            Pages of Spotify content metadata for the audiobook's
+            Page of Spotify content metadata for the audiobook's
             chapters.
 
             .. admonition:: Sample response
@@ -412,299 +396,39 @@ class AudiobooksAPI(ResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._validate_spotify_id(audiobook_id)
-        params = {}
-        if market is not None:
-            self._client._validate_market(market)
-            params["market"] = market
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", f"audiobooks/{audiobook_id}/chapters", params=params
-        ).json()
+        return self._get_resource_items(
+            "audiobook",
+            audiobook_id,
+            "chapters",
+            country_code=country_code,
+            limit=limit,
+            offset=offset,
+        )
 
+    @_copy_docstring(UsersAPI.get_my_saved_audiobooks)
     def get_my_saved_audiobooks(
         self,
         *,
-        market: str | None = None,
+        country_code: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        """
-        `Audiobooks > Get User's Saved Audiobooks
-        <https://developer.spotify.com/documentation/web-api/reference
-        /get-users-saved-audiobooks>`_: Get Spotify catalog information
-        for the audiobooks saved in the current user's library.
-
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
-
-        Parameters
-        ----------
-        market : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. If specified, only content
-            available in that market is returned. When a valid user
-            access token accompanies the request, the country associated
-            with the user account takes priority over this parameter.
-
-            .. note::
-
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
-
-            **Example**: :code:`"ES"`.
-
-        limit : int, keyword-only, optional
-            Maximum number of audiobooks to return.
-
-            **Valid range**: :code:`1` to :code:`50`.
-
-            **Default**: :code:`20`.
-
-        offset : int, keyword-only, optional
-            Index of the first audiobook to return. Use with `limit` to
-            get the next set of audiobook
-
-            **Minimum value**: :code:`0`.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        audiobooks : dict[str, Any]
-            Pages of Spotify content metadata for the user's saved
-            audiobooks.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "href": <str>,
-                    "items": [
-                      {
-                        "authors": [
-                          {
-                            "name": <str>
-                          }
-                        ],
-                        "available_markets": <list[str]>,
-                        "copyrights": [
-                          {
-                            "text": <str>,
-                            "type": <str>
-                          }
-                        ],
-                        "description": <str>,
-                        "edition": <str>,
-                        "explicit": <bool>,
-                        "external_urls": {
-                          "spotify": <str>
-                        },
-                        "href": <str>,
-                        "html_description": <str>,
-                        "id": <str>,
-                        "images": [
-                          {
-                            "height": <int>,
-                            "url": <str>,
-                            "width": <int>
-                          }
-                        ],
-                        "languages": <list[str]>,
-                        "media_type": <str>,
-                        "name": <str>,
-                        "narrators": [
-                          {
-                            "name": <str>
-                          }
-                        ],
-                        "publisher": <str>,
-                        "total_chapters": <int>,
-                        "type": "audiobook",
-                        "uri": <str>
-                      }
-                    ],
-                    "limit": <int>,
-                    "next": <str>,
-                    "offset": <int>,
-                    "previous": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client._require_scopes(
-            "audiobooks.get_my_saved_audiobooks", "user-library-read"
-        )
-        params = {}
-        if market is not None:
-            self._client._validate_market(market)
-            params["market"] = market
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", "me/audiobooks", params=params
-        ).json()
-
-    def save_audiobooks(self, audiobook_ids: str | Collection[str], /) -> None:
-        """
-        `Audiobooks > Save Audiobooks for Current User
-        <https://developer.spotify.com/documentation/web-api/reference
-        /save-albums-user>`_: Save one or more audiobooks to the current
-        user's library.
-
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
-
-        Parameters
-        ----------
-        audiobook_ids : str or Collection[str], positional-only
-            Spotify IDs of the audiobooks, provided as either a
-            comma-delimited string or as a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
-               * :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`
-        """
-        self._client._require_scopes(
-            "audiobooks.save_audiobooks", "user-library-modify"
-        )
-        self._client._request(
-            "PUT",
-            "me/audiobooks",
-            params={
-                "ids": self._client._prepare_spotify_ids(
-                    audiobook_ids, limit=50
-                )[0]
-            },
+        return self._client.users.get_my_saved_audiobooks(
+            country_code=country_code, limit=limit, offset=offset
         )
 
+    @_copy_docstring(UsersAPI.save_audiobooks)
+    def save_audiobooks(self, audiobook_ids: str | list[str], /) -> None:
+        self._client.users.save_audiobooks(audiobook_ids)
+
+    @_copy_docstring(UsersAPI.remove_saved_audiobooks)
     def remove_saved_audiobooks(
-        self, audiobook_ids: str | Collection[str], /
+        self, audiobook_ids: str | list[str], /
     ) -> None:
-        """
-        `Audiobooks > Remove User's Saved Audiobooks
-        <https://developer.spotify.com/documentation/web-api/reference
-        /remove-audiobooks-user>`_: Remove one or more audiobooks from
-        the current user's library.
+        self._client.users.remove_saved_audiobooks(audiobook_ids)
 
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
-
-        Parameters
-        ----------
-        audiobook_ids : str or Collection[str], positional-only
-            Spotify IDs of the audiobooks, provided as either a
-            comma-delimited string or as a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
-               * :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`
-        """
-        self._client._require_scopes(
-            "audiobooks.remove_saved_audiobooks", "user-library-modify"
-        )
-        self._client._request(
-            "DELETE",
-            "me/audiobooks",
-            params={
-                "ids": self._client._prepare_spotify_ids(
-                    audiobook_ids, limit=50
-                )[0]
-            },
-        )
-
+    @_copy_docstring(UsersAPI.are_audiobooks_saved)
     def are_audiobooks_saved(
-        self, audiobook_ids: str | Collection[str], /
+        self, audiobook_ids: str | list[str], /
     ) -> list[bool]:
-        """
-        `Audiobooks > Check User's Saved Audiobooks
-        <https://developer.spotify.com/documentation/web-api/reference
-        /check-users-saved-audiobooks>`_: Check whether one or more
-        audiobooks are saved in the current user's library.
-
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
-
-        Parameters
-        ----------
-        audiobook_ids : str or Collection[str], positional-only
-            Spotify IDs of the audiobooks, provided as either a
-            comma-delimited string or as a collection of strings. A
-            maximum of 50 IDs can be sent in a request.
-
-            **Examples**:
-
-            .. container::
-
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
-               * :code:`["18yVqkdbdRvS24c0Ilj2ci", "1HGw3J3NxZO1TP1BTtVhpZ"]`
-
-        Returns
-        -------
-        saved : list[bool]
-            Whether the current user has each of the specified
-            audiobooks saved in their library.
-
-            **Sample response**: :code:`[False, True]`.
-        """
-        self._client._require_scopes(
-            "audiobooks.are_audiobooks_saved", "user-library-read"
-        )
-        return self._client._request(
-            "GET",
-            "me/audiobooks/contains",
-            params={
-                "ids": self._client._prepare_spotify_ids(
-                    audiobook_ids, limit=20
-                )[0]
-            },
-        ).json()
+        return self._client.users.are_audiobooks_saved(audiobook_ids)

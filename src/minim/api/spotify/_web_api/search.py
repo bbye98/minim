@@ -1,13 +1,10 @@
-from collections.abc import Collection
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
+from ..._shared import TTLCache
+from ._shared import SpotifyResourceAPI
 
 
-class SearchAPI(ResourceAPI):
+class SearchAPI(SpotifyResourceAPI):
     """
     Search API endpoints for the Spotify Web API.
 
@@ -26,17 +23,16 @@ class SearchAPI(ResourceAPI):
         "show",
         "track",
     }
-    _client: "SpotifyWebAPI"
 
     @TTLCache.cached_method(ttl="search")
     def search(
         self,
         query: str,
         /,
-        types: str | Collection[str],
+        resource_types: str | list[str],
         *,
-        include_external: str | None = None,
-        market: str | None = None,
+        external_content: str | None = None,
+        country_code: str | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
@@ -98,54 +94,56 @@ class SearchAPI(ResourceAPI):
             **Example**:
             :code:`"remaster track:Doxy artist:Miles Davis"`.
 
-        types : str or Collection[str]
-            Item types to search across, provided as either a
-            comma-separated string or a collection of strings.
+        resource_types : str or list[str]
+            Types of resources to return.
 
             **Valid values**: :code:`"album"`, :code:`"artist"`,
             :code:`"playlist"`, :code:`"track"`, :code:`"show"`,
             :code:`"episode"`, :code:`"audiobook"`.
 
-        include_external : str, optional
-            Externally hosted content that the API client can play.
+            **Examples**: :code:`"artist"`, :code:`"track,episode"`,
+            :code:`["album", "playlist"]`.
+
+        external_content : str; keyword-only; optional
+            Externally hosted content that the client can play.
 
             **Valid value**: :code:`"audio"`.
 
-        market : str, keyword-only, optional
-            ISO 3166-1 alpha-2 country code. If specified, only content
-            available in that market is returned. When a valid user
-            access token accompanies the request, the country associated
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If provided, only content
+            available in that market is returned. When a user access
+            token accompanies the request, the country associated
             with the user account takes priority over this parameter.
 
             .. note::
 
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
+               If neither a country code is provided nor a country can
+               be determined from the user account, the content is
+               considered unavailable for the client.
 
             **Example**: :code:`"ES"`.
 
-        limit : int, keyword-only, optional
+        limit : int; keyword-only; optional
             Maximum number of items to return.
 
             **Valid range**: :code:`1` to :code:`50`.
 
-            **Default**: :code:`20`.
+            **API default**: :code:`20`.
 
-        offset : int, keyword-only, optional
+        offset : int; keyword-only; optional
             Index of the first item to return. Use with `limit` to get
-            the next set of items.
+            the next batch of items.
 
             **Valid range**: :code:`0` to :code:`1_000`.
 
             **Minimum value**: :code:`0`.
 
-            **Default**: :code:`0`.
+            **API default**: :code:`0`.
 
         Returns
         -------
         results : dict[str, Any]
-            Search results.
+            Pages of search results for each resource type.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -480,18 +478,27 @@ class SearchAPI(ResourceAPI):
                     }
                   }
         """
-        if not query:
-            raise ValueError("No search query provided.")
-
         self._client._validate_type("query", query, str)
-        params = {"q": query, "type": self._prepare_item_types(types)}
-        if include_external:
-            if include_external != "audio":
-                raise ValueError("`include_external` can only be 'audio'.")
-            params["include_external"] = include_external
-        if market is not None:
-            self._client._validate_market(market)
-            params["market"] = market
+        if not len(query):
+            raise ValueError("No search query provided.")
+        params = {
+            "q": query,
+            "type": self._prepare_types(
+                resource_types,
+                allowed_types=self._RESOURCE_TYPES,
+                type_prefix="resource",
+            ),
+        }
+        if external_content is not None:
+            if external_content != "audio":
+                raise ValueError(
+                    f"Invalid external content {external_content!r}. "
+                    "Valid value: 'audio'."
+                )
+            params["include_external"] = external_content
+        if country_code is not None:
+            self._client._validate_market(country_code)
+            params["market"] = country_code
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
@@ -499,31 +506,3 @@ class SearchAPI(ResourceAPI):
             self._client._validate_number("offset", offset, int, 0, 1_000)
             params["offset"] = offset
         return self._client._request("GET", "search", params=params).json()
-
-    def _prepare_item_types(self, types: str | Collection[str], /) -> str:
-        """
-        Stringify a list of Spotify item types into a comma-delimited
-        string.
-
-        Parameters
-        ----------
-        types : str, positional-only
-            Spotify item types.
-
-        Returns
-        -------
-        types : str
-            Comma-delimited string containing Spotify item types.
-        """
-        if isinstance(types, str):
-            return self._prepare_item_types(types.split(","))
-
-        types = set(types)
-        for type_ in types:
-            if type_ not in self._RESOURCE_TYPES:
-                _types = "', '".join(self._RESOURCE_TYPES)
-                raise ValueError(
-                    f"Invalid Spotify item type {type_!r}. "
-                    f"Valid values: '{_types}'."
-                )
-        return ",".join(sorted(types))
