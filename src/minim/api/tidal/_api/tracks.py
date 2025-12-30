@@ -1588,6 +1588,72 @@ class TracksAPI(TIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="catalog")
+    def get_track_shares(
+        self,
+        track_id: str,
+        /,
+        *,
+        include_metadata: bool = False,
+        cursor: str | None = None,
+        share_code: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Tracks > Get Track Shares <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks
+        /get_tracks__id__relationships_shares>`_: Get TIDAL catalog
+        information for a track's shares.
+
+        Parameters
+        ----------
+        track_id : int or str; positional-only
+            TIDAL ID of the track.
+
+            **Examples**: :code:`46369325`, :code:`"75413016"`.
+
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the track's
+            shares.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
+        Returns
+        -------
+        shares : dict[str, Any]
+            TIDAL content metadata for the track's shares.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "included": [],
+                    "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
+                      "self": <str>
+                    }
+                  }
+        """
+        return self._get_resource_relationship(
+            "tracks",
+            track_id,
+            "shares",
+            country_code=False,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            share_code=share_code,
+        )
+
+    @TTLCache.cached_method(ttl="catalog")
     def get_similar_tracks(
         self,
         track_id: str,
@@ -1816,6 +1882,61 @@ class TracksAPI(TIDALResourceAPI):
             "tracks",
             track_id,
             "sourceFile",
+            country_code=False,
+            include_metadata=include_metadata,
+            share_code=share_code,
+        )
+
+    @TTLCache.cached_method(ttl="catalog")
+    def get_track_statistics(
+        self,
+        track_id: str,
+        /,
+        *,
+        include_metadata: bool = False,
+        share_code: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Tracks > Get Track Shares <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks
+        /get_tracks__id__relationships_trackStatistics>`_: Get TIDAL
+        catalog information for a track's statistics.
+
+        Parameters
+        ----------
+        track_id : int or str; positional-only
+            TIDAL ID of the track.
+
+            **Examples**: :code:`46369325`, :code:`"75413016"`.
+
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the track's
+            statistics.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
+        Returns
+        -------
+        statistics : dict[str, Any]
+            TIDAL content metadata for the track's statistics.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "included": [],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        return self._get_resource_relationship(
+            "tracks",
+            track_id,
+            "trackStatistics",
             country_code=False,
             include_metadata=include_metadata,
             share_code=share_code,
