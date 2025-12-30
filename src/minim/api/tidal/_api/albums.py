@@ -1961,9 +1961,7 @@ class AlbumsAPI(TIDALResourceAPI):
         country_code: str | None = None,
     ) -> None:
         self._client.users.favorite_albums(
-            album_ids,
-            user_id=user_id,
-            country_code=country_code,
+            album_ids, user_id=user_id, country_code=country_code
         )
 
     @_copy_docstring(UsersAPI.unfavorite_albums)
@@ -1979,7 +1977,5 @@ class AlbumsAPI(TIDALResourceAPI):
         country_code: str | None = None,
     ) -> None:
         self._client.users.unfavorite_albums(
-            album_ids,
-            user_id=user_id,
-            country_code=country_code,
+            album_ids, user_id=user_id, country_code=country_code
         )

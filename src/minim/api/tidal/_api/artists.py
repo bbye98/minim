@@ -2131,9 +2131,7 @@ class ArtistsAPI(TIDALResourceAPI):
         country_code: str | None = None,
     ) -> None:
         self._client.users.favorite_artists(
-            artist_ids,
-            user_id=user_id,
-            country_code=country_code,
+            artist_ids, user_id=user_id, country_code=country_code
         )
 
     @_copy_docstring(UsersAPI.unfavorite_artists)
@@ -2149,7 +2147,5 @@ class ArtistsAPI(TIDALResourceAPI):
         country_code: str | None = None,
     ) -> None:
         self._client.users.unfavorite_artists(
-            artist_ids,
-            user_id=user_id,
-            country_code=country_code,
+            artist_ids, user_id=user_id, country_code=country_code
         )

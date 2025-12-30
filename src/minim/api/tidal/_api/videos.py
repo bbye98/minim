@@ -1155,9 +1155,7 @@ class VideosAPI(TIDALResourceAPI):
         country_code: str | None = None,
     ) -> None:
         self._client.users.favorite_videos(
-            video_ids,
-            user_id=user_id,
-            country_code=country_code,
+            video_ids, user_id=user_id, country_code=country_code
         )
 
     @_copy_docstring(UsersAPI.unfavorite_videos)
@@ -1172,7 +1170,5 @@ class VideosAPI(TIDALResourceAPI):
         country_code: str | None = None,
     ) -> None:
         self._client.users.unfavorite_videos(
-            video_ids,
-            user_id=user_id,
-            country_code=country_code,
+            video_ids, user_id=user_id, country_code=country_code
         )

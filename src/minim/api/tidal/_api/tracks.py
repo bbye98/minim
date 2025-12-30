@@ -1856,9 +1856,7 @@ class TracksAPI(TIDALResourceAPI):
         country_code: str | None = None,
     ) -> None:
         self._client.users.favorite_tracks(
-            track_ids,
-            user_id=user_id,
-            country_code=country_code,
+            track_ids, user_id=user_id, country_code=country_code
         )
 
     @_copy_docstring(UsersAPI.unfavorite_tracks)
@@ -1874,7 +1872,5 @@ class TracksAPI(TIDALResourceAPI):
         country_code: str | None = None,
     ) -> None:
         self._client.users.unfavorite_tracks(
-            track_ids,
-            user_id=user_id,
-            country_code=country_code,
+            track_ids, user_id=user_id, country_code=country_code
         )
