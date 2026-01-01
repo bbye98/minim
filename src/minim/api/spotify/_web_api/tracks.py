@@ -904,7 +904,7 @@ class TracksAPI(SpotifyResourceAPI):
         if n_seeds > 5:
             raise ValueError("A maximum of 5 seeds is allowed.")
 
-        local_variables = locals()
+        _locals = locals()
         for attr, dtype, range_ in [
             ("acousticness", float, (0.0, 1.0)),
             ("danceability", float, (0.0, 1.0)),
@@ -922,7 +922,7 @@ class TracksAPI(SpotifyResourceAPI):
             ("valence", float, (0.0, 1.0)),
         ]:
             self._parse_attribute(
-                attr, local_variables.get(attr), dtype, range_, params
+                attr, _locals.get(attr), dtype, range_, params
             )
 
         return self._client._request(
@@ -1129,7 +1129,7 @@ class TracksAPI(SpotifyResourceAPI):
 
             .. note::
 
-               This `dict` is updated in-place.
+               This `dict` is mutated in-place.
         """
         if value is None:
             return
@@ -1218,7 +1218,7 @@ class TracksAPI(SpotifyResourceAPI):
 
             .. note::
 
-               This `dict` is updated in-place.
+               This `dict` is mutated in-place.
 
         Returns
         -------

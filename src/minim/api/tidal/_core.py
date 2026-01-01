@@ -231,9 +231,9 @@ class TIDALAPI(_BaseTIDALAPI):
         authorization_flow : str; keyword-only
             Authorization flow.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
                  for Code Exchange (PKCE).
@@ -279,7 +279,7 @@ class TIDALAPI(_BaseTIDALAPI):
             .. seealso::
 
                :meth:`resolve_scopes` – Resolve scope categories and/or
-                substrings into a set of scopes.
+               substrings into a set of scopes.
 
         access_token : str; keyword-only; optional
             Access token. If provided, the authorization process is
@@ -301,15 +301,17 @@ class TIDALAPI(_BaseTIDALAPI):
             flow. Redirect handling is only available for hosts
             :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
+            **Valid values**:
+
             .. container::
 
-               **Valid values**:
-
-               * :code:`None` – Manually paste the redirect URL into
-                 the terminal.
-               * :code:`"http.server"` – Run a simple HTTP server.
-               * :code:`"playwright"` – Open a Playwright Firefox
+               * :code:`None` – Show authorization URL in and have the
+                 user manually paste the redirect URL into the terminal.
+               * :code:`"http.server"` – Run a HTTP server to intercept
+                 the redirect after user authorization in any local
                  browser.
+               * :code:`"playwright"` – Use a Playwright Firefox
+                 browser to complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -336,6 +338,9 @@ class TIDALAPI(_BaseTIDALAPI):
             the client neither retrieves nor stores access tokens.
 
             .. seealso::
+
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
 
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
@@ -415,7 +420,7 @@ class TIDALAPI(_BaseTIDALAPI):
             else self.users.get_my_profile()["data"]
         )
 
-    def _resolve_user_identifier(self) -> str | None:
+    def _resolve_user_identifier(self) -> str:
         """
         Return the TIDAL user ID as the user identifier for the
         current account.
@@ -550,9 +555,9 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         authorization_flow : str or None; keyword-only
             Authorization flow.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`None` – No authentication.
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
@@ -602,7 +607,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             .. seealso::
 
                :meth:`resolve_scopes` – Resolve scope categories and/or
-                substrings into a set of scopes.
+               substrings into a set of scopes.
 
         access_token : str; keyword-only; optional
             Access token. If provided, the authorization process is
@@ -652,6 +657,9 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             the client neither retrieves nor stores access tokens.
 
             .. seealso::
+
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
 
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
@@ -919,7 +927,8 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
     @TTLCache.cached_method(ttl="catalog")
     def get_country_code(self) -> dict[str, str]:
         """
-        Get the country code associated with the current user account.
+        Get the country code associated with the current IP address or
+        user account.
 
         Returns
         -------
@@ -930,7 +939,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         """
         return self._request("GET", "v1/country").json()
 
-    def set_flow(
+    def set_authorization_flow(
         self,
         authorization_flow: str | None,
         /,
@@ -959,9 +968,9 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         authorization_flow : str or None; keyword-only
             OAuth 2.0 authorization flow.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`None` – No authentication.
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
@@ -1011,7 +1020,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             .. seealso::
 
                :meth:`resolve_scopes` – Resolve scope categories and/or
-                substrings into a set of scopes.
+               substrings into a set of scopes.
 
         redirect_handler : None; keyword-only; optional
             Backend for handling redirects during the authorization
@@ -1035,6 +1044,9 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
             .. seealso::
 
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
+
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
 
@@ -1046,7 +1058,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
                Unless :meth:`set_access_token` is called immediately
                after, this should be left as :code:`True` to ensure the
-               client's existing access token is compatible with the new
+               client's existing token is compatible with the new
                authorization flow and/or scopes.
         """
         if authorization_flow is None:
@@ -1058,7 +1070,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             if "x-tidal-token" in self._client.headers:
                 del self._client.headers["x-tidal-token"]
 
-        super().set_flow(
+        super().set_authorization_flow(
             authorization_flow,
             client_id=client_id,
             client_secret=client_secret,
@@ -1068,10 +1080,10 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             redirect_handler=redirect_handler,
             open_browser=open_browser,
             store_tokens=store_tokens,
-            authenticate=authenticate and authorization_flow is not None,
+            authenticate=authenticate,
         )
 
-    def _resolve_user_identifier(self) -> str | None:
+    def _resolve_user_identifier(self) -> str:
         """
         Return the TIDAL user ID as the user identifier for the
         current account.
@@ -1082,10 +1094,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
            :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
            make a request to the private TIDAL API.
         """
-        if self._auth_flow is not None:
-            return self._token_extras.get(
-                "user_id", self._my_profile["userId"]
-            )
+        return self._token_extras.get("user_id", self._my_profile["userId"])
 
     def _request(
         self,
@@ -1154,23 +1163,6 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         raise RuntimeError(
             f"{error['httpStatus']}.{error['subStatus']} {error['error']} – {error['description']}"
         )
-
-    def _require_authentication(self, endpoint_method: str, /) -> None:
-        """
-        Ensure that the user authentication has been performed for a
-        protected endpoint.
-
-        Parameters
-        ----------
-        endpoint_method : str; positional-only
-            Name of the endpoint method.
-        """
-        if self._auth_flow is None:
-            raise RuntimeError(
-                f"{self._QUAL_NAME}.{endpoint_method}() requires "
-                f"user authentication via an OAuth 2.0 authorization "
-                "flow."
-            )
 
     def _require_subscription(self, endpoint_method: str, /) -> None:
         """ """

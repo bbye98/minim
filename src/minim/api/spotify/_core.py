@@ -84,9 +84,9 @@ class SpotifyWebAPI(OAuth2APIClient):
         authorization_flow : str; keyword-only
             Authorization flow.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`"auth_code"` – Authorization Code Flow.
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
@@ -133,7 +133,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             .. seealso::
 
                :meth:`resolve_scopes` – Resolve scope categories and/or
-                substrings into a set of scopes.
+               substrings into a set of scopes.
 
         access_token : str; keyword-only; optional
             Access token. If provided, the authorization process is
@@ -155,15 +155,17 @@ class SpotifyWebAPI(OAuth2APIClient):
             flow. Redirect handling is only available for hosts
             :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
+            **Valid values**:
+
             .. container::
 
-               **Valid values**:
-
-               * :code:`None` – Manually paste the redirect URL into
-                 the terminal.
-               * :code:`"http.server"` – Run a simple HTTP server.
-               * :code:`"playwright"` – Open a Playwright Firefox
+               * :code:`None` – Show authorization URL in and have the
+                 user manually paste the redirect URL into the terminal.
+               * :code:`"http.server"` – Run a HTTP server to intercept
+                 the redirect after user authorization in any local
                  browser.
+               * :code:`"playwright"` – Use a Playwright Firefox
+                 browser to complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -191,6 +193,9 @@ class SpotifyWebAPI(OAuth2APIClient):
             the client neither retrieves nor stores access tokens.
 
             .. seealso::
+
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
 
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
@@ -261,9 +266,9 @@ class SpotifyWebAPI(OAuth2APIClient):
             Categories and/or substrings to filter scopes by. If not
             specified, all available scopes are returned.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`"images"` – Scopes related to custom images,
                  such as :code:`ugc-image-upload`.

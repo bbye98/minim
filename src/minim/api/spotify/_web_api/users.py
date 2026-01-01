@@ -52,6 +52,11 @@ class UsersAPI(ResourceAPI):
         .. admonition:: Authorization scopes
            :class: authorization-scope
 
+           .. tab:: Required
+
+              User authentication
+                 Access private profile information and library.
+
            .. tab:: Optional
 
               :code:`user-read-private`
@@ -103,6 +108,7 @@ class UsersAPI(ResourceAPI):
                     "uri": <str>
                   }
         """
+        self._client._require_authentication("users.get_my_profile")
         return self._client._request("GET", "me").json()
 
     @TTLCache.cached_method(ttl="catalog")
@@ -120,6 +126,11 @@ class UsersAPI(ResourceAPI):
 
         .. admonition:: Authorization scopes
            :class: authorization-scope
+
+           .. tab:: Conditional
+
+              User authentication
+                 Access private profile information and library.
 
            .. tab:: Optional
 
@@ -450,6 +461,11 @@ class UsersAPI(ResourceAPI):
         .. admonition:: Authorization scopes
            :class: authorization-scope
 
+           .. tab:: Required
+
+              User authentication
+                 Access private profile information and library.
+
            .. tab:: Conditional
 
               :code:`playlist-modify-public` scope
@@ -475,6 +491,7 @@ class UsersAPI(ResourceAPI):
 
             **API default**: :code:`True`.
         """
+        self._client._require_authentication("users.follow_playlist")
         self._client._validate_spotify_id(playlist_id)
         payload = {}
         if isinstance(public, bool):
@@ -496,6 +513,11 @@ class UsersAPI(ResourceAPI):
         .. admonition:: Authorization scopes
            :class: authorization-scope
 
+           .. tab:: Required
+
+              User authentication
+                 Access private profile information and library.
+
            .. tab:: Conditional
 
               :code:`playlist-modify-public` scope
@@ -515,6 +537,7 @@ class UsersAPI(ResourceAPI):
 
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
         """
+        self._client._require_authentication("users.unfollow_playlist")
         self._client._validate_spotify_id(playlist_id)
         self._client._request("DELETE", f"playlists/{playlist_id}/followers")
 
@@ -840,6 +863,11 @@ class UsersAPI(ResourceAPI):
         .. admonition:: Authorization scopes
            :class: authorization-scope
 
+           .. tab:: Required
+
+              User authentication
+                 Access private profile information and library.
+
            .. tab:: Conditional
 
               :code:`playlist-read-private` scope
@@ -861,6 +889,7 @@ class UsersAPI(ResourceAPI):
 
             **Sample response**: :code:`[True]`.
         """
+        self._client._require_authentication("users.is_following_playlist")
         self._client._validate_spotify_id(playlist_id)
         return self._client._request(
             "GET", f"playlists/{playlist_id}/followers/contains"

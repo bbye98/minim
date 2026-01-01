@@ -67,7 +67,218 @@ class TokenDatabase:
     """
 
     @staticmethod
-    def get_token(
+    def get_tokens(
+        *,
+        client_names: str | list[str] | None = None,
+        authorization_flows: str | list[str] | None = None,
+        client_ids: str | list[str] | None = None,
+        user_identifiers: str | list[str] | None = None,
+    ) -> list[dict[str, Any]] | None:
+        """
+        Retrieve specific or all access tokens and their metadata from
+        local storage.
+
+        Parameters
+        ----------
+        client_names : str; keyword-only; optional
+            Class names of the clients.
+
+        authorization_flows : str or list[str]; keyword-only; optional
+            Authorization flows.
+
+        client_ids : str or list[str]; keyword-only; optional
+            Client IDs.
+
+        user_identifiers : str or list[str]; keyword-only; optional
+            Identifiers for the user accounts.
+
+        Returns
+        -------
+        tokens : list[dict[str, Any]] or None
+            Access tokens and their metadata. Returns :code:`None` if no
+            matching token is found.
+        """
+        params = []
+        query = "SELECT * FROM tokens"
+        first_clause = True
+
+        _locals = locals()
+        for param in [
+            "client_name",
+            "authorization_flow",
+            "client_id",
+            "user_identifier",
+        ]:
+            value = _locals.get(f"{param}s")
+            if value is not None:
+                query = TokenDatabase._update_filter_clause(
+                    param,
+                    value,
+                    first_clause=first_clause,
+                    query=query,
+                    params=params,
+                )
+                first_clause = False
+
+        db_cursor.execute(query, params)
+        cols = tuple(col for col, *_ in db_cursor.description)
+        if (rows := db_cursor.fetchall()) is not None:
+            return [dict(zip(cols, row)) for row in rows]
+
+    @staticmethod
+    def add_token(
+        client_name: str,
+        *,
+        authorization_flow: str,
+        client_id: str,
+        client_secret: str | None,
+        user_identifier: str,
+        redirect_uri: str | None,
+        scopes: str | set[str] | None,
+        token_type: str | None,
+        access_token: str,
+        expires_at: str | datetime | None,
+        refresh_token: str | None,
+        extras: dict[str, Any] | None = None,
+    ) -> None:
+        """
+        Add an access token and its metadata to local storage.
+
+        Parameters
+        ----------
+        client_name : str
+            Class name of the client.
+
+        authorization_flow : str; keyword-only
+            Authorization flow.
+
+        client_id : str; keyword-only
+            Client ID.
+
+        client_secret : str or None; keyword-only
+            Client secret.
+
+        user_identifier : str; keyword-only
+            Identifier for the user account.
+
+        redirect_uri : str; keyword-only; optional
+            Redirect URI.
+
+        scopes : str, set[str], or None; keyword-only
+            Authorization scopes.
+
+        token_type : str or None; keyword-only
+            Type of the access token.
+
+        access_token : str; keyword-only
+            Access token.
+
+        expires_at : str, datetime.datetime, or None; keyword-only
+            Expiration time of the access token.
+
+        refresh_token : str or None; keyword-only
+            Refresh token for renewing the access token.
+
+        extras : dict[str, Any]; keyword-only; optional
+            Optional extra metadata associated with the access token.
+        """
+        db_cursor.execute(
+            """
+            INSERT OR REPLACE INTO tokens (
+                authorization_flow,
+                client_name,
+                client_id,
+                client_secret,
+                user_identifier,
+                redirect_uri,
+                scopes,
+                token_type,
+                access_token,
+                expires_at,
+                refresh_token,
+                extras
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                authorization_flow,
+                client_name,
+                client_id,
+                client_secret,
+                user_identifier,
+                redirect_uri,
+                " ".join(sorted(scopes))
+                if isinstance(scopes, set)
+                else scopes,
+                token_type,
+                access_token,
+                expires_at.strftime("%Y-%m-%dT%H:%M:%SZ")
+                if isinstance(expires_at, datetime)
+                else expires_at,
+                refresh_token,
+                json.dumps(extras) if isinstance(extras, dict) else None,
+            ),
+        )
+        db_connection.commit()
+
+    @staticmethod
+    def remove_tokens(
+        *,
+        client_names: str | list[str] | None = None,
+        authorization_flows: str | list[str] | None = None,
+        client_ids: str | list[str] | None = None,
+        user_identifiers: str | list[str] | None = None,
+    ) -> None:
+        """
+        Remove specific or all access tokens and their metadata from
+        local storage.
+
+        .. warning::
+
+           If none of `client_names`, `authorization_flows`,
+           `client_ids`, or `user_identifiers` are provided, all tokens
+           will be removed from local storage.
+
+        Parameters
+        ----------
+        client_names : str; keyword-only; optional
+            Class names of the clients.
+
+        authorization_flows : str or list[str]; keyword-only; optional
+            Authorization flows.
+
+        client_ids : str or list[str]; keyword-only; optional
+            Client IDs.
+
+        user_identifiers : str or list[str]; keyword-only; optional
+            Identifiers for the user accounts.
+        """
+        params = []
+        query = "DELETE FROM tokens"
+        first_clause = True
+
+        _locals = locals()
+        for param in [
+            "client_name",
+            "authorization_flow",
+            "client_id",
+            "user_identifier",
+        ]:
+            value = _locals.get(f"{param}s")
+            if value is not None:
+                query = TokenDatabase._update_filter_clause(
+                    param,
+                    value,
+                    first_clause=first_clause,
+                    query=query,
+                    params=params,
+                )
+                first_clause = False
+
+        db_cursor.execute(query, params)
+        db_connection.commit()
+
+    @staticmethod
+    def _get_token(
         client_name: str,
         *,
         authorization_flow: str | None,
@@ -124,154 +335,47 @@ class TokenDatabase:
             return dict(zip((col for col, *_ in db_cursor.description), row))
 
     @staticmethod
-    def add_token(
-        client_name: str,
+    def _update_filter_clause(
+        field: str,
+        values: str | list[str],
+        /,
         *,
-        authorization_flow: str,
-        client_id: str,
-        client_secret: str | None,
-        user_identifier: str | None,
-        redirect_uri: str | None,
-        scopes: str | set[str],
-        token_type: str,
-        access_token: str,
-        expires_at: str | datetime | None,
-        refresh_token: str | None,
-        extras: dict[str, Any] | None = None,
-    ) -> None:
+        first_clause: bool,
+        query: str,
+        params: list[Any],
+    ) -> str:
         """
-        Add an access token and its metadata to local storage.
+        Append a filter condition to a SQL :code:`WHERE` clause.
 
         Parameters
         ----------
-        client_name : str
-            Class name of the client.
+        field : str; positional-only
+            Name of the database column to filter on.
 
-        authorization_flow : str; keyword-only
-            Authorization flow.
+        values : str, list[str], or None; positional-only
+            Values to filter by.
 
-        client_id : str; keyword-only
-            Client ID.
+        query : str; keyword-only
+            Existing SQL :code:`WHERE` clause.
 
-        client_secret : str or None; keyword-only
-            Client secret.
+        params : list[Any]; keyword-only
+            SQL parameters corresponding to the :code:`WHERE` clause.
 
-        user_identifier : str or None; keyword-only
-            Identifier for the user account.
+            .. note::
 
-        redirect_uri : str; keyword-only; optional
-            Redirect URI.
+               This `list` is mutated in-place.
 
-        scopes : str or set[str]; keyword-only
-            Authorization scopes.
-
-        token_type : str; keyword-only
-            Type of the access token.
-
-        access_token : str; keyword-only
-            Access token.
-
-        expires_at : str, datetime.datetime, or None; keyword-only
-            Expiration time of the access token.
-
-        refresh_token : str or None; keyword-only
-            Refresh token for renewing the access token.
-
-        extras : dict[str, Any]; keyword-only; optional
-            Optional extra metadata associated with the access token.
+        Returns
+        -------
+        query : str
+            Updated SQL :code:`WHERE` clause.
         """
-        db_cursor.execute(
-            """
-            INSERT OR REPLACE INTO tokens (
-                authorization_flow,
-                client_name,
-                client_id,
-                client_secret,
-                user_identifier,
-                redirect_uri,
-                scopes,
-                token_type,
-                access_token,
-                expires_at,
-                refresh_token,
-                extras
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                authorization_flow,
-                client_name,
-                client_id,
-                client_secret,
-                user_identifier or "",
-                redirect_uri,
-                scopes
-                if isinstance(scopes, str)
-                else " ".join(sorted(scopes)),
-                token_type,
-                access_token,
-                expires_at.strftime("%Y-%m-%dT%H:%M:%SZ")
-                if isinstance(expires_at, datetime)
-                else expires_at,
-                refresh_token,
-                json.dumps(extras or {}),
-            ),
-        )
-        db_connection.commit()
-
-    @staticmethod
-    def remove_tokens(
-        client_name: str,
-        *,
-        authorization_flows: str | list[str] | None = None,
-        client_ids: str | list[str] | None = None,
-        user_identifiers: str | list[str] | None = None,
-    ) -> None:
-        """
-        Remove specific or all access tokens and their metadata from
-        local storage.
-
-        .. warning::
-
-           If none of `authorization_flows`, `client_ids`, or
-           `user_identifiers` are provided, all tokens for the specified
-           client will be removed from local storage.
-
-        Parameters
-        ----------
-        client_name : str
-            Class name of the client.
-
-        authorization_flows : str or list[str]; keyword-only; optional
-            Authorization flows.
-
-        client_ids : str or list[str]; keyword-only; optional
-            Client IDs.
-
-        user_identifiers : str or list[str]; keyword-only; optional
-            Identifiers for the user accounts.
-        """
-        query = "DELETE FROM tokens WHERE client = ?"
-        params = [client_name]
-
-        def make_filter_clause(field: str, values: str | list[str]) -> str:
-            if isinstance(values, str):
-                params.append(values)
-                return f" AND {field} = ?"
-            else:
-                params.extend(values)
-                return f" AND {field} IN ({', '.join('?' for _ in values)})"
-
-        if authorization_flows is not None:
-            query += make_filter_clause(
-                "authorization_flow", authorization_flows
-            )
-        if client_ids is not None:
-            query += make_filter_clause("client_id", client_ids)
-        if user_identifiers is not None:
-            query += make_filter_clause("user_identifier", user_identifiers)
-
-        db_cursor.execute(query, params)
-        db_connection.commit()
+        prefix = f"{query} {'WHERE' if first_clause else 'AND'} {field} "
+        if isinstance(values, str):
+            params.append(values)
+            return f"{prefix}= ?"
+        params.extend(values)
+        return f"{prefix}IN ({', '.join('?' for _ in values)})"
 
 
 class TTLCache:
@@ -523,11 +627,11 @@ class OAuth2RedirectHandler(BaseHTTPRequestHandler):
 
         Parameters
         ----------
-        *args : tuple[Any, ...]; optional
+        *args : tuple[Any, ...]
             Positional arguments to pass to
             :meth:`http.server.BaseHTTPRequestHandler.log_message`.
 
-        **kwargs : dict[str, Any]; optional
+        **kwargs : dict[str, Any]
             Keyword arguments to pass to
             :meth:`http.server.BaseHTTPRequestHandler.log_message`.
         """
@@ -539,14 +643,12 @@ class APIClient(ABC):
     Abstract base class for API clients.
     """
 
-    _ALLOWED_AUTH_FLOWS: set[str | None] = ...
-    _ENV_VAR_PREFIX: str = ...
-    _IS_TRUSTED_DEVICE: bool = False
-    _OPTIONAL_AUTH: bool = False
-    _PROVIDER: str = ...
-    _QUAL_NAME: str = ...
+    _ALLOWED_AUTH_FLOWS: set[str | None]
+    _ENV_VAR_PREFIX: str
+    _PROVIDER: str
+    _QUAL_NAME: str
     #: Base URL for API endpoints.
-    BASE_URL: str = ...
+    BASE_URL: str
 
     def __init__(self, *, enable_cache: bool = True) -> None:
         """
@@ -565,7 +667,9 @@ class APIClient(ABC):
                entries for this client.
         """
         self._cache = TTLCache() if enable_cache else None
-        self._client = httpx.Client(base_url=self.BASE_URL)
+        self._client = httpx.Client(
+            base_url=self.BASE_URL,  # follow_redirects=True
+        )
 
     def __enter__(self) -> "APIClient":
         """
@@ -915,9 +1019,17 @@ class OAuth2APIClient(APIClient):
     Abstract base class for OAuth 2.0-based API clients.
     """
 
-    _ALLOWED_SCOPES: Any = ...
+    _ALLOWED_SCOPES: Any
+    #: Authorization endpoint.
+    AUTH_URL: str
+    #: Device authorization endpoint.
+    DEVICE_AUTH_URL: str
+    #: Token endpoint.
+    TOKEN_URL: str
+
+    _IS_TRUSTED_DEVICE: bool = False
     _OAUTH_AUTH_FLOWS = {
-        None: "No Authorization Flow",
+        None: "unauthenticated client",
         "auth_code": "Authorization Code Flow",
         "pkce": "Authorization Code Flow with Proof Key for Code Exchange (PKCE)",
         "client_credentials": "Client Credentials Flow",
@@ -925,13 +1037,8 @@ class OAuth2APIClient(APIClient):
         "implicit": "Implicit Grant Flow",
         # "password": "Resource Owner Password Credentials Flow"
     }
+    _OPTIONAL_AUTH: bool = False
     _REDIRECT_HANDLERS = {"http.server", "playwright"}
-    #: Authorization endpoint.
-    AUTH_URL: str = ...
-    #: Device authorization endpoint.
-    DEVICE_AUTH_URL: str = ...
-    #: Token endpoint.
-    TOKEN_URL: str = ...
 
     def __init__(
         self,
@@ -957,9 +1064,9 @@ class OAuth2APIClient(APIClient):
         authorization_flow : str or None; keyword-only
             OAuth 2.0 authorization flow.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`None` – No authentication.
                * :code:`"auth_code"` – Authorization Code Flow.
@@ -1028,15 +1135,17 @@ class OAuth2APIClient(APIClient):
             flow. Redirect handling is only available for hosts
             :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
+            **Valid values**:
+
             .. container::
 
-               **Valid values**:
-
-               * :code:`None` – Manually paste the redirect URL into
-                 the terminal.
-               * :code:`"http.server"` – Run a simple HTTP server.
-               * :code:`"playwright"` – Open a Playwright Firefox
+               * :code:`None` – Show authorization URL in and have the
+                 user manually paste the redirect URL into the terminal.
+               * :code:`"http.server"` – Run a HTTP server to intercept
+                 the redirect after user authorization in any local
                  browser.
+               * :code:`"playwright"` – Use a Playwright Firefox
+                 browser to complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -1065,6 +1174,9 @@ class OAuth2APIClient(APIClient):
 
             .. seealso::
 
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
+
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
         """
@@ -1089,17 +1201,19 @@ class OAuth2APIClient(APIClient):
                 "`authorization_flow` parameter."
             )
 
-        # If an access token is not provided, try to retrieve it from
-        # local token storage
         if authorization_flow is not None:
             if user_identifier and user_identifier[0] == "~":
                 user_identifier = user_identifier[1:]
-            elif account := TokenDatabase.get_token(
-                self.__class__.__name__,
-                authorization_flow=authorization_flow,
-                client_id=client_id,
-                user_identifier=user_identifier,
+            elif store_tokens and (
+                account := TokenDatabase._get_token(
+                    self.__class__.__name__,
+                    authorization_flow=authorization_flow,
+                    client_id=client_id,
+                    user_identifier=user_identifier,
+                )
             ):
+                # If an access token is not provided, try to retrieve it
+                # from local token storage
                 access_token = account["access_token"]
                 client_secret = account["client_secret"]
                 scopes = account["scopes"]
@@ -1107,9 +1221,13 @@ class OAuth2APIClient(APIClient):
                 token_type = account["token_type"]
                 refresh_token = account["refresh_token"]
                 expires_at = account["expires_at"]
-                self._token_extras = json.loads(account["extras"])
+                self._token_extras = (
+                    json.loads(token_extras)
+                    if isinstance(token_extras := account["extras"], str)
+                    else token_extras
+                )
 
-        self.set_flow(
+        self.set_authorization_flow(
             authorization_flow,
             client_id=client_id,
             client_secret=client_secret,
@@ -1133,11 +1251,41 @@ class OAuth2APIClient(APIClient):
                 self._obtain_access_token()
 
     @abstractmethod
-    def _resolve_user_identifier(self) -> str:
+    def _resolve_user_identifier(self) -> str | None:
         """
         Resolve the best user identifier for the current account.
         """
         ...
+
+    @classmethod
+    def get_tokens(
+        cls,
+        *,
+        authorization_flows: str | list[str] | None = None,
+        client_ids: str | list[str] | None = None,
+        user_identifiers: str | list[str] | None = None,
+    ) -> None:
+        """
+        Retrieve specific or all access tokens and their metadata for
+        this client from local storage.
+
+        Parameters
+        ----------
+        authorization_flows : str or list[str]; keyword-only; optional
+            Authorization flows.
+
+        client_ids : str or list[str]; keyword-only; optional
+            Client IDs.
+
+        user_identifiers : str or list[str]; keyword-only; optional
+            Identifiers for the user accounts.
+        """
+        return TokenDatabase.get_tokens(
+            client_names=cls.__name__,
+            authorization_flows=authorization_flows,
+            client_ids=client_ids,
+            user_identifiers=user_identifiers,
+        )
 
     @classmethod
     def remove_tokens(
@@ -1169,7 +1317,7 @@ class OAuth2APIClient(APIClient):
             Identifiers for the user accounts.
         """
         TokenDatabase.remove_tokens(
-            cls.__name__,
+            client_names=cls.__name__,
             authorization_flows=authorization_flows,
             client_ids=client_ids,
             user_identifiers=user_identifiers,
@@ -1253,9 +1401,9 @@ class OAuth2APIClient(APIClient):
 
     def set_access_token(
         self,
-        access_token: str,
+        access_token: str | None,
         /,
-        token_type: str = "Bearer",
+        token_type: str | None = "Bearer",
         *,
         refresh_token: str | None = None,
         expires_at: str | datetime | None = None,
@@ -1271,7 +1419,7 @@ class OAuth2APIClient(APIClient):
 
         Parameters
         ----------
-        access_token : str; positional-only
+        access_token : str or None; positional-only
             Access token.
 
             .. important::
@@ -1281,7 +1429,7 @@ class OAuth2APIClient(APIClient):
                to ensure that all other relevant authorization
                parameters are set correctly.
 
-        token_type : str; default: :code:`"Bearer"`
+        token_type : str or None; default: :code:`"Bearer"`
             Type of the access token.
 
         refresh_token : str; keyword-only; optional
@@ -1293,6 +1441,17 @@ class OAuth2APIClient(APIClient):
             Expiration time of the access token. If a string, it must be
             in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
         """
+        if access_token is None:
+            if self._auth_flow is not None:
+                raise ValueError(
+                    "`access_token` cannot be None when using the "
+                    f"{self._OAUTH_AUTH_FLOWS[self._auth_flow]}."
+                )
+            if "Authorization" in self._client.headers:
+                del self._client.headers["Authorization"]
+            self._refresh_token = self._expires_at = None
+            return
+
         self._client.headers["Authorization"] = f"{token_type} {access_token}"
         if refresh_token and self._auth_flow in {
             "client_credentials",
@@ -1310,7 +1469,7 @@ class OAuth2APIClient(APIClient):
             else expires_at
         )
 
-    def set_flow(
+    def set_authorization_flow(
         self,
         authorization_flow: str | None,
         /,
@@ -1339,9 +1498,9 @@ class OAuth2APIClient(APIClient):
         authorization_flow : str or None; keyword-only
             OAuth 2.0 authorization flow.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`None` – No authentication.
                * :code:`"auth_code"` – Authorization Code Flow.
@@ -1392,15 +1551,17 @@ class OAuth2APIClient(APIClient):
             flow. Redirect handling is only available for hosts
             :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
+            **Valid values**:
+
             .. container::
 
-               **Valid values**:
-
-               * :code:`None` – Manually paste the redirect URL into
-                 the terminal.
-               * :code:`"http.server"` – Run a simple HTTP server.
-               * :code:`"playwright"` – Open a Playwright Firefox
+               * :code:`None` – Show authorization URL in and have the
+                 user manually paste the redirect URL into the terminal.
+               * :code:`"http.server"` – Run a HTTP server to intercept
+                 the redirect after user authorization in any local
                  browser.
+               * :code:`"playwright"` – Use a Playwright Firefox
+                 browser to complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -1417,6 +1578,9 @@ class OAuth2APIClient(APIClient):
 
             .. seealso::
 
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
+
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
 
@@ -1428,7 +1592,7 @@ class OAuth2APIClient(APIClient):
 
                Unless :meth:`set_access_token` is called immediately
                after, this should be left as :code:`True` to ensure the
-               client's existing access token is compatible with the new
+               client's existing token is compatible with the new
                authorization flow and/or scopes.
         """
         if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
@@ -1465,6 +1629,7 @@ class OAuth2APIClient(APIClient):
                 "`client_secret` parameter."
             )
         self._client_secret = client_secret
+        self._user_identifier = user_identifier
         requires_redirect = authorization_flow in {
             "auth_code",
             "pkce",
@@ -1477,7 +1642,6 @@ class OAuth2APIClient(APIClient):
                 "requires a redirect URI to be provided via the "
                 "`redirect_uri` parameter."
             )
-        self._user_identifier = user_identifier
         if requires_redirect:
             parsed = urlparse(redirect_uri)
             self._port = (
@@ -1510,7 +1674,6 @@ class OAuth2APIClient(APIClient):
                     )
                     redirect_handler = None
             self._redirect_handler = redirect_handler
-            self._open_browser = open_browser
         else:
             if has_redirect:
                 warnings.warn(
@@ -1521,10 +1684,10 @@ class OAuth2APIClient(APIClient):
                 )
             self._redirect_uri = None
             self._redirect_handler = None
-            self._open_browser = None
+        self._open_browser = open_browser
         self._store_tokens = store_tokens
 
-        if authenticate:
+        if authenticate and authorization_flow is not None:
             self._obtain_access_token()
 
     def _get_authorization_code(
@@ -1590,10 +1753,10 @@ class OAuth2APIClient(APIClient):
         if self._redirect_handler == "playwright":
             if not FOUND["playwright"]:
                 raise RuntimeError(
-                    f"The {self._OAUTH_AUTH_FLOWS[self._auth_flow]} "
-                    f"with `redirect_handler={self._redirect_handler!r}` "
-                    "requires the `playwright` library, but it could "
-                    "not be found or imported."
+                    "The redirect in the "
+                    f"{self._OAUTH_AUTH_FLOWS[self._auth_flow]} uses "
+                    "the `playwright` library, but it could not be "
+                    "found or imported."
                 )
 
             with sync_playwright() as playwright:
@@ -1675,9 +1838,9 @@ class OAuth2APIClient(APIClient):
             Authorization flow. If not provided, the current
             authorization flow in :attr:`_auth_flow` is used.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`"auth_code"` – Authorization Code Flow.
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
@@ -1688,6 +1851,9 @@ class OAuth2APIClient(APIClient):
         """
         if not authorization_flow:
             authorization_flow = self._auth_flow
+
+        if authorization_flow is None:
+            self.set_access_token(None)
 
         if authorization_flow == "refresh_token":
             data = {
@@ -1779,7 +1945,7 @@ class OAuth2APIClient(APIClient):
                     break
                 elif error != "authorization_pending":
                     raise RuntimeError(f"Authorization failed. Error: {error}")
-        else:  # "auth_code" or "pkce"
+        else:  # authorization_flow in {"auth_code", "pkce"}
             data = {
                 "grant_type": "authorization_code",
                 "redirect_uri": self._redirect_uri,
@@ -1824,18 +1990,19 @@ class OAuth2APIClient(APIClient):
             + timedelta(seconds=int(resp_json.pop("expires_in"))),
         )
         self._token_extras = resp_json
+        if self._user_identifier is None and self._auth_flow not in {
+            None,
+            "client_credentials",
+        }:
+            self._user_identifier = self._resolve_user_identifier()
+
         if self._store_tokens:
             TokenDatabase.add_token(
                 self.__class__.__name__,
                 authorization_flow=self._auth_flow,
                 client_id=self._client_id,
                 client_secret=self._client_secret,
-                user_identifier=getattr(self, "_user_identifier")
-                or (
-                    None
-                    if self._auth_flow == "client_credentials"
-                    else self._resolve_user_identifier()
-                ),
+                user_identifier=self._user_identifier or "",
                 redirect_uri=self._redirect_uri,
                 scopes=self._scopes,
                 token_type=token_type,
@@ -1852,6 +2019,22 @@ class OAuth2APIClient(APIClient):
         self._obtain_access_token(
             "refresh_token" if self._refresh_token else self._auth_flow
         )
+
+    def _require_authentication(self, endpoint_method: str, /) -> None:
+        """
+        Ensure that the user authentication has been performed for a
+        protected endpoint.
+
+        Parameters
+        ----------
+        endpoint_method : str; positional-only
+            Name of the endpoint method.
+        """
+        if self._auth_flow is None:
+            raise RuntimeError(
+                f"{self._QUAL_NAME}.{endpoint_method}() requires user "
+                "authentication via an OAuth 2.0 authorization flow."
+            )
 
     def _require_scopes(
         self, endpoint_method: str, scopes: str | set[str], /

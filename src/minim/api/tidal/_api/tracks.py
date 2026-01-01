@@ -1897,7 +1897,7 @@ class TracksAPI(TIDALResourceAPI):
         share_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        `Tracks > Get Track Shares <https://tidal-music.github.io
+        `Tracks > Get Track Statistics <https://tidal-music.github.io
         /tidal-api-reference/#/tracks
         /get_tracks__id__relationships_trackStatistics>`_: Get TIDAL
         catalog information for a track's statistics.

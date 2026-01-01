@@ -83,7 +83,7 @@ class TIDALResourceAPI(ResourceAPI):
 
             .. note::
 
-               This `dict` is updated in-place.
+               This `dict` is mutated in-place.
         """
         APIClient._validate_type("sort_by", sort_by, str)
         sort_by = sort_by.removeprefix(prefix)
@@ -175,7 +175,7 @@ class TIDALResourceAPI(ResourceAPI):
 
             .. note::
 
-               This `dict` is updated in-place.
+               This `dict` is mutated in-place.
 
         Returns
         -------
@@ -290,7 +290,7 @@ class TIDALResourceAPI(ResourceAPI):
 
             .. note::
 
-               This `dict` is updated in-place.
+               This `dict` is mutated in-place.
 
         Returns
         -------

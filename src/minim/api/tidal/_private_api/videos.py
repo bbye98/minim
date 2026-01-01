@@ -414,15 +414,13 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
                 re.compile(
                     r"#EXT-X-STREAM-INF:(?=[^\n]*BANDWIDTH=(\d+))"
                     r'(?=[^\n]*CODECS="([^"]+)")[^\n]+\n(\S+)'
-                ).findall(
-                    httpx.get(json.loads(manifest)["urls"][0]).content.decode()
-                ),
+                ).findall(httpx.get(json.loads(manifest)["urls"][0]).text),
                 key=lambda m3u: int(m3u[0]),
             )
             return codec, b"".join(
                 httpx.get(ts).content
                 for ts in re.compile("(?<=\n).*(http.*)").findall(
-                    httpx.get(m3u).content.decode()
+                    httpx.get(m3u).text
                 )
             )
         elif manifest[0] == 60:  # XML (audio-only)

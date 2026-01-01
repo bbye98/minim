@@ -1514,7 +1514,7 @@ class PlayerAPI(SpotifyResourceAPI):
 
             .. note::
 
-               This `dict` is updated in-place.
+               This `dict` is mutated in-place.
 
         payload : dict[str, Any]; keyword-only; optional
             JSON payload to include in the request.

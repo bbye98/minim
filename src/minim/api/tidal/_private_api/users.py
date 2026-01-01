@@ -3972,7 +3972,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             .. note::
 
-               This `dict` is updated in-place.
+               This `dict` is mutated in-place.
 
         Returns
         -------
