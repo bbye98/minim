@@ -102,7 +102,9 @@ class _BaseTIDALAPI(OAuth2APIClient):
                 if not isinstance(tidal_ids, tuple | list | str):
                     raise ValueError("TIDAL IDs must be integers or strings.")
                 for tidal_id in tidal_ids:
-                    TIDALAPI._validate_tidal_ids(tidal_id, _recursive=False)
+                    _BaseTIDALAPI._validate_tidal_ids(
+                        tidal_id, _recursive=False
+                    )
             else:
                 raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
 

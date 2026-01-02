@@ -195,9 +195,9 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         video_id: int | str,
         /,
         *,
-        video_quality: str = "HIGH",
-        asset_presentation: str = "FULL",
-        playback_mode: str = "STREAM",
+        quality: str = "HIGH",
+        intent: str = "STREAM",
+        preview: bool = False,
     ) -> dict[str, Any]:
         """
         Get playback information for a video.
@@ -218,7 +218,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
 
             **Examples**: :code:`29597422`, :code:`"59727844"`.
 
-        video_quality : str; keyword-only; default: :code:`"HIGH"`
+        quality : str; keyword-only; default: :code:`"HIGH"`
             Video quality.
 
             **Valid values**:
@@ -231,20 +231,19 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
                  audio.
                * :code:`"HIGH"` – Up to 1080p H.264 video, AAC-LC audio.
 
-        playback_mode : str; keyword-only; default: :code:`"STREAM"`
-            Playback mode.
-
-            **Valid values**: :code:`"STREAM"`, :code:`"OFFLINE"`.
-
-        asset_presentation : str; keyword-only; default: :code:`"FULL"`
-            Asset presentation.
+        intent : str; keyword-only; default: :code:`"STREAM"`
+            Playback mode or intended use of the video.
 
             **Valid values**:
 
             .. container::
 
-               * :code:`"FULL"` – Full video.
-               * :code:`"PREVIEW"` – 30-second preview of the video.
+               * :code:`"OFFLINE"` – Offline download.
+               * :code:`"STREAM"` – Streaming playback.
+
+        preview : bool; keyword-only; default: :code:`False`
+            Whether to return a 30-second preview instead of the full
+            video.
 
         Returns
         -------
@@ -271,39 +270,29 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         """
         self._client._require_subscription("videos.get_video_playback_info")
         self._client._validate_tidal_ids(video_id, _recursive=False)
-        self._client._validate_type("video_quality", video_quality, str)
-        video_quality = video_quality.strip().upper()
-        if video_quality not in self._VIDEO_QUALITIES:
+        self._client._validate_type("quality", quality, str)
+        quality = quality.strip().upper()
+        if quality not in self._VIDEO_QUALITIES:
             video_qualities_str = "', '".join(self._VIDEO_QUALITIES)
             raise ValueError(
-                f"Invalid video quality {video_quality!r}. "
+                f"Invalid video quality {quality!r}. "
                 f"Valid values: '{video_qualities_str}'."
             )
-        self._client._validate_type("playback_mode", playback_mode, str)
-        playback_mode = playback_mode.strip().upper()
-        if playback_mode not in self._PLAYBACK_MODES:
+        intent = intent.strip().upper()
+        if intent not in self._PLAYBACK_MODES:
             playback_modes_str = "', '".join(self._PLAYBACK_MODES)
             raise ValueError(
-                f"Invalid playback mode {playback_mode!r}. "
+                f"Invalid playback mode {intent!r}. "
                 f"Valid values: '{playback_modes_str}'."
             )
-        self._client._validate_type(
-            "asset_presentation", asset_presentation, str
-        )
-        asset_presentation = asset_presentation.strip().upper()
-        if asset_presentation not in self._ASSET_PRESENTATIONS:
-            asset_presentation_str = "', '".join(self._ASSET_PRESENTATIONS)
-            raise ValueError(
-                f"Invalid asset presentation {asset_presentation!r}. "
-                f"Valid values: '{asset_presentation_str}'."
-            )
+        self._client._validate_type("preview", preview, bool)
         return self._client._request(
             "GET",
             f"v1/videos/{video_id}/playbackinfo",
             params={
-                "videoquality": video_quality,
-                "assetpresentation": asset_presentation,
-                "playbackmode": playback_mode,
+                "videoquality": quality,
+                "assetpresentation": "PREVIEW" if preview else "FULL",
+                "playbackmode": intent,
             },
         ).json()
 

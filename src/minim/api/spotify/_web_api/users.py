@@ -47,15 +47,15 @@ class UsersAPI(ResourceAPI):
         `Users > Get Current User's Profile
         <https://developer.spotify.com/documentation/web-api/reference
         /get-current-users-profile>`_: Get detailed profile information
-        for the current Spotify user.
+        for the current user.
 
-        .. admonition:: Authorization scopes
+        .. admonition:: Authorization scopes and user authentication
            :class: authorization-scope
 
            .. tab:: Required
 
               User authentication
-                 Access private profile information and library.
+                 Access private profile information.
 
            .. tab:: Optional
 
@@ -119,7 +119,7 @@ class UsersAPI(ResourceAPI):
         `Users > Get Current User's Profile
         <https://developer.spotify.com/documentation/web-api/reference
         /get-current-users-profile>`_: Get detailed profile information
-        for the current Spotify user․
+        for the current user․
         `Users > Get User's Profile <https://developer.spotify.com
         /documentation/web-api/reference/get-users-profile>`_: Get
         public profile information for a Spotify user.
@@ -130,7 +130,7 @@ class UsersAPI(ResourceAPI):
            .. tab:: Conditional
 
               User authentication
-                 Access private profile information and library.
+                 Access private profile information.
 
            .. tab:: Optional
 
@@ -458,13 +458,13 @@ class UsersAPI(ResourceAPI):
         /documentation/web-api/reference/follow-playlist>`_: Follow a
         playlist.
 
-        .. admonition:: Authorization scopes
+        .. admonition:: Authorization scopes and user authentication
            :class: authorization-scope
 
            .. tab:: Required
 
               User authentication
-                 Access private profile information and library.
+                 Access and manage your library.
 
            .. tab:: Conditional
 
@@ -510,13 +510,13 @@ class UsersAPI(ResourceAPI):
         /documentation/web-api/reference/unfollow-playlist>`_: Unfollow
         a playlist.
 
-        .. admonition:: Authorization scopes
+        .. admonition:: Authorization scopes and user authentication
            :class: authorization-scope
 
            .. tab:: Required
 
               User authentication
-                 Access private profile information and library.
+                 Access and manage your library.
 
            .. tab:: Conditional
 
@@ -860,13 +860,13 @@ class UsersAPI(ResourceAPI):
         /check-if-user-follows-playlist>`_: Check whether the current
         user is following a playlist.
 
-        .. admonition:: Authorization scopes
+        .. admonition:: Authorization scope and user authentication
            :class: authorization-scope
 
            .. tab:: Required
 
               User authentication
-                 Access private profile information and library.
+                 Access and manage your library.
 
            .. tab:: Conditional
 
@@ -1877,6 +1877,9 @@ class UsersAPI(ResourceAPI):
            :class: authorization-scope
 
            .. tab:: Conditional
+
+              User authentication
+                 Access and manage your library.
 
               :code:`playlist-read-private` scope
                  Access your private playlists. `Learn more.

@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
+from .search import SearchAPI
 from .users import UsersAPI
 
 if TYPE_CHECKING:
@@ -2092,6 +2093,25 @@ class ArtistsAPI(TIDALResourceAPI):
             artist_id,
             "videos",
             country_code=country_code,
+            include_metadata=include_metadata,
+            cursor=cursor,
+        )
+
+    @_copy_docstring(SearchAPI.search_artists)
+    def search_artists(
+        self,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        include_explicit: bool | None = None,
+        include_metadata: bool = False,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        return self._client.search.search_artists(
+            query,
+            country_code=country_code,
+            include_explicit=include_explicit,
             include_metadata=include_metadata,
             cursor=cursor,
         )

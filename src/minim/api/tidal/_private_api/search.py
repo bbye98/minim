@@ -884,7 +884,7 @@ class PrivateSearchAPI(ResourceAPI):
     ) -> dict[str, Any]:
         """
         Get TIDAL catalog information for albums, artists, playlists,
-        tracks, and/or videos that match a keyword string.
+        tracks, or videos that match a keyword string.
 
         Parameters
         ----------

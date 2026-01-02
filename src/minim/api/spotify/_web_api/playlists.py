@@ -772,8 +772,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /add-tracks-to-playlist>`_: Add items to a playlist owned by the
         current user.
 
-        .. admonition:: Authorization scopes
+        .. admonition:: Authorization scopes and user authentication
            :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
 
            .. tab:: Conditional
 
@@ -833,6 +838,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             **Sample response**:
             :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
         """
+        self._client._require_authentication("playlists.add_playlist_items")
         self._client._validate_spotify_id(playlist_id)
         params = {}
         if to_index is not None:
@@ -865,8 +871,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /reorder-or-replace-playlists-tracks>`__: Reorder items in a
         playlist owned by the current user.
 
-        .. admonition:: Authorization scopes
+        .. admonition:: Authorization scopes and user authentication
            :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
 
            .. tab:: Conditional
 
@@ -923,6 +934,9 @@ class PlaylistsAPI(SpotifyResourceAPI):
             **Sample response**:
             :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
         """
+        self._client._require_authentication(
+            "playlists.reorder_playlist_items"
+        )
         self._client._validate_spotify_id(playlist_id)
         self._client._validate_number("from_index", from_index, int, 0)
         self._client._validate_number("to_index", to_index, int, 0)
@@ -946,8 +960,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /reorder-or-replace-playlists-tracks>`__: Clear and replace
         items in a playlist owned by the current user.
 
-        .. admonition:: Authorization scopes
+        .. admonition:: Authorization scopes and user authentication
            :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
 
            .. tab:: Conditional
 
@@ -995,6 +1014,9 @@ class PlaylistsAPI(SpotifyResourceAPI):
             **Sample response**:
             :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
         """
+        self._client._require_authentication(
+            "playlists.replace_playlist_items"
+        )
         self._client._validate_spotify_id(playlist_id)
         return self._client._request(
             "PUT",
@@ -1022,8 +1044,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /remove-tracks-playlist>`_: Remove items from a playlist owned
         by the current user.
 
-        .. admonition:: Authorization scopes
+        .. admonition:: Authorization scopes and user authentication
            :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
 
            .. tab:: Conditional
 
@@ -1075,6 +1102,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             **Sample response**:
             :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
         """
+        self._client._require_authentication("playlists.remove_playlist_items")
         self._client._validate_spotify_id(playlist_id)
         payload = {
             "tracks": self._client._prepare_spotify_uris(
@@ -1120,8 +1148,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /documentation/web-api/reference/create-playlist>`_: Create a
         playlist.
 
-        .. admonition:: Authorization scopes
+        .. admonition:: Authorization scopes and user authentication
            :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
 
            .. tab:: Conditional
 
@@ -1212,6 +1245,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
                     "uri": <str>
                   }
         """
+        self._client._require_authentication("playlists.create_playlist")
         self._client._validate_type("name", name, str)
         if not len(name):
             raise ValueError("The playlist name cannot be blank.")
@@ -1535,6 +1569,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scopes
            :class: authorization-scope
 
+           .. tab:: Required
+
+              :code:`ugc-image-upload` scope
+                 Upload images to Spotify on your behalf. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#ugc-image-upload>`__
+
            .. tab:: Conditional
 
               :code:`playlist-modify-public` scope
@@ -1546,13 +1587,6 @@ class PlaylistsAPI(SpotifyResourceAPI):
                  Manage your private playlists. `Learn more.
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-private>`__
-
-           .. tab:: Required
-
-              :code:`ugc-image-upload` scope
-                 Upload images to Spotify on your behalf. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#ugc-image-upload>`__
 
         Parameters
         ----------

@@ -11,7 +11,6 @@ class PrivateTIDALResourceAPI(ResourceAPI):
     Abstract base class for private TIDAL API resource endpoint groups.
     """
 
-    _ASSET_PRESENTATIONS = {"FULL", "PREVIEW"}
     _PLAYBACK_MODES = {"STREAM", "OFFLINE"}
     _client: "PrivateTIDALAPI"
 

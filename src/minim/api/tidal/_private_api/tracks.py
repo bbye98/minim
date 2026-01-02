@@ -481,9 +481,9 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         track_id: int | str,
         /,
         *,
-        audio_quality: str = "HI_RES_LOSSLESS",
-        asset_presentation: str = "FULL",
-        playback_mode: str = "STREAM",
+        quality: str = "HI_RES_LOSSLESS",
+        intent: str = "STREAM",
+        preview: bool = False,
     ) -> dict[str, Any]:
         """
         Get playback information for a track.
@@ -504,7 +504,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
 
             **Examples**: :code:`46369325`, :code:`"251380837"`.
 
-        audio_quality : str; keyword-only; default: :code:`"HI_RES_LOSSLESS"`
+        quality : str; keyword-only; default: :code:`"HI_RES_LOSSLESS"`
             Audio quality.
 
             **Valid values**:
@@ -519,20 +519,19 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
                * :code:`"HI_RES_LOSSLESS"` – Up to 9216 kbps (24-bit,
                  192 kHz) FLAC.
 
-        playback_mode : str; keyword-only; default: :code:`"STREAM"`
-            Playback mode.
-
-            **Valid values**: :code:`"STREAM"`, :code:`"OFFLINE"`.
-
-        asset_presentation : str; keyword-only; default: :code:`"FULL"`
-            Asset presentation.
+        intent : str; keyword-only; default: :code:`"STREAM"`
+            Playback mode or intended use of the track.
 
             **Valid values**:
 
             .. container::
 
-               * :code:`"FULL"` – Full track.
-               * :code:`"PREVIEW"` – 30-second preview of the track.
+               * :code:`"OFFLINE"` – Offline download.
+               * :code:`"STREAM"` – Streaming playback.
+
+        preview : bool; keyword-only; default: :code:`False`
+            Whether to return a 30-second preview instead of the full
+            track.
 
         Returns
         -------
@@ -562,39 +561,30 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
                   }
         """
         self._client._validate_tidal_ids(track_id, _recursive=False)
-        self._client._validate_type("audio_quality", audio_quality, str)
-        audio_quality = audio_quality.strip().upper()
-        if audio_quality not in self._AUDIO_QUALITIES:
+        self._client._validate_type("quality", quality, str)
+        quality = quality.strip().upper()
+        if quality not in self._AUDIO_QUALITIES:
             audio_qualities_str = "', '".join(self._AUDIO_QUALITIES)
             raise ValueError(
-                f"Invalid audio quality {audio_quality!r}. "
+                f"Invalid audio quality {quality!r}. "
                 f"Valid values: '{audio_qualities_str}'."
             )
-        self._client._validate_type("playback_mode", playback_mode, str)
-        playback_mode = playback_mode.strip().upper()
-        if playback_mode not in self._PLAYBACK_MODES:
+        self._client._validate_type("intent", intent, str)
+        intent = intent.strip().upper()
+        if intent not in self._PLAYBACK_MODES:
             playback_modes_str = "', '".join(self._PLAYBACK_MODES)
             raise ValueError(
-                f"Invalid playback mode {playback_mode!r}. "
+                f"Invalid playback mode {intent!r}. "
                 f"Valid values: '{playback_modes_str}'."
             )
-        self._client._validate_type(
-            "asset_presentation", asset_presentation, str
-        )
-        asset_presentation = asset_presentation.strip().upper()
-        if asset_presentation not in self._ASSET_PRESENTATIONS:
-            asset_presentation_str = "', '".join(self._ASSET_PRESENTATIONS)
-            raise ValueError(
-                f"Invalid asset presentation {asset_presentation!r}. "
-                f"Valid values: '{asset_presentation_str}'."
-            )
+        self._client._validate_type("preview", preview, bool)
         return self._client._request(
             "GET",
             f"v1/tracks/{track_id}/playbackinfo",
             params={
-                "audioquality": audio_quality,
-                "assetpresentation": asset_presentation,
-                "playbackmode": playback_mode,
+                "audioquality": quality,
+                "assetpresentation": "PREVIEW" if preview else "FULL",
+                "playbackmode": intent,
             },
         ).json()
 

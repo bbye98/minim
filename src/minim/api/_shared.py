@@ -385,6 +385,7 @@ class TTLCache:
     """
 
     _PREDEFINED_TTLS = {
+        "permanent": float("Inf"),
         "catalog": 86_400,
         "featured": 43_200,
         "top": 3_600,
@@ -444,10 +445,12 @@ class TTLCache:
 
             .. container::
 
+               * :code:`"permanent"` – Cache indefinitely.
                * :code:`"catalog"` – 1 day.
                * :code:`"featured"` – 12 hours.
                * :code:`"top"` – 1 hour.
                * :code:`"search"` – 10 minutes.
+               * :code:`"user"` – 2 minutes.
 
         Returns
         -------
@@ -906,11 +909,7 @@ class APIClient(ABC):
             if isinstance(value, str):
                 value = data_type(value)
             APIClient._validate_number(
-                name,
-                value,
-                data_type,
-                lower_bound=lower_bound,
-                upper_bound=upper_bound,
+                name, value, data_type, lower_bound, upper_bound
             )
         except ValueError:
             raise ValueError(
@@ -943,7 +942,7 @@ class APIClient(ABC):
                 else str(data_type)
             )
             raise ValueError(
-                f"`{name}` must be a(n) {data_type_str}, not a(n)"
+                f"`{name}` must be a(n) {data_type_str}, not a(n) "
                 f"{type(value).__name__}."
             )
 
