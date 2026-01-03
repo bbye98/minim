@@ -1,6 +1,8 @@
 from typing import Any
 
+from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
+from .search import PrivateSearchEndpoints
 
 
 class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
@@ -587,6 +589,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             "GET", "playlist/get", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl="featured")
     def get_featured_playlists(
         self,
         playlist_type: str,
@@ -751,6 +754,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             "GET", "playlist/getFeatured", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl="catalog")
     def get_playlist_tags(self) -> dict[str, list[dict[str, Any]]]:
         """
         Get available playlist tags.
@@ -781,17 +785,95 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         """
         return self._client._request("GET", "playlist/getTags").json()
 
-    def get_user_playlists(self):
-        pass
+    def get_my_playlists(
+        self,
+        *,
+        playlist_types: str | list[str] | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+        sort_by: str | None = None,
+        descending: bool | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get Qobuz catalog information for playlists created and/or
+        followed by the current user.
 
-    def search_playlists(self):
-        pass
+        Parameters
+        ----------
+        playlist_types : str or list[str]; keyword-only; optional
+            Playlist types to return. If not specified, TODO
 
-    def follow_playlist(self):
-        pass
+            **Valid values**:
 
-    def unfollow_playlist(self):
-        pass
+            .. container::
+
+               * :code:`"owner"` – TODO
+               * :code:`"subscriber"` – TODO
+
+            **Examples**: TODO
+
+        limit : int; keyword-only; optional
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`500`.
+
+            **API default**: :code:`25`.
+
+        offset : int; keyword-only; optional
+            Index of the first playlist to return. Use with `limit` to
+            get the next batch of playlists.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        sort_by : str, keyword-only, optional
+            Field to sort the playlists by.
+
+            **Valid values**: :code:`"updated_at"`, :code:`"position"`.
+
+            **API default**: :code:`"position"`.
+
+        descending : bool, keyword-only, optional
+            Whether to sort in descending order.
+
+            **API default**: :code:`True`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            Page of TIDAL content metadata for the playlists in the
+            current user's collection.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  TODO
+        """
+        ...  # TODO
+
+    @_copy_docstring(PrivateSearchEndpoints.search_playlists)
+    def search_playlists(
+        self,
+        query: str,
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.search.search_playlists(
+            query, limit=limit, offset=offset
+        )
+
+    def follow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
+        """ """
+        ...  # TODO
+
+    def unfollow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
+        """ """
+        ...  # TODO
 
     def update_playlist_details(self):
         pass

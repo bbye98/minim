@@ -34,7 +34,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         Parameters
         ----------
         playlist_types : str or list[str]; positional-only; optional
-            Playlist types to include in the results.
+            Playlist types to return.
         """
         if not playlist_types:
             raise ValueError("At least one playlist type must be specified.")

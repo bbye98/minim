@@ -1513,8 +1513,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             **Valid range**: :code:`1` to :code:`50`.
 
         playlist_types : str or list[str]; keyword-only; optional
-            Playlist types to include in the results. If not specified,
-            all playlists are returned.
+            Playlist types to return. If not specified, all playlists
+            are returned.
 
             **Valid values**:
 
@@ -1687,8 +1687,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             **Valid range**: :code:`1` to :code:`50`.
 
         playlist_types : str or list[str]; keyword-only; optional
-            Playlist types to include in the results. If not specified,
-            all playlists are returned.
+            Playlist types to return. If not specified, all playlists
+            are returned.
 
             **Valid values**:
 
@@ -1861,8 +1861,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             **Valid range**: :code:`1` to :code:`50`.
 
         playlist_types : str or list[str]; keyword-only; optional
-            Playlist types to include in the results. If not specified,
-            all playlists are returned.
+            Playlist types to return. If not specified, all playlists
+            are returned.
 
             **Valid values**:
 
@@ -3890,8 +3890,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             **Valid range**: :code:`1` to :code:`50`.
 
         playlist_types : str or list[str]; keyword-only; optional
-            Playlist types to include in the results. If not specified,
-            all playlists are returned.
+            Playlist types to return. If not specified, all playlists
+            are returned.
 
             **Valid values**:
 

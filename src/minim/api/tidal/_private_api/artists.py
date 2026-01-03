@@ -104,7 +104,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         album_type : str; keyword-only; optional
-            Album type to include in the results.
+            Album type to return.
 
             **Valid values**: :code:`"COMPILATIONS"`, :code:`"EPSANDSINGLES"`.
 

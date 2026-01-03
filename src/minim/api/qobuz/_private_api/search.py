@@ -24,6 +24,119 @@ class PrivateSearchEndpoints(ResourceAPI):
     _client: "PrivateQobuzAPI"
 
     @TTLCache.cached_method(ttl="search")
+    def search_playlists(
+        self,
+        query: str,
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get Qobuz catalog information for playlists that match a keyword
+        string.
+
+        Parameters
+        ----------
+        query : str; positional-only
+            Search query.
+
+        limit : int; keyword-only; optional
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`500`.
+
+            **API default**: :code:`50`.
+
+        offset : int; keyword-only; optional
+            Index of the first playlist to return. Use with `limit` to
+            get the next batch of playlists.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            Page of Qobuz catalog information for the matching
+            playlists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "playlists": {
+                      "items": [
+                        {
+                          "created_at": <int>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "featured_artists": [],
+                          "genres": [
+                            {
+                              "color": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "path": <list[int]>,
+                              "percent": <int>,
+                              "slug": <str>
+                            }
+                          ],
+                          "id": <int>,
+                          "image_rectangle": <list[str]>,
+                          "image_rectangle_mini": <list[str]>,
+                          "images": <list[str]>,
+                          "images150": <list[str]>,
+                          "images300": <list[str]>,
+                          "indexed_at": <int>,
+                          "is_collaborative": <bool>,
+                          "is_featured": <bool>,
+                          "is_public": <bool>,
+                          "is_published": <bool>,
+                          "name": <str>,
+                          "owner": {
+                            "id": <int>,
+                            "name": <str>
+                          },
+                          "public_at": <int>,
+                          "published_from": <int>,
+                          "published_to": <int>,
+                          "slug": <str>,
+                          "stores": <list[str]>,
+                          "tags": [
+                            {
+                              "color": <str>,
+                              "featured_tag_id": <str>,
+                              "genre_tag": {
+                                "genre_id": <str>,
+                                "name": <str>
+                              },
+                              "is_discover": <bool>,
+                              "name_json": <str>,
+                              "slug": <str>
+                            }
+                          ],
+                          "timestamp_position": <int>,
+                          "tracks_count": <int>,
+                          "updated_at": <int>,
+                          "users_count": <int>
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    },
+                    "query": <str>
+                  }
+        """
+        return self._search_resources(
+            "playlist", query, limit=limit, offset=offset
+        )
+
+    @TTLCache.cached_method(ttl="search")
     def search_tracks(
         self,
         query: str,
