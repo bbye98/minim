@@ -656,7 +656,64 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
                .. code::
 
-                  TODO
+                  {
+                    "playlists": {
+                      "items": [
+                        {
+                          "created_at": <int>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "featured_artists": [],
+                          "genres": [
+                            {
+                              "color": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "path": <list[int]>,
+                              "percent": <int>,
+                              "slug": <str>
+                            }
+                          ],
+                          "id": <int>,
+                          "image_rectangle": <list[str]>,
+                          "image_rectangle_mini": <list[str]>,
+                          "images": <list[str]>,
+                          "images150": <list[str]>,
+                          "images300": <list[str]>,
+                          "is_collaborative": <bool>,
+                          "is_featured": <bool>,
+                          "is_public": <bool>,
+                          "name": <str>,
+                          "owner": {
+                            "id": <int>,
+                            "name": <str>
+                          },
+                          "public_at": <int>,
+                          "slug": <str>,
+                          "stores": <list[str]>,
+                          "tags": [
+                            {
+                              "color": <str>,
+                              "featured_tag_id": <str>,
+                              "genre_tag": {
+                                "genre_id": <str>,
+                                "name": <str>
+                              },
+                              "is_discover": <bool>,
+                              "name_json": <str>,
+                              "slug": <str>
+                            }
+                          ],
+                          "tracks_count": <int>,
+                          "updated_at": <int>,
+                          "users_count": <int>
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    }
+                  }
         """
         self._client._validate_type("playlist_type", playlist_type, str)
         playlist_type = playlist_type.strip().lower()
@@ -679,7 +736,11 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                 genre_ids, str
             )
         if playlist_tag_slugs is not None:
-            ...  # TODO
+            if isinstance(playlist_tag_slugs, str):
+                playlist_tag_slugs = playlist_tag_slugs.split(",")
+            for playlist_tag_slug in playlist_tag_slugs:
+                self._validate_playlist_tag_slug(playlist_tag_slug)
+            params["tags"] = ",".join(str(slug) for slug in playlist_tag_slugs)
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
@@ -740,3 +801,24 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
     def reorder_playlist_items(self):
         pass
+
+    def _validate_playlist_tag_slug(self, playlist_tag_slug: str, /) -> None:
+        """
+        Validate genre ID.
+
+        Parameters
+        ----------
+        genre_id : str; positional-only
+            Genre ID.
+        """
+        if not isinstance(playlist_tag_slug, str):
+            raise ValueError("Qobuz playlist tag slugs must be strings.")
+        if "available_playlist_tags" in self.__dict__:
+            if playlist_tag_slug not in self._client.available_playlist_tags:
+                playlist_tag_slugs_str = "', '".join(
+                    self._client.available_playlist_tags
+                )
+                raise ValueError(
+                    f"Invalid playlist tag slug {playlist_tag_slug!r}. "
+                    f"Valid values: {playlist_tag_slugs_str}."
+                )

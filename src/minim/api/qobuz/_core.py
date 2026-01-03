@@ -412,6 +412,22 @@ class PrivateQobuzAPI(APIClient):
 
         return {genre.pop("id"): genre for genre in genres}
 
+    @cached_property
+    def available_playlist_tags(self) -> dict[str, dict[str, Any]]:
+        """
+        Available playlist tags.
+
+        .. note::
+
+           Accessing this property may call
+           :meth:`~minim.api.qobuz.PlaylistsAPI.get_playlist_tags` and
+           make a request to the Qobuz Web API.
+        """
+        return {
+            tag.pop("slug"): tag
+            for tag in self.playlists.get_playlist_tags()["tags"]
+        }
+
     def set_user_auth_token(self, user_auth_token: str | None, /) -> None:
         """
         Set or update the user authentication token.
@@ -803,7 +819,16 @@ class PrivateQobuzAPI(APIClient):
         genre_id : str; positional-only
             Genre ID.
         """
-        self._validate_numeric("genre_id", genre_id, int, 0)
+        try:
+            genre_id = int(genre_id)
+        except TypeError:
+            raise TypeError(
+                "Qobuz genre IDs must be integers or their string "
+                "representations."
+            )
         if "available_genres" in self.__dict__:
-            if int(genre_id) not in self.available_genres:
-                raise ValueError(f"Invalid genre ID {genre_id!r}. ")
+            if genre_id not in self.available_genres:
+                raise ValueError(
+                    f"Invalid genre ID {genre_id!r}. Valid values are "
+                    "the keys of the `available_genres` property."
+                )
