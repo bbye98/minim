@@ -1,5 +1,4 @@
 from datetime import datetime
-import json
 import time
 from typing import TYPE_CHECKING, Any
 
@@ -36,6 +35,7 @@ class PrivateTracksAPI(ResourceAPI):
             Qobuz IDs of the tracks.
 
             **Examples**: :code:`23929516`, :code:`"344521217"`,
+            :code:`"23929516,344521217"`,
             :code:`[23929516, "344521217"]`.
 
         Returns
@@ -368,16 +368,15 @@ class PrivateTracksAPI(ResourceAPI):
         self._client._validate_type(
             "track_ids", track_ids, int | str | tuple | list
         )
-        multiple = isinstance(track_ids, tuple | list)
-        self._client._validate_qobuz_ids(track_ids, _recursive=multiple)
-        if multiple:
+        track_ids = self._client._prepare_qobuz_ids(track_ids, list)
+        if len(track_ids) > 1:
             return self._client._request(
                 "POST",
                 "track/getList",
-                json={"tracks_id": [int(track_id) for track_id in track_ids]},
+                json={"tracks_id": track_ids},
             ).json()
         return self._client._request(
-            "GET", "track/get", params={"track_id": track_ids}
+            "GET", "track/get", params={"track_id": track_ids[0]}
         ).json()
 
     @TTLCache.cached_method(ttl="catalog")
@@ -851,7 +850,7 @@ class PrivateTracksAPI(ResourceAPI):
         return self._client._request(
             "POST",
             f"track/reportStreaming{'Start' if duration == 0 else 'End'}",
-            data={"events": json.dumps([event])},
+            json={"events": [event]},
             signed=True,
             sig_params=event,
         ).json()

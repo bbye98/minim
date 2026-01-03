@@ -162,6 +162,9 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Valid values**: :code:`"coverArt"`, :code:`"items"`,
             :code:`"ownerProfiles"`, :code:`"owners"`.
 
+           **Examples**: :code:`"coverArt"`,
+           :code:`["items", "owners"]`.
+
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results when requesting
             multiple playlists.
@@ -821,7 +824,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         """
         `Playlists > Update Playlist <https://tidal-music.github.io
         /tidal-api-reference/#/playlists/patch_playlists__id_>`_: Update
-        the details of a playlist owned by the current user.
+        the details of a playlist.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -1245,7 +1248,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         `Playlists > Add Items to Playlist
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /post_playlists__id__relationships_items>`_: Add items to a
-        playlist owned by the current user.
+        playlist.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -1312,13 +1315,14 @@ class PlaylistsAPI(TIDALResourceAPI):
         items: tuple[int | str, str, str]
         | dict[str, Any]
         | list[tuple[int | str, str, str] | dict[str, Any]],
+        *,
         insert_before: str,
     ) -> None:
         """
         `Playlists > Reorder Playlist Items
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /patch_playlists__id__relationships_items>`_: Reorder items in a
-        playlist owned by the current user.
+        playlist.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -1367,6 +1371,10 @@ class PlaylistsAPI(TIDALResourceAPI):
                             "types": "tracks",
                         },
                     ]
+
+            .. seealso::
+
+               :meth:`get_playlist_items` – Get playlist item UUIDs.
 
         insert_before : str
             UUID of the item in the playlist before which to insert the
@@ -1399,7 +1407,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         `Playlists > Remove Playlist Items
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /delete_playlists__id__relationships_items>`_: Remove items from
-        a playlist owned by the current user.
+        a playlist.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -1448,6 +1456,10 @@ class PlaylistsAPI(TIDALResourceAPI):
                             "types": "tracks",
                         },
                     ]
+
+            .. seealso::
+
+               :meth:`get_playlist_items` – Get playlist item UUIDs.
         """
         self._client._require_scopes(
             "playlists.remove_playlist_items", "playlists.write"

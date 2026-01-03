@@ -59,7 +59,7 @@ class PrivateSearchEndpoints(ResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Qobuz catalog information for the matching tracks.
+            Page of Qobuz catalog information for the matching tracks.
 
             .. admonition:: Sample response
                :class: dropdown

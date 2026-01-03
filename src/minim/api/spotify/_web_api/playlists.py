@@ -361,8 +361,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         """
         `Playlists > Change Playlist Details
         <https://developer.spotify.com/documentation/web-api/reference
-        /change-playlist-details>`_: Update the details of a playlist
-        owned by the current user.
+        /change-playlist-details>`_: Update the details of a playlist.
 
         .. admonition:: Authorization scopes
            :class: authorization-scope
@@ -769,8 +768,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         """
         `Playlists > Add Items to Playlist
         <https://developer.spotify.com/documentation/web-api/reference
-        /add-tracks-to-playlist>`_: Add items to a playlist owned by the
-        current user.
+        /add-tracks-to-playlist>`_: Add items to a playlist.
 
         .. admonition:: Authorization scopes and user authentication
            :class: authorization-scope
@@ -869,7 +867,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         `Playlists > Update Playlist Items
         <https://developer.spotify.com/documentation/web-api/reference
         /reorder-or-replace-playlists-tracks>`__: Reorder items in a
-        playlist owned by the current user.
+        playlist.
 
         .. admonition:: Authorization scopes and user authentication
            :class: authorization-scope
@@ -958,7 +956,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         `Playlists > Update Playlist Items
         <https://developer.spotify.com/documentation/web-api/reference
         /reorder-or-replace-playlists-tracks>`__: Clear and replace
-        items in a playlist owned by the current user.
+        items in a playlist.
 
         .. admonition:: Authorization scopes and user authentication
            :class: authorization-scope
@@ -1041,8 +1039,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         """
         `Playlists > Remove Playlist Items
         <https://developer.spotify.com/documentation/web-api/reference
-        /remove-tracks-playlist>`_: Remove items from a playlist owned
-        by the current user.
+        /remove-tracks-playlist>`_: Remove items from a playlist.
 
         .. admonition:: Authorization scopes and user authentication
            :class: authorization-scope

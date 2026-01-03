@@ -110,6 +110,9 @@ class TracksAPI(TIDALResourceAPI):
             :code:`"similarTracks"`, :code:`"sourceFile"`,
             :code:`"trackStatistics"`.
 
+           **Examples**: :code:`"lyrics"`,
+           :code:`["albums", "artists"]`.
+
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results when requesting
             multiple tracks.

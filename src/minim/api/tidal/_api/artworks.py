@@ -65,6 +65,8 @@ class ArtworksAPI(TIDALResourceAPI):
 
             **Valid value**: :code:`"owners"`.
 
+            **Examples**: :code:`"owners"`, :code:`["owners"]`.
+
         Returns
         -------
         artworks : dict[str, Any]

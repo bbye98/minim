@@ -608,7 +608,7 @@ class TracksAPI(SpotifyResourceAPI):
 
             .. seealso::
 
-                :meth:`~minim.api.spotify.GenresAPI.get_available_seed_genres`
+                :meth:`~minim.api.spotify.GenresAPI.get_seed_genres`
                 – Get available seed genres.
 
         seed_tracks : str or list[str]; optional

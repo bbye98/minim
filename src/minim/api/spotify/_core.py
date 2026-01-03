@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import cached_property
 from json.decoder import JSONDecodeError
 import time
 from typing import TYPE_CHECKING, Any
@@ -500,8 +501,8 @@ class SpotifyWebAPI(OAuth2APIClient):
         ):
             raise ValueError(f"{spotify_uri!r} is not a valid Spotify URI.")
 
-    @property
-    def available_seed_genres(self) -> list[str]:
+    @cached_property
+    def available_seed_genres(self) -> set[str]:
         """
         Available seed genres for track recommendations.
 
@@ -519,23 +520,23 @@ class SpotifyWebAPI(OAuth2APIClient):
         .. note::
 
            Accessing this property may call
-           :meth:`~minim.api.spotify.GenresAPI.get_available_seed_genres`
-           and make a request to the Spotify Web API.
+           :meth:`~minim.api.spotify.GenresAPI.get_seed_genres` and make
+           a request to the Spotify Web API.
         """
-        return self.genres.get_available_seed_genres()["genres"]
+        return set(self.genres.get_seed_genres()["genres"])
 
-    @property
-    def available_markets(self) -> list[str]:
+    @cached_property
+    def available_markets(self) -> set[str]:
         """
         Markets where Spotify is available.
 
         .. note::
 
            Accessing this property may call
-           :meth:`~minim.api.spotify.MarketsAPI.get_available_markets`
-           and make a request to the Spotify Web API.
+           :meth:`~minim.api.spotify.MarketsAPI.get_markets` and make a
+           request to the Spotify Web API.
         """
-        return self.markets.get_available_markets()["markets"]
+        return set(self.markets.get_markets()["markets"])
 
     def _resolve_user_identifier(self) -> str:
         """

@@ -16,14 +16,18 @@ class TIDALResourceAPI(ResourceAPI):
 
     @classmethod
     def _prepare_expand(
-        cls, expand: list[str], /, *, relationships: set[str] | None = None
+        cls,
+        expand: str | list[str],
+        /,
+        *,
+        relationships: set[str] | None = None,
     ) -> list[str]:
         """
         Normalize, validate, and prepare a list of related resources.
 
         Parameters
         ----------
-        expand : list[str]; positional-only
+        expand : str | list[str]; positional-only
             Related resources to include metadata for in the response.
 
         resources : set[str]; keyword-only; optional

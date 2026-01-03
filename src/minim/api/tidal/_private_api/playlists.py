@@ -72,8 +72,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Conditional
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -441,8 +440,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -586,8 +584,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -658,8 +655,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -695,8 +691,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -821,12 +816,11 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
-        playlist_uuids : str or list[str]; positional-only; optional
+        playlist_uuids : str or list[str]; positional-only
             UUIDs or TIDAL resource names of the playlists.
 
             **Examples**:
@@ -838,8 +832,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
                * :code:`["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
                  "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
 
-        folder_uuid : str; keyword-only; optional
-            UUID of TIDAL playlist folder to add playlists to. Use
+        folder_uuid : str
+            UUID of TIDAL playlist folder to move playlists to. Use
             :code:`"root"` or leave blank to target the top-level
             "Playlists" folder.
         """
@@ -861,7 +855,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         self, playlist_uuid: str, /, public: bool
     ) -> None:
         """
-        Set the visibility of a playlist owned by the current user.
+        Set the visibility of a playlist.
 
         .. admonition:: User authentication
            :class: authorization-scope
@@ -869,8 +863,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -899,7 +892,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         description: str | None = None,
     ) -> None:
         """
-        Update the details of a playlist owned by the current user.
+        Update the details of a playlist.
 
         .. admonition:: User authentication
            :class: authorization-scope
@@ -907,12 +900,11 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
-        playlist_uuid : str; positional-only; optional
+        playlist_uuid : str; positional-only
             UUID of the TIDAL playlist.
 
             **Example**: :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`.
@@ -952,8 +944,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -984,7 +975,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         on_duplicate: str | None = None,
     ) -> None:
         """
-        Add items to a playlist owned by the current user.
+        Add items to a playlist.
 
         .. admonition:: User authentication
            :class: authorization-scope
@@ -992,8 +983,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         .. note::
 
@@ -1021,12 +1011,12 @@ class PrivatePlaylistsAPI(ResourceAPI):
             :code:`"46369325,75413016"`, :code:`[46369325, "75413016"]`.
 
         from_album_id : int or str; keyword-only; optional
-            TIDAL ID of the album to transfer tracks and videos from.
+            TIDAL ID of the album to add tracks and videos from.
 
             **Examples**: :code:`46369321`, :code:`"251380836"`.
 
         from_playlist_uuid : str; keyword-only; optional
-            UUID of the TIDAL playlist to transfer tracks and videos
+            UUID of the TIDAL playlist to add tracks and videos
             from.
 
             **Example**: :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`.
@@ -1086,13 +1076,13 @@ class PrivatePlaylistsAPI(ResourceAPI):
     def reorder_playlist_items(
         self,
         playlist_uuid: str,
+        /,
         from_item_indices: int | str | list[int | str],
         to_index: int | str,
-        /,
         country_code: str | None = None,
     ) -> None:
         """
-        Reorder items in a playlist owned by the current user.
+        Reorder items in a playlist.
 
         .. admonition:: User authentication
            :class: authorization-scope
@@ -1100,8 +1090,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1110,13 +1099,13 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
             **Example**: :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`.
 
-        from_item_indices : int, str, or list[int | str]; positional-only
+        from_item_indices : int, str, or list[int | str]
             Zero-based indices of items to move.
 
             **Examples**: :code:`1`, :code:`"2"`, :code:`"3,4"`,
             :code:`[5, "6"]`.
 
-        to_index : int or str; positional-only
+        to_index : int or str
             Zero-based index to move the items to.
 
             **Examples**: :code:`0`, :code:`"0"`.
@@ -1153,14 +1142,13 @@ class PrivatePlaylistsAPI(ResourceAPI):
     def replace_playlist_item(
         self,
         playlist_uuid: str,
+        /,
         item_index: int | str,
         item_id: int | str,
-        /,
         country_code: str | None = None,
     ) -> None:
         """
-        Replace an item in a playlist owned by the current user with
-        another item.
+        Replace an item in a playlist with another item.
 
         .. admonition:: User authentication
            :class: authorization-scope
@@ -1168,8 +1156,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1178,12 +1165,12 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
             **Example**: :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`.
 
-        item_index : int or str; positional-only
+        item_index : int or str
             Zero-based index of the item to be replaced.
 
              **Examples**: :code:`1`, :code:`"2"`.
 
-        item_id : int or str; positional-only
+        item_id : int or str
             TIDAL ID of the track or video to replace the item at the
             specified index.
 
@@ -1215,12 +1202,12 @@ class PrivatePlaylistsAPI(ResourceAPI):
     def remove_playlist_items(
         self,
         playlist_uuid: str,
-        item_indices: int | str | list[int | str],
         /,
+        item_indices: int | str | list[int | str],
         country_code: str | None = None,
     ) -> None:
         """
-        Remove items from a playlist owned by the current user.
+        Remove items from a playlist.
 
         .. admonition:: User authentication
            :class: authorization-scope
@@ -1228,8 +1215,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1238,7 +1224,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
             **Example**: :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`.
 
-        item_indices : int, str, or list[int | str]; positional-only
+        item_indices : int, str, or list[int | str]
             Zero-based indices of items to remove.
 
             **Examples**: :code:`1`, :code:`"2"`, :code:`"3,4"`,

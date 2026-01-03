@@ -1,9 +1,6 @@
-from datetime import datetime
-import json
-import time
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import TTLCache, ResourceAPI
+from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
     from .._core import PrivateQobuzAPI
@@ -56,7 +53,8 @@ class PrivatePurchasesAPI(ResourceAPI):
         Returns
         -------
         purchases : dict[str, Any]
-            Qobuz content metadata for purchased albums and tracks.
+            Pages of Qobuz content metadata for purchased albums and
+            tracks.
 
             .. admonition:: Sample responses
                :class: dropdown
@@ -272,6 +270,14 @@ class PrivatePurchasesAPI(ResourceAPI):
         Get Qobuz IDs of albums and tracks purchased by the current
         user.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access personal collection and favorites.
+
         Returns
         -------
         item_ids : dict[str, Any]
@@ -306,6 +312,7 @@ class PrivatePurchasesAPI(ResourceAPI):
                     }
                   }
         """
+        self._client._require_authentication("purchases.get_my_purchases")
         return self._client._request(
             "GET", "purchase/getUserPurchasesIds"
         ).json()

@@ -98,7 +98,8 @@ class AlbumsAPI(TIDALResourceAPI):
             :code:`"providers"`, :code:`"similarAlbums"`,
             :code:`"suggestedCoverArts"`.
 
-            **Examples**: :code:`"coverArt"`, ["artists", "items"].
+            **Examples**: :code:`"coverArt"`, 
+            :code:`["artists", "items"]`.
 
         cursor : str; keyword-only; optional
             Cursor for for fetching the next page of results when 

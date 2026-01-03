@@ -65,8 +65,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Returns
         -------
@@ -301,8 +300,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -351,8 +349,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -498,8 +495,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -551,8 +547,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -587,8 +582,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -674,8 +668,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -705,8 +698,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -745,8 +737,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -864,8 +855,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -916,8 +906,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -954,8 +943,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1086,8 +1074,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1129,8 +1116,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1175,8 +1161,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1220,8 +1205,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1441,8 +1425,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1517,8 +1500,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1687,8 +1669,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1867,8 +1848,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2039,8 +2019,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2212,8 +2191,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2347,8 +2325,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2472,8 +2449,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2526,8 +2502,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2573,8 +2548,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2597,8 +2571,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2624,8 +2597,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2679,8 +2651,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2703,8 +2674,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2733,8 +2703,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2893,8 +2862,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2946,8 +2914,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2982,8 +2949,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3107,8 +3073,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3138,8 +3103,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3177,8 +3141,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3316,8 +3279,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3368,8 +3330,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3403,8 +3364,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3507,8 +3467,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3538,8 +3497,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3626,8 +3584,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -4113,8 +4070,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -4143,8 +4099,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------

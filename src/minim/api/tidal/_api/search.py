@@ -64,6 +64,8 @@ class SearchAPI(TIDALResourceAPI):
 
             **Valid value**: :code:`"directHits"`.
 
+           **Examples**: :code:`"directHits"`, :code:`["directHits"]`.
+
         Returns
         -------
         search_suggestions : dict[str, Any]
@@ -932,6 +934,9 @@ class SearchAPI(TIDALResourceAPI):
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"playlists"`, :code:`"topHits"`, :code:`"tracks"`,
             :code:`"videos"`.
+
+           **Examples**: :code:`"topHits"`,
+           :code:`["albums", "tracks"]`.
 
         Returns
         -------

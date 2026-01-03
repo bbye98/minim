@@ -163,6 +163,9 @@ class ArtistsAPI(TIDALResourceAPI):
             :code:`"similarArtists"`, :code:`"trackProviders"`,
             :code:`"tracks"`, :code:`"videos"`.
 
+            **Examples**: :code:`"profileArt"`, 
+            :code:`["albums", "tracks"]`.
+
         Returns
         -------
         artists : dict[str, Any]

@@ -1,5 +1,6 @@
 import base64
 from datetime import datetime
+from functools import cached_property
 import getpass
 import hashlib
 import json
@@ -11,6 +12,8 @@ import httpx
 from playwright.sync_api import sync_playwright
 
 from .._shared import APIClient, TokenDatabase
+from ._private_api.genres import PrivateGenresAPI
+from ._private_api.playlists import PrivatePlaylistsAPI
 from ._private_api.purchases import PrivatePurchasesAPI
 from ._private_api.search import PrivateSearchEndpoints
 from ._private_api.tracks import PrivateTracksAPI
@@ -149,6 +152,10 @@ class PrivateQobuzAPI(APIClient):
         super().__init__(enable_cache=enable_cache)
 
         # Initialize subclasses for endpoint groups
+        #: Genres API endpoints for the private Qobuz API.
+        self.genres: PrivateGenresAPI = PrivateGenresAPI(self)
+        #: Playlists API endpoints for the private Qobuz API.
+        self.playlists: PrivatePlaylistsAPI = PrivatePlaylistsAPI(self)
         #: Purchases API endpoints for the private Qobuz API.
         self.purchases: PrivatePurchasesAPI = PrivatePurchasesAPI(self)
         #: Search-related endpoints for the private Qobuz API.
@@ -320,6 +327,26 @@ class PrivateQobuzAPI(APIClient):
         )
 
     @staticmethod
+    def _prepare_qobuz_ids(
+        qobuz_ids: int | str | list[int | str], data_type: type
+    ) -> list[int]:
+        """ """
+        if isinstance(qobuz_ids, str):
+            return PrivateQobuzAPI._prepare_qobuz_ids(
+                qobuz_ids.split(","), data_type=data_type
+            )
+        if data_type is str:
+            if isinstance(qobuz_ids, int):
+                return str(qobuz_ids)
+            PrivateQobuzAPI._validate_qobuz_ids(qobuz_ids)
+            return ",".join(str(qobuz_id) for qobuz_id in qobuz_ids)
+        else:
+            if isinstance(qobuz_ids, int):
+                return [qobuz_ids]
+            PrivateQobuzAPI._validate_qobuz_ids(qobuz_ids)
+            return [int(qobuz_id) for qobuz_id in qobuz_ids]
+
+    @staticmethod
     def _validate_qobuz_ids(
         qobuz_ids: int | str | list[int | str], /, *, _recursive: bool = True
     ) -> None:
@@ -335,7 +362,9 @@ class PrivateQobuzAPI(APIClient):
             raise ValueError("At least one Qobuz ID must be specified.")
 
         if isinstance(qobuz_ids, str):
-            if not qobuz_ids.isdecimal():
+            if _recursive:
+                PrivateQobuzAPI._validate_qobuz_ids(qobuz_ids.split(","))
+            elif not qobuz_ids.isdecimal():
                 raise ValueError(f"Invalid Qobuz ID {qobuz_ids!r}.")
         elif not isinstance(qobuz_ids, int):
             if _recursive:
@@ -347,6 +376,41 @@ class PrivateQobuzAPI(APIClient):
                     )
             else:
                 raise ValueError(f"Invalid Qobuz ID {qobuz_ids!r}.")
+
+    @cached_property
+    def available_genres(self) -> dict[str, dict[str, Any]]:
+        """
+        Available genres.
+
+        .. note::
+
+           Accessing this property may call
+           :meth:`~minim.api.qobuz.GenresAPI.get_genres` and make
+           multiple requests to the Qobuz Web API.
+        """
+        genres = []
+
+        # Use iterative depth-first search
+        stack = [None]
+        while stack:
+            subgenres = self.genres.get_subgenres(stack.pop())["genres"]
+            if subgenres["total"] > 0:
+                genres.extend(subgenres["items"])
+                stack.extend(genre["id"] for genre in subgenres["items"])
+
+        # Use recursive depth-first search
+        # def get_subgenres(
+        #     genre_id: str | None = None, /, *, genres: list[dict[str, Any]]
+        # ) -> dict[str, Any]:
+        #     subgenres = self.genres.get_subgenres(genre_id)["genres"]
+        #     if subgenres["total"] > 0:
+        #         genres.extend(subgenres["items"])
+        #         for subgenre in subgenres["items"]:
+        #             get_subgenres(subgenre["id"], genres=genres)
+
+        # get_subgenres(genres=genres)
+
+        return {genre.pop("id"): genre for genre in genres}
 
     def set_user_auth_token(self, user_auth_token: str | None, /) -> None:
         """
@@ -729,3 +793,17 @@ class PrivateQobuzAPI(APIClient):
             or self._token_extras.get("user", {}).get("id")
             or self.users.get_my_profile()
         )
+
+    def _validate_genre_id(self, genre_id: int | str, /) -> None:
+        """
+        Validate genre ID.
+
+        Parameters
+        ----------
+        genre_id : str; positional-only
+            Genre ID.
+        """
+        self._validate_numeric("genre_id", genre_id, int, 0)
+        if "available_genres" in self.__dict__:
+            if int(genre_id) not in self.available_genres:
+                raise ValueError(f"Invalid genre ID {genre_id!r}. ")

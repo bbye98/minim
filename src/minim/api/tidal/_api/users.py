@@ -139,6 +139,8 @@ class UsersAPI(TIDALResourceAPI):
             :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
             :code:`"videos"`.
 
+           **Examples**: :code:`"albums"`, :code:`["tracks", "videos"]`.
+
         Returns
         -------
         collection : dict[str, Any]
@@ -2172,6 +2174,8 @@ class UsersAPI(TIDALResourceAPI):
 
             **Valid value**: :code:`"owners"`.
 
+           **Examples**: :code:`"owners"`, :code:`["owners"]`.
+
         Returns
         -------
         entitlements : dict[str, Any]
@@ -2347,6 +2351,9 @@ class UsersAPI(TIDALResourceAPI):
 
             **Valid values**: :code:`"discoveryMixes"`,
             :code:`"myMixes"`, :code:`"newArrivalMixes"`.
+
+           **Examples**: :code:`"myMixes"`,
+           :code:`["discoveryMixes", "newArrivalMixes"]`.
 
         Returns
         -------
