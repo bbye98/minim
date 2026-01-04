@@ -368,7 +368,7 @@ class PrivateTracksAPI(ResourceAPI):
         self._client._validate_type(
             "track_ids", track_ids, int | str | tuple | list
         )
-        track_ids = self._client._prepare_qobuz_ids(track_ids, list)
+        track_ids = self._client._prepare_qobuz_ids(track_ids, data_type=list)
         if len(track_ids) > 1:
             return self._client._request(
                 "POST",

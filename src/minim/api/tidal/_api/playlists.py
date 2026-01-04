@@ -1267,7 +1267,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         items : tuple[int | str, str], dict[str, int | str], or \
         list[tuple[int | str, str] | dict[str, int | str]]
-            TIDAL IDs and types of the items.
+            TIDAL IDs and types of the items to be added.
 
             **Examples**:
 
@@ -1286,8 +1286,8 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         insert_before : str; keyword-only; optional
             UUID of the item in the playlist before which to insert the
-            items in `items`. If not specified, the items are appended
-            to the end of the playlist.
+            items. If not specified, the items are appended to the end
+            of the playlist.
 
             **Example**: :code:`"3794bdb3-1529-48d7-8a99-ef2cb0cf22c3"`.
         """
@@ -1315,7 +1315,6 @@ class PlaylistsAPI(TIDALResourceAPI):
         items: tuple[int | str, str, str]
         | dict[str, Any]
         | list[tuple[int | str, str, str] | dict[str, Any]],
-        *,
         insert_before: str,
     ) -> None:
         """
@@ -1341,7 +1340,8 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         items : tuple[int | str, str, str], dict[str, Any], or \
         list[tuple[int | str, str, str] | dict[str, Any]]
-            TIDAL IDs, playlist item UUIDs, and types of the items.
+            TIDAL IDs, playlist item UUIDs, and types of the items to be
+            reordered.
 
             **Examples**:
 
@@ -1378,7 +1378,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         insert_before : str
             UUID of the item in the playlist before which to insert the
-            items .
+            items.
 
             **Example**: :code:`"3794bdb3-1529-48d7-8a99-ef2cb0cf22c3"`.
         """
@@ -1426,7 +1426,8 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         items : tuple[int | str, str, str], dict[str, Any], or \
         list[tuple[int | str, str, str] | dict[str, Any]]
-            TIDAL IDs, playlist item UUIDs, and types of the items.
+            TIDAL IDs, playlist item UUIDs, and types of the items to be
+            removed.
 
             **Examples**:
 

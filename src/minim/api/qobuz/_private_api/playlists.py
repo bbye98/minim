@@ -87,7 +87,9 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._client._validate_qobuz_ids(playlist_id, _recursive=False)
         params = {
             "playlist_id": playlist_id,
-            "track_ids": self._client._prepare_qobuz_ids(track_ids, str),
+            "track_ids": self._client._prepare_qobuz_ids(
+                track_ids, data_type=str
+            ),
         }
         if allow_duplicates is not None:
             self._client._validate_type(
@@ -206,7 +208,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         if from_track_ids is not None:
             self._client._validate_qobuz_ids(from_track_ids)
             payload["track_ids"] = self._client._prepare_qobuz_ids(
-                from_track_ids, str
+                from_track_ids, data_type=str
             )
         return self._client._request(
             "POST", "playlist/create", data=payload
@@ -242,7 +244,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._client._validate_qobuz_ids(playlist_id, _recursive=False)
         return self._client._request(
             "POST", "playlist/delete", data={"playlist_id": playlist_id}
-        )
+        ).json()
 
     def remove_playlist_tracks(
         self,
@@ -296,7 +298,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             data={
                 "playlist_id": playlist_id,
                 "playlist_track_ids": self._client._prepare_qobuz_ids(
-                    playlist_track_ids, str
+                    playlist_track_ids, data_type=str
                 ),
             },
         ).json()
@@ -736,7 +738,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                 for genre_id in genre_ids:
                     self._client._validate_genre_id(genre_id)
             params["genre_ids"] = self._client._prepare_qobuz_ids(
-                genre_ids, str
+                genre_ids, data_type=str
             )
         if playlist_tag_slugs is not None:
             if isinstance(playlist_tag_slugs, str):
@@ -996,7 +998,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._client._validate_qobuz_ids(playlist_id, _recursive=False)
         return self._client._request(
             "POST", "playlist/subscribe", data={"playlist_id": playlist_id}
-        )
+        ).json()
 
     def unfollow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
         """
@@ -1028,16 +1030,236 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._client._validate_qobuz_ids(playlist_id, _recursive=False)
         return self._client._request(
             "POST", "playlist/unsubscribe", data={"playlist_id": playlist_id}
+        ).json()
+
+    def update_playlist_details(
+        self,
+        playlist_id: str,
+        /,
+        *,
+        name: str | None = None,
+        description: str | None = None,
+        public: bool | None = None,
+        collaborative: bool | None = None,
+        track_ids: str | list[str] | None = None,
+    ) -> dict[str, Any]:
+        """
+        Update the details of a playlist.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
+        Parameters
+        ----------
+        name : str
+            Playlist name.
+
+            **Example**: :code:`"My New Playlist Title"`.
+
+        description : str; keyword-only; optional
+            Playlist description.
+
+        public : bool; keyword-only; optional
+            Whether the playlist is displayed on the current user's
+            profile.
+
+        collaborative : bool; keyword-only; optional
+            Whether other users can modify the playlist.
+
+        track_ids : int, str, or list[int | str]; keyword-only;
+        optional
+            Qobuz IDs of the tracks to replace those currently in the
+            playlist.
+
+            **Examples**: :code:`23929516`, :code:`"344521217"`,
+            :code:`"23929516,344521217"`,
+            :code:`[23929516, "344521217"]`.
+
+        Returns
+        -------
+        playlist : dict[str, Any]
+            Qobuz content metadata for the updated playlist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "created_at": <int>,
+                    "description": <str>,
+                    "duration": <int>,
+                    "id": <int>,
+                    "is_collaborative": <bool>,
+                    "is_public": <bool>,
+                    "name": <str>,
+                    "owner": {
+                      "id": <int>,
+                      "name": <str>
+                    },
+                    "public_at": <int>,
+                    "tracks_count": <int>,
+                    "updated_at": <int>,
+                    "users_count": <int>
+                  }
+        """
+        self._client._require_authentication(
+            "playlists.update_playlist_details"
         )
+        self._client._validate_qobuz_ids(playlist_id, _recursive=False)
+        payload = {}
+        if name is not None:
+            self._client._validate_type("name", name, str)
+            if not len(name):
+                raise ValueError("The playlist name cannot be blank.")
+            payload["name"] = name
+        if description is not None:
+            self._client._validate_type("description", description, str)
+            payload["description"] = description
+        if public is not None:
+            self._client._validate_type("public", public, bool)
+            payload["is_public"] = public
+        if collaborative is not None:
+            self._client._validate_type("collaborative", collaborative, bool)
+            payload["is_collaborative"] = collaborative
+        if track_ids is not None:
+            self._client._validate_qobuz_ids(track_ids)
+            payload["track_ids"] = self._client._prepare_qobuz_ids(
+                track_ids, data_type=str
+            )
+        if not payload:
+            raise ValueError("At least one change must be specified.")
+        payload["playlist_id"] = playlist_id
+        return self._client._request("POST", "playlist/update", data=payload)
 
-    def update_playlist_details(self):
-        pass
+    def reorder_playlists(
+        self, playlist_ids: int | str | list[int | str], /
+    ) -> dict[str, str]:
+        """
+        Reorder playlists.
 
-    def reorder_playlists(self):
-        pass
+        .. admonition:: User authentication
+           :class: authorization-scope
 
-    def reorder_playlist_items(self):
-        pass
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
+        Parameters
+        ----------
+        playlist_ids : int, str, or list[int | str]; positional-only
+            Qobuz IDs of the playlists.
+
+            **Examples**: :code:`2776610`, :code:`"6754150"`,
+            :code:`"2776610,6754150"`, :code:`[2776610, "6754150"]`.
+
+        Returns
+        -------
+        response : dict[str, str]
+            API response.
+
+            **Sample response**: :code:`{"status": "success"}`.
+        """
+        self._client._require_authentication("playlists.reorder_playlists")
+        return self._client._request(
+            "POST",
+            "playlist/updatePlaylistsPosition",
+            data={
+                "playlist_ids": self._client._prepare_qobuz_ids(
+                    playlist_ids, data_type=str
+                )
+            },
+        ).json()
+
+    def reorder_playlist_items(
+        self,
+        playlist_id: int | str,
+        /,
+        playlist_track_ids: int | str | list[int | str],
+        to_index: int,
+    ) -> dict[str, Any]:
+        """
+        Reorder items in a playlist.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
+        Parameters
+        ----------
+        playlist_id : int or str; positional-only
+            Qobuz ID of the playlist.
+
+            **Examples**: :code:`2776610`, :code:`"6754150"`.
+
+        playlist_track_ids : int, str, or list[int | str]
+            Playlist track IDs of the tracks to be reordered.
+
+            **Examples**: :code:`3775131234`, :code:`"3775131243"`,
+            :code:`[3775131234, "3775131243"]`.
+
+            .. seealso::
+
+               :meth:`get_playlist` – Get playlist track IDs by
+               including :code:`"tracks"` in the `expand` parameter.
+
+        to_index : int
+            Zero-based index at which to insert the items.
+
+        Returns
+        -------
+        playlist : dict[str, Any]
+            Qobuz content metadata for the updated playlist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "created_at": <int>,
+                    "description": <str>,
+                    "duration": <int>,
+                    "id": <int>,
+                    "is_collaborative": <bool>,
+                    "is_public": <bool>,
+                    "name": <str>,
+                    "owner": {
+                      "id": <int>,
+                      "name": <str>
+                    },
+                    "public_at": <int>,
+                    "tracks_count": <int>,
+                    "updated_at": <int>,
+                    "users_count": <int>
+                  }
+        """
+        self._client._require_authentication(
+            "playlists.reorder_playlist_items"
+        )
+        self._client._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._client._validate_number("to_index", to_index, int, 0)
+        return self._client._request(
+            "POST",
+            "playlist/updateTracksPosition",
+            data={
+                "playlist_id": playlist_id,
+                "playlist_track_ids": self._client._prepare_qobuz_ids(
+                    playlist_track_ids, str
+                ),
+                "insert_before": to_index,
+            },
+        ).json()
 
     def _validate_playlist_tag_slug(self, playlist_tag_slug: str, /) -> None:
         """

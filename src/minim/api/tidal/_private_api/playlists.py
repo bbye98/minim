@@ -672,7 +672,15 @@ class PrivatePlaylistsAPI(ResourceAPI):
                  "550e8400-e29b-41d4-a716-446655440000"]`
         """
         self._client._require_authentication("users.delete_folders")
-        return self._delete_resources("folder", folder_uuids)
+        self._client._request(
+            "PUT",
+            "v2/my-collection/playlists/folders/remove",
+            params={
+                "trns": self._client._prepare_uuids(
+                    "folder", folder_uuids, has_prefix=True
+                )
+            },
+        )
 
     def create_playlist(
         self,
@@ -961,7 +969,15 @@ class PrivatePlaylistsAPI(ResourceAPI):
                  "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
         """
         self._client._require_authentication("users.delete_playlists")
-        return self._delete_resources("playlist", playlist_uuids)
+        self._client._request(
+            "PUT",
+            "v2/my-collection/playlists/folders/remove",
+            params={
+                "trns": self._client._prepare_uuids(
+                    "playlist", playlist_uuids, has_prefix=True
+                )
+            },
+        )
 
     def add_playlist_items(
         self,
@@ -1409,32 +1425,6 @@ class PrivatePlaylistsAPI(ResourceAPI):
     ) -> dict[str, Any]:
         return self._client.users.get_user_public_playlists(
             user_id, cursor=cursor, limit=limit
-        )
-
-    def _delete_resources(
-        self, resource_type: str, uuids: str | list[str], /
-    ) -> None:
-        """
-        Delete playlist folders or playlists.
-
-        Parameters
-        ----------
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"folder"`, :code:`"playlist"`.
-
-        uuids : str or list[str]; positional-only
-            UUIDs of playlists or playlist folders.
-        """
-        self._client._request(
-            "PUT",
-            "v2/my-collection/playlists/folders/remove",
-            params={
-                "trns": self._client._prepare_uuids(
-                    resource_type, uuids, has_prefix=True
-                )
-            },
         )
 
     def _get_playlist_etag(
