@@ -1263,12 +1263,12 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
     def _validate_playlist_tag_slug(self, playlist_tag_slug: str, /) -> None:
         """
-        Validate genre ID.
+        Validate playlist tag slug.
 
         Parameters
         ----------
-        genre_id : str; positional-only
-            Genre ID.
+        playlist_tag_slug : str; positional-only
+            Playlist tag slug.
         """
         if not isinstance(playlist_tag_slug, str):
             raise ValueError("Qobuz playlist tag slugs must be strings.")
