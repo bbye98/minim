@@ -12,6 +12,7 @@ import httpx
 from playwright.sync_api import sync_playwright
 
 from .._shared import APIClient, TokenDatabase
+from ._private_api.labels import PrivateLabelsAPI
 from ._private_api.genres import PrivateGenresAPI
 from ._private_api.playlists import PrivatePlaylistsAPI
 from ._private_api.purchases import PrivatePurchasesAPI
@@ -153,6 +154,8 @@ class PrivateQobuzAPI(APIClient):
         super().__init__(enable_cache=enable_cache)
 
         # Initialize subclasses for endpoint groups
+        #: Labels API endpoints for the private Qobuz API.
+        self.labels: PrivateLabelsAPI = PrivateLabelsAPI(self)
         #: Genres API endpoints for the private Qobuz API.
         self.genres: PrivateGenresAPI = PrivateGenresAPI(self)
         #: Playlists API endpoints for the private Qobuz API.
@@ -397,40 +400,40 @@ class PrivateQobuzAPI(APIClient):
             else:
                 raise ValueError(f"Invalid Qobuz ID {qobuz_ids!r}.")
 
-    @cached_property
-    def available_genres(self) -> dict[str, dict[str, Any]]:
-        """
-        Available genres.
+    # @cached_property
+    # def available_genres(self) -> dict[str, dict[str, Any]]:
+    #     """
+    #     Available genres.
 
-        .. note::
+    #     .. note::
 
-           Accessing this property may call
-           :meth:`~minim.api.qobuz.PrivateGenresAPI.get_subgenres` and
-           make multiple requests to the Qobuz Web API.
-        """
-        genres = []
+    #        Accessing this property may call
+    #        :meth:`~minim.api.qobuz.PrivateGenresAPI.get_subgenres` and
+    #        make multiple requests to the Qobuz Web API.
+    #     """
+    #     genres = []
 
-        # Use iterative depth-first search
-        stack = [None]
-        while stack:
-            subgenres = self.genres.get_subgenres(stack.pop())["genres"]
-            if subgenres["total"] > 0:
-                genres.extend(subgenres["items"])
-                stack.extend(genre["id"] for genre in subgenres["items"])
+    #     # Use iterative depth-first search
+    #     stack = [None]
+    #     while stack:
+    #         subgenres = self.genres.get_subgenres(stack.pop())["genres"]
+    #         if subgenres["total"] > 0:
+    #             genres.extend(subgenres["items"])
+    #             stack.extend(genre["id"] for genre in subgenres["items"])
 
-        # Use recursive depth-first search
-        # def get_subgenres(
-        #     genre_id: str | None = None, /, *, genres: list[dict[str, Any]]
-        # ) -> dict[str, Any]:
-        #     subgenres = self.genres.get_subgenres(genre_id)["genres"]
-        #     if subgenres["total"] > 0:
-        #         genres.extend(subgenres["items"])
-        #         for subgenre in subgenres["items"]:
-        #             get_subgenres(subgenre["id"], genres=genres)
+    #     # Use recursive depth-first search
+    #     # def get_subgenres(
+    #     #     genre_id: str | None = None, /, *, genres: list[dict[str, Any]]
+    #     # ) -> dict[str, Any]:
+    #     #     subgenres = self.genres.get_subgenres(genre_id)["genres"]
+    #     #     if subgenres["total"] > 0:
+    #     #         genres.extend(subgenres["items"])
+    #     #         for subgenre in subgenres["items"]:
+    #     #             get_subgenres(subgenre["id"], genres=genres)
 
-        # get_subgenres(genres=genres)
+    #     # get_subgenres(genres=genres)
 
-        return {genre.pop("id"): genre for genre in genres}
+    #     return {genre.pop("id"): genre for genre in genres}
 
     @cached_property
     def available_playlist_tags(self) -> dict[str, dict[str, Any]]:
@@ -837,25 +840,25 @@ class PrivateQobuzAPI(APIClient):
             or self.users.get_my_profile()
         )
 
-    def _validate_genre_id(self, genre_id: int | str, /) -> None:
-        """
-        Validate genre ID.
+    # def _validate_genre_id(self, genre_id: int | str, /) -> None:
+    #     """
+    #     Validate genre ID.
 
-        Parameters
-        ----------
-        genre_id : str; positional-only
-            Genre ID.
-        """
-        try:
-            genre_id = int(genre_id)
-        except TypeError:
-            raise TypeError(
-                "Qobuz genre IDs must be integers or their string "
-                "representations."
-            )
-        if "available_genres" in self.__dict__:
-            if genre_id not in self.available_genres:
-                raise ValueError(
-                    f"Invalid genre ID {genre_id!r}. Valid values are "
-                    "the keys of the `available_genres` property."
-                )
+    #     Parameters
+    #     ----------
+    #     genre_id : str; positional-only
+    #         Genre ID.
+    #     """
+    #     try:
+    #         genre_id = int(genre_id)
+    #     except TypeError:
+    #         raise TypeError(
+    #             "Qobuz genre IDs must be integers or their string "
+    #             "representations."
+    #         )
+    #     if "available_genres" in self.__dict__:
+    #         if genre_id not in self.available_genres:
+    #             raise ValueError(
+    #                 f"Invalid genre ID {genre_id!r}. Valid values are "
+    #                 "the keys of the `available_genres` property."
+    #             )

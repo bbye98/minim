@@ -587,7 +587,7 @@ class PrivateTracksAPI(ResourceAPI):
         Returns
         -------
         response : dict[str, str]
-            API response.
+            API JSON response.
 
             **Sample response**: :code:`{"code": 200,
             "status": "success", "transUId": <str>}`.
@@ -700,7 +700,7 @@ class PrivateTracksAPI(ResourceAPI):
         Returns
         -------
         response : dict[str, str]
-            API response.
+            API JSON response.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -818,7 +818,7 @@ class PrivateTracksAPI(ResourceAPI):
         Returns
         -------
         response : dict[str, str]
-            API response.
+            API JSON response.
         """
         self._client._validate_qobuz_ids(track_id, _recursive=False)
         self._client._validate_qobuz_ids(format_id, _recursive=False)

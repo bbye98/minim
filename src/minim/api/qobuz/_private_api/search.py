@@ -23,6 +23,62 @@ class PrivateSearchEndpoints(ResourceAPI):
 
     _client: "PrivateQobuzAPI"
 
+    def search_most_popular(
+        self,
+        query: str,
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get Qobuz catalog information for the most popular albums,
+        artists, and tracks that match a keyword string.
+
+        Parameters
+        ----------
+        query : str; positional-only
+            Search query.
+
+        limit : int; keyword-only; optional
+            Maximum number of items to return.
+
+            **Valid range**: :code:`1` to :code:`500`.
+
+            **API default**: :code:`30`.
+
+        offset : int; keyword-only; optional
+            Index of the first item to return. Use with `limit` to
+            get the next batch of items.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        results : dict[str, Any]
+            Search results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  TODO
+        """
+        self._client._validate_type("query", query, str)
+        params = {"query": query}
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 500)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request(
+            "GET", "most-popular/get", params=params
+        ).json()
+
     @TTLCache.cached_method(ttl="search")
     def search_playlists(
         self,

@@ -236,7 +236,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         response : dict[str, str]
-            API response.
+            API JSON response.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -283,10 +283,32 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        response : dict[str, str]
-            API response.
+        playlist : dict[str, Any]
+            Qobuz content metadata for the updated playlist.
 
-            **Sample response**: :code:`{"status": "success"}`.
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "created_at": <int>,
+                    "description": <str>,
+                    "duration": <int>,
+                    "id": <int>,
+                    "is_collaborative": <bool>,
+                    "is_public": <bool>,
+                    "name": <str>,
+                    "owner": {
+                      "id": <int>,
+                      "name": <str>
+                    },
+                    "public_at": <int>,
+                    "status": "success",
+                    "tracks_count": <int>,
+                    "updated_at": <int>,
+                    "users_count": <int>
+                  }
         """
         self._client._require_authentication(
             "playlists.remove_playlist_tracks"
@@ -576,7 +598,6 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                     "users_count": <int>
                   }
         """
-        self._client._require_authentication("playlists.get_playlist")
         self._client._validate_qobuz_ids(playlist_id, _recursive=False)
         params = {"playlist_id": playlist_id}
         if expand is not None:
@@ -732,11 +753,11 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             self._client._validate_type(
                 "genre_ids", genre_ids, int | str | tuple | list | set
             )
-            if not isinstance(genre_ids, int):
-                if isinstance(genre_ids, str):
-                    genre_ids = genre_ids.split(",")
-                for genre_id in genre_ids:
-                    self._client._validate_genre_id(genre_id)
+            # if not isinstance(genre_ids, int):
+            #     if isinstance(genre_ids, str):
+            #         genre_ids = genre_ids.split(",")
+            #     for genre_id in genre_ids:
+            #         self._client._validate_genre_id(genre_id)
             params["genre_ids"] = self._client._prepare_qobuz_ids(
                 genre_ids, data_type=str
             )
@@ -990,7 +1011,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         response : dict[str, str]
-            API response.
+            API JSON response.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -1022,7 +1043,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         response : dict[str, str]
-            API response.
+            API JSON response.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
@@ -1135,7 +1156,9 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         if not payload:
             raise ValueError("At least one change must be specified.")
         payload["playlist_id"] = playlist_id
-        return self._client._request("POST", "playlist/update", data=payload)
+        return self._client._request(
+            "POST", "playlist/update", data=payload
+        ).json()
 
     def reorder_playlists(
         self, playlist_ids: int | str | list[int | str], /
@@ -1162,7 +1185,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         response : dict[str, str]
-            API response.
+            API JSON response.
 
             **Sample response**: :code:`{"status": "success"}`.
         """
