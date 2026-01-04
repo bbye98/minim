@@ -39,7 +39,6 @@ class _BaseTIDALAPI(OAuth2APIClient):
     _ENV_VAR_PREFIX: str
     _QUAL_NAME: str
     _VERSION: str
-    AUTH_URL: str
     BASE_URL: str
 
     _PROVIDER = "TIDAL"
@@ -324,7 +323,7 @@ class TIDALAPI(_BaseTIDALAPI):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 10 minutes to 1 day, depending on their expected
+            cached for 2 minutes to 1 day, depending on their expected
             update frequency.
 
             .. seealso::
@@ -643,7 +642,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 10 minutes to 1 day, depending on their expected
+            cached for 2 minutes to 1 day, depending on their expected
             update frequency.
 
             .. seealso::
@@ -725,7 +724,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
         resource_type : str; positional-only; optional
             Type of resource the artwork belongs to. If provided, the
-            specified dimensions are validated against the allowed 
+            specified dimensions are validated against the allowed
             dimensions for the item type.
 
             **Valid values**: :code:`"artist"`, :code:`"album"`,
@@ -739,7 +738,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             Dimensions of the artwork. Use :code:`"origin"` or leave
             blank to get artwork in its original dimensions.
 
-            **Examples**: :code:`"origin"`, :code:`1_280`, 
+            **Examples**: :code:`"origin"`, :code:`1_280`,
             :code:`"1280"`, :code:`"1280x1280"`, :code:`(640, 360)`,
             :code:`("640", "360")`.
         """
