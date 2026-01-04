@@ -66,15 +66,16 @@ class PrivateQobuzAPI(APIClient):
 
         app_id : str; keyword-only; optional
             Application ID. If not provided, it is loaded from the
-            system environment variable :code:`QOBUZ_API_APP_ID` or from
-            the local token storage if available, or retrieved from the
-            Qobuz Web Player login page otherwise.
+            system environment variable :code:`PRIVATE_QOBUZ_API_APP_ID`
+            or from the local token storage if available, or retrieved
+            from the Qobuz Web Player login page otherwise.
 
         app_secret : str; keyword-only; optional
             Application secret. If not provided, it is loaded from the
-            system environment variable :code:`QOBUZ_API_APP_SECRET` or
-            from the local token storage if available, or retrieved from
-            the Qobuz Web Player login page otherwise.
+            system environment variable
+            :code:`PRIVATE_QOBUZ_API_APP_SECRET` or from the local token
+            storage if available, or retrieved from the Qobuz Web Player
+            login page otherwise.
 
         user_identifier : str; keyword-only; optional
             Identifier for the user account. Used when
@@ -504,15 +505,16 @@ class PrivateQobuzAPI(APIClient):
 
         app_id : str; keyword-only; optional
             Application ID. If not provided, it is loaded from the
-            system environment variable :code:`QOBUZ_API_APP_ID` or from
-            the local token storage if available, or retrieved from the
-            Qobuz Web Player login page otherwise.
+            system environment variable :code:`PRIVATE_QOBUZ_API_APP_ID`
+            or from the local token storage if available, or retrieved
+            from the Qobuz Web Player login page otherwise.
 
         app_secret : str; keyword-only; optional
             Application secret. If not provided, it is loaded from the
-            system environment variable :code:`QOBUZ_API_APP_SECRET` or
-            from the local token storage if available, or retrieved from
-            the Qobuz Web Player login page otherwise.
+            system environment variable
+            :code:`PRIVATE_QOBUZ_API_APP_SECRET` or from the local token
+            storage if available, or retrieved from the Qobuz Web Player
+            login page otherwise.
 
         user_identifier : str; keyword-only; optional
             Identifier for the user account. Used when
