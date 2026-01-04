@@ -27,7 +27,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
 
         Parameters
         ----------
-        expand : str | list[str]; positional-only
+        expand : str or list[str]; positional-only
             Related resources to include metadata for in the response.
 
         resources : set[str]; keyword-only; optional

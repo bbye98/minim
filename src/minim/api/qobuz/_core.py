@@ -205,11 +205,12 @@ class PrivateQobuzAPI(APIClient):
             store_tokens=store_tokens,
             authenticate=False,
         )
-        if authorization_flow is not None:
-            if user_auth_token:
-                self.set_user_auth_token(user_auth_token)
-            else:
-                self._obtain_user_auth_token(**kwargs)
+        if authorization_flow is None:
+            self._resolve_app_secret()
+        elif user_auth_token:
+            self.set_user_auth_token(user_auth_token)
+        else:
+            self._obtain_user_auth_token(**kwargs)
 
     @classmethod
     def get_tokens(
@@ -328,9 +329,27 @@ class PrivateQobuzAPI(APIClient):
 
     @staticmethod
     def _prepare_qobuz_ids(
-        qobuz_ids: int | str | list[int | str], data_type: type
+        qobuz_ids: int | str | list[int | str], /, *, data_type: type
     ) -> list[int]:
-        """ """
+        """
+        Normalize, validate, and serialize or prepare a list of Qobuz
+        IDs.
+
+        Parameters
+        ----------
+        qobuz_ids : int, str, or list[int | str]; positional-only
+            Qobuz IDs.
+
+        data_type : type; keyword-only
+            Data type of the return value.
+
+            **Valid values**: :code:`str`, :code:`list`.
+
+        Returns
+        -------
+        qobuz_ids : str
+            Comma-separated string or list of Qobuz IDs.
+        """
         if isinstance(qobuz_ids, str):
             return PrivateQobuzAPI._prepare_qobuz_ids(
                 qobuz_ids.split(","), data_type=data_type
@@ -687,18 +706,7 @@ class PrivateQobuzAPI(APIClient):
 
         # Figure out the working application secret from the possible
         # values
-        if isinstance(self._app_secret, list):
-            for app_secret in self._app_secret:
-                try:
-                    self._app_secret = app_secret
-                    self.tracks.get_track_playback_info(344521217, format_id=5)
-                    break
-                except RuntimeError:
-                    continue
-            else:
-                raise RuntimeError(
-                    "No valid application secret was found in 'bundle.js'."
-                )
+        self._resolve_app_secret()
 
         if self._store_tokens:
             TokenDatabase.add_token(
@@ -792,6 +800,23 @@ class PrivateQobuzAPI(APIClient):
                 f"{self._QUAL_NAME}.{endpoint_method}() requires user "
                 "authentication."
             )
+
+    def _resolve_app_secret(self) -> None:
+        """
+        Resolve the working application secret from the possible values.
+        """
+        if isinstance(self._app_secret, list):
+            for app_secret in self._app_secret:
+                try:
+                    self._app_secret = app_secret
+                    self.tracks.get_track_playback_info(344521217, format_id=5)
+                    break
+                except RuntimeError:
+                    continue
+            else:
+                raise RuntimeError(
+                    "No valid application secret was found in 'bundle.js'."
+                )
 
     def _resolve_user_identifier(self) -> str:
         """

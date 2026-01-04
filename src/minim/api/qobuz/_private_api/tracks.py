@@ -416,10 +416,10 @@ class PrivateTracksAPI(ResourceAPI):
 
                **Valid values**:
 
-               * :code:`5` for constant bitrate (320 kbps) MP3.
-               * :code:`6` for CD-quality (16-bit, 44.1 kHz) FLAC.
-               * :code:`7` for up to 24-bit, 96 kHz Hi-Res FLAC.
-               * :code:`27` for up to 24-bit, 192 kHz Hi-Res FLAC.
+               * :code:`5` – Constant 320 kbps bitrate MP3.
+               * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+               * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+               * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
         intent : str; keyword-only; optional
             Playback mode or intended use of the track.
@@ -517,6 +517,14 @@ class PrivateTracksAPI(ResourceAPI):
         """
         Report the start of a streaming event.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Report streaming.
+
         Parameters
         ----------
         track_id : int or str; positional-only
@@ -531,10 +539,10 @@ class PrivateTracksAPI(ResourceAPI):
 
                **Valid values**:
 
-               * :code:`5` for constant bitrate (320 kbps) MP3.
-               * :code:`6` for CD-quality (16-bit, 44.1 kHz) FLAC.
-               * :code:`7` for up to 24-bit, 96 kHz Hi-Res FLAC.
-               * :code:`27` for up to 24-bit, 192 kHz Hi-Res FLAC.
+               * :code:`5` – Constant 320 kbps bitrate MP3.
+               * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+               * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+               * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
         started_at : int or datetime.datetime; keyword-only
             Unix time at which the streaming started.
@@ -584,6 +592,7 @@ class PrivateTracksAPI(ResourceAPI):
             **Sample response**: :code:`{"code": 200,
             "status": "success", "transUId": <str>}`.
         """
+        self._client._require_authentication("tracks.report_streaming_start")
         return self._report_streaming_event(
             track_id,
             format_id=format_id,
@@ -618,6 +627,14 @@ class PrivateTracksAPI(ResourceAPI):
         """
         Report the end of a streaming event.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Report streaming.
+
         Parameters
         ----------
         track_id : int or str; positional-only
@@ -632,10 +649,10 @@ class PrivateTracksAPI(ResourceAPI):
 
                **Valid values**:
 
-               * :code:`5` for constant bitrate (320 kbps) MP3.
-               * :code:`6` for CD-quality (16-bit, 44.1 kHz) FLAC.
-               * :code:`7` for up to 24-bit, 96 kHz Hi-Res FLAC.
-               * :code:`27` for up to 24-bit, 192 kHz Hi-Res FLAC.
+               * :code:`5` – Constant 320 kbps bitrate MP3.
+               * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+               * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+               * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
         started_at : int or datetime.datetime; keyword-only
             Unix time at which the streaming started.
@@ -687,6 +704,7 @@ class PrivateTracksAPI(ResourceAPI):
 
             **Sample response**: :code:`{"status": "success"}`.
         """
+        self._client._require_authentication("tracks.report_streaming_end")
         return self._report_streaming_event(
             track_id,
             format_id=format_id,
@@ -749,10 +767,10 @@ class PrivateTracksAPI(ResourceAPI):
 
                **Valid values**:
 
-               * :code:`5` for constant bitrate (320 kbps) MP3.
-               * :code:`6` for CD-quality (16-bit, 44.1 kHz) FLAC.
-               * :code:`7` for up to 24-bit, 96 kHz Hi-Res FLAC.
-               * :code:`27` for up to 24-bit, 192 kHz Hi-Res FLAC.
+               * :code:`5` – Constant 320 kbps bitrate MP3.
+               * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+               * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+               * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
         started_at : int or datetime.datetime; keyword-only
             Unix time at which the streaming started.
@@ -802,7 +820,6 @@ class PrivateTracksAPI(ResourceAPI):
         response : dict[str, str]
             API response.
         """
-        # self._client._require_authentication("tracks.report_streaming_start")
         self._client._validate_qobuz_ids(track_id, _recursive=False)
         self._client._validate_qobuz_ids(format_id, _recursive=False)
         if isinstance(started_at, datetime):

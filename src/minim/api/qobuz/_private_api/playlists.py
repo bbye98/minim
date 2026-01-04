@@ -798,26 +798,37 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Get Qobuz catalog information for playlists created and/or
         followed by the current user.
 
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
         Parameters
         ----------
         playlist_types : str or list[str]; keyword-only; optional
-            Playlist types to return. If not specified, TODO
+            Playlist types to return.
 
             **Valid values**:
 
             .. container::
 
-               * :code:`"owner"` – TODO
-               * :code:`"subscriber"` – TODO
+               * :code:`"owner"` – Playlists created by the user.
+               * :code:`"subscriber"` – Playlists followed by the user.
 
-            **Examples**: TODO
+            **Examples**: :code:`"owner"`, :code:`"owner,subscriber"`,
+            :code:`["owner", "subscriber"]`.
+
+            **API default**: :code:`"owner,subscriber"`.
 
         limit : int; keyword-only; optional
             Maximum number of playlists to return.
 
             **Valid range**: :code:`1` to :code:`500`.
 
-            **API default**: :code:`25`.
+            **API default**: :code:`500`.
 
         offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to
@@ -850,9 +861,97 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
                .. code::
 
-                  TODO
+                  {
+                    "playlists": {
+                      "items": [
+                        {
+                          "created_at": <int>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "featured_artists": [],
+                          "genres": [
+                            {
+                              "color": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "path": <list[int]>,
+                              "percent": <int>,
+                              "slug": <str>
+                            }
+                          ],
+                          "id": <int>,
+                          "image_rectangle": <list[str]>,
+                          "image_rectangle_mini": <list[str]>,
+                          "images": <list[str]>,
+                          "images150": <list[str]>,
+                          "images300": <list[str]>,
+                          "indexed_at": <int>,
+                          "is_collaborative": <bool>,
+                          "is_featured": <bool>,
+                          "is_public": <bool>,
+                          "is_published": <bool>,
+                          "name": <str>,
+                          "owner": {
+                            "id": <int>,
+                            "name": <str>
+                          },
+                          "position": <int>,
+                          "public_at": <int>,
+                          "published_from": <int>,
+                          "published_to": <int>,
+                          "slug": <str>,
+                          "stores": <list[str]>,
+                          "subscribed_at": 1599097857,
+                          "timestamp_position": <int>,
+                          "tracks_count": <int>,
+                          "updated_at": <int>,
+                          "users_count": <int>
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    },
+                    "user": {
+                      "id": <int>,
+                      "login": <str>
+                    }
+                  }
         """
-        ...  # TODO
+        self._client._require_authentication("playlists.get_my_playlists")
+        params = {}
+        if playlist_types is not None:
+            allowed_playlist_types = {"owner", "subscriber"}
+            if isinstance(playlist_types, str):
+                playlist_types = playlist_types.split(",")
+            for playlist_type in playlist_types:
+                if playlist_type not in allowed_playlist_types:
+                    playlist_types_str = "', '".join(allowed_playlist_types)
+                    raise ValueError(
+                        f"Invalid playlist type {playlist_type!r}. "
+                        f"Valid values: '{playlist_types_str}'."
+                    )
+            params["filter"] = ",".join(playlist_types)
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 500)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        if sort_by is not None:
+            if sort_by not in (sort_fields := {"updated_at", "position"}):
+                sort_fields_str = "', '".join(sorted(sort_fields))
+                raise ValueError(
+                    f"Invalid sort field {sort_by!r}. "
+                    f"Valid values: '{sort_fields_str}'."
+                )
+            params["order"] = sort_by
+        if descending is not None:
+            self._client._validate_type("descending", descending, bool)
+            params["orderDirection"] = "desc" if descending else "asc"
+        return self._client._request(
+            "GET", "playlist/getUserPlaylists", params=params
+        ).json()
 
     @_copy_docstring(PrivateSearchEndpoints.search_playlists)
     def search_playlists(
@@ -868,12 +967,68 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         )
 
     def follow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
-        """ """
-        ...  # TODO
+        """
+        Follow a playlist.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
+        Parameters
+        ----------
+        playlist_id : int or str; positional-only
+            Qobuz ID of the playlist.
+
+            **Examples**: :code:`2776610`, :code:`"6754150"`.
+
+        Returns
+        -------
+        response : dict[str, str]
+            API response.
+
+            **Sample response**: :code:`{"status": "success"}`.
+        """
+        self._client._require_authentication("playlists.follow_playlist")
+        self._client._validate_qobuz_ids(playlist_id, _recursive=False)
+        return self._client._request(
+            "POST", "playlist/subscribe", data={"playlist_id": playlist_id}
+        )
 
     def unfollow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
-        """ """
-        ...  # TODO
+        """
+        Unfollow a playlist.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
+        Parameters
+        ----------
+        playlist_id : int or str; positional-only
+            Qobuz ID of the playlist.
+
+            **Examples**: :code:`2776610`, :code:`"6754150"`.
+
+        Returns
+        -------
+        response : dict[str, str]
+            API response.
+
+            **Sample response**: :code:`{"status": "success"}`.
+        """
+        self._client._require_authentication("playlists.follow_playlist")
+        self._client._validate_qobuz_ids(playlist_id, _recursive=False)
+        return self._client._request(
+            "POST", "playlist/unsubscribe", data={"playlist_id": playlist_id}
+        )
 
     def update_playlist_details(self):
         pass
