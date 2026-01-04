@@ -148,7 +148,7 @@ class PrivateQobuzAPI(APIClient):
 
         **kwargs : dict[str, Any]
             Keyword arguments to pass to
-            :meth:`~minim.api.qobuz.UsersAPI.login`.
+            :meth:`~minim.api.qobuz.PrivateUsersAPI.login`.
         """
         super().__init__(enable_cache=enable_cache)
 
@@ -405,8 +405,8 @@ class PrivateQobuzAPI(APIClient):
         .. note::
 
            Accessing this property may call
-           :meth:`~minim.api.qobuz.GenresAPI.get_genres` and make
-           multiple requests to the Qobuz Web API.
+           :meth:`~minim.api.qobuz.PrivateGenresAPI.get_subgenres` and
+           make multiple requests to the Qobuz Web API.
         """
         genres = []
 
@@ -440,8 +440,8 @@ class PrivateQobuzAPI(APIClient):
         .. note::
 
            Accessing this property may call
-           :meth:`~minim.api.qobuz.PlaylistsAPI.get_playlist_tags` and
-           make a request to the Qobuz Web API.
+           :meth:`~minim.api.qobuz.PrivatePlaylistsAPI.get_playlist_tags`
+           and make a request to the Qobuz Web API.
         """
         return {
             tag.pop("slug"): tag
@@ -580,7 +580,7 @@ class PrivateQobuzAPI(APIClient):
 
         **kwargs : dict[str, Any]
             Keyword arguments to pass to
-            :meth:`~minim.api.qobuz.UsersAPI.login`.
+            :meth:`~minim.api.qobuz.PrivateUsersAPI.login`.
         """
         if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
             flows_str = "', '".join(
@@ -619,7 +619,7 @@ class PrivateQobuzAPI(APIClient):
 
         **kwargs : dict[str, Any]
             Keyword arguments to pass to
-            :meth:`~minim.api.qobuz.UsersAPI.login`.
+            :meth:`~minim.api.qobuz.PrivateUsersAPI.login`.
 
         Returns
         -------
@@ -688,7 +688,7 @@ class PrivateQobuzAPI(APIClient):
 
         **kwargs : dict[str, Any]
             Keyword arguments to pass to
-            :meth:`~minim.api.qobuz.UsersAPI.login`.
+            :meth:`~minim.api.qobuz.PrivateUsersAPI.login`.
         """
         if not authorization_flow:
             authorization_flow = self._auth_flow
