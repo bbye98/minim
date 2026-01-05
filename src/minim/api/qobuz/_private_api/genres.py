@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import PrivateQobuzAPI
+from ._shared import PrivateQobuzResourceAPI
+from ..._shared import TTLCache
 
 
-class PrivateGenresAPI(ResourceAPI):
+class PrivateGenresAPI(PrivateQobuzResourceAPI):
     """
     Genres API endpoints for the private Qobuz Web API.
 
@@ -15,8 +13,6 @@ class PrivateGenresAPI(ResourceAPI):
        This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
        and should not be instantiated directly.
     """
-
-    _client: "PrivateQobuzAPI"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_genre(self, genre_id: int | str, /) -> dict[str, Any]:
@@ -48,13 +44,13 @@ class PrivateGenresAPI(ResourceAPI):
                     "slug": <str>
                   }
         """
-        self._client._validate_qobuz_ids(genre_id, _recursive=False)
+        self._validate_qobuz_ids(genre_id, _recursive=False)
         return self._client._request(
             "GET", "genre/get", params={"genre_id": genre_id}
         ).json()
 
     @TTLCache.cached_method(ttl="catalog")
-    def get_subgenres(
+    def get_genres(
         self,
         genre_id: int | str | None = None,
         /,
@@ -125,7 +121,7 @@ class PrivateGenresAPI(ResourceAPI):
         """
         params = {}
         if genre_id is not None:
-            self._client._validate_qobuz_ids(genre_id, _recursive=False)
+            self._validate_qobuz_ids(genre_id, _recursive=False)
             params["parent_id"] = genre_id
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 500)

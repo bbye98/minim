@@ -23,16 +23,12 @@ class PrivateSearchEndpoints(ResourceAPI):
 
     _client: "PrivateQobuzAPI"
 
+    @TTLCache.cached_method(ttl="search")
     def search_most_popular(
-        self,
-        query: str,
-        /,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
+        self, query: str, /, *, offset: int | None = None
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for the most popular albums,
+        Get Qobuz catalog information for the 30 most popular albums,
         artists, and tracks that match a keyword string.
 
         Parameters
@@ -40,16 +36,8 @@ class PrivateSearchEndpoints(ResourceAPI):
         query : str; positional-only
             Search query.
 
-        limit : int; keyword-only; optional
-            Maximum number of items to return.
-
-            **Valid range**: :code:`1` to :code:`500`.
-
-            **API default**: :code:`30`.
-
         offset : int; keyword-only; optional
-            Index of the first item to return. Use with `limit` to
-            get the next batch of items.
+            Index of the first item to return.
 
             **Minimum value**: :code:`0`.
 
@@ -65,13 +53,223 @@ class PrivateSearchEndpoints(ResourceAPI):
 
                .. code::
 
-                  TODO
+                  {
+                    "most_popular": {
+                      "items": [
+                        {
+                          "content": {
+                            "articles": [],
+                            "artist": {
+                              "albums_count": <int>,
+                              "id": <int>,
+                              "image": None,
+                              "name": <str>,
+                              "picture": None,
+                              "slug": <str>,
+                            },
+                            "artists": [
+                              {
+                                "id": <int>,
+                                "name": <str>,
+                                "roles": <list[str]>
+                              }
+                            ],
+                            "displayable": <bool>,
+                            "downloadable": <bool>,
+                            "duration": <int>,
+                            "genre": {
+                              "color": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "path": <list[int]>,
+                              "slug": <str>
+                            },
+                            "hires": <bool>,
+                            "hires_streamable": <bool>,
+                            "id": <str>,
+                            "image": {
+                              "back": None,
+                              "large": <str>,
+                              "small": <str>,
+                              "thumbnail": <str>
+                            },
+                            "label": {
+                              "albums_count": <int>,
+                              "id": <int>,
+                              "name": <str>,
+                              "slug": <str>,
+                              "supplier_id": <int>
+                            },
+                            "maximum_bit_depth": <int>,
+                            "maximum_channel_count": <int>,
+                            "maximum_sampling_rate": <float>,
+                            "media_count": <int>,
+                            "parental_warning": <bool>,
+                            "popularity": <int>,
+                            "previewable": <bool>,
+                            "purchasable": <bool>,
+                            "purchasable_at": <int>,
+                            "qobuz_id": <int>,
+                            "release_date_download": <str>,
+                            "release_date_original": <str>,
+                            "release_date_stream": <str>,
+                            "released_at": <int>,
+                            "sampleable": <bool>,
+                            "slug": <str>,
+                            "streamable": <bool>,
+                            "streamable_at": <int>,
+                            "title": <str>,
+                            "tracks_count": <int>,
+                            "type": <str>,
+                            "upc": <str>,
+                            "url": <str>,
+                            "version": <str>
+                          },
+                          "type": "albums"
+                        },
+                        {
+                          "content": {
+                            "albums_count": <int>,
+                            "id": <int>,
+                            "image": {
+                              "extralarge": <str>,
+                              "large": <str>,
+                              "medium": <str>,
+                              "mega": <str>,
+                              "small": <str>
+                            },
+                            "name": <str>,
+                            "picture": <str>,
+                            "slug": <str>,
+                            "type": "artists"
+                          },
+                          "type": "artists"
+                        },
+                        {
+                          "content": {
+                            "album": {
+                              "artist": {
+                                "albums_count": <int>,
+                                "id": <int>,
+                                "image": None,
+                                "name": <str>,
+                                "picture": None,
+                                "slug": <str>
+                              },
+                              "displayable": <bool>,
+                              "downloadable": <bool>,
+                              "duration": <int>,
+                              "genre": {
+                                "id": <int>,
+                                "name": <str>,
+                                "path": <list[int]>,
+                                "slug": <str>
+                              },
+                              "hires": <bool>,
+                              "hires_streamable": <bool>,
+                              "id": <str>,
+                              "image": {
+                                "large": <str>,
+                                "small": <str>,
+                                "thumbnail": <str>
+                              },
+                              "label": {
+                                "albums_count": <int>,
+                                "id": <int>,
+                                "name": <str>,
+                                "slug": <str>,
+                                "supplier_id": <int>
+                              },
+                              "maximum_bit_depth": <int>,
+                              "maximum_channel_count": <int>,
+                              "maximum_sampling_rate": <float>,
+                              "maximum_technical_specifications": <str>,
+                              "media_count": <int>,
+                              "parental_warning": <bool>,
+                              "previewable": <bool>,
+                              "purchasable": <bool>,
+                              "purchasable_at": None,
+                              "qobuz_id": <int>,
+                              "release_date_download": <str>,
+                              "release_date_original": <str>,
+                              "release_date_purchase": <str>,
+                              "release_date_stream": <str>,
+                              "released_at": <int>,
+                              "sampleable": <bool>,
+                              "streamable": <bool>,
+                              "streamable_at": <int>,
+                              "title": <str>,
+                              "tracks_count": <int>,
+                              "upc": <str>,
+                              "version": <str>
+                            },
+                            "article_ids": dict[str, int],
+                            "articles": [
+                              {
+                                "currency": <str>,
+                                "description": <str>,
+                                "id": <int>,
+                                "label": <str>,
+                                "price": <float>,
+                                "type": <str>,
+                                "url": <str>
+                              }
+                            ],
+                            "audio_info": {
+                              "replaygain_track_gain": <float>,
+                              "replaygain_track_peak": <float>
+                            },
+                            "composer": {
+                              "id": <int>,
+                              "name": <str>
+                            },
+                            "copyright": <str>,
+                            "displayable": <bool>,
+                            "downloadable": <bool>,
+                            "duration": <int>,
+                            "hires": <bool>,
+                            "hires_streamable": <bool>,
+                            "id": <int>,
+                            "isrc": <str>,
+                            "maximum_bit_depth": <int>,
+                            "maximum_channel_count": <int>,
+                            "maximum_sampling_rate": <float>,
+                            "maximum_technical_specifications": <str>,
+                            "media_number": <int>,
+                            "parental_warning": <bool>,
+                            "performer": {
+                              "id": <int>,
+                              "name": <str>
+                            },
+                            "performers": <str>,
+                            "previewable": <bool>,
+                            "purchasable": <bool>,
+                            "purchasable_at": <int>,
+                            "release_date_download": <str>,
+                            "release_date_original": <str>,
+                            "release_date_purchase": <str>,
+                            "release_date_stream": <str>,
+                            "sampleable": <bool>,
+                            "streamable": <bool>,
+                            "streamable_at": <int>,
+                            "title": <str>,
+                            "track_number": <int>,
+                            "type": "tracks",
+                            "version": <str>,
+                            "work": None
+                          },
+                          "type": "tracks"
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    },
+                    "query": <str>
+                  }
         """
         self._client._validate_type("query", query, str)
         params = {"query": query}
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
         if offset is not None:
             self._client._validate_number("offset", offset, int, 0)
             params["offset"] = offset

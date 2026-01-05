@@ -14,6 +14,8 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
        and should not be instantiated directly.
     """
 
+    _RELATIONSHIPS = {"albums", "focus", "focusAll"}
+
     @TTLCache.cached_method(ttl="catalog")
     def get_label(
         self,
@@ -71,16 +73,91 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
                .. code::
 
                   {
+                    "albums": {
+                      "items": [
+                        {
+                          "articles": [],
+                          "artist": {
+                            "albums_count": <int>,
+                            "id": <int>,
+                            "image": None,
+                            "name": <str>,
+                            "picture": None,
+                            "slug": <str>
+                          },
+                          "artists": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "roles": <list[str]>
+                            }
+                          ],
+                          "displayable": <bool>,
+                          "downloadable": <bool>,
+                          "duration": <int>,
+                          "genre": {
+                            "color": <str>,
+                            "id": <int>,
+                            "name": <str>,
+                            "path": <list[int]>,
+                            "slug": <int>
+                          },
+                          "hires": <bool>,
+                          "hires_streamable": <bool>,
+                          "id": <str>,
+                          "image": {
+                            "back": None,
+                            "large": <str>,
+                            "small": <str>,
+                            "thumbnail": <str>
+                          },
+                          "label": {
+                            "albums_count": <int>,
+                            "id": <int>,
+                            "name": <str>,
+                            "slug": <str>,
+                            "supplier_id": <int>
+                          },
+                          "maximum_bit_depth": <int>,
+                          "maximum_channel_count": <int>,
+                          "maximum_sampling_rate": <int>,
+                          "media_count": <int>,
+                          "parental_warning": <bool>,
+                          "popularity": <int>,
+                          "previewable": <bool>,
+                          "purchasable": <bool>,
+                          "purchasable_at": <int>,
+                          "qobuz_id": <int>,
+                          "release_date_download": <str>,
+                          "release_date_original": <str>,
+                          "release_date_stream": <str>,
+                          "released_at": <int>,
+                          "sampleable": <bool>,
+                          "slug": <str>,
+                          "streamable": <bool>,
+                          "streamable_at": <int>,
+                          "title": <str>,
+                          "tracks_count": <int>,
+                          "upc": <str>,
+                          "url": <str>,
+                          "version": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    }
                     "albums_count": <int>,
                     "description": None,
                     "id": <int>,
                     "image": None,
+                    "items_focus": None,
                     "name": <str>,
                     "slug": <str>,
                     "supplier_id": <int>
                   }
         """
-        self._client._validate_qobuz_ids(label_id, _recursive=False)
+        self._validate_qobuz_ids(label_id, _recursive=False)
         params = {"label_id": label_id}
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
@@ -91,3 +168,41 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
             self._client._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request("GET", "label/get", params=params).json()
+
+    @TTLCache.cached_method(ttl="catalog")
+    def get_labels(
+        self, *, limit: int | None = None, offset: int | None = None
+    ) -> dict[str, Any]:
+        """
+        Get available labels.
+
+        Parameters
+        ----------
+        limit : int; keyword-only; optional
+            Maximum number of labels to return.
+
+            **Valid range**: :code:`1` to :code:`500`.
+
+            **API default**: :code:`25`.
+
+        offset : int; keyword-only; optional
+            Index of the first label to return. Use with `limit` to get
+            the next batch of labels.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        labels : dict[str, Any]
+            Page of Qobuz content metadata for the labels.
+        """
+        params = {}
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 500)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request("GET", "label/list", params=params).json()

@@ -168,7 +168,7 @@ class iTunesSearchAPI(APIClient):
         bundle_ids: str | list[str] | None = None,
         isbns: int | str | list[int | str] | None = None,
         barcodes: int | str | list[int | str] | None = None,
-        resource_type: str | None = None,
+        item_type: str | None = None,
         limit: int | str | None = None,
         order: str | None = None,
     ) -> dict[str, Any]:
@@ -235,8 +235,8 @@ class iTunesSearchAPI(APIClient):
             **Examples**: :code:`602448438034`, :code:`"075678671173"`,
             :code:`[602448438034, "075678671173"]`.
 
-        resource_type : str; keyword-only; optional
-            Type of resource to return.
+        item_type : str; keyword-only; optional
+            Type of item to return.
 
             .. seealso::
 
@@ -244,7 +244,7 @@ class iTunesSearchAPI(APIClient):
                (Archived) <https://developer.apple.com/library/archive
                /documentation/AudioVideo/Conceptual/iTuneSearchAPI
                /Searching.html#//apple_ref/doc/uid
-               /TP40017632-CH5-SW2>`__ – Available resource (or entity)
+               /TP40017632-CH5-SW2>`__ – Available item (or entity)
                types.
 
             **Example**: :code:`"movieArtist"`.
@@ -537,13 +537,13 @@ class iTunesSearchAPI(APIClient):
         if not len(params):
             raise ValueError(emsg)
 
-        if resource_type is not None:
-            if resource_type not in (
+        if item_type is not None:
+            if item_type not in (
                 entities := self._MEDIA_TYPES["all"]["entities"]
             ):
                 entities_str = "', '".join(sorted(entities))
                 raise ValueError(
-                    f"Invalid resource type {resource_type!r}. "
+                    f"Invalid item type {item_type!r}. "
                     f"Valid values: '{entities_str}'."
                 )
         if limit is not None:
@@ -565,7 +565,7 @@ class iTunesSearchAPI(APIClient):
         country_code: str,
         *,
         media_type: str | None = None,
-        resource_type: str | None = None,
+        item_type: str | None = None,
         search_field: str | None = None,
         limit: int | None = None,
         locale: str | None = None,
@@ -597,8 +597,8 @@ class iTunesSearchAPI(APIClient):
 
             **API default**: :code:`"all"`.
 
-        resource_type : str; keyword-only; optional
-            Type of resource to return for the given media type.
+        item_type : str; keyword-only; optional
+            Type of item to return for the given media type.
 
             .. seealso::
 
@@ -606,13 +606,13 @@ class iTunesSearchAPI(APIClient):
                (Archived) <https://developer.apple.com/library/archive
                /documentation/AudioVideo/Conceptual/iTuneSearchAPI
                /Searching.html#//apple_ref/doc/uid
-               /TP40017632-CH5-SW2>`__ – Available resource (or entity)
+               /TP40017632-CH5-SW2>`__ – Available item (or entity)
                types for each media type.
 
             **Example**: :code:`"movieArtist"` when
             :code:`media="movie"`.
 
-            **API default**: Track resource type associated with the
+            **API default**: Track item type associated with the
             media type.
 
         search_field : str; keyword-only; optional
@@ -952,14 +952,14 @@ class iTunesSearchAPI(APIClient):
                 )
             params["media"] = media_type
             emsg_suffix = f" for media type {media_type!r}"
-        if resource_type is not None:
-            if resource_type not in (
+        if item_type is not None:
+            if item_type not in (
                 entities := self._MEDIA_TYPES[media_type or "all"]["entities"]
             ):
                 entities_str = "', '".join(sorted(entities))
                 raise ValueError(
-                    f"Invalid resource type {resource_type!r}"
-                    f"{emsg_suffix}. Valid values: '{entities_str}'."
+                    f"Invalid item type {item_type!r}{emsg_suffix}."
+                    f"Valid values: '{entities_str}'."
                 )
         if search_field is not None:
             if search_field not in (

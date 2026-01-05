@@ -29,7 +29,7 @@ class SearchAPI(SpotifyResourceAPI):
         self,
         query: str,
         /,
-        resource_types: str | list[str],
+        item_types: str | list[str],
         *,
         external_content: str | None = None,
         country_code: str | None = None,
@@ -94,8 +94,8 @@ class SearchAPI(SpotifyResourceAPI):
             **Example**:
             :code:`"remaster track:Doxy artist:Miles Davis"`.
 
-        resource_types : str or list[str]
-            Types of resources to return.
+        item_types : str or list[str]
+            Types of items to return.
 
             **Valid values**: :code:`"album"`, :code:`"artist"`,
             :code:`"playlist"`, :code:`"track"`, :code:`"show"`,
@@ -484,9 +484,9 @@ class SearchAPI(SpotifyResourceAPI):
         params = {
             "q": query,
             "type": self._prepare_types(
-                resource_types,
+                item_types,
                 allowed_types=self._RESOURCE_TYPES,
-                type_prefix="resource",
+                type_prefix="item",
             ),
         }
         if external_content is not None:

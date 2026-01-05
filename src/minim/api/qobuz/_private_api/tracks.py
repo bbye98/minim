@@ -1,15 +1,13 @@
 from datetime import datetime
 import time
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI, _copy_docstring
+from ..._shared import TTLCache, _copy_docstring
+from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchEndpoints
 
-if TYPE_CHECKING:
-    from .._core import PrivateQobuzAPI
 
-
-class PrivateTracksAPI(ResourceAPI):
+class PrivateTracksAPI(PrivateQobuzResourceAPI):
     """
     Tracks API endpoints for the private Qobuz API.
 
@@ -20,7 +18,6 @@ class PrivateTracksAPI(ResourceAPI):
     """
 
     _INTENTS = {"download", "import", "stream"}
-    _client: "PrivateQobuzAPI"
 
     @TTLCache.cached_method(ttl="catalog")
     def get_tracks(
@@ -368,7 +365,7 @@ class PrivateTracksAPI(ResourceAPI):
         self._client._validate_type(
             "track_ids", track_ids, int | str | tuple | list
         )
-        track_ids = self._client._prepare_qobuz_ids(track_ids, data_type=list)
+        track_ids = self._prepare_qobuz_ids(track_ids, data_type=list)
         if len(track_ids) > 1:
             return self._client._request(
                 "POST",
@@ -467,7 +464,7 @@ class PrivateTracksAPI(ResourceAPI):
                     "url": <str>
                   }
         """
-        self._client._validate_qobuz_ids(track_id, _recursive=False)
+        self._validate_qobuz_ids(track_id, _recursive=False)
         params = {"track_id": track_id}
         if format_id is not None:
             self._client._validate_numeric("format_id", format_id, int)
@@ -820,8 +817,8 @@ class PrivateTracksAPI(ResourceAPI):
         response : dict[str, str]
             API JSON response.
         """
-        self._client._validate_qobuz_ids(track_id, _recursive=False)
-        self._client._validate_qobuz_ids(format_id, _recursive=False)
+        self._validate_qobuz_ids(track_id, _recursive=False)
+        self._validate_qobuz_ids(format_id, _recursive=False)
         if isinstance(started_at, datetime):
             started_at = int(started_at.timestamp())
         self._client._validate_number(
@@ -832,7 +829,7 @@ class PrivateTracksAPI(ResourceAPI):
         if user_id is None:
             user_id = self._client._resolve_user_identifier()
         else:
-            self._client._validate_qobuz_ids(user_id, _recursive=False)
+            self._validate_qobuz_ids(user_id, _recursive=False)
         event = {
             "user_id": int(user_id),
             "track_id": int(track_id),
@@ -843,10 +840,10 @@ class PrivateTracksAPI(ResourceAPI):
             "local": local,
         }
         if credential_id is not None:
-            self._client._validate_qobuz_ids(credential_id, _recursive=False)
+            self._validate_qobuz_ids(credential_id, _recursive=False)
             event["credential_id"] = credential_id
         if device_id is not None:
-            self._client._validate_qobuz_ids(device_id, _recursive=False)
+            self._validate_qobuz_ids(device_id, _recursive=False)
             event["device_id"] = device_id
         if intent is not None:
             self._client._validate_type("intent", intent, str)

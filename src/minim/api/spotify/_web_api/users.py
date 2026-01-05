@@ -227,7 +227,7 @@ class UsersAPI(ResourceAPI):
     @TTLCache.cached_method(ttl="top")
     def get_my_top_items(
         self,
-        resource_type: str,
+        item_type: str,
         /,
         *,
         time_range: str | None = None,
@@ -259,8 +259,8 @@ class UsersAPI(ResourceAPI):
 
         Parameters
         ----------
-        resource_type : str; positional-only
-            Resource type.
+        item_type : str; positional-only
+            Type of item to return.
 
             **Valid values**: :code:`"artists"`, :code:`"tracks"`.
 
@@ -426,15 +426,15 @@ class UsersAPI(ResourceAPI):
                        "total": <int>
                      }
         """
-        self._client._validate_type("resource_type", resource_type, str)
-        resource_type = resource_type.strip().lower()
-        if resource_type not in {"artists", "tracks"}:
+        self._client._validate_type("item_type", item_type, str)
+        item_type = item_type.strip().lower()
+        if item_type not in {"artists", "tracks"}:
             raise ValueError(
-                f"Invalid resource type {resource_type!r}. "
+                f"Invalid item type {item_type!r}. "
                 "Valid values: 'artists', 'tracks'."
             )
         self._client._require_scopes(
-            f"users.get_top_{resource_type}", "user-top-read"
+            f"users.get_top_{item_type}", "user-top-read"
         )
         params = {}
         if time_range is not None:
@@ -447,7 +447,7 @@ class UsersAPI(ResourceAPI):
             self._client._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
-            "GET", f"me/top/{resource_type}", params=params
+            "GET", f"me/top/{item_type}", params=params
         ).json()
 
     def follow_playlist(
@@ -1202,8 +1202,6 @@ class UsersAPI(ResourceAPI):
         saved : list[bool]
             Whether the current user has the specified albums saved in
             their library.
-
-            **Sample response**: :code:`[False, True]`.
         """
         self._client._require_scopes(
             "albums.are_albums_saved", "user-library-read"
@@ -1450,8 +1448,6 @@ class UsersAPI(ResourceAPI):
         saved : list[bool]
             Whether the current user has the specified audiobooks saved
             in their library.
-
-            **Sample response**: :code:`[False, True]`.
         """
         self._client._require_scopes(
             "audiobooks.are_audiobooks_saved", "user-library-read"
@@ -1740,8 +1736,6 @@ class UsersAPI(ResourceAPI):
         saved : list[bool]
             Whether the current user has the specified show episodes
             saved in their library.
-
-            **Sample response**: :code:`[False, True]`.
         """
         self._client._require_scopes(
             "episodes.are_episodes_saved", "user-library-read"
@@ -2189,8 +2183,6 @@ class UsersAPI(ResourceAPI):
         saved : list[bool]
             Whether the current user has the specified shows saved in
             their library.
-
-            **Sample response**: :code:`[False, True]`.
         """
         self._client._require_scopes(
             "shows.are_shows_saved", "user-library-read"
@@ -2542,8 +2534,6 @@ class UsersAPI(ResourceAPI):
         saved : list[bool]
             Whether the current user has the specified tracks saved in
             their library.
-
-            **Sample response**: :code:`[False, True]`.
         """
         self._client._require_scopes(
             "tracks.are_tracks_saved", "user-library-read"
@@ -2826,8 +2816,6 @@ class UsersAPI(ResourceAPI):
         saved : list[bool]
             Whether the current user has each of the specified items
             saved in their library.
-
-            **Sample response**: :code:`[False, True]`.
         """
         return self._client._request(
             "GET",

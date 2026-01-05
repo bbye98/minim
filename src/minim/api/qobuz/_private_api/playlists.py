@@ -84,12 +84,10 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.add_playlist_tracks")
-        self._client._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, _recursive=False)
         params = {
             "playlist_id": playlist_id,
-            "track_ids": self._client._prepare_qobuz_ids(
-                track_ids, data_type=str
-            ),
+            "track_ids": self._prepare_qobuz_ids(track_ids, data_type=str),
         }
         if allow_duplicates is not None:
             self._client._validate_type(
@@ -199,15 +197,11 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             self._client._validate_type("collaborative", collaborative, bool)
             payload["collaborative"] = collaborative
         if from_album_id is not None:
-            self._client._validate_type("from_album_id", from_album_id, str)
-            if not from_album_id.isalnum():
-                raise ValueError(
-                    f"Album ID {from_album_id!r} is not alphanumeric."
-                )
+            self._validate_album_id(from_album_id)
             payload["album_id"] = from_album_id
         if from_track_ids is not None:
-            self._client._validate_qobuz_ids(from_track_ids)
-            payload["track_ids"] = self._client._prepare_qobuz_ids(
+            self._validate_qobuz_ids(from_track_ids)
+            payload["track_ids"] = self._prepare_qobuz_ids(
                 from_track_ids, data_type=str
             )
         return self._client._request(
@@ -241,7 +235,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": "success"}`.
         """
         self._client._require_authentication("playlists.delete_playlist")
-        self._client._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, _recursive=False)
         return self._client._request(
             "POST", "playlist/delete", data={"playlist_id": playlist_id}
         ).json()
@@ -313,13 +307,13 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication(
             "playlists.remove_playlist_tracks"
         )
-        self._client._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, _recursive=False)
         return self._client._request(
             "POST",
             "playlist/deleteTracks",
             data={
                 "playlist_id": playlist_id,
-                "playlist_track_ids": self._client._prepare_qobuz_ids(
+                "playlist_track_ids": self._prepare_qobuz_ids(
                     playlist_track_ids, data_type=str
                 ),
             },
@@ -598,7 +592,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                     "users_count": <int>
                   }
         """
-        self._client._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, _recursive=False)
         params = {"playlist_id": playlist_id}
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
@@ -755,10 +749,10 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             )
             # if not isinstance(genre_ids, int):
             #     if isinstance(genre_ids, str):
-            #         genre_ids = genre_ids.split(",")
+            #         genre_ids = genre_ids.strip().split(",")
             #     for genre_id in genre_ids:
-            #         self._client._validate_genre_id(genre_id)
-            params["genre_ids"] = self._client._prepare_qobuz_ids(
+            #         self._validate_genre_id(genre_id)
+            params["genre_ids"] = self._prepare_qobuz_ids(
                 genre_ids, data_type=str
             )
         if playlist_tag_slugs is not None:
@@ -924,7 +918,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                           "published_to": <int>,
                           "slug": <str>,
                           "stores": <list[str]>,
-                          "subscribed_at": 1599097857,
+                          "subscribed_at": <int>,
                           "timestamp_position": <int>,
                           "tracks_count": <int>,
                           "updated_at": <int>,
@@ -946,7 +940,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         if playlist_types is not None:
             allowed_playlist_types = {"owner", "subscriber"}
             if isinstance(playlist_types, str):
-                playlist_types = playlist_types.split(",")
+                playlist_types = playlist_types.strip().split(",")
             for playlist_type in playlist_types:
                 if playlist_type not in allowed_playlist_types:
                     playlist_types_str = "', '".join(allowed_playlist_types)
@@ -1016,7 +1010,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": "success"}`.
         """
         self._client._require_authentication("playlists.follow_playlist")
-        self._client._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, _recursive=False)
         return self._client._request(
             "POST", "playlist/subscribe", data={"playlist_id": playlist_id}
         ).json()
@@ -1048,7 +1042,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": "success"}`.
         """
         self._client._require_authentication("playlists.follow_playlist")
-        self._client._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, _recursive=False)
         return self._client._request(
             "POST", "playlist/unsubscribe", data={"playlist_id": playlist_id}
         ).json()
@@ -1132,7 +1126,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication(
             "playlists.update_playlist_details"
         )
-        self._client._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, _recursive=False)
         payload = {}
         if name is not None:
             self._client._validate_type("name", name, str)
@@ -1149,8 +1143,8 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             self._client._validate_type("collaborative", collaborative, bool)
             payload["is_collaborative"] = collaborative
         if track_ids is not None:
-            self._client._validate_qobuz_ids(track_ids)
-            payload["track_ids"] = self._client._prepare_qobuz_ids(
+            self._validate_qobuz_ids(track_ids)
+            payload["track_ids"] = self._prepare_qobuz_ids(
                 track_ids, data_type=str
             )
         if not payload:
@@ -1194,7 +1188,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             "POST",
             "playlist/updatePlaylistsPosition",
             data={
-                "playlist_ids": self._client._prepare_qobuz_ids(
+                "playlist_ids": self._prepare_qobuz_ids(
                     playlist_ids, data_type=str
                 )
             },
@@ -1270,14 +1264,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication(
             "playlists.reorder_playlist_items"
         )
-        self._client._validate_qobuz_ids(playlist_id, _recursive=False)
+        self._validate_qobuz_ids(playlist_id, _recursive=False)
         self._client._validate_number("to_index", to_index, int, 0)
         return self._client._request(
             "POST",
             "playlist/updateTracksPosition",
             data={
                 "playlist_id": playlist_id,
-                "playlist_track_ids": self._client._prepare_qobuz_ids(
+                "playlist_track_ids": self._prepare_qobuz_ids(
                     playlist_track_ids, str
                 ),
                 "insert_before": to_index,

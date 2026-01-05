@@ -34,6 +34,11 @@ from . import db_connection, db_cursor
 if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
 
+# TODO: Standardize TTLs for endpoints
+# TODO: Move _validate_* methods in APIClient to ResourceAPI
+# TODO: Standardize using "save" for albums/tracks/videos and "follow"
+#       for artists/playlists
+
 
 def _copy_docstring(
     source: Callable[..., Any],

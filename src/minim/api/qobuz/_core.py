@@ -12,6 +12,7 @@ import httpx
 from playwright.sync_api import sync_playwright
 
 from .._shared import APIClient, TokenDatabase
+from ._private_api.favorites import PrivateFavoritesAPI
 from ._private_api.labels import PrivateLabelsAPI
 from ._private_api.genres import PrivateGenresAPI
 from ._private_api.playlists import PrivatePlaylistsAPI
@@ -154,6 +155,8 @@ class PrivateQobuzAPI(APIClient):
         super().__init__(enable_cache=enable_cache)
 
         # Initialize subclasses for endpoint groups
+        #: Favorites API endpoints for the private Qobuz API.
+        self.favorites: PrivateFavoritesAPI = PrivateFavoritesAPI(self)
         #: Labels API endpoints for the private Qobuz API.
         self.labels: PrivateLabelsAPI = PrivateLabelsAPI(self)
         #: Genres API endpoints for the private Qobuz API.
@@ -331,75 +334,6 @@ class PrivateQobuzAPI(APIClient):
             ],
         )
 
-    @staticmethod
-    def _prepare_qobuz_ids(
-        qobuz_ids: int | str | list[int | str], /, *, data_type: type
-    ) -> list[int]:
-        """
-        Normalize, validate, and serialize or prepare a list of Qobuz
-        IDs.
-
-        Parameters
-        ----------
-        qobuz_ids : int, str, or list[int | str]; positional-only
-            Qobuz IDs.
-
-        data_type : type; keyword-only
-            Data type of the return value.
-
-            **Valid values**: :code:`str`, :code:`list`.
-
-        Returns
-        -------
-        qobuz_ids : str
-            Comma-separated string or list of Qobuz IDs.
-        """
-        if isinstance(qobuz_ids, str):
-            return PrivateQobuzAPI._prepare_qobuz_ids(
-                qobuz_ids.split(","), data_type=data_type
-            )
-        if data_type is str:
-            if isinstance(qobuz_ids, int):
-                return str(qobuz_ids)
-            PrivateQobuzAPI._validate_qobuz_ids(qobuz_ids)
-            return ",".join(str(qobuz_id) for qobuz_id in qobuz_ids)
-        else:
-            if isinstance(qobuz_ids, int):
-                return [qobuz_ids]
-            PrivateQobuzAPI._validate_qobuz_ids(qobuz_ids)
-            return [int(qobuz_id) for qobuz_id in qobuz_ids]
-
-    @staticmethod
-    def _validate_qobuz_ids(
-        qobuz_ids: int | str | list[int | str], /, *, _recursive: bool = True
-    ) -> None:
-        """
-        Validate one or more Qobuz IDs.
-
-        Parameters
-        ----------
-        qobuz_ids : int, str, or list[int | str]; positional-only
-            Qobuz IDs.
-        """
-        if not isinstance(qobuz_ids, int) and not qobuz_ids:
-            raise ValueError("At least one Qobuz ID must be specified.")
-
-        if isinstance(qobuz_ids, str):
-            if _recursive:
-                PrivateQobuzAPI._validate_qobuz_ids(qobuz_ids.split(","))
-            elif not qobuz_ids.isdecimal():
-                raise ValueError(f"Invalid Qobuz ID {qobuz_ids!r}.")
-        elif not isinstance(qobuz_ids, int):
-            if _recursive:
-                if not isinstance(qobuz_ids, tuple | list | str):
-                    raise ValueError("Qobuz IDs must be integers or strings.")
-                for qobuz_id in qobuz_ids:
-                    PrivateQobuzAPI._validate_qobuz_ids(
-                        qobuz_id, _recursive=False
-                    )
-            else:
-                raise ValueError(f"Invalid Qobuz ID {qobuz_ids!r}.")
-
     # @cached_property
     # def available_genres(self) -> dict[str, dict[str, Any]]:
     #     """
@@ -408,7 +342,7 @@ class PrivateQobuzAPI(APIClient):
     #     .. note::
 
     #        Accessing this property may call
-    #        :meth:`~minim.api.qobuz.PrivateGenresAPI.get_subgenres` and
+    #        :meth:`~minim.api.qobuz.PrivateGenresAPI.get_genres` and
     #        make multiple requests to the Qobuz Web API.
     #     """
     #     genres = []
@@ -416,22 +350,22 @@ class PrivateQobuzAPI(APIClient):
     #     # Use iterative depth-first search
     #     stack = [None]
     #     while stack:
-    #         subgenres = self.genres.get_subgenres(stack.pop())["genres"]
+    #         subgenres = self.genres.get_genres(stack.pop())["genres"]
     #         if subgenres["total"] > 0:
     #             genres.extend(subgenres["items"])
     #             stack.extend(genre["id"] for genre in subgenres["items"])
 
     #     # Use recursive depth-first search
-    #     # def get_subgenres(
+    #     # def get_genres(
     #     #     genre_id: str | None = None, /, *, genres: list[dict[str, Any]]
     #     # ) -> dict[str, Any]:
-    #     #     subgenres = self.genres.get_subgenres(genre_id)["genres"]
+    #     #     subgenres = self.genres.get_genres(genre_id)["genres"]
     #     #     if subgenres["total"] > 0:
     #     #         genres.extend(subgenres["items"])
     #     #         for subgenre in subgenres["items"]:
-    #     #             get_subgenres(subgenre["id"], genres=genres)
+    #     #             get_genres(subgenre["id"], genres=genres)
 
-    #     # get_subgenres(genres=genres)
+    #     # get_genres(genres=genres)
 
     #     return {genre.pop("id"): genre for genre in genres}
 
@@ -839,26 +773,3 @@ class PrivateQobuzAPI(APIClient):
             or self._token_extras.get("user", {}).get("id")
             or self.users.get_my_profile()
         )
-
-    # def _validate_genre_id(self, genre_id: int | str, /) -> None:
-    #     """
-    #     Validate genre ID.
-
-    #     Parameters
-    #     ----------
-    #     genre_id : str; positional-only
-    #         Genre ID.
-    #     """
-    #     try:
-    #         genre_id = int(genre_id)
-    #     except TypeError:
-    #         raise TypeError(
-    #             "Qobuz genre IDs must be integers or their string "
-    #             "representations."
-    #         )
-    #     if "available_genres" in self.__dict__:
-    #         if genre_id not in self.available_genres:
-    #             raise ValueError(
-    #                 f"Invalid genre ID {genre_id!r}. Valid values are "
-    #                 "the keys of the `available_genres` property."
-    #             )

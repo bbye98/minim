@@ -709,7 +709,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         cls,
         artwork_uuid: str,
         /,
-        resource_type: str | None = None,
+        item_type: str | None = None,
         *,
         animated: bool = False,
         dimensions: int | str | tuple[int | str, int | str] | None = None,
@@ -722,8 +722,8 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         artwork_uuid : str; positional-only
             TIDAL artwork UUID.
 
-        resource_type : str; positional-only; optional
-            Type of resource the artwork belongs to. If provided, the
+        item_type : str; positional-only; optional
+            Type of item the artwork belongs to. If provided, the
             specified dimensions are validated against the allowed
             dimensions for the item type.
 
@@ -772,20 +772,20 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             dimensions = f"{dimensions[0]}x{dimensions[1]}"
         else:
             raise ValueError(f"Invalid dimensions {dimensions!r}.")
-        if resource_type is not None:
-            if resource_type[-1] == "s":
-                resource_type = resource_type[:-1]
-            if resource_type not in cls._IMAGE_SIZES:
-                resource_types_str = "', '".join(cls._IMAGE_SIZES)
+        if item_type is not None:
+            if item_type[-1] == "s":
+                item_type = item_type[:-1]
+            if item_type not in cls._IMAGE_SIZES:
+                item_types_str = "', '".join(cls._IMAGE_SIZES)
                 raise ValueError(
-                    f"Invalid resource type {resource_type!r}. "
-                    f"Valid values: '{resource_types_str}'."
+                    f"Invalid resource type {item_type!r}. "
+                    f"Valid values: '{item_types_str}'."
                 )
-            if dimensions not in (sizes := cls._IMAGE_SIZES[resource_type]):
+            if dimensions not in (sizes := cls._IMAGE_SIZES[item_type]):
                 _sizes = "', '".join(sorted(sizes))
                 raise ValueError(
                     f"Invalid dimensions {dimensions!r} for a(n) "
-                    f"{resource_type} {cls._IMAGE_TYPES[resource_type]}. "
+                    f"{item_type} {cls._IMAGE_TYPES[item_type]}. "
                     f"Valid values: '{_sizes}'."
                 )
         return (
