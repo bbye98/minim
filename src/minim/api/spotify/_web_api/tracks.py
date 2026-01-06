@@ -526,9 +526,9 @@ class TracksAPI(SpotifyResourceAPI):
     @TTLCache.cached_method(ttl="recommendation")
     def get_track_recommendations(
         self,
-        seed_artists: str | list[str] | None = None,
+        seed_artist_ids: str | list[str] | None = None,
         seed_genres: str | list[str] | None = None,
-        seed_tracks: str | list[str] | None = None,
+        seed_track_ids: str | list[str] | None = None,
         *,
         country_code: str | None = None,
         limit: int | None = None,
@@ -571,8 +571,8 @@ class TracksAPI(SpotifyResourceAPI):
         .. important::
 
            Up to 5 seed values may be provided in any combination of
-           :code:`seed_artists`, :code:`seed_genres` and
-           :code:`seed_tracks`.
+           :code:`seed_artist_ids`, :code:`seed_genres`, and
+           :code:`seed_track_ids`.
 
         .. hint::
 
@@ -592,7 +592,7 @@ class TracksAPI(SpotifyResourceAPI):
 
         Parameters
         ----------
-        seed_artists : str or list[str]; optional
+        seed_artist_ids : str or list[str]; optional
             Spotify IDs of seed artists.
 
             **Examples**:
@@ -611,7 +611,7 @@ class TracksAPI(SpotifyResourceAPI):
                 :meth:`~minim.api.spotify.GenresAPI.get_seed_genres`
                 – Get available seed genres.
 
-        seed_tracks : str or list[str]; optional
+        seed_track_ids : str or list[str]; optional
             Spotify IDs of seed tracks.
 
             **Examples**:
@@ -890,11 +890,11 @@ class TracksAPI(SpotifyResourceAPI):
 
         n_seeds = self._parse_seeds(
             "seed_tracks",
-            seed_tracks,
+            seed_track_ids,
             self._parse_seeds(
                 "seed_genres",
                 seed_genres,
-                self._parse_seeds("seed_artists", seed_artists, 0, params),
+                self._parse_seeds("seed_artists", seed_artist_ids, 0, params),
                 params,
             ),
             params,

@@ -95,7 +95,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             return [item]
         return item
 
-    @TTLCache.cached_method("user")
+    @TTLCache.cached_method(ttl="user")
     def get_playlists(
         self,
         playlist_uuids: str | list[str] | None = None,
@@ -916,7 +916,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._validate_uuid(playlist_uuid)
         self._client._request("DELETE", f"playlist/{playlist_uuid}")
 
-    @TTLCache.cached_method("user")
+    @TTLCache.cached_method(ttl="user")
     def get_playlist_cover_art(
         self,
         playlist_uuid: str,
@@ -1014,7 +1014,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             resource_identifier_type="uuid",
         )
 
-    @TTLCache.cached_method("user")
+    @TTLCache.cached_method(ttl="user")
     def get_playlist_items(
         self,
         playlist_uuid: str,

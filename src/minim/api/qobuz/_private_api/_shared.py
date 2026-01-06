@@ -99,7 +99,8 @@ class PrivateQobuzResourceAPI(ResourceAPI):
         data_type : type; keyword-only
             Data type of the return value.
 
-            **Valid values**: :code:`str`, :code:`list`.
+            **Valid values**: :code:`str`, :code:`list`,
+            :code:`dict` (only for tracks).
 
         Returns
         -------
@@ -115,11 +116,16 @@ class PrivateQobuzResourceAPI(ResourceAPI):
                 return str(qobuz_ids)
             PrivateQobuzResourceAPI._validate_qobuz_ids(qobuz_ids)
             return ",".join(str(qobuz_id) for qobuz_id in qobuz_ids)
-        else:
+        elif data_type is list:
             if isinstance(qobuz_ids, int):
                 return [qobuz_ids]
             PrivateQobuzResourceAPI._validate_qobuz_ids(qobuz_ids)
             return [int(qobuz_id) for qobuz_id in qobuz_ids]
+        else:
+            if isinstance(qobuz_ids, int):
+                return [{"track_id": qobuz_ids}]
+            PrivateQobuzResourceAPI._validate_qobuz_ids(qobuz_ids)
+            return [{"track_id": qobuz_id} for qobuz_id in qobuz_ids]
 
     @staticmethod
     def _validate_album_id(album_id: str, /) -> None:

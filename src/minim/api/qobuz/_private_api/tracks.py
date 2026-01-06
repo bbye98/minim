@@ -5,6 +5,7 @@ from typing import Any
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchEndpoints
+from .users import PrivateUsersAPI
 
 
 class PrivateTracksAPI(PrivateQobuzResourceAPI):
@@ -728,6 +729,19 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
     ) -> dict[str, Any]:
         return self._client.search.search_tracks(
             query, limit=limit, offset=offset
+        )
+
+    @_copy_docstring(PrivateUsersAPI.get_track_recommendations)
+    def get_track_recommendations(
+        self,
+        seed_track_ids: int | str | list[int | str],
+        /,
+        exclude_track_ids: int | str | list[int | str] | None = None,
+        *,
+        limit: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_track_recommendations(
+            seed_track_ids, exclude_track_ids=exclude_track_ids, limit=limit
         )
 
     def _report_streaming_event(

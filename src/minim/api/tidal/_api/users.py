@@ -96,7 +96,7 @@ class UsersAPI(TIDALResourceAPI):
             return [resource_identifier]
         return resource_identifier
 
-    @TTLCache.cached_method("user")
+    @TTLCache.cached_method(ttl="user")
     def get_collection(
         self,
         *,
@@ -598,7 +598,7 @@ class UsersAPI(TIDALResourceAPI):
             expand=expand,
         )
 
-    @TTLCache.cached_method("user")
+    @TTLCache.cached_method(ttl="user")
     def get_saved_albums(
         self,
         *,
@@ -891,7 +891,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=False,
         )
 
-    @TTLCache.cached_method("user")
+    @TTLCache.cached_method(ttl="user")
     def get_followed_artists(
         self,
         *,
@@ -1194,7 +1194,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=False,
         )
 
-    @TTLCache.cached_method("user")
+    @TTLCache.cached_method(ttl="user")
     def get_followed_owners(
         self,
         *,
@@ -1288,7 +1288,7 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method("user")
+    @TTLCache.cached_method(ttl="user")
     def get_followed_playlists(
         self,
         *,
@@ -1561,7 +1561,7 @@ class UsersAPI(TIDALResourceAPI):
             "DELETE", "playlists", playlist_uuids, user_id=user_id
         )
 
-    @TTLCache.cached_method("user")
+    @TTLCache.cached_method(ttl="user")
     def get_saved_tracks(
         self,
         *,
@@ -1877,7 +1877,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=False,
         )
 
-    @TTLCache.cached_method("user")
+    @TTLCache.cached_method(ttl="user")
     def get_saved_videos(
         self,
         *,
@@ -2143,7 +2143,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=False,
         )
 
-    @TTLCache.cached_method("user")
+    @TTLCache.cached_method(ttl="user")
     def get_entitlements(
         self,
         *,
@@ -2241,7 +2241,7 @@ class UsersAPI(TIDALResourceAPI):
             relationships={"owners"},
         )
 
-    @TTLCache.cached_method("user")
+    @TTLCache.cached_method(ttl="user")
     def get_entitlement_owners(
         self,
         *,

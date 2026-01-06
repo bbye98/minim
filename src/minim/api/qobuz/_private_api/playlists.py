@@ -3,6 +3,7 @@ from typing import Any
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchEndpoints
+from .users import PrivateUsersAPI
 
 
 class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
@@ -993,69 +994,13 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             query, limit=limit, offset=offset
         )
 
+    @_copy_docstring(PrivateUsersAPI.follow_playlist)
     def follow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
-        """
-        Follow a playlist.
+        return self._client.users.follow_playlist(playlist_id)
 
-        .. admonition:: User authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access and manage your library.
-
-        Parameters
-        ----------
-        playlist_id : int or str; positional-only
-            Qobuz ID of the playlist.
-
-            **Examples**: :code:`2776610`, :code:`"6754150"`.
-
-        Returns
-        -------
-        response : dict[str, str]
-            API JSON response.
-
-            **Sample response**: :code:`{"status": "success"}`.
-        """
-        self._client._require_authentication("playlists.follow_playlist")
-        self._validate_qobuz_ids(playlist_id, _recursive=False)
-        return self._client._request(
-            "POST", "playlist/subscribe", data={"playlist_id": playlist_id}
-        ).json()
-
+    @_copy_docstring(PrivateUsersAPI.unfollow_playlist)
     def unfollow_playlist(self, playlist_id: int | str, /) -> dict[str, str]:
-        """
-        Unfollow a playlist.
-
-        .. admonition:: User authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access and manage your library.
-
-        Parameters
-        ----------
-        playlist_id : int or str; positional-only
-            Qobuz ID of the playlist.
-
-            **Examples**: :code:`2776610`, :code:`"6754150"`.
-
-        Returns
-        -------
-        response : dict[str, str]
-            API JSON response.
-
-            **Sample response**: :code:`{"status": "success"}`.
-        """
-        self._client._require_authentication("playlists.follow_playlist")
-        self._validate_qobuz_ids(playlist_id, _recursive=False)
-        return self._client._request(
-            "POST", "playlist/unsubscribe", data={"playlist_id": playlist_id}
-        ).json()
+        return self._client.users.unfollow_playlist(playlist_id)
 
     def update_playlist_details(
         self,
