@@ -50,14 +50,14 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             **Examples**: :code:`"0075679933652"`,
             :code:`"0075679933652,aaxy9wirwgn2a"`.
 
-        artist_ids : int, str, or list[int | str]; keyword-only;
+        artist_ids : int, str, or list[int | str]; keyword-only; \
         optional
             Qobuz IDs of the artists.
 
             **Examples**: :code:`865362`, :code:`"21473137"`,
             :code:`"865362,21473137"`, :code:`[865362, "21473137"]`.
 
-        track_ids : int, str, or list[int | str]; keyword-only;
+        track_ids : int, str, or list[int | str]; keyword-only; \
         optional
             Qobuz IDs of the tracks.
 

@@ -764,7 +764,9 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
                     }
                   ]
         """
-        self._client._require_authentication("users.get_recommendations")
+        self._client._require_authentication(
+            "dynamic.get_personalized_playlists"
+        )
         return self._client._request("GET", "dynamic-tracks/list").json()
 
     @TTLCache.cached_method(ttl="daily")
@@ -946,7 +948,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
                   }
         """
         self._client._require_authentication(
-            "users.get_personalized_playlists"
+            "dynamic.get_personalized_playlist_tracks"
         )
         self._client._validate_type("playlist_type", playlist_type, str)
         params = {"type": playlist_type.strip()}
@@ -982,11 +984,19 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        seed_track_ids :
+        seed_track_ids : int | str | list[int | str]; positional-only
             Qobuz IDs of seed tracks.
 
-        exclude_track_ids :
+            **Examples**: :code:`23929516`, :code:`"344521217"`,
+            :code:`"23929516,344521217"`,
+            :code:`[23929516, "344521217"]`.
+
+        exclude_track_ids : int | str | list[int | str]; optional
             Qobuz IDs of tracks to exclude.
+
+            **Examples**: :code:`256316240`, :code:`"53859680"`,
+            :code:`"256316240,53859680"`,
+            :code:`[256316240, "53859680"]`.
 
         limit : int; keyword-only; optional
             Maximum number of items to return.
@@ -1108,7 +1118,9 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        self._client._require_authentication("users.get_track_recommendations")
+        self._client._require_authentication(
+            "dynamic.get_track_recommendations"
+        )
         payload = {
             "track_to_analyse": self._prepare_qobuz_ids(
                 seed_track_ids, data_type=dict

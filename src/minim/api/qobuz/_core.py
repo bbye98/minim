@@ -226,7 +226,7 @@ class PrivateQobuzAPI(APIClient):
         authorization_flows: str | list[str] | None = None,
         app_ids: str | list[str] | None = None,
         user_identifiers: str | list[str] | None = None,
-    ) -> None:
+    ) -> list[dict[str, Any]] | None:
         """
         Retrieve specific or all user authentication tokens and their
         metadata for this client from local storage.

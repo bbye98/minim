@@ -59,8 +59,8 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get available top-level genres or the subgenres of a specific
-        top-level genre.
+        Get Qobuz catalog information for available top-level genres or
+        the subgenres of a specific top-level genre.
 
         Parameters
         ----------

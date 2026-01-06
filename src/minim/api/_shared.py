@@ -1269,7 +1269,7 @@ class OAuth2APIClient(APIClient):
         authorization_flows: str | list[str] | None = None,
         client_ids: str | list[str] | None = None,
         user_identifiers: str | list[str] | None = None,
-    ) -> None:
+    ) -> list[dict[str, Any]] | None:
         """
         Retrieve specific or all access tokens and their metadata for
         this client from local storage.

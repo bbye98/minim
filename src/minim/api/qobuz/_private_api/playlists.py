@@ -147,7 +147,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             **Examples**: :code:`"0075679933652"`,
             :code:`"aaxy9wirwgn2a"`.
 
-        from_track_ids : int, str, or list[int | str]; keyword-only;
+        from_track_ids : int, str, or list[int | str]; keyword-only; \
         optional
             Qobuz IDs of the tracks to add.
 
@@ -269,6 +269,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Playlist track IDs of the tracks to remove.
 
             **Examples**: :code:`3775131234`, :code:`"3775131243"`,
+            :code:`"3775131234,3775131243"`,
             :code:`[3775131234, "3775131243"]`.
 
             .. seealso::
@@ -1041,7 +1042,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         collaborative : bool; keyword-only; optional
             Whether other users can modify the playlist.
 
-        track_ids : int, str, or list[int | str]; keyword-only;
+        track_ids : int, str, or list[int | str]; keyword-only; \
         optional
             Qobuz IDs of the tracks to replace those currently in the
             playlist.
@@ -1178,6 +1179,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Playlist track IDs of the tracks to be reordered.
 
             **Examples**: :code:`3775131234`, :code:`"3775131243"`,
+            :code:`"3775131234,3775131243"`,
             :code:`[3775131234, "3775131243"]`.
 
             .. seealso::
