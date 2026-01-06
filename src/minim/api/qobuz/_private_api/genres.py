@@ -14,7 +14,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
        and should not be instantiated directly.
     """
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_genre(self, genre_id: int | str, /) -> dict[str, Any]:
         """
         Get Qobuz catalog information for a genre.
@@ -49,7 +49,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
             "GET", "genre/get", params={"genre_id": genre_id}
         ).json()
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_genres(
         self,
         genre_id: int | str | None = None,

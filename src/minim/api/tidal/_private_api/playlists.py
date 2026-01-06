@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import ResourceAPI, _copy_docstring
+from ..._shared import TTLCache, ResourceAPI, _copy_docstring
 from .users import PrivateUsersAPI
 
 if TYPE_CHECKING:
@@ -55,6 +55,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
                 "a list of strings."
             )
 
+    @TTLCache.cached_method(ttl="user")
     def get_playlist(
         self,
         playlist_uuid: str,
@@ -84,7 +85,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
         country_code : str; optional
             ISO 3166-1 alpha-2 country code. If not provided, the
             country associated with the current user account or IP
-            address is used. Only applicable when :code:`version=1`.
+            address is used. Only applicable when `version` is
+            :code:`1`.
 
             **Example**: :code:`"US"`.
 
@@ -224,6 +226,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
             "GET", f"v2/user-playlists/{playlist_uuid}"
         ).json()
 
+    @TTLCache.cached_method(ttl="user")
     def get_playlist_items(
         self,
         playlist_uuid: str,
@@ -421,6 +424,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
             "GET", f"v1/playlists/{playlist_uuid}/items", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl="user")
     def get_playlist_recommended_tracks(
         self,
         playlist_uuid: str,
@@ -1269,8 +1273,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
             },
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_favorite_playlists)
-    def get_favorite_playlists(
+    @_copy_docstring(PrivateUsersAPI.get_followed_playlists)
+    def get_followed_playlists(
         self,
         user_id: int | str | None = None,
         /,
@@ -1281,7 +1285,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_favorite_playlists(
+        return self._client.users.get_followed_playlists(
             user_id,
             country_code,
             limit=limit,
@@ -1290,8 +1294,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.favorite_playlists)
-    def favorite_playlists(
+    @_copy_docstring(PrivateUsersAPI.follow_playlists)
+    def follow_playlists(
         self,
         playlist_uuids: str | list[str],
         /,
@@ -1301,7 +1305,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         folder_uuid: str | None = None,
         api_version: int = 2,
     ) -> None:
-        self._client.users.favorite_playlists(
+        self._client.users.follow_playlists(
             playlist_uuids,
             user_id=user_id,
             country_code=country_code,
@@ -1309,8 +1313,8 @@ class PrivatePlaylistsAPI(ResourceAPI):
             api_version=api_version,
         )
 
-    @_copy_docstring(PrivateUsersAPI.unfavorite_playlists)
-    def unfavorite_playlists(
+    @_copy_docstring(PrivateUsersAPI.unfollow_playlists)
+    def unfollow_playlists(
         self,
         playlist_uuids: str | list[str],
         /,
@@ -1318,7 +1322,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         user_id: int | str | None = None,
         api_version: int = 2,
     ) -> None:
-        self._client.users.unfavorite_playlists(
+        self._client.users.unfollow_playlists(
             playlist_uuids, user_id=user_id, api_version=api_version
         )
 

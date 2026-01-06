@@ -16,7 +16,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
        and should not be instantiated directly.
     """
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_album(
         self, album_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
@@ -101,7 +101,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             "albums", album_id, country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_album_credits(
         self, album_id: int | str, /, country_code: str | None = None
     ) -> list[dict[str, Any]]:
@@ -148,7 +148,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             "albums", album_id, "credits", country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_album_items(
         self,
         album_id: int | str,
@@ -331,7 +331,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_album_item_credits(
         self,
         album_id: int | str,
@@ -535,7 +535,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_album_review(
         self, album_id: int | str, /, country_code: str | None = None
     ) -> dict[str, str]:
@@ -579,7 +579,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             "albums", album_id, "review", country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_similar_albums(
         self,
         album_id: int | str,
@@ -713,8 +713,8 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             album_id, country_code, device_type=device_type, locale=locale
         )
 
-    @_copy_docstring(PrivateUsersAPI.favorite_albums)
-    def get_favorite_albums(
+    @_copy_docstring(PrivateUsersAPI.save_albums)
+    def get_saved_albums(
         self,
         user_id: int | str | None = None,
         /,
@@ -725,7 +725,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_favorite_albums(
+        return self._client.users.get_saved_albums(
             user_id,
             country_code,
             limit=limit,
@@ -734,8 +734,8 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.favorite_albums)
-    def favorite_albums(
+    @_copy_docstring(PrivateUsersAPI.save_albums)
+    def save_albums(
         self,
         album_ids: int | str | list[int | str],
         /,
@@ -744,18 +744,18 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         *,
         missing_ok: bool | None = None,
     ) -> None:
-        self._client.users.favorite_albums(
+        self._client.users.save_albums(
             album_ids,
             user_id,
             country_code,
             missing_ok=missing_ok,
         )
 
-    @_copy_docstring(PrivateUsersAPI.unfavorite_albums)
-    def unfavorite_albums(
+    @_copy_docstring(PrivateUsersAPI.remove_saved_albums)
+    def remove_saved_albums(
         self,
         album_ids: int | str | list[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
-        self._client.users.unfavorite_albums(album_ids, user_id)
+        self._client.users.remove_saved_albums(album_ids, user_id)

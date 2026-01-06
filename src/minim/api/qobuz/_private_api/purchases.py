@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import ResourceAPI
+from ..._shared import TTLCache, ResourceAPI
 
 if TYPE_CHECKING:
     from .._core import PrivateQobuzAPI
@@ -18,6 +18,7 @@ class PrivatePurchasesAPI(ResourceAPI):
 
     _client: "PrivateQobuzAPI"
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_purchases(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
@@ -265,6 +266,7 @@ class PrivatePurchasesAPI(ResourceAPI):
             "GET", "purchase/getUserPurchases", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_purchased_item_ids(self) -> dict[str, Any]:
         """
         Get Qobuz IDs of albums and tracks purchased by the current

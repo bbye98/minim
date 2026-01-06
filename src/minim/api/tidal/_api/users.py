@@ -96,6 +96,7 @@ class UsersAPI(TIDALResourceAPI):
             return [resource_identifier]
         return resource_identifier
 
+    @TTLCache.cached_method("user")
     def get_collection(
         self,
         *,
@@ -597,7 +598,8 @@ class UsersAPI(TIDALResourceAPI):
             expand=expand,
         )
 
-    def get_favorite_albums(
+    @TTLCache.cached_method("user")
+    def get_saved_albums(
         self,
         *,
         user_id: int | str | None = None,
@@ -761,7 +763,7 @@ class UsersAPI(TIDALResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "users.get_favorite_albums", "collection.read"
+            "users.get_saved_albums", "collection.read"
         )
         return self._get_collection_relationship(
             "albums",
@@ -775,7 +777,7 @@ class UsersAPI(TIDALResourceAPI):
             sort_fields={"addedAt", "artists.name", "releaseDate", "title"},
         )
 
-    def favorite_albums(
+    def save_albums(
         self,
         album_ids: int
         | str
@@ -825,9 +827,7 @@ class UsersAPI(TIDALResourceAPI):
 
             **Example**: :code:`"US"`.
         """
-        self._client._require_scopes(
-            "users.favorite_albums", "collection.write"
-        )
+        self._client._require_scopes("users.save_albums", "collection.write")
         self._modify_collection_resources(
             "POST",
             "albums",
@@ -836,7 +836,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def unfavorite_albums(
+    def remove_saved_albums(
         self,
         album_ids: int
         | str
@@ -881,7 +881,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
         """
         self._client._require_scopes(
-            "users.unfavorite_albums", "collection.write"
+            "users.remove_saved_albums", "collection.write"
         )
         self._modify_collection_resources(
             "DELETE",
@@ -891,7 +891,8 @@ class UsersAPI(TIDALResourceAPI):
             country_code=False,
         )
 
-    def get_favorite_artists(
+    @TTLCache.cached_method("user")
+    def get_followed_artists(
         self,
         *,
         user_id: int | str | None = None,
@@ -1063,7 +1064,7 @@ class UsersAPI(TIDALResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "users.get_favorite_artists", "collection.read"
+            "users.get_followed_artists", "collection.read"
         )
         return self._get_collection_relationship(
             "artists",
@@ -1077,7 +1078,7 @@ class UsersAPI(TIDALResourceAPI):
             sort_fields={"addedAt", "name"},
         )
 
-    def favorite_artists(
+    def follow_artists(
         self,
         artist_ids: int
         | str
@@ -1128,7 +1129,7 @@ class UsersAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
         """
         self._client._require_scopes(
-            "users.favorite_artists", "collection.write"
+            "users.follow_artists", "collection.write"
         )
         self._modify_collection_resources(
             "POST",
@@ -1138,7 +1139,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def unfavorite_artists(
+    def unfollow_artists(
         self,
         artist_ids: int
         | str
@@ -1183,7 +1184,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
         """
         self._client._require_scopes(
-            "users.unfavorite_artists", "collection.write"
+            "users.unfollow_artists", "collection.write"
         )
         self._modify_collection_resources(
             "DELETE",
@@ -1193,7 +1194,8 @@ class UsersAPI(TIDALResourceAPI):
             country_code=False,
         )
 
-    def get_favorite_owners(
+    @TTLCache.cached_method("user")
+    def get_followed_owners(
         self,
         *,
         user_id: int | str | None = None,
@@ -1286,7 +1288,8 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    def get_favorite_playlists(
+    @TTLCache.cached_method("user")
+    def get_followed_playlists(
         self,
         *,
         user_id: int | str | None = None,
@@ -1421,7 +1424,7 @@ class UsersAPI(TIDALResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "users.get_favorite_playlists", "collection.read"
+            "users.get_followed_playlists", "collection.read"
         )
         params = {}
         if include_folders:
@@ -1438,7 +1441,7 @@ class UsersAPI(TIDALResourceAPI):
             params=params,
         )
 
-    def favorite_playlists(
+    def follow_playlists(
         self,
         playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
         /,
@@ -1492,13 +1495,13 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
         """
         self._client._require_scopes(
-            "users.favorite_playlists", "collection.write"
+            "users.follow_playlists", "collection.write"
         )
         self._modify_collection_resources(
             "POST", "playlists", playlist_uuids, user_id=user_id
         )
 
-    def unfavorite_playlists(
+    def unfollow_playlists(
         self,
         playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
         /,
@@ -1552,13 +1555,14 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
         """
         self._client._require_scopes(
-            "users.unfavorite_playlists", "collection.write"
+            "users.unfollow_playlists", "collection.write"
         )
         self._modify_collection_resources(
             "DELETE", "playlists", playlist_uuids, user_id=user_id
         )
 
-    def get_favorite_tracks(
+    @TTLCache.cached_method("user")
+    def get_saved_tracks(
         self,
         *,
         user_id: int | str | None = None,
@@ -1739,7 +1743,7 @@ class UsersAPI(TIDALResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "users.get_favorite_tracks", "collection.read"
+            "users.get_saved_tracks", "collection.read"
         )
         return self._get_collection_relationship(
             "tracks",
@@ -1759,7 +1763,7 @@ class UsersAPI(TIDALResourceAPI):
             },
         )
 
-    def favorite_tracks(
+    def save_tracks(
         self,
         track_ids: int
         | str
@@ -1809,9 +1813,7 @@ class UsersAPI(TIDALResourceAPI):
 
             **Example**: :code:`"US"`.
         """
-        self._client._require_scopes(
-            "users.favorite_tracks", "collection.write"
-        )
+        self._client._require_scopes("users.save_tracks", "collection.write")
         self._modify_collection_resources(
             "POST",
             "tracks",
@@ -1820,7 +1822,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def unfavorite_tracks(
+    def remove_saved_tracks(
         self,
         track_ids: int
         | str
@@ -1865,7 +1867,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
         """
         self._client._require_scopes(
-            "users.unfavorite_tracks", "collection.write"
+            "users.remove_saved_tracks", "collection.write"
         )
         self._modify_collection_resources(
             "DELETE",
@@ -1875,7 +1877,8 @@ class UsersAPI(TIDALResourceAPI):
             country_code=False,
         )
 
-    def get_favorite_videos(
+    @TTLCache.cached_method("user")
+    def get_saved_videos(
         self,
         *,
         user_id: int | str | None = None,
@@ -2014,7 +2017,7 @@ class UsersAPI(TIDALResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "users.get_favorite_videos", "collection.read"
+            "users.get_saved_videos", "collection.read"
         )
         return self._get_collection_relationship(
             "videos",
@@ -2028,7 +2031,7 @@ class UsersAPI(TIDALResourceAPI):
             sort_fields={"addedAt", "artists.name", "duration", "title"},
         )
 
-    def favorite_videos(
+    def save_videos(
         self,
         video_ids: str
         | dict[str, int | str]
@@ -2077,9 +2080,7 @@ class UsersAPI(TIDALResourceAPI):
 
             **Example**: :code:`"US"`.
         """
-        self._client._require_scopes(
-            "users.favorite_videos", "collection.write"
-        )
+        self._client._require_scopes("users.save_videos", "collection.write")
         self._modify_collection_resources(
             "POST",
             "videos",
@@ -2088,7 +2089,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def unfavorite_videos(
+    def remove_saved_videos(
         self,
         video_ids: str
         | dict[str, int | str]
@@ -2132,7 +2133,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
         """
         self._client._require_scopes(
-            "users.unfavorite_videos", "collection.write"
+            "users.remove_saved_videos", "collection.write"
         )
         self._modify_collection_resources(
             "DELETE",
@@ -2142,6 +2143,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=False,
         )
 
+    @TTLCache.cached_method("user")
     def get_entitlements(
         self,
         *,
@@ -2239,6 +2241,7 @@ class UsersAPI(TIDALResourceAPI):
             relationships={"owners"},
         )
 
+    @TTLCache.cached_method("user")
     def get_entitlement_owners(
         self,
         *,
@@ -2306,8 +2309,8 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="featured")
-    def get_recommendations(
+    @TTLCache.cached_method(ttl="recommendation")
+    def get_personalized_mixes(
         self,
         *,
         user_id: str | None = None,
@@ -2341,7 +2344,6 @@ class UsersAPI(TIDALResourceAPI):
             be retrieved from the user's profile.
 
             **Example**: :code:`"US"`.
-
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -2413,7 +2415,7 @@ class UsersAPI(TIDALResourceAPI):
             relationships=self._RECOMMENDATION_RELATIONSHIPS,
         )
 
-    @TTLCache.cached_method(ttl="featured")
+    @TTLCache.cached_method(ttl="daily")
     def get_discovery_mixes(
         self,
         *,
@@ -2497,8 +2499,8 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="featured")
-    def get_mixes(
+    @TTLCache.cached_method(ttl="daily")
+    def get_user_mixes(
         self,
         *,
         user_id: str | None = None,
@@ -2579,7 +2581,7 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="featured")
+    @TTLCache.cached_method(ttl="daily")
     def get_new_arrival_mixes(
         self,
         *,
@@ -2663,7 +2665,7 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_my_profile(self) -> dict[str, Any]:
         """
         `Users > Get Current User's Profile

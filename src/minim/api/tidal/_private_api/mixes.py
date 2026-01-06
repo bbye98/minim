@@ -20,7 +20,7 @@ class PrivateMixesAPI(ResourceAPI):
 
     _client: "PrivateTIDALAPI"
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_mix_items(
         self, mix_id: str, /, country_code: str | None = None
     ) -> dict[str, Any]:
@@ -162,30 +162,28 @@ class PrivateMixesAPI(ResourceAPI):
             country_code=country_code, device_type=device_type, locale=locale
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_my_favorite_mixes)
-    def get_my_favorite_mixes(
+    @_copy_docstring(PrivateUsersAPI.get_my_followed_mixes)
+    def get_my_followed_mixes(
         self, *, limit: int = 50, cursor: str | None = None
     ) -> dict[str, Any]:
-        return self._client.mixes.get_my_favorite_mixes(
+        return self._client.mixes.get_my_followed_mixes(
             cursor=cursor, limit=limit
         )
 
-    @_copy_docstring(PrivateUsersAPI.get_my_favorite_mix_ids)
-    def get_my_favorite_mix_ids(
+    @_copy_docstring(PrivateUsersAPI.get_my_followed_mix_ids)
+    def get_my_followed_mix_ids(
         self, *, limit: int = 50, cursor: str | None = None
     ) -> dict[str, Any]:
-        return self._client.mixes.get_my_favorite_mix_ids(
+        return self._client.mixes.get_my_followed_mix_ids(
             cursor=cursor, limit=limit
         )
 
-    @_copy_docstring(PrivateUsersAPI.favorite_mixes)
-    def favorite_mixes(
+    @_copy_docstring(PrivateUsersAPI.follow_mixes)
+    def follow_mixes(
         self, mix_ids: str | list[str], /, *, on_missing: str | None = None
     ) -> None:
-        return self._client.mixes.favorite_mixes(
-            mix_ids, on_missing=on_missing
-        )
+        return self._client.mixes.follow_mixes(mix_ids, on_missing=on_missing)
 
-    @_copy_docstring(PrivateUsersAPI.unfavorite_mixes)
-    def unfavorite_mixes(self, mix_ids: str | list[str], /) -> None:
-        return self._client.mixes.unfavorite_mixes(mix_ids)
+    @_copy_docstring(PrivateUsersAPI.unfollow_mixes)
+    def unfollow_mixes(self, mix_ids: str | list[str], /) -> None:
+        return self._client.mixes.unfollow_mixes(mix_ids)

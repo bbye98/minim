@@ -1,5 +1,6 @@
 from typing import Any
 
+from ..._shared import TTLCache
 from ._shared import SpotifyResourceAPI
 
 
@@ -281,6 +282,7 @@ class PlayerAPI(SpotifyResourceAPI):
             payload["play"] = play
         self._client._request("PUT", "me/player", json=payload)
 
+    @TTLCache.cached_method(ttl="playback")
     def get_devices(
         self,
     ) -> dict[str, list[dict[str, bool | int | str]]]:
@@ -1017,6 +1019,7 @@ class PlayerAPI(SpotifyResourceAPI):
             "shuffle", device_id=device_id, params={"state": shuffle}
         )
 
+    @TTLCache.cached_method(ttl="playback")
     def get_recently_played(
         self,
         *,

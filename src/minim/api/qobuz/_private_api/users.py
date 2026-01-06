@@ -18,7 +18,7 @@ class PrivateUsersAPI(ResourceAPI):
 
     _client: "PrivateQobuzAPI"
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="user")
     def get_my_profile(self) -> dict[str, Any]:
         """
         Get detailed profile information for the current user.
@@ -120,6 +120,7 @@ class PrivateUsersAPI(ResourceAPI):
         self._client._require_authentication("users.get_my_profile")
         return self._client._request("GET", "user/get").json()
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_last_updates(self) -> dict[str, dict[str, int]]:
         """
         Get the current user's last update timestamps for favorites,
@@ -158,7 +159,7 @@ class PrivateUsersAPI(ResourceAPI):
         self._client._require_authentication("users.get_last_update")
         return self._client._request("GET", "user/lastUpdate").json()
 
-    @TTLCache.cached_method(ttl="permanent")
+    @TTLCache.cached_method(ttl="static")
     def login(
         self,
         username: str,
@@ -319,3 +320,245 @@ class PrivateUsersAPI(ResourceAPI):
         return self._client._request(
             "POST", "user/login", params=params
         ).json()
+
+    @TTLCache.cached_method(ttl="daily")
+    def get_personalized_playlists(self) -> list[dict[str, Any]]:
+        """
+        Get Qobuz catalog information for personally curated playlists.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
+        Returns
+        -------
+        playlists : list[dict[str, Any]]
+            Qobuz content metadata for the personally curated playlists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  [
+                    {
+                      "baseline": <str>,
+                      "description": <str>,
+                      "graphics": {
+                        "background": <str>,
+                        "foreground": <str>
+                      },
+                      "images": {
+                        "large": <str>,
+                        "small": <str>
+                      },
+                      "step_pagination": <int>,
+                      "title": <str>,
+                      "type": <str>
+                    }
+                  ]
+        """
+        self._client._require_authentication("users.get_recommendations")
+        return self._client._request("GET", "dynamic-tracks/list").json()
+
+    @TTLCache.cached_method(ttl="daily")
+    def get_personalized_playlist_tracks(
+        self,
+        playlist_type: str,
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get Qobuz catalog information for tracks in a personally curated
+        playlist.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
+        Parameters
+        ----------
+        playlist_type : str; positional-only
+            Type of the personally curated playlist.
+
+            .. seealso::
+
+               :meth:`get_personalized_playlists` – Get types of
+               personally curated playlists.
+
+            **Example**: :code:`"weekly"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of items to return. Only applicable when
+            `playlist_type` is not :code:`"weekly"`.
+
+            **Valid range**: :code:`1` to :code:`500`.
+
+            **API default**: :code:`50`.
+
+        offset : int; keyword-only; optional
+            Index of the first item to return. Use with `limit` to get
+            the next batch of items. Only applicable when
+            `playlist_type` is not :code:`"weekly"`.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        tracks : dict[str, Any]
+            Page of Qobuz content metadata for tracks in the personally
+            curated playlist.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "baseline": <str>,
+                    "description": <str>,
+                    "duration": <int>,
+                    "expires_on": <int>,
+                    "generated_at": <int>,
+                    "graphics": {
+                      "background": <str>,
+                      "foreground": <str>
+                    },
+                    "images": {
+                      "large": <str>,
+                      "small": <str>
+                    },
+                    "step_pagination": <int>,
+                    "title": <str>,
+                    "track_count": <int>,
+                    "tracks": {
+                      "items": [
+                        {
+                          "album": {
+                            "artist": {
+                              "albums_count": <int>,
+                              "id": <int>,
+                              "image": None,
+                              "name": <str>,
+                              "picture": None,
+                              "slug": <str>
+                            },
+                            "displayable": <bool>,
+                            "downloadable": <bool>,
+                            "genre": {
+                              "id": <int>,
+                              "name": <str>,
+                              "path": <list[int]>,
+                              "slug": <str>
+                            },
+                            "hires": <bool>,
+                            "hires_streamable": <bool>,
+                            "id": <str>,
+                            "image": {
+                              "large": <str>,
+                              "small": <str>,
+                              "thumbnail": <str>
+                            },
+                            "label": {
+                              "albums_count": <int>,
+                              "id": <int>,
+                              "name": <str>,
+                              "slug": <str>,
+                              "supplier_id": <int>
+                            },
+                            "maximum_bit_depth": <int>,
+                            "maximum_channel_count": <int>,
+                            "maximum_sampling_rate": <float>,
+                            "previewable": <bool>,
+                            "purchasable": <bool>,
+                            "purchasable_at": <str>,
+                            "qobuz_id": <int>,
+                            "release_date_download": <str>,
+                            "release_date_original": <str>,
+                            "release_date_purchase": <str>,
+                            "release_date_stream": <str>,
+                            "released_at": <int>,
+                            "sampleable": <bool>,
+                            "streamable": <bool>,
+                            "streamable_at": <int>,
+                            "title": <str>,
+                            "version": <str>
+                          },
+                          "audio_info": {
+                            "replaygain_track_gain": <float>,
+                            "replaygain_track_peak": <float>
+                          },
+                          "composer": {
+                            "id": <int>,
+                            "name": <str>
+                          },
+                          "copyright": <str>,
+                          "displayable": <bool>,
+                          "downloadable": <bool>,
+                          "duration": <int>,
+                          "hires": <bool>,
+                          "hires_streamable": <bool>,
+                          "id": <int>,
+                          "isrc": <str>,
+                          "maximum_bit_depth": <int>,
+                          "maximum_channel_count": <int>,
+                          "maximum_sampling_rate": <float>,
+                          "parental_warning": <bool>,
+                          "performer": {
+                            "id": <int>,
+                            "name": <str>,
+                          },
+                          "performers": <str>,
+                          "position": <int>,
+                          "previewable": <bool>,
+                          "purchasable": <bool>,
+                          "purchasable_at": <int>,
+                          "release_date_download": <str>,
+                          "release_date_original": <str>,
+                          "release_date_purchase": <str>,
+                          "release_date_stream": <str>,
+                          "sampleable": <bool>,
+                          "streamable": <bool>,
+                          "streamable_at": <int>,
+                          "title": <str>,
+                          "version": <str>,
+                          "work": None
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>
+                    },
+                    "type": <str>
+                  }
+        """
+        self._client._require_authentication(
+            "users.get_personalized_playlists"
+        )
+        self._client._validate_type("playlist_type", playlist_type, str)
+        params = {"type": playlist_type.strip()}
+        if limit is not None:
+            self._client._validate_number("limit", limit, int, 1, 500)
+            params["limit"] = limit
+        if offset is not None:
+            self._client._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request(
+            "GET", "dynamic-tracks/get", params=params
+        ).json()
+
+    @TTLCache.cached_method(ttl="popularity")
+    def get_track_recommendations(self) -> dict[str, Any]:
+        """ """
+        pass

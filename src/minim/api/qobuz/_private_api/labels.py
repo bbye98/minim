@@ -16,7 +16,7 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
 
     _RELATIONSHIPS = {"albums", "focus", "focusAll"}
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="daily")
     def get_label(
         self,
         label_id: int | str,
@@ -169,7 +169,7 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
             params["offset"] = offset
         return self._client._request("GET", "label/get", params=params).json()
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="daily")
     def get_labels(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:

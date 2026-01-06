@@ -18,7 +18,7 @@ class GenresAPI(ResourceAPI):
 
     _client: "SpotifyWebAPI"
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_seed_genres(self) -> dict[str, list[str]]:
         """
         `Genres > Get Available Genre Seeds

@@ -41,7 +41,7 @@ class UsersAPI(ResourceAPI):
                 f"Valid values: '{time_ranges_str}'."
             )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="user")
     def get_my_profile(self) -> dict[str, Any]:
         """
         `Users > Get Current User's Profile
@@ -111,7 +111,7 @@ class UsersAPI(ResourceAPI):
         self._client._require_authentication("users.get_my_profile")
         return self._client._request("GET", "me").json()
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="user")
     def get_user_profile(
         self, user_id: str | None = None, /
     ) -> dict[str, Any]:
@@ -224,7 +224,7 @@ class UsersAPI(ResourceAPI):
         self._client._validate_type("user_id", user_id, str)
         return self._client._request("GET", f"users/{user_id}").json()
 
-    @TTLCache.cached_method(ttl="top")
+    @TTLCache.cached_method(ttl="hourly")
     def get_my_top_items(
         self,
         item_type: str,
@@ -541,6 +541,7 @@ class UsersAPI(ResourceAPI):
         self._client._validate_spotify_id(playlist_id)
         self._client._request("DELETE", f"playlists/{playlist_id}/followers")
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_followed_artists(
         self, *, cursor: str | None = None, limit: int | None = None
     ) -> dict[str, Any]:
@@ -769,6 +770,7 @@ class UsersAPI(ResourceAPI):
         )
         return self._manage_followed_people("DELETE", "users", user_ids)
 
+    @TTLCache.cached_method(ttl="user")
     def is_following_artists(
         self, artist_ids: str | list[str], /
     ) -> list[bool]:
@@ -815,6 +817,7 @@ class UsersAPI(ResourceAPI):
         )
         return self._is_following_people("artists", artist_ids)
 
+    @TTLCache.cached_method(ttl="user")
     def is_following_users(self, user_ids: str | list[str], /) -> list[bool]:
         """
         `Users > Check If Current User Follows Users
@@ -853,6 +856,7 @@ class UsersAPI(ResourceAPI):
         )
         return self._is_following_people("users", user_ids)
 
+    @TTLCache.cached_method(ttl="user")
     def is_following_playlist(self, playlist_id: str, /) -> list[bool]:
         """
         `Users > Check if Current User Follows Playlist
@@ -895,6 +899,7 @@ class UsersAPI(ResourceAPI):
             "GET", f"playlists/{playlist_id}/followers/contains"
         ).json()
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_saved_albums(
         self,
         *,
@@ -1165,6 +1170,7 @@ class UsersAPI(ResourceAPI):
         )
         self._manage_saved_entities("DELETE", "albums", album_ids, limit=20)
 
+    @TTLCache.cached_method(ttl="user")
     def are_albums_saved(self, album_ids: str | list[str], /) -> list[bool]:
         """
         `Albums > Check User's Saved Albums
@@ -1208,6 +1214,7 @@ class UsersAPI(ResourceAPI):
         )
         return self._are_entities_saved("albums", album_ids, limit=20)
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_saved_audiobooks(
         self,
         *,
@@ -1409,6 +1416,7 @@ class UsersAPI(ResourceAPI):
         )
         self._manage_saved_entities("DELETE", "audiobooks", audiobook_ids)
 
+    @TTLCache.cached_method(ttl="user")
     def are_audiobooks_saved(
         self, audiobook_ids: str | list[str], /
     ) -> list[bool]:
@@ -1454,6 +1462,7 @@ class UsersAPI(ResourceAPI):
         )
         return self._are_entities_saved("audiobooks", audiobook_ids)
 
+    @TTLCache.cached_method(ttl="playback")
     def get_my_saved_episodes(
         self,
         *,
@@ -1697,6 +1706,7 @@ class UsersAPI(ResourceAPI):
         )
         self._manage_saved_entities("DELETE", "episodes", episode_ids)
 
+    @TTLCache.cached_method(ttl="user")
     def are_episodes_saved(
         self, episode_ids: str | list[str], /
     ) -> list[bool]:
@@ -1742,6 +1752,7 @@ class UsersAPI(ResourceAPI):
         )
         return self._are_entities_saved("episodes", episode_ids)
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_playlists(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
@@ -1849,6 +1860,7 @@ class UsersAPI(ResourceAPI):
             "GET", "me/playlists", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl="user")
     def get_user_playlists(
         self,
         user_id: str | None = None,
@@ -1978,6 +1990,7 @@ class UsersAPI(ResourceAPI):
             "GET", f"users/{user_id}/playlists", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_saved_shows(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
@@ -2146,6 +2159,7 @@ class UsersAPI(ResourceAPI):
         )
         self._manage_saved_entities("DELETE", "shows", show_ids)
 
+    @TTLCache.cached_method(ttl="user")
     def are_shows_saved(self, show_ids: str | list[str], /) -> list[bool]:
         """
         `Shows > Check User's Saved Shows
@@ -2189,6 +2203,7 @@ class UsersAPI(ResourceAPI):
         )
         return self._are_entities_saved("shows", show_ids)
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_saved_tracks(
         self,
         *,
@@ -2497,6 +2512,7 @@ class UsersAPI(ResourceAPI):
         )
         self._manage_saved_entities("DELETE", "tracks", track_ids)
 
+    @TTLCache.cached_method(ttl="user")
     def are_tracks_saved(self, track_ids: str | list[str], /) -> list[bool]:
         """
         `Tracks > Check User's Saved Tracks

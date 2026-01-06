@@ -20,7 +20,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
        and should not be instantiated directly.
     """
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="playback")
     def get_audiobooks(
         self,
         audiobook_ids: str | list[str],
@@ -40,6 +40,11 @@ class AudiobooksAPI(SpotifyResourceAPI):
            :class: authorization-scope dropdown
 
            .. tab:: Optional
+
+              :code:`user-read-playback-position` scope
+                 Read your position in content you have played. `Learn
+                 more. <https://developer.spotify.com/documentation
+                 /web-api/concepts/scopes#user-read-playback-position>`__
 
               Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.
@@ -277,7 +282,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
             "audiobooks", audiobook_ids, country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="playback")
     def get_audiobook_chapters(
         self,
         audiobook_id: str,
@@ -297,6 +302,11 @@ class AudiobooksAPI(SpotifyResourceAPI):
            :class: authorization-scope dropdown
 
            .. tab:: Optional
+
+              :code:`user-read-playback-position` scope
+                 Read your position in content you have played. `Learn
+                 more. <https://developer.spotify.com/documentation
+                 /web-api/concepts/scopes#user-read-playback-position>`__
 
               Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.

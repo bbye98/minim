@@ -18,7 +18,7 @@ class PrivatePagesAPI(ResourceAPI):
 
     _client: "PrivateTIDALAPI"
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="user")
     def get_home_page(
         self,
         country_code: str | None = None,
@@ -279,7 +279,7 @@ class PrivatePagesAPI(ResourceAPI):
             locale=locale,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="user")
     def get_explore_page(
         self,
         country_code: str | None = None,
@@ -421,7 +421,7 @@ class PrivatePagesAPI(ResourceAPI):
             locale=locale,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="daily")
     def get_album_page(
         self,
         album_id: int | str,
@@ -761,7 +761,7 @@ class PrivatePagesAPI(ResourceAPI):
             locale=locale,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="daily")
     def get_artist_page(
         self,
         artist_id: int | str,
@@ -1191,7 +1191,7 @@ class PrivatePagesAPI(ResourceAPI):
             locale=locale,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="daily")
     def get_mix_page(
         self,
         mix_id: str,
@@ -1421,7 +1421,7 @@ class PrivatePagesAPI(ResourceAPI):
             locale=locale,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="user")
     def get_personalized_mixes_page(
         self,
         country_code: str | None = None,
@@ -1496,7 +1496,7 @@ class PrivatePagesAPI(ResourceAPI):
             locale=locale,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="daily")
     def get_video_page(
         self,
         video_id: int | str,

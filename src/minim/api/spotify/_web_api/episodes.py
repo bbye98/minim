@@ -15,7 +15,7 @@ class EpisodesAPI(SpotifyResourceAPI):
        and should not be instantiated directly.
     """
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="playback")
     def get_episodes(
         self,
         episode_ids: str | list[str],

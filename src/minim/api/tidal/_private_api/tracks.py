@@ -23,7 +23,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
 
     _AUDIO_QUALITIES = {"LOW", "HIGH", "LOSSLESS", "HI_RES", "HI_RES_LOSSLESS"}
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_track(
         self, track_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
@@ -120,7 +120,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             "tracks", track_id, country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_contributors(
         self,
         track_id: int | str,
@@ -193,7 +193,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_credits(
         self, track_id: int | str, /, country_code: str | None = None
     ) -> list[dict[str, Any]]:
@@ -240,7 +240,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             "tracks", track_id, "credits", country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_lyrics(
         self, track_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
@@ -295,7 +295,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             "tracks", track_id, "lyrics", country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_mix_id(
         self, track_id: int | str, /, country_code: str | None = None
     ) -> dict[str, str]:
@@ -327,7 +327,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             "tracks", track_id, "mix", country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_track_recommendations(
         self,
         track_id: int | str,
@@ -474,7 +474,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_playback_info(
         self,
         track_id: int | str,
@@ -587,8 +587,8 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             },
         ).json()
 
-    @_copy_docstring(PrivateUsersAPI.get_favorite_tracks)
-    def get_favorite_tracks(
+    @_copy_docstring(PrivateUsersAPI.get_saved_tracks)
+    def get_saved_tracks(
         self,
         user_id: int | str | None = None,
         /,
@@ -599,7 +599,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_favorite_tracks(
+        return self._client.users.get_saved_tracks(
             user_id,
             country_code=country_code,
             limit=limit,
@@ -608,8 +608,8 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.favorite_tracks)
-    def favorite_tracks(
+    @_copy_docstring(PrivateUsersAPI.save_tracks)
+    def save_tracks(
         self,
         track_ids: int | str | list[int | str],
         /,
@@ -618,21 +618,21 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         *,
         on_missing: str | None = None,
     ) -> None:
-        self._client.users.favorite_tracks(
+        self._client.users.save_tracks(
             track_ids,
             user_id=user_id,
             country_code=country_code,
             on_missing=on_missing,
         )
 
-    @_copy_docstring(PrivateUsersAPI.unfavorite_tracks)
-    def unfavorite_tracks(
+    @_copy_docstring(PrivateUsersAPI.remove_saved_tracks)
+    def remove_saved_tracks(
         self,
         track_ids: int | str | list[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
-        self._client.users.unfavorite_tracks(track_ids, user_id=user_id)
+        self._client.users.remove_saved_tracks(track_ids, user_id=user_id)
 
     @_copy_docstring(PrivateUsersAPI.get_blocked_tracks)
     def get_blocked_tracks(

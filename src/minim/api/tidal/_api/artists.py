@@ -35,7 +35,7 @@ class ArtistsAPI(TIDALResourceAPI):
     }
     _client: "TIDALAPI"
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_roles(
         self, artist_role_ids: int | str | list[int | str], /
     ) -> dict[str, Any]:
@@ -102,7 +102,7 @@ class ArtistsAPI(TIDALResourceAPI):
         """
         self._get_resources("artistRoles", artist_role_ids, country_code=False)
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_artists(
         self,
         artist_ids: int | str | list[int | str] | None = None,
@@ -994,7 +994,7 @@ class ArtistsAPI(TIDALResourceAPI):
             params=params,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_artist_albums(
         self,
         artist_id: int | str,
@@ -1140,7 +1140,7 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_artist_biography(
         self,
         artist_id: int | str,
@@ -1201,7 +1201,7 @@ class ArtistsAPI(TIDALResourceAPI):
             include_metadata=include_metadata,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_artist_owners(
         self,
         artist_id: int | str,
@@ -1271,7 +1271,7 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_artist_profile_art(
         self,
         artist_id: int | str,
@@ -1369,7 +1369,7 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="daily")
     def get_artist_radio(
         self,
         artist_id: int | str,
@@ -1483,7 +1483,7 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="daily")
     def get_artist_roles(
         self,
         artist_id: int | str,
@@ -1558,7 +1558,7 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_similar_artists(
         self,
         artist_id: int | str,
@@ -1714,7 +1714,7 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="daily")
     def get_artist_track_providers(
         self,
         artist_id: int | str,
@@ -1798,7 +1798,7 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_artist_tracks(
         self,
         artist_id: int | str,
@@ -1980,7 +1980,7 @@ class ArtistsAPI(TIDALResourceAPI):
             params={"collapseBy": group_by},
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_artist_videos(
         self,
         artist_id: int | str,
@@ -2119,8 +2119,8 @@ class ArtistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_favorite_artists)
-    def get_favorite_artists(
+    @_copy_docstring(UsersAPI.get_followed_artists)
+    def get_followed_artists(
         self,
         *,
         user_id: int | str | None = None,
@@ -2131,7 +2131,7 @@ class ArtistsAPI(TIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_favorite_artists(
+        return self._client.users.get_followed_artists(
             user_id=user_id,
             country_code=country_code,
             locale=locale,
@@ -2141,8 +2141,8 @@ class ArtistsAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.favorite_artists)
-    def favorite_artists(
+    @_copy_docstring(UsersAPI.follow_artists)
+    def follow_artists(
         self,
         artist_ids: int
         | str
@@ -2153,12 +2153,12 @@ class ArtistsAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.favorite_artists(
+        self._client.users.follow_artists(
             artist_ids, user_id=user_id, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.unfavorite_artists)
-    def unfavorite_artists(
+    @_copy_docstring(UsersAPI.unfollow_artists)
+    def unfollow_artists(
         self,
         artist_ids: int
         | str
@@ -2169,6 +2169,6 @@ class ArtistsAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.unfavorite_artists(
+        self._client.users.unfollow_artists(
             artist_ids, user_id=user_id, country_code=country_code
         )

@@ -34,7 +34,7 @@ class TracksAPI(TIDALResourceAPI):
     }
     _client: "TIDALAPI"
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_tracks(
         self,
         track_ids: int | str | list[int | str] | None = None,
@@ -1015,7 +1015,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_track_albums(
         self,
         track_id: str,
@@ -1166,7 +1166,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_track_artists(
         self,
         track_id: str,
@@ -1326,7 +1326,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_owners(
         self,
         track_id: str,
@@ -1393,7 +1393,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_providers(
         self,
         track_id: str,
@@ -1480,7 +1480,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="daily")
     def get_track_radio(
         self,
         track_id: str,
@@ -1591,7 +1591,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_shares(
         self,
         track_id: str,
@@ -1657,7 +1657,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_similar_tracks(
         self,
         track_id: str,
@@ -1827,7 +1827,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_source_file(
         self,
         track_id: str,
@@ -1891,7 +1891,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_statistics(
         self,
         track_id: str,
@@ -1965,8 +1965,8 @@ class TracksAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_favorite_tracks)
-    def get_favorite_tracks(
+    @_copy_docstring(UsersAPI.get_saved_tracks)
+    def get_saved_tracks(
         self,
         *,
         user_id: int | str | None = None,
@@ -1977,7 +1977,7 @@ class TracksAPI(TIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_favorite_tracks(
+        return self._client.users.get_saved_tracks(
             user_id=user_id,
             country_code=country_code,
             locale=locale,
@@ -1987,8 +1987,8 @@ class TracksAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.favorite_tracks)
-    def favorite_tracks(
+    @_copy_docstring(UsersAPI.save_tracks)
+    def save_tracks(
         self,
         track_ids: int
         | str
@@ -1999,12 +1999,12 @@ class TracksAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.favorite_tracks(
+        self._client.users.save_tracks(
             track_ids, user_id=user_id, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.unfavorite_tracks)
-    def unfavorite_tracks(
+    @_copy_docstring(UsersAPI.remove_saved_tracks)
+    def remove_saved_tracks(
         self,
         track_ids: int
         | str
@@ -2015,6 +2015,6 @@ class TracksAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.unfavorite_tracks(
+        self._client.users.remove_saved_tracks(
             track_ids, user_id=user_id, country_code=country_code
         )

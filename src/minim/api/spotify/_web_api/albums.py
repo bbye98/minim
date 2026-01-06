@@ -15,7 +15,7 @@ class AlbumsAPI(SpotifyResourceAPI):
        and should not be instantiated directly.
     """
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_albums(
         self, album_ids: str | list[str], /, *, country_code: str | None = None
     ) -> dict[str, Any]:
@@ -298,7 +298,7 @@ class AlbumsAPI(SpotifyResourceAPI):
             "albums", album_ids, country_code=country_code, limit=20
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_album_tracks(
         self,
         album_id: str,
@@ -456,7 +456,7 @@ class AlbumsAPI(SpotifyResourceAPI):
     def are_albums_saved(self, album_ids: str | list[str], /) -> list[bool]:
         return self._client.users.are_albums_saved(album_ids)
 
-    @TTLCache.cached_method(ttl="featured")
+    @TTLCache.cached_method(ttl="daily")
     def get_new_releases(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import ResourceAPI
+from ..._shared import TTLCache, ResourceAPI
 
 if TYPE_CHECKING:
     from .. import PrivateTIDALAPI
@@ -18,6 +18,7 @@ class PrivateFeedAPI(ResourceAPI):
 
     _client: "PrivateTIDALAPI"
 
+    @TTLCache.cached_method(ttl="user")
     def get_feed_activities(self) -> dict[str, Any]:
         """
         Get feed activities for the current user.
@@ -83,6 +84,7 @@ class PrivateFeedAPI(ResourceAPI):
         """
         self._client._request("PUT", "v2/feed/activities/seen")
 
+    @TTLCache.cached_method(ttl="user")
     def has_unseen_feed_activities(self) -> dict[str, bool]:
         """
         Check whether there are unseen feed activities for the current

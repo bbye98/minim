@@ -29,7 +29,7 @@ class TracksAPI(SpotifyResourceAPI):
        and should not be instantiated directly.
     """
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_tracks(
         self, track_ids: str | list[str], /, *, country_code: str | None = None
     ) -> dict[str, Any]:
@@ -290,7 +290,7 @@ class TracksAPI(SpotifyResourceAPI):
     def are_tracks_saved(self, track_ids: str | list[str], /) -> list[bool]:
         return self._client.users.are_tracks_saved(track_ids)
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_audio_features(
         self, track_ids: str | list[str], /
     ) -> dict[str, Any]:
@@ -392,7 +392,7 @@ class TracksAPI(SpotifyResourceAPI):
         """
         return self._get_resources("audio-features", track_ids, limit=100)
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_audio_analysis(self, track_id: str, /) -> dict[str, Any]:
         """
         `Tracks > Get Track's Audio Analysis
@@ -523,8 +523,8 @@ class TracksAPI(SpotifyResourceAPI):
             "GET", f"audio-analysis/{track_id}"
         ).json()
 
-    @TTLCache.cached_method(ttl="search")
-    def get_recommendations(
+    @TTLCache.cached_method(ttl="recommendation")
+    def get_track_recommendations(
         self,
         seed_artists: str | list[str] | None = None,
         seed_genres: str | list[str] | None = None,
@@ -929,6 +929,7 @@ class TracksAPI(SpotifyResourceAPI):
             "GET", "recommendations", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl="hourly")
     def get_my_top_tracks(
         self,
         *,
@@ -1098,7 +1099,7 @@ class TracksAPI(SpotifyResourceAPI):
     ) -> None:
         """
         Parse and add a track attribute to a dictionary holding the
-        request parameters for :meth:`get_recommendations`.
+        request parameters for :meth:`get_track_recommendations`.
 
         Parameters
         ----------
@@ -1197,7 +1198,7 @@ class TracksAPI(SpotifyResourceAPI):
     ) -> int:
         """
         Parse and add seeds to a dictionary holding the request
-        parameters for :meth:`get_recommendations`.
+        parameters for :meth:`get_track_recommendations`.
 
         Parameters
         ----------

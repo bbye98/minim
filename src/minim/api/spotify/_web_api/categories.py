@@ -13,7 +13,7 @@ class CategoriesAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_category(
         self, category_id: str, /, *, locale: str | None = None
     ) -> dict[str, Any]:
@@ -75,7 +75,7 @@ class CategoriesAPI(ResourceAPI):
             "GET", f"browse/categories/{category_id}", params=params
         ).json()
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_categories(
         self,
         *,

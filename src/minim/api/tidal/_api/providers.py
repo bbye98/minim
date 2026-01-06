@@ -19,7 +19,7 @@ class ProvidersAPI(TIDALResourceAPI):
 
     _client: "TIDALAPI"
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_providers(
         self, provider_ids: int | str | list[int | str], /
     ) -> dict[str, Any]:

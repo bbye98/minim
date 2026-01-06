@@ -19,7 +19,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
     _INTENTS = {"download", "import", "stream"}
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_tracks(
         self, track_ids: int | str | list[int | str], /
     ) -> dict[str, Any]:
@@ -376,7 +376,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             "GET", "track/get", params={"track_id": track_ids[0]}
         ).json()
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_playback_info(
         self,
         track_id: int | str,

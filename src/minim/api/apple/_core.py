@@ -157,7 +157,7 @@ class iTunesSearchAPI(APIClient):
     _RATE_LIMIT_PER_SECOND = 1 / 3
     BASE_URL: str = "https://itunes.apple.com"
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def lookup(
         self,
         *,

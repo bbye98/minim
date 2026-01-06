@@ -29,7 +29,7 @@ class SearchAPI(TIDALResourceAPI):
     _client: "TIDALAPI"
 
     @TTLCache.cached_method(ttl="search")
-    def get_suggestions(
+    def get_search_suggestions(
         self,
         query: str,
         /,
@@ -469,7 +469,7 @@ class SearchAPI(TIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="search")
-    def get_direct_hits(
+    def get_search_direct_hits(
         self,
         query: str,
         /,

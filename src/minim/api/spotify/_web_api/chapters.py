@@ -19,7 +19,7 @@ class ChaptersAPI(SpotifyResourceAPI):
        and should not be instantiated directly.
     """
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="playback")
     def get_chapters(
         self, chapter_ids: str | list[str], /, *, country_code: str
     ) -> dict[str, Any]:
@@ -35,6 +35,11 @@ class ChaptersAPI(SpotifyResourceAPI):
            :class: authorization-scope dropdown
 
            .. tab:: Optional
+
+              :code:`user-read-playback-position` scope
+                 Read your position in content you have played. `Learn
+                 more. <https://developer.spotify.com/documentation
+                 /web-api/concepts/scopes#user-read-playback-position>`__
 
               Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.

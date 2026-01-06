@@ -34,10 +34,8 @@ from . import db_connection, db_cursor
 if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
 
-# TODO: Standardize TTLs for endpoints
+
 # TODO: Move _validate_* methods in APIClient to ResourceAPI
-# TODO: Standardize using "save" for albums/tracks/videos and "follow"
-#       for artists/playlists
 
 
 def _copy_docstring(
@@ -390,12 +388,15 @@ class TTLCache:
     """
 
     _PREDEFINED_TTLS = {
-        "permanent": float("Inf"),
-        "catalog": 86_400,
-        "featured": 43_200,
-        "top": 3_600,
+        "static": float("Inf"),
+        # "weekly": 604_800,
+        "daily": 86_400,
+        "hourly": 3_600,
+        "recommendation": 43_200,
+        "playback": 30,
+        "popularity": 21_600,
         "search": 600,
-        "user": 120,
+        "user": 60,
     }
 
     def __init__(self, *, max_size: int = 1_024) -> None:

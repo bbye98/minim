@@ -20,7 +20,7 @@ class ArtworksAPI(TIDALResourceAPI):
     _RELATIONSHIPS = {"owners"}
     _client: "TIDALAPI"
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_artworks(
         self,
         artwork_ids: str | list[str],
@@ -151,7 +151,7 @@ class ArtworksAPI(TIDALResourceAPI):
             "artworks", artwork_ids, country_code=country_code, expand=expand
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_artwork_owners(
         self,
         artwork_id: str,

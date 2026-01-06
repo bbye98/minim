@@ -16,6 +16,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
        and should not be instantiated directly.
     """
 
+    @TTLCache.cached_method("user")
     def get_playlist(
         self,
         playlist_id: str,
@@ -425,6 +426,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             raise ValueError("At least one change must be specified.")
         self._client._request("PUT", f"playlists/{playlist_id}", json=payload)
 
+    @TTLCache.cached_method("user")
     def get_playlist_items(
         self,
         playlist_id: str,
@@ -1266,7 +1268,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             json=payload,
         ).json()
 
-    @TTLCache.cached_method(ttl="featured")
+    @TTLCache.cached_method(ttl="daily")
     def get_featured_playlists(
         self,
         *,
@@ -1393,7 +1395,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             "GET", "browse/featured-playlists", params=params
         ).json()
 
-    @TTLCache.cached_method(ttl="featured")
+    @TTLCache.cached_method(ttl="daily")
     def get_categorized_playlists(
         self,
         category_id: str,
@@ -1516,6 +1518,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             "GET", f"browse/categories/{category_id}/playlists", params=params
         ).json()
 
+    @TTLCache.cached_method("user")
     def get_playlist_cover_image(
         self, playlist_id: str, /
     ) -> list[dict[str, int | str]]:

@@ -23,7 +23,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
 
     _VIDEO_QUALITIES = {"AUDIO_ONLY", "LOW", "MEDIUM", "HIGH"}
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_video(
         self, video_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
@@ -99,7 +99,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             "videos", video_id, country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_video_contributors(
         self,
         video_id: int | str,
@@ -189,7 +189,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             locale=locale,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_video_playback_info(
         self,
         video_id: int | str,
@@ -317,8 +317,8 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.favorite_videos)
-    def favorite_videos(
+    @_copy_docstring(PrivateUsersAPI.save_videos)
+    def save_videos(
         self,
         video_ids: int | str | list[int | str],
         /,
@@ -327,21 +327,21 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         *,
         on_missing: str | None = None,
     ) -> None:
-        self._client.users.favorite_videos(
+        self._client.users.save_videos(
             video_ids,
             user_id=user_id,
             country_code=country_code,
             on_missing=on_missing,
         )
 
-    @_copy_docstring(PrivateUsersAPI.unfavorite_videos)
-    def unfavorite_videos(
+    @_copy_docstring(PrivateUsersAPI.remove_saved_videos)
+    def remove_saved_videos(
         self,
         video_ids: int | str | list[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
-        self._client.users.unfavorite_videos(video_ids, user_id=user_id)
+        self._client.users.remove_saved_videos(video_ids, user_id=user_id)
 
     @_copy_docstring(PrivateUsersAPI.get_blocked_videos)
     def get_blocked_videos(

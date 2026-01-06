@@ -319,6 +319,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             },
         ).json()
 
+    @TTLCache.cached_method(ttl="user")
     def get_playlist(
         self,
         playlist_id: int | str,
@@ -330,6 +331,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
     ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for a playlist.
+
+        .. admonition:: User authentication
+           :class: authorization-scope dropdown
+
+           .. tab:: Conditional
+
+              User authentication
+                 Access and manage your library.
 
         Parameters
         ----------
@@ -606,7 +615,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             "GET", "playlist/get", params=params
         ).json()
 
-    @TTLCache.cached_method(ttl="featured")
+    @TTLCache.cached_method(ttl="daily")
     def get_featured_playlists(
         self,
         playlist_type: str,
@@ -771,7 +780,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             "GET", "playlist/getFeatured", params=params
         ).json()
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_playlist_tags(self) -> dict[str, list[dict[str, Any]]]:
         """
         Get available playlist tags.
@@ -802,6 +811,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         """
         return self._client._request("GET", "playlist/getTags").json()
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_playlists(
         self,
         *,

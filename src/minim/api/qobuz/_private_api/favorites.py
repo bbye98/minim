@@ -1,5 +1,6 @@
 from typing import Any
 
+from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 
 
@@ -162,6 +163,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             "POST", "favorite/delete", data=payload
         ).json()
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_saved(
         self,
         item_type: str | None = None,
@@ -446,6 +448,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             "GET", "favorite/getUserFavorites", params=params
         ).json()
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_saved_ids(self) -> dict[str, Any]:
         """
         Get Qobuz IDs of the items in the current user's favorites.
@@ -482,6 +485,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             "GET", "favorite/getUserFavoriteIds"
         ).json()
 
+    @TTLCache.cached_method(ttl="user")
     def is_saved(
         self, item_type: str, item_id: int | str, /
     ) -> dict[str, bool]:

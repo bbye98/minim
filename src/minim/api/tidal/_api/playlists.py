@@ -95,6 +95,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             return [item]
         return item
 
+    @TTLCache.cached_method("user")
     def get_playlists(
         self,
         playlist_uuids: str | list[str] | None = None,
@@ -915,6 +916,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._validate_uuid(playlist_uuid)
         self._client._request("DELETE", f"playlist/{playlist_uuid}")
 
+    @TTLCache.cached_method("user")
     def get_playlist_cover_art(
         self,
         playlist_uuid: str,
@@ -1012,6 +1014,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             resource_identifier_type="uuid",
         )
 
+    @TTLCache.cached_method("user")
     def get_playlist_items(
         self,
         playlist_uuid: str,
@@ -1472,7 +1475,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             json={"data": self._process_playlist_items(items)},
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_playlist_owners(
         self,
         playlist_uuid: str,
@@ -1550,7 +1553,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             resource_identifier_type="uuid",
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_playlist_owner_profiles(
         self,
         playlist_uuid: str,
@@ -1647,8 +1650,8 @@ class PlaylistsAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_favorite_playlists)
-    def get_favorite_playlists(
+    @_copy_docstring(UsersAPI.get_followed_playlists)
+    def get_followed_playlists(
         self,
         *,
         user_id: int | str | None = None,
@@ -1658,7 +1661,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_favorite_playlists(
+        return self._client.users.get_followed_playlists(
             user_id=user_id,
             include_folders=include_folders,
             include_metadata=include_metadata,
@@ -1667,24 +1670,22 @@ class PlaylistsAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.favorite_playlists)
-    def favorite_playlists(
+    @_copy_docstring(UsersAPI.follow_playlists)
+    def follow_playlists(
         self,
         playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
         /,
         *,
         user_id: int | str | None = None,
     ) -> None:
-        self._client.users.favorite_playlists(playlist_uuids, user_id=user_id)
+        self._client.users.follow_playlists(playlist_uuids, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.unfavorite_playlists)
-    def unfavorite_playlists(
+    @_copy_docstring(UsersAPI.unfollow_playlists)
+    def unfollow_playlists(
         self,
         playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
         /,
         *,
         user_id: int | str | None = None,
     ) -> None:
-        self._client.users.unfavorite_playlists(
-            playlist_uuids, user_id=user_id
-        )
+        self._client.users.unfollow_playlists(playlist_uuids, user_id=user_id)
