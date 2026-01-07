@@ -167,6 +167,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
     def get_my_saved(
         self,
         item_type: str | None = None,
+        /,
         *,
         limit: int | None = None,
         offset: int | None = None,
@@ -185,12 +186,12 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
 
         Parameters
         ----------
-        item_type : str; optional
+        item_type : str; positional-only; optional
             Type of item to return. If not specified, favorites of all
             types are returned.
 
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"articles"`, :code:`"awards"`, :code:`"labels"`,
+            **Valid values**: :code:`"albums"`, :code:`"articles"`,
+            :code:`"artists"`, :code:`"awards"`, :code:`"labels"`,
             :code:`"tracks"`.
 
         limit : int; keyword-only; optional

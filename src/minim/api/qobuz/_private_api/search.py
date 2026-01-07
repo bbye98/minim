@@ -954,7 +954,7 @@ class PrivateSearchEndpoints(ResourceAPI):
                   }
         """
         self._client._validate_type("query", query, str)
-        params = {"query": query}
+        params = {"query": query.strip()}
         if offset is not None:
             self._client._validate_number("offset", offset, int, 0)
             params["offset"] = offset
@@ -1354,7 +1354,9 @@ class PrivateSearchEndpoints(ResourceAPI):
             Search results.
         """
         self._client._validate_type("query", query, str)
-        params = {"query": query}
+        if not len(query):
+            raise ValueError("No search query provided.")
+        params = {"query": query.strip()}
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit

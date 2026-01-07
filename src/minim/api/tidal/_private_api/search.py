@@ -928,7 +928,9 @@ class PrivateSearchAPI(ResourceAPI):
         if resource_type is not None:
             endpoint += f"/{resource_type}"
         self._client._validate_type("query", query, str)
-        params = {"query": query}
+        if not len(query):
+            raise ValueError("No search query provided.")
+        params = {"query": query.strip()}
         self._client._resolve_country_code(country_code, params=params)
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 100)

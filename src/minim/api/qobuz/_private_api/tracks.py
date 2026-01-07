@@ -718,6 +718,287 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             preview=preview,
         )
 
+    def save_tracks(
+        self, track_ids: int | str | list[int | str], /
+    ) -> dict[str, str]:
+        """
+        Save one or more tracks to the current user's favorites.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
+        Parameters
+        ----------
+        track_ids : int, str, or list[int | str]; positional-only
+            Qobuz IDs of the tracks.
+
+            **Examples**: :code:`23929516`, :code:`"344521217"`,
+            :code:`"23929516,344521217"`,
+            :code:`[23929516, "344521217"]`.
+
+        Returns
+        -------
+        response : dict[str, str]
+            API JSON response.
+
+            **Sample response**: :code:`{"status": "success"}`.
+        """
+        return self._client.favorites.save(track_ids=track_ids)
+
+    def remove_saved_tracks(
+        self, track_ids: int | str | list[int | str], /
+    ) -> dict[str, str]:
+        """
+        Remove one or more tracks from the current user's favorites.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
+        Parameters
+        ----------
+        track_ids : int, str, or list[int | str]; positional-only
+            Qobuz IDs of the tracks.
+
+            **Examples**: :code:`23929516`, :code:`"344521217"`,
+            :code:`"23929516,344521217"`,
+            :code:`[23929516, "344521217"]`.
+
+        Returns
+        -------
+        response : dict[str, str]
+            API JSON response.
+
+            **Sample response**: :code:`{"status": "success"}`.
+        """
+        return self._client.favorites.remove_saved(track_ids=track_ids)
+
+    def get_my_saved_tracks(
+        self, *, limit: int | None = None, offset: int | None = None
+    ) -> dict[str, Any]:
+        """
+        Get Qobuz catalog information for the tracks in the current
+        user's favorites.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
+        Parameters
+        ----------
+        limit : int; keyword-only; optional
+            Maximum number of tracks to return.
+
+            **Valid range**: :code:`1` to :code:`500`.
+
+            **API default**: :code:`50`.
+
+        offset : int; keyword-only; optional
+            Index of the first track to return. Use with `limit` to get
+            the next batch of tracks.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        saved_items : dict[str, Any]
+            Page of Qobuz content metadata for tracks in the user's
+            favorites.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "tracks": {
+                      "items": [
+                        {
+                          "album": {
+                            "artist": {
+                              "albums_count": <int>,
+                              "id": <int>,
+                              "image": None,
+                              "name": <str>,
+                              "picture": None,
+                              "slug": <str>
+                            },
+                            "displayable": <bool>,
+                            "downloadable": <bool>,
+                            "duration": <int>,
+                            "genre": {
+                              "id": <int>,
+                              "name": <str>,
+                              "path": <list[int]>,
+                              "slug": <str>
+                            },
+                            "hires": <bool>,
+                            "hires_streamable": <bool>,
+                            "id": <str>,
+                            "image": {
+                              "large": <str>,
+                              "small": <str>,
+                              "thumbnail": <str>
+                            },
+                            "label": {
+                              "albums_count": <int>,
+                              "id": <int>,
+                              "name": <str>,
+                              "slug": <str>,
+                              "supplier_id": <int>
+                            },
+                            "maximum_bit_depth": <int>,
+                            "maximum_channel_count": <int>,
+                            "maximum_sampling_rate": <float>,
+                            "media_count": <int>,
+                            "parental_warning": <bool>,
+                            "previewable": <bool>,
+                            "purchasable": <bool>,
+                            "purchasable_at": null,
+                            "qobuz_id": <int>,
+                            "release_date_download": <str>,
+                            "release_date_original": <str>,
+                            "release_date_purchase": <str>,
+                            "release_date_stream": <str>,
+                            "released_at": <int>,
+                            "sampleable": <bool>,
+                            "streamable": <bool>,
+                            "streamable_at": <int>,
+                            "title": <str>,
+                            "tracks_count": <int>,
+                            "upc": <str>,
+                            "version": None
+                          },
+                          "audio_info": {
+                            "replaygain_track_gain": <float>,
+                            "replaygain_track_peak": <float>,
+                          },
+                          "composer": {
+                            "id": <int>,
+                            "name": <str>
+                          },
+                          "copyright": <str>,
+                          "displayable": <bool>,
+                          "downloadable": <bool>,
+                          "duration": <int>,
+                          "favorited_at": <int>,
+                          "hires": <bool>,
+                          "hires_streamable": <bool>,
+                          "id": <int>,
+                          "isrc": <str>,
+                          "maximum_bit_depth": <int>,
+                          "maximum_channel_count": <int>,
+                          "maximum_sampling_rate": <float>,
+                          "media_number": <int>,
+                          "parental_warning": <bool>,
+                          "performer": {
+                            "id": <int>,
+                            "name": <str>
+                          },
+                          "performers": <str>,
+                          "previewable": <bool>,
+                          "purchasable": <bool>,
+                          "purchasable_at": <int>,
+                          "release_date_download": <str>,
+                          "release_date_original": <str>,
+                          "release_date_purchase": <str>,
+                          "release_date_stream": <str>,
+                          "sampleable": <bool>,
+                          "streamable": <bool>,
+                          "streamable_at": <int>,
+                          "title": <str>,
+                          "track_number": <int>,
+                          "version": <str>,
+                          "work": None
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    },
+                    "user": {
+                      "id": <int>,
+                      "login": <str>
+                    }
+                  }
+        """
+        return self._client.favorites.get_my_saved(
+            "tracks", limit=limit, offset=offset
+        )
+
+    def is_track_saved(self, track_id: int | str, /) -> dict[str, bool]:
+        """
+        Check whether a track is in the current user's favorites.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
+        Parameters
+        ----------
+        track_id : int or str; positional-only
+            TIDAL ID of the track.
+
+            **Examples**: :code:`23929516`, :code:`"344521217"`.
+
+        Returns
+        -------
+        saved : dict[str, bool]
+            Whether the current user has the specified track in their
+            favorites.
+
+            **Sample response**: :code:`{"status": <bool>}`.
+        """
+        return self._client.favorites.is_saved("track", track_id)
+
+    def toggle_track_saved(self, track_id: int | str, /) -> dict[str, bool]:
+        """
+        Toggle the saved status of a track.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage your library.
+
+        Parameters
+        ----------
+        track_id : int or str; positional-only
+            TIDAL ID of the track.
+
+            **Examples**: :code:`23929516`, :code:`"344521217"`.
+
+        Returns
+        -------
+        saved : dict[str, bool]
+            Whether the current user has the specified track in their
+            favorites.
+
+            **Sample response**: :code:`{"status": <bool>}`.
+        """
+        return self._client.favorites.toggle_saved("track", track_id)
+
     @_copy_docstring(PrivateSearchEndpoints.search_tracks)
     def search_tracks(
         self,

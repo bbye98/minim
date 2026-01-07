@@ -35,6 +35,7 @@ if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
 
 
+# TODO: Add support for custom user agents
 # TODO: Move _validate_* methods in APIClient to ResourceAPI
 
 

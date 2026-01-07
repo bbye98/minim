@@ -12,6 +12,8 @@ import httpx
 from playwright.sync_api import sync_playwright
 
 from .._shared import APIClient, TokenDatabase
+from ._private_api.catalog import PrivateCatalogAPI
+from ._private_api.dynamic import PrivateDynamicAPI
 from ._private_api.favorites import PrivateFavoritesAPI
 from ._private_api.labels import PrivateLabelsAPI
 from ._private_api.genres import PrivateGenresAPI
@@ -155,6 +157,10 @@ class PrivateQobuzAPI(APIClient):
         super().__init__(enable_cache=enable_cache)
 
         # Initialize subclasses for endpoint groups
+        #: Catalog API endpoints for the private Qobuz API.
+        self.catalog: PrivateCatalogAPI = PrivateCatalogAPI(self)
+        #: Dynamic Tracks API endpoints for the private Qobuz API.
+        self.dynamic: PrivateDynamicAPI = PrivateDynamicAPI(self)
         #: Favorites API endpoints for the private Qobuz API.
         self.favorites: PrivateFavoritesAPI = PrivateFavoritesAPI(self)
         #: Labels API endpoints for the private Qobuz API.

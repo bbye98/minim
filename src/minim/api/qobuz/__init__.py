@@ -1,4 +1,6 @@
 from ._core import PrivateQobuzAPI
+from ._private_api.catalog import PrivateCatalogAPI
+from ._private_api.dynamic import PrivateDynamicAPI
 from ._private_api.favorites import PrivateFavoritesAPI
 from ._private_api.labels import PrivateLabelsAPI
 from ._private_api.genres import PrivateGenresAPI
@@ -10,6 +12,8 @@ from ._private_api.users import PrivateUsersAPI
 
 __all__ = [
     "PrivateQobuzAPI",
+    "PrivateCatalogAPI",
+    "PrivateDynamicAPI",
     "PrivateFavoritesAPI",
     "PrivateLabelsAPI",
     "PrivateGenresAPI",
