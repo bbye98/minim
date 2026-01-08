@@ -84,6 +84,40 @@ class PrivateQobuzResourceAPI(ResourceAPI):
         return ",".join(album_ids)
 
     @staticmethod
+    def _prepare_comma_separated_values(
+        parameter: str, values: str | list[str], /, allowed_values: set[str]
+    ) -> str:
+        """
+        Normalize, validate, and serialize comma-separated values.
+
+        Parameters
+        ----------
+        parameter : str; positional-only
+            Name of the parameter being prepared.
+
+        values : str or list[str]; positional-only
+            Comma-separated values.
+
+        allowed_values : set[str]; positional-only
+            Allowed values for the parameter.
+
+        Returns
+        -------
+        values : str
+            Comma-separated string of values.
+        """
+        if isinstance(values, str):
+            values = values.strip().split(",")
+        for value in values:
+            if value not in allowed_values:
+                allowed_values_str = "', '".join(allowed_values)
+                raise ValueError(
+                    f"Invalid {parameter} {value!r}. "
+                    f"Valid values: '{allowed_values_str}'."
+                )
+        return ",".join(values)
+
+    @staticmethod
     def _prepare_qobuz_ids(
         qobuz_ids: int | str | list[int | str], /, *, data_type: type
     ) -> list[int]:

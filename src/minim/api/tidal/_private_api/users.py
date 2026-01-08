@@ -1383,11 +1383,11 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             .. container::
 
-               * :code:`1` – legacy
-                 :code:`POST v1/users/{user_id}/favorites/playlists`
+               * :code:`1` – Legacy
+                 :code:`POST /v1/users/{user_id}/favorites/playlists`
                  endpoint.
-               * :code:`2` – current
-                 :code:`PUT v2/my-collection/playlists/folders/add-favorites`
+               * :code:`2` – Current
+                 :code:`PUT /v2/my-collection/playlists/folders/add-favorites`
                  endpoint.
         """
         self._client._require_authentication("users.follow_playlists")
@@ -1465,11 +1465,11 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             .. container::
 
-               * :code:`1` – legacy
-                 :code:`POST v1/users/{user_id}/favorites/playlists`
+               * :code:`1` – Legacy
+                 :code:`POST /v1/users/{user_id}/favorites/playlists`
                  endpoint.
-               * :code:`2` – current
-                 :code:`PUT v2/my-collection/playlists/folders/add-favorites`
+               * :code:`2` – Current
+                 :code:`PUT /v2/my-collection/playlists/folders/add-favorites`
                  endpoint.
         """
         self._client._require_authentication("users.unfollow_playlists")

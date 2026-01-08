@@ -1013,7 +1013,16 @@ class PrivateSearchEndpoints(ResourceAPI):
                           "created_at": <int>,
                           "description": <str>,
                           "duration": <int>,
-                          "featured_artists": [],
+                          "featured_artists": [
+                            {
+                              "albums_count": <int>,
+                              "id": <int>,
+                              "image": None,
+                              "name": <str>,
+                              "picture": None,
+                              "slug": <str>
+                            }
+                          ],
                           "genres": [
                             {
                               "color": <str>,

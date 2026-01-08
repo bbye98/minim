@@ -16,6 +16,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
        and should not be instantiated directly.
     """
 
+    _PLAYLIST_TYPES = {"owner", "subscriber"}
     _RELATIONSHIPS = {"tracks", "getSimilarPlaylists", "focus", "focusAll"}
 
     def add_playlist_tracks(
@@ -950,17 +951,9 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication("playlists.get_my_playlists")
         params = {}
         if playlist_types is not None:
-            allowed_playlist_types = {"owner", "subscriber"}
-            if isinstance(playlist_types, str):
-                playlist_types = playlist_types.strip().split(",")
-            for playlist_type in playlist_types:
-                if playlist_type not in allowed_playlist_types:
-                    playlist_types_str = "', '".join(allowed_playlist_types)
-                    raise ValueError(
-                        f"Invalid playlist type {playlist_type!r}. "
-                        f"Valid values: '{playlist_types_str}'."
-                    )
-            params["filter"] = ",".join(playlist_types)
+            params["filter"] = self._prepare_comma_separated_values(
+                "playlist type", playlist_types, self._PLAYLIST_TYPES
+            )
         if limit is not None:
             self._client._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit

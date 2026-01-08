@@ -310,7 +310,7 @@ class TracksAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Extended quota mode before November 27, 2024
-                  Access the :code:`/audio-features/{id}` endpoint.
+                  Access the :code:`GET /audio-features/{id}` endpoint.
                   `Learn more. <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
 
@@ -407,7 +407,7 @@ class TracksAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Extended quota mode before November 27, 2024
-                  Access the :code:`/audio-analysis/{id}` endpoint.
+                  Access the :code:`GET/audio-analysis/{id}` endpoint.
                   `Learn more. <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
 
@@ -559,7 +559,7 @@ class TracksAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Extended quota mode before November 27, 2024
-                  Access the :code:`/recommendations` endpoint. `Learn
+                  Access the :code:`GET/recommendations` endpoint. `Learn
                   more. <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
 

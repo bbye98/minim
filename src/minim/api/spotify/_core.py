@@ -513,7 +513,7 @@ class SpotifyWebAPI(OAuth2APIClient):
 
               Extended quota mode before November 27, 2024
                   Access the
-                  :code:`/recommendations/available-genre-seeds`
+                  :code:`GET /recommendations/available-genre-seeds`
                   endpoint. `Learn more. <https://developer.spotify.com
                   /blog/2024-11-27-changes-to-the-web-api>`__
 

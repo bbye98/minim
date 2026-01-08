@@ -342,6 +342,19 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             album_ids=album_ids, artist_ids=artist_ids, track_ids=track_ids
         )
 
+    @_copy_docstring(PrivateFavoritesAPI.get_my_saved)
+    def get_my_saved(
+        self,
+        item_type: str,
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.favorites.get_my_saved(
+            item_type, limit=limit, offset=offset
+        )
+
     @_copy_docstring(PrivateFavoritesAPI.get_my_saved_ids)
     def get_my_saved_ids(self) -> dict[str, Any]:
         return self._client.favorites.get_my_saved_ids()
@@ -980,7 +993,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access the :code:`/dynamic/suggest` endpoint.
+                 Access the :code:`POST /dynamic/suggest` endpoint.
 
         Parameters
         ----------

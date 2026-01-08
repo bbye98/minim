@@ -97,10 +97,10 @@ class PrivatePlaylistsAPI(ResourceAPI):
 
             .. container::
 
-               * :code:`1` – legacy
-                 :code:`GET v1/playlists/{playlist_uuid}` endpoint.
-               * :code:`2` – current
-                 :code:`GET v2/user-playlists/{playlist_uuid}` endpoint.
+               * :code:`1` – Legacy
+                 :code:`GET /v1/playlists/{playlist_uuid}` endpoint.
+               * :code:`2` – Current
+                 :code:`GET /v2/user-playlists/{playlist_uuid}` endpoint.
 
         Returns
         -------

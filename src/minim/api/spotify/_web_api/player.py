@@ -243,7 +243,7 @@ class PlayerAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Spotify Premium subscription
-                 Access the :code:`/me/player` endpoint.
+                 Access the :code:`PUT /me/player` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
@@ -566,7 +566,7 @@ class PlayerAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Spotify Premium subscription
-                 Access the :code:`/me/player/play` endpoint.
+                 Access the :code:`PUT /me/player/play` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
@@ -677,7 +677,7 @@ class PlayerAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Spotify Premium subscription
-                 Access the :code:`/me/player/pause` endpoint.
+                 Access the :code:`PUT /me/player/pause` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
@@ -720,7 +720,7 @@ class PlayerAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Spotify Premium subscription
-                 Access the :code:`/me/player/next` endpoint.
+                 Access the :code:`PUT /me/player/next` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
@@ -763,7 +763,7 @@ class PlayerAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Spotify Premium subscription
-                 Access the :code:`/me/player/previous` endpoint.
+                 Access the :code:`PUT /me/player/previous` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
@@ -807,7 +807,7 @@ class PlayerAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Spotify Premium subscription
-                 Access the :code:`/me/player/seek` endpoint.
+                 Access the :code:`PUT /me/player/seek` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
@@ -863,7 +863,7 @@ class PlayerAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Spotify Premium subscription
-                 Access the :code:`/me/player/repeat` endpoint.
+                 Access the :code:`PUT /me/player/repeat` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
@@ -927,7 +927,7 @@ class PlayerAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Spotify Premium subscription
-                 Access the :code:`/me/player/volume` endpoint.
+                 Access the :code:`PUT /me/player/volume` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
@@ -983,7 +983,7 @@ class PlayerAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Spotify Premium subscription
-                 Access the :code:`/me/player/shuffle` endpoint.
+                 Access the :code:`PUT /me/player/shuffle` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
@@ -1454,7 +1454,7 @@ class PlayerAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Spotify Premium subscription
-                 Access the :code:`/me/player/queue` endpoint.
+                 Access the :code:`PUT /me/player/queue` endpoint.
                  `Learn more. <https://www.spotify.com/us/premium/>`__
 
               :code:`user-modify-playback-state` scope
