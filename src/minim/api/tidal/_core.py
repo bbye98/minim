@@ -1178,7 +1178,21 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         )
 
     def _require_subscription(self, endpoint_method: str, /) -> None:
-        """ """
+        """
+        Ensure that a TIDAL streaming plan is active for an endpoint
+        method that requires it.
+
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_user_subscription`
+           and make a request to the private TIDAL API.
+
+        Parameters
+        ----------
+        endpoint_method : str; positional-only
+            Name of the endpoint method.
+        """
         if not self.users.get_user_subscription().get("premiumAccess", False):
             raise RuntimeError(
                 f"{self._QUAL_NAME}.{endpoint_method}() requires "
