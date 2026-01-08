@@ -211,7 +211,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
 
         Returns
         -------
-        saved_items : dict[str, Any]
+        items : dict[str, Any]
             Page of Qobuz content metadata for items in the user's
             favorites.
 

@@ -61,13 +61,14 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
         self,
         item_type: str | None = None,
         /,
-        genre_ids: int | str | None = None,
+        genre_ids: int | str | list[int | str] | None = None,
         *,
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get featured albums, artists, articles, and/or playlists.
+        Get Qobuz catalog information for featured albums, artists,
+        articles, and/or playlists.
 
         Parameters
         ----------
@@ -78,7 +79,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
             **Valid values**: :code:`"albums"`, :code:`"articles"`,
             :code:`"artists"`, :code:`"playlists"`.
 
-        genre_ids : int or str; optional
+        genre_ids : int, str, or list[int | str]; optional
             Qobuz IDs of the genres used to filter the featured items to
             return.
 

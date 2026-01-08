@@ -12,6 +12,7 @@ import httpx
 from playwright.sync_api import sync_playwright
 
 from .._shared import APIClient, TokenDatabase
+from ._private_api.albums import PrivateAlbumsAPI
 from ._private_api.artists import PrivateArtistsAPI
 from ._private_api.catalog import PrivateCatalogAPI
 from ._private_api.dynamic import PrivateDynamicAPI
@@ -158,6 +159,8 @@ class PrivateQobuzAPI(APIClient):
         super().__init__(enable_cache=enable_cache)
 
         # Initialize subclasses for endpoint groups
+        #: Albums API endpoints for the private Qobuz API.
+        self.albums: PrivateAlbumsAPI = PrivateAlbumsAPI(self)
         #: Artists API endpoints for the private Qobuz API.
         self.artists: PrivateArtistsAPI = PrivateArtistsAPI(self)
         #: Catalog API endpoints for the private Qobuz API.

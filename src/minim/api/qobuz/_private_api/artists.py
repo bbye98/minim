@@ -1,11 +1,8 @@
-from datetime import datetime
-import time
 from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
 from .search import PrivateSearchEndpoints
-from .users import PrivateUsersAPI
 
 
 class PrivateArtistsAPI(PrivateQobuzResourceAPI):
@@ -1049,7 +1046,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         releases : dict[str, Any]
-            Qobuz content metadata for the artist's releases.
+            Page of Qobuz content metadata for the artist's releases.
 
             .. admonition:: Sample responses
                :class: dropdown
@@ -1238,7 +1235,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Qobuz content metadata for similar artists.
+            Page of Qobuz content metadata for similar artists.
 
             .. admonition:: Sample responses
                :dropdown:
@@ -1280,6 +1277,78 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         return self._client._request(
             "GET", "artist/getSimilarArtists", params=params
         ).json()
+
+    def get_featured_artists(
+        self,
+        genre_ids: int | str | list[int | str] | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get Qobuz catalog information for featured albums.
+
+        Parameters
+        ----------
+        genre_ids : int, str, or list[int | str]; optional
+            Qobuz IDs of the genres used to filter the featured artists
+            toreturn.
+
+            **Examples**: :code:`10`, :code:`"64"`, :code:`"10,64"`,
+            :code:`[10, "64"]`.
+
+        limit : int; keyword-only; optional
+            Maximum number of artists to return per item type.
+
+            **Valid range**: :code:`1` to :code:`500`.
+
+            **API default**: :code:`25`.
+
+        offset : int; keyword-only; optional
+            Index of the first artist to return per item type. Use with
+            `limit` to get the next batch of artists.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        artists : dict[str, Any]
+            Page of TIDAL content metadata for the featured artists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "artists": {
+                      "items": [
+                        {
+                          "albums_count": <int>,
+                          "id": <int>,
+                          "image": {
+                            "extralarge": <str>,
+                            "large": <str>,
+                            "medium": <str>,
+                            "mega": <str>,
+                            "small": <str>
+                          },
+                          "name": <str>,
+                          "picture": <str>,
+                          "slug": <str>
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    }
+                  }
+        """
+        return self._client.catalog.get_featured(
+            "artists", genre_ids=genre_ids, limit=limit, offset=offset
+        )
 
     def follow_artists(self, artist_ids: list[int | str], /) -> None:
         """
