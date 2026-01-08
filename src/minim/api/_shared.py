@@ -35,7 +35,6 @@ if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
 
 
-# TODO: Add support for custom user agents
 # TODO: Move _validate_* methods in APIClient to ResourceAPI
 
 
@@ -660,7 +659,9 @@ class APIClient(ABC):
     #: Base URL for API endpoints.
     BASE_URL: str
 
-    def __init__(self, *, enable_cache: bool = True) -> None:
+    def __init__(
+        self, *, enable_cache: bool = True, user_agent: str | None = None
+    ) -> None:
         """
         Parameters
         ----------
@@ -675,11 +676,15 @@ class APIClient(ABC):
 
                :meth:`clear_cache` – Clear specific or all cache
                entries for this client.
+
+        user_agent : str; keyword-only; optional
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
         """
         self._cache = TTLCache() if enable_cache else None
-        self._client = httpx.Client(
-            base_url=self.BASE_URL,  # follow_redirects=True
-        )
+        self._client = httpx.Client(base_url=self.BASE_URL)
+        if user_agent is not None:
+            self._client.headers["User-Agent"] = user_agent
 
     def __enter__(self) -> "APIClient":
         """
@@ -1063,6 +1068,7 @@ class OAuth2APIClient(APIClient):
         open_browser: bool = False,
         enable_cache: bool = True,
         store_tokens: bool = True,
+        user_agent: str | None = None,
     ) -> None:
         """
         Parameters
@@ -1185,8 +1191,12 @@ class OAuth2APIClient(APIClient):
 
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
+
+        user_agent : str; keyword-only; optional
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
         """
-        super().__init__(enable_cache=enable_cache)
+        super().__init__(enable_cache=enable_cache, user_agent=user_agent)
 
         # If a client ID is not provided, try to retrieve it and its
         # corresponding client secret from environment variables

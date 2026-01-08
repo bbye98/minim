@@ -55,6 +55,7 @@ class PrivateQobuzAPI(APIClient):
         credential_handler: str | None = None,
         enable_cache: bool = True,
         store_tokens: bool = True,
+        user_agent: str | None = None,
         **kwargs: dict[str, Any],
     ) -> None:
         """
@@ -152,11 +153,15 @@ class PrivateQobuzAPI(APIClient):
                :meth:`remove_tokens` – Remove specific or all stored
                tokens for this client.
 
+        user_agent : str; keyword-only; optional
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
+
         **kwargs : dict[str, Any]
             Keyword arguments to pass to
             :meth:`~minim.api.qobuz.PrivateUsersAPI.login`.
         """
-        super().__init__(enable_cache=enable_cache)
+        super().__init__(enable_cache=enable_cache, user_agent=user_agent)
 
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the private Qobuz API.

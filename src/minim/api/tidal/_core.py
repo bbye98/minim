@@ -225,6 +225,7 @@ class TIDALAPI(_BaseTIDALAPI):
         open_browser: bool = False,
         enable_cache: bool = True,
         store_tokens: bool = True,
+        user_agent: str | None = None,
     ) -> None:
         """
         Parameters
@@ -345,6 +346,10 @@ class TIDALAPI(_BaseTIDALAPI):
 
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
+
+        user_agent : str; keyword-only; optional
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
         """
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the TIDAL API.
@@ -381,6 +386,7 @@ class TIDALAPI(_BaseTIDALAPI):
             open_browser=open_browser,
             enable_cache=enable_cache,
             store_tokens=store_tokens,
+            user_agent=user_agent,
         )
 
     @property
@@ -549,6 +555,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         open_browser: bool = False,
         enable_cache: bool = True,
         store_tokens: bool = True,
+        user_agent: str | None = None,
     ) -> None:
         """
         Parameters
@@ -664,6 +671,10 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
+
+        user_agent : str; keyword-only; optional
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
         """
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the private TIDAL API.
@@ -701,6 +712,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             open_browser=open_browser,
             enable_cache=enable_cache,
             store_tokens=store_tokens,
+            user_agent=user_agent,
         )
         self._client.headers["x-tidal-client-version"] = self._VERSION
 

@@ -78,6 +78,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         open_browser: bool = False,
         enable_cache: bool = True,
         store_tokens: bool = True,
+        user_agent: str | None = None,
     ) -> None:
         """
         Parameters
@@ -200,6 +201,10 @@ class SpotifyWebAPI(OAuth2APIClient):
 
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
+
+        user_agent : str; keyword-only; optional
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
         """
         if urlparse(redirect_uri).scheme == "http":
             raise ValueError(
@@ -251,6 +256,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             open_browser=open_browser,
             enable_cache=enable_cache,
             store_tokens=store_tokens,
+            user_agent=user_agent,
         )
 
     @classmethod
