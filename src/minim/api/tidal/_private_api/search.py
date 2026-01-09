@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import PrivateTIDALAPI
+from ..._shared import TTLCache
+from ._shared import PrivateTIDALResourceAPI
 
 
-class PrivateSearchAPI(ResourceAPI):
+class PrivateSearchAPI(PrivateTIDALResourceAPI):
     """
     Search API endpoints for the private TIDAL API.
 
@@ -16,7 +14,73 @@ class PrivateSearchAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _client: "PrivateTIDALAPI"
+    def _search_resource(
+        self,
+        resource_type: str | None,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for albums, artists, playlists,
+        tracks, or videos that match a keyword string.
+
+        Parameters
+        ----------
+        resource_type : str or None; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"playlists"`, :code:`"tracks"`, :code:`"videos"`.
+
+        query : str; positional-only
+            Search query.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of items to return for each resource type.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first item to return for each resource type.
+            Use with `limit` to get the next batch of items.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        results : dict[str, Any]
+            Search results.
+        """
+        endpoint = "v1/search"
+        if resource_type is not None:
+            endpoint += f"/{resource_type}"
+        self._validate_type("query", query, str)
+        if not len(query):
+            raise ValueError("No search query provided.")
+        params = {"query": query.strip()}
+        self._client._resolve_country_code(country_code, params=params)
+        if limit is not None:
+            self._validate_number("limit", limit, int, 1, 100)
+            params["limit"] = limit
+        if offset is not None:
+            self._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request("GET", endpoint, params=params).json()
 
     @TTLCache.cached_method(ttl="search")
     def search(
@@ -871,71 +935,3 @@ class PrivateSearchAPI(ResourceAPI):
             limit=limit,
             offset=offset,
         )
-
-    def _search_resource(
-        self,
-        resource_type: str | None,
-        query: str,
-        /,
-        country_code: str | None = None,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for albums, artists, playlists,
-        tracks, or videos that match a keyword string.
-
-        Parameters
-        ----------
-        resource_type : str or None; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"playlists"`, :code:`"tracks"`, :code:`"videos"`.
-
-        query : str; positional-only
-            Search query.
-
-        country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the current user account or IP
-            address is used.
-
-            **Example**: :code:`"US"`.
-
-        limit : int; keyword-only; optional
-            Maximum number of items to return for each resource type.
-
-            **Valid range**: :code:`1` to :code:`100`.
-
-            **API default**: :code:`10`.
-
-        offset : int; keyword-only; optional
-            Index of the first item to return for each resource type.
-            Use with `limit` to get the next batch of items.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        results : dict[str, Any]
-            Search results.
-        """
-        endpoint = "v1/search"
-        if resource_type is not None:
-            endpoint += f"/{resource_type}"
-        self._client._validate_type("query", query, str)
-        if not len(query):
-            raise ValueError("No search query provided.")
-        params = {"query": query.strip()}
-        self._client._resolve_country_code(country_code, params=params)
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request("GET", endpoint, params=params).json()

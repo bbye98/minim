@@ -1,10 +1,7 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class ArtworksAPI(TIDALResourceAPI):
@@ -18,7 +15,6 @@ class ArtworksAPI(TIDALResourceAPI):
     """
 
     _RELATIONSHIPS = {"owners"}
-    _client: "TIDALAPI"
 
     @TTLCache.cached_method(ttl="static")
     def get_artworks(

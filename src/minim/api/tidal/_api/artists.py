@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class ArtistsAPI(TIDALResourceAPI):
@@ -33,7 +30,6 @@ class ArtistsAPI(TIDALResourceAPI):
         "tracks",
         "videos",
     }
-    _client: "TIDALAPI"
 
     @TTLCache.cached_method(ttl="static")
     def get_roles(
@@ -980,7 +976,7 @@ class ArtistsAPI(TIDALResourceAPI):
         if handles is not None:
             if isinstance(handles, list | tuple):
                 for idx, handle in enumerate(handles):
-                    self._client._validate_type(f"handles[{idx}]", handle, str)
+                    self._validate_type(f"handles[{idx}]", handle, str)
             elif not isinstance(handles, str):
                 raise ValueError(
                     "`handles` must be a string or a list of strings."

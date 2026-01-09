@@ -303,10 +303,10 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request("GET", "album/get", params=params).json()
 
@@ -456,21 +456,21 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
             )
         params = {"type": featured_type}
         if genre_ids is not None:
-            self._client._validate_type(
+            self._validate_type(
                 "genre_ids", genre_ids, int | str | tuple | list | set
             )
-            # if not isinstance(genre_ids, int):
-            #     if isinstance(genre_ids, str):
-            #         genre_ids = genre_ids.strip().split(",")
-            #     for genre_id in genre_ids:
-            #         self._validate_genre_id(genre_id)
+            if not isinstance(genre_ids, int):
+                if isinstance(genre_ids, str):
+                    genre_ids = genre_ids.strip().split(",")
+                for genre_id in genre_ids:
+                    self._client.genres._validate_genre_id(genre_id)
             genre_ids = self._prepare_qobuz_ids(genre_ids, data_type=str)
             params[f"genre_id{'s' if ',' in genre_ids else ''}"] = genre_ids
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "album/getFeatured", params=params

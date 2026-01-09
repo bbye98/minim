@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class VideosAPI(TIDALResourceAPI):
@@ -20,7 +17,6 @@ class VideosAPI(TIDALResourceAPI):
     """
 
     _RELATIONSHIPS = {"albums", "artists", "providers", "thumbnailArt"}
-    _client: "TIDALAPI"
 
     @TTLCache.cached_method(ttl="popularity")
     def get_videos(
@@ -628,10 +624,10 @@ class VideosAPI(TIDALResourceAPI):
         params = {}
         if isrcs is not None:
             if isinstance(isrcs, str):
-                self._client._validate_isrc(isrcs)
+                self._validate_isrc(isrcs)
             elif isinstance(isrcs, list | tuple):
                 for isrc in isrcs:
-                    self._client._validate_isrc(isrc)
+                    self._validate_isrc(isrc)
             else:
                 raise ValueError(
                     "`isrcs` must be a string or a list of strings."

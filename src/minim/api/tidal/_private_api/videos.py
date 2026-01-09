@@ -23,6 +23,58 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
 
     _VIDEO_QUALITIES = {"AUDIO_ONLY", "LOW", "MEDIUM", "HIGH"}
 
+    def _get_video_stream(self, manifest: bytes | str, /) -> tuple[str, bytes]:
+        """
+        Get the video stream data for a music video.
+
+        .. admonition:: Subscription
+           :class: authorization-scope dropdown
+
+           .. tab:: Optional
+
+              TIDAL streaming plan
+                 Stream full-length and high-resolution audio.
+                 `Learn more. <https://tidal.com/pricing>`__
+
+        Parameters
+        ----------
+        manifest : bytes or str; positional-only
+            Metadata for the video's source files.
+
+        Returns
+        -------
+        codec : str
+            Video codec.
+
+        stream : bytes
+            Video stream data.
+        """
+        self._validate_type("manifest", manifest, bytes | str)
+        if isinstance(manifest, str):
+            manifest = base64.b64decode(manifest)
+
+        if manifest[0] == 123:  # JSON
+            _, codec, m3u = max(
+                re.compile(
+                    r"#EXT-X-STREAM-INF:(?=[^\n]*BANDWIDTH=(\d+))"
+                    r'(?=[^\n]*CODECS="([^"]+)")[^\n]+\n(\S+)'
+                ).findall(httpx.get(json.loads(manifest)["urls"][0]).text),
+                key=lambda m3u: int(m3u[0]),
+            )
+            return codec, b"".join(
+                httpx.get(ts).content
+                for ts in re.compile("(?<=\n).*(http.*)").findall(
+                    httpx.get(m3u).text
+                )
+            )
+        elif manifest[0] == 60:  # XML (audio-only)
+            return self._client.tracks._get_track_stream(manifest)
+        else:
+            raise ValueError(
+                "`manifest`, when decoded, is not in the JSON format "
+                "or XML format."
+            )
+
     @TTLCache.cached_method(ttl="popularity")
     def get_video(
         self, video_id: int | str, /, country_code: str | None = None
@@ -270,7 +322,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         """
         self._client._require_subscription("videos.get_video_playback_info")
         self._client._validate_tidal_ids(video_id, _recursive=False)
-        self._client._validate_type("quality", quality, str)
+        self._validate_type("quality", quality, str)
         quality = quality.strip().upper()
         if quality not in self._VIDEO_QUALITIES:
             video_qualities_str = "', '".join(self._VIDEO_QUALITIES)
@@ -285,7 +337,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
                 f"Invalid playback mode {intent!r}. "
                 f"Valid values: '{playback_modes_str}'."
             )
-        self._client._validate_type("preview", preview, bool)
+        self._validate_type("preview", preview, bool)
         return self._client._request(
             "GET",
             f"v1/videos/{video_id}/playbackinfo",
@@ -367,55 +419,3 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         self, video_id: int | str, /, user_id: int | str | None = None
     ) -> None:
         self._client.users.unblock_video(video_id, user_id=user_id)
-
-    def _get_video_stream(self, manifest: bytes | str, /) -> tuple[str, bytes]:
-        """
-        Get the video stream data for a music video.
-
-        .. admonition:: Subscription
-           :class: authorization-scope dropdown
-
-           .. tab:: Optional
-
-              TIDAL streaming plan
-                 Stream full-length and high-resolution audio.
-                 `Learn more. <https://tidal.com/pricing>`__
-
-        Parameters
-        ----------
-        manifest : bytes or str; positional-only
-            Metadata for the video's source files.
-
-        Returns
-        -------
-        codec : str
-            Video codec.
-
-        stream : bytes
-            Video stream data.
-        """
-        self._client._validate_type("manifest", manifest, bytes | str)
-        if isinstance(manifest, str):
-            manifest = base64.b64decode(manifest)
-
-        if manifest[0] == 123:  # JSON
-            _, codec, m3u = max(
-                re.compile(
-                    r"#EXT-X-STREAM-INF:(?=[^\n]*BANDWIDTH=(\d+))"
-                    r'(?=[^\n]*CODECS="([^"]+)")[^\n]+\n(\S+)'
-                ).findall(httpx.get(json.loads(manifest)["urls"][0]).text),
-                key=lambda m3u: int(m3u[0]),
-            )
-            return codec, b"".join(
-                httpx.get(ts).content
-                for ts in re.compile("(?<=\n).*(http.*)").findall(
-                    httpx.get(m3u).text
-                )
-            )
-        elif manifest[0] == 60:  # XML (audio-only)
-            return self._client.tracks._get_track_stream(manifest)
-        else:
-            raise ValueError(
-                "`manifest`, when decoded, is not in the JSON format "
-                "or XML format."
-            )

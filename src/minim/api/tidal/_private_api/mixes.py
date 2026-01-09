@@ -1,14 +1,12 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI, _copy_docstring
+from ..._shared import TTLCache, _copy_docstring
+from ._shared import PrivateTIDALResourceAPI
 from .pages import PrivatePagesAPI
 from .users import PrivateUsersAPI
 
-if TYPE_CHECKING:
-    from .. import PrivateTIDALAPI
 
-
-class PrivateMixesAPI(ResourceAPI):
+class PrivateMixesAPI(PrivateTIDALResourceAPI):
     """
     Mixes API endpoints for the private TIDAL API.
 
@@ -17,8 +15,6 @@ class PrivateMixesAPI(ResourceAPI):
        This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
        and should not be instantiated directly.
     """
-
-    _client: "PrivateTIDALAPI"
 
     @TTLCache.cached_method(ttl="popularity")
     def get_mix_items(
@@ -126,7 +122,7 @@ class PrivateMixesAPI(ResourceAPI):
         if country_code is None:
             country_code = self._client._my_country_code
         else:
-            self._client._validate_country_code(country_code)
+            self._validate_country_code(country_code)
         return self._client._request(
             "GET",
             f"v1/mixes/{mix_id}/items",

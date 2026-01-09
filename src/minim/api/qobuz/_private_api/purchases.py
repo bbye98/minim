@@ -1,13 +1,11 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import ResourceAPI, _copy_docstring
+from ..._shared import _copy_docstring
+from ._shared import PrivateQobuzResourceAPI
 from .users import PrivateUsersAPI
 
-if TYPE_CHECKING:
-    from .._core import PrivateQobuzAPI
 
-
-class PrivatePurchasesAPI(ResourceAPI):
+class PrivatePurchasesAPI(PrivateQobuzResourceAPI):
     """
     Purchases API endpoints for the private Qobuz API.
 
@@ -16,8 +14,6 @@ class PrivatePurchasesAPI(ResourceAPI):
        This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
        and should not be instantiated directly.
     """
-
-    _client: "PrivateQobuzAPI"
 
     @_copy_docstring(PrivateUsersAPI.get_my_purchases)
     def get_my_purchases(

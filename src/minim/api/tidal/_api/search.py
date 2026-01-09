@@ -1,10 +1,7 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class SearchAPI(TIDALResourceAPI):
@@ -26,7 +23,6 @@ class SearchAPI(TIDALResourceAPI):
         "tracks",
         "videos",
     }
-    _client: "TIDALAPI"
 
     @TTLCache.cached_method(ttl="search")
     def get_search_suggestions(
@@ -458,7 +454,7 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_type("query", query, str)
+        self._validate_type("query", query, str)
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resources(
@@ -879,7 +875,7 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_type("query", query, str)
+        self._validate_type("query", query, str)
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resource_relationship(
@@ -1398,7 +1394,7 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_type("query", query, str)
+        self._validate_type("query", query, str)
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resources(
@@ -1560,7 +1556,7 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_type("query", query, str)
+        self._validate_type("query", query, str)
         return self._get_resource_relationship(
             "searchResults",
             query,
@@ -1731,7 +1727,7 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_type("query", query, str)
+        self._validate_type("query", query, str)
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resource_relationship(
@@ -1865,7 +1861,7 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_type("query", query, str)
+        self._validate_type("query", query, str)
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resource_relationship(
@@ -2301,7 +2297,7 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_type("query", query, str)
+        self._validate_type("query", query, str)
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resource_relationship(
@@ -2483,7 +2479,7 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_type("query", query, str)
+        self._validate_type("query", query, str)
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resource_relationship(
@@ -2623,7 +2619,7 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._validate_type("query", query, str)
+        self._validate_type("query", query, str)
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resource_relationship(

@@ -35,9 +35,6 @@ if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
 
 
-# TODO: Move _validate_* methods in APIClient to ResourceAPI
-
-
 def _copy_docstring(
     source: Callable[..., Any],
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
@@ -747,231 +744,6 @@ class APIClient(ABC):
             HTTP response.
         """
         ...
-
-    @staticmethod
-    def _validate_barcode(barcode: int | str, /) -> None:
-        """
-        Validate a Universal Product Code (UPC) or European Article
-        Number (EAN) barcode.
-
-        Parameters
-        ----------
-        barcode : int or str; positional-only
-            UPC or EAN barcode.
-        """
-        if not (barcode_ := str(barcode)).isdecimal() or len(barcode_) not in {
-            12,
-            13,
-        }:
-            raise ValueError(f"{barcode!r} is not a valid UPC or EAN.")
-
-    @staticmethod
-    def _validate_country_code(country_code: str, /) -> None:
-        """
-        Validate a ISO 3166-1 alpha-2 country code.
-
-        Parameters
-        ----------
-        country_code : str; positional-only
-            ISO 3166-1 alpha-2 country code.
-        """
-        if (
-            not isinstance(country_code, str)
-            or len(country_code) != 2
-            or not country_code.isalpha()
-        ):
-            raise ValueError(
-                f"{country_code!r} is not a valid ISO 3166-1 "
-                "alpha-2 country code."
-            )
-
-    @staticmethod
-    def _validate_locale(locale: str, /) -> None:
-        """
-        Validate an Internet Engineering Task Force (IETF) Best Current
-        Practice (BCP) 47 language tag, as defined in Request for
-        Comments (RFC) 1766.
-
-        Parameters
-        ----------
-        locale : str; positional-only
-            IETF BCP 47 language tag.
-        """
-        if (
-            not isinstance(locale, str)
-            or len(locale) != 5
-            or not locale[:2].isalpha()
-            or locale[2] != "_"
-            or not locale[3:].isalpha()
-        ):
-            raise ValueError(
-                f"{locale!r} is not a valid IETF BCP 47 language tag "
-                "consisting of an ISO 639-1 language code and an ISO "
-                "3166-1 alpha-2 country code joined by an underscore."
-            )
-
-    @staticmethod
-    def _validate_isrc(isrc: str, /) -> None:
-        """
-        Validate an International Standard Recording Code (ISRC).
-
-        Parameters
-        ----------
-        isrc : str; positional-only
-            ISRC.
-        """
-        if (
-            not isinstance(isrc, str)
-            or len(isrc) != 12
-            or not (
-                isrc[:2].isalpha()
-                and isrc[2:5].isalnum()
-                and isrc[5:].isdecimal()
-            )
-        ):
-            raise ValueError(f"{isrc!r} is not a valid ISRC.")
-
-    @staticmethod
-    def _validate_number(
-        name: str,
-        value: int | float,
-        data_type: type | types.UnionType,
-        /,
-        lower_bound: int | float | None = None,
-        upper_bound: int | float | None = None,
-    ) -> None:
-        """
-        Validate the value of a variable containing a number.
-
-        Parameters
-        ----------
-        name : str; positional-only
-            Variable name.
-
-        value : int or float; positional-only
-            Variable value.
-
-        data_type : type or types.UnionType; positional-only
-            Allowed numeric data types.
-
-        lower_bound : int or float; optional
-            Lower bound, inclusive.
-
-        upper_bound : int or float; optional
-            Upper bound, inclusive.
-        """
-        has_lower_bound = lower_bound is not None
-        has_upper_bound = upper_bound is not None
-        if has_lower_bound:
-            if has_upper_bound:
-                emsg_suffix = (
-                    f" between {lower_bound} and {upper_bound}, inclusive"
-                )
-            else:
-                emsg_suffix = f" greater than {lower_bound}, inclusive"
-        else:
-            if has_upper_bound:
-                emsg_suffix = f" less than {upper_bound}, inclusive"
-            else:
-                emsg_suffix = ""
-        if (
-            not isinstance(value, data_type)
-            or (has_lower_bound and value < lower_bound)
-            or (has_upper_bound and value > upper_bound)
-        ):
-            data_type_str = (
-                data_type.__name__
-                if isinstance(data_type, type)
-                else str(data_type)
-            )
-            raise ValueError(
-                f"`{name}` must be a(n) {data_type_str}{emsg_suffix}."
-            )
-
-    @staticmethod
-    def _validate_numeric(
-        name: str,
-        value: int | float | str,
-        data_type: type,
-        /,
-        lower_bound: int | float | None = None,
-        upper_bound: int | float | None = None,
-    ) -> None:
-        """
-        Validate the value of a variable containing a numeric value.
-
-        Parameters
-        ----------
-        name : str; positional-only
-            Variable name.
-
-        value : int, float, or str; positional-only
-            Variable value.
-
-        data_type : type; positional-only
-            Allowed numeric data type.
-
-        lower_bound : int or float; optional
-            Lower bound, inclusive.
-
-        upper_bound : int or float; optional
-            Upper bound, inclusive.
-        """
-        try:
-            if isinstance(value, str):
-                value = data_type(value)
-            APIClient._validate_number(
-                name, value, data_type, lower_bound, upper_bound
-            )
-        except ValueError:
-            raise ValueError(
-                f"`{name}` must be a(n) {data_type.__name__} or its "
-                "string representation."
-            )
-
-    @staticmethod
-    def _validate_type(
-        name: str, value: Any, data_type: type | types.UnionType, /
-    ) -> None:
-        """
-        Validate the data type of a variable.
-
-        Parameters
-        ----------
-        name : str; positional-only
-            Variable name.
-
-        value : Any; positional-only
-            Variable value.
-
-        data_type : type or types.UnionTypes; positional-only
-            Allowed data type.
-        """
-        if not isinstance(value, data_type):
-            data_type_str = (
-                data_type.__name__
-                if isinstance(data_type, type)
-                else str(data_type)
-            )
-            raise ValueError(
-                f"`{name}` must be a(n) {data_type_str}, not a(n) "
-                f"{type(value).__name__}."
-            )
-
-    @staticmethod
-    def _validate_uuid(uuid_: str, /) -> None:
-        """
-        Validate a universally unique identifier (UUID).
-
-        Parameters
-        ----------
-        uuid_ : str; positional-only
-            UUID.
-        """
-        try:
-            uuid.UUID(uuid_)
-        except (TypeError, ValueError):
-            raise ValueError(f"{uuid_!r} is not a valid UUID.")
 
     def clear_cache(
         self,
@@ -2078,9 +1850,9 @@ class OAuth2APIClient(APIClient):
                 self._require_scopes(endpoint_method, scope)
 
 
-class ResourceAPI(ABC):
+class ResourceAPI:
     """
-    Abstract base class for API resource endpoint groups.
+    Base class for API resource endpoint groups.
     """
 
     def __init__(self, client: APIClient, /) -> None:
@@ -2091,3 +1863,228 @@ class ResourceAPI(ABC):
             API client instance used to make HTTP requests.
         """
         self._client = client
+
+    @staticmethod
+    def _validate_barcode(barcode: int | str, /) -> None:
+        """
+        Validate a Universal Product Code (UPC) or European Article
+        Number (EAN) barcode.
+
+        Parameters
+        ----------
+        barcode : int or str; positional-only
+            UPC or EAN barcode.
+        """
+        if not (barcode_ := str(barcode)).isdecimal() or len(barcode_) not in {
+            12,
+            13,
+        }:
+            raise ValueError(f"{barcode!r} is not a valid UPC or EAN.")
+
+    @staticmethod
+    def _validate_country_code(country_code: str, /) -> None:
+        """
+        Validate a ISO 3166-1 alpha-2 country code.
+
+        Parameters
+        ----------
+        country_code : str; positional-only
+            ISO 3166-1 alpha-2 country code.
+        """
+        if (
+            not isinstance(country_code, str)
+            or len(country_code) != 2
+            or not country_code.isalpha()
+        ):
+            raise ValueError(
+                f"{country_code!r} is not a valid ISO 3166-1 "
+                "alpha-2 country code."
+            )
+
+    @staticmethod
+    def _validate_locale(locale: str, /) -> None:
+        """
+        Validate an Internet Engineering Task Force (IETF) Best Current
+        Practice (BCP) 47 language tag, as defined in Request for
+        Comments (RFC) 1766.
+
+        Parameters
+        ----------
+        locale : str; positional-only
+            IETF BCP 47 language tag.
+        """
+        if (
+            not isinstance(locale, str)
+            or len(locale) != 5
+            or not locale[:2].isalpha()
+            or locale[2] != "_"
+            or not locale[3:].isalpha()
+        ):
+            raise ValueError(
+                f"{locale!r} is not a valid IETF BCP 47 language tag "
+                "consisting of an ISO 639-1 language code and an ISO "
+                "3166-1 alpha-2 country code joined by an underscore."
+            )
+
+    @staticmethod
+    def _validate_isrc(isrc: str, /) -> None:
+        """
+        Validate an International Standard Recording Code (ISRC).
+
+        Parameters
+        ----------
+        isrc : str; positional-only
+            ISRC.
+        """
+        if (
+            not isinstance(isrc, str)
+            or len(isrc) != 12
+            or not (
+                isrc[:2].isalpha()
+                and isrc[2:5].isalnum()
+                and isrc[5:].isdecimal()
+            )
+        ):
+            raise ValueError(f"{isrc!r} is not a valid ISRC.")
+
+    @staticmethod
+    def _validate_number(
+        name: str,
+        value: int | float,
+        data_type: type | types.UnionType,
+        /,
+        lower_bound: int | float | None = None,
+        upper_bound: int | float | None = None,
+    ) -> None:
+        """
+        Validate the value of a variable containing a number.
+
+        Parameters
+        ----------
+        name : str; positional-only
+            Variable name.
+
+        value : int or float; positional-only
+            Variable value.
+
+        data_type : type or types.UnionType; positional-only
+            Allowed numeric data types.
+
+        lower_bound : int or float; optional
+            Lower bound, inclusive.
+
+        upper_bound : int or float; optional
+            Upper bound, inclusive.
+        """
+        has_lower_bound = lower_bound is not None
+        has_upper_bound = upper_bound is not None
+        if has_lower_bound:
+            if has_upper_bound:
+                emsg_suffix = (
+                    f" between {lower_bound} and {upper_bound}, inclusive"
+                )
+            else:
+                emsg_suffix = f" greater than {lower_bound}, inclusive"
+        else:
+            if has_upper_bound:
+                emsg_suffix = f" less than {upper_bound}, inclusive"
+            else:
+                emsg_suffix = ""
+        if (
+            not isinstance(value, data_type)
+            or (has_lower_bound and value < lower_bound)
+            or (has_upper_bound and value > upper_bound)
+        ):
+            data_type_str = (
+                data_type.__name__
+                if isinstance(data_type, type)
+                else str(data_type)
+            )
+            raise ValueError(
+                f"`{name}` must be a(n) {data_type_str}{emsg_suffix}."
+            )
+
+    @staticmethod
+    def _validate_numeric(
+        name: str,
+        value: int | float | str,
+        data_type: type,
+        /,
+        lower_bound: int | float | None = None,
+        upper_bound: int | float | None = None,
+    ) -> None:
+        """
+        Validate the value of a variable containing a numeric value.
+
+        Parameters
+        ----------
+        name : str; positional-only
+            Variable name.
+
+        value : int, float, or str; positional-only
+            Variable value.
+
+        data_type : type; positional-only
+            Allowed numeric data type.
+
+        lower_bound : int or float; optional
+            Lower bound, inclusive.
+
+        upper_bound : int or float; optional
+            Upper bound, inclusive.
+        """
+        try:
+            if isinstance(value, str):
+                value = data_type(value)
+            ResourceAPI._validate_number(
+                name, value, data_type, lower_bound, upper_bound
+            )
+        except ValueError:
+            raise ValueError(
+                f"`{name}` must be a(n) {data_type.__name__} or its "
+                "string representation."
+            )
+
+    @staticmethod
+    def _validate_type(
+        name: str, value: Any, data_type: type | types.UnionType, /
+    ) -> None:
+        """
+        Validate the data type of a variable.
+
+        Parameters
+        ----------
+        name : str; positional-only
+            Variable name.
+
+        value : Any; positional-only
+            Variable value.
+
+        data_type : type or types.UnionTypes; positional-only
+            Allowed data type.
+        """
+        if not isinstance(value, data_type):
+            data_type_str = (
+                data_type.__name__
+                if isinstance(data_type, type)
+                else str(data_type)
+            )
+            raise ValueError(
+                f"`{name}` must be a(n) {data_type_str}, not a(n) "
+                f"{type(value).__name__}."
+            )
+
+    @staticmethod
+    def _validate_uuid(uuid_: str, /) -> None:
+        """
+        Validate a universally unique identifier (UUID).
+
+        Parameters
+        ----------
+        uuid_ : str; positional-only
+            UUID.
+        """
+        try:
+            uuid.UUID(uuid_)
+        except (TypeError, ValueError):
+            raise ValueError(f"{uuid_!r} is not a valid UUID.")

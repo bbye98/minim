@@ -8,52 +8,11 @@ if TYPE_CHECKING:
 
 class PrivateQobuzResourceAPI(ResourceAPI):
     """
-    Abstract base class for Qobuz API resource endpoint groups.
+    Base class for Qobuz API resource endpoint groups.
     """
 
     _RELATIONSHIPS: set[str]
     _client: "PrivateQobuzAPI"
-
-    @classmethod
-    def _prepare_expand(
-        cls,
-        expand: str | list[str],
-        /,
-        *,
-        relationships: set[str] | None = None,
-    ) -> str:
-        """
-        Normalize, validate, and serialize related resources.
-
-        Parameters
-        ----------
-        expand : str or list[str]; positional-only
-            Related resources to include metadata for in the response.
-
-        resources : set[str]; keyword-only; optional
-            Valid related resources. If not specified,
-            :code:`cls._RELATIONSHIPS` is used.
-
-        Returns
-        -------
-        expand : str
-            Comma-separated string of related resources to include
-            metadata for.
-        """
-        if relationships is None:
-            relationships = getattr(cls, "_RELATIONSHIPS", {})
-        if isinstance(expand, str):
-            return cls._prepare_expand(expand.strip().split(","))
-        if not isinstance(expand, tuple | list | set):
-            raise ValueError("`expand` must be a string or a list of strings.")
-        for resource in expand:
-            if resource not in relationships:
-                relationships_str = "', '".join(sorted(relationships))
-                raise ValueError(
-                    f"Invalid related resource {resource!r}. "
-                    f"Valid values: '{relationships_str}'."
-                )
-        return ",".join(expand)
 
     @staticmethod
     def _prepare_album_ids(album_ids: str | list[str], /) -> str:
@@ -178,30 +137,6 @@ class PrivateQobuzResourceAPI(ResourceAPI):
                 f"Qobuz album ID {album_id!r} is not alphanumeric."
             )
 
-    # def _validate_genre_id(self, genre_id: int | str, /) -> None:
-    #     """
-    #     Validate genre ID.
-
-    #     Parameters
-    #     ----------
-    #     genre_id : str; positional-only
-    #         Genre ID.
-    #     """
-    #     try:
-    #         genre_id = int(genre_id)
-    #     except TypeError:
-    #         raise TypeError(
-    #             "Qobuz genre IDs must be integers or their string "
-    #             "representations."
-    #         )
-    #     if "available_genres" in self._client.__dict__:
-    #         if genre_id not in self._client.available_genres:
-    #             raise ValueError(
-    #                 f"Invalid genre ID {genre_id!r}. Valid values are "
-    #                 "the keys of the `available_genres` property in the "
-    #                 "private Qobuz API client instance."
-    #             )
-
     @staticmethod
     def _validate_qobuz_ids(
         qobuz_ids: int | str | list[int | str], /, *, _recursive: bool = True
@@ -237,3 +172,44 @@ class PrivateQobuzResourceAPI(ResourceAPI):
                     )
             else:
                 raise ValueError(f"Invalid Qobuz ID {qobuz_ids!r}.")
+
+    @classmethod
+    def _prepare_expand(
+        cls,
+        expand: str | list[str],
+        /,
+        *,
+        relationships: set[str] | None = None,
+    ) -> str:
+        """
+        Normalize, validate, and serialize related resources.
+
+        Parameters
+        ----------
+        expand : str or list[str]; positional-only
+            Related resources to include metadata for in the response.
+
+        resources : set[str]; keyword-only; optional
+            Valid related resources. If not specified,
+            :code:`cls._RELATIONSHIPS` is used.
+
+        Returns
+        -------
+        expand : str
+            Comma-separated string of related resources to include
+            metadata for.
+        """
+        if relationships is None:
+            relationships = getattr(cls, "_RELATIONSHIPS", {})
+        if isinstance(expand, str):
+            return cls._prepare_expand(expand.strip().split(","))
+        if not isinstance(expand, tuple | list | set):
+            raise ValueError("`expand` must be a string or a list of strings.")
+        for resource in expand:
+            if resource not in relationships:
+                relationships_str = "', '".join(sorted(relationships))
+                raise ValueError(
+                    f"Invalid related resource {resource!r}. "
+                    f"Valid values: '{relationships_str}'."
+                )
+        return ",".join(expand)

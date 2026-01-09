@@ -4,7 +4,7 @@ import time
 from typing import TYPE_CHECKING, Any
 import warnings
 
-from .._shared import APIClient, OAuth2APIClient, TTLCache
+from .._shared import TTLCache, OAuth2APIClient, ResourceAPI
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI
@@ -45,6 +45,35 @@ class _BaseTIDALAPI(OAuth2APIClient):
     AUTH_URL = "https://login.tidal.com/authorize"
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
 
+    @staticmethod
+    def _validate_tidal_ids(
+        tidal_ids: int | str | list[int | str], /, *, _recursive: bool = True
+    ) -> None:
+        """
+        Validate one or more TIDAL IDs.
+
+        Parameters
+        ----------
+        tidal_ids : int, str, or list[int | str]; positional-only
+            TIDAL IDs.
+        """
+        if not isinstance(tidal_ids, int) and not tidal_ids:
+            raise ValueError("At least one TIDAL ID must be specified.")
+
+        if isinstance(tidal_ids, str):
+            if not tidal_ids.isdecimal():
+                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
+        elif not isinstance(tidal_ids, int):
+            if _recursive:
+                if not isinstance(tidal_ids, tuple | list | str):
+                    raise ValueError("TIDAL IDs must be integers or strings.")
+                for tidal_id in tidal_ids:
+                    _BaseTIDALAPI._validate_tidal_ids(
+                        tidal_id, _recursive=False
+                    )
+            else:
+                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
+
     @classmethod
     def resolve_scopes(
         cls, matches: str | list[str] | None = None
@@ -78,35 +107,6 @@ class _BaseTIDALAPI(OAuth2APIClient):
             scope for match in matches for scope in cls.resolve_scopes(match)
         }
 
-    @staticmethod
-    def _validate_tidal_ids(
-        tidal_ids: int | str | list[int | str], /, *, _recursive: bool = True
-    ) -> None:
-        """
-        Validate one or more TIDAL IDs.
-
-        Parameters
-        ----------
-        tidal_ids : int, str, or list[int | str]; positional-only
-            TIDAL IDs.
-        """
-        if not isinstance(tidal_ids, int) and not tidal_ids:
-            raise ValueError("At least one TIDAL ID must be specified.")
-
-        if isinstance(tidal_ids, str):
-            if not tidal_ids.isdecimal():
-                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
-        elif not isinstance(tidal_ids, int):
-            if _recursive:
-                if not isinstance(tidal_ids, tuple | list | str):
-                    raise ValueError("TIDAL IDs must be integers or strings.")
-                for tidal_id in tidal_ids:
-                    _BaseTIDALAPI._validate_tidal_ids(
-                        tidal_id, _recursive=False
-                    )
-            else:
-                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
-
     @property
     @abstractmethod
     def _my_country_code(self) -> str:
@@ -120,14 +120,6 @@ class _BaseTIDALAPI(OAuth2APIClient):
     def _my_profile(self) -> dict[str, Any]:
         """
         Current user's profile.
-        """
-        ...
-
-    @abstractmethod
-    def _resolve_user_identifier(self) -> str:
-        """
-        Return the TIDAL user ID as the user identifier for the
-        current account.
         """
         ...
 
@@ -166,6 +158,14 @@ class _BaseTIDALAPI(OAuth2APIClient):
         """
         ...
 
+    @abstractmethod
+    def _resolve_user_identifier(self) -> str:
+        """
+        Return the TIDAL user ID as the user identifier for the
+        current account.
+        """
+        ...
+
     def _resolve_country_code(
         self, country_code: str | None, /, params: dict[str, Any]
     ) -> None:
@@ -182,7 +182,7 @@ class _BaseTIDALAPI(OAuth2APIClient):
         if country_code is None:
             params["countryCode"] = self._my_country_code
         else:
-            self._validate_country_code(country_code)
+            ResourceAPI._validate_country_code(country_code)
             params["countryCode"] = country_code
 
 
@@ -427,19 +427,6 @@ class TIDALAPI(_BaseTIDALAPI):
             else self.users.get_my_profile()["data"]
         )
 
-    def _resolve_user_identifier(self) -> str:
-        """
-        Return the TIDAL user ID as the user identifier for the
-        current account.
-
-        .. note::
-
-           Invoking this method may call
-           :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
-           make a request to the TIDAL API.
-        """
-        return self._my_profile.get("id")
-
     def _request(
         self,
         method: str,
@@ -497,6 +484,19 @@ class TIDALAPI(_BaseTIDALAPI):
         raise RuntimeError(
             f"{status} {resp.reason_phrase} ({error['code']}) – {error['detail']}"
         )
+
+    def _resolve_user_identifier(self) -> str:
+        """
+        Return the TIDAL user ID as the user identifier for the
+        current account.
+
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
+           make a request to the TIDAL API.
+        """
+        return self._my_profile.get("id")
 
 
 class PrivateTIDALAPI(_BaseTIDALAPI):
@@ -805,107 +805,6 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             f"/{artwork_uuid.replace('-', '/')}/{dimensions}{extension}"
         )
 
-    @staticmethod
-    def _prepare_tidal_ids(
-        tidal_ids: str | list[str], /, *, limit: int = 500
-    ) -> str:
-        """
-        Normalize, validate, and serialize TIDAL IDs.
-
-        Parameters
-        ----------
-        tidal_ids : int, str, or list[str]; positional-only
-            Comma-separated string or list of TIDAL IDs.
-
-        limit : int; keyword-only, default: :code:`500`
-            Maximum number of TIDAL IDs that can be sent in the
-            request.
-
-        Returns
-        -------
-        tidal_ids : str
-            Comma-separated string of TIDAL IDs.
-        """
-        if not tidal_ids:
-            raise ValueError("At least one TIDAL ID must be specified.")
-
-        if isinstance(tidal_ids, int):
-            return str(tidal_ids)
-
-        if isinstance(tidal_ids, str):
-            return PrivateTIDALAPI._prepare_tidal_ids(
-                tidal_ids.split(","), limit=limit
-            )
-
-        num_ids = len(tidal_ids)
-        if num_ids > limit:
-            raise ValueError(
-                f"A maximum of {limit} TIDAL IDs can be sent in a request."
-            )
-        for idx, id_ in enumerate(tidal_ids):
-            if isinstance(id_, int):
-                tidal_ids[idx] = str(id_)
-            elif isinstance(id_, str):
-                tidal_ids[idx] = id_ = id_.strip()
-                if not id_.isdecimal():
-                    raise ValueError(f"Invalid TIDAL ID {id_!r}.")
-            else:
-                raise ValueError(f"Invalid TIDAL ID {id_!r}.")
-        return ",".join(tidal_ids)
-
-    @staticmethod
-    def _prepare_uuids(
-        resource_type: str,
-        resource_uuids: str | list[str],
-        /,
-        *,
-        has_prefix: bool = False,
-    ) -> str:
-        """
-        Normalize, validate, and serialize UUIDs.
-
-        Parameters
-        ----------
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"folder"`, :code:`"playlist"`.
-
-        resource_uuids : str or list[str]; positional-only
-            UUIDs of playlists or playlist folders.
-
-        has_prefix : bool; keyword-only; default: :code:`False`
-            Whether UUIDs are prefixed with :code:`trn:{type}:`.
-
-        Returns
-        -------
-        resource_uuids : str
-            Comma-separated string containing UUIDs of playlists or
-            playlist folders.
-        """
-        if not resource_uuids:
-            raise ValueError(
-                f"At least one {resource_type} UUID must be specified."
-            )
-
-        if isinstance(resource_uuids, str):
-            return PrivateTIDALAPI._prepare_uuids(resource_uuids.split(","))
-        elif isinstance(resource_uuids, tuple | list):
-            for idx, uuid in enumerate(resource_uuids):
-                if has_prefix:
-                    if uuid.startswith(f"trn:{resource_type}:"):
-                        uuid = uuid[13:]
-                    else:
-                        resource_uuids[idx] = f"trn:{resource_type}:{uuid}"
-                APIClient._validate_uuid(uuid)
-        else:
-            raise TypeError(
-                f"`{resource_type}_uuids` must be a comma-separated string or "
-                "a list of strings."
-            )
-
-        return ",".join(resource_uuids)
-
     @property
     def _my_country_code(self) -> str:
         """
@@ -936,6 +835,109 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         """
         if self._auth_flow is not None:
             return self.users.get_my_profile()
+
+    def _request(
+        self,
+        method: str,
+        endpoint: str,
+        /,
+        *,
+        retry: bool = True,
+        **kwargs: dict[str, Any],
+    ) -> "httpx.Response":
+        """
+        Make an HTTP request to a private TIDAL API endpoint.
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+        endpoint : str; positional-only
+            Private TIDAL API endpoint.
+
+        retry : bool; keyword-only; default: :code:`True`
+            Whether to retry the request if the first attempt returns a
+            :code:`401 Unauthorized`.
+
+        **kwargs : dict[str, Any]
+            Keyword parameters to pass to :meth:`httpx.Client.request`.
+
+        Returns
+        -------
+        response : httpx.Response
+            HTTP response.
+        """
+        if self._expires_at and datetime.now() > self._expires_at:
+            self._refresh_access_token()
+
+        if self._auth_flow == "device" and "r_usr" not in self._scopes:
+            raise RuntimeError(
+                "The 'r_usr' scope is required when using the private "
+                "TIDAL API with the Device Authorization Flow."
+            )
+
+        resp = self._client.request(method, endpoint, **kwargs)
+        status = resp.status_code
+        if 200 <= status < 300:
+            return resp
+
+        if status == 401 and not self._expires_at and retry:
+            self._refresh_access_token()
+            return self._request(method, endpoint, retry=False, **kwargs)
+        error = resp.json()
+        if isinstance(error, str):
+            raise RuntimeError(f"{resp.status_code} {error}")
+        if "status" in error:
+            if "subStatus" in error:
+                raise RuntimeError(
+                    f"{error['status']}.{error['subStatus']} – {error['userMessage']}"
+                )
+            if "path" in error:
+                raise RuntimeError(
+                    f"{error['status']} {error['error']} – {error['path']}"
+                )
+            raise RuntimeError(
+                f"{error['status']} {error['title']} – {error['detail']}"
+            )
+        raise RuntimeError(
+            f"{error['httpStatus']}.{error['subStatus']} {error['error']} – {error['description']}"
+        )
+
+    def _require_subscription(self, endpoint_method: str, /) -> None:
+        """
+        Ensure that a TIDAL streaming plan is active for an endpoint
+        method that requires it.
+
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_user_subscription`
+           and make a request to the private TIDAL API.
+
+        Parameters
+        ----------
+        endpoint_method : str; positional-only
+            Name of the endpoint method.
+        """
+        if not self.users.get_user_subscription().get("premiumAccess", False):
+            raise RuntimeError(
+                f"{self._QUAL_NAME}.{endpoint_method}() requires "
+                "an active TIDAL streaming plan."
+            )
+
+    def _resolve_user_identifier(self) -> str:
+        """
+        Return the TIDAL user ID as the user identifier for the
+        current account.
+
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
+           make a request to the private TIDAL API.
+        """
+        return self._token_extras.get("user_id", self._my_profile["userId"])
 
     @TTLCache.cached_method(ttl="catalog")
     def get_country_code(self) -> dict[str, str]:
@@ -1095,106 +1097,3 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             store_tokens=store_tokens,
             authenticate=authenticate,
         )
-
-    def _resolve_user_identifier(self) -> str:
-        """
-        Return the TIDAL user ID as the user identifier for the
-        current account.
-
-        .. note::
-
-           Invoking this method may call
-           :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
-           make a request to the private TIDAL API.
-        """
-        return self._token_extras.get("user_id", self._my_profile["userId"])
-
-    def _request(
-        self,
-        method: str,
-        endpoint: str,
-        /,
-        *,
-        retry: bool = True,
-        **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
-        """
-        Make an HTTP request to a private TIDAL API endpoint.
-
-        Parameters
-        ----------
-        method : str; positional-only
-            HTTP method.
-
-        endpoint : str; positional-only
-            Private TIDAL API endpoint.
-
-        retry : bool; keyword-only; default: :code:`True`
-            Whether to retry the request if the first attempt returns a
-            :code:`401 Unauthorized`.
-
-        **kwargs : dict[str, Any]
-            Keyword parameters to pass to :meth:`httpx.Client.request`.
-
-        Returns
-        -------
-        response : httpx.Response
-            HTTP response.
-        """
-        if self._expires_at and datetime.now() > self._expires_at:
-            self._refresh_access_token()
-
-        if self._auth_flow == "device" and "r_usr" not in self._scopes:
-            raise RuntimeError(
-                "The 'r_usr' scope is required when using the private "
-                "TIDAL API with the Device Authorization Flow."
-            )
-
-        resp = self._client.request(method, endpoint, **kwargs)
-        status = resp.status_code
-        if 200 <= status < 300:
-            return resp
-
-        if status == 401 and not self._expires_at and retry:
-            self._refresh_access_token()
-            return self._request(method, endpoint, retry=False, **kwargs)
-        error = resp.json()
-        if isinstance(error, str):
-            raise RuntimeError(f"{resp.status_code} {error}")
-        if "status" in error:
-            if "subStatus" in error:
-                raise RuntimeError(
-                    f"{error['status']}.{error['subStatus']} – {error['userMessage']}"
-                )
-            if "path" in error:
-                raise RuntimeError(
-                    f"{error['status']} {error['error']} – {error['path']}"
-                )
-            raise RuntimeError(
-                f"{error['status']} {error['title']} – {error['detail']}"
-            )
-        raise RuntimeError(
-            f"{error['httpStatus']}.{error['subStatus']} {error['error']} – {error['description']}"
-        )
-
-    def _require_subscription(self, endpoint_method: str, /) -> None:
-        """
-        Ensure that a TIDAL streaming plan is active for an endpoint
-        method that requires it.
-
-        .. note::
-
-           Invoking this method may call
-           :meth:`~minim.api.tidal.PrivateUsersAPI.get_user_subscription`
-           and make a request to the private TIDAL API.
-
-        Parameters
-        ----------
-        endpoint_method : str; positional-only
-            Name of the endpoint method.
-        """
-        if not self.users.get_user_subscription().get("premiumAccess", False):
-            raise RuntimeError(
-                f"{self._QUAL_NAME}.{endpoint_method}() requires "
-                "an active TIDAL streaming plan."
-            )

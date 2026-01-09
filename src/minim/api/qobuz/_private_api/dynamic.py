@@ -1,23 +1,19 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import ResourceAPI, _copy_docstring
+from ..._shared import _copy_docstring
+from ._shared import PrivateQobuzResourceAPI
 from .users import PrivateUsersAPI
 
-if TYPE_CHECKING:
-    from .._core import PrivateQobuzAPI
 
-
-class PrivateDynamicAPI(ResourceAPI):
+class PrivateDynamicAPI(PrivateQobuzResourceAPI):
     """
-    Dynamic Tracks API endpoints for the private Qobuz Web API.
+    Dynamic Tracks API endpoints for the private Qobuz API.
 
     .. note::
 
        This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
        and should not be instantiated directly.
     """
-
-    _client: "PrivateQobuzAPI"
 
     @_copy_docstring(PrivateUsersAPI.get_personalized_playlists)
     def get_personalized_playlists(self) -> list[dict[str, Any]]:

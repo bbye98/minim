@@ -1,10 +1,7 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class ProvidersAPI(TIDALResourceAPI):
@@ -16,8 +13,6 @@ class ProvidersAPI(TIDALResourceAPI):
        This class is managed by :class:`minim.api.tidal.TIDALAPI`
        and should not be instantiated directly.
     """
-
-    _client: "TIDALAPI"
 
     @TTLCache.cached_method(ttl="static")
     def get_providers(

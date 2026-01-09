@@ -1,6 +1,5 @@
 import base64
 from datetime import datetime
-from functools import cached_property
 import getpass
 import hashlib
 import json
@@ -351,209 +350,6 @@ class PrivateQobuzAPI(APIClient):
             ],
         )
 
-    # @cached_property
-    # def available_genres(self) -> dict[str, dict[str, Any]]:
-    #     """
-    #     Available genres.
-
-    #     .. note::
-
-    #        Accessing this property may call
-    #        :meth:`~minim.api.qobuz.PrivateGenresAPI.get_genres` and
-    #        make multiple requests to the Qobuz Web API.
-    #     """
-    #     genres = []
-
-    #     # Use iterative depth-first search
-    #     stack = [None]
-    #     while stack:
-    #         subgenres = self.genres.get_genres(stack.pop())["genres"]
-    #         if subgenres["total"] > 0:
-    #             genres.extend(subgenres["items"])
-    #             stack.extend(genre["id"] for genre in subgenres["items"])
-
-    #     # Use recursive depth-first search
-    #     # def get_genres(
-    #     #     genre_id: str | None = None, /, *, genres: list[dict[str, Any]]
-    #     # ) -> dict[str, Any]:
-    #     #     subgenres = self.genres.get_genres(genre_id)["genres"]
-    #     #     if subgenres["total"] > 0:
-    #     #         genres.extend(subgenres["items"])
-    #     #         for subgenre in subgenres["items"]:
-    #     #             get_genres(subgenre["id"], genres=genres)
-
-    #     # get_genres(genres=genres)
-
-    #     return {genre.pop("id"): genre for genre in genres}
-
-    @cached_property
-    def available_playlist_tags(self) -> dict[str, dict[str, Any]]:
-        """
-        Available playlist tags.
-
-        .. note::
-
-           Accessing this property may call
-           :meth:`~minim.api.qobuz.PrivatePlaylistsAPI.get_playlist_tags`
-           and make a request to the Qobuz Web API.
-        """
-        return {
-            tag.pop("slug"): tag
-            for tag in self.playlists.get_playlist_tags()["tags"]
-        }
-
-    def set_user_auth_token(self, user_auth_token: str | None, /) -> None:
-        """
-        Set or update the user authentication token.
-
-        Parameters
-        ----------
-        user_auth_token : str or None; positional-only
-            User authentication token.
-        """
-        if user_auth_token is None:
-            if self._auth_flow is not None:
-                raise ValueError(
-                    "`user_auth_token` cannot be None when using the "
-                    f"{self._AUTH_FLOWS[self._auth_flow]}."
-                )
-            if "X-User-Auth-Token" in self._client.headers:
-                del self._client.headers["X-User-Auth-Token"]
-            return
-
-        self._client.headers["X-User-Auth-Token"] = user_auth_token
-
-    def set_authorization_flow(
-        self,
-        authorization_flow: str | None,
-        /,
-        *,
-        app_id: str,
-        app_secret: str | None = None,
-        user_identifier: str | None = None,
-        credential_handler: str | None = None,
-        store_tokens: bool = True,
-        authenticate: bool = True,
-        **kwargs: dict[str, Any],
-    ) -> None:
-        """
-        Set or update the authorization flow and related parameters.
-
-        .. warning::
-
-           Calling this method replaces all existing values with the
-           provided parameters. Parameters not provided explicitly
-           will be overwritten by their default values.
-
-        Parameters
-        ----------
-        authorization_flow : str or None; keyword-only
-            Authorization flow.
-
-            **Valid values**:
-
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"password"` – Qobuz Web Player login flow.
-
-        app_id : str; keyword-only; optional
-            Application ID. If not provided, it is loaded from the
-            system environment variable :code:`PRIVATE_QOBUZ_API_APP_ID`
-            or from the local token storage if available, or retrieved
-            from the Qobuz Web Player login page otherwise.
-
-        app_secret : str; keyword-only; optional
-            Application secret. If not provided, it is loaded from the
-            system environment variable
-            :code:`PRIVATE_QOBUZ_API_APP_SECRET` or from the local token
-            storage if available, or retrieved from the Qobuz Web Player
-            login page otherwise.
-
-        user_identifier : str; keyword-only; optional
-            Identifier for the user account. Used when
-            :code:`store_tokens=True` to distinguish between multiple
-            accounts for the same client ID and authorization flow.
-
-            If provided, it is used with the client ID and authorization
-            flow to locate a matching stored token. If none is found, a
-            new token is obtained and stored under this identifier.
-
-            If not provided, the most recently accessed token for the
-            client ID and authorization flow is used. If none exists, a
-            new token is obtained and stored using a user identifier
-            (e.g., user ID) acquired from a successful authorization.
-
-            Prefixing the identifier with a tilde (:code:`~`) bypasses
-            token retrieval, forces reauthorization, and stores the new
-            token under the suffix.
-
-        credential_handler : str; keyword-only; optional
-            Backend for handling user credentials during the Qobuz Web
-            Player login flow. If not specified, the client first looks
-            for credentials in `kwargs` and falls back to prompting for
-            them in an echo-free terminal.
-
-            **Valid values**:
-
-            .. container::
-
-               * :code:`"kwargs"` – Use credentials provided directly
-                 via the `username` and `password` keyword arguments.
-               * :code:`"getpass"` – Prompt for credentials in an
-                 echo-free terminal.
-               * :code:`"playwright"` – Open the Qobuz Web Player login
-                 page in a Playwright Firefox browser.
-
-        store_tokens : bool; keyword-only; default: :code:`True`
-            Whether to enable the local token storage for this client.
-            If :code:`True`, existing user authentication tokens are
-            retrieved when found in local storage, and newly acquired
-            tokens and their metadata are stored for future retrieval.
-            If :code:`False`, the client neither retrieves nor stores
-            tokens.
-
-            .. seealso::
-
-               :meth:`get_tokens` – Retrieve specific or all stored
-               tokens for this client.
-
-               :meth:`remove_tokens` – Remove specific or all stored
-               tokens for this client.
-
-        authenticate : bool; keyword-only; default: :code:`True`
-            Whether to immediately initiate the authorization
-            flow to acquire an user authentication token.
-
-            .. important::
-
-               Unless :meth:`set_user_auth_token` is called immediately
-               after, this should be left as :code:`True` to ensure the
-               client's existing token is compatible with the new
-               authorization flow.
-
-        **kwargs : dict[str, Any]
-            Keyword arguments to pass to
-            :meth:`~minim.api.qobuz.PrivateUsersAPI.login`.
-        """
-        if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
-            flows_str = "', '".join(
-                sorted(f for f in self._ALLOWED_AUTH_FLOWS if f)
-            )
-            raise ValueError(
-                f"Invalid authorization flow {authorization_flow!r}. "
-                f"Valid values: '{flows_str}'."
-            )
-        self._auth_flow = authorization_flow
-        self._client.headers["X-App-Id"] = self._app_id = app_id
-        self._app_secret = app_secret
-        self._user_identifier = user_identifier
-        self._credential_handler = credential_handler
-        self._store_tokens = store_tokens
-
-        if authenticate and authorization_flow is not None:
-            self._obtain_user_auth_token(**kwargs)
-
     def _login(
         self,
         username: str | None = None,
@@ -790,3 +586,155 @@ class PrivateQobuzAPI(APIClient):
             or self._token_extras.get("user", {}).get("id")
             or self.users.get_my_profile()
         )
+
+    def set_authorization_flow(
+        self,
+        authorization_flow: str | None,
+        /,
+        *,
+        app_id: str,
+        app_secret: str | None = None,
+        user_identifier: str | None = None,
+        credential_handler: str | None = None,
+        store_tokens: bool = True,
+        authenticate: bool = True,
+        **kwargs: dict[str, Any],
+    ) -> None:
+        """
+        Set or update the authorization flow and related parameters.
+
+        .. warning::
+
+           Calling this method replaces all existing values with the
+           provided parameters. Parameters not provided explicitly
+           will be overwritten by their default values.
+
+        Parameters
+        ----------
+        authorization_flow : str or None; keyword-only
+            Authorization flow.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`None` – No authentication.
+               * :code:`"password"` – Qobuz Web Player login flow.
+
+        app_id : str; keyword-only; optional
+            Application ID. If not provided, it is loaded from the
+            system environment variable :code:`PRIVATE_QOBUZ_API_APP_ID`
+            or from the local token storage if available, or retrieved
+            from the Qobuz Web Player login page otherwise.
+
+        app_secret : str; keyword-only; optional
+            Application secret. If not provided, it is loaded from the
+            system environment variable
+            :code:`PRIVATE_QOBUZ_API_APP_SECRET` or from the local token
+            storage if available, or retrieved from the Qobuz Web Player
+            login page otherwise.
+
+        user_identifier : str; keyword-only; optional
+            Identifier for the user account. Used when
+            :code:`store_tokens=True` to distinguish between multiple
+            accounts for the same client ID and authorization flow.
+
+            If provided, it is used with the client ID and authorization
+            flow to locate a matching stored token. If none is found, a
+            new token is obtained and stored under this identifier.
+
+            If not provided, the most recently accessed token for the
+            client ID and authorization flow is used. If none exists, a
+            new token is obtained and stored using a user identifier
+            (e.g., user ID) acquired from a successful authorization.
+
+            Prefixing the identifier with a tilde (:code:`~`) bypasses
+            token retrieval, forces reauthorization, and stores the new
+            token under the suffix.
+
+        credential_handler : str; keyword-only; optional
+            Backend for handling user credentials during the Qobuz Web
+            Player login flow. If not specified, the client first looks
+            for credentials in `kwargs` and falls back to prompting for
+            them in an echo-free terminal.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"kwargs"` – Use credentials provided directly
+                 via the `username` and `password` keyword arguments.
+               * :code:`"getpass"` – Prompt for credentials in an
+                 echo-free terminal.
+               * :code:`"playwright"` – Open the Qobuz Web Player login
+                 page in a Playwright Firefox browser.
+
+        store_tokens : bool; keyword-only; default: :code:`True`
+            Whether to enable the local token storage for this client.
+            If :code:`True`, existing user authentication tokens are
+            retrieved when found in local storage, and newly acquired
+            tokens and their metadata are stored for future retrieval.
+            If :code:`False`, the client neither retrieves nor stores
+            tokens.
+
+            .. seealso::
+
+               :meth:`get_tokens` – Retrieve specific or all stored
+               tokens for this client.
+
+               :meth:`remove_tokens` – Remove specific or all stored
+               tokens for this client.
+
+        authenticate : bool; keyword-only; default: :code:`True`
+            Whether to immediately initiate the authorization
+            flow to acquire an user authentication token.
+
+            .. important::
+
+               Unless :meth:`set_user_auth_token` is called immediately
+               after, this should be left as :code:`True` to ensure the
+               client's existing token is compatible with the new
+               authorization flow.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to pass to
+            :meth:`~minim.api.qobuz.PrivateUsersAPI.login`.
+        """
+        if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
+            flows_str = "', '".join(
+                sorted(f for f in self._ALLOWED_AUTH_FLOWS if f)
+            )
+            raise ValueError(
+                f"Invalid authorization flow {authorization_flow!r}. "
+                f"Valid values: '{flows_str}'."
+            )
+        self._auth_flow = authorization_flow
+        self._client.headers["X-App-Id"] = self._app_id = app_id
+        self._app_secret = app_secret
+        self._user_identifier = user_identifier
+        self._credential_handler = credential_handler
+        self._store_tokens = store_tokens
+
+        if authenticate and authorization_flow is not None:
+            self._obtain_user_auth_token(**kwargs)
+
+    def set_user_auth_token(self, user_auth_token: str | None, /) -> None:
+        """
+        Set or update the user authentication token.
+
+        Parameters
+        ----------
+        user_auth_token : str or None; positional-only
+            User authentication token.
+        """
+        if user_auth_token is None:
+            if self._auth_flow is not None:
+                raise ValueError(
+                    "`user_auth_token` cannot be None when using the "
+                    f"{self._AUTH_FLOWS[self._auth_flow]}."
+                )
+            if "X-User-Auth-Token" in self._client.headers:
+                del self._client.headers["X-User-Auth-Token"]
+            return
+
+        self._client.headers["X-User-Auth-Token"] = user_auth_token

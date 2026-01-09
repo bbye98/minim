@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import APIClient, ResourceAPI
+from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
     from .. import TIDALAPI
@@ -8,11 +8,69 @@ if TYPE_CHECKING:
 
 class TIDALResourceAPI(ResourceAPI):
     """
-    Abstract base class for TIDAL API resource endpoint groups.
+    Base class for TIDAL API resource endpoint groups.
     """
 
     _RELATIONSHIPS: set[str]
     _client: "TIDALAPI"
+
+    @staticmethod
+    def _process_sort(
+        sort_by: str,
+        /,
+        *,
+        descending: bool | None,
+        prefix: str,
+        sort_fields: set[str],
+        params: dict[str, Any],
+    ) -> None:
+        """
+        Process sort.
+
+        Parameters
+        ----------
+        sort_by : str; positional-only
+            Field to sort the returned items by.
+
+        descending : bool; keyword-only
+            Whether to sort in descending order.
+
+        prefix : str; keyword-only
+            Sort field prefix.
+
+        sort_fields : set[str]; keyword-only
+            Valid fields to sort by.
+
+        params : dict[str, Any]; keyword-only
+            Dictionary of additional query parameters to include in the
+            request. If not provided, a new dictionary will be created.
+
+            .. note::
+
+               This `dict` is mutated in-place.
+        """
+        ResourceAPI._validate_type("sort_by", sort_by, str)
+        sort_by = sort_by.removeprefix(prefix)
+        if sort_by not in sort_fields:
+            sort_fields_str = f"', '{prefix}".join(sort_fields)
+            raise ValueError(
+                f"Cannot sort by '{prefix}{sort_by}'. "
+                f"Valid values: '{prefix}{sort_fields_str}'."
+            )
+        params["sort"] = f"{'-' if descending else ''}{prefix}{sort_by}"
+
+    @staticmethod
+    def _validate_uuids(uuids: str | list[str], /) -> None:
+        """ """
+        if isinstance(uuids, str):
+            ResourceAPI._validate_uuid(uuids)
+        elif isinstance(uuids, list | tuple):
+            for uuid in uuids:
+                ResourceAPI._validate_uuid(uuid)
+        else:
+            raise ValueError(
+                "UUIDs must be provided as a string or a list of strings."
+            )
 
     @classmethod
     def _prepare_expand(
@@ -53,64 +111,6 @@ class TIDALResourceAPI(ResourceAPI):
                     f"Valid values: '{relationships_str}'."
                 )
         return expand
-
-    @staticmethod
-    def _process_sort(
-        sort_by: str,
-        /,
-        *,
-        descending: bool | None,
-        prefix: str,
-        sort_fields: set[str],
-        params: dict[str, Any],
-    ) -> None:
-        """
-        Process sort.
-
-        Parameters
-        ----------
-        sort_by : str; positional-only
-            Field to sort the returned items by.
-
-        descending : bool; keyword-only
-            Whether to sort in descending order.
-
-        prefix : str; keyword-only
-            Sort field prefix.
-
-        sort_fields : set[str]; keyword-only
-            Valid fields to sort by.
-
-        params : dict[str, Any]; keyword-only
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
-
-            .. note::
-
-               This `dict` is mutated in-place.
-        """
-        APIClient._validate_type("sort_by", sort_by, str)
-        sort_by = sort_by.removeprefix(prefix)
-        if sort_by not in sort_fields:
-            sort_fields_str = f"', '{prefix}".join(sort_fields)
-            raise ValueError(
-                f"Cannot sort by '{prefix}{sort_by}'. "
-                f"Valid values: '{prefix}{sort_fields_str}'."
-            )
-        params["sort"] = f"{'-' if descending else ''}{prefix}{sort_by}"
-
-    @staticmethod
-    def _validate_uuids(uuids: str | list[str], /) -> None:
-        """ """
-        if isinstance(uuids, str):
-            APIClient._validate_uuid(uuids)
-        elif isinstance(uuids, list | tuple):
-            for uuid in uuids:
-                APIClient._validate_uuid(uuid)
-        else:
-            raise ValueError(
-                "UUIDs must be provided as a string or a list of strings."
-            )
 
     def _get_resources(
         self,
@@ -191,12 +191,10 @@ class TIDALResourceAPI(ResourceAPI):
         if country_code is not False:
             self._client._resolve_country_code(country_code, params)
         if locale is not None:
-            self._client._validate_locale(locale)
+            self._validate_locale(locale)
             params["locale"] = locale
         if include_explicit is not None:
-            self._client._validate_type(
-                "include_explicit", include_explicit, bool
-            )
+            self._validate_type("include_explicit", include_explicit, bool)
             params["explicitFilter"] = (
                 "INCLUDE" if include_explicit else "EXCLUDE"
             )
@@ -210,7 +208,7 @@ class TIDALResourceAPI(ResourceAPI):
             elif resource_identifier_type == "uuid":
                 self._validate_uuids(resource_identifiers)
             else:
-                self._client._validate_type("query", resource_identifiers, str)
+                self._validate_type("query", resource_identifiers, str)
             if isinstance(resource_identifiers, int | str):
                 return self._client._request(
                     "GET",
@@ -219,10 +217,10 @@ class TIDALResourceAPI(ResourceAPI):
                 ).json()
             params["filter[id]"] = resource_identifiers
         if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
+            self._validate_type("cursor", cursor, str)
             params["page[cursor]"] = cursor
         if share_code is not None:
-            self._client._validate_type("share_code", share_code, str)
+            self._validate_type("share_code", share_code, str)
             params["shareCode"] = share_code
         return self._client._request(
             "GET", resource_type, params=params
@@ -306,34 +304,30 @@ class TIDALResourceAPI(ResourceAPI):
                 resource_identifier, _recursive=False
             )
         elif resource_identifier_type == "uuid":
-            self._client._validate_uuid(resource_identifier)
+            self._validate_uuid(resource_identifier)
         else:
-            self._client._validate_type("query", resource_identifier, str)
+            self._validate_type("query", resource_identifier, str)
         if params is None:
             params = {}
         if country_code is not False:
             self._client._resolve_country_code(country_code, params)
         if locale is not None:
-            self._client._validate_locale(locale)
+            self._validate_locale(locale)
             params["locale"] = locale
         if include_explicit is not None:
-            self._client._validate_type(
-                "include_explicit", include_explicit, bool
-            )
+            self._validate_type("include_explicit", include_explicit, bool)
             params["explicitFilter"] = (
                 "INCLUDE" if include_explicit else "EXCLUDE"
             )
         if include_metadata is not None:
-            self._client._validate_type(
-                "include_metadata", include_metadata, bool
-            )
+            self._validate_type("include_metadata", include_metadata, bool)
             if include_metadata:
                 params["include"] = relationship
         if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
+            self._validate_type("cursor", cursor, str)
             params["page[cursor]"] = cursor
         if share_code is not None:
-            self._client._validate_type("share_code", share_code, str)
+            self._validate_type("share_code", share_code, str)
             params["shareCode"] = share_code
         return self._client._request(
             "GET",

@@ -363,9 +363,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
                        "total": <int>
                      }
         """
-        self._client._validate_type(
-            "track_ids", track_ids, int | str | tuple | list
-        )
+        self._validate_type("track_ids", track_ids, int | str | tuple | list)
         track_ids = self._prepare_qobuz_ids(track_ids, data_type=list)
         if len(track_ids) > 1:
             return self._client._request(
@@ -468,7 +466,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         self._validate_qobuz_ids(track_id, _recursive=False)
         params = {"track_id": track_id}
         if format_id is not None:
-            self._client._validate_numeric("format_id", format_id, int)
+            self._validate_numeric("format_id", format_id, int)
             if int(format_id) not in {5, 6, 7, 27}:
                 raise ValueError(
                     f"Invalid format ID {format_id!r}. "
@@ -476,7 +474,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
                 )
             params["format_id"] = format_id
         if intent is not None:
-            self._client._validate_type("intent", intent, str)
+            self._validate_type("intent", intent, str)
             intent = intent.lower()
             if intent not in self._INTENTS:
                 intents_str = "', '".join(self._INTENTS)
@@ -486,7 +484,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
                 )
             params["intent"] = intent
         if preview is not None:
-            self._client._validate_type("preview", preview, bool)
+            self._validate_type("preview", preview, bool)
             params["sample"] = preview
         return self._client._request(
             "GET",
@@ -1116,11 +1114,9 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         self._validate_qobuz_ids(format_id, _recursive=False)
         if isinstance(started_at, datetime):
             started_at = int(started_at.timestamp())
-        self._client._validate_number(
-            "started_at", started_at, int, 0, time.time()
-        )
-        self._client._validate_type("online", online, bool)
-        self._client._validate_type("local", local, bool)
+        self._validate_number("started_at", started_at, int, 0, time.time())
+        self._validate_type("online", online, bool)
+        self._validate_type("local", local, bool)
         if user_id is None:
             user_id = self._client._resolve_user_identifier()
         else:
@@ -1141,7 +1137,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             self._validate_qobuz_ids(device_id, _recursive=False)
             event["device_id"] = device_id
         if intent is not None:
-            self._client._validate_type("intent", intent, str)
+            self._validate_type("intent", intent, str)
             intent = intent.lower()
             if intent not in self._INTENTS:
                 intents_str = "', '".join(self._INTENTS)
@@ -1151,10 +1147,10 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
                 )
             event["intent"] = intent
         if purchased is not None:
-            self._client._validate_type("purchased", purchased, bool)
+            self._validate_type("purchased", purchased, bool)
             event["purchased"] = purchased
         if preview is not None:
-            self._client._validate_type("preview", preview, bool)
+            self._validate_type("preview", preview, bool)
             event["sample"] = preview
         return self._client._request(
             "POST",

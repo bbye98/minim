@@ -545,10 +545,10 @@ class AlbumsAPI(SpotifyResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "browse/new-releases", params=params

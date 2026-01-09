@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import PrivateTIDALAPI
+from ..._shared import TTLCache
+from ._shared import PrivateTIDALResourceAPI
 
 
-class PrivatePagesAPI(ResourceAPI):
+class PrivatePagesAPI(PrivateTIDALResourceAPI):
     """
     Pages API endpoints for the private TIDAL API.
 
@@ -16,7 +14,77 @@ class PrivatePagesAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _client: "PrivateTIDALAPI"
+    def _get_resource_page(
+        self,
+        resource_type: str,
+        resource_id: int | str | None = None,
+        /,
+        country_code: str | None = None,
+        *,
+        device_type: str = "BROWSER",
+        locale: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get the TIDAL page layout for a specific entity.
+
+        Parameters
+        ----------
+        resource_type : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"album"`, :code:`"artist"`,
+            :code:`"mix"`, :code:`"my_collection_my_mixes"`,
+            :code:`"video"`.
+
+        resource_id : int or str; positional-only; optional
+            TIDAL ID of the resource. Only optional when
+            :code:`entity_type="my_collection_my_mixes"`.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+            **Example**: :code:`"US"`.
+
+        device_type : str; keyword-only; default: :code:`"BROWSER"`
+            Device type.
+
+            .. container::
+
+               * :code:`"BROWSER"` – Web browser.
+               * :code:`"DESKTOP"` – Desktop TIDAL application.
+               * :code:`"PHONE"` – Mobile TIDAL application.
+               * :code:`"TV"` – Smart TV TIDAL application.
+
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag.
+
+            **API default**: :code:`"en_US"` – English (U.S.).
+
+        Returns
+        -------
+        page : dict[str, Any]
+            Layout for the specified resource page.
+        """
+        if device_type not in self._client._DEVICE_TYPES:
+            device_types_str = "', '".join(self._client._DEVICE_TYPES)
+            raise ValueError(
+                f"Invalid device type {device_type!r}. "
+                f"Valid values: '{device_types_str}'."
+            )
+        params = {"deviceType": device_type}
+        self._client._resolve_country_code(country_code, params=params)
+        if resource_id is not None:
+            params[f"{resource_type}Id"] = str(resource_id)
+        if locale is not None:
+            self._validate_locale(locale)
+            params["locale"] = locale
+        if resource_type == "video":
+            resource_type = "videos"
+        return self._client._request(
+            "GET", f"v1/pages/{resource_type}", params=params
+        ).json()
 
     @TTLCache.cached_method(ttl="user")
     def get_home_page(
@@ -1712,75 +1780,3 @@ class PrivatePagesAPI(ResourceAPI):
             device_type=device_type,
             locale=locale,
         )
-
-    def _get_resource_page(
-        self,
-        resource_type: str,
-        resource_id: int | str | None = None,
-        /,
-        country_code: str | None = None,
-        *,
-        device_type: str = "BROWSER",
-        locale: str | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get the TIDAL page layout for a specific entity.
-
-        Parameters
-        ----------
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"album"`, :code:`"artist"`,
-            :code:`"mix"`, :code:`"my_collection_my_mixes"`,
-            :code:`"video"`.
-
-        resource_id : int or str; positional-only; optional
-            TIDAL ID of the resource. Only optional when
-            :code:`entity_type="my_collection_my_mixes"`.
-
-        country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the current user account or IP
-            address is used.
-
-            **Example**: :code:`"US"`.
-
-        device_type : str; keyword-only; default: :code:`"BROWSER"`
-            Device type.
-
-            .. container::
-
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
-
-        locale : str; keyword-only; optional
-            IETF BCP 47 language tag.
-
-            **API default**: :code:`"en_US"` – English (U.S.).
-
-        Returns
-        -------
-        page : dict[str, Any]
-            Layout for the specified resource page.
-        """
-        if device_type not in self._client._DEVICE_TYPES:
-            device_types_str = "', '".join(self._client._DEVICE_TYPES)
-            raise ValueError(
-                f"Invalid device type {device_type!r}. "
-                f"Valid values: '{device_types_str}'."
-            )
-        params = {"deviceType": device_type}
-        self._client._resolve_country_code(country_code, params=params)
-        if resource_id is not None:
-            params[f"{resource_type}Id"] = str(resource_id)
-        if locale is not None:
-            self._client._validate_locale(locale)
-            params["locale"] = locale
-        if resource_type == "video":
-            resource_type = "videos"
-        return self._client._request(
-            "GET", f"v1/pages/{resource_type}", params=params
-        ).json()

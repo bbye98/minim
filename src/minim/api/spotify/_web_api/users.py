@@ -1,13 +1,11 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
+from ..._shared import TTLCache
+from ._shared import SpotifyResourceAPI
 
 
-class UsersAPI(ResourceAPI):
+class UsersAPI(SpotifyResourceAPI):
     """
     Users API endpoints for the Spotify Web API.
 
@@ -19,7 +17,6 @@ class UsersAPI(ResourceAPI):
 
     _PEOPLE_TYPES = {"artists", "users"}
     _TIME_RANGES = {"long_term", "medium_term", "short_term"}
-    _client: "SpotifyWebAPI"
 
     @classmethod
     def _validate_time_range(cls, time_range: str, /) -> None:
@@ -40,6 +37,289 @@ class UsersAPI(ResourceAPI):
                 f"Invalid time range {time_range!r}. "
                 f"Valid values: '{time_ranges_str}'."
             )
+
+    def _manage_followed_people(
+        self, method: str, resource_type: str, resource_ids: str | list[str], /
+    ) -> None:
+        """
+        Follow or unfollow one or more artists or Spotify users.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-modify` scope
+                 Manage your saved content. `Learn more.
+                 <https://developer.spotify.com/documentation/web-api
+                 /concepts/scopes#user-follow-modify>`__
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+            **Valid values**: :code:`"PUT"`, :code:`"DELETE"`.
+
+        resource_type : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"artists"`, :code:`"users"`.
+
+        resource_ids : str or list[str]; positional-only
+            Spotify IDs of the artists or users. A maximum of 50 IDs can
+            be sent in a request.
+        """
+        self._client._request(
+            method,
+            "me/following",
+            params={
+                "type": resource_type[:-1],
+                "ids": self._prepare_spotify_ids(
+                    resource_ids,
+                    limit=50,
+                    enforce_length=resource_type == "artists",
+                )[0],
+            },
+        )
+
+    def _is_following_people(
+        self, resource_type: str, resource_ids: str | list[str], /
+    ) -> list[bool]:
+        """
+        Check whether the current user is following one or more artists
+        or Spotify users.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-follow-read` scope
+                 Access your followers and who you are following. `Learn
+                 more. <https://developer.spotify.com/documentation
+                 /web-api/concepts/scopes#user-follow-read>`__
+
+        Parameters
+        ----------
+        resource_type : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"artists"`, :code:`"users"`.
+
+        resource_ids : str or list[str]; positional-only
+            Spotify IDs of the artists or users. A maximum of 50 IDs can
+            be sent in a request.
+
+        Returns
+        -------
+        following : list[bool]
+            Whether the current user follows the specified artists or
+            users.
+
+            **Sample response**: :code:`[False, True]`.
+        """
+        return self._client._request(
+            "GET",
+            "me/following/contains",
+            params={
+                "type": resource_type[:-1],
+                "ids": self._prepare_spotify_ids(
+                    resource_ids,
+                    limit=50,
+                    enforce_length=resource_type == "artists",
+                )[0],
+            },
+        ).json()
+
+    def _get_my_saved_entities(
+        self,
+        resource_type: str,
+        /,
+        *,
+        country_code: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get Spotify catalog information for items of a resource type
+        saved in the current user's library.
+
+        .. admonition:: Authorization scope and third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-library-read` scope
+                  Access your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-read>`__
+
+           .. tab:: Optional
+
+              Extended quota mode before November 27, 2024
+                  Access 30-second preview URLs. `Learn more.
+                  <https://developer.spotify.com/blog
+                  /2024-11-27-changes-to-the-web-api>`__
+
+        Parameters
+        ----------
+        resource_type : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"audiobooks"`,
+            :code:`"episodes"`, :code:`"shows"`, :code:`"tracks"`.
+
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. If provided, only content
+            available in that market is returned. When a user access
+            token accompanies the request, the country associated
+            with the user account takes priority over this parameter.
+
+            .. note::
+
+               If neither the market nor the user's country are
+               provided, the content is considered unavailable for the
+               client.
+
+        limit : int; keyword-only; optional
+            Maximum number of items to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+            **API default**: :code:`20`.
+
+        offset : int; keyword-only; optional
+            Index of the first item to return. Use with `limit` to get
+            the next batch of items.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        items : dict[str, Any]
+            Page of Spotify content metadata for the user's saved
+            items.
+        """
+        params = {}
+        if country_code is not None:
+            self._client.markets._validate_market(country_code)
+            params["market"] = country_code
+        if limit is not None:
+            self._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        if offset is not None:
+            self._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request(
+            "GET", f"me/{resource_type}", params=params
+        ).json()
+
+    def _manage_saved_entities(
+        self,
+        method: str,
+        resource_type: str,
+        resource_ids: str | list[str],
+        /,
+        *,
+        limit: int = 50,
+    ) -> None:
+        """
+        Save or remove one or more items of a resource type to or from
+        the current user's library.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-library-modify` scope
+                  Manage your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-modify>`__
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+            **Valid values**: :code:`"PUT"`, :code:`"DELETE"`.
+
+        resource_type : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"audiobooks"`,
+            :code:`"episodes"`, :code:`"shows"`.
+
+        resource_ids : str or list[str]; positional-only
+            Spotify IDs of the items, provided as either a
+            comma-separated string or a list of strings.
+
+        limit : int; keyword-only; default: :code:`50`
+            Maximum number of Spotify IDs that can be sent in the
+            request.
+        """
+        self._client._request(
+            method,
+            f"me/{resource_type}",
+            params={
+                "ids": self._prepare_spotify_ids(resource_ids, limit=limit)[0]
+            },
+        )
+
+    def _are_entities_saved(
+        self,
+        resource_type: str,
+        resource_ids: str | list[str],
+        /,
+        *,
+        limit: int = 50,
+    ) -> list[bool]:
+        """
+        Check whether one or more items of a resource type are saved in
+        the current user's library.
+
+        .. admonition:: Authorization scope
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`user-library-read` scope
+                  Access your saved content. `Learn more.
+                  <https://developer.spotify.com/documentation/web-api
+                  /concepts/scopes#user-library-read>`__
+
+        Parameters
+        ----------
+        resource_type : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"audiobooks"`,
+            :code:`"episodes"`, :code:`"shows"`, :code:`"tracks"`.
+
+        resource_ids : str or list[str]; positional-only
+            Spotify IDs of the items, provided as either a
+            comma-separated string or a list of strings.
+
+        limit : int; keyword-only; default: :code:`50`
+            Maximum number of Spotify IDs that can be sent in the
+            request.
+
+        Returns
+        -------
+        saved : list[bool]
+            Whether the current user has each of the specified items
+            saved in their library.
+        """
+        return self._client._request(
+            "GET",
+            f"me/{resource_type}/contains",
+            params={
+                "ids": self._prepare_spotify_ids(resource_ids, limit=limit)[0]
+            },
+        ).json()
 
     @TTLCache.cached_method(ttl="user")
     def get_my_profile(self) -> dict[str, Any]:
@@ -221,7 +501,7 @@ class UsersAPI(ResourceAPI):
         """
         if user_id is None:
             return self.get_my_profile()
-        self._client._validate_type("user_id", user_id, str)
+        self._validate_type("user_id", user_id, str)
         return self._client._request("GET", f"users/{user_id}").json()
 
     @TTLCache.cached_method(ttl="hourly")
@@ -426,7 +706,7 @@ class UsersAPI(ResourceAPI):
                        "total": <int>
                      }
         """
-        self._client._validate_type("item_type", item_type, str)
+        self._validate_type("item_type", item_type, str)
         item_type = item_type.strip().lower()
         if item_type not in {"artists", "tracks"}:
             raise ValueError(
@@ -441,10 +721,10 @@ class UsersAPI(ResourceAPI):
             self._client.users._validate_time_range(time_range)
             params["time_range"] = time_range
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", f"me/top/{item_type}", params=params
@@ -492,7 +772,7 @@ class UsersAPI(ResourceAPI):
             **API default**: :code:`True`.
         """
         self._client._require_authentication("users.follow_playlist")
-        self._client._validate_spotify_id(playlist_id)
+        self._validate_spotify_id(playlist_id)
         payload = {}
         if isinstance(public, bool):
             self._client._require_scopes(
@@ -538,7 +818,7 @@ class UsersAPI(ResourceAPI):
             **Example**: :code:`"3cEYpjA9oz9GiPac4AsH4n"`.
         """
         self._client._require_authentication("users.unfollow_playlist")
-        self._client._validate_spotify_id(playlist_id)
+        self._validate_spotify_id(playlist_id)
         self._client._request("DELETE", f"playlists/{playlist_id}/followers")
 
     @TTLCache.cached_method(ttl="user")
@@ -629,10 +909,10 @@ class UsersAPI(ResourceAPI):
         )
         params = {"type": "artist"}
         if cursor is not None:
-            self._client._validate_spotify_id(cursor)
+            self._validate_spotify_id(cursor)
             params["after"] = cursor
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         return self._client._request(
             "GET", "me/following", params=params
@@ -894,7 +1174,7 @@ class UsersAPI(ResourceAPI):
             **Sample response**: :code:`[True]`.
         """
         self._client._require_authentication("users.is_following_playlist")
-        self._client._validate_spotify_id(playlist_id)
+        self._validate_spotify_id(playlist_id)
         return self._client._request(
             "GET", f"playlists/{playlist_id}/followers/contains"
         ).json()
@@ -1851,10 +2131,10 @@ class UsersAPI(ResourceAPI):
         )
         params = {}
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "me/playlists", params=params
@@ -1980,12 +2260,12 @@ class UsersAPI(ResourceAPI):
             return self.get_my_playlists(limit=limit, offset=offset)
         params = {}
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
-        self._client._validate_spotify_id(user_id, enforce_length=False)
+        self._validate_spotify_id(user_id, enforce_length=False)
         return self._client._request(
             "GET", f"users/{user_id}/playlists", params=params
         ).json()
@@ -2555,290 +2835,3 @@ class UsersAPI(ResourceAPI):
             "tracks.are_tracks_saved", "user-library-read"
         )
         return self._are_entities_saved("tracks", track_ids)
-
-    def _manage_followed_people(
-        self, method: str, resource_type: str, resource_ids: str | list[str], /
-    ) -> None:
-        """
-        Follow or unfollow one or more artists or Spotify users.
-
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-follow-modify` scope
-                 Manage your saved content. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-follow-modify>`__
-
-        Parameters
-        ----------
-        method : str; positional-only
-            HTTP method.
-
-            **Valid values**: :code:`"PUT"`, :code:`"DELETE"`.
-
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"artists"`, :code:`"users"`.
-
-        resource_ids : str or list[str]; positional-only
-            Spotify IDs of the artists or users. A maximum of 50 IDs can
-            be sent in a request.
-        """
-        self._client._request(
-            method,
-            "me/following",
-            params={
-                "type": resource_type[:-1],
-                "ids": self._client._prepare_spotify_ids(
-                    resource_ids,
-                    limit=50,
-                    enforce_length=resource_type == "artists",
-                )[0],
-            },
-        )
-
-    def _is_following_people(
-        self, resource_type: str, resource_ids: str | list[str], /
-    ) -> list[bool]:
-        """
-        Check whether the current user is following one or more artists
-        or Spotify users.
-
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-follow-read` scope
-                 Access your followers and who you are following. `Learn
-                 more. <https://developer.spotify.com/documentation
-                 /web-api/concepts/scopes#user-follow-read>`__
-
-        Parameters
-        ----------
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"artists"`, :code:`"users"`.
-
-        resource_ids : str or list[str]; positional-only
-            Spotify IDs of the artists or users. A maximum of 50 IDs can
-            be sent in a request.
-
-        Returns
-        -------
-        following : list[bool]
-            Whether the current user follows the specified artists or
-            users.
-
-            **Sample response**: :code:`[False, True]`.
-        """
-        return self._client._request(
-            "GET",
-            "me/following/contains",
-            params={
-                "type": resource_type[:-1],
-                "ids": self._client._prepare_spotify_ids(
-                    resource_ids,
-                    limit=50,
-                    enforce_length=resource_type == "artists",
-                )[0],
-            },
-        ).json()
-
-    def _get_my_saved_entities(
-        self,
-        resource_type: str,
-        /,
-        *,
-        country_code: str | None = None,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get Spotify catalog information for items of a resource type
-        saved in the current user's library.
-
-        .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
-
-           .. tab:: Optional
-
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
-
-        Parameters
-        ----------
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"audiobooks"`,
-            :code:`"episodes"`, :code:`"shows"`, :code:`"tracks"`.
-
-        country_code : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. If provided, only content
-            available in that market is returned. When a user access
-            token accompanies the request, the country associated
-            with the user account takes priority over this parameter.
-
-            .. note::
-
-               If neither the market nor the user's country are
-               provided, the content is considered unavailable for the
-               client.
-
-        limit : int; keyword-only; optional
-            Maximum number of items to return.
-
-            **Valid range**: :code:`1` to :code:`50`.
-
-            **API default**: :code:`20`.
-
-        offset : int; keyword-only; optional
-            Index of the first item to return. Use with `limit` to get
-            the next batch of items.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        items : dict[str, Any]
-            Page of Spotify content metadata for the user's saved
-            items.
-        """
-        params = {}
-        if country_code is not None:
-            self._client._validate_market(country_code)
-            params["market"] = country_code
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", f"me/{resource_type}", params=params
-        ).json()
-
-    def _manage_saved_entities(
-        self,
-        method: str,
-        resource_type: str,
-        resource_ids: str | list[str],
-        /,
-        *,
-        limit: int = 50,
-    ) -> None:
-        """
-        Save or remove one or more items of a resource type to or from
-        the current user's library.
-
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-modify` scope
-                  Manage your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-modify>`__
-
-        Parameters
-        ----------
-        method : str; positional-only
-            HTTP method.
-
-            **Valid values**: :code:`"PUT"`, :code:`"DELETE"`.
-
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"audiobooks"`,
-            :code:`"episodes"`, :code:`"shows"`.
-
-        resource_ids : str or list[str]; positional-only
-            Spotify IDs of the items, provided as either a
-            comma-separated string or a list of strings.
-
-        limit : int; keyword-only; default: :code:`50`
-            Maximum number of Spotify IDs that can be sent in the
-            request.
-        """
-        self._client._request(
-            method,
-            f"me/{resource_type}",
-            params={
-                "ids": self._client._prepare_spotify_ids(
-                    resource_ids, limit=limit
-                )[0]
-            },
-        )
-
-    def _are_entities_saved(
-        self,
-        resource_type: str,
-        resource_ids: str | list[str],
-        /,
-        *,
-        limit: int = 50,
-    ) -> list[bool]:
-        """
-        Check whether one or more items of a resource type are saved in
-        the current user's library.
-
-        .. admonition:: Authorization scope
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`user-library-read` scope
-                  Access your saved content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /concepts/scopes#user-library-read>`__
-
-        Parameters
-        ----------
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"audiobooks"`,
-            :code:`"episodes"`, :code:`"shows"`, :code:`"tracks"`.
-
-        resource_ids : str or list[str]; positional-only
-            Spotify IDs of the items, provided as either a
-            comma-separated string or a list of strings.
-
-        limit : int; keyword-only; default: :code:`50`
-            Maximum number of Spotify IDs that can be sent in the
-            request.
-
-        Returns
-        -------
-        saved : list[bool]
-            Whether the current user has each of the specified items
-            saved in their library.
-        """
-        return self._client._request(
-            "GET",
-            f"me/{resource_type}/contains",
-            params={
-                "ids": self._client._prepare_spotify_ids(
-                    resource_ids, limit=limit
-                )[0]
-            },
-        ).json()

@@ -17,6 +17,47 @@ class PlayerAPI(SpotifyResourceAPI):
     _CONTEXT_TYPES = {"album", "artist", "playlist"}
     _REPEAT_MODES = {"track", "context", "off"}
 
+    def _control_playback(
+        self,
+        subresource: str,
+        /,
+        *,
+        device_id: str | None = None,
+        params: dict[str, Any] | None = None,
+        payload: dict[str, Any] | None = None,
+    ) -> None:
+        """
+        Control playback.
+
+        Parameters
+        ----------
+        subresource : str; positional-only
+            Subresource of the endpoint to call.
+
+        device_id : str; keyword-only; optional
+            Playback device ID. If not specified, the currently active
+            device is the target.
+
+        params : dict[str, Any]; keyword-only; optional
+            Dictionary of additional query parameters to include in the
+            request. If not provided, a new dictionary will be created.
+
+            .. note::
+
+               This `dict` is mutated in-place.
+
+        payload : dict[str, Any]; keyword-only; optional
+            JSON payload to include in the request.
+        """
+        if params is None:
+            params = {}
+        if device_id is not None:
+            self._validate_spotify_id(device_id)
+            params["device_id"] = device_id
+        self._client._request(
+            "PUT", f"me/player/{subresource}", params=params, json=payload
+        )
+
     def get_playback_state(
         self,
         *,
@@ -219,7 +260,7 @@ class PlayerAPI(SpotifyResourceAPI):
         )
         params = {}
         if country_code is not None:
-            self._client._validate_market(country_code)
+            self._client.markets._validate_market(country_code)
             params["market"] = country_code
         if supported_item_types is not None:
             params["additional_types"] = self._prepare_types(
@@ -275,10 +316,10 @@ class PlayerAPI(SpotifyResourceAPI):
         self._client._require_scopes(
             "player.transfer_playback", "user-modify-playback-state"
         )
-        self._client._validate_spotify_id(device_id)
+        self._validate_spotify_id(device_id)
         payload = {"device_id": device_id}
         if play is not None:
-            self._client._validate_type("play", play, bool)
+            self._validate_type("play", play, bool)
             payload["play"] = play
         self._client._request("PUT", "me/player", json=payload)
 
@@ -534,7 +575,7 @@ class PlayerAPI(SpotifyResourceAPI):
         )
         params = {}
         if country_code is not None:
-            self._client._validate_market(country_code)
+            self._client.markets._validate_market(country_code)
             params["market"] = country_code
         if supported_item_types is not None:
             params["additional_types"] = self._prepare_types(
@@ -633,27 +674,23 @@ class PlayerAPI(SpotifyResourceAPI):
         if len(uris) == 1:
             uri = uris[0]
             try:
-                self._client._validate_spotify_uri(
-                    uri, resource_types={"track"}
-                )
+                self._validate_spotify_uri(uri, resource_types={"track"})
                 payload["context_uri"] = uri
                 multiple = False
             except ValueError:
-                payload["uris"] = self._client._prepare_spotify_uris(
+                payload["uris"] = self._prepare_spotify_uris(
                     uri, limit=1, resource_types=self._CONTEXT_TYPES
                 )
         else:
-            payload["uris"] = self._client._prepare_spotify_uris(
+            payload["uris"] = self._prepare_spotify_uris(
                 uris, limit=100, resource_types=self._CONTEXT_TYPES
             )
         if multiple and offset is not None:
             if isinstance(offset, int):
-                self._client._validate_number("offset", offset, int, 0)
+                self._validate_number("offset", offset, int, 0)
                 payload["offset"] = {"position": offset}
             elif isinstance(offset, str):
-                self._client._validate_spotify_uri(
-                    offset, resource_types={"track"}
-                )
+                self._validate_spotify_uri(offset, resource_types={"track"})
                 payload["offset"] = {"uri": offset}
             else:
                 raise ValueError(
@@ -661,7 +698,7 @@ class PlayerAPI(SpotifyResourceAPI):
                     "(int) or a Spotify track URI (str)."
                 )
         if position_ms is not None:
-            self._client._validate_number("position_ms", position_ms, int, 0)
+            self._validate_number("position_ms", position_ms, int, 0)
             payload["position_ms"] = position_ms
         self._control_playback("play", device_id=device_id, payload=payload)
 
@@ -844,7 +881,7 @@ class PlayerAPI(SpotifyResourceAPI):
         self._client._require_scopes(
             "player.seek_to_position", "user-modify-playback-state"
         )
-        self._client._validate_number("position_ms", position_ms, int, 0)
+        self._validate_number("position_ms", position_ms, int, 0)
         self._control_playback(
             "seek", device_id=device_id, params={"position_ms": position_ms}
         )
@@ -960,9 +997,7 @@ class PlayerAPI(SpotifyResourceAPI):
         self._client._require_scopes(
             "player.set_volume", "user-modify-playback-state"
         )
-        self._client._validate_number(
-            "volume_percent", volume_percent, int, 0, 100
-        )
+        self._validate_number("volume_percent", volume_percent, int, 0, 100)
         self._control_playback(
             "volume",
             device_id=device_id,
@@ -1014,7 +1049,7 @@ class PlayerAPI(SpotifyResourceAPI):
         self._client._require_scopes(
             "player.set_shuffle", "user-modify-playback-state"
         )
-        self._client._validate_type("shuffle", shuffle, bool)
+        self._validate_type("shuffle", shuffle, bool)
         self._control_playback(
             "shuffle", device_id=device_id, params={"state": shuffle}
         )
@@ -1205,15 +1240,13 @@ class PlayerAPI(SpotifyResourceAPI):
                 raise ValueError(
                     "Exactly one of `played_after` or `played_before` must be provided."
                 )
-            self._client._validate_number("played_after", played_after, int, 0)
+            self._validate_number("played_after", played_after, int, 0)
             params["after"] = played_after
         elif played_before is not None:
-            self._client._validate_number(
-                "played_before", played_before, int, 0
-            )
+            self._validate_number("played_before", played_before, int, 0)
             params["before"] = played_before
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         return self._client._request(
             "GET", "me/player/recently-played", params=params
@@ -1481,52 +1514,9 @@ class PlayerAPI(SpotifyResourceAPI):
             "player.add_to_queue", "user-modify-playback-state"
         )
         self._client._require_spotify_premium("player.add_to_queue")
-        self._client._validate_spotify_uri(
-            uri, resource_types=self._AUDIO_TYPES
-        )
+        self._validate_spotify_uri(uri, resource_types=self._AUDIO_TYPES)
         params = {"uri": uri}
         if device_id is not None:
-            self._client._validate_spotify_id(device_id)
+            self._validate_spotify_id(device_id)
             params["device_id"] = device_id
         self._client._request("POST", "me/player/queue", params=params)
-
-    def _control_playback(
-        self,
-        subresource: str,
-        /,
-        *,
-        device_id: str | None = None,
-        params: dict[str, Any] | None = None,
-        payload: dict[str, Any] | None = None,
-    ) -> None:
-        """
-        Control playback.
-
-        Parameters
-        ----------
-        subresource : str; positional-only
-            Subresource of the endpoint to call.
-
-        device_id : str; keyword-only; optional
-            Playback device ID. If not specified, the currently active
-            device is the target.
-
-        params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
-
-            .. note::
-
-               This `dict` is mutated in-place.
-
-        payload : dict[str, Any]; keyword-only; optional
-            JSON payload to include in the request.
-        """
-        if params is None:
-            params = {}
-        if device_id is not None:
-            self._client._validate_spotify_id(device_id)
-            params["device_id"] = device_id
-        self._client._request(
-            "PUT", f"me/player/{subresource}", params=params, json=payload
-        )

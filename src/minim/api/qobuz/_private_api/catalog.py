@@ -7,7 +7,7 @@ from .search import PrivateSearchEndpoints
 
 class PrivateCatalogAPI(PrivateQobuzResourceAPI):
     """
-    Catalog API endpoints for the private Qobuz Web API.
+    Catalog API endpoints for the private Qobuz API.
 
     .. note::
 
@@ -49,7 +49,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        self._client._validate_type("query", query, str)
+        self._validate_type("query", query, str)
         if not len(query):
             raise ValueError("No search query provided.")
         return self._client._request(
@@ -264,7 +264,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
         """
         params = {}
         if item_type is not None:
-            self._client._validate_type("item_type", item_type, str)
+            self._validate_type("item_type", item_type, str)
             item_type = item_type.strip().lower()
             if item_type not in self._FEATURED_TYPES:
                 featured_types_str = "', '".join(self._FEATURED_TYPES)
@@ -273,22 +273,22 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
                     f"Valid values: '{featured_types_str}'."
                 )
         if genre_ids is not None:
-            self._client._validate_type(
+            self._validate_type(
                 "genre_ids", genre_ids, int | str | tuple | list | set
             )
-            # if not isinstance(genre_ids, int):
-            #     if isinstance(genre_ids, str):
-            #         genre_ids = genre_ids.strip().split(",")
-            #     for genre_id in genre_ids:
-            #         self._validate_genre_id(genre_id)
+            if not isinstance(genre_ids, int):
+                if isinstance(genre_ids, str):
+                    genre_ids = genre_ids.strip().split(",")
+                for genre_id in genre_ids:
+                    self._client.genres._validate_genre_id(genre_id)
             params["genre_ids"] = self._prepare_qobuz_ids(
                 genre_ids, data_type=str
             )
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "catalog/getFeatured", params=params

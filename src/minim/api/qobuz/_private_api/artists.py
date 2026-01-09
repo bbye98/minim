@@ -948,7 +948,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
                     )
                 params["order"] = sort_by
             if descending is not None:
-                self._client._validate_type("descending", descending, bool)
+                self._validate_type("descending", descending, bool)
                 params["orderDirection"] = "desc"
             return self._client._request(
                 "GET", "artist/page", params=params
@@ -956,10 +956,10 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request("GET", "artist/get", params=params).json()
 
@@ -1169,10 +1169,10 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
                 "content filter", content_filters, self._CONTENT_FILTERS
             )
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
+            self._validate_number("limit", limit, int, 1, 100)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if sort_by is not None:
             if sort_by not in (sort_fields := {"relevant", "release_date"}):
@@ -1183,13 +1183,11 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
                 )
             params["order"] = sort_by
         if descending is not None:
-            self._client._validate_type("descending", descending, bool)
+            self._validate_type("descending", descending, bool)
             params["orderDirection"] = "desc" if descending else "asc"
         if include_tracks:
             if track_limit is not None:
-                self._client._validate_number(
-                    "track_size", track_limit, int, 1, 30
-                )
+                self._validate_number("track_size", track_limit, int, 1, 30)
                 params["track_size"] = track_limit
             return self._client._request(
                 "GET", "artist/getReleasesList", params=params
@@ -1269,10 +1267,10 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         self._validate_qobuz_ids(artist_id, _recursive=False)
         params = {"artist_id": artist_id}
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
+            self._validate_number("limit", limit, int, 1, 100)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "artist/getSimilarArtists", params=params

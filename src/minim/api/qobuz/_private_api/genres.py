@@ -1,3 +1,4 @@
+from functools import cached_property
 from typing import Any
 
 from ._shared import PrivateQobuzResourceAPI
@@ -6,13 +7,71 @@ from ..._shared import TTLCache
 
 class PrivateGenresAPI(PrivateQobuzResourceAPI):
     """
-    Genres API endpoints for the private Qobuz Web API.
+    Genres API endpoints for the private Qobuz API.
 
     .. note::
 
        This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
        and should not be instantiated directly.
     """
+
+    @cached_property
+    def available_genres(self) -> dict[str, dict[str, Any]]:
+        """
+        Available genres.
+
+        .. note::
+
+           Accessing this property may call :meth:`get_genres` and make
+           multiple requests to the Qobuz API.
+        """
+        genres = []
+
+        # Use iterative depth-first search
+        stack = [None]
+        while stack:
+            subgenres = self.genres.get_genres(stack.pop())["genres"]
+            if subgenres["total"] > 0:
+                genres.extend(subgenres["items"])
+                stack.extend(genre["id"] for genre in subgenres["items"])
+
+        # Use recursive depth-first search
+        # def get_genres(
+        #     genre_id: str | None = None, /, *, genres: list[dict[str, Any]]
+        # ) -> dict[str, Any]:
+        #     subgenres = self.genres.get_genres(genre_id)["genres"]
+        #     if subgenres["total"] > 0:
+        #         genres.extend(subgenres["items"])
+        #         for subgenre in subgenres["items"]:
+        #             get_genres(subgenre["id"], genres=genres)
+
+        # get_genres(genres=genres)
+
+        return {genre.pop("id"): genre for genre in genres}
+
+    def _validate_genre_id(self, genre_id: int | str, /) -> None:
+        """
+        Validate genre ID.
+
+        Parameters
+        ----------
+        genre_id : str; positional-only
+            Genre ID.
+        """
+        try:
+            genre_id = int(genre_id)
+        except TypeError:
+            raise TypeError(
+                "Qobuz genre IDs must be integers or their string "
+                "representations."
+            )
+        if "available_genres" in self.__dict__:
+            genre_ids_str = "', '".join(sorted(self.available_genres.keys()))
+            if genre_id not in self.available_genres:
+                raise ValueError(
+                    f"Invalid genre ID {genre_id!r}. "
+                    f"Valid values: '{genre_ids_str}'."
+                )
 
     @TTLCache.cached_method(ttl="static")
     def get_genre(self, genre_id: int | str, /) -> dict[str, Any]:
@@ -124,9 +183,9 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
             self._validate_qobuz_ids(genre_id, _recursive=False)
             params["parent_id"] = genre_id
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request("GET", "genre/list", params=params).json()

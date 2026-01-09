@@ -1,10 +1,7 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class UsersAPI(TIDALResourceAPI):
@@ -31,7 +28,6 @@ class UsersAPI(TIDALResourceAPI):
         "myMixes",
         "newArrivalMixes",
     }
-    _client: "TIDALAPI"
 
     @classmethod
     def _prepare_resource_identifiers(
@@ -95,6 +91,168 @@ class UsersAPI(TIDALResourceAPI):
         if _recursive:
             return [resource_identifier]
         return resource_identifier
+
+    def _get_collection_relationship(
+        self,
+        relationship: str,
+        /,
+        *,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include_metadata: bool = False,
+        cursor: str | None = None,
+        sort_by: str | None = None,
+        descending: bool | None = None,
+        sort_fields: set[str] | None = None,
+        params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for items of a resource type in a
+        user's collection.
+
+        Parameters
+        ----------
+        relationship : str; positional-only
+            Related resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
+            :code:`"videos"`.
+
+        user_id : int or str; keyword-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. Only optional when it can
+            be retrieved from the user's profile.
+
+            **Example**: :code:`"US"`.
+
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag.
+
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the specified
+            resource.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        sort_by : str; keyword-only; optional
+            Field to sort the returned items by.
+
+        descending : bool; keyword-only; optional
+            Whether to sort in descending order.
+
+            **API default**: :code:`False`.
+
+        sort_fields : set[str]; keyword-only; optional
+            Valid fields to sort by.
+
+        params : dict[str, Any]; keyword-only; optional
+            Dictionary of additional query parameters to include in the
+            request. If not provided, a new dictionary will be created.
+
+            .. note::
+
+               This `dict` is mutated in-place.
+
+        Returns
+        -------
+        resource : dict[str, Any]
+            TIDAL content metadata for the specified resource.
+        """
+        if params is None:
+            params = {}
+        if user_id is None:
+            user_id = self._client._my_profile["id"]
+        else:
+            self._client._validate_tidal_ids(user_id, _recursive=False)
+        if sort_by is not None:
+            self._process_sort(
+                sort_by,
+                descending=descending,
+                prefix=f"{relationship}.",
+                sort_fields=sort_fields,
+                params=params,
+            )
+        return self._get_resource_relationship(
+            "userCollections",
+            user_id,
+            relationship,
+            country_code=country_code,
+            locale=locale,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            sort_by=sort_by,
+            descending=descending,
+            sort_fields=sort_fields,
+            params=params,
+        )
+
+    def _modify_collection_resources(
+        self,
+        method: str,
+        resource_type: str,
+        resource_ids: str
+        | dict[str, int | str]
+        | list[int | str | dict[str, int | str]],
+        /,
+        *,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+    ) -> None:
+        """
+        Add/remove items of a resource type to/from a user's collection.
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+            **Valid values**: :code:`"POST"`, :code:`"DELETE"`.
+
+        resource_type : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
+            :code:`"videos"`.
+
+        resource_ids : str, dict[str, int | str], or \
+        list[int | str | dict[str, int | str]]; positional-only
+            TIDAL IDs, UUIDs, or resource identifiers of the items.
+
+        user_id : int or str; keyword-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+        """
+        if user_id is None:
+            user_id = self._client._my_profile["id"]
+        else:
+            self._client._validate_tidal_ids(user_id, _recursive=False)
+        params = {}
+        if country_code is not None:
+            self._client._resolve_country_code(country_code, params)
+        self._client._request(
+            method,
+            f"userCollections/{user_id}/relationships/{resource_type}",
+            params=params,
+            json={
+                "data": self._prepare_resource_identifiers(
+                    resource_type, resource_ids
+                )
+            },
+        )
 
     @TTLCache.cached_method(ttl="user")
     def get_collection(
@@ -2710,165 +2868,3 @@ class UsersAPI(TIDALResourceAPI):
         """
         self._client._require_scopes("users.get_my_profile", "user.read")
         return self._client._request("GET", "users/me").json()
-
-    def _get_collection_relationship(
-        self,
-        relationship: str,
-        /,
-        *,
-        user_id: int | str | None = None,
-        country_code: str | None = None,
-        locale: str | None = None,
-        include_metadata: bool = False,
-        cursor: str | None = None,
-        sort_by: str | None = None,
-        descending: bool | None = None,
-        sort_fields: set[str] | None = None,
-        params: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for items of a resource type in a
-        user's collection.
-
-        Parameters
-        ----------
-        relationship : str; positional-only
-            Related resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
-            :code:`"videos"`.
-
-        user_id : int or str; keyword-only; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
-
-        country_code : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. Only optional when it can
-            be retrieved from the user's profile.
-
-            **Example**: :code:`"US"`.
-
-        locale : str; keyword-only; optional
-            IETF BCP 47 language tag.
-
-        include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the specified
-            resource.
-
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
-            **Example**: :code:`"3nI1Esi"`.
-
-        sort_by : str; keyword-only; optional
-            Field to sort the returned items by.
-
-        descending : bool; keyword-only; optional
-            Whether to sort in descending order.
-
-            **API default**: :code:`False`.
-
-        sort_fields : set[str]; keyword-only; optional
-            Valid fields to sort by.
-
-        params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
-
-            .. note::
-
-               This `dict` is mutated in-place.
-
-        Returns
-        -------
-        resource : dict[str, Any]
-            TIDAL content metadata for the specified resource.
-        """
-        if params is None:
-            params = {}
-        if user_id is None:
-            user_id = self._client._my_profile["id"]
-        else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
-        if sort_by is not None:
-            self._process_sort(
-                sort_by,
-                descending=descending,
-                prefix=f"{relationship}.",
-                sort_fields=sort_fields,
-                params=params,
-            )
-        return self._get_resource_relationship(
-            "userCollections",
-            user_id,
-            relationship,
-            country_code=country_code,
-            locale=locale,
-            include_metadata=include_metadata,
-            cursor=cursor,
-            sort_by=sort_by,
-            descending=descending,
-            sort_fields=sort_fields,
-            params=params,
-        )
-
-    def _modify_collection_resources(
-        self,
-        method: str,
-        resource_type: str,
-        resource_ids: str
-        | dict[str, int | str]
-        | list[int | str | dict[str, int | str]],
-        /,
-        *,
-        user_id: int | str | None = None,
-        country_code: str | None = None,
-    ) -> None:
-        """
-        Add/remove items of a resource type to/from a user's collection.
-
-        Parameters
-        ----------
-        method : str; positional-only
-            HTTP method.
-
-            **Valid values**: :code:`"POST"`, :code:`"DELETE"`.
-
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
-            :code:`"videos"`.
-
-        resource_ids : str, dict[str, int | str], or \
-        list[int | str | dict[str, int | str]]; positional-only
-            TIDAL IDs, UUIDs, or resource identifiers of the items.
-
-        user_id : int or str; keyword-only; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
-
-        country_code : str; optional
-            ISO 3166-1 alpha-2 country code.
-
-            **Example**: :code:`"US"`.
-        """
-        if user_id is None:
-            user_id = self._client._my_profile["id"]
-        else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
-        params = {}
-        if country_code is not None:
-            self._client._resolve_country_code(country_code, params)
-        self._client._request(
-            method,
-            f"userCollections/{user_id}/relationships/{resource_type}",
-            params=params,
-            json={
-                "data": self._prepare_resource_identifiers(
-                    resource_type, resource_ids
-                )
-            },
-        )

@@ -328,7 +328,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
                     "uri": <str>
                   }
         """
-        self._client._validate_spotify_id(playlist_id)
+        self._validate_spotify_id(playlist_id)
         params = {}
         if supported_item_types is not None:
             params["additional_types"] = self._prepare_types(
@@ -343,7 +343,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             else:
                 params["fields"] = ",".join(fields)
         if country_code is not None:
-            self._client._validate_market(country_code)
+            self._client.markets._validate_market(country_code)
             params["market"] = country_code
         return self._client._request(
             "GET", f"playlists/{playlist_id}", params=params
@@ -406,21 +406,21 @@ class PlaylistsAPI(SpotifyResourceAPI):
                :code:`collaborative=True` can only be set on private
                playlists.
         """
-        self._client._validate_spotify_id(playlist_id)
+        self._validate_spotify_id(playlist_id)
         payload = {}
         if name is not None:
-            self._client._validate_type("name", name, str)
+            self._validate_type("name", name, str)
             if not len(name):
                 raise ValueError("The playlist name cannot be blank.")
             payload["name"] = name
         if description is not None:
-            self._client._validate_type("description", description, str)
+            self._validate_type("description", description, str)
             payload["description"] = description
         if public is not None:
-            self._client._validate_type("public", public, bool)
+            self._validate_type("public", public, bool)
             payload["public"] = public
         if collaborative is not None:
-            self._client._validate_type("collaborative", collaborative, bool)
+            self._validate_type("collaborative", collaborative, bool)
             payload["collaborative"] = collaborative
         if not payload:
             raise ValueError("At least one change must be specified.")
@@ -732,7 +732,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._validate_spotify_id(playlist_id)
+        self._validate_spotify_id(playlist_id)
         params = {}
         if supported_item_types is not None:
             params["additional_types"] = self._prepare_types(
@@ -747,13 +747,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
             else:
                 params["fields"] = ",".join(fields)
         if country_code is not None:
-            self._client._validate_market(country_code)
+            self._client.markets._validate_market(country_code)
             params["market"] = country_code
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", f"playlists/{playlist_id}/tracks", params=params
@@ -839,17 +839,17 @@ class PlaylistsAPI(SpotifyResourceAPI):
             :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
         """
         self._client._require_authentication("playlists.add_playlist_items")
-        self._client._validate_spotify_id(playlist_id)
+        self._validate_spotify_id(playlist_id)
         params = {}
         if to_index is not None:
-            self._client._validate_number("to_index", to_index, int, 0)
+            self._validate_number("to_index", to_index, int, 0)
             params["position"] = to_index
         return self._client._request(
             "POST",
             f"playlists/{playlist_id}/tracks",
             params=params,
             json={
-                "uris": self._client._prepare_spotify_uris(
+                "uris": self._prepare_spotify_uris(
                     uris, limit=100, resource_types=self._AUDIO_TYPES
                 )
             },
@@ -937,15 +937,15 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self._client._require_authentication(
             "playlists.reorder_playlist_items"
         )
-        self._client._validate_spotify_id(playlist_id)
-        self._client._validate_number("from_index", from_index, int, 0)
-        self._client._validate_number("to_index", to_index, int, 0)
+        self._validate_spotify_id(playlist_id)
+        self._validate_number("from_index", from_index, int, 0)
+        self._validate_number("to_index", to_index, int, 0)
         payload = {"insert_before": to_index, "range_start": from_index}
         if from_count is not None:
-            self._client._validate_number("from_count", from_count, int, 1)
+            self._validate_number("from_count", from_count, int, 1)
             payload["range_length"] = from_count
         if snapshot_id is not None:
-            self._client._validate_type("snapshot_id", snapshot_id, str)
+            self._validate_type("snapshot_id", snapshot_id, str)
             payload["snapshot_id"] = snapshot_id
         return self._client._request(
             "PUT", f"playlists/{playlist_id}/tracks", json=payload
@@ -1017,12 +1017,12 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self._client._require_authentication(
             "playlists.replace_playlist_items"
         )
-        self._client._validate_spotify_id(playlist_id)
+        self._validate_spotify_id(playlist_id)
         return self._client._request(
             "PUT",
             f"playlists/{playlist_id}/tracks",
             json={
-                "uris": self._client._prepare_spotify_uris(
+                "uris": self._prepare_spotify_uris(
                     uris, limit=100, resource_types=self._AUDIO_TYPES
                 )
                 if uris
@@ -1102,14 +1102,14 @@ class PlaylistsAPI(SpotifyResourceAPI):
             :code:`{"snapshot_id": "AAAAB8C+GjVHq8v4vzStbL6AUYzo1cDV"}`.
         """
         self._client._require_authentication("playlists.remove_playlist_items")
-        self._client._validate_spotify_id(playlist_id)
+        self._validate_spotify_id(playlist_id)
         payload = {
-            "tracks": self._client._prepare_spotify_uris(
+            "tracks": self._prepare_spotify_uris(
                 uris, limit=100, resource_types=self._AUDIO_TYPES
             )
         }
         if snapshot_id is not None:
-            self._client._validate_type("snapshot_id", snapshot_id, str)
+            self._validate_type("snapshot_id", snapshot_id, str)
             payload["snapshot_id"] = snapshot_id
         return self._client._request(
             "DELETE", f"playlists/{playlist_id}/tracks", json=payload
@@ -1245,22 +1245,22 @@ class PlaylistsAPI(SpotifyResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_playlist")
-        self._client._validate_type("name", name, str)
+        self._validate_type("name", name, str)
         if not len(name):
             raise ValueError("The playlist name cannot be blank.")
         payload = {"name": name}
         if description is not None:
-            self._client._validate_type("description", description, str)
+            self._validate_type("description", description, str)
             payload["description"] = description
         if public is not None:
-            self._client._validate_type("public", public, bool)
+            self._validate_type("public", public, bool)
             self._client._require_scopes(
                 "playlists.create_playlist",
                 f"playlist-modify-{'public' if public else 'private'}",
             )
             payload["public"] = public
         if collaborative is not None:
-            self._client._validate_type("collaborative", collaborative, bool)
+            self._validate_type("collaborative", collaborative, bool)
             payload["collaborative"] = collaborative
         return self._client._request(
             "POST",
@@ -1383,13 +1383,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if locale:
-            self._client._validate_locale(locale)
+            self._validate_locale(locale)
             params["locale"] = locale
         return self._client._request(
             "GET", "browse/featured-playlists", params=params
@@ -1509,10 +1509,10 @@ class PlaylistsAPI(SpotifyResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", f"browse/categories/{category_id}/playlists", params=params
@@ -1552,7 +1552,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
                  }
                ]
         """
-        self._client._validate_spotify_id(playlist_id)
+        self._validate_spotify_id(playlist_id)
         return self._client._request(
             "GET", f"playlists/{playlist_id}/images"
         ).json()
@@ -1605,7 +1605,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self._client._require_scopes(
             "playlists.add_playlist_cover_image", "ugc-image-upload"
         )
-        self._client._validate_spotify_id(playlist_id)
+        self._validate_spotify_id(playlist_id)
         if isinstance(image, str | Path):
             image = Path(image).resolve(True)
             with open(image, "rb") as f:

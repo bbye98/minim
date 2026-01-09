@@ -478,7 +478,7 @@ class SearchAPI(SpotifyResourceAPI):
                     }
                   }
         """
-        self._client._validate_type("query", query, str)
+        self._validate_type("query", query, str)
         if not len(query):
             raise ValueError("No search query provided.")
         params = {
@@ -497,12 +497,12 @@ class SearchAPI(SpotifyResourceAPI):
                 )
             params["include_external"] = external_content
         if country_code is not None:
-            self._client._validate_market(country_code)
+            self._client.markets._validate_market(country_code)
             params["market"] = country_code
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0, 1_000)
+            self._validate_number("offset", offset, int, 0, 1_000)
             params["offset"] = offset
         return self._client._request("GET", "search", params=params).json()

@@ -6,7 +6,7 @@ from ._shared import PrivateQobuzResourceAPI
 
 class PrivateLabelsAPI(PrivateQobuzResourceAPI):
     """
-    Labels API endpoints for the private Qobuz Web API.
+    Labels API endpoints for the private Qobuz API.
 
     .. note::
 
@@ -162,10 +162,10 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request("GET", "label/get", params=params).json()
 
@@ -200,9 +200,9 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request("GET", "label/list", params=params).json()

@@ -297,22 +297,20 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
                     "user_auth_token": <str>
                   }
         """
-        self._client._validate_type("username", username, str)
-        self._client._validate_type("password", password, str)
+        self._validate_type("username", username, str)
+        self._validate_type("password", password, str)
         params = {"username": username, "password": password}
         if device_uuid is not None:
-            self._client._validate_uuid(device_uuid)
+            self._validate_uuid(device_uuid)
             params["device_manufacturer_id"] = device_uuid
         if device_model is not None:
-            self._client._validate_type("device_model", device_model, str)
+            self._validate_type("device_model", device_model, str)
             params["device_model"] = device_model
         if device_os is not None:
-            self._client._validate_type("device_os", device_os, str)
+            self._validate_type("device_os", device_os, str)
             params["device_os_version"] = device_os
         if device_platform is not None:
-            self._client._validate_type(
-                "device_platform", device_platform, str
-            )
+            self._validate_type("device_platform", device_platform, str)
             params["device_platform"] = device_platform
         return self._client._request(
             "POST", "user/login", params=params
@@ -610,10 +608,10 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication("purchases.get_my_purchases")
         params = {}
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "purchase/getUserPurchases", params=params
@@ -963,13 +961,13 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication(
             "dynamic.get_personalized_playlist_tracks"
         )
-        self._client._validate_type("playlist_type", playlist_type, str)
+        self._validate_type("playlist_type", playlist_type, str)
         params = {"type": playlist_type.strip()}
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "dynamic-tracks/get", params=params
@@ -1145,7 +1143,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             ),
         }
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             payload["limit"] = limit
         return self._client._request(
             "POST", "dynamic/suggest", json=payload

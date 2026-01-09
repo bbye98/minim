@@ -1027,10 +1027,10 @@ class AlbumsAPI(TIDALResourceAPI):
         params = {}
         if barcodes is not None:
             if isinstance(barcodes, int | str):
-                self._client._validate_barcode(barcodes)
+                self._validate_barcode(barcodes)
             elif isinstance(barcodes, list | tuple):
                 for barcode in barcodes:
-                    self._client._validate_barcode(barcode)
+                    self._validate_barcode(barcode)
             else:
                 raise ValueError(
                     "`barcodes` must be an integer, a string, or a "

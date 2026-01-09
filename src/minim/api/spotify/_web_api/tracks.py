@@ -29,6 +29,189 @@ class TracksAPI(SpotifyResourceAPI):
        and should not be instantiated directly.
     """
 
+    def _parse_attribute(
+        self,
+        attribute: str,
+        value: int | float | tuple[int | float | None, ...],
+        data_type: type,
+        range_: tuple[int | float | None, int | float | None],
+        params: dict[str, Any],
+    ) -> None:
+        """
+        Parse and add a track attribute to a dictionary holding the
+        request parameters for :meth:`get_track_recommendations`.
+
+        Parameters
+        ----------
+        attribute : str
+            Track attribute.
+
+            **Valid values**: :code:`"acousticness"`,
+            :code:`"danceability"`, :code:`"duration_ms"`,
+            :code:`"energy"`, :code:`"instrumentalness"`,
+            :code:`"key"`, :code:`"liveness"`, :code:`"loudness"`,
+            :code:`"mode"`, :code:`"popularity"`, :code:`"speechiness"`,
+            :code:`"tempo"`, :code:`"time_signature"`,
+            :code:`"valence"`.
+
+        value : int, float, or tuple[int | float, ...]
+            Track attribute value.
+
+        data_type : type
+            Allowed data type for the track attribute.
+
+            **Valid values**: :code:`int` or :code:`float`.
+
+        range_ : tuple[int | float | None, int | float | None]
+            Valid range for the track attribute.
+
+        params : dict[str, Any]
+            Query parameters to include in the request.
+
+            .. note::
+
+               This `dict` is mutated in-place.
+        """
+        if value is None:
+            return
+
+        is_int = data_type is int
+        if isinstance(value, data_type):
+            self._validate_number(attribute, value, data_type, *range_)
+            params[f"target_{attribute}"] = value
+        elif isinstance(value, tuple | list | set):
+            if is_int and any(
+                not (isinstance(v, int) or v is None) for v in value
+            ):
+                raise ValueError(
+                    f"Values for track attribute {attribute!r} must "
+                    "be integers (or None)."
+                )
+            elif any(
+                not (
+                    isinstance(v, Number)
+                    or isinstance(v, str)
+                    and v.isdecimal()
+                    or v is None
+                )
+                for v in value
+            ):
+                raise ValueError(
+                    f"Values for track attribute {attribute!r} must "
+                    "be numbers (or None)."
+                )
+            length = len(value)
+            if length not in range(2, 4):
+                raise ValueError(
+                    "The tuple provided for track attribute "
+                    f"{attribute!r} must have length 2 or 3, not "
+                    f"length {length}."
+                )
+            else:
+                for v in value:
+                    self._validate_number(attribute, v, data_type, *range_)
+                if length == 2:
+                    params[f"min_{attribute}"], params[f"max_{attribute}"] = (
+                        value
+                    )
+                elif length == 3:
+                    (
+                        params[f"min_{attribute}"],
+                        params[f"max_{attribute}"],
+                        params[f"target_{attribute}"],
+                    ) = value
+        else:
+            raise ValueError(
+                f"The value provided for track attribute {attribute!r} "
+                f"must be a {(dtype := data_type.__name__)} or a "
+                f"tuple of {dtype}s, not a {type(value).__name__}."
+            )
+
+    def _parse_seeds(
+        self,
+        seed_type: str,
+        seeds: str | list[str] | None,
+        n_seeds: int,
+        params: dict[str, Any],
+    ) -> int:
+        """
+        Parse and add seeds to a dictionary holding the request
+        parameters for :meth:`get_track_recommendations`.
+
+        Parameters
+        ----------
+        seed_type : str
+            Seed type.
+
+            **Valid values**: :code:`"seed_artists"`,
+            :code:`"seed_genres"`, :code:`"seed_tracks"`.
+
+        seeds : str, list[str], or None
+            Seed values.
+
+        n_seeds : int
+            Starting number of seed values.
+
+        params : dict[str, Any]
+            Query parameters to include in the request.
+
+            .. note::
+
+               This `dict` is mutated in-place.
+
+        Returns
+        -------
+        n_seeds : int
+            Ending number of seed values.
+        """
+        if seeds is None:
+            return n_seeds
+        if seed_type != "seed_genres":
+            params[seed_type], new_n_seeds = self._prepare_seed_genres(
+                seeds, limit=5
+            )
+        else:
+            params[seed_type], new_n_seeds = self._prepare_spotify_ids(
+                seeds, limit=5
+            )
+        return n_seeds + new_n_seeds
+
+    def _prepare_seed_genres(
+        self, seed_genres: str | list[str], /, limit: int
+    ) -> tuple[str, int]:
+        """
+        Normalize, validate, and serialize seed genres.
+
+        Parameters
+        ----------
+        seed_genres : str or list[str]; positional-only
+            Seed genres.
+
+        limit : int; keyword-only
+            Maximum number of seed genres that can be sent in a
+            request.
+
+        Returns
+        -------
+        seed_genres : str
+            Comma-separated string of seed genres.
+
+        n_seed_genres : int
+            Number of seed genres.
+        """
+        if isinstance(seed_genres, str):
+            return self._prepare_seed_genres(seed_genres.strip().split(","))
+
+        seed_genres = set(seed_genres)
+        n_genres = len(seed_genres)
+        if n_genres > limit:
+            raise ValueError(
+                f"A maximum of {limit} seed genres can be sent in a request."
+            )
+        for genre in seed_genres:
+            self._client.genres._validate_seed_genre(genre)
+        return ",".join(sorted(seed_genres)), n_genres
+
     @TTLCache.cached_method(ttl="popularity")
     def get_tracks(
         self, track_ids: str | list[str], /, *, country_code: str | None = None
@@ -518,7 +701,7 @@ class TracksAPI(SpotifyResourceAPI):
                     }
                   }
         """
-        self._client._validate_spotify_id(track_id)
+        self._validate_spotify_id(track_id)
         return self._client._request(
             "GET", f"audio-analysis/{track_id}"
         ).json()
@@ -882,10 +1065,10 @@ class TracksAPI(SpotifyResourceAPI):
         """
         params = {}
         if country_code is not None:
-            self._client._validate_market(country_code)
+            self._client.markets._validate_market(country_code)
             params["market"] = country_code
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
 
         n_seeds = self._parse_seeds(
@@ -1088,188 +1271,3 @@ class TracksAPI(SpotifyResourceAPI):
         return self._client.users.get_my_top_items(
             "tracks", time_range=time_range, limit=limit, offset=offset
         )
-
-    def _parse_attribute(
-        self,
-        attribute: str,
-        value: int | float | tuple[int | float | None, ...],
-        data_type: type,
-        range_: tuple[int | float | None, int | float | None],
-        params: dict[str, Any],
-    ) -> None:
-        """
-        Parse and add a track attribute to a dictionary holding the
-        request parameters for :meth:`get_track_recommendations`.
-
-        Parameters
-        ----------
-        attribute : str
-            Track attribute.
-
-            **Valid values**: :code:`"acousticness"`,
-            :code:`"danceability"`, :code:`"duration_ms"`,
-            :code:`"energy"`, :code:`"instrumentalness"`,
-            :code:`"key"`, :code:`"liveness"`, :code:`"loudness"`,
-            :code:`"mode"`, :code:`"popularity"`, :code:`"speechiness"`,
-            :code:`"tempo"`, :code:`"time_signature"`,
-            :code:`"valence"`.
-
-        value : int, float, or tuple[int | float, ...]
-            Track attribute value.
-
-        data_type : type
-            Allowed data type for the track attribute.
-
-            **Valid values**: :code:`int` or :code:`float`.
-
-        range_ : tuple[int | float | None, int | float | None]
-            Valid range for the track attribute.
-
-        params : dict[str, Any]
-            Query parameters to include in the request.
-
-            .. note::
-
-               This `dict` is mutated in-place.
-        """
-        if value is None:
-            return
-
-        is_int = data_type is int
-        if isinstance(value, data_type):
-            self._client._validate_number(attribute, value, data_type, *range_)
-            params[f"target_{attribute}"] = value
-        elif isinstance(value, tuple | list | set):
-            if is_int and any(
-                not (isinstance(v, int) or v is None) for v in value
-            ):
-                raise ValueError(
-                    f"Values for track attribute {attribute!r} must "
-                    "be integers (or None)."
-                )
-            elif any(
-                not (
-                    isinstance(v, Number)
-                    or isinstance(v, str)
-                    and v.isdecimal()
-                    or v is None
-                )
-                for v in value
-            ):
-                raise ValueError(
-                    f"Values for track attribute {attribute!r} must "
-                    "be numbers (or None)."
-                )
-            length = len(value)
-            if length not in range(2, 4):
-                raise ValueError(
-                    "The tuple provided for track attribute "
-                    f"{attribute!r} must have length 2 or 3, not "
-                    f"length {length}."
-                )
-            else:
-                for v in value:
-                    self._client._validate_number(
-                        attribute, v, data_type, *range_
-                    )
-                if length == 2:
-                    params[f"min_{attribute}"], params[f"max_{attribute}"] = (
-                        value
-                    )
-                elif length == 3:
-                    (
-                        params[f"min_{attribute}"],
-                        params[f"max_{attribute}"],
-                        params[f"target_{attribute}"],
-                    ) = value
-        else:
-            raise ValueError(
-                f"The value provided for track attribute {attribute!r} "
-                f"must be a {(dtype := data_type.__name__)} or a "
-                f"tuple of {dtype}s, not a {type(value).__name__}."
-            )
-
-    def _parse_seeds(
-        self,
-        seed_type: str,
-        seeds: str | list[str] | None,
-        n_seeds: int,
-        params: dict[str, Any],
-    ) -> int:
-        """
-        Parse and add seeds to a dictionary holding the request
-        parameters for :meth:`get_track_recommendations`.
-
-        Parameters
-        ----------
-        seed_type : str
-            Seed type.
-
-            **Valid values**: :code:`"seed_artists"`,
-            :code:`"seed_genres"`, :code:`"seed_tracks"`.
-
-        seeds : str, list[str], or None
-            Seed values.
-
-        n_seeds : int
-            Starting number of seed values.
-
-        params : dict[str, Any]
-            Query parameters to include in the request.
-
-            .. note::
-
-               This `dict` is mutated in-place.
-
-        Returns
-        -------
-        n_seeds : int
-            Ending number of seed values.
-        """
-        if seeds is None:
-            return n_seeds
-        if seed_type != "seed_genres":
-            params[seed_type], new_n_seeds = self._prepare_seed_genres(
-                seeds, limit=5
-            )
-        else:
-            params[seed_type], new_n_seeds = self._client._prepare_spotify_ids(
-                seeds, limit=5
-            )
-        return n_seeds + new_n_seeds
-
-    def _prepare_seed_genres(
-        self, seed_genres: str | list[str], /, limit: int
-    ) -> tuple[str, int]:
-        """
-        Normalize, validate, and serialize seed genres.
-
-        Parameters
-        ----------
-        seed_genres : str or list[str]; positional-only
-            Seed genres.
-
-        limit : int; keyword-only
-            Maximum number of seed genres that can be sent in a
-            request.
-
-        Returns
-        -------
-        seed_genres : str
-            Comma-separated string of seed genres.
-
-        n_seed_genres : int
-            Number of seed genres.
-        """
-        if isinstance(seed_genres, str):
-            return self._prepare_seed_genres(seed_genres.strip().split(","))
-
-        seed_genres = set(seed_genres)
-        n_genres = len(seed_genres)
-        if n_genres > limit:
-            raise ValueError(
-                f"A maximum of {limit} seed genres can be sent in a request."
-            )
-        for genre in seed_genres:
-            self._client._validate_seed_genre(genre)
-        return ",".join(sorted(seed_genres)), n_genres

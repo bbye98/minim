@@ -1,9 +1,10 @@
 from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI
+from ..._shared import TTLCache
+from ._shared import SpotifyResourceAPI
 
 
-class CategoriesAPI(ResourceAPI):
+class CategoriesAPI(SpotifyResourceAPI):
     """
     Categories API endpoints for the Spotify Web API.
 
@@ -69,7 +70,7 @@ class CategoriesAPI(ResourceAPI):
         """
         params = {}
         if locale:
-            self._client._validate_locale(locale)
+            self._validate_locale(locale)
             params["locale"] = locale
         return self._client._request(
             "GET", f"browse/categories/{category_id}", params=params
@@ -157,13 +158,13 @@ class CategoriesAPI(ResourceAPI):
         """
         params = {}
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if locale:
-            self._client._validate_locale(locale)
+            self._validate_locale(locale)
             params["locale"] = locale
         return self._client._request(
             "GET", "browse/categories", params=params

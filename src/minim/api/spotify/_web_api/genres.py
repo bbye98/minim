@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING
+from functools import cached_property
 
-from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
+from ..._shared import TTLCache
+from ._shared import SpotifyResourceAPI
 
 
-class GenresAPI(ResourceAPI):
+class GenresAPI(SpotifyResourceAPI):
     """
     Genres API endpoints for the Spotify Web API.
 
@@ -16,7 +14,49 @@ class GenresAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _client: "SpotifyWebAPI"
+    @cached_property
+    def available_seed_genres(self) -> set[str]:
+        """
+        Available seed genres for track recommendations.
+
+        .. admonition:: Third-party application mode
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              Extended quota mode before November 27, 2024
+                  Access the
+                  :code:`GET /recommendations/available-genre-seeds`
+                  endpoint. `Learn more. <https://developer.spotify.com
+                  /blog/2024-11-27-changes-to-the-web-api>`__
+
+        .. note::
+
+           Accessing this property may call :meth:`get_seed_genres` and
+           make a request to the Spotify Web API.
+        """
+        return set(self.get_seed_genres()["genres"])
+
+    def _validate_seed_genre(self, seed_genre: str, /) -> None:
+        """
+        Validate seed genre.
+
+        Parameters
+        ----------
+        seed_genre : str; positional-only
+            Seed genre.
+        """
+        if "available_seed_genres" in self.__dict__:
+            if seed_genre not in self.available_seed_genres:
+                seed_genres_str = "', '".join(
+                    sorted(self.available_seed_genres)
+                )
+                raise ValueError(
+                    f"Invalid seed genre {seed_genre!r}. "
+                    f"Valid values: '{seed_genres_str}'."
+                )
+        else:
+            self._validate_type("seed_genre", seed_genre, str)
 
     @TTLCache.cached_method(ttl="static")
     def get_seed_genres(self) -> dict[str, list[str]]:
@@ -42,7 +82,8 @@ class GenresAPI(ResourceAPI):
         seed_genres : dict[str, list[str]]
             Available seed genres.
 
-            **Sample response**: :code:`{"genres": ["alternative", "samba"]}`.
+            **Sample response**:
+            :code:`{"genres": ["alternative", "samba"]}`.
         """
         return self._client._request(
             "GET", "recommendations/available-genre-seeds"

@@ -1,3 +1,4 @@
+from functools import cached_property
 from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
@@ -18,6 +19,41 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
     _PLAYLIST_TYPES = {"owner", "subscriber"}
     _RELATIONSHIPS = {"tracks", "getSimilarPlaylists", "focus", "focusAll"}
+
+    @cached_property
+    def available_playlist_tags(self) -> dict[str, dict[str, Any]]:
+        """
+        Available playlist tags.
+
+        .. note::
+
+           Accessing this property may call :meth:`get_playlist_tags`
+           and make a request to the Qobuz API.
+        """
+        return {
+            tag.pop("slug"): tag for tag in self.get_playlist_tags()["tags"]
+        }
+
+    def _validate_playlist_tag_slug(self, playlist_tag_slug: str, /) -> None:
+        """
+        Validate playlist tag slug.
+
+        Parameters
+        ----------
+        playlist_tag_slug : str; positional-only
+            Playlist tag slug.
+        """
+        if not isinstance(playlist_tag_slug, str):
+            raise ValueError("Qobuz playlist tag slugs must be strings.")
+        if "available_playlist_tags" in self.__dict__:
+            if playlist_tag_slug not in self.available_playlist_tags:
+                playlist_tag_slugs_str = "', '".join(
+                    self.available_playlist_tags
+                )
+                raise ValueError(
+                    f"Invalid playlist tag slug {playlist_tag_slug!r}. "
+                    f"Valid values: {playlist_tag_slugs_str}."
+                )
 
     def add_playlist_tracks(
         self,
@@ -92,9 +128,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             "track_ids": self._prepare_qobuz_ids(track_ids, data_type=str),
         }
         if allow_duplicates is not None:
-            self._client._validate_type(
-                "allow_duplicates", allow_duplicates, bool
-            )
+            self._validate_type("allow_duplicates", allow_duplicates, bool)
             params["no_duplicate"] = not allow_duplicates
         return self._client._request(
             "POST", "playlist/addTracks", params=params
@@ -185,18 +219,18 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_playlist")
-        self._client._validate_type("name", name, str)
+        self._validate_type("name", name, str)
         if not len(name):
             raise ValueError("The playlist name cannot be blank.")
         payload = {"name": name}
         if description is not None:
-            self._client._validate_type("description", description, str)
+            self._validate_type("description", description, str)
             payload["description"] = description
         if public is not None:
-            self._client._validate_type("public", public, bool)
+            self._validate_type("public", public, bool)
             payload["public"] = public
         if collaborative is not None:
-            self._client._validate_type("collaborative", collaborative, bool)
+            self._validate_type("collaborative", collaborative, bool)
             payload["collaborative"] = collaborative
         if from_album_id is not None:
             self._validate_album_id(from_album_id)
@@ -609,10 +643,10 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         if expand is not None:
             params["extra"] = self._prepare_expand(expand)
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "playlist/get", params=params
@@ -747,7 +781,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        self._client._validate_type("playlist_type", playlist_type, str)
+        self._validate_type("playlist_type", playlist_type, str)
         playlist_type = playlist_type.strip().lower()
         if playlist_type not in {"last-created", "editor-picks"}:
             raise ValueError(
@@ -756,14 +790,14 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             )
         params = {"type": playlist_type}
         if genre_ids is not None:
-            self._client._validate_type(
+            self._validate_type(
                 "genre_ids", genre_ids, int | str | tuple | list | set
             )
-            # if not isinstance(genre_ids, int):
-            #     if isinstance(genre_ids, str):
-            #         genre_ids = genre_ids.strip().split(",")
-            #     for genre_id in genre_ids:
-            #         self._validate_genre_id(genre_id)
+            if not isinstance(genre_ids, int):
+                if isinstance(genre_ids, str):
+                    genre_ids = genre_ids.strip().split(",")
+                for genre_id in genre_ids:
+                    self._client.genres._validate_genre_id(genre_id)
             params["genre_ids"] = self._prepare_qobuz_ids(
                 genre_ids, data_type=str
             )
@@ -774,10 +808,10 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                 self._validate_playlist_tag_slug(playlist_tag_slug)
             params["tags"] = ",".join(str(slug) for slug in playlist_tag_slugs)
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "playlist/getFeatured", params=params
@@ -955,10 +989,10 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                 "playlist type", playlist_types, self._PLAYLIST_TYPES
             )
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         if sort_by is not None:
             if sort_by not in (sort_fields := {"updated_at", "position"}):
@@ -969,7 +1003,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                 )
             params["order"] = sort_by
         if descending is not None:
-            self._client._validate_type("descending", descending, bool)
+            self._validate_type("descending", descending, bool)
             params["orderDirection"] = "desc" if descending else "asc"
         return self._client._request(
             "GET", "playlist/getUserPlaylists", params=params
@@ -1078,18 +1112,18 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._validate_qobuz_ids(playlist_id, _recursive=False)
         payload = {}
         if name is not None:
-            self._client._validate_type("name", name, str)
+            self._validate_type("name", name, str)
             if not len(name):
                 raise ValueError("The playlist name cannot be blank.")
             payload["name"] = name
         if description is not None:
-            self._client._validate_type("description", description, str)
+            self._validate_type("description", description, str)
             payload["description"] = description
         if public is not None:
-            self._client._validate_type("public", public, bool)
+            self._validate_type("public", public, bool)
             payload["is_public"] = public
         if collaborative is not None:
-            self._client._validate_type("collaborative", collaborative, bool)
+            self._validate_type("collaborative", collaborative, bool)
             payload["is_collaborative"] = collaborative
         if track_ids is not None:
             self._validate_qobuz_ids(track_ids)
@@ -1215,7 +1249,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             "playlists.reorder_playlist_items"
         )
         self._validate_qobuz_ids(playlist_id, _recursive=False)
-        self._client._validate_number("to_index", to_index, int, 0)
+        self._validate_number("to_index", to_index, int, 0)
         return self._client._request(
             "POST",
             "playlist/updateTracksPosition",
@@ -1227,24 +1261,3 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                 "insert_before": to_index,
             },
         ).json()
-
-    def _validate_playlist_tag_slug(self, playlist_tag_slug: str, /) -> None:
-        """
-        Validate playlist tag slug.
-
-        Parameters
-        ----------
-        playlist_tag_slug : str; positional-only
-            Playlist tag slug.
-        """
-        if not isinstance(playlist_tag_slug, str):
-            raise ValueError("Qobuz playlist tag slugs must be strings.")
-        if "available_playlist_tags" in self.__dict__:
-            if playlist_tag_slug not in self._client.available_playlist_tags:
-                playlist_tag_slugs_str = "', '".join(
-                    self._client.available_playlist_tags
-                )
-                raise ValueError(
-                    f"Invalid playlist tag slug {playlist_tag_slug!r}. "
-                    f"Valid values: {playlist_tag_slugs_str}."
-                )

@@ -6,7 +6,7 @@ from ._shared import PrivateQobuzResourceAPI
 
 class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
     """
-    Favorites API endpoints for the private Qobuz Web API.
+    Favorites API endpoints for the private Qobuz API.
 
     .. note::
 
@@ -431,7 +431,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication("favorites.get_my_saved")
         params = {}
         if item_type is not None:
-            self._client._validate_type("item_type", item_type, str)
+            self._validate_type("item_type", item_type, str)
             item_type = item_type.strip().lower()
             if item_type not in self._FAVORITE_TYPES:
                 favorite_types_str = "', '".join(self._FAVORITE_TYPES)
@@ -440,10 +440,10 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
                     f"Valid values: '{favorite_types_str}'."
                 )
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
+            self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "favorite/getUserFavorites", params=params
@@ -522,7 +522,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": <bool>}`.
         """
         self._client._require_authentication("favorites.is_saved")
-        self._client._validate_type("item_type", item_type, str)
+        self._validate_type("item_type", item_type, str)
         item_type = item_type.strip().lower()
         if f"{item_type}s" not in self._FAVORITE_TYPES:
             favorite_types_str = "', '".join(
@@ -577,7 +577,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": <bool>}`.
         """
         self._client._require_authentication("favorites.toggle_saved")
-        self._client._validate_type("item_type", item_type, str)
+        self._validate_type("item_type", item_type, str)
         item_type = item_type.strip().lower()
         if f"{item_type}s" not in self._FAVORITE_TYPES:
             favorite_types_str = "', '".join(

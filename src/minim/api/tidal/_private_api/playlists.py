@@ -1,13 +1,11 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI, _copy_docstring
+from ..._shared import TTLCache, _copy_docstring
+from ._shared import PrivateTIDALResourceAPI
 from .users import PrivateUsersAPI
 
-if TYPE_CHECKING:
-    from .. import PrivateTIDALAPI
 
-
-class PrivatePlaylistsAPI(ResourceAPI):
+class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
     """
     Playlists API endpoints for the private TIDAL API.
 
@@ -24,7 +22,6 @@ class PrivatePlaylistsAPI(ResourceAPI):
         "USER_PLAYLIST",
     }
     _SORT_FIELDS = {"DATE", "NAME"}
-    _client: "PrivateTIDALAPI"
 
     @classmethod
     def _validate_types(cls, playlist_types: str | list[str], /) -> None:
@@ -54,6 +51,44 @@ class PrivatePlaylistsAPI(ResourceAPI):
                 "`playlist_types` must be a comma-separated string or "
                 "a list of strings."
             )
+
+    def _get_playlist_etag(
+        self, playlist_uuid: str, /, country_code: str | None = None
+    ) -> str:
+        """
+        Get the entity tag (ETag) for a TIDAL playlist.
+
+        Parameters
+        ----------
+        playlist_uuid : str; positional-only
+            UUID of the TIDAL playlist.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+        Returns
+        -------
+        etag : str
+            ETag for the playlist.
+
+            **Example**: :code:`"1765846447570"`.
+        """
+        self._validate_uuid(playlist_uuid)
+        if country_code is None:
+            country_code = self._client._my_country_code
+        else:
+            self._validate_country_code(country_code)
+        return (
+            self._client._request(
+                "GET",
+                f"v1/playlists/{playlist_uuid}",
+                params={"countryCode": country_code},
+            )
+            .headers["ETag"]
+            .replace('"', "")
+        )
 
     @TTLCache.cached_method(ttl="user")
     def get_playlist(
@@ -209,13 +244,13 @@ class PrivatePlaylistsAPI(ResourceAPI):
                        "uuid": <str>
                      }
         """
-        self._client._validate_uuid(playlist_uuid)
-        self._client._validate_number("version", api_version, int, 1, 2)
+        self._validate_uuid(playlist_uuid)
+        self._validate_number("version", api_version, int, 1, 2)
         if api_version == 1:
             if country_code is None:
                 country_code = self._client._my_country_code
             else:
-                self._client._validate_country_code(country_code)
+                self._validate_country_code(country_code)
             return self._client._request(
                 "GET",
                 f"v1/playlists/{playlist_uuid}",
@@ -411,14 +446,14 @@ class PrivatePlaylistsAPI(ResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
+            self._validate_number("limit", limit, int, 1, 100)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", f"v1/playlists/{playlist_uuid}/items", params=params
@@ -561,14 +596,14 @@ class PrivatePlaylistsAPI(ResourceAPI):
         self._client._require_authentication(
             "playlists.get_playlist_recommended_tracks"
         )
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         params = {}
         self._client._resolve_country_code(country_code, params)
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
+            self._validate_number("limit", limit, int, 1, 100)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET",
@@ -635,13 +670,13 @@ class PrivatePlaylistsAPI(ResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_folder")
-        self._client._validate_type("name", name, str)
+        self._validate_type("name", name, str)
         if not len(name):
             raise ValueError("The playlist folder name cannot be blank.")
         params = {"name": name}
         if folder_uuid is not None:
             if folder_uuid != "root":
-                self._client._validate_uuid(folder_uuid)
+                self._validate_uuid(folder_uuid)
             params["folderId"] = folder_uuid
         return self._client._request(
             "PUT",
@@ -680,7 +715,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
             "PUT",
             "v2/my-collection/playlists/folders/remove",
             params={
-                "trns": self._client._prepare_uuids(
+                "trns": self._prepare_uuids(
                     "folder", folder_uuids, has_prefix=True
                 )
             },
@@ -793,19 +828,19 @@ class PrivatePlaylistsAPI(ResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_playlist")
-        self._client._validate_type("name", name, str)
+        self._validate_type("name", name, str)
         if not len(name):
             raise ValueError("The playlist name cannot be blank.")
         params = {"name": name}
         if description is not None:
-            self._client._validate_type("description", description, str)
+            self._validate_type("description", description, str)
             params["description"] = description
         if public is not None:
-            self._client._validate_type("public", public, bool)
+            self._validate_type("public", public, bool)
             params["isPublic"] = public
         if folder_uuid is not None:
             if folder_uuid != "root":
-                self._client._validate_uuid(folder_uuid)
+                self._validate_uuid(folder_uuid)
             params["folderId"] = folder_uuid
         return self._client._request(
             "PUT",
@@ -851,13 +886,13 @@ class PrivatePlaylistsAPI(ResourceAPI):
         """
         self._client._require_authentication("playlists.move_playlists")
         params = {
-            "trns": self._client._prepare_uuids(
+            "trns": self._prepare_uuids(
                 "playlist", playlist_uuids, has_prefix=True
             ),
         }
         if folder_uuid is not None:
             if folder_uuid != "root":
-                self._client._validate_uuid(folder_uuid)
+                self._validate_uuid(folder_uuid)
             params["folderId"] = folder_uuid
         self._client._request(
             "PUT", "v2/my-collection/playlists/folders/move", params=params
@@ -888,7 +923,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
             Whether the playlist is displayed on the user's profile.
         """
         self._client._require_authentication("playlists.set_playlist_privacy")
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         self._client._request(
             "PUT",
             f"v2/playlists/{playlist_uuid}/set-"
@@ -930,15 +965,15 @@ class PrivatePlaylistsAPI(ResourceAPI):
         self._client._require_authentication(
             "playlists.update_playlist_details"
         )
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         payload = {}
         if name is not None:
-            self._client._validate_type("name", name, str)
+            self._validate_type("name", name, str)
             if not len(name):
                 raise ValueError("The playlist name cannot be blank.")
             payload["title"] = name
         if description is not None:
-            self._client._validate_type("description", description, str)
+            self._validate_type("description", description, str)
             payload["description"] = description
         if not payload:
             raise ValueError("At least one change must be specified.")
@@ -977,7 +1012,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
             "PUT",
             "v2/my-collection/playlists/folders/remove",
             params={
-                "trns": self._client._prepare_uuids(
+                "trns": self._prepare_uuids(
                     "playlist", playlist_uuids, has_prefix=True
                 )
             },
@@ -1072,7 +1107,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
             self._client._validate_tidal_ids(from_album_id, _recursive=False)
             data["fromAlbumId"] = from_album_id
         else:
-            self._client._validate_uuid(from_playlist_uuid)
+            self._validate_uuid(from_playlist_uuid)
             data["fromPlaylistUuid"] = from_playlist_uuid
         if on_duplicate is not None:
             if on_duplicate not in (options := {"ADD", "FAIL", "SKIP"}):
@@ -1147,7 +1182,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
             from_item_indices = ",".join(
                 str(item_idx) for item_idx in from_item_indices
             )
-        self._client._validate_number("to_index", to_index, int, 0)
+        self._validate_number("to_index", to_index, int, 0)
         self._client._request(
             "POST",
             f"v1/playlists/{playlist_uuid}/items/{from_item_indices}",
@@ -1206,7 +1241,7 @@ class PrivatePlaylistsAPI(ResourceAPI):
         self._client._require_authentication(
             "playlists.replace_playlist_items"
         )
-        self._client._validate_number("item_index", item_index, int, 0)
+        self._validate_number("item_index", item_index, int, 0)
         self._client._validate_tidal_ids(item_id)
         self._client._request(
             "POST",
@@ -1429,42 +1464,4 @@ class PrivatePlaylistsAPI(ResourceAPI):
     ) -> dict[str, Any]:
         return self._client.users.get_user_public_playlists(
             user_id, cursor=cursor, limit=limit
-        )
-
-    def _get_playlist_etag(
-        self, playlist_uuid: str, /, country_code: str | None = None
-    ) -> str:
-        """
-        Get the entity tag (ETag) for a TIDAL playlist.
-
-        Parameters
-        ----------
-        playlist_uuid : str; positional-only
-            UUID of the TIDAL playlist.
-
-        country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the current user account or IP
-            address is used.
-
-        Returns
-        -------
-        etag : str
-            ETag for the playlist.
-
-            **Example**: :code:`"1765846447570"`.
-        """
-        self._client._validate_uuid(playlist_uuid)
-        if country_code is None:
-            country_code = self._client._my_country_code
-        else:
-            self._client._validate_country_code(country_code)
-        return (
-            self._client._request(
-                "GET",
-                f"v1/playlists/{playlist_uuid}",
-                params={"countryCode": country_code},
-            )
-            .headers["ETag"]
-            .replace('"', "")
         )

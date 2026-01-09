@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .._core import PrivateQobuzAPI
+from ..._shared import TTLCache
+from ._shared import PrivateQobuzResourceAPI
 
 
-class PrivateSearchEndpoints(ResourceAPI):
+class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
     """
     Search-related endpoints for the private Qobuz API.
 
@@ -21,7 +19,64 @@ class PrivateSearchEndpoints(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _client: "PrivateQobuzAPI"
+    def _search_resources(
+        self,
+        resource_type: str,
+        query: str,
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get Qobuz catalog information for albums, artists, playlists,
+        or tracks that match a keyword string.
+
+        Parameters
+        ----------
+        resource_type : str or None; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"album"`, :code:`"artist"`,
+            :code:`"catalog"`, :code:`"playlist"`, :code:`"story"`,
+            :code:`"track"`.
+
+        query : str; positional-only
+            Search query.
+
+        limit : int; keyword-only; optional
+            Maximum number of items to return.
+
+            **Valid range**: :code:`1` to :code:`500`.
+
+            **API default**: :code:`50`.
+
+        offset : int; keyword-only; optional
+            Index of the first item to return. Use with `limit` to
+            get the next batch of items.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        results : dict[str, Any]
+            Search results.
+        """
+        self._validate_type("query", query, str)
+        if not len(query):
+            raise ValueError("No search query provided.")
+        params = {"query": query.strip()}
+        if limit is not None:
+            self._validate_number("limit", limit, int, 1, 500)
+            params["limit"] = limit
+        if offset is not None:
+            self._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request(
+            "GET", f"{resource_type}/search", params=params
+        ).json()
 
     @TTLCache.cached_method(ttl="search")
     def search(
@@ -953,10 +1008,10 @@ class PrivateSearchEndpoints(ResourceAPI):
                     "query": <str>
                   }
         """
-        self._client._validate_type("query", query, str)
+        self._validate_type("query", query, str)
         params = {"query": query.strip()}
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "most-popular/get", params=params
@@ -1316,62 +1371,3 @@ class PrivateSearchEndpoints(ResourceAPI):
         return self._search_resources(
             "track", query, limit=limit, offset=offset
         )
-
-    def _search_resources(
-        self,
-        resource_type: str,
-        query: str,
-        /,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get Qobuz catalog information for albums, artists, playlists,
-        or tracks that match a keyword string.
-
-        Parameters
-        ----------
-        resource_type : str or None; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"album"`, :code:`"artist"`,
-            :code:`"catalog"`, :code:`"playlist"`, :code:`"story"`,
-            :code:`"track"`.
-
-        query : str; positional-only
-            Search query.
-
-        limit : int; keyword-only; optional
-            Maximum number of items to return.
-
-            **Valid range**: :code:`1` to :code:`500`.
-
-            **API default**: :code:`50`.
-
-        offset : int; keyword-only; optional
-            Index of the first item to return. Use with `limit` to
-            get the next batch of items.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        results : dict[str, Any]
-            Search results.
-        """
-        self._client._validate_type("query", query, str)
-        if not len(query):
-            raise ValueError("No search query provided.")
-        params = {"query": query.strip()}
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 500)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", f"{resource_type}/search", params=params
-        ).json()

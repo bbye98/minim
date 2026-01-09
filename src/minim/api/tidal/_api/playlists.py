@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
 from .search import SearchAPI
 from .users import UsersAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class PlaylistsAPI(TIDALResourceAPI):
@@ -22,7 +19,6 @@ class PlaylistsAPI(TIDALResourceAPI):
     _ITEM_TYPES = {"tracks", "videos"}
     _RELATIONSHIPS = {"coverArt", "items", "ownerProfiles", "owners"}
     _SORT_FIELDS = {"createdAt", "lastModifiedAt", "name"}
-    _client: "TIDALAPI"
 
     @classmethod
     def _process_playlist_items(
@@ -795,18 +791,18 @@ class PlaylistsAPI(TIDALResourceAPI):
         )
         params = {}
         if country_code is not None:
-            self._client._validate_country_code(country_code)
+            self._validate_country_code(country_code)
             params["countryCode"] = country_code
-        self._client._validate_type("name", name, str)
+        self._validate_type("name", name, str)
         if not len(name):
             raise ValueError("The playlist name cannot be blank.")
         payload = {"data": {"attributes": {"name": name}, "type": "playlists"}}
         attrs = payload["data"]["attributes"]
         if description is not None:
-            self._client._validate_type("description", description, str)
+            self._validate_type("description", description, str)
             attrs["description"] = description
         if public is not None:
-            self._client._validate_type("public", public, bool)
+            self._validate_type("public", public, bool)
             attrs["accessType"] = "PUBLIC" if public else "UNLISTED"
         return self._client._request(
             "POST", "playlists", params=params, json=payload
@@ -861,9 +857,9 @@ class PlaylistsAPI(TIDALResourceAPI):
         )
         params = {}
         if country_code is not None:
-            self._client._validate_country_code(country_code)
+            self._validate_country_code(country_code)
             params["countryCode"] = country_code
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         payload = {
             "data": {
                 "attributes": {},
@@ -873,15 +869,15 @@ class PlaylistsAPI(TIDALResourceAPI):
         }
         attrs = payload["data"]["attributes"]
         if name is not None:
-            self._client._validate_type("name", name, str)
+            self._validate_type("name", name, str)
             if not len(name):
                 raise ValueError("The playlist name cannot be blank.")
             attrs["name"] = name
         if description is not None:
-            self._client._validate_type("description", description, str)
+            self._validate_type("description", description, str)
             attrs["description"] = description
         if public is not None:
-            self._client._validate_type("public", public, bool)
+            self._validate_type("public", public, bool)
             attrs["accessType"] = "PUBLIC" if public else "UNLISTED"
         if not attrs:
             raise ValueError("At least one change must be specified.")
@@ -913,7 +909,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.delete_playlist", "playlists.write"
         )
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         self._client._request("DELETE", f"playlist/{playlist_uuid}")
 
     @TTLCache.cached_method(ttl="user")
@@ -1297,7 +1293,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.add_playlist_items", "playlists.write"
         )
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         params = {}
         if country_code is not None:
             self._client._resolve_country_code(country_code, params)
@@ -1388,7 +1384,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.reorder_playlist_items", "playlists.write"
         )
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         payload = {"data": self._process_playlist_items(items)}
         if insert_before is not None:
             payload["meta"] = {"positionBefore": insert_before}
@@ -1468,7 +1464,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.remove_playlist_items", "playlists.write"
         )
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         self._client._request(
             "DELETE",
             f"playlists/{playlist_uuid}/relationships/items",
