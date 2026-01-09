@@ -54,7 +54,606 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                 raise ValueError(f"Invalid mix ID {id_!r}.")
         return ",".join(mix_ids)
 
-    @TTLCache.cached_method(ttl="catalog")
+    def _get_blocked_resources(
+        self,
+        resource_type: str,
+        user_id: int | str | None = None,
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for resources blocked by a user.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        limit : int; keyword-only; optional
+            Maximum number of items to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first item to return. Use with `limit` to get
+            the next batch of items.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        resources : dict[str, Any]
+            Page of TIDAL content metadata for resources blocked by the
+            user.
+        """
+        if user_id is None:
+            user_id = self._client._resolve_user_identifier()
+        params = {}
+        if limit is not None:
+            self._validate_number("limit", limit, int, 1, 100)
+            params["limit"] = limit
+        if offset is not None:
+            self._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        return self._client._request(
+            "GET", f"v1/users/{user_id}/blocks/{resource_type}", params=params
+        ).json()
+
+    def _manage_blocked_resources(
+        self,
+        method: str,
+        resource_type: str,
+        resource_id: int | str,
+        /,
+        user_id: int | str | None = None,
+    ) -> None:
+        """
+        Block or unblock a resource for a user.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage the user's collection.
+
+        Parameters
+        ----------
+        resource_id : int or str; positional-only
+            TIDAL ID of the resource.
+
+        user_id : int or str; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+        """
+        if user_id is None:
+            user_id = self._client._resolve_user_identifier()
+        if method == "POST":
+            self._client._request(
+                "POST",
+                f"v1/users/{user_id}/blocks/{resource_type}s",
+                data={f"{resource_type}Id": resource_id},
+            )
+        else:
+            self._client._request(
+                "DELETE",
+                f"v1/users/{user_id}/blocks/{resource_type}s/{resource_id}",
+            )
+
+    def _get_saved_resources(
+        self,
+        resource_type: str,
+        /,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+        sort_by: str | None = None,
+        descending: bool | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for items of a specific resource
+        type in a user's collection.
+
+        Parameters
+        ----------
+        resource_type : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"tracks"`, :code:`"videos"`.
+
+        user_id : int or str; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of items to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first item to return. Use with `limit` to get
+            the next batch of items.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        sort_by : str; keyword-only; optional
+            Field to sort the items by.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"DATE"` - Date added.
+               * :code:`"NAME"` - Item name.
+
+            **API default**: :code:`"DATE"`.
+
+        descending : bool; keyword-only; optional
+            Whether to sort in descending order.
+
+            **API default**: :code:`False`.
+
+        Returns
+        -------
+        items : dict[str, Any]
+            Page of TIDAL catalog information for items in the user's
+            collection.
+        """
+        if user_id is None:
+            user_id = self._client._resolve_user_identifier()
+        params = {}
+        self._client._resolve_country_code(country_code, params)
+        if limit is not None:
+            self._validate_number("limit", limit, int, 1, 100)
+            params["limit"] = limit
+        if offset is not None:
+            self._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        if sort_by is not None:
+            if sort_by not in self._SORT_FIELDS:
+                sort_fields_str = "', '".join(sorted(self._SORT_FIELDS))
+                raise ValueError(
+                    f"Invalid sort field {sort_by!r}. "
+                    f"Valid values: '{sort_fields_str}'."
+                )
+            params["order"] = sort_by
+        if descending is not None:
+            self._validate_type("descending", descending, bool)
+            params["orderDirection"] = "DESC" if descending else "ASC"
+        return self._client._request(
+            "GET",
+            f"v1/users/{user_id}/favorites/{resource_type}",
+            params=params,
+        ).json()
+
+    def _save_resources(
+        self,
+        resource_type: str,
+        item_ids: int | str | list[int | str],
+        /,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+        *,
+        on_missing: str | None = None,
+    ) -> None:
+        """
+        Add items of a specific resource type to a user's collection.
+
+        Parameters
+        ----------
+        resource_type : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"tracks"`, :code:`"videos"`.
+
+        item_ids : int, str, or list[int | str]; positional-only
+            TIDAL IDs of the items.
+
+        user_id : int or str; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+            **Example**: :code:`"US"`.
+
+        on_missing : str; keyword-only; optional
+            Behavior when the items to be favorited cannot be found in
+            the TIDAL catalog.
+
+            **API default**: :code:`"FAIL"`.
+        """
+        if user_id is None:
+            user_id = self._client._resolve_user_identifier()
+        if country_code is None:
+            country_code = self._client._my_country_code
+        else:
+            self._validate_country_code(country_code)
+        data = {
+            f"{resource_type[:-1]}Ids": self._prepare_tidal_ids(
+                item_ids, limit=1_000
+            )
+        }
+        if on_missing is not None:
+            self._validate_type("on_missing", on_missing, str)
+            on_missing = on_missing.strip().upper()
+            if on_missing not in {"FAIL", "SKIP"}:
+                raise ValueError(
+                    f"Invalid behavior {on_missing!r} for missing "
+                    "items. Valid values: 'FAIL', 'SKIP'."
+                )
+            data["onArtifactNotFound"] = on_missing
+        self._client._request(
+            "POST",
+            f"v1/users/{user_id}/favorites/{resource_type}",
+            params={"countryCode": country_code},
+            data=data,
+        )
+
+    def _remove_saved_resources(
+        self,
+        resource_type: str,
+        item_ids: int | str | list[int | str],
+        /,
+        user_id: int | str | None = None,
+    ) -> None:
+        """
+        Remove items of a specific resource type from a user's
+        collection.
+
+        Parameters
+        ----------
+        resource_type : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"tracks"`, :code:`"videos"`.
+
+        item_ids : int, str, or list[int | str]; positional-only
+            TIDAL IDs of the items.
+
+        user_id : int or str; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+        """
+        if user_id is None:
+            user_id = self._client._resolve_user_identifier()
+        self._client._request(
+            "DELETE",
+            f"v1/users/{user_id}/favorites/{resource_type}"
+            f"/{self._prepare_tidal_ids(item_ids, limit=1_000)}",
+        )
+
+    def _get_user_relationship(
+        self,
+        resource_type: str,
+        relationship: str,
+        user_id: int | str | None = None,
+        /,
+        *,
+        cursor: str | None = None,
+        limit: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for a resource related to a user.
+
+        Parameters
+        ----------
+        resource_type : str; positional-only
+            Resource type.
+
+        relationship : str; positional-only
+            Related resource type.
+
+        user_id : int or str; positional-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+        limit : int; keyword-only; default: :code:`50`
+            Maximum number of items to return.
+
+        Returns
+        -------
+        resource : dict[str, Any]
+            TIDAL content metadata for the related resource.
+        """
+        if user_id is None:
+            user_id = self._client._resolve_user_identifier()
+        params = {}
+        if cursor is not None:
+            self._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        if limit is not None:
+            self._validate_number("limit", limit, int, 1, 50)
+            params["limit"] = limit
+        return self._client._request(
+            f"v2/{resource_type}/{user_id}/{relationship}", params=params
+        ).json()
+
+    def _get_my_playlists(
+        self,
+        subresource: str,
+        /,
+        *,
+        cursor: str | None = None,
+        limit: int = 50,
+        playlist_types: str | list[str] | None = None,
+        sort_by: str | None = None,
+        descending: bool | None = None,
+        params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for playlist folders and/or
+        playlists in the current user's collection.
+
+        Parameters
+        ----------
+        subresource : str; positional-only
+            Subresource of the endpoint to call.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+        limit : int; keyword-only; default: :code:`50`
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`50`.
+
+        playlist_types : str or list[str]; keyword-only; optional
+            Playlist types to return. If not specified, all playlists
+            are returned.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"FOLDER"` – Playlist folders.
+               * :code:`"PLAYLIST"` – All playlists.
+               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
+               * :code:`"USER_PLAYLIST"` – User-created playlists.
+
+            **Examples**: :code:`"USER_PLAYLIST"`,
+            :code:`"FOLDER,USER_PLAYLIST"`,
+            :code:`["FOLDER", "USER_PLAYLIST"]`.
+
+        sort_by : str; keyword-only; optional
+            Field to sort the playlists by.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"DATE"` - Date added.
+               * :code:`"NAME"` - Playlist name.
+
+            **API default**: :code:`"DATE"`.
+
+        descending : bool; keyword-only; optional
+            Whether to sort in descending order.
+
+            **API default**: :code:`False`.
+
+        params : dict[str, Any]; keyword-only; optional
+            Dictionary of additional query parameters to include in the
+            request. If not provided, a new dictionary will be created.
+
+            .. note::
+
+               This `dict` is mutated in-place.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            Page of TIDAL content metadata for the playlist folders
+            and/or playlists in the current user's collection.
+        """
+        self._validate_number("limit", limit, int, 1, 50)
+        if params is None:
+            params = {"limit": limit}
+        else:
+            params["limit"] = limit
+        if cursor is not None:
+            self._validate_type("cursor", cursor, str)
+            params["cursor"] = cursor
+        if playlist_types is not None:
+            self._client.playlists._validate_types(playlist_types)
+            params["includeOnly"] = playlist_types
+        if sort_by is not None:
+            if sort_by not in self._SORT_FIELDS:
+                sort_fields_str = "', '".join(sorted(self._SORT_FIELDS))
+                raise ValueError(
+                    f"Invalid sort field {sort_by!r}. "
+                    f"Valid values: '{sort_fields_str}'."
+                )
+            params["order"] = sort_by
+        if descending is not None:
+            self._validate_type("descending", descending, bool)
+            params["orderDirection"] = "DESC" if descending else "ASC"
+        return self._client._request(
+            "GET", f"v2/my-collection/{subresource}", params=params
+        ).json()
+
+    def _get_user_playlists(
+        self,
+        subresource: str,
+        user_id: int | str | None = None,
+        /,
+        country_code: str | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+        sort_by: str | None = None,
+        descending: bool | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for playlists in a user's
+        collection.
+
+        Parameters
+        ----------
+        subresource : str; positional-only
+            Subresource of the endpoint to call.
+
+        user_id : int or str; positional-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code. If not provided, the
+            country associated with the current user account or IP
+            address is used.
+
+            **Example**: :code:`"US"`.
+
+        limit : int; keyword-only; optional
+            Maximum number of playlists to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        offset : int; keyword-only; optional
+            Index of the first playlist to return. Use with `limit` to
+            get the next batch of playlists.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        sort_by : str; keyword-only; optional
+            Field to sort the playlists by.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`"DATE"` - Date added.
+               * :code:`"NAME"` - Playlist name.
+
+            **API default**: :code:`"DATE"`.
+
+        descending : bool; keyword-only; optional
+            Whether to sort in descending order.
+
+            **API default**: :code:`False`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            Page of TIDAL catalog information for playlists in the
+            user's collection.
+        """
+        if user_id is None:
+            user_id = self._client._resolve_user_identifier()
+        params = {}
+        self._client._resolve_country_code(country_code, params)
+        if limit is not None:
+            self._validate_number("limit", limit, int, 1, 100)
+            params["limit"] = limit
+        if offset is not None:
+            self._validate_number("offset", offset, int, 0)
+            params["offset"] = offset
+        if sort_by is not None:
+            if sort_by not in self._SORT_FIELDS:
+                sort_fields_str = "', '".join(sorted(self._SORT_FIELDS))
+                raise ValueError(
+                    f"Invalid sort field {sort_by!r}. "
+                    f"Valid values: '{sort_fields_str}'."
+                )
+            params["order"] = sort_by
+        if descending is not None:
+            self._validate_type("descending", descending, bool)
+            params["orderDirection"] = "DESC" if descending else "ASC"
+        return self._client._request(
+            "GET", f"v1/users/{user_id}/{subresource}", params=params
+        ).json()
+
+    def _manage_followed_users(
+        self, method: str, user_id: int | str, /
+    ) -> None:
+        """
+        Follow or unfollow a TIDAL user.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage the user's collection.
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+            **Valid values**: :code:`"PUT"`, :code:`"DELETE"`.
+
+        user_id : int or str; positional-only
+            TIDAL ID of the user.
+        """
+        self._client._validate_tidal_ids(user_id, _recursive=False)
+        self._client._request(
+            method, "v2/follow", params={"trn": f"trn:user:{user_id}"}
+        )
+
+    def _manage_blocked_users(
+        self, method: str, user_id: int | str, /
+    ) -> None:
+        """
+        Block or unblock a TIDAL user.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access and manage the user's collection.
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+            **Valid values**: :code:`"PUT"`, :code:`"DELETE"`.
+
+        user_id : int or str; positional-only
+            TIDAL ID of the user.
+        """
+        self._client._validate_tidal_ids(user_id, _recursive=False)
+        self._client._request(method, f"v2/profiles/block/{user_id}")
+
+    @TTLCache.cached_method(ttl="static")
     def get_my_profile(self) -> dict[str, Any]:
         """
         Get profile information for the current user.
@@ -65,8 +664,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Returns
         -------
@@ -111,7 +709,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             "GET", "https://login.tidal.com/oauth2/me"
         ).json()
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_session(self) -> dict[str, Any]:
         """
         Get information about the current private TIDAL API session.
@@ -288,7 +886,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             "users", user_id, "subscription", country_code=country_code
         )
 
-    def get_favorite_ids(
+    @TTLCache.cached_method(ttl="user")
+    def get_saved_ids(
         self, user_id: int | str | None = None, /
     ) -> dict[str, list[str]]:
         """
@@ -301,8 +900,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -328,10 +926,11 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "VIDEO": <list[str]>,
                   }
         """
-        self._client._require_authentication("users.get_favorite_ids")
-        return self._get_favorite_resources("ids", user_id)
+        self._client._require_authentication("users.get_saved_ids")
+        return self._get_saved_resources("ids", user_id)
 
-    def get_favorite_albums(
+    @TTLCache.cached_method(ttl="user")
+    def get_saved_albums(
         self,
         user_id: int | str | None = None,
         /,
@@ -351,8 +950,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -469,8 +1067,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_favorite_albums")
-        return self._get_favorite_resources(
+        self._client._require_authentication("users.get_saved_albums")
+        return self._get_saved_resources(
             "albums",
             user_id,
             country_code=country_code,
@@ -480,7 +1078,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    def favorite_albums(
+    def save_albums(
         self,
         album_ids: int | str | list[int | str],
         /,
@@ -498,8 +1096,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -527,8 +1124,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **API default**: :code:`"FAIL"`.
         """
-        self._client._require_authentication("users.favorite_albums")
-        return self._favorite_resources(
+        self._client._require_authentication("users.save_albums")
+        return self._save_resources(
             "albums",
             album_ids,
             user_id=user_id,
@@ -536,7 +1133,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             on_missing=on_missing,
         )
 
-    def unfavorite_albums(
+    def remove_saved_albums(
         self,
         album_ids: int | str | list[int | str],
         /,
@@ -551,8 +1148,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -567,9 +1163,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """
-        self._client._require_authentication("users.unfavorite_albums")
-        return self._unfavorite_resources("albums", album_ids, user_id=user_id)
+        self._client._require_authentication("users.remove_saved_albums")
+        return self._remove_saved_resources(
+            "albums", album_ids, user_id=user_id
+        )
 
+    @TTLCache.cached_method(ttl="user")
     def get_blocked_artists(
         self,
         user_id: int | str | None = None,
@@ -587,8 +1186,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -674,8 +1272,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -705,8 +1302,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -724,7 +1320,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             "DELETE", "artist", artist_id, user_id=user_id
         )
 
-    def get_favorite_artists(
+    @TTLCache.cached_method(ttl="user")
+    def get_followed_artists(
         self,
         user_id: int | str | None = None,
         /,
@@ -745,8 +1342,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -835,8 +1431,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_favorite_artists")
-        return self._get_favorite_resources(
+        self._client._require_authentication("users.get_followed_artists")
+        return self._get_saved_resources(
             "artists",
             user_id,
             country_code=country_code,
@@ -846,7 +1442,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    def favorite_artists(
+    def follow_artists(
         self,
         artist_ids: int | str | list[int | str],
         /,
@@ -864,8 +1460,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -892,8 +1487,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **API default**: :code:`"FAIL"`.
         """
-        self._client._require_authentication("users.favorite_artists")
-        return self._favorite_resources(
+        self._client._require_authentication("users.follow_artists")
+        return self._save_resources(
             "artists",
             artist_ids,
             user_id=user_id,
@@ -901,7 +1496,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             on_missing=on_missing,
         )
 
-    def unfavorite_artists(
+    def unfollow_artists(
         self,
         artist_ids: int | str | list[int | str],
         /,
@@ -916,8 +1511,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -931,12 +1525,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """
-        self._client._require_authentication("users.unfavorite_artists")
-        return self._unfavorite_resources(
+        self._client._require_authentication("users.unfollow_artists")
+        return self._remove_saved_resources(
             "artists", artist_ids, user_id=user_id
         )
 
-    def get_my_favorite_mixes(
+    @TTLCache.cached_method(ttl="user")
+    def get_my_followed_mixes(
         self,
         *,
         limit: int = 50,
@@ -954,8 +1549,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1053,11 +1647,11 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "lastModifiedAt": <str>
                   }
         """
-        self._client._require_authentication("users.get_my_favorite_mixes")
-        self._client._validate_number("limit", limit, int, 1, 50)
+        self._client._require_authentication("users.get_my_followed_mixes")
+        self._validate_number("limit", limit, int, 1, 50)
         params = {"limit": limit}
         if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
+            self._validate_type("cursor", cursor, str)
             params["cursor"] = cursor
         if sort_by is not None:
             if sort_by not in self._SORT_FIELDS:
@@ -1068,13 +1662,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                 )
             params["order"] = sort_by
         if descending is not None:
-            self._client._validate_type("descending", descending, bool)
+            self._validate_type("descending", descending, bool)
             params["orderDirection"] = "DESC" if descending else "ASC"
         return self._client._request(
             "GET", "v2/favorites/mixes", params=params
         ).json()
 
-    def get_my_favorite_mix_ids(
+    @TTLCache.cached_method(ttl="user")
+    def get_my_followed_mix_ids(
         self, *, limit: int = 50, cursor: str | None = None
     ) -> dict[str, Any]:
         """
@@ -1086,8 +1681,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1107,17 +1701,17 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             **Sample response**:
             :code:`{"content": <list[str]>, "cursor": <str>}`
         """
-        self._client._require_authentication("users.get_my_favorite_mix_ids")
-        self._client._validate_number("limit", limit, int, 1, 50)
+        self._client._require_authentication("users.get_my_followed_mix_ids")
+        self._validate_number("limit", limit, int, 1, 50)
         params = {"limit": limit}
         if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
+            self._validate_type("cursor", cursor, str)
             params["cursor"] = cursor
         return self._client._request(
             "GET", "v2/favorites/mixes/ids", params=params
         ).json()
 
-    def favorite_mixes(
+    def follow_mixes(
         self, mix_ids: str | list[str], /, *, on_missing: str | None = None
     ) -> None:
         """
@@ -1129,8 +1723,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1152,10 +1745,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **API default**: :code:`"FAIL"`.
         """
-        self._client._require_authentication("users.favorite_mixes")
+        self._client._require_authentication("users.follow_mixes")
         data = {"mixIds": self._prepare_mix_ids(mix_ids)}
         if on_missing is not None:
-            self._client._validate_type("on_missing", on_missing, str)
+            self._validate_type("on_missing", on_missing, str)
             on_missing = on_missing.strip().upper()
             if on_missing not in {"FAIL", "SKIP"}:
                 raise ValueError(
@@ -1165,7 +1758,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             data["onArtifactNotFound"] = on_missing
         self._client._request("PUT", "v2/favorites/mixes/add", data=data)
 
-    def unfavorite_mixes(self, mix_ids: str | list[str], /) -> None:
+    def unfollow_mixes(self, mix_ids: str | list[str], /) -> None:
         """
         Remove mixes from the current user's collection.
 
@@ -1175,8 +1768,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1192,14 +1784,15 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                * :code:`["000ec0b01da1ddd752ec5dee553d48",
                  "000dd748ceabd5508947c6a5d3880a"]`
         """
-        self._client._require_authentication("users.unfavorite_mixes")
+        self._client._require_authentication("users.unfollow_mixes")
         self._client._request(
             "PUT",
             "v2/favorites/mixes/remove",
             data={"mixIds": self._prepare_mix_ids(mix_ids)},
         )
 
-    def get_favorite_playlists(
+    @TTLCache.cached_method(ttl="user")
+    def get_followed_playlists(
         self,
         user_id: int | str | None = None,
         /,
@@ -1220,8 +1813,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1323,8 +1915,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_favorite_playlists")
-        return self._get_favorite_resources(
+        self._client._require_authentication("users.get_followed_playlists")
+        return self._get_saved_resources(
             "playlists",
             user_id,
             country_code=country_code,
@@ -1334,7 +1926,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    def favorite_playlists(
+    def follow_playlists(
         self,
         playlist_uuids: str | list[str],
         /,
@@ -1372,14 +1964,16 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used. Only applicable when :code:`version=1`.
+            TIDAL ID is used. Only applicable when `version` is
+            :code:`1`.
 
             **Example**: :code:`"US"`.
 
         folder_uuid : str; keyword-only; optional
             UUID of the TIDAL playlist folder to add playlists to. Use
             :code:`"root"` or leave blank to target the top-level
-            "Playlists" folder. Only applicable when :code:`version=2`.
+            "Playlists" folder. Only applicable when `version` is
+            :code:`2`.
 
         api_version : int; keyword-only; default: :code:`2`
             Private TIDAL API version.
@@ -1388,25 +1982,23 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             .. container::
 
-               * :code:`1` – legacy
-                 :code:`POST v1/users/{user_id}/favorites/playlists`
+               * :code:`1` – Legacy
+                 :code:`POST /v1/users/{user_id}/favorites/playlists`
                  endpoint.
-               * :code:`2` – current
-                 :code:`PUT v2/my-collection/playlists/folders/add-favorites`
+               * :code:`2` – Current
+                 :code:`PUT /v2/my-collection/playlists/folders/add-favorites`
                  endpoint.
         """
-        self._client._require_authentication("users.favorite_playlists")
-        params = {
-            "uuids": self._client._prepare_uuids("playlist", playlist_uuids)
-        }
-        self._client._validate_number("api_version", api_version, int, 1, 2)
+        self._client._require_authentication("users.follow_playlists")
+        params = {"uuids": self._prepare_uuids("playlist", playlist_uuids)}
+        self._validate_number("api_version", api_version, int, 1, 2)
         if api_version == 1:
             if user_id is None:
                 user_id = self._client._resolve_user_identifier()
             if country_code is None:
                 country_code = self._client._my_country_code
             else:
-                self._client._validate_country_code(country_code)
+                self._validate_country_code(country_code)
             self._client._request(
                 "POST",
                 f"v1/users/{user_id}/favorites/playlists",
@@ -1416,7 +2008,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         else:
             if folder_uuid is not None:
                 if folder_uuid != "root":
-                    self._client._validate_uuid(folder_uuid)
+                    self._validate_uuid(folder_uuid)
                 params["folderId"] = folder_uuid
             self._client._request(
                 "PUT",
@@ -1424,7 +2016,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                 params=params,
             )
 
-    def unfavorite_playlists(
+    def unfollow_playlists(
         self,
         playlist_uuids: str | list[str],
         /,
@@ -1441,8 +2033,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1461,7 +2052,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used. Only applicable when :code:`version=1`.
+            TIDAL ID is used. Only applicable when `version` is
+            :code:`1`.
 
         api_version : int; keyword-only; default: :code:`2`
             Private TIDAL API version.
@@ -1470,34 +2062,35 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             .. container::
 
-               * :code:`1` – legacy
-                 :code:`POST v1/users/{user_id}/favorites/playlists`
+               * :code:`1` – Legacy
+                 :code:`POST /v1/users/{user_id}/favorites/playlists`
                  endpoint.
-               * :code:`2` – current
-                 :code:`PUT v2/my-collection/playlists/folders/add-favorites`
+               * :code:`2` – Current
+                 :code:`PUT /v2/my-collection/playlists/folders/add-favorites`
                  endpoint.
         """
-        self._client._require_authentication("users.unfavorite_playlists")
-        self._client._validate_number("api_version", api_version, int, 1, 2)
+        self._client._require_authentication("users.unfollow_playlists")
+        self._validate_number("api_version", api_version, int, 1, 2)
         if api_version == 1:
             if user_id is None:
                 user_id = self._client._resolve_user_identifier()
             self._client._request(
                 "DELETE",
                 f"v1/users/{user_id}/favorites/playlists"
-                f"/{self._client._prepare_uuids('playlist', playlist_uuids)}",
+                f"/{self._prepare_uuids('playlist', playlist_uuids)}",
             )
         else:
             self._client._request(
                 "PUT",
                 "v2/my-collection/playlists/folders/remove",
                 params={
-                    "trns": self._client._prepare_uuids(
+                    "trns": self._prepare_uuids(
                         "playlist", playlist_uuids, has_prefix=True
                     )
                 },
             )
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_playlists(
         self,
         *,
@@ -1517,8 +2110,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1531,8 +2123,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             **Valid range**: :code:`1` to :code:`50`.
 
         playlist_types : str or list[str]; keyword-only; optional
-            Playlist types to include in the results. If not specified,
-            all playlists are returned.
+            Playlist types to return. If not specified, all playlists
+            are returned.
 
             **Valid values**:
 
@@ -1666,6 +2258,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_folder(
         self,
         folder_uuid: str | None = None,
@@ -1687,8 +2280,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1706,8 +2298,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             **Valid range**: :code:`1` to :code:`50`.
 
         playlist_types : str or list[str]; keyword-only; optional
-            Playlist types to include in the results. If not specified,
-            all playlists are returned.
+            Playlist types to return. If not specified, all playlists
+            are returned.
 
             **Valid values**:
 
@@ -1836,7 +2428,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         params = {}
         if folder_uuid is not None:
             if folder_uuid != "root":
-                self._client._validate_uuid(folder_uuid)
+                self._validate_uuid(folder_uuid)
             params["folderId"] = folder_uuid
         return self._get_my_playlists(
             "playlists/folders",
@@ -1848,6 +2440,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             params=params,
         )
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_folders_and_playlists(
         self,
         *,
@@ -1867,8 +2460,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1881,8 +2473,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             **Valid range**: :code:`1` to :code:`50`.
 
         playlist_types : str or list[str]; keyword-only; optional
-            Playlist types to include in the results. If not specified,
-            all playlists are returned.
+            Playlist types to return. If not specified, all playlists
+            are returned.
 
             **Valid values**:
 
@@ -2018,6 +2610,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
+    @TTLCache.cached_method(ttl="user")
     def get_user_playlists(
         self,
         user_id: int | str | None = None,
@@ -2039,8 +2632,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2191,6 +2783,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
+    @TTLCache.cached_method(ttl="user")
     def get_user_created_playlists(
         self,
         user_id: int | str | None = None,
@@ -2212,8 +2805,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2329,6 +2921,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
+    @TTLCache.cached_method(ttl="user")
     def get_user_public_playlists(
         self,
         user_id: int | str | None = None,
@@ -2347,8 +2940,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2451,6 +3043,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             limit=limit,
         )
 
+    @TTLCache.cached_method(ttl="user")
     def get_user_followers(
         self,
         user_id: int | str | None = None,
@@ -2462,18 +3055,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         """
         Get TIDAL catalog information for a user's followers.
 
-        .. caution::
-
-           This endpoint appears to have been deprecated by TIDAL.
-
         .. admonition:: User authentication
            :class: authorization-scope
 
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2505,6 +3093,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             limit=limit,
         )
 
+    @TTLCache.cached_method(ttl="user")
     def get_user_following(
         self,
         user_id: int | str | None = None,
@@ -2516,18 +3105,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         """
         Get TIDAL catalog information for the people followed by a user.
 
-        .. caution::
-
-           This endpoint appears to have been deprecated by TIDAL.
-
         .. admonition:: User authentication
            :class: authorization-scope
 
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2573,8 +3157,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2597,8 +3180,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2607,6 +3189,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         """
         self._manage_followed_users("DELETE", user_id)
 
+    @TTLCache.cached_method(ttl="user")
     def get_my_blocked_users(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> dict[str, Any]:
@@ -2624,8 +3207,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2656,10 +3238,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self._client._require_authentication("playlists.get_my_blocked_users")
         params = {}
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
+            self._validate_number("limit", limit, int, 1, 100)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", "v2/profiles/blocked-profiles", params=params
@@ -2679,8 +3261,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2703,8 +3284,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2713,7 +3293,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         """
         self._manage_blocked_users("DELETE", user_id)
 
-    def get_favorite_tracks(
+    @TTLCache.cached_method(ttl="user")
+    def get_saved_tracks(
         self,
         user_id: int | str | None = None,
         /,
@@ -2733,8 +3314,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2864,8 +3444,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_favorite_tracks")
-        return self._get_favorite_resources(
+        self._client._require_authentication("users.get_saved_tracks")
+        return self._get_saved_resources(
             "tracks",
             user_id,
             country_code=country_code,
@@ -2875,7 +3455,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    def favorite_tracks(
+    def save_tracks(
         self,
         track_ids: int | str | list[int | str],
         /,
@@ -2893,8 +3473,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2922,8 +3501,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **API default**: :code:`"FAIL"`.
         """
-        self._client._require_authentication("users.favorite_tracks")
-        return self._favorite_resources(
+        self._client._require_authentication("users.save_tracks")
+        return self._save_resources(
             "tracks",
             track_ids,
             user_id=user_id,
@@ -2931,7 +3510,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             on_missing=on_missing,
         )
 
-    def unfavorite_tracks(
+    def remove_saved_tracks(
         self,
         track_ids: int | str | list[int | str],
         /,
@@ -2946,8 +3525,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2962,9 +3540,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """
-        self._client._require_authentication("users.unfavorite_tracks")
-        return self._unfavorite_resources("tracks", track_ids, user_id=user_id)
+        self._client._require_authentication("users.remove_saved_tracks")
+        return self._remove_saved_resources(
+            "tracks", track_ids, user_id=user_id
+        )
 
+    @TTLCache.cached_method(ttl="user")
     def get_blocked_tracks(
         self,
         user_id: int | str | None = None,
@@ -2982,8 +3563,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3107,8 +3687,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3138,8 +3717,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3157,6 +3735,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             "DELETE", "track", track_id, user_id=user_id
         )
 
+    @TTLCache.cached_method(ttl="user")
     def get_favorite_videos(
         self,
         user_id: int | str | None = None,
@@ -3177,8 +3756,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3288,7 +3866,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                   }
         """
         self._client._require_authentication("users.get_favorite_videos")
-        return self._get_favorite_resources(
+        return self._get_saved_resources(
             "videos",
             user_id,
             country_code=country_code,
@@ -3298,7 +3876,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    def favorite_videos(
+    def save_videos(
         self,
         video_ids: int | str | list[int | str],
         /,
@@ -3316,8 +3894,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3344,8 +3921,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **API default**: :code:`"FAIL"`.
         """
-        self._client._require_authentication("users.favorite_videos")
-        return self._favorite_resources(
+        self._client._require_authentication("users.save_videos")
+        return self._save_resources(
             "videos",
             video_ids,
             user_id=user_id,
@@ -3353,7 +3930,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             on_missing=on_missing,
         )
 
-    def unfavorite_videos(
+    def remove_saved_videos(
         self,
         video_ids: int | str | list[int | str],
         /,
@@ -3368,8 +3945,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3383,9 +3959,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             TIDAL ID of the user. If not specified, the current user's
             TIDAL ID is used.
         """
-        self._client._require_authentication("users.unfavorite_videos")
-        return self._unfavorite_resources("videos", video_ids, user_id=user_id)
+        self._client._require_authentication("users.remove_saved_videos")
+        return self._remove_saved_resources(
+            "videos", video_ids, user_id=user_id
+        )
 
+    @TTLCache.cached_method(ttl="user")
     def get_blocked_videos(
         self,
         user_id: int | str | None = None,
@@ -3403,8 +3982,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3507,8 +4085,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3538,8 +4115,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
+                 Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3556,605 +4132,3 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self._manage_blocked_resources(
             "DELETE", "video", video_id, user_id=user_id
         )
-
-    def _get_blocked_resources(
-        self,
-        resource_type: str,
-        user_id: int | str | None = None,
-        /,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for resources blocked by a user.
-
-        Parameters
-        ----------
-        user_id : int or str; positional-only; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
-
-        limit : int; keyword-only; optional
-            Maximum number of items to return.
-
-            **Valid range**: :code:`1` to :code:`100`.
-
-            **API default**: :code:`10`.
-
-        offset : int; keyword-only; optional
-            Index of the first item to return. Use with `limit` to get
-            the next batch of items.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        resources : dict[str, Any]
-            Page of TIDAL content metadata for resources blocked by the
-            user.
-        """
-        if user_id is None:
-            user_id = self._client._resolve_user_identifier()
-        params = {}
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        return self._client._request(
-            "GET", f"v1/users/{user_id}/blocks/{resource_type}", params=params
-        ).json()
-
-    def _manage_blocked_resources(
-        self,
-        method: str,
-        resource_type: str,
-        resource_id: int | str,
-        /,
-        user_id: int | str | None = None,
-    ) -> None:
-        """
-        Block or unblock a resource for a user.
-
-        .. admonition:: User authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
-
-        Parameters
-        ----------
-        resource_id : int or str; positional-only
-            TIDAL ID of the resource.
-
-        user_id : int or str; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
-        """
-        if user_id is None:
-            user_id = self._client._resolve_user_identifier()
-        if method == "POST":
-            self._client._request(
-                "POST",
-                f"v1/users/{user_id}/blocks/{resource_type}s",
-                data={f"{resource_type}Id": resource_id},
-            )
-        else:
-            self._client._request(
-                "DELETE",
-                f"v1/users/{user_id}/blocks/{resource_type}s/{resource_id}",
-            )
-
-    def _get_favorite_resources(
-        self,
-        resource_type: str,
-        /,
-        user_id: int | str | None = None,
-        country_code: str | None = None,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-        sort_by: str | None = None,
-        descending: bool | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for items of a specific resource
-        type in a user's collection.
-
-        Parameters
-        ----------
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"tracks"`, :code:`"videos"`.
-
-        user_id : int or str; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
-
-        country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the current user account or IP
-            address is used.
-
-            **Example**: :code:`"US"`.
-
-        limit : int; keyword-only; optional
-            Maximum number of items to return.
-
-            **Valid range**: :code:`1` to :code:`100`.
-
-            **API default**: :code:`10`.
-
-        offset : int; keyword-only; optional
-            Index of the first item to return. Use with `limit` to get
-            the next batch of items.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        sort_by : str; keyword-only; optional
-            Field to sort the items by.
-
-            **Valid values**:
-
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Item name.
-
-            **API default**: :code:`"DATE"`.
-
-        descending : bool; keyword-only; optional
-            Whether to sort in descending order.
-
-            **API default**: :code:`False`.
-
-        Returns
-        -------
-        items : dict[str, Any]
-            Page of TIDAL catalog information for items in the user's
-            collection.
-        """
-        if user_id is None:
-            user_id = self._client._resolve_user_identifier()
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        if sort_by is not None:
-            if sort_by not in self._SORT_FIELDS:
-                sort_fields_str = "', '".join(sorted(self._SORT_FIELDS))
-                raise ValueError(
-                    f"Invalid sort field {sort_by!r}. "
-                    f"Valid values: '{sort_fields_str}'."
-                )
-            params["order"] = sort_by
-        if descending is not None:
-            self._client._validate_type("descending", descending, bool)
-            params["orderDirection"] = "DESC" if descending else "ASC"
-        return self._client._request(
-            "GET",
-            f"v1/users/{user_id}/favorites/{resource_type}",
-            params=params,
-        ).json()
-
-    def _favorite_resources(
-        self,
-        resource_type: str,
-        item_ids: int | str | list[int | str],
-        /,
-        user_id: int | str | None = None,
-        country_code: str | None = None,
-        *,
-        on_missing: str | None = None,
-    ) -> None:
-        """
-        Add items of a specific resource type to a user's collection.
-
-        Parameters
-        ----------
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"tracks"`, :code:`"videos"`.
-
-        item_ids : int, str, or list[int | str]; positional-only
-            TIDAL IDs of the items.
-
-        user_id : int or str; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
-
-        country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the current user account or IP
-            address is used.
-
-            **Example**: :code:`"US"`.
-
-        on_missing : str; keyword-only; optional
-            Behavior when the items to be favorited cannot be found in
-            the TIDAL catalog.
-
-            **API default**: :code:`"FAIL"`.
-        """
-        if user_id is None:
-            user_id = self._client._resolve_user_identifier()
-        if country_code is None:
-            country_code = self._client._my_country_code
-        else:
-            self._client._validate_country_code(country_code)
-        data = {
-            f"{resource_type[:-1]}Ids": self._client._prepare_tidal_ids(
-                item_ids, limit=1_000
-            )
-        }
-        if on_missing is not None:
-            self._client._validate_type("on_missing", on_missing, str)
-            on_missing = on_missing.strip().upper()
-            if on_missing not in {"FAIL", "SKIP"}:
-                raise ValueError(
-                    f"Invalid behavior {on_missing!r} for missing "
-                    "items. Valid values: 'FAIL', 'SKIP'."
-                )
-            data["onArtifactNotFound"] = on_missing
-        self._client._request(
-            "POST",
-            f"v1/users/{user_id}/favorites/{resource_type}",
-            params={"countryCode": country_code},
-            data=data,
-        )
-
-    def _unfavorite_resources(
-        self,
-        resource_type: str,
-        item_ids: int | str | list[int | str],
-        /,
-        user_id: int | str | None = None,
-    ) -> None:
-        """
-        Remove items of a specific resource type from a user's
-        collection.
-
-        Parameters
-        ----------
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"tracks"`, :code:`"videos"`.
-
-        item_ids : int, str, or list[int | str]; positional-only
-            TIDAL IDs of the items.
-
-        user_id : int or str; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
-        """
-        if user_id is None:
-            user_id = self._client._resolve_user_identifier()
-        self._client._request(
-            "DELETE",
-            f"v1/users/{user_id}/favorites/{resource_type}"
-            f"/{self._client._prepare_tidal_ids(item_ids, limit=1_000)}",
-        )
-
-    def _get_user_relationship(
-        self,
-        resource_type: str,
-        relationship: str,
-        user_id: int | str | None = None,
-        /,
-        *,
-        cursor: str | None = None,
-        limit: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for a resource related to a user.
-
-        Parameters
-        ----------
-        resource_type : str; positional-only
-            Resource type.
-
-        relationship : str; positional-only
-            Related resource type.
-
-        user_id : int or str; positional-only; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
-
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
-        limit : int; keyword-only; default: :code:`50`
-            Maximum number of items to return.
-
-        Returns
-        -------
-        resource : dict[str, Any]
-            TIDAL content metadata for the related resource.
-        """
-        if user_id is None:
-            user_id = self._client._resolve_user_identifier()
-        params = {}
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
-            params["limit"] = limit
-        return self._client._request(
-            f"v2/{resource_type}/{user_id}/{relationship}", params=params
-        ).json()
-
-    def _get_my_playlists(
-        self,
-        subresource: str,
-        /,
-        *,
-        cursor: str | None = None,
-        limit: int = 50,
-        playlist_types: str | list[str] | None = None,
-        sort_by: str | None = None,
-        descending: bool | None = None,
-        params: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for playlist folders and/or
-        playlists in the current user's collection.
-
-        Parameters
-        ----------
-        subresource : str; positional-only
-            Subresource of the endpoint to call.
-
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
-        limit : int; keyword-only; default: :code:`50`
-            Maximum number of playlists to return.
-
-            **Valid range**: :code:`1` to :code:`50`.
-
-        playlist_types : str or list[str]; keyword-only; optional
-            Playlist types to include in the results. If not specified,
-            all playlists are returned.
-
-            **Valid values**:
-
-            .. container::
-
-               * :code:`"FOLDER"` – Playlist folders.
-               * :code:`"PLAYLIST"` – All playlists.
-               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
-               * :code:`"USER_PLAYLIST"` – User-created playlists.
-
-            **Examples**: :code:`"USER_PLAYLIST"`,
-            :code:`"FOLDER,USER_PLAYLIST"`,
-            :code:`["FOLDER", "USER_PLAYLIST"]`.
-
-        sort_by : str; keyword-only; optional
-            Field to sort the playlists by.
-
-            **Valid values**:
-
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
-
-            **API default**: :code:`"DATE"`.
-
-        descending : bool; keyword-only; optional
-            Whether to sort in descending order.
-
-            **API default**: :code:`False`.
-
-        params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
-
-            .. note::
-
-               This `dict` is updated in-place.
-
-        Returns
-        -------
-        playlists : dict[str, Any]
-            Page of TIDAL content metadata for the playlist folders
-            and/or playlists in the current user's collection.
-        """
-        self._client._validate_number("limit", limit, int, 1, 50)
-        if params is None:
-            params = {"limit": limit}
-        else:
-            params["limit"] = limit
-        if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
-        if playlist_types is not None:
-            self._client.playlists._validate_types(playlist_types)
-            params["includeOnly"] = playlist_types
-        if sort_by is not None:
-            if sort_by not in self._SORT_FIELDS:
-                sort_fields_str = "', '".join(sorted(self._SORT_FIELDS))
-                raise ValueError(
-                    f"Invalid sort field {sort_by!r}. "
-                    f"Valid values: '{sort_fields_str}'."
-                )
-            params["order"] = sort_by
-        if descending is not None:
-            self._client._validate_type("descending", descending, bool)
-            params["orderDirection"] = "DESC" if descending else "ASC"
-        return self._client._request(
-            "GET", f"v2/my-collection/{subresource}", params=params
-        ).json()
-
-    def _get_user_playlists(
-        self,
-        subresource: str,
-        user_id: int | str | None = None,
-        /,
-        country_code: str | None = None,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-        sort_by: str | None = None,
-        descending: bool | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for playlists in a user's
-        collection.
-
-        Parameters
-        ----------
-        subresource : str; positional-only
-            Subresource of the endpoint to call.
-
-        user_id : int or str; positional-only; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
-
-        country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not provided, the
-            country associated with the current user account or IP
-            address is used.
-
-            **Example**: :code:`"US"`.
-
-        limit : int; keyword-only; optional
-            Maximum number of playlists to return.
-
-            **Valid range**: :code:`1` to :code:`100`.
-
-            **API default**: :code:`10`.
-
-        offset : int; keyword-only; optional
-            Index of the first playlist to return. Use with `limit` to
-            get the next batch of playlists.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        sort_by : str; keyword-only; optional
-            Field to sort the playlists by.
-
-            **Valid values**:
-
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
-
-            **API default**: :code:`"DATE"`.
-
-        descending : bool; keyword-only; optional
-            Whether to sort in descending order.
-
-            **API default**: :code:`False`.
-
-        Returns
-        -------
-        playlists : dict[str, Any]
-            Page of TIDAL catalog information for playlists in the
-            user's collection.
-        """
-        if user_id is None:
-            user_id = self._client._resolve_user_identifier()
-        params = {}
-        self._client._resolve_country_code(country_code, params)
-        if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 100)
-            params["limit"] = limit
-        if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
-            params["offset"] = offset
-        if sort_by is not None:
-            if sort_by not in self._SORT_FIELDS:
-                sort_fields_str = "', '".join(sorted(self._SORT_FIELDS))
-                raise ValueError(
-                    f"Invalid sort field {sort_by!r}. "
-                    f"Valid values: '{sort_fields_str}'."
-                )
-            params["order"] = sort_by
-        if descending is not None:
-            self._client._validate_type("descending", descending, bool)
-            params["orderDirection"] = "DESC" if descending else "ASC"
-        return self._client._request(
-            "GET", f"v1/users/{user_id}/{subresource}", params=params
-        ).json()
-
-    def _manage_followed_users(
-        self, method: str, user_id: int | str, /
-    ) -> None:
-        """
-        Follow or unfollow a TIDAL user.
-
-        .. admonition:: User authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
-
-        Parameters
-        ----------
-        method : str; positional-only
-            HTTP method.
-
-            **Valid values**: :code:`"PUT"`, :code:`"DELETE"`.
-
-        user_id : int or str; positional-only
-            TIDAL ID of the user.
-        """
-        self._client._validate_tidal_ids(user_id, _recursive=False)
-        self._client._request(
-            method, "v2/follow", params={"trn": f"trn:user:{user_id}"}
-        )
-
-    def _manage_blocked_users(
-        self, method: str, user_id: int | str, /
-    ) -> None:
-        """
-        Block or unblock a TIDAL user.
-
-        .. admonition:: User authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access user recommendations and view or modify the
-                 user's collection.
-
-        Parameters
-        ----------
-        method : str; positional-only
-            HTTP method.
-
-            **Valid values**: :code:`"PUT"`, :code:`"DELETE"`.
-
-        user_id : int or str; positional-only
-            TIDAL ID of the user.
-        """
-        self._client._validate_tidal_ids(user_id, _recursive=False)
-        self._client._request(method, f"v2/profiles/block/{user_id}")

@@ -4,7 +4,7 @@ import time
 from typing import TYPE_CHECKING, Any
 import warnings
 
-from .._shared import APIClient, OAuth2APIClient, TTLCache
+from .._shared import TTLCache, OAuth2APIClient, ResourceAPI
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI
@@ -39,12 +39,40 @@ class _BaseTIDALAPI(OAuth2APIClient):
     _ENV_VAR_PREFIX: str
     _QUAL_NAME: str
     _VERSION: str
-    AUTH_URL: str
     BASE_URL: str
 
     _PROVIDER = "TIDAL"
     AUTH_URL = "https://login.tidal.com/authorize"
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
+
+    @staticmethod
+    def _validate_tidal_ids(
+        tidal_ids: int | str | list[int | str], /, *, _recursive: bool = True
+    ) -> None:
+        """
+        Validate one or more TIDAL IDs.
+
+        Parameters
+        ----------
+        tidal_ids : int, str, or list[int | str]; positional-only
+            TIDAL IDs.
+        """
+        if not isinstance(tidal_ids, int) and not tidal_ids:
+            raise ValueError("At least one TIDAL ID must be specified.")
+
+        if isinstance(tidal_ids, str):
+            if not tidal_ids.isdecimal():
+                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
+        elif not isinstance(tidal_ids, int):
+            if _recursive:
+                if not isinstance(tidal_ids, tuple | list | str):
+                    raise ValueError("TIDAL IDs must be integers or strings.")
+                for tidal_id in tidal_ids:
+                    _BaseTIDALAPI._validate_tidal_ids(
+                        tidal_id, _recursive=False
+                    )
+            else:
+                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
 
     @classmethod
     def resolve_scopes(
@@ -79,33 +107,6 @@ class _BaseTIDALAPI(OAuth2APIClient):
             scope for match in matches for scope in cls.resolve_scopes(match)
         }
 
-    @staticmethod
-    def _validate_tidal_ids(
-        tidal_ids: int | str | list[int | str], /, *, _recursive: bool = True
-    ) -> None:
-        """
-        Validate one or more TIDAL IDs.
-
-        Parameters
-        ----------
-        tidal_ids : int, str, or list[int | str]; positional-only
-            TIDAL IDs.
-        """
-        if not isinstance(tidal_ids, int) and not tidal_ids:
-            raise ValueError("At least one TIDAL ID must be specified.")
-
-        if isinstance(tidal_ids, str):
-            if not tidal_ids.isdecimal():
-                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
-        elif not isinstance(tidal_ids, int):
-            if _recursive:
-                if not isinstance(tidal_ids, tuple | list | str):
-                    raise ValueError("TIDAL IDs must be integers or strings.")
-                for tidal_id in tidal_ids:
-                    TIDALAPI._validate_tidal_ids(tidal_id, _recursive=False)
-            else:
-                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
-
     @property
     @abstractmethod
     def _my_country_code(self) -> str:
@@ -119,14 +120,6 @@ class _BaseTIDALAPI(OAuth2APIClient):
     def _my_profile(self) -> dict[str, Any]:
         """
         Current user's profile.
-        """
-        ...
-
-    @abstractmethod
-    def _resolve_user_identifier(self) -> str:
-        """
-        Return the TIDAL user ID as the user identifier for the
-        current account.
         """
         ...
 
@@ -165,6 +158,14 @@ class _BaseTIDALAPI(OAuth2APIClient):
         """
         ...
 
+    @abstractmethod
+    def _resolve_user_identifier(self) -> str:
+        """
+        Return the TIDAL user ID as the user identifier for the
+        current account.
+        """
+        ...
+
     def _resolve_country_code(
         self, country_code: str | None, /, params: dict[str, Any]
     ) -> None:
@@ -181,7 +182,7 @@ class _BaseTIDALAPI(OAuth2APIClient):
         if country_code is None:
             params["countryCode"] = self._my_country_code
         else:
-            self._validate_country_code(country_code)
+            ResourceAPI._validate_country_code(country_code)
             params["countryCode"] = country_code
 
 
@@ -224,6 +225,7 @@ class TIDALAPI(_BaseTIDALAPI):
         open_browser: bool = False,
         enable_cache: bool = True,
         store_tokens: bool = True,
+        user_agent: str | None = None,
     ) -> None:
         """
         Parameters
@@ -231,9 +233,9 @@ class TIDALAPI(_BaseTIDALAPI):
         authorization_flow : str; keyword-only
             Authorization flow.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
                  for Code Exchange (PKCE).
@@ -279,7 +281,7 @@ class TIDALAPI(_BaseTIDALAPI):
             .. seealso::
 
                :meth:`resolve_scopes` – Resolve scope categories and/or
-                substrings into a set of scopes.
+               substrings into a set of scopes.
 
         access_token : str; keyword-only; optional
             Access token. If provided, the authorization process is
@@ -301,15 +303,17 @@ class TIDALAPI(_BaseTIDALAPI):
             flow. Redirect handling is only available for hosts
             :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
+            **Valid values**:
+
             .. container::
 
-               **Valid values**:
-
-               * :code:`None` – Manually paste the redirect URL into
-                 the terminal.
-               * :code:`"http.server"` – Run a simple HTTP server.
-               * :code:`"playwright"` – Open a Playwright Firefox
+               * :code:`None` – Show authorization URL in and have the
+                 user manually paste the redirect URL into the terminal.
+               * :code:`"http.server"` – Run a HTTP server to intercept
+                 the redirect after user authorization in any local
                  browser.
+               * :code:`"playwright"` – Use a Playwright Firefox
+                 browser to complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -320,7 +324,7 @@ class TIDALAPI(_BaseTIDALAPI):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 10 minutes to 1 day, depending on their expected
+            cached for 2 minutes to 1 day, depending on their expected
             update frequency.
 
             .. seealso::
@@ -337,8 +341,15 @@ class TIDALAPI(_BaseTIDALAPI):
 
             .. seealso::
 
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
+
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
+
+        user_agent : str; keyword-only; optional
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
         """
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the TIDAL API.
@@ -375,6 +386,7 @@ class TIDALAPI(_BaseTIDALAPI):
             open_browser=open_browser,
             enable_cache=enable_cache,
             store_tokens=store_tokens,
+            user_agent=user_agent,
         )
 
     @property
@@ -414,19 +426,6 @@ class TIDALAPI(_BaseTIDALAPI):
             if self._auth_flow == "client_credentials"
             else self.users.get_my_profile()["data"]
         )
-
-    def _resolve_user_identifier(self) -> str | None:
-        """
-        Return the TIDAL user ID as the user identifier for the
-        current account.
-
-        .. note::
-
-           Invoking this method may call
-           :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
-           make a request to the TIDAL API.
-        """
-        return self._my_profile.get("id")
 
     def _request(
         self,
@@ -486,6 +485,19 @@ class TIDALAPI(_BaseTIDALAPI):
             f"{status} {resp.reason_phrase} ({error['code']}) – {error['detail']}"
         )
 
+    def _resolve_user_identifier(self) -> str:
+        """
+        Return the TIDAL user ID as the user identifier for the
+        current account.
+
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
+           make a request to the TIDAL API.
+        """
+        return self._my_profile.get("id")
+
 
 class PrivateTIDALAPI(_BaseTIDALAPI):
     """
@@ -543,6 +555,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         open_browser: bool = False,
         enable_cache: bool = True,
         store_tokens: bool = True,
+        user_agent: str | None = None,
     ) -> None:
         """
         Parameters
@@ -550,9 +563,9 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         authorization_flow : str or None; keyword-only
             Authorization flow.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`None` – No authentication.
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
@@ -602,7 +615,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             .. seealso::
 
                :meth:`resolve_scopes` – Resolve scope categories and/or
-                substrings into a set of scopes.
+               substrings into a set of scopes.
 
         access_token : str; keyword-only; optional
             Access token. If provided, the authorization process is
@@ -636,7 +649,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 10 minutes to 1 day, depending on their expected
+            cached for 2 minutes to 1 day, depending on their expected
             update frequency.
 
             .. seealso::
@@ -653,8 +666,15 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
             .. seealso::
 
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
+
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
+
+        user_agent : str; keyword-only; optional
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
         """
         # Initialize subclasses for endpoint groups
         #: Albums API endpoints for the private TIDAL API.
@@ -692,6 +712,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             open_browser=open_browser,
             enable_cache=enable_cache,
             store_tokens=store_tokens,
+            user_agent=user_agent,
         )
         self._client.headers["x-tidal-client-version"] = self._VERSION
 
@@ -700,7 +721,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         cls,
         artwork_uuid: str,
         /,
-        resource_type: str | None = None,
+        item_type: str | None = None,
         *,
         animated: bool = False,
         dimensions: int | str | tuple[int | str, int | str] | None = None,
@@ -713,9 +734,9 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         artwork_uuid : str; positional-only
             TIDAL artwork UUID.
 
-        resource_type : str; positional-only; optional
-            Type of resource the artwork belongs to. If provided, the
-            specified dimensions are validated against the allowed 
+        item_type : str; positional-only; optional
+            Type of item the artwork belongs to. If provided, the
+            specified dimensions are validated against the allowed
             dimensions for the item type.
 
             **Valid values**: :code:`"artist"`, :code:`"album"`,
@@ -729,7 +750,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             Dimensions of the artwork. Use :code:`"origin"` or leave
             blank to get artwork in its original dimensions.
 
-            **Examples**: :code:`"origin"`, :code:`1_280`, 
+            **Examples**: :code:`"origin"`, :code:`1_280`,
             :code:`"1280"`, :code:`"1280x1280"`, :code:`(640, 360)`,
             :code:`("640", "360")`.
         """
@@ -763,127 +784,26 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             dimensions = f"{dimensions[0]}x{dimensions[1]}"
         else:
             raise ValueError(f"Invalid dimensions {dimensions!r}.")
-        if resource_type is not None:
-            if resource_type[-1] == "s":
-                resource_type = resource_type[:-1]
-            if resource_type not in cls._IMAGE_SIZES:
-                resource_types_str = "', '".join(cls._IMAGE_SIZES)
+        if item_type is not None:
+            if item_type[-1] == "s":
+                item_type = item_type[:-1]
+            if item_type not in cls._IMAGE_SIZES:
+                item_types_str = "', '".join(cls._IMAGE_SIZES)
                 raise ValueError(
-                    f"Invalid resource type {resource_type!r}. "
-                    f"Valid values: '{resource_types_str}'."
+                    f"Invalid resource type {item_type!r}. "
+                    f"Valid values: '{item_types_str}'."
                 )
-            if dimensions not in (sizes := cls._IMAGE_SIZES[resource_type]):
+            if dimensions not in (sizes := cls._IMAGE_SIZES[item_type]):
                 _sizes = "', '".join(sorted(sizes))
                 raise ValueError(
                     f"Invalid dimensions {dimensions!r} for a(n) "
-                    f"{resource_type} {cls._IMAGE_TYPES[resource_type]}. "
+                    f"{item_type} {cls._IMAGE_TYPES[item_type]}. "
                     f"Valid values: '{_sizes}'."
                 )
         return (
             f"{PrivateTIDALAPI.RESOURCE_URL}/{media_type}"
             f"/{artwork_uuid.replace('-', '/')}/{dimensions}{extension}"
         )
-
-    @staticmethod
-    def _prepare_tidal_ids(
-        tidal_ids: str | list[str], /, *, limit: int = 500
-    ) -> str:
-        """
-        Normalize, validate, and serialize TIDAL IDs.
-
-        Parameters
-        ----------
-        tidal_ids : int, str, or list[str]; positional-only
-            Comma-separated string or list of TIDAL IDs.
-
-        limit : int; keyword-only, default: :code:`500`
-            Maximum number of TIDAL IDs that can be sent in the
-            request.
-
-        Returns
-        -------
-        tidal_ids : str
-            Comma-separated string of TIDAL IDs.
-        """
-        if not tidal_ids:
-            raise ValueError("At least one TIDAL ID must be specified.")
-
-        if isinstance(tidal_ids, int):
-            return str(tidal_ids)
-
-        if isinstance(tidal_ids, str):
-            return PrivateTIDALAPI._prepare_tidal_ids(
-                tidal_ids.split(","), limit=limit
-            )
-
-        num_ids = len(tidal_ids)
-        if num_ids > limit:
-            raise ValueError(
-                f"A maximum of {limit} TIDAL IDs can be sent in a request."
-            )
-        for idx, id_ in enumerate(tidal_ids):
-            if isinstance(id_, int):
-                tidal_ids[idx] = str(id_)
-            elif isinstance(id_, str):
-                tidal_ids[idx] = id_ = id_.strip()
-                if not id_.isdecimal():
-                    raise ValueError(f"Invalid TIDAL ID {id_!r}.")
-            else:
-                raise ValueError(f"Invalid TIDAL ID {id_!r}.")
-        return ",".join(tidal_ids)
-
-    @staticmethod
-    def _prepare_uuids(
-        resource_type: str,
-        resource_uuids: str | list[str],
-        /,
-        *,
-        has_prefix: bool = False,
-    ) -> str:
-        """
-        Normalize, validate, and serialize UUIDs.
-
-        Parameters
-        ----------
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"folder"`, :code:`"playlist"`.
-
-        resource_uuids : str or list[str]; positional-only
-            UUIDs of playlists or playlist folders.
-
-        has_prefix : bool; keyword-only; default: :code:`False`
-            Whether UUIDs are prefixed with :code:`trn:{type}:`.
-
-        Returns
-        -------
-        resource_uuids : str
-            Comma-separated string containing UUIDs of playlists or
-            playlist folders.
-        """
-        if not resource_uuids:
-            raise ValueError(
-                f"At least one {resource_type} UUID must be specified."
-            )
-
-        if isinstance(resource_uuids, str):
-            return PrivateTIDALAPI._prepare_uuids(resource_uuids.split(","))
-        elif isinstance(resource_uuids, tuple | list):
-            for idx, uuid in enumerate(resource_uuids):
-                if has_prefix:
-                    if uuid.startswith(f"trn:{resource_type}:"):
-                        uuid = uuid[13:]
-                    else:
-                        resource_uuids[idx] = f"trn:{resource_type}:{uuid}"
-                APIClient._validate_uuid(uuid)
-        else:
-            raise TypeError(
-                f"`{resource_type}_uuids` must be a comma-separated string or "
-                "a list of strings."
-            )
-
-        return ",".join(resource_uuids)
 
     @property
     def _my_country_code(self) -> str:
@@ -915,177 +835,6 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         """
         if self._auth_flow is not None:
             return self.users.get_my_profile()
-
-    @TTLCache.cached_method(ttl="catalog")
-    def get_country_code(self) -> dict[str, str]:
-        """
-        Get the country code associated with the current user account.
-
-        Returns
-        -------
-        country_code : dict[str, str]
-            Country code.
-
-            **Sample response**: :code:`{"countryCode": "US"}`.
-        """
-        return self._request("GET", "v1/country").json()
-
-    def set_flow(
-        self,
-        authorization_flow: str | None,
-        /,
-        *,
-        client_id: str,
-        client_secret: str | None = None,
-        user_identifier: str | None = None,
-        redirect_uri: str | None = None,
-        scopes: str | set[str] = "",
-        redirect_handler: str | None = None,
-        open_browser: bool = False,
-        store_tokens: bool = True,
-        authenticate: bool = True,
-    ) -> None:
-        """
-        Set or update the authorization flow and related information.
-
-        .. warning::
-
-           Calling this method replaces all existing values with the
-           specified parameters. Parameters not specified explicitly
-           will be overwritten by their default values.
-
-        Parameters
-        ----------
-        authorization_flow : str or None; keyword-only
-            OAuth 2.0 authorization flow.
-
-            .. container::
-
-               **Valid values**:
-
-               * :code:`None` – No authentication.
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"device"` – Device Authorization Flow.
-
-        client_id : str; keyword-only; optional
-            Client ID. Required unless set as system environment
-            variable :code:`PRIVATE_TIDAL_API_CLIENT_ID` or stored in
-            the local token storage.
-
-        client_secret : str; keyword-only; optional
-            Client secret. Required for the Client Credentials flow
-            unless set as system environment variable
-            :code:`PRIVATE_TIDAL_API_CLIENT_SECRET` or stored in the
-            local token storage.
-
-        user_identifier : str; keyword-only; optional
-            Identifier for the user account. Used when
-            :code:`store_tokens=True` to distinguish between multiple
-            accounts for the same client ID and authorization flow.
-
-            If provided, it is used with the client ID and authorization
-            flow to locate a matching stored token. If none is found, a
-            new token is obtained and stored under this identifier.
-
-            If not provided, the most recently accessed token for the
-            client ID and authorization flow is used. If none exists, a
-            new token is obtained and stored using the TIDAL user ID
-            acquired from a successful authorization.
-
-            Prefixing the identifier with a tilde (:code:`~`) bypasses
-            token retrieval, forces reauthorization, and stores the new
-            token under the suffix.
-
-        redirect_uri : str; keyword-only; optional
-            Redirect URI. Required for the Authorization Code with PKCE
-            flow.
-
-            **Valid values**: :code:`"tidal://login/auth"`,
-            :code:`"https://tidal.com/login/auth"`.
-
-        scopes : str or set[str]; keyword-only; optional
-            Authorization scopes requested by the client to access user
-            resources.
-
-            .. seealso::
-
-               :meth:`resolve_scopes` – Resolve scope categories and/or
-                substrings into a set of scopes.
-
-        redirect_handler : None; keyword-only; optional
-            Backend for handling redirects during the authorization
-            flow. Redirect handling is only available for hosts
-            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
-
-            **Valid value**: :code:`None` – Manually paste the redirect
-            URL into the terminal.
-
-        open_browser : bool; keyword-only; default: :code:`False`
-            Whether to automatically open the authorization URL in the
-            default web browser for the Authorization Code with PKCE
-            flow. If :code:`False`, the URL is printed to the terminal.
-
-        store_tokens : bool; keyword-only; default: :code:`True`
-            Whether to enable the local token storage for this client.
-            If :code:`True`, existing access tokens are retrieved when
-            found in local storage, and newly acquired tokens and their
-            metadata are stored for future retrieval. If :code:`False`,
-            the client neither retrieves nor stores access tokens.
-
-            .. seealso::
-
-               :meth:`remove_tokens` – Remove specific or all stored
-               access tokens for this client.
-
-        authenticate : bool; keyword-only; default: :code:`True`
-            Whether to immediately initiate the authorization
-            flow to acquire an access token.
-
-            .. important::
-
-               Unless :meth:`set_access_token` is called immediately
-               after, this should be left as :code:`True` to ensure the
-               client's existing access token is compatible with the new
-               authorization flow and/or scopes.
-        """
-        if authorization_flow is None:
-            self._client.headers["x-tidal-token"] = client_id
-            if "Authorization" in self._client.headers:
-                del self._client.headers["Authorization"]
-            self._expires_at = datetime.max
-        else:
-            if "x-tidal-token" in self._client.headers:
-                del self._client.headers["x-tidal-token"]
-
-        super().set_flow(
-            authorization_flow,
-            client_id=client_id,
-            client_secret=client_secret,
-            user_identifier=user_identifier,
-            redirect_uri=redirect_uri,
-            scopes=scopes,
-            redirect_handler=redirect_handler,
-            open_browser=open_browser,
-            store_tokens=store_tokens,
-            authenticate=authenticate and authorization_flow is not None,
-        )
-
-    def _resolve_user_identifier(self) -> str | None:
-        """
-        Return the TIDAL user ID as the user identifier for the
-        current account.
-
-        .. note::
-
-           Invoking this method may call
-           :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
-           make a request to the private TIDAL API.
-        """
-        if self._auth_flow is not None:
-            return self._token_extras.get(
-                "user_id", self._my_profile["userId"]
-            )
 
     def _request(
         self,
@@ -1155,27 +904,196 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
             f"{error['httpStatus']}.{error['subStatus']} {error['error']} – {error['description']}"
         )
 
-    def _require_authentication(self, endpoint_method: str, /) -> None:
+    def _require_subscription(self, endpoint_method: str, /) -> None:
         """
-        Ensure that the user authentication has been performed for a
-        protected endpoint.
+        Ensure that a TIDAL streaming plan is active for an endpoint
+        method that requires it.
+
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_user_subscription`
+           and make a request to the private TIDAL API.
 
         Parameters
         ----------
         endpoint_method : str; positional-only
             Name of the endpoint method.
         """
-        if self._auth_flow is None:
-            raise RuntimeError(
-                f"{self._QUAL_NAME}.{endpoint_method}() requires "
-                f"user authentication via an OAuth 2.0 authorization "
-                "flow."
-            )
-
-    def _require_subscription(self, endpoint_method: str, /) -> None:
-        """ """
         if not self.users.get_user_subscription().get("premiumAccess", False):
             raise RuntimeError(
                 f"{self._QUAL_NAME}.{endpoint_method}() requires "
                 "an active TIDAL streaming plan."
             )
+
+    def _resolve_user_identifier(self) -> str:
+        """
+        Return the TIDAL user ID as the user identifier for the
+        current account.
+
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
+           make a request to the private TIDAL API.
+        """
+        return self._token_extras.get("user_id", self._my_profile["userId"])
+
+    @TTLCache.cached_method(ttl="catalog")
+    def get_country_code(self) -> dict[str, str]:
+        """
+        Get the country code associated with the current IP address or
+        user account.
+
+        Returns
+        -------
+        country_code : dict[str, str]
+            Country code.
+
+            **Sample response**: :code:`{"countryCode": "US"}`.
+        """
+        return self._request("GET", "v1/country").json()
+
+    def set_authorization_flow(
+        self,
+        authorization_flow: str | None,
+        /,
+        *,
+        client_id: str,
+        client_secret: str | None = None,
+        user_identifier: str | None = None,
+        redirect_uri: str | None = None,
+        scopes: str | set[str] = "",
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
+        store_tokens: bool = True,
+        authenticate: bool = True,
+    ) -> None:
+        """
+        Set or update the authorization flow and related information.
+
+        .. warning::
+
+           Calling this method replaces all existing values with the
+           specified parameters. Parameters not specified explicitly
+           will be overwritten by their default values.
+
+        Parameters
+        ----------
+        authorization_flow : str or None; keyword-only
+            OAuth 2.0 authorization flow.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`None` – No authentication.
+               * :code:`"pkce"` – Authorization Code Flow with Proof Key
+                 for Code Exchange (PKCE).
+               * :code:`"device"` – Device Authorization Flow.
+
+        client_id : str; keyword-only; optional
+            Client ID. Required unless set as system environment
+            variable :code:`PRIVATE_TIDAL_API_CLIENT_ID` or stored in
+            the local token storage.
+
+        client_secret : str; keyword-only; optional
+            Client secret. Required for the Client Credentials flow
+            unless set as system environment variable
+            :code:`PRIVATE_TIDAL_API_CLIENT_SECRET` or stored in the
+            local token storage.
+
+        user_identifier : str; keyword-only; optional
+            Identifier for the user account. Used when
+            :code:`store_tokens=True` to distinguish between multiple
+            accounts for the same client ID and authorization flow.
+
+            If provided, it is used with the client ID and authorization
+            flow to locate a matching stored token. If none is found, a
+            new token is obtained and stored under this identifier.
+
+            If not provided, the most recently accessed token for the
+            client ID and authorization flow is used. If none exists, a
+            new token is obtained and stored using the TIDAL user ID
+            acquired from a successful authorization.
+
+            Prefixing the identifier with a tilde (:code:`~`) bypasses
+            token retrieval, forces reauthorization, and stores the new
+            token under the suffix.
+
+        redirect_uri : str; keyword-only; optional
+            Redirect URI. Required for the Authorization Code with PKCE
+            flow.
+
+            **Valid values**: :code:`"tidal://login/auth"`,
+            :code:`"https://tidal.com/login/auth"`.
+
+        scopes : str or set[str]; keyword-only; optional
+            Authorization scopes requested by the client to access user
+            resources.
+
+            .. seealso::
+
+               :meth:`resolve_scopes` – Resolve scope categories and/or
+               substrings into a set of scopes.
+
+        redirect_handler : None; keyword-only; optional
+            Backend for handling redirects during the authorization
+            flow. Redirect handling is only available for hosts
+            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
+
+            **Valid value**: :code:`None` – Manually paste the redirect
+            URL into the terminal.
+
+        open_browser : bool; keyword-only; default: :code:`False`
+            Whether to automatically open the authorization URL in the
+            default web browser for the Authorization Code with PKCE
+            flow. If :code:`False`, the URL is printed to the terminal.
+
+        store_tokens : bool; keyword-only; default: :code:`True`
+            Whether to enable the local token storage for this client.
+            If :code:`True`, existing access tokens are retrieved when
+            found in local storage, and newly acquired tokens and their
+            metadata are stored for future retrieval. If :code:`False`,
+            the client neither retrieves nor stores access tokens.
+
+            .. seealso::
+
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
+
+               :meth:`remove_tokens` – Remove specific or all stored
+               access tokens for this client.
+
+        authenticate : bool; keyword-only; default: :code:`True`
+            Whether to immediately initiate the authorization
+            flow to acquire an access token.
+
+            .. important::
+
+               Unless :meth:`set_access_token` is called immediately
+               after, this should be left as :code:`True` to ensure the
+               client's existing token is compatible with the new
+               authorization flow and/or scopes.
+        """
+        if authorization_flow is None:
+            self._client.headers["x-tidal-token"] = client_id
+            if "Authorization" in self._client.headers:
+                del self._client.headers["Authorization"]
+            self._expires_at = datetime.max
+        else:
+            if "x-tidal-token" in self._client.headers:
+                del self._client.headers["x-tidal-token"]
+
+        super().set_authorization_flow(
+            authorization_flow,
+            client_id=client_id,
+            client_secret=client_secret,
+            user_identifier=user_identifier,
+            redirect_uri=redirect_uri,
+            scopes=scopes,
+            redirect_handler=redirect_handler,
+            open_browser=open_browser,
+            store_tokens=store_tokens,
+            authenticate=authenticate,
+        )

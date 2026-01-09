@@ -1,11 +1,9 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
+from .search import SearchAPI
 from .users import UsersAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class VideosAPI(TIDALResourceAPI):
@@ -19,9 +17,8 @@ class VideosAPI(TIDALResourceAPI):
     """
 
     _RELATIONSHIPS = {"albums", "artists", "providers", "thumbnailArt"}
-    _client: "TIDALAPI"
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_videos(
         self,
         video_ids,
@@ -80,6 +77,9 @@ class VideosAPI(TIDALResourceAPI):
 
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"providers"`, :code:`"thumbnailArt"`.
+
+           **Examples**: :code:`"thumbnailArt"`,
+           :code:`["albums", "artists"]`.
 
         Returns
         -------
@@ -624,10 +624,10 @@ class VideosAPI(TIDALResourceAPI):
         params = {}
         if isrcs is not None:
             if isinstance(isrcs, str):
-                self._client._validate_isrc(isrcs)
+                self._validate_isrc(isrcs)
             elif isinstance(isrcs, list | tuple):
                 for isrc in isrcs:
-                    self._client._validate_isrc(isrc)
+                    self._validate_isrc(isrc)
             else:
                 raise ValueError(
                     "`isrcs` must be a string or a list of strings."
@@ -640,7 +640,7 @@ class VideosAPI(TIDALResourceAPI):
             expand=expand,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_video_albums(
         self,
         video_id: int | str,
@@ -786,7 +786,7 @@ class VideosAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_video_artists(
         self,
         video_id: int | str,
@@ -941,7 +941,7 @@ class VideosAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_video_providers(
         self,
         video_id: int | str,
@@ -1023,7 +1023,7 @@ class VideosAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_video_thumbnail(
         self,
         video_id: int | str,
@@ -1121,8 +1121,27 @@ class VideosAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @_copy_docstring(UsersAPI.get_favorite_videos)
-    def get_favorite_videos(
+    @_copy_docstring(SearchAPI.search_videos)
+    def search_videos(
+        self,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        include_explicit: bool | None = None,
+        include_metadata: bool = False,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        return self._client.search.search_videos(
+            query,
+            country_code=country_code,
+            include_explicit=include_explicit,
+            include_metadata=include_metadata,
+            cursor=cursor,
+        )
+
+    @_copy_docstring(UsersAPI.get_saved_videos)
+    def get_saved_videos(
         self,
         *,
         user_id: int | str | None = None,
@@ -1133,7 +1152,7 @@ class VideosAPI(TIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_favorite_videos(
+        return self._client.users.get_saved_videos(
             user_id=user_id,
             country_code=country_code,
             locale=locale,
@@ -1143,8 +1162,8 @@ class VideosAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.favorite_videos)
-    def favorite_videos(
+    @_copy_docstring(UsersAPI.save_videos)
+    def save_videos(
         self,
         video_ids: str
         | dict[str, int | str]
@@ -1154,12 +1173,12 @@ class VideosAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.favorite_videos(
+        self._client.users.save_videos(
             video_ids, user_id=user_id, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.unfavorite_videos)
-    def unfavorite_videos(
+    @_copy_docstring(UsersAPI.remove_saved_videos)
+    def remove_saved_videos(
         self,
         video_ids: str
         | dict[str, int | str]
@@ -1169,6 +1188,6 @@ class VideosAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.unfavorite_videos(
+        self._client.users.remove_saved_videos(
             video_ids, user_id=user_id, country_code=country_code
         )

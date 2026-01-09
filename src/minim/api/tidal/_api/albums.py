@@ -2,6 +2,7 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
+from .search import SearchAPI
 from .users import UsersAPI
 
 
@@ -26,7 +27,7 @@ class AlbumsAPI(TIDALResourceAPI):
         "suggestedCoverArts",
     }
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_albums(
         self,
         album_ids: int | str | list[int | str] | None = None,
@@ -97,7 +98,8 @@ class AlbumsAPI(TIDALResourceAPI):
             :code:`"providers"`, :code:`"similarAlbums"`,
             :code:`"suggestedCoverArts"`.
 
-            **Examples**: :code:`"coverArt"`, ["artists", "items"].
+            **Examples**: :code:`"coverArt"`, 
+            :code:`["artists", "items"]`.
 
         cursor : str; keyword-only; optional
             Cursor for for fetching the next page of results when 
@@ -1025,10 +1027,10 @@ class AlbumsAPI(TIDALResourceAPI):
         params = {}
         if barcodes is not None:
             if isinstance(barcodes, int | str):
-                self._client._validate_barcode(barcodes)
+                self._validate_barcode(barcodes)
             elif isinstance(barcodes, list | tuple):
                 for barcode in barcodes:
-                    self._client._validate_barcode(barcode)
+                    self._validate_barcode(barcode)
             else:
                 raise ValueError(
                     "`barcodes` must be an integer, a string, or a "
@@ -1048,7 +1050,7 @@ class AlbumsAPI(TIDALResourceAPI):
             params=params,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_album_artists(
         self,
         album_id: int | str,
@@ -1208,7 +1210,7 @@ class AlbumsAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_album_cover_art(
         self,
         album_id: int | str,
@@ -1311,7 +1313,7 @@ class AlbumsAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_album_items(
         self,
         album_id: int | str,
@@ -1538,7 +1540,7 @@ class AlbumsAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_album_owners(
         self,
         album_id: int | str,
@@ -1613,7 +1615,7 @@ class AlbumsAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_album_providers(
         self,
         album_id: int | str,
@@ -1700,7 +1702,7 @@ class AlbumsAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="recommendation")
     def get_similar_albums(
         self,
         album_id: int | str,
@@ -1852,7 +1854,7 @@ class AlbumsAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_album_suggested_cover_art(
         self,
         album_id: int | str,
@@ -1926,8 +1928,27 @@ class AlbumsAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @_copy_docstring(UsersAPI.get_favorite_albums)
-    def get_favorite_albums(
+    @_copy_docstring(SearchAPI.search_albums)
+    def search_albums(
+        self,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        include_explicit: bool | None = None,
+        include_metadata: bool = False,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        return self._client.search.search_albums(
+            query,
+            country_code=country_code,
+            include_explicit=include_explicit,
+            include_metadata=include_metadata,
+            cursor=cursor,
+        )
+
+    @_copy_docstring(UsersAPI.get_saved_albums)
+    def get_saved_albums(
         self,
         *,
         user_id: int | str | None = None,
@@ -1938,7 +1959,7 @@ class AlbumsAPI(TIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_favorite_albums(
+        return self._client.users.get_saved_albums(
             user_id=user_id,
             country_code=country_code,
             locale=locale,
@@ -1948,8 +1969,8 @@ class AlbumsAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.favorite_albums)
-    def favorite_albums(
+    @_copy_docstring(UsersAPI.save_albums)
+    def save_albums(
         self,
         album_ids: int
         | str
@@ -1960,12 +1981,12 @@ class AlbumsAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.favorite_albums(
+        self._client.users.save_albums(
             album_ids, user_id=user_id, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.unfavorite_albums)
-    def unfavorite_albums(
+    @_copy_docstring(UsersAPI.remove_saved_albums)
+    def remove_saved_albums(
         self,
         album_ids: int
         | str
@@ -1976,6 +1997,6 @@ class AlbumsAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.unfavorite_albums(
+        self._client.users.remove_saved_albums(
             album_ids, user_id=user_id, country_code=country_code
         )

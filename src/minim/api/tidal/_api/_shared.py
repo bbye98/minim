@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any
 
-from ..._shared import APIClient, ResourceAPI
+from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
     from .. import TIDALAPI
@@ -8,47 +8,11 @@ if TYPE_CHECKING:
 
 class TIDALResourceAPI(ResourceAPI):
     """
-    Abstract base class for TIDAL API resource endpoint groups.
+    Base class for TIDAL API resource endpoint groups.
     """
 
     _RELATIONSHIPS: set[str]
     _client: "TIDALAPI"
-
-    @classmethod
-    def _prepare_expand(
-        cls, expand: list[str], /, *, relationships: set[str] | None = None
-    ) -> list[str]:
-        """
-        Normalize, validate, and prepare a list of related resources.
-
-        Parameters
-        ----------
-        expand : list[str]; positional-only
-            Related resources to include metadata for in the response.
-
-        resources : set[str]; keyword-only; optional
-            Valid related resources. If not specified,
-            :code:`cls._RELATIONSHIPS` is used.
-
-        Returns
-        -------
-        expand : list[str]
-            List of related resources to include metadata for.
-        """
-        if relationships is None:
-            relationships = getattr(cls, "_RELATIONSHIPS", {})
-        if isinstance(expand, str):
-            expand = [expand]
-        elif not isinstance(expand, tuple | list | set):
-            raise ValueError("`expand` must be a string or a list of strings.")
-        for resource in expand:
-            if resource not in relationships:
-                relationships_str = "', '".join(sorted(relationships))
-                raise ValueError(
-                    f"Invalid related resource {resource!r}. "
-                    f"Valid values: '{relationships_str}'."
-                )
-        return expand
 
     @staticmethod
     def _process_sort(
@@ -83,9 +47,9 @@ class TIDALResourceAPI(ResourceAPI):
 
             .. note::
 
-               This `dict` is updated in-place.
+               This `dict` is mutated in-place.
         """
-        APIClient._validate_type("sort_by", sort_by, str)
+        ResourceAPI._validate_type("sort_by", sort_by, str)
         sort_by = sort_by.removeprefix(prefix)
         if sort_by not in sort_fields:
             sort_fields_str = f"', '{prefix}".join(sort_fields)
@@ -99,14 +63,54 @@ class TIDALResourceAPI(ResourceAPI):
     def _validate_uuids(uuids: str | list[str], /) -> None:
         """ """
         if isinstance(uuids, str):
-            APIClient._validate_uuid(uuids)
+            ResourceAPI._validate_uuid(uuids)
         elif isinstance(uuids, list | tuple):
             for uuid in uuids:
-                APIClient._validate_uuid(uuid)
+                ResourceAPI._validate_uuid(uuid)
         else:
             raise ValueError(
                 "UUIDs must be provided as a string or a list of strings."
             )
+
+    @classmethod
+    def _prepare_expand(
+        cls,
+        expand: str | list[str],
+        /,
+        *,
+        relationships: set[str] | None = None,
+    ) -> list[str]:
+        """
+        Normalize, validate, and prepare a list of related resources.
+
+        Parameters
+        ----------
+        expand : str | list[str]; positional-only
+            Related resources to include metadata for in the response.
+
+        resources : set[str]; keyword-only; optional
+            Valid related resources. If not specified,
+            :code:`cls._RELATIONSHIPS` is used.
+
+        Returns
+        -------
+        expand : list[str]
+            List of related resources to include metadata for.
+        """
+        if relationships is None:
+            relationships = getattr(cls, "_RELATIONSHIPS", {})
+        if isinstance(expand, str):
+            expand = [expand]
+        elif not isinstance(expand, tuple | list | set):
+            raise ValueError("`expand` must be a string or a list of strings.")
+        for resource in expand:
+            if resource not in relationships:
+                relationships_str = "', '".join(sorted(relationships))
+                raise ValueError(
+                    f"Invalid related resource {resource!r}. "
+                    f"Valid values: '{relationships_str}'."
+                )
+        return expand
 
     def _get_resources(
         self,
@@ -175,7 +179,7 @@ class TIDALResourceAPI(ResourceAPI):
 
             .. note::
 
-               This `dict` is updated in-place.
+               This `dict` is mutated in-place.
 
         Returns
         -------
@@ -187,12 +191,10 @@ class TIDALResourceAPI(ResourceAPI):
         if country_code is not False:
             self._client._resolve_country_code(country_code, params)
         if locale is not None:
-            self._client._validate_locale(locale)
+            self._validate_locale(locale)
             params["locale"] = locale
         if include_explicit is not None:
-            self._client._validate_type(
-                "include_explicit", include_explicit, bool
-            )
+            self._validate_type("include_explicit", include_explicit, bool)
             params["explicitFilter"] = (
                 "INCLUDE" if include_explicit else "EXCLUDE"
             )
@@ -206,7 +208,7 @@ class TIDALResourceAPI(ResourceAPI):
             elif resource_identifier_type == "uuid":
                 self._validate_uuids(resource_identifiers)
             else:
-                self._client._validate_type("query", resource_identifiers, str)
+                self._validate_type("query", resource_identifiers, str)
             if isinstance(resource_identifiers, int | str):
                 return self._client._request(
                     "GET",
@@ -215,10 +217,10 @@ class TIDALResourceAPI(ResourceAPI):
                 ).json()
             params["filter[id]"] = resource_identifiers
         if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
+            self._validate_type("cursor", cursor, str)
             params["page[cursor]"] = cursor
         if share_code is not None:
-            self._client._validate_type("share_code", share_code, str)
+            self._validate_type("share_code", share_code, str)
             params["shareCode"] = share_code
         return self._client._request(
             "GET", resource_type, params=params
@@ -290,7 +292,7 @@ class TIDALResourceAPI(ResourceAPI):
 
             .. note::
 
-               This `dict` is updated in-place.
+               This `dict` is mutated in-place.
 
         Returns
         -------
@@ -302,34 +304,30 @@ class TIDALResourceAPI(ResourceAPI):
                 resource_identifier, _recursive=False
             )
         elif resource_identifier_type == "uuid":
-            self._client._validate_uuid(resource_identifier)
+            self._validate_uuid(resource_identifier)
         else:
-            self._client._validate_type("query", resource_identifier, str)
+            self._validate_type("query", resource_identifier, str)
         if params is None:
             params = {}
         if country_code is not False:
             self._client._resolve_country_code(country_code, params)
         if locale is not None:
-            self._client._validate_locale(locale)
+            self._validate_locale(locale)
             params["locale"] = locale
         if include_explicit is not None:
-            self._client._validate_type(
-                "include_explicit", include_explicit, bool
-            )
+            self._validate_type("include_explicit", include_explicit, bool)
             params["explicitFilter"] = (
                 "INCLUDE" if include_explicit else "EXCLUDE"
             )
         if include_metadata is not None:
-            self._client._validate_type(
-                "include_metadata", include_metadata, bool
-            )
+            self._validate_type("include_metadata", include_metadata, bool)
             if include_metadata:
                 params["include"] = relationship
         if cursor is not None:
-            self._client._validate_type("cursor", cursor, str)
+            self._validate_type("cursor", cursor, str)
             params["page[cursor]"] = cursor
         if share_code is not None:
-            self._client._validate_type("share_code", share_code, str)
+            self._validate_type("share_code", share_code, str)
             params["shareCode"] = share_code
         return self._client._request(
             "GET",

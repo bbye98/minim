@@ -1,10 +1,7 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class UsersAPI(TIDALResourceAPI):
@@ -31,7 +28,6 @@ class UsersAPI(TIDALResourceAPI):
         "myMixes",
         "newArrivalMixes",
     }
-    _client: "TIDALAPI"
 
     @classmethod
     def _prepare_resource_identifiers(
@@ -96,6 +92,169 @@ class UsersAPI(TIDALResourceAPI):
             return [resource_identifier]
         return resource_identifier
 
+    def _get_collection_relationship(
+        self,
+        relationship: str,
+        /,
+        *,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+        locale: str | None = None,
+        include_metadata: bool = False,
+        cursor: str | None = None,
+        sort_by: str | None = None,
+        descending: bool | None = None,
+        sort_fields: set[str] | None = None,
+        params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """
+        Get TIDAL catalog information for items of a resource type in a
+        user's collection.
+
+        Parameters
+        ----------
+        relationship : str; positional-only
+            Related resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
+            :code:`"videos"`.
+
+        user_id : int or str; keyword-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        country_code : str; keyword-only; optional
+            ISO 3166-1 alpha-2 country code. Only optional when it can
+            be retrieved from the user's profile.
+
+            **Example**: :code:`"US"`.
+
+        locale : str; keyword-only; optional
+            IETF BCP 47 language tag.
+
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the specified
+            resource.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        sort_by : str; keyword-only; optional
+            Field to sort the returned items by.
+
+        descending : bool; keyword-only; optional
+            Whether to sort in descending order.
+
+            **API default**: :code:`False`.
+
+        sort_fields : set[str]; keyword-only; optional
+            Valid fields to sort by.
+
+        params : dict[str, Any]; keyword-only; optional
+            Dictionary of additional query parameters to include in the
+            request. If not provided, a new dictionary will be created.
+
+            .. note::
+
+               This `dict` is mutated in-place.
+
+        Returns
+        -------
+        resource : dict[str, Any]
+            TIDAL content metadata for the specified resource.
+        """
+        if params is None:
+            params = {}
+        if user_id is None:
+            user_id = self._client._my_profile["id"]
+        else:
+            self._client._validate_tidal_ids(user_id, _recursive=False)
+        if sort_by is not None:
+            self._process_sort(
+                sort_by,
+                descending=descending,
+                prefix=f"{relationship}.",
+                sort_fields=sort_fields,
+                params=params,
+            )
+        return self._get_resource_relationship(
+            "userCollections",
+            user_id,
+            relationship,
+            country_code=country_code,
+            locale=locale,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            sort_by=sort_by,
+            descending=descending,
+            sort_fields=sort_fields,
+            params=params,
+        )
+
+    def _modify_collection_resources(
+        self,
+        method: str,
+        resource_type: str,
+        resource_ids: str
+        | dict[str, int | str]
+        | list[int | str | dict[str, int | str]],
+        /,
+        *,
+        user_id: int | str | None = None,
+        country_code: str | None = None,
+    ) -> None:
+        """
+        Add/remove items of a resource type to/from a user's collection.
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+            **Valid values**: :code:`"POST"`, :code:`"DELETE"`.
+
+        resource_type : str; positional-only
+            Resource type.
+
+            **Valid values**: :code:`"albums"`, :code:`"artists"`,
+            :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
+            :code:`"videos"`.
+
+        resource_ids : str, dict[str, int | str], or \
+        list[int | str | dict[str, int | str]]; positional-only
+            TIDAL IDs, UUIDs, or resource identifiers of the items.
+
+        user_id : int or str; keyword-only; optional
+            TIDAL ID of the user. If not specified, the current user's
+            TIDAL ID is used.
+
+        country_code : str; optional
+            ISO 3166-1 alpha-2 country code.
+
+            **Example**: :code:`"US"`.
+        """
+        if user_id is None:
+            user_id = self._client._my_profile["id"]
+        else:
+            self._client._validate_tidal_ids(user_id, _recursive=False)
+        params = {}
+        if country_code is not None:
+            self._client._resolve_country_code(country_code, params)
+        self._client._request(
+            method,
+            f"userCollections/{user_id}/relationships/{resource_type}",
+            params=params,
+            json={
+                "data": self._prepare_resource_identifiers(
+                    resource_type, resource_ids
+                )
+            },
+        )
+
+    @TTLCache.cached_method(ttl="user")
     def get_collection(
         self,
         *,
@@ -138,6 +297,8 @@ class UsersAPI(TIDALResourceAPI):
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
             :code:`"videos"`.
+
+           **Examples**: :code:`"albums"`, :code:`["tracks", "videos"]`.
 
         Returns
         -------
@@ -595,7 +756,8 @@ class UsersAPI(TIDALResourceAPI):
             expand=expand,
         )
 
-    def get_favorite_albums(
+    @TTLCache.cached_method(ttl="user")
+    def get_saved_albums(
         self,
         *,
         user_id: int | str | None = None,
@@ -759,7 +921,7 @@ class UsersAPI(TIDALResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "users.get_favorite_albums", "collection.read"
+            "users.get_saved_albums", "collection.read"
         )
         return self._get_collection_relationship(
             "albums",
@@ -773,7 +935,7 @@ class UsersAPI(TIDALResourceAPI):
             sort_fields={"addedAt", "artists.name", "releaseDate", "title"},
         )
 
-    def favorite_albums(
+    def save_albums(
         self,
         album_ids: int
         | str
@@ -823,9 +985,7 @@ class UsersAPI(TIDALResourceAPI):
 
             **Example**: :code:`"US"`.
         """
-        self._client._require_scopes(
-            "users.favorite_albums", "collection.write"
-        )
+        self._client._require_scopes("users.save_albums", "collection.write")
         self._modify_collection_resources(
             "POST",
             "albums",
@@ -834,7 +994,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def unfavorite_albums(
+    def remove_saved_albums(
         self,
         album_ids: int
         | str
@@ -879,7 +1039,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
         """
         self._client._require_scopes(
-            "users.unfavorite_albums", "collection.write"
+            "users.remove_saved_albums", "collection.write"
         )
         self._modify_collection_resources(
             "DELETE",
@@ -889,7 +1049,8 @@ class UsersAPI(TIDALResourceAPI):
             country_code=False,
         )
 
-    def get_favorite_artists(
+    @TTLCache.cached_method(ttl="user")
+    def get_followed_artists(
         self,
         *,
         user_id: int | str | None = None,
@@ -1061,7 +1222,7 @@ class UsersAPI(TIDALResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "users.get_favorite_artists", "collection.read"
+            "users.get_followed_artists", "collection.read"
         )
         return self._get_collection_relationship(
             "artists",
@@ -1075,7 +1236,7 @@ class UsersAPI(TIDALResourceAPI):
             sort_fields={"addedAt", "name"},
         )
 
-    def favorite_artists(
+    def follow_artists(
         self,
         artist_ids: int
         | str
@@ -1126,7 +1287,7 @@ class UsersAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
         """
         self._client._require_scopes(
-            "users.favorite_artists", "collection.write"
+            "users.follow_artists", "collection.write"
         )
         self._modify_collection_resources(
             "POST",
@@ -1136,7 +1297,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def unfavorite_artists(
+    def unfollow_artists(
         self,
         artist_ids: int
         | str
@@ -1181,7 +1342,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
         """
         self._client._require_scopes(
-            "users.unfavorite_artists", "collection.write"
+            "users.unfollow_artists", "collection.write"
         )
         self._modify_collection_resources(
             "DELETE",
@@ -1191,7 +1352,8 @@ class UsersAPI(TIDALResourceAPI):
             country_code=False,
         )
 
-    def get_favorite_owners(
+    @TTLCache.cached_method(ttl="user")
+    def get_followed_owners(
         self,
         *,
         user_id: int | str | None = None,
@@ -1284,7 +1446,8 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    def get_favorite_playlists(
+    @TTLCache.cached_method(ttl="user")
+    def get_followed_playlists(
         self,
         *,
         user_id: int | str | None = None,
@@ -1419,7 +1582,7 @@ class UsersAPI(TIDALResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "users.get_favorite_playlists", "collection.read"
+            "users.get_followed_playlists", "collection.read"
         )
         params = {}
         if include_folders:
@@ -1436,7 +1599,7 @@ class UsersAPI(TIDALResourceAPI):
             params=params,
         )
 
-    def favorite_playlists(
+    def follow_playlists(
         self,
         playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
         /,
@@ -1490,13 +1653,13 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
         """
         self._client._require_scopes(
-            "users.favorite_playlists", "collection.write"
+            "users.follow_playlists", "collection.write"
         )
         self._modify_collection_resources(
             "POST", "playlists", playlist_uuids, user_id=user_id
         )
 
-    def unfavorite_playlists(
+    def unfollow_playlists(
         self,
         playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
         /,
@@ -1550,13 +1713,14 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
         """
         self._client._require_scopes(
-            "users.unfavorite_playlists", "collection.write"
+            "users.unfollow_playlists", "collection.write"
         )
         self._modify_collection_resources(
             "DELETE", "playlists", playlist_uuids, user_id=user_id
         )
 
-    def get_favorite_tracks(
+    @TTLCache.cached_method(ttl="user")
+    def get_saved_tracks(
         self,
         *,
         user_id: int | str | None = None,
@@ -1737,7 +1901,7 @@ class UsersAPI(TIDALResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "users.get_favorite_tracks", "collection.read"
+            "users.get_saved_tracks", "collection.read"
         )
         return self._get_collection_relationship(
             "tracks",
@@ -1757,7 +1921,7 @@ class UsersAPI(TIDALResourceAPI):
             },
         )
 
-    def favorite_tracks(
+    def save_tracks(
         self,
         track_ids: int
         | str
@@ -1807,9 +1971,7 @@ class UsersAPI(TIDALResourceAPI):
 
             **Example**: :code:`"US"`.
         """
-        self._client._require_scopes(
-            "users.favorite_tracks", "collection.write"
-        )
+        self._client._require_scopes("users.save_tracks", "collection.write")
         self._modify_collection_resources(
             "POST",
             "tracks",
@@ -1818,7 +1980,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def unfavorite_tracks(
+    def remove_saved_tracks(
         self,
         track_ids: int
         | str
@@ -1863,7 +2025,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
         """
         self._client._require_scopes(
-            "users.unfavorite_tracks", "collection.write"
+            "users.remove_saved_tracks", "collection.write"
         )
         self._modify_collection_resources(
             "DELETE",
@@ -1873,7 +2035,8 @@ class UsersAPI(TIDALResourceAPI):
             country_code=False,
         )
 
-    def get_favorite_videos(
+    @TTLCache.cached_method(ttl="user")
+    def get_saved_videos(
         self,
         *,
         user_id: int | str | None = None,
@@ -2012,7 +2175,7 @@ class UsersAPI(TIDALResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "users.get_favorite_videos", "collection.read"
+            "users.get_saved_videos", "collection.read"
         )
         return self._get_collection_relationship(
             "videos",
@@ -2026,7 +2189,7 @@ class UsersAPI(TIDALResourceAPI):
             sort_fields={"addedAt", "artists.name", "duration", "title"},
         )
 
-    def favorite_videos(
+    def save_videos(
         self,
         video_ids: str
         | dict[str, int | str]
@@ -2075,9 +2238,7 @@ class UsersAPI(TIDALResourceAPI):
 
             **Example**: :code:`"US"`.
         """
-        self._client._require_scopes(
-            "users.favorite_videos", "collection.write"
-        )
+        self._client._require_scopes("users.save_videos", "collection.write")
         self._modify_collection_resources(
             "POST",
             "videos",
@@ -2086,7 +2247,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=country_code,
         )
 
-    def unfavorite_videos(
+    def remove_saved_videos(
         self,
         video_ids: str
         | dict[str, int | str]
@@ -2130,7 +2291,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
         """
         self._client._require_scopes(
-            "users.unfavorite_videos", "collection.write"
+            "users.remove_saved_videos", "collection.write"
         )
         self._modify_collection_resources(
             "DELETE",
@@ -2140,6 +2301,7 @@ class UsersAPI(TIDALResourceAPI):
             country_code=False,
         )
 
+    @TTLCache.cached_method(ttl="user")
     def get_entitlements(
         self,
         *,
@@ -2171,6 +2333,8 @@ class UsersAPI(TIDALResourceAPI):
             Related resources to include metadata for in the response.
 
             **Valid value**: :code:`"owners"`.
+
+           **Examples**: :code:`"owners"`, :code:`["owners"]`.
 
         Returns
         -------
@@ -2235,6 +2399,7 @@ class UsersAPI(TIDALResourceAPI):
             relationships={"owners"},
         )
 
+    @TTLCache.cached_method(ttl="user")
     def get_entitlement_owners(
         self,
         *,
@@ -2302,8 +2467,8 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="featured")
-    def get_recommendations(
+    @TTLCache.cached_method(ttl="recommendation")
+    def get_personalized_mixes(
         self,
         *,
         user_id: str | None = None,
@@ -2338,7 +2503,6 @@ class UsersAPI(TIDALResourceAPI):
 
             **Example**: :code:`"US"`.
 
-
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
 
@@ -2347,6 +2511,9 @@ class UsersAPI(TIDALResourceAPI):
 
             **Valid values**: :code:`"discoveryMixes"`,
             :code:`"myMixes"`, :code:`"newArrivalMixes"`.
+
+           **Examples**: :code:`"myMixes"`,
+           :code:`["discoveryMixes", "newArrivalMixes"]`.
 
         Returns
         -------
@@ -2406,7 +2573,7 @@ class UsersAPI(TIDALResourceAPI):
             relationships=self._RECOMMENDATION_RELATIONSHIPS,
         )
 
-    @TTLCache.cached_method(ttl="featured")
+    @TTLCache.cached_method(ttl="daily")
     def get_discovery_mixes(
         self,
         *,
@@ -2490,8 +2657,8 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="featured")
-    def get_mixes(
+    @TTLCache.cached_method(ttl="daily")
+    def get_user_mixes(
         self,
         *,
         user_id: str | None = None,
@@ -2572,7 +2739,7 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="featured")
+    @TTLCache.cached_method(ttl="daily")
     def get_new_arrival_mixes(
         self,
         *,
@@ -2656,7 +2823,7 @@ class UsersAPI(TIDALResourceAPI):
             cursor=cursor,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_my_profile(self) -> dict[str, Any]:
         """
         `Users > Get Current User's Profile
@@ -2701,165 +2868,3 @@ class UsersAPI(TIDALResourceAPI):
         """
         self._client._require_scopes("users.get_my_profile", "user.read")
         return self._client._request("GET", "users/me").json()
-
-    def _get_collection_relationship(
-        self,
-        relationship: str,
-        /,
-        *,
-        user_id: int | str | None = None,
-        country_code: str | None = None,
-        locale: str | None = None,
-        include_metadata: bool = False,
-        cursor: str | None = None,
-        sort_by: str | None = None,
-        descending: bool | None = None,
-        sort_fields: set[str] | None = None,
-        params: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
-        """
-        Get TIDAL catalog information for items of a resource type in a
-        user's collection.
-
-        Parameters
-        ----------
-        relationship : str; positional-only
-            Related resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
-            :code:`"videos"`.
-
-        user_id : int or str; keyword-only; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
-
-        country_code : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. Only optional when it can
-            be retrieved from the user's profile.
-
-            **Example**: :code:`"US"`.
-
-        locale : str; keyword-only; optional
-            IETF BCP 47 language tag.
-
-        include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the specified
-            resource.
-
-        cursor : str; keyword-only; optional
-            Cursor for fetching the next page of results.
-
-            **Example**: :code:`"3nI1Esi"`.
-
-        sort_by : str; keyword-only; optional
-            Field to sort the returned items by.
-
-        descending : bool; keyword-only; optional
-            Whether to sort in descending order.
-
-            **API default**: :code:`False`.
-
-        sort_fields : set[str]; keyword-only; optional
-            Valid fields to sort by.
-
-        params : dict[str, Any]; keyword-only; optional
-            Dictionary of additional query parameters to include in the
-            request. If not provided, a new dictionary will be created.
-
-            .. note::
-
-               This `dict` is updated in-place.
-
-        Returns
-        -------
-        resource : dict[str, Any]
-            TIDAL content metadata for the specified resource.
-        """
-        if params is None:
-            params = {}
-        if user_id is None:
-            user_id = self._client._my_profile["id"]
-        else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
-        if sort_by is not None:
-            self._process_sort(
-                sort_by,
-                descending=descending,
-                prefix=f"{relationship}.",
-                sort_fields=sort_fields,
-                params=params,
-            )
-        return self._get_resource_relationship(
-            "userCollections",
-            user_id,
-            relationship,
-            country_code=country_code,
-            locale=locale,
-            include_metadata=include_metadata,
-            cursor=cursor,
-            sort_by=sort_by,
-            descending=descending,
-            sort_fields=sort_fields,
-            params=params,
-        )
-
-    def _modify_collection_resources(
-        self,
-        method: str,
-        resource_type: str,
-        resource_ids: str
-        | dict[str, int | str]
-        | list[int | str | dict[str, int | str]],
-        /,
-        *,
-        user_id: int | str | None = None,
-        country_code: str | None = None,
-    ) -> None:
-        """
-        Add/remove items of a resource type to/from a user's collection.
-
-        Parameters
-        ----------
-        method : str; positional-only
-            HTTP method.
-
-            **Valid values**: :code:`"POST"`, :code:`"DELETE"`.
-
-        resource_type : str; positional-only
-            Resource type.
-
-            **Valid values**: :code:`"albums"`, :code:`"artists"`,
-            :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
-            :code:`"videos"`.
-
-        resource_ids : str, dict[str, int | str], or \
-        list[int | str | dict[str, int | str]]; positional-only
-            TIDAL IDs, UUIDs, or resource identifiers of the items.
-
-        user_id : int or str; keyword-only; optional
-            TIDAL ID of the user. If not specified, the current user's
-            TIDAL ID is used.
-
-        country_code : str; optional
-            ISO 3166-1 alpha-2 country code.
-
-            **Example**: :code:`"US"`.
-        """
-        if user_id is None:
-            user_id = self._client._my_profile["id"]
-        else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
-        params = {}
-        if country_code is not None:
-            self._client._resolve_country_code(country_code, params)
-        self._client._request(
-            method,
-            f"userCollections/{user_id}/relationships/{resource_type}",
-            params=params,
-            json={
-                "data": self._prepare_resource_identifiers(
-                    resource_type, resource_ids
-                )
-            },
-        )

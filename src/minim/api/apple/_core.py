@@ -3,7 +3,7 @@ import time
 from typing import TYPE_CHECKING, Any
 import warnings
 
-from .._shared import TTLCache, APIClient
+from .._shared import TTLCache, APIClient, ResourceAPI
 
 if TYPE_CHECKING:
     import httpx
@@ -157,7 +157,59 @@ class iTunesSearchAPI(APIClient):
     _RATE_LIMIT_PER_SECOND = 1 / 3
     BASE_URL: str = "https://itunes.apple.com"
 
-    @TTLCache.cached_method(ttl="catalog")
+    def _request(
+        self,
+        method: str,
+        endpoint: str,
+        /,
+        retry: bool = True,
+        **kwargs: dict[str, Any],
+    ) -> "httpx.Response":
+        """
+        Make an HTTP request to an iTunes Search API endpoint.
+
+        Parameters
+        ----------
+        method : str; positional-only
+            HTTP method.
+
+        endpoint : str; positional-only
+            iTunes Search API endpoint.
+
+        retry : bool; keyword-only; default: :code:`True`
+            Whether to retry the request if it returns
+            :code:`403 Forbidden`.
+
+        **kwargs : dict[str, Any]
+            Keyword arguments to pass to :meth:`httpx.Client.request`.
+
+        Returns
+        -------
+        response : httpx.Response
+            HTTP response.
+        """
+        resp = self._client.request(method, endpoint, **kwargs)
+        status = resp.status_code
+        if 200 <= status < 300:
+            return resp
+
+        if status == 403 and retry:
+            retry_after = self._RATE_LIMIT_PER_SECOND
+            warnings.warn(
+                "Rate limit possibly exceeded. Retrying after "
+                f"{retry_after:.3f} second(s)."
+            )
+            time.sleep(retry_after)
+            return self._request(method, endpoint, retry=False, **kwargs)
+        emsg = f"{status} {resp.reason_phrase}"
+        try:
+            if details := resp.json()["errorMessage"]:
+                emsg += f" – {details}"
+        except JSONDecodeError:
+            pass
+        raise RuntimeError(emsg)
+
+    @TTLCache.cached_method(ttl="static")
     def lookup(
         self,
         *,
@@ -168,7 +220,7 @@ class iTunesSearchAPI(APIClient):
         bundle_ids: str | list[str] | None = None,
         isbns: int | str | list[int | str] | None = None,
         barcodes: int | str | list[int | str] | None = None,
-        resource_type: str | None = None,
+        item_type: str | None = None,
         limit: int | str | None = None,
         order: str | None = None,
     ) -> dict[str, Any]:
@@ -235,8 +287,8 @@ class iTunesSearchAPI(APIClient):
             **Examples**: :code:`602448438034`, :code:`"075678671173"`,
             :code:`[602448438034, "075678671173"]`.
 
-        resource_type : str; keyword-only; optional
-            Type of resource to return.
+        item_type : str; keyword-only; optional
+            Type of item to return.
 
             .. seealso::
 
@@ -244,7 +296,7 @@ class iTunesSearchAPI(APIClient):
                (Archived) <https://developer.apple.com/library/archive
                /documentation/AudioVideo/Conceptual/iTuneSearchAPI
                /Searching.html#//apple_ref/doc/uid
-               /TP40017632-CH5-SW2>`__ – Available resource (or entity)
+               /TP40017632-CH5-SW2>`__ – Available item (or entity)
                types.
 
             **Example**: :code:`"movieArtist"`.
@@ -526,10 +578,10 @@ class iTunesSearchAPI(APIClient):
                 if not isinstance(arg, list | tuple):
                     arg = [arg]
                 if is_int_like:
-                    _validate = self._validate_numeric
+                    _validate = ResourceAPI._validate_numeric
                     dtype = int
                 else:
-                    _validate = self._validate_type
+                    _validate = ResourceAPI._validate_type
                     dtype = str
                 for idx, val in enumerate(arg):
                     _validate(f"{arg_name}[{idx}]", val, dtype)
@@ -537,17 +589,17 @@ class iTunesSearchAPI(APIClient):
         if not len(params):
             raise ValueError(emsg)
 
-        if resource_type is not None:
-            if resource_type not in (
+        if item_type is not None:
+            if item_type not in (
                 entities := self._MEDIA_TYPES["all"]["entities"]
             ):
                 entities_str = "', '".join(sorted(entities))
                 raise ValueError(
-                    f"Invalid resource type {resource_type!r}. "
+                    f"Invalid item type {item_type!r}. "
                     f"Valid values: '{entities_str}'."
                 )
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 200)
+            ResourceAPI._validate_number("limit", limit, int, 1, 200)
             params["limit"] = limit
         if order is not None:
             if order.lower() != "recent":
@@ -565,7 +617,7 @@ class iTunesSearchAPI(APIClient):
         country_code: str,
         *,
         media_type: str | None = None,
-        resource_type: str | None = None,
+        item_type: str | None = None,
         search_field: str | None = None,
         limit: int | None = None,
         locale: str | None = None,
@@ -597,8 +649,8 @@ class iTunesSearchAPI(APIClient):
 
             **API default**: :code:`"all"`.
 
-        resource_type : str; keyword-only; optional
-            Type of resource to return for the given media type.
+        item_type : str; keyword-only; optional
+            Type of item to return for the given media type.
 
             .. seealso::
 
@@ -606,13 +658,13 @@ class iTunesSearchAPI(APIClient):
                (Archived) <https://developer.apple.com/library/archive
                /documentation/AudioVideo/Conceptual/iTuneSearchAPI
                /Searching.html#//apple_ref/doc/uid
-               /TP40017632-CH5-SW2>`__ – Available resource (or entity)
+               /TP40017632-CH5-SW2>`__ – Available item (or entity)
                types for each media type.
 
             **Example**: :code:`"movieArtist"` when
             :code:`media="movie"`.
 
-            **API default**: Track resource type associated with the
+            **API default**: Track item type associated with the
             media type.
 
         search_field : str; keyword-only; optional
@@ -936,10 +988,10 @@ class iTunesSearchAPI(APIClient):
                        ]
                      }
         """
-        self._validate_type("query", query, str)
+        ResourceAPI._validate_type("query", query, str)
         if not len(query):
             raise ValueError("No search query provided.")
-        self._validate_country_code(country_code)
+        ResourceAPI._validate_country_code(country_code)
         params = {"term": query, "country": country_code}
         if media_type is None:
             emsg_suffix = ""
@@ -952,14 +1004,14 @@ class iTunesSearchAPI(APIClient):
                 )
             params["media"] = media_type
             emsg_suffix = f" for media type {media_type!r}"
-        if resource_type is not None:
-            if resource_type not in (
+        if item_type is not None:
+            if item_type not in (
                 entities := self._MEDIA_TYPES[media_type or "all"]["entities"]
             ):
                 entities_str = "', '".join(sorted(entities))
                 raise ValueError(
-                    f"Invalid resource type {resource_type!r}"
-                    f"{emsg_suffix}. Valid values: '{entities_str}'."
+                    f"Invalid item type {item_type!r}{emsg_suffix}."
+                    f"Valid values: '{entities_str}'."
                 )
         if search_field is not None:
             if search_field not in (
@@ -973,10 +1025,10 @@ class iTunesSearchAPI(APIClient):
                     f"Valid values: '{attributes_str}'."
                 )
         if limit is not None:
-            self._validate_number("limit", limit, int, 1, 200)
+            ResourceAPI._validate_number("limit", limit, int, 1, 200)
             params["limit"] = limit
         if locale is not None:
-            self._validate_locale(locale)
+            ResourceAPI._validate_locale(locale)
             if locale.lower() not in {"en_us", "ja_jp"}:
                 raise ValueError(
                     f"Invalid language tag {locale!r}. "
@@ -984,10 +1036,10 @@ class iTunesSearchAPI(APIClient):
                 )
             params["lang"] = locale
         if api_version is not None:
-            self._validate_number("api_version", api_version, int, 1, 2)
+            ResourceAPI._validate_number("api_version", api_version, int, 1, 2)
             params["version"] = api_version
         if include_explicit is not None:
-            self._validate_type(
+            ResourceAPI._validate_type(
                 "include_explicit", include_explicit, bool | str
             )
             if isinstance(include_explicit, bool):
@@ -999,55 +1051,3 @@ class iTunesSearchAPI(APIClient):
                     "`include_explicit` can only be 'Yes'/True or 'No'/False."
                 )
         return self._request("GET", "search", params=params).json()
-
-    def _request(
-        self,
-        method: str,
-        endpoint: str,
-        /,
-        retry: bool = True,
-        **kwargs: dict[str, Any],
-    ) -> "httpx.Response":
-        """
-        Make an HTTP request to an iTunes Search API endpoint.
-
-        Parameters
-        ----------
-        method : str; positional-only
-            HTTP method.
-
-        endpoint : str; positional-only
-            iTunes Search API endpoint.
-
-        retry : bool; keyword-only; default: :code:`True`
-            Whether to retry the request if it returns
-            :code:`403 Forbidden`.
-
-        **kwargs : dict[str, Any]
-            Keyword arguments to pass to :meth:`httpx.Client.request`.
-
-        Returns
-        -------
-        response : httpx.Response
-            HTTP response.
-        """
-        resp = self._client.request(method, endpoint, **kwargs)
-        status = resp.status_code
-        if 200 <= status < 300:
-            return resp
-
-        if status == 403 and retry:
-            retry_after = self._RATE_LIMIT_PER_SECOND
-            warnings.warn(
-                "Rate limit possibly exceeded. Retrying after "
-                f"{retry_after:.3f} second(s)."
-            )
-            time.sleep(retry_after)
-            return self._request(method, endpoint, retry=False, **kwargs)
-        emsg = f"{status} {resp.reason_phrase}"
-        try:
-            if details := resp.json()["errorMessage"]:
-                emsg += f" – {details}"
-        except JSONDecodeError:
-            pass
-        raise RuntimeError(emsg)

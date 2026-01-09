@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import PrivateTIDALAPI
+from ..._shared import TTLCache
+from ._shared import PrivateTIDALResourceAPI
 
 
-class PrivateFeedAPI(ResourceAPI):
+class PrivateFeedAPI(PrivateTIDALResourceAPI):
     """
     Feed API endpoints for the private TIDAL API.
 
@@ -16,8 +14,7 @@ class PrivateFeedAPI(ResourceAPI):
        and should not be instantiated directly.
     """
 
-    _client: "PrivateTIDALAPI"
-
+    @TTLCache.cached_method(ttl="user")
     def get_feed_activities(self) -> dict[str, Any]:
         """
         Get feed activities for the current user.
@@ -83,6 +80,7 @@ class PrivateFeedAPI(ResourceAPI):
         """
         self._client._request("PUT", "v2/feed/activities/seen")
 
+    @TTLCache.cached_method(ttl="user")
     def has_unseen_feed_activities(self) -> dict[str, bool]:
         """
         Check whether there are unseen feed activities for the current

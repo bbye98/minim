@@ -8,11 +8,168 @@ if TYPE_CHECKING:
 
 class SpotifyResourceAPI(ResourceAPI):
     """
-    Abstract base class for Spotify Web API resource endpoint groups.
+    Base class for Spotify Web API resource endpoint groups.
     """
 
     _AUDIO_TYPES = {"episode", "track"}
     _client: "SpotifyWebAPI"
+
+    @staticmethod
+    def _prepare_spotify_ids(
+        spotify_ids: str | list[str],
+        /,
+        *,
+        limit: int,
+        enforce_length: bool = True,
+    ) -> tuple[str, int]:
+        """
+        Normalize, validate, and serialize Spotify IDs.
+
+        Parameters
+        ----------
+        spotify_ids : str or list[str]; positional-only
+            Comma-separated string or list of Spotify IDs.
+
+        limit : int; keyword-only
+            Maximum number of Spotify IDs that can be sent in the
+            request.
+
+        enforce_length : bool; keyword-only; default: :code:`True`
+            Whether to enforce the canonical 22-character Spotify ID
+            length.
+
+        Returns
+        -------
+        spotify_ids : str
+            Comma-separated string of Spotify IDs.
+
+        num_ids : int
+            Number of Spotify IDs.
+        """
+        if not spotify_ids:
+            raise ValueError("At least one Spotify ID must be specified.")
+
+        if isinstance(spotify_ids, str):
+            return SpotifyResourceAPI._prepare_spotify_ids(
+                spotify_ids.strip().split(","),
+                limit=limit,
+                enforce_length=enforce_length,
+            )
+
+        num_ids = len(spotify_ids)
+        if num_ids > limit:
+            raise ValueError(
+                f"A maximum of {limit} Spotify IDs can be sent in a request."
+            )
+        spotify_ids_ = []
+        for id_ in spotify_ids:
+            id_ = id_.strip()
+            SpotifyResourceAPI._validate_spotify_id(
+                id_, enforce_length=enforce_length
+            )
+            spotify_ids_.append(id_)
+        return ",".join(spotify_ids_), num_ids
+
+    @staticmethod
+    def _prepare_spotify_uris(
+        spotify_uris: str | list[str],
+        /,
+        *,
+        limit: int,
+        resource_types: set[str],
+    ) -> list[str]:
+        """
+        Normalize, validate, and prepare Spotify Uniform Resource
+        Identifiers (URIs).
+
+        Parameters
+        ----------
+        spotify_uris : str or list[str]; positional-only
+            Comma-separated string or list of Spotify URIs.
+
+        limit : int; keyword-only
+            Maximum number of Spotify URIs that can be sent in the
+            request.
+
+        resource_types : set[str]
+            Allowed Spotify resource types.
+
+        Returns
+        -------
+        spotify_uris : list[str]
+            List of Spotify URIs.
+        """
+        if not spotify_uris:
+            raise ValueError("At least one Spotify URI must be specified.")
+
+        if isinstance(spotify_uris, str):
+            return SpotifyResourceAPI._prepare_spotify_uris(
+                spotify_uris.strip().split(","),
+                limit=limit,
+                resource_types=resource_types,
+            )
+
+        if len(spotify_uris) > limit:
+            raise ValueError(
+                f"A maximum of {limit} Spotify URIs can be sent in a request."
+            )
+        spotify_uris_ = []
+        for uri in spotify_uris:
+            uri = uri.strip()
+            SpotifyResourceAPI._validate_spotify_uri(
+                uri, resource_types=resource_types
+            )
+            spotify_uris_.append(uri)
+        return spotify_uris
+
+    @staticmethod
+    def _validate_spotify_id(
+        spotify_id: str, /, *, enforce_length: bool = True
+    ) -> None:
+        """
+        Validate a Spotify ID.
+
+        Parameters
+        ----------
+        spotify_id : str; positional-only
+            Spotify ID.
+
+        enforce_length : bool; keyword-only; default: :code:`True`
+            Whether to enforce the canonical 22-character Spotify ID
+            length.
+        """
+        if (
+            not isinstance(spotify_id, str)
+            or enforce_length
+            and len(spotify_id) != 22
+            or not spotify_id.isalnum()
+        ):
+            raise ValueError(f"{spotify_id!r} is not a valid Spotify ID.")
+
+    @staticmethod
+    def _validate_spotify_uri(
+        spotify_uri: str, /, *, resource_types: set[str]
+    ) -> None:
+        """
+        Validate a Spotify Uniform Resource Identifier (URI).
+
+        Parameters
+        ----------
+        spotify_uri : str; positional-only
+            Spotify URI.
+
+        resource_types : set[str]
+            Allowed Spotify resource types.
+        """
+        if (
+            not isinstance(spotify_uri, str)
+            or len(uri_parts := spotify_uri.strip().split(":")) != 3
+            or uri_parts[0] != "spotify"
+            or uri_parts[1] not in resource_types
+            or len(spotify_id := uri_parts[2]) != 22
+            or not spotify_id.isalnum()
+        ):
+            raise ValueError(f"{spotify_uri!r} is not a valid Spotify URI.")
 
     @classmethod
     def _prepare_types(
@@ -109,12 +266,12 @@ class SpotifyResourceAPI(ResourceAPI):
             Spotify content metadata for the resources.
         """
         is_string = isinstance(resource_ids, str)
-        resource_ids, num_ids = self._client._prepare_spotify_ids(
+        resource_ids, num_ids = self._prepare_spotify_ids(
             resource_ids, limit=limit
         )
         params = {}
         if country_code is not None:
-            self._client._validate_market(country_code)
+            self._client.markets._validate_market(country_code)
             params["market"] = country_code
         if is_string and num_ids == 1:
             return self._client._request(
@@ -197,7 +354,7 @@ class SpotifyResourceAPI(ResourceAPI):
 
             .. note::
 
-               This `dict` is updated in-place.
+               This `dict` is mutated in-place.
 
         Returns
         -------
@@ -206,17 +363,17 @@ class SpotifyResourceAPI(ResourceAPI):
             resource.
         """
         resource_id = resource_id.strip()
-        self._client._validate_spotify_id(resource_id)
+        self._validate_spotify_id(resource_id)
         if params is None:
             params = {}
         if country_code is not None:
-            self._client._validate_market(country_code)
+            self._client.markets._validate_market(country_code)
             params["market"] = country_code
         if limit is not None:
-            self._client._validate_number("limit", limit, int, 1, 50)
+            self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
         if offset is not None:
-            self._client._validate_number("offset", offset, int, 0)
+            self._validate_number("offset", offset, int, 0)
             params["offset"] = offset
         return self._client._request(
             "GET", f"{resource_type}/{resource_id}/{item_type}", params=params

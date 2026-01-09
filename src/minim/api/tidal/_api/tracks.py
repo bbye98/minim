@@ -1,11 +1,9 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
+from .search import SearchAPI
 from .users import UsersAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class TracksAPI(TIDALResourceAPI):
@@ -31,9 +29,8 @@ class TracksAPI(TIDALResourceAPI):
         "sourceFile",
         "trackStatistics",
     }
-    _client: "TIDALAPI"
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_tracks(
         self,
         track_ids: int | str | list[int | str] | None = None,
@@ -108,6 +105,9 @@ class TracksAPI(TIDALResourceAPI):
             :code:`"providers"`, :code:`"radio"`, :code:`"shares"`,
             :code:`"similarTracks"`, :code:`"sourceFile"`,
             :code:`"trackStatistics"`.
+
+           **Examples**: :code:`"lyrics"`,
+           :code:`["albums", "artists"]`.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results when requesting
@@ -990,10 +990,10 @@ class TracksAPI(TIDALResourceAPI):
         params = {}
         if isrcs is not None:
             if isinstance(isrcs, str):
-                self._client._validate_isrc(isrcs)
+                self._validate_isrc(isrcs)
             elif isinstance(isrcs, list | tuple):
                 for isrc in isrcs:
-                    self._client._validate_isrc(isrc)
+                    self._validate_isrc(isrc)
             else:
                 raise ValueError(
                     "`isrcs` must be a string or a list of strings."
@@ -1011,7 +1011,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_track_albums(
         self,
         track_id: str,
@@ -1162,7 +1162,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_track_artists(
         self,
         track_id: str,
@@ -1322,7 +1322,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_owners(
         self,
         track_id: str,
@@ -1389,7 +1389,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_providers(
         self,
         track_id: str,
@@ -1476,7 +1476,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="daily")
     def get_track_radio(
         self,
         track_id: str,
@@ -1587,7 +1587,73 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
+    def get_track_shares(
+        self,
+        track_id: str,
+        /,
+        *,
+        include_metadata: bool = False,
+        cursor: str | None = None,
+        share_code: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Tracks > Get Track Shares <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks
+        /get_tracks__id__relationships_shares>`_: Get TIDAL catalog
+        information for a track's shares.
+
+        Parameters
+        ----------
+        track_id : int or str; positional-only
+            TIDAL ID of the track.
+
+            **Examples**: :code:`46369325`, :code:`"75413016"`.
+
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the track's
+            shares.
+
+        cursor : str; keyword-only; optional
+            Cursor for fetching the next page of results.
+
+            **Example**: :code:`"3nI1Esi"`.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
+        Returns
+        -------
+        shares : dict[str, Any]
+            TIDAL content metadata for the track's shares.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "included": [],
+                    "links": {
+                      "meta": {
+                        "nextCursor": <str>
+                      },
+                      "next": <str>,
+                      "self": <str>
+                    }
+                  }
+        """
+        return self._get_resource_relationship(
+            "tracks",
+            track_id,
+            "shares",
+            country_code=False,
+            include_metadata=include_metadata,
+            cursor=cursor,
+            share_code=share_code,
+        )
+
+    @TTLCache.cached_method(ttl="popularity")
     def get_similar_tracks(
         self,
         track_id: str,
@@ -1757,7 +1823,7 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_track_source_file(
         self,
         track_id: str,
@@ -1821,8 +1887,82 @@ class TracksAPI(TIDALResourceAPI):
             share_code=share_code,
         )
 
-    @_copy_docstring(UsersAPI.get_favorite_tracks)
-    def get_favorite_tracks(
+    @TTLCache.cached_method(ttl="static")
+    def get_track_statistics(
+        self,
+        track_id: str,
+        /,
+        *,
+        include_metadata: bool = False,
+        share_code: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        `Tracks > Get Track Statistics <https://tidal-music.github.io
+        /tidal-api-reference/#/tracks
+        /get_tracks__id__relationships_trackStatistics>`_: Get TIDAL
+        catalog information for a track's statistics.
+
+        Parameters
+        ----------
+        track_id : int or str; positional-only
+            TIDAL ID of the track.
+
+            **Examples**: :code:`46369325`, :code:`"75413016"`.
+
+        include_metadata : bool; keyword-only; default: :code:`False`
+            Whether to include TIDAL content metadata for the track's
+            statistics.
+
+        share_code : str; keyword-only; optional
+            Share code that grants access to unlisted resources.
+
+        Returns
+        -------
+        statistics : dict[str, Any]
+            TIDAL content metadata for the track's statistics.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "included": [],
+                    "links": {
+                      "self": <str>
+                    }
+                  }
+        """
+        return self._get_resource_relationship(
+            "tracks",
+            track_id,
+            "trackStatistics",
+            country_code=False,
+            include_metadata=include_metadata,
+            share_code=share_code,
+        )
+
+    @_copy_docstring(SearchAPI.search_tracks)
+    def search_tracks(
+        self,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        include_explicit: bool | None = None,
+        include_metadata: bool = False,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        return self._client.search.search_tracks(
+            query,
+            country_code=country_code,
+            include_explicit=include_explicit,
+            include_metadata=include_metadata,
+            cursor=cursor,
+        )
+
+    @_copy_docstring(UsersAPI.get_saved_tracks)
+    def get_saved_tracks(
         self,
         *,
         user_id: int | str | None = None,
@@ -1833,7 +1973,7 @@ class TracksAPI(TIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_favorite_tracks(
+        return self._client.users.get_saved_tracks(
             user_id=user_id,
             country_code=country_code,
             locale=locale,
@@ -1843,8 +1983,8 @@ class TracksAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.favorite_tracks)
-    def favorite_tracks(
+    @_copy_docstring(UsersAPI.save_tracks)
+    def save_tracks(
         self,
         track_ids: int
         | str
@@ -1855,12 +1995,12 @@ class TracksAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.favorite_tracks(
+        self._client.users.save_tracks(
             track_ids, user_id=user_id, country_code=country_code
         )
 
-    @_copy_docstring(UsersAPI.unfavorite_tracks)
-    def unfavorite_tracks(
+    @_copy_docstring(UsersAPI.remove_saved_tracks)
+    def remove_saved_tracks(
         self,
         track_ids: int
         | str
@@ -1871,6 +2011,6 @@ class TracksAPI(TIDALResourceAPI):
         user_id: int | str | None = None,
         country_code: str | None = None,
     ) -> None:
-        self._client.users.unfavorite_tracks(
+        self._client.users.remove_saved_tracks(
             track_ids, user_id=user_id, country_code=country_code
         )

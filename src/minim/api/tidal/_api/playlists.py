@@ -1,11 +1,9 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import TIDALResourceAPI
+from .search import SearchAPI
 from .users import UsersAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class PlaylistsAPI(TIDALResourceAPI):
@@ -21,7 +19,6 @@ class PlaylistsAPI(TIDALResourceAPI):
     _ITEM_TYPES = {"tracks", "videos"}
     _RELATIONSHIPS = {"coverArt", "items", "ownerProfiles", "owners"}
     _SORT_FIELDS = {"createdAt", "lastModifiedAt", "name"}
-    _client: "TIDALAPI"
 
     @classmethod
     def _process_playlist_items(
@@ -94,6 +91,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             return [item]
         return item
 
+    @TTLCache.cached_method(ttl="user")
     def get_playlists(
         self,
         playlist_uuids: str | list[str] | None = None,
@@ -160,6 +158,9 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             **Valid values**: :code:`"coverArt"`, :code:`"items"`,
             :code:`"ownerProfiles"`, :code:`"owners"`.
+
+           **Examples**: :code:`"coverArt"`,
+           :code:`["items", "owners"]`.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results when requesting
@@ -790,18 +791,18 @@ class PlaylistsAPI(TIDALResourceAPI):
         )
         params = {}
         if country_code is not None:
-            self._client._validate_country_code(country_code)
+            self._validate_country_code(country_code)
             params["countryCode"] = country_code
-        self._client._validate_type("name", name, str)
+        self._validate_type("name", name, str)
         if not len(name):
             raise ValueError("The playlist name cannot be blank.")
         payload = {"data": {"attributes": {"name": name}, "type": "playlists"}}
         attrs = payload["data"]["attributes"]
         if description is not None:
-            self._client._validate_type("description", description, str)
+            self._validate_type("description", description, str)
             attrs["description"] = description
         if public is not None:
-            self._client._validate_type("public", public, bool)
+            self._validate_type("public", public, bool)
             attrs["accessType"] = "PUBLIC" if public else "UNLISTED"
         return self._client._request(
             "POST", "playlists", params=params, json=payload
@@ -820,7 +821,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         """
         `Playlists > Update Playlist <https://tidal-music.github.io
         /tidal-api-reference/#/playlists/patch_playlists__id_>`_: Update
-        the details of a playlist owned by the current user.
+        the details of a playlist.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -856,9 +857,9 @@ class PlaylistsAPI(TIDALResourceAPI):
         )
         params = {}
         if country_code is not None:
-            self._client._validate_country_code(country_code)
+            self._validate_country_code(country_code)
             params["countryCode"] = country_code
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         payload = {
             "data": {
                 "attributes": {},
@@ -868,15 +869,15 @@ class PlaylistsAPI(TIDALResourceAPI):
         }
         attrs = payload["data"]["attributes"]
         if name is not None:
-            self._client._validate_type("name", name, str)
+            self._validate_type("name", name, str)
             if not len(name):
                 raise ValueError("The playlist name cannot be blank.")
             attrs["name"] = name
         if description is not None:
-            self._client._validate_type("description", description, str)
+            self._validate_type("description", description, str)
             attrs["description"] = description
         if public is not None:
-            self._client._validate_type("public", public, bool)
+            self._validate_type("public", public, bool)
             attrs["accessType"] = "PUBLIC" if public else "UNLISTED"
         if not attrs:
             raise ValueError("At least one change must be specified.")
@@ -908,9 +909,10 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._client._require_scopes(
             "playlists.delete_playlist", "playlists.write"
         )
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         self._client._request("DELETE", f"playlist/{playlist_uuid}")
 
+    @TTLCache.cached_method(ttl="user")
     def get_playlist_cover_art(
         self,
         playlist_uuid: str,
@@ -1008,6 +1010,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             resource_identifier_type="uuid",
         )
 
+    @TTLCache.cached_method(ttl="user")
     def get_playlist_items(
         self,
         playlist_uuid: str,
@@ -1244,7 +1247,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         `Playlists > Add Items to Playlist
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /post_playlists__id__relationships_items>`_: Add items to a
-        playlist owned by the current user.
+        playlist.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -1263,7 +1266,7 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         items : tuple[int | str, str], dict[str, int | str], or \
         list[tuple[int | str, str] | dict[str, int | str]]
-            TIDAL IDs and types of the items.
+            TIDAL IDs and types of the items to be added.
 
             **Examples**:
 
@@ -1282,15 +1285,15 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         insert_before : str; keyword-only; optional
             UUID of the item in the playlist before which to insert the
-            items in `items`. If not specified, the items are appended
-            to the end of the playlist.
+            items. If not specified, the items are appended to the end
+            of the playlist.
 
             **Example**: :code:`"3794bdb3-1529-48d7-8a99-ef2cb0cf22c3"`.
         """
         self._client._require_scopes(
             "playlists.add_playlist_items", "playlists.write"
         )
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         params = {}
         if country_code is not None:
             self._client._resolve_country_code(country_code, params)
@@ -1317,7 +1320,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         `Playlists > Reorder Playlist Items
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /patch_playlists__id__relationships_items>`_: Reorder items in a
-        playlist owned by the current user.
+        playlist.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -1336,7 +1339,8 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         items : tuple[int | str, str, str], dict[str, Any], or \
         list[tuple[int | str, str, str] | dict[str, Any]]
-            TIDAL IDs, playlist item UUIDs, and types of the items.
+            TIDAL IDs, playlist item UUIDs, and types of the items to be
+            reordered.
 
             **Examples**:
 
@@ -1367,16 +1371,20 @@ class PlaylistsAPI(TIDALResourceAPI):
                         },
                     ]
 
+            .. seealso::
+
+               :meth:`get_playlist_items` – Get playlist item UUIDs.
+
         insert_before : str
             UUID of the item in the playlist before which to insert the
-            items .
+            items.
 
             **Example**: :code:`"3794bdb3-1529-48d7-8a99-ef2cb0cf22c3"`.
         """
         self._client._require_scopes(
             "playlists.reorder_playlist_items", "playlists.write"
         )
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         payload = {"data": self._process_playlist_items(items)}
         if insert_before is not None:
             payload["meta"] = {"positionBefore": insert_before}
@@ -1398,7 +1406,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         `Playlists > Remove Playlist Items
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /delete_playlists__id__relationships_items>`_: Remove items from
-        a playlist owned by the current user.
+        a playlist.
 
         .. admonition:: Authorization scope
            :class: authorization-scope
@@ -1417,7 +1425,8 @@ class PlaylistsAPI(TIDALResourceAPI):
 
         items : tuple[int | str, str, str], dict[str, Any], or \
         list[tuple[int | str, str, str] | dict[str, Any]]
-            TIDAL IDs, playlist item UUIDs, and types of the items.
+            TIDAL IDs, playlist item UUIDs, and types of the items to be
+            removed.
 
             **Examples**:
 
@@ -1447,18 +1456,22 @@ class PlaylistsAPI(TIDALResourceAPI):
                             "types": "tracks",
                         },
                     ]
+
+            .. seealso::
+
+               :meth:`get_playlist_items` – Get playlist item UUIDs.
         """
         self._client._require_scopes(
             "playlists.remove_playlist_items", "playlists.write"
         )
-        self._client._validate_uuid(playlist_uuid)
+        self._validate_uuid(playlist_uuid)
         self._client._request(
             "DELETE",
             f"playlists/{playlist_uuid}/relationships/items",
             json={"data": self._process_playlist_items(items)},
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_playlist_owners(
         self,
         playlist_uuid: str,
@@ -1536,7 +1549,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             resource_identifier_type="uuid",
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_playlist_owner_profiles(
         self,
         playlist_uuid: str,
@@ -1614,8 +1627,27 @@ class PlaylistsAPI(TIDALResourceAPI):
             resource_identifier_type="uuid",
         )
 
-    @_copy_docstring(UsersAPI.get_favorite_playlists)
-    def get_favorite_playlists(
+    @_copy_docstring(SearchAPI.search_playlists)
+    def search_playlists(
+        self,
+        query: str,
+        /,
+        country_code: str | None = None,
+        *,
+        include_explicit: bool | None = None,
+        include_metadata: bool = False,
+        cursor: str | None = None,
+    ) -> dict[str, Any]:
+        return self._client.search.search_playlists(
+            query,
+            country_code=country_code,
+            include_explicit=include_explicit,
+            include_metadata=include_metadata,
+            cursor=cursor,
+        )
+
+    @_copy_docstring(UsersAPI.get_followed_playlists)
+    def get_followed_playlists(
         self,
         *,
         user_id: int | str | None = None,
@@ -1625,7 +1657,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_favorite_playlists(
+        return self._client.users.get_followed_playlists(
             user_id=user_id,
             include_folders=include_folders,
             include_metadata=include_metadata,
@@ -1634,24 +1666,22 @@ class PlaylistsAPI(TIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(UsersAPI.favorite_playlists)
-    def favorite_playlists(
+    @_copy_docstring(UsersAPI.follow_playlists)
+    def follow_playlists(
         self,
         playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
         /,
         *,
         user_id: int | str | None = None,
     ) -> None:
-        self._client.users.favorite_playlists(playlist_uuids, user_id=user_id)
+        self._client.users.follow_playlists(playlist_uuids, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.unfavorite_playlists)
-    def unfavorite_playlists(
+    @_copy_docstring(UsersAPI.unfollow_playlists)
+    def unfollow_playlists(
         self,
         playlist_uuids: str | dict[str, str] | list[str | dict[str, str]],
         /,
         *,
         user_id: int | str | None = None,
     ) -> None:
-        self._client.users.unfavorite_playlists(
-            playlist_uuids, user_id=user_id
-        )
+        self._client.users.unfollow_playlists(playlist_uuids, user_id=user_id)

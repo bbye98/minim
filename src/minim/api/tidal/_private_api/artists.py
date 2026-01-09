@@ -18,7 +18,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
 
     _ALBUM_TYPES = {"COMPILATIONS", "EPSANDSINGLES"}
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_artist(
         self, artist_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
@@ -75,7 +75,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             "artists", artist_id, country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_artist_albums(
         self,
         artist_id: int | str,
@@ -104,7 +104,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         album_type : str; keyword-only; optional
-            Album type to include in the results.
+            Album type to return.
 
             **Valid values**: :code:`"COMPILATIONS"`, :code:`"EPSANDSINGLES"`.
 
@@ -209,7 +209,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             params=params,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_artist_biography(
         self, artist_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
@@ -251,7 +251,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             "artists", artist_id, "bio", country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_artist_links(
         self,
         artist_id: int | str,
@@ -327,7 +327,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_artist_mix_id(
         self, artist_id: int | str, /, country_code: str | None = None
     ) -> dict[str, str]:
@@ -359,7 +359,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             "artists", artist_id, "mix", country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_artist_radio(
         self,
         artist_id: int | str,
@@ -491,7 +491,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_artist_top_tracks(
         self,
         artist_id: int | str,
@@ -621,7 +621,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_artist_videos(
         self,
         artist_id: int | str,
@@ -736,7 +736,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             offset=offset,
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_similar_artists(
         self,
         artist_id: int | str,
@@ -864,8 +864,8 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
     ) -> None:
         self._client.users.unblock_artists(artist_id, user_id)
 
-    @_copy_docstring(PrivateUsersAPI.favorite_artists)
-    def get_favorite_artists(
+    @_copy_docstring(PrivateUsersAPI.follow_artists)
+    def get_followed_artists(
         self,
         user_id: int | str | None = None,
         /,
@@ -876,7 +876,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_favorite_artists(
+        return self._client.users.get_followed_artists(
             user_id,
             country_code,
             limit=limit,
@@ -885,8 +885,8 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             descending=descending,
         )
 
-    @_copy_docstring(PrivateUsersAPI.favorite_artists)
-    def favorite_artists(
+    @_copy_docstring(PrivateUsersAPI.follow_artists)
+    def follow_artists(
         self,
         artist_ids: int | str | list[int | str],
         /,
@@ -895,18 +895,18 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         *,
         missing_ok: bool | None = None,
     ) -> None:
-        self._client.users.favorite_artists(
+        self._client.users.follow_artists(
             artist_ids,
             user_id,
             country_code,
             missing_ok=missing_ok,
         )
 
-    @_copy_docstring(PrivateUsersAPI.unfavorite_artists)
-    def unfavorite_artists(
+    @_copy_docstring(PrivateUsersAPI.unfollow_artists)
+    def unfollow_artists(
         self,
         artist_ids: int | str | list[int | str],
         /,
         user_id: int | str | None = None,
     ) -> None:
-        self._client.users.unfavorite_artists(artist_ids, user_id)
+        self._client.users.unfollow_artists(artist_ids, user_id)

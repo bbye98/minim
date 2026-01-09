@@ -1,10 +1,7 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from ..._shared import TTLCache
 from ._shared import TIDALResourceAPI
-
-if TYPE_CHECKING:
-    from .. import TIDALAPI
 
 
 class ArtworksAPI(TIDALResourceAPI):
@@ -18,9 +15,8 @@ class ArtworksAPI(TIDALResourceAPI):
     """
 
     _RELATIONSHIPS = {"owners"}
-    _client: "TIDALAPI"
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_artworks(
         self,
         artwork_ids: str | list[str],
@@ -64,6 +60,8 @@ class ArtworksAPI(TIDALResourceAPI):
             Related resources to include metadata for in the response.
 
             **Valid value**: :code:`"owners"`.
+
+            **Examples**: :code:`"owners"`, :code:`["owners"]`.
 
         Returns
         -------
@@ -149,7 +147,7 @@ class ArtworksAPI(TIDALResourceAPI):
             "artworks", artwork_ids, country_code=country_code, expand=expand
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_artwork_owners(
         self,
         artwork_id: str,

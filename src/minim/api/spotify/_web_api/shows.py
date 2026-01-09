@@ -15,7 +15,7 @@ class ShowsAPI(SpotifyResourceAPI):
        and should not be instantiated directly.
     """
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="playback")
     def get_shows(
         self, show_ids: str | list[str], /, *, country_code: str | None = None
     ) -> dict[str, Any]:
@@ -31,6 +31,11 @@ class ShowsAPI(SpotifyResourceAPI):
            :class: authorization-scope dropdown
 
            .. tab:: Optional
+
+              :code:`user-read-playback-position` scope
+                 Read your position in content you have played. `Learn
+                 more. <https://developer.spotify.com/documentation
+                 /web-api/concepts/scopes#user-read-playback-position>`__
 
               Extended quota mode before November 27, 2024
                   Access 30-second preview URLs. `Learn more.
@@ -245,7 +250,7 @@ class ShowsAPI(SpotifyResourceAPI):
             "shows", show_ids, country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="playback")
     def get_show_episodes(
         self,
         show_id: str,

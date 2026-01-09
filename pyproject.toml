@@ -15,7 +15,8 @@ classifiers = [
 ]
 dependencies = [
   "cryptography",
-  "httpx"
+  "httpx",
+  "pyyaml"
 ]
 description = """
 A collection of music service APIs to query media information and
@@ -28,7 +29,6 @@ requires-python = ">=3.11"
 dev = [
   "pytest-cov",
   "pytest-playwright",
-  "pyyaml",
   "ruff"
 ]
 docs = [

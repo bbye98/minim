@@ -17,7 +17,7 @@ class ArtistsAPI(SpotifyResourceAPI):
 
     _ALBUM_TYPES = {"album", "single", "appears_on", "compilation"}
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="popularity")
     def get_artists(self, artist_ids: str | list[str], /) -> dict[str, Any]:
         """
         `Artists > Get Artist <https://developer.spotify.com
@@ -112,7 +112,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         """
         return self._get_resources("artists", artist_ids)
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="daily")
     def get_artist_albums(
         self,
         artist_id: str,
@@ -251,7 +251,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             params=params,
         )
 
-    @TTLCache.cached_method(ttl="top")
+    @TTLCache.cached_method(ttl="popularity")
     def get_artist_top_tracks(
         self, artist_id: str, /, *, country_code: str
     ) -> dict[str, Any]:
@@ -388,8 +388,8 @@ class ArtistsAPI(SpotifyResourceAPI):
             "artists", artist_id, "top-tracks", country_code=country_code
         )
 
-    @TTLCache.cached_method(ttl="featured")
-    def get_related_artists(self, artist_id: str, /) -> dict[str, Any]:
+    @TTLCache.cached_method(ttl="popularity")
+    def get_similar_artists(self, artist_id: str, /) -> dict[str, Any]:
         """
         `Artists > Get Artist's Related Artists
         <https://developer.spotify.com/documentation/web-api/reference
@@ -402,7 +402,7 @@ class ArtistsAPI(SpotifyResourceAPI):
            .. tab:: Required
 
               Extended quota mode before November 27, 2024
-                  Access the :code:`/artists/{id}/related-artists`
+                  Access the :code:`GET /artists/{id}/related-artists`
                   endpoint. `Learn more. <https://developer.spotify.com
                   /blog/2024-11-27-changes-to-the-web-api>`__
 
@@ -455,6 +455,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             "artists", artist_id, "related-artists"
         )
 
+    @TTLCache.cached_method(ttl="hourly")
     def get_my_top_artists(
         self,
         *,

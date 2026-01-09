@@ -77,6 +77,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         open_browser: bool = False,
         enable_cache: bool = True,
         store_tokens: bool = True,
+        user_agent: str | None = None,
     ) -> None:
         """
         Parameters
@@ -84,9 +85,9 @@ class SpotifyWebAPI(OAuth2APIClient):
         authorization_flow : str; keyword-only
             Authorization flow.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`"auth_code"` – Authorization Code Flow.
                * :code:`"pkce"` – Authorization Code Flow with Proof Key
@@ -133,7 +134,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             .. seealso::
 
                :meth:`resolve_scopes` – Resolve scope categories and/or
-                substrings into a set of scopes.
+               substrings into a set of scopes.
 
         access_token : str; keyword-only; optional
             Access token. If provided, the authorization process is
@@ -155,15 +156,17 @@ class SpotifyWebAPI(OAuth2APIClient):
             flow. Redirect handling is only available for hosts
             :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
 
+            **Valid values**:
+
             .. container::
 
-               **Valid values**:
-
-               * :code:`None` – Manually paste the redirect URL into
-                 the terminal.
-               * :code:`"http.server"` – Run a simple HTTP server.
-               * :code:`"playwright"` – Open a Playwright Firefox
+               * :code:`None` – Show authorization URL in and have the
+                 user manually paste the redirect URL into the terminal.
+               * :code:`"http.server"` – Run a HTTP server to intercept
+                 the redirect after user authorization in any local
                  browser.
+               * :code:`"playwright"` – Use a Playwright Firefox
+                 browser to complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -175,7 +178,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             Whether to enable an in-memory time-to-live (TTL) cache with
             a least recently used (LRU) eviction policy for this client.
             If :code:`True`, responses from semi-static endpoints are
-            cached for 10 minutes to 1 day, depending on their expected
+            cached for 2 minutes to 1 day, depending on their expected
             update frequency.
 
             .. seealso::
@@ -192,8 +195,15 @@ class SpotifyWebAPI(OAuth2APIClient):
 
             .. seealso::
 
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
+
                :meth:`remove_tokens` – Remove specific or all stored
                access tokens for this client.
+
+        user_agent : str; keyword-only; optional
+            :code:`User-Agent` value to include in the headers of HTTP
+            requests.
         """
         if urlparse(redirect_uri).scheme == "http":
             raise ValueError(
@@ -245,6 +255,7 @@ class SpotifyWebAPI(OAuth2APIClient):
             open_browser=open_browser,
             enable_cache=enable_cache,
             store_tokens=store_tokens,
+            user_agent=user_agent,
         )
 
     @classmethod
@@ -261,9 +272,9 @@ class SpotifyWebAPI(OAuth2APIClient):
             Categories and/or substrings to filter scopes by. If not
             specified, all available scopes are returned.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
+            .. container::
 
                * :code:`"images"` – Scopes related to custom images,
                  such as :code:`ugc-image-upload`.
@@ -337,200 +348,6 @@ class SpotifyWebAPI(OAuth2APIClient):
         return {
             scope for match in matches for scope in cls.resolve_scopes(match)
         }
-
-    @staticmethod
-    def _prepare_spotify_ids(
-        spotify_ids: str | list[str],
-        /,
-        *,
-        limit: int,
-        enforce_length: bool = True,
-    ) -> tuple[str, int]:
-        """
-        Normalize, validate, and serialize Spotify IDs.
-
-        Parameters
-        ----------
-        spotify_ids : str or list[str]; positional-only
-            Comma-separated string or list of Spotify IDs.
-
-        limit : int; keyword-only
-            Maximum number of Spotify IDs that can be sent in the
-            request.
-
-        enforce_length : bool; keyword-only; default: :code:`True`
-            Whether to enforce the canonical 22-character Spotify ID
-            length.
-
-        Returns
-        -------
-        spotify_ids : str
-            Comma-separated string of Spotify IDs.
-
-        num_ids : int
-            Number of Spotify IDs.
-        """
-        if not spotify_ids:
-            raise ValueError("At least one Spotify ID must be specified.")
-
-        if isinstance(spotify_ids, str):
-            return SpotifyWebAPI._prepare_spotify_ids(
-                spotify_ids.strip().split(","),
-                limit=limit,
-                enforce_length=enforce_length,
-            )
-
-        num_ids = len(spotify_ids)
-        if num_ids > limit:
-            raise ValueError(
-                f"A maximum of {limit} Spotify IDs can be sent in a request."
-            )
-        spotify_ids_ = []
-        for id_ in spotify_ids:
-            id_ = id_.strip()
-            SpotifyWebAPI._validate_spotify_id(
-                id_, enforce_length=enforce_length
-            )
-            spotify_ids_.append(id_)
-        return ",".join(spotify_ids_), num_ids
-
-    @staticmethod
-    def _prepare_spotify_uris(
-        spotify_uris: str | list[str],
-        /,
-        *,
-        limit: int,
-        resource_types: set[str],
-    ) -> list[str]:
-        """
-        Normalize, validate, and prepare Spotify Uniform Resource
-        Identifiers (URIs).
-
-        Parameters
-        ----------
-        spotify_uris : str or list[str]; positional-only
-            Comma-separated string or list of Spotify URIs.
-
-        limit : int; keyword-only
-            Maximum number of Spotify URIs that can be sent in the
-            request.
-
-        resource_types : set[str]
-            Allowed Spotify resource types.
-
-        Returns
-        -------
-        spotify_uris : list[str]
-            List of Spotify URIs.
-        """
-        if not spotify_uris:
-            raise ValueError("At least one Spotify URI must be specified.")
-
-        if isinstance(spotify_uris, str):
-            return SpotifyWebAPI._prepare_spotify_uris(
-                spotify_uris.strip().split(","),
-                limit=limit,
-                resource_types=resource_types,
-            )
-
-        if len(spotify_uris) > limit:
-            raise ValueError(
-                f"A maximum of {limit} Spotify URIs can be sent in a request."
-            )
-        spotify_uris_ = []
-        for uri in spotify_uris:
-            uri = uri.strip()
-            SpotifyWebAPI._validate_spotify_uri(
-                uri, resource_types=resource_types
-            )
-            spotify_uris_.append(uri)
-        return spotify_uris
-
-    @staticmethod
-    def _validate_spotify_id(
-        spotify_id: str, /, *, enforce_length: bool = True
-    ) -> None:
-        """
-        Validate a Spotify ID.
-
-        Parameters
-        ----------
-        spotify_id : str; positional-only
-            Spotify ID.
-
-        enforce_length : bool; keyword-only; default: :code:`True`
-            Whether to enforce the canonical 22-character Spotify ID
-            length.
-        """
-        if (
-            not isinstance(spotify_id, str)
-            or enforce_length
-            and len(spotify_id) != 22
-            or not spotify_id.isalnum()
-        ):
-            raise ValueError(f"{spotify_id!r} is not a valid Spotify ID.")
-
-    @staticmethod
-    def _validate_spotify_uri(
-        spotify_uri: str, /, *, resource_types: set[str]
-    ) -> None:
-        """
-        Validate a Spotify Uniform Resource Identifier (URI).
-
-        Parameters
-        ----------
-        spotify_uri : str; positional-only
-            Spotify URI.
-
-        resource_types : set[str]
-            Allowed Spotify resource types.
-        """
-        if (
-            not isinstance(spotify_uri, str)
-            or len(uri_parts := spotify_uri.strip().split(":")) != 3
-            or uri_parts[0] != "spotify"
-            or uri_parts[1] not in resource_types
-            or len(spotify_id := uri_parts[2]) != 22
-            or not spotify_id.isalnum()
-        ):
-            raise ValueError(f"{spotify_uri!r} is not a valid Spotify URI.")
-
-    @property
-    def available_seed_genres(self) -> list[str]:
-        """
-        Available seed genres for track recommendations.
-
-        .. admonition:: Third-party application mode
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              Extended quota mode before November 27, 2024
-                  Access the
-                  :code:`/recommendations/available-genre-seeds`
-                  endpoint. `Learn more. <https://developer.spotify.com
-                  /blog/2024-11-27-changes-to-the-web-api>`__
-
-        .. note::
-
-           Accessing this property may call
-           :meth:`~minim.api.spotify.GenresAPI.get_available_seed_genres`
-           and make a request to the Spotify Web API.
-        """
-        return self.genres.get_available_seed_genres()["genres"]
-
-    @property
-    def available_markets(self) -> list[str]:
-        """
-        Markets where Spotify is available.
-
-        .. note::
-
-           Accessing this property may call
-           :meth:`~minim.api.spotify.MarketsAPI.get_available_markets`
-           and make a request to the Spotify Web API.
-        """
-        return self.markets.get_available_markets()["markets"]
 
     def _resolve_user_identifier(self) -> str:
         """
@@ -634,41 +451,3 @@ class SpotifyWebAPI(OAuth2APIClient):
                 f"{self._QUAL_NAME}.{endpoint_method}() requires "
                 "an active Spotify Premium subscription."
             )
-
-    def _validate_market(self, market: str, /) -> None:
-        """
-        Validate market.
-
-        Parameters
-        ----------
-        market : str; positional-only
-            ISO 3166-1 alpha-2 country code.
-        """
-        self._validate_country_code(market)
-        if "markets" in self.__dict__ and market not in self.available_markets:
-            markets_str = "', '".join(self.available_markets)
-            raise ValueError(
-                f"{market!r} is not a market in which Spotify is "
-                f"available. Valid values: '{markets_str}'."
-            )
-
-    def _validate_seed_genre(self, seed_genre: str, /) -> None:
-        """
-        Validate seed genre.
-
-        Parameters
-        ----------
-        seed_genre : str; positional-only
-            Seed genre.
-        """
-        if "available_seed_genres" in self.__dict__:
-            if seed_genre not in self.available_seed_genres:
-                seed_genres_str = "', '".join(
-                    sorted(self.available_seed_genres)
-                )
-                raise ValueError(
-                    f"Invalid seed genre {seed_genre!r}. "
-                    f"Valid values: '{seed_genres_str}'."
-                )
-        else:
-            self._validate_type("seed_genre", seed_genre, str)
