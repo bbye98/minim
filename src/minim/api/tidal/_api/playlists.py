@@ -107,7 +107,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         """
         `Playlists > Get Single Playlist <https://tidal-music.github.io
         /tidal-api-reference/#/playlists/get_playlists__id_>`_: Get
-        TIDAL catalog information for a single playlist․
+        TIDAL catalog information for a playlist․
         `Playlists > Get Multiple Playlists
         <https://tidal-music.github.io/tidal-api-reference/#/playlists
         /get_playlists>`_: Get TIDAL catalog information for multiple

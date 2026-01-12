@@ -101,8 +101,7 @@ class _BaseTIDALAPI(OAuth2APIClient):
         if isinstance(matches, str):
             return {scope for scope in cls._ALLOWED_SCOPES if matches in scope}
 
-        # Recursively gather scopes for multiple
-        # categories/substrings
+        # Recursively gather scopes for multiple categories/substrings
         return {
             scope for match in matches for scope in cls.resolve_scopes(match)
         }
@@ -329,8 +328,8 @@ class TIDALAPI(_BaseTIDALAPI):
 
             .. seealso::
 
-               :meth:`clear_cache` – Clear specific or all cache
-               entries for this client.
+               :meth:`clear_cache` – Clear specific or all cache entries
+               for this client.
 
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.
@@ -397,7 +396,7 @@ class TIDALAPI(_BaseTIDALAPI):
         .. note::
 
            Accessing this property may call
-           :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
+           :meth:`~minim.api.tidal.UsersAPI.get_me` and
            make a request to the TIDAL API.
         """
         country_code = self._my_profile.get("attributes", {}).get("country")
@@ -418,13 +417,13 @@ class TIDALAPI(_BaseTIDALAPI):
         .. note::
 
            Accessing this property may call
-           :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
+           :meth:`~minim.api.tidal.UsersAPI.get_me` and
            make a request to the TIDAL API.
         """
         return (
             {}
             if self._auth_flow == "client_credentials"
-            else self.users.get_my_profile()["data"]
+            else self.users.get_me()["data"]
         )
 
     def _request(
@@ -493,7 +492,7 @@ class TIDALAPI(_BaseTIDALAPI):
         .. note::
 
            Invoking this method may call
-           :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
+           :meth:`~minim.api.tidal.UsersAPI.get_me` and
            make a request to the TIDAL API.
         """
         return self._my_profile.get("id")
@@ -654,8 +653,8 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
             .. seealso::
 
-               :meth:`clear_cache` – Clear specific or all cache
-               entries for this client.
+               :meth:`clear_cache` – Clear specific or all cache entries
+               for this client.
 
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.
@@ -813,7 +812,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         .. note::
 
            Accessing this property may call :meth:`get_country_code` or
-           :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_me` and
            make requests to the private TIDAL API.
         """
         if self._auth_flow is None:
@@ -830,11 +829,11 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         .. note::
 
            Accessing this property may call
-           :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_me` and
            make a request to the private TIDAL API.
         """
         if self._auth_flow is not None:
-            return self.users.get_my_profile()
+            return self.users.get_me()
 
     def _request(
         self,
@@ -912,7 +911,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         .. note::
 
            Invoking this method may call
-           :meth:`~minim.api.tidal.PrivateUsersAPI.get_user_subscription`
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_subscription`
            and make a request to the private TIDAL API.
 
         Parameters
@@ -920,7 +919,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         endpoint_method : str; positional-only
             Name of the endpoint method.
         """
-        if not self.users.get_user_subscription().get("premiumAccess", False):
+        if not self.users.get_subscription().get("premiumAccess", False):
             raise RuntimeError(
                 f"{self._QUAL_NAME}.{endpoint_method}() requires "
                 "an active TIDAL streaming plan."
@@ -934,12 +933,12 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         .. note::
 
            Invoking this method may call
-           :meth:`~minim.api.tidal.PrivateUsersAPI.get_my_profile` and
+           :meth:`~minim.api.tidal.PrivateUsersAPI.get_me` and
            make a request to the private TIDAL API.
         """
         return self._token_extras.get("user_id", self._my_profile["userId"])
 
-    @TTLCache.cached_method(ttl="catalog")
+    @TTLCache.cached_method(ttl="static")
     def get_country_code(self) -> dict[str, str]:
         """
         Get the country code associated with the current IP address or
@@ -959,7 +958,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         authorization_flow: str | None,
         /,
         *,
-        client_id: str,
+        client_id: str | None = None,
         client_secret: str | None = None,
         user_identifier: str | None = None,
         redirect_uri: str | None = None,
@@ -981,7 +980,7 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
         Parameters
         ----------
         authorization_flow : str or None; keyword-only
-            OAuth 2.0 authorization flow.
+            Authorization flow.
 
             **Valid values**:
 
@@ -994,14 +993,12 @@ class PrivateTIDALAPI(_BaseTIDALAPI):
 
         client_id : str; keyword-only; optional
             Client ID. Required unless set as system environment
-            variable :code:`PRIVATE_TIDAL_API_CLIENT_ID` or stored in
-            the local token storage.
+            variable :code:`PRIVATE_TIDAL_API_CLIENT_ID`.
 
         client_secret : str; keyword-only; optional
             Client secret. Required for the Client Credentials flow
             unless set as system environment variable
-            :code:`PRIVATE_TIDAL_API_CLIENT_SECRET` or stored in the
-            local token storage.
+            :code:`PRIVATE_TIDAL_API_CLIENT_SECRET`.
 
         user_identifier : str; keyword-only; optional
             Identifier for the user account. Used when

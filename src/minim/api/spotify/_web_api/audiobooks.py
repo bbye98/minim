@@ -31,7 +31,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
         """
         `Audiobooks > Get an Audiobook <https://developer.spotify.com
         /documentation/web-api/reference/get-an-audiobook>`_: Get Spotify
-        catalog information for a single audiobook․
+        catalog information for an audiobook․
         `Audiobook > Get Several Audiobooks <https://developer.spotify.com
         /documentation/web-api/reference/get-several-audiobooks>`_: Get
         Spotify catalog information for multiple audiobooks.

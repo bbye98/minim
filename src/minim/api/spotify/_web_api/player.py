@@ -619,7 +619,7 @@ class PlayerAPI(SpotifyResourceAPI):
         Parameters
         ----------
         uris : str or list[str]; positional-only
-            Spotify URIs to play. For context playback, provide a single
+            Spotify URIs to play. For context playback, provide an
             album, artist, or playlist URI. For item playback, provide
             one or more track URIs.
 

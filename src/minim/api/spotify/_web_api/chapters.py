@@ -26,7 +26,7 @@ class ChaptersAPI(SpotifyResourceAPI):
         """
         `Chapters > Get a Chapter <https://developer.spotify.com
         /documentation/web-api/reference/get-a-chapter>`_: Get Spotify
-        catalog information for a single audiobook chapter․
+        catalog information for an audiobook chapter․
         `Chapters > Get Several Chapters <https://developer.spotify.com
         /documentation/web-api/reference/get-several-chapters>`_: Get
         Spotify catalog information for multiple audiobook chapters.

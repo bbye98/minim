@@ -140,6 +140,7 @@ class TokenDatabase:
         expires_at: str | datetime | None,
         refresh_token: str | None,
         extras: dict[str, Any] | None = None,
+        added_at: str | datetime | None = None,
     ) -> None:
         """
         Add an access token and its metadata to local storage.
@@ -181,6 +182,11 @@ class TokenDatabase:
 
         extras : dict[str, Any]; keyword-only; optional
             Optional extra metadata associated with the access token.
+
+        added_at : str, datetime.datetime, or None; keyword-only; \
+        optional
+            Time the access token was acquired and added to local 
+            storage.
         """
         db_cursor.execute(
             """
@@ -196,8 +202,9 @@ class TokenDatabase:
                 access_token,
                 expires_at,
                 refresh_token,
-                extras
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                extras,
+                added_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 authorization_flow,
@@ -216,6 +223,9 @@ class TokenDatabase:
                 else expires_at,
                 refresh_token,
                 json.dumps(extras) if isinstance(extras, dict) else None,
+                added_at.strftime("%Y-%m-%dT%H:%M:%SZ")
+                if isinstance(added_at := added_at or datetime.now(), datetime)
+                else added_at,
             ),
         )
         db_connection.commit()
@@ -386,12 +396,12 @@ class TTLCache:
 
     _PREDEFINED_TTLS = {
         "static": float("Inf"),
-        # "weekly": 604_800,
+        "weekly": 604_800,
         "daily": 86_400,
         "hourly": 3_600,
-        "recommendation": 43_200,
         "playback": 30,
         "popularity": 21_600,
+        "recommendation": 43_200,
         "search": 600,
         "user": 60,
     }
@@ -448,12 +458,14 @@ class TTLCache:
 
             .. container::
 
-               * :code:`"permanent"` – Cache indefinitely.
-               * :code:`"catalog"` – 1 day.
-               * :code:`"featured"` – 12 hours.
-               * :code:`"top"` – 1 hour.
+               * :code:`"static"` – Cache indefinitely.
+               * :code:`"daily"` – 1 day.
+               * :code:`"hourly"` – 1 hour.
+               * :code:`"playback"` – 30 seconds.
+               * :code:`"popularity"` – 6 hours.
+               * :code:`"recommendation"` – 12 hours.
                * :code:`"search"` – 10 minutes.
-               * :code:`"user"` – 2 minutes.
+               * :code:`"user"` – 1 minute.
 
         Returns
         -------
@@ -530,10 +542,14 @@ class TTLCache:
 
             .. container::
 
-               * :code:`"catalog"` – 1 day.
-               * :code:`"featured"` – 12 hours.
-               * :code:`"top"` – 1 hour.
+               * :code:`"static"` – Cache indefinitely.
+               * :code:`"daily"` – 1 day.
+               * :code:`"hourly"` – 1 hour.
+               * :code:`"playback"` – 30 seconds.
+               * :code:`"popularity"` – 6 hours.
+               * :code:`"recommendation"` – 12 hours.
                * :code:`"search"` – 10 minutes.
+               * :code:`"user"` – 1 minute.
 
         Returns
         -------
@@ -671,8 +687,8 @@ class APIClient(ABC):
 
             .. seealso::
 
-               :meth:`clear_cache` – Clear specific or all cache
-               entries for this client.
+               :meth:`clear_cache` – Clear specific or all cache entries
+               for this client.
 
         user_agent : str; keyword-only; optional
             :code:`User-Agent` value to include in the headers of HTTP
@@ -846,7 +862,7 @@ class OAuth2APIClient(APIClient):
         Parameters
         ----------
         authorization_flow : str or None; keyword-only
-            OAuth 2.0 authorization flow.
+            Authorization flow.
 
             **Valid values**:
 
@@ -946,8 +962,8 @@ class OAuth2APIClient(APIClient):
 
             .. seealso::
 
-               :meth:`clear_cache` – Clear specific or all cache
-               entries for this client.
+               :meth:`clear_cache` – Clear specific or all cache entries
+               for this client.
 
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.
@@ -1027,16 +1043,17 @@ class OAuth2APIClient(APIClient):
             store_tokens=store_tokens,
             authenticate=False,
         )
-        if authorization_flow is not None:
-            if access_token:
-                self.set_access_token(
-                    access_token,
-                    token_type,
-                    refresh_token=refresh_token,
-                    expires_at=expires_at,
-                )
-            else:
-                self._obtain_access_token()
+        if authorization_flow is None:
+            self._refresh_token = self._expires_at = None
+        elif access_token:
+            self.set_access_token(
+                access_token,
+                token_type,
+                refresh_token=refresh_token,
+                expires_at=expires_at,
+            )
+        else:
+            self._obtain_access_token()
 
     @abstractmethod
     def _resolve_user_identifier(self) -> str | None:
@@ -1186,297 +1203,6 @@ class OAuth2APIClient(APIClient):
             )
         except Exception:
             return False
-
-    def set_access_token(
-        self,
-        access_token: str | None,
-        /,
-        token_type: str | None = "Bearer",
-        *,
-        refresh_token: str | None = None,
-        expires_at: str | datetime | None = None,
-    ) -> None:
-        """
-        Set or update the access token and its related metadata.
-
-        .. warning::
-
-           Calling this method replaces all existing values with the
-           provided parameters. Parameters not provided explicitly
-           will be overwritten by their default values.
-
-        Parameters
-        ----------
-        access_token : str or None; positional-only
-            Access token.
-
-            .. important::
-
-               If the access token was acquired via a different
-               authorization flow or client, call :meth:`set_flow` first
-               to ensure that all other relevant authorization
-               parameters are set correctly.
-
-        token_type : str or None; default: :code:`"Bearer"`
-            Type of the access token.
-
-        refresh_token : str; keyword-only; optional
-            Refresh token for renewing the access token. If not
-            provided, the user will be reauthorized via the current
-            authorization flow when the access token expires.
-
-        expires_at : str or datetime.datetime; keyword-only; optional
-            Expiration time of the access token. If a string, it must be
-            in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
-        """
-        if access_token is None:
-            if self._auth_flow is not None:
-                raise ValueError(
-                    "`access_token` cannot be None when using the "
-                    f"{self._OAUTH_AUTH_FLOWS[self._auth_flow]}."
-                )
-            if "Authorization" in self._client.headers:
-                del self._client.headers["Authorization"]
-            self._refresh_token = self._expires_at = None
-            return
-
-        self._client.headers["Authorization"] = f"{token_type} {access_token}"
-        if refresh_token and self._auth_flow in {
-            "client_credentials",
-            "implicit",
-        }:
-            raise ValueError(
-                f"The {self._OAUTH_AUTH_FLOWS[self._auth_flow]} does "
-                "not support refresh tokens, but one was provided via "
-                "the `refresh_token` parameter."
-            )
-        self._refresh_token = refresh_token
-        self._expires_at = (
-            datetime.strptime(expires_at, "%Y-%m-%dT%H:%M:%SZ")
-            if expires_at and isinstance(expires_at, str)
-            else expires_at
-        )
-
-    def set_authorization_flow(
-        self,
-        authorization_flow: str | None,
-        /,
-        *,
-        client_id: str,
-        client_secret: str | None = None,
-        user_identifier: str | None = None,
-        redirect_uri: str | None = None,
-        scopes: str | set[str] = "",
-        redirect_handler: str | None = None,
-        open_browser: bool = False,
-        store_tokens: bool = True,
-        authenticate: bool = True,
-    ) -> None:
-        """
-        Set or update the authorization flow and related parameters.
-
-        .. warning::
-
-           Calling this method replaces all existing values with the
-           provided parameters. Parameters not provided explicitly
-           will be overwritten by their default values.
-
-        Parameters
-        ----------
-        authorization_flow : str or None; keyword-only
-            OAuth 2.0 authorization flow.
-
-            **Valid values**:
-
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"client_credentials"` – Client Credentials Flow.
-               * :code:`"device"` – Device Authorization Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
-
-        client_id : str; keyword-only; optional
-            Client ID. Required unless set as a system environment
-            variable or stored in the local token storage.
-
-        client_secret : str; keyword-only; optional
-            Client secret. Required for the Authorization Code,
-            Client Credentials, and Resource Owner Password Credential
-            flows unless set as a system environment variable or
-            stored in the local token storage.
-
-        user_identifier : str; keyword-only; optional
-            Identifier for the user account. Used when
-            :code:`store_tokens=True` to distinguish between multiple
-            accounts for the same client ID and authorization flow.
-
-            If provided, it is used with the client ID and authorization
-            flow to locate a matching stored token. If none is found, a
-            new token is obtained and stored under this identifier.
-
-            If not provided, the most recently accessed token for the
-            client ID and authorization flow is used. If none exists, a
-            new token is obtained and stored using a user identifier
-            (e.g., user ID) acquired from a successful authorization.
-
-            Prefixing the identifier with a tilde (:code:`~`) bypasses
-            token retrieval, forces reauthorization, and stores the new
-            token under the suffix.
-
-        redirect_uri : str; keyword-only; optional
-            Redirect URI. Required for the Authorization Code,
-            Authorization Code with PKCE, and Implicit Grant flows.
-
-        scopes : str or set[str]; keyword-only; optional
-            Authorization scopes requested by the client to access user
-            resources.
-
-        redirect_handler : str or None; keyword-only; optional
-            Backend for handling redirects during the authorization
-            flow. Redirect handling is only available for hosts
-            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
-
-            **Valid values**:
-
-            .. container::
-
-               * :code:`None` – Show authorization URL in and have the
-                 user manually paste the redirect URL into the terminal.
-               * :code:`"http.server"` – Run a HTTP server to intercept
-                 the redirect after user authorization in any local
-                 browser.
-               * :code:`"playwright"` – Use a Playwright Firefox
-                 browser to complete the user authorization.
-
-        open_browser : bool; keyword-only; default: :code:`False`
-            Whether to automatically open the authorization URL in the
-            default web browser for the Authorization Code,
-            Authorization Code with PKCE, and Implicit Grant flows. If
-            :code:`False`, the URL is printed to the terminal.
-
-        store_tokens : bool; keyword-only; default: :code:`True`
-            Whether to enable the local token storage for this client.
-            If :code:`True`, existing access tokens are retrieved when
-            found in local storage, and newly acquired tokens and their
-            metadata are stored for future retrieval. If :code:`False`,
-            the client neither retrieves nor stores access tokens.
-
-            .. seealso::
-
-               :meth:`get_tokens` – Retrieve specific or all stored
-               access tokens for this client.
-
-               :meth:`remove_tokens` – Remove specific or all stored
-               access tokens for this client.
-
-        authenticate : bool; keyword-only; default: :code:`True`
-            Whether to immediately initiate the authorization
-            flow to acquire an access token.
-
-            .. important::
-
-               Unless :meth:`set_access_token` is called immediately
-               after, this should be left as :code:`True` to ensure the
-               client's existing token is compatible with the new
-               authorization flow and/or scopes.
-        """
-        if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
-            flows_str = "', '".join(
-                sorted(f for f in self._ALLOWED_AUTH_FLOWS if f)
-            )
-            raise ValueError(
-                f"Invalid authorization flow {authorization_flow!r}. "
-                f"Valid values: '{flows_str}'."
-            )
-        self._auth_flow = authorization_flow
-        if authorization_flow in {None, "client_credentials"} and scopes:
-            warnings.warn(
-                "Scopes were specified in the `scopes` parameter, but "
-                f"the {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
-                "does not support scopes."
-            )
-            scopes = ""
-        self._scopes = (
-            scopes
-            if isinstance(scopes, set)
-            else set(scopes.split() if isinstance(scopes, str) else scopes)
-        )
-        self._client_id = client_id
-        if (
-            authorization_flow
-            in {"auth_code", "client_credentials", "password"}
-            or authorization_flow == "device"
-            and self._IS_TRUSTED_DEVICE
-        ) and not client_secret:
-            raise ValueError(
-                f"The {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
-                "requires a client secret to be provided via the "
-                "`client_secret` parameter."
-            )
-        self._client_secret = client_secret
-        self._user_identifier = user_identifier
-        requires_redirect = authorization_flow in {
-            "auth_code",
-            "pkce",
-            "implicit",
-        }
-        has_redirect = redirect_uri is not None
-        if requires_redirect and not has_redirect:
-            raise ValueError(
-                f"The {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
-                "requires a redirect URI to be provided via the "
-                "`redirect_uri` parameter."
-            )
-        if requires_redirect:
-            parsed = urlparse(redirect_uri)
-            self._port = (
-                port
-                if (port := parsed.port)
-                else 80
-                if parsed.scheme == "http"
-                else 443
-                if parsed.scheme == "https"
-                else None
-            )
-            self._redirect_uri = redirect_uri
-            if redirect_handler is not None:
-                if redirect_handler not in self._REDIRECT_HANDLERS:
-                    handlers_str = "', '".join(sorted(self._REDIRECT_HANDLERS))
-                    if handlers_str:
-                        handlers_str = f", '{handlers_str}'"
-                    raise ValueError(
-                        f"Invalid backend {redirect_handler!r}. "
-                        f"Valid value(s): None{handlers_str}."
-                    )
-                if (hostname := parsed.hostname) not in {
-                    "localhost",
-                    "127.0.0.1",
-                    "::1",
-                }:
-                    warnings.warn(
-                        "Redirect handling is not available for host "
-                        f"{hostname!r}."
-                    )
-                    redirect_handler = None
-            self._redirect_handler = redirect_handler
-        else:
-            if has_redirect:
-                warnings.warn(
-                    "A redirect URI was provided via the "
-                    "`redirect_uri` parameter, but the "
-                    f"{self._OAUTH_AUTH_FLOWS[authorization_flow]} "
-                    "does not use redirects."
-                )
-            self._redirect_uri = None
-            self._redirect_handler = None
-        self._open_browser = open_browser
-        self._store_tokens = store_tokens
-
-        if authenticate and authorization_flow is not None:
-            self._obtain_access_token()
 
     def _get_authorization_code(
         self, code_challenge: str | None = None
@@ -1642,6 +1368,7 @@ class OAuth2APIClient(APIClient):
 
         if authorization_flow is None:
             self.set_access_token(None)
+            return
 
         if authorization_flow == "refresh_token":
             data = {
@@ -1795,8 +1522,8 @@ class OAuth2APIClient(APIClient):
                 scopes=self._scopes,
                 token_type=token_type,
                 access_token=access_token,
-                refresh_token=getattr(self, "_refresh_token", None),
-                expires_at=getattr(self, "_expires_at", None),
+                refresh_token=self._refresh_token,
+                expires_at=self._expires_at,
                 extras=resp_json,
             )
 
@@ -1821,7 +1548,7 @@ class OAuth2APIClient(APIClient):
         if self._auth_flow is None:
             raise RuntimeError(
                 f"{self._QUAL_NAME}.{endpoint_method}() requires user "
-                "authentication via an OAuth 2.0 authorization flow."
+                "authentication."
             )
 
     def _require_scopes(
@@ -1848,6 +1575,308 @@ class OAuth2APIClient(APIClient):
         else:
             for scope in scopes:
                 self._require_scopes(endpoint_method, scope)
+
+    def set_access_token(
+        self,
+        access_token: str | None,
+        /,
+        token_type: str | None = "Bearer",
+        *,
+        refresh_token: str | None = None,
+        expires_at: str | datetime | None = None,
+    ) -> None:
+        """
+        Set or update the access token and its related metadata.
+
+        .. warning::
+
+           Calling this method replaces all existing values with the
+           provided parameters. Parameters not provided explicitly
+           will be overwritten by their default values.
+
+        Parameters
+        ----------
+        access_token : str or None; positional-only
+            Access token.
+
+            .. important::
+
+               If the access token was acquired via a different
+               authorization flow or client, call :meth:`set_flow` first
+               to ensure that all other relevant authorization
+               parameters are set correctly.
+
+        token_type : str or None; default: :code:`"Bearer"`
+            Type of the access token.
+
+        refresh_token : str; keyword-only; optional
+            Refresh token for renewing the access token. If not
+            provided, the user will be reauthorized via the current
+            authorization flow when the access token expires.
+
+        expires_at : str or datetime.datetime; keyword-only; optional
+            Expiration time of the access token. If a string, it must be
+            in ISO 8601 format (:code:`%Y-%m-%dT%H:%M:%SZ`).
+        """
+        if access_token is None:
+            if self._auth_flow is not None:
+                raise ValueError(
+                    "`access_token` cannot be None when using the "
+                    f"{self._OAUTH_AUTH_FLOWS[self._auth_flow]}."
+                )
+            if "Authorization" in self._client.headers:
+                del self._client.headers["Authorization"]
+            self._refresh_token = self._expires_at = None
+            return
+
+        self._client.headers["Authorization"] = f"{token_type} {access_token}"
+        if refresh_token and self._auth_flow in {
+            "client_credentials",
+            "implicit",
+        }:
+            raise ValueError(
+                f"The {self._OAUTH_AUTH_FLOWS[self._auth_flow]} does "
+                "not support refresh tokens, but one was provided via "
+                "the `refresh_token` parameter."
+            )
+        self._refresh_token = refresh_token
+        self._expires_at = (
+            datetime.strptime(expires_at, "%Y-%m-%dT%H:%M:%SZ")
+            if expires_at and isinstance(expires_at, str)
+            else expires_at
+        )
+
+    def set_authorization_flow(
+        self,
+        authorization_flow: str | None,
+        /,
+        *,
+        client_id: str | None = None,
+        client_secret: str | None = None,
+        user_identifier: str | None = None,
+        redirect_uri: str | None = None,
+        scopes: str | set[str] = "",
+        redirect_handler: str | None = None,
+        open_browser: bool = False,
+        store_tokens: bool = True,
+        authenticate: bool = True,
+    ) -> None:
+        """
+        Set or update the authorization flow and related parameters.
+
+        .. warning::
+
+           Calling this method replaces all existing values with the
+           provided parameters. Parameters not provided explicitly
+           will be overwritten by their default values.
+
+        Parameters
+        ----------
+        authorization_flow : str or None; keyword-only
+            Authorization flow.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`None` – No authentication.
+               * :code:`"auth_code"` – Authorization Code Flow.
+               * :code:`"pkce"` – Authorization Code Flow with Proof Key
+                 for Code Exchange (PKCE).
+               * :code:`"client_credentials"` – Client Credentials Flow.
+               * :code:`"device"` – Device Authorization Flow.
+               * :code:`"implicit"` – Implicit Grant Flow.
+
+        client_id : str; keyword-only; optional
+            Client ID. Required unless set as a system environment
+            variable.
+
+        client_secret : str; keyword-only; optional
+            Client secret. Required for the Authorization Code,
+            Client Credentials, and Resource Owner Password Credential
+            flows unless set as a system environment variable.
+
+        user_identifier : str; keyword-only; optional
+            Identifier for the user account. Used when
+            :code:`store_tokens=True` to distinguish between multiple
+            accounts for the same client ID and authorization flow.
+
+            If provided, it is used with the client ID and authorization
+            flow to locate a matching stored token. If none is found, a
+            new token is obtained and stored under this identifier.
+
+            If not provided, the most recently accessed token for the
+            client ID and authorization flow is used. If none exists, a
+            new token is obtained and stored using a user identifier
+            (e.g., user ID) acquired from a successful authorization.
+
+            Prefixing the identifier with a tilde (:code:`~`) bypasses
+            token retrieval, forces reauthorization, and stores the new
+            token under the suffix.
+
+        redirect_uri : str; keyword-only; optional
+            Redirect URI. Required for the Authorization Code,
+            Authorization Code with PKCE, and Implicit Grant flows.
+
+        scopes : str or set[str]; keyword-only; optional
+            Authorization scopes requested by the client to access user
+            resources.
+
+        redirect_handler : str or None; keyword-only; optional
+            Backend for handling redirects during the authorization
+            flow. Redirect handling is only available for hosts
+            :code:`localhost`, :code:`127.0.0.1`, or :code:`::1`.
+
+            **Valid values**:
+
+            .. container::
+
+               * :code:`None` – Show authorization URL in and have the
+                 user manually paste the redirect URL into the terminal.
+               * :code:`"http.server"` – Run a HTTP server to intercept
+                 the redirect after user authorization in any local
+                 browser.
+               * :code:`"playwright"` – Use a Playwright Firefox
+                 browser to complete the user authorization.
+
+        open_browser : bool; keyword-only; default: :code:`False`
+            Whether to automatically open the authorization URL in the
+            default web browser for the Authorization Code,
+            Authorization Code with PKCE, and Implicit Grant flows. If
+            :code:`False`, the URL is printed to the terminal.
+
+        store_tokens : bool; keyword-only; default: :code:`True`
+            Whether to enable the local token storage for this client.
+            If :code:`True`, existing access tokens are retrieved when
+            found in local storage, and newly acquired tokens and their
+            metadata are stored for future retrieval. If :code:`False`,
+            the client neither retrieves nor stores access tokens.
+
+            .. seealso::
+
+               :meth:`get_tokens` – Retrieve specific or all stored
+               access tokens for this client.
+
+               :meth:`remove_tokens` – Remove specific or all stored
+               access tokens for this client.
+
+        authenticate : bool; keyword-only; default: :code:`True`
+            Whether to immediately initiate the authorization
+            flow to acquire an access token.
+
+            .. important::
+
+               Unless :meth:`set_access_token` is called immediately
+               after, this should be left as :code:`True` to ensure the
+               client's existing token is compatible with the new
+               authorization flow and/or scopes.
+        """
+        if authorization_flow not in self._ALLOWED_AUTH_FLOWS:
+            flows_str = "', '".join(
+                sorted(f for f in self._ALLOWED_AUTH_FLOWS if f)
+            )
+            raise ValueError(
+                f"Invalid authorization flow {authorization_flow!r}. "
+                f"Valid values: '{flows_str}'."
+            )
+        self._auth_flow = authorization_flow
+
+        if authorization_flow in {None, "client_credentials"} and scopes:
+            warnings.warn(
+                "Scopes were specified in the `scopes` parameter, but "
+                f"the {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
+                "does not support scopes."
+            )
+            scopes = ""
+        self._scopes = (
+            scopes
+            if isinstance(scopes, set)
+            else set(scopes.split() if isinstance(scopes, str) else scopes)
+        )
+
+        if client_id is None or client_secret is None:
+            client_id = os.environ.get(f"{self._ENV_VAR_PREFIX}_CLIENT_ID")
+            client_secret = os.environ.get(
+                f"{self._ENV_VAR_PREFIX}_CLIENT_SECRET"
+            )
+        if client_id is None and authorization_flow is not None:
+            raise ValueError(
+                "A client ID must be provided via the `client_id` "
+                "parameter for the "
+                f"{self._OAUTH_AUTH_FLOWS[authorization_flow]}."
+            )
+        self._client_id = client_id
+
+        if (
+            authorization_flow
+            in {"auth_code", "client_credentials", "password"}
+            or authorization_flow == "device"
+            and self._IS_TRUSTED_DEVICE
+        ) and not client_secret:
+            raise ValueError(
+                f"The {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
+                "requires a client secret to be provided via the "
+                "`client_secret` parameter."
+            )
+        self._client_secret = client_secret
+        self._user_identifier = user_identifier
+
+        has_redirect = redirect_uri is not None
+        if authorization_flow in {"auth_code", "pkce", "implicit"}:
+            if not has_redirect:
+                raise ValueError(
+                    f"The {self._OAUTH_AUTH_FLOWS[authorization_flow]} "
+                    "requires a redirect URI to be provided via the "
+                    "`redirect_uri` parameter."
+                )
+
+            parsed = urlparse(redirect_uri)
+            self._port = (
+                port
+                if (port := parsed.port)
+                else 80
+                if parsed.scheme == "http"
+                else 443
+                if parsed.scheme == "https"
+                else None
+            )
+            self._redirect_uri = redirect_uri
+            if redirect_handler is not None:
+                if redirect_handler not in self._REDIRECT_HANDLERS:
+                    handlers_str = "', '".join(sorted(self._REDIRECT_HANDLERS))
+                    if handlers_str:
+                        handlers_str = f", '{handlers_str}'"
+                    raise ValueError(
+                        f"Invalid redirect handler {redirect_handler!r}. "
+                        f"Valid value(s): None{handlers_str}."
+                    )
+                if (hostname := parsed.hostname) not in {
+                    "localhost",
+                    "127.0.0.1",
+                    "::1",
+                }:
+                    warnings.warn(
+                        "Redirect handling is not available for host "
+                        f"{hostname!r}."
+                    )
+                    redirect_handler = None
+            self._redirect_handler = redirect_handler
+        else:
+            if has_redirect:
+                warnings.warn(
+                    "A redirect URI was provided via the "
+                    "`redirect_uri` parameter, but the "
+                    f"{self._OAUTH_AUTH_FLOWS[authorization_flow]} "
+                    "does not use redirects."
+                )
+            self._redirect_uri = None
+            self._redirect_handler = None
+
+        self._open_browser = open_browser
+        self._store_tokens = store_tokens
+
+        if authenticate and authorization_flow is not None:
+            self._obtain_access_token()
 
 
 class ResourceAPI:

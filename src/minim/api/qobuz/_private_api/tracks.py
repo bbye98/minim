@@ -41,7 +41,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         tracks : dict[str, Any]
             Qobuz content metadata for the tracks.
 
-            .. admonition:: Sample response
+            .. admonition:: Sample responses
                :class: dropdown
 
                .. tab:: Single track

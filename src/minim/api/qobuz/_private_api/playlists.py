@@ -416,7 +416,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         playlist : dict[str, Any]
             Qobuz content metadata for the playlist.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -827,7 +827,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         playlist_tags : dict[str, list[dict[str, Any]]]
             Qobuz content metadata for playlist tags.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::

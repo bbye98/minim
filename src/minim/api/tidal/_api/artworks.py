@@ -28,7 +28,7 @@ class ArtworksAPI(TIDALResourceAPI):
         """
         `Artworks > Get Single Artwork <https://tidal-music.github.io
         /tidal-api-reference/#/artworks/get_artworks__id_>`_: Get TIDAL
-        catalog information for a single artwork․
+        catalog information for an artwork․
         `Artworks > Get Multiple Artworks <https://tidal-music.github.io
         /tidal-api-reference/#/artworks/get_artworks>`_: Get TIDAL catalog
         information for multiple artworks.

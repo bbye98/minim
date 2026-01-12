@@ -219,7 +219,7 @@ class TracksAPI(SpotifyResourceAPI):
         """
         `Tracks > Get Track <https://developer.spotify.com/documentation
         /web-api/reference/get-track>`_: Get Spotify catalog information
-        for a single track․
+        for a track․
         `Tracks > Get Several Tracks <https://developer.spotify.com
         /documentation/web-api/reference/get-several-tracks>`_: Get
         Spotify catalog information for multiple tracks.
@@ -480,8 +480,7 @@ class TracksAPI(SpotifyResourceAPI):
         """
         `Tracks > Get Track's Audio Features
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-audio-features>`_: Get the audio features for a single
-        track․
+        /get-audio-features>`_: Get the audio features for a track․
         `Tracks > Get Several Tracks' Audio Features
         <https://developer.spotify.com/documentation/web-api/reference
         /get-several-audio-features>`_: Get the audio features for
@@ -582,7 +581,7 @@ class TracksAPI(SpotifyResourceAPI):
         <https://developer.spotify.com/documentation/web-api/reference
         /get-audio-analysis>`_: Get a low-level audio analysis
         (track structure and musical content, including rhythm, pitch,
-        and timbre) of a single track.
+        and timbre) of a track.
 
         .. admonition:: Third-party application mode
            :class: authorization-scope
@@ -1268,6 +1267,9 @@ class TracksAPI(SpotifyResourceAPI):
                     "total": <int>
                   }
         """
+        self._client._require_scopes(
+            "users.get_my_top_tracks", "user-top-read"
+        )
         return self._client.users.get_my_top_items(
             "tracks", time_range=time_range, limit=limit, offset=offset
         )

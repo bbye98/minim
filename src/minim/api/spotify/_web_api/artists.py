@@ -22,7 +22,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         """
         `Artists > Get Artist <https://developer.spotify.com
         /documentation/web-api/reference/get-an-artist>`_: Get
-        Spotify catalog information for a single artist․
+        Spotify catalog information for an artist․
         `Artists > Get Several Artists <https://developer.spotify.com
         /documentation/web-api/reference/get-multiple-artists>`_: Get
         Spotify catalog information for multiple artists.
@@ -564,6 +564,9 @@ class ArtistsAPI(SpotifyResourceAPI):
                     "total": <int>
                   }
         """
+        self._client._require_scopes(
+            "users.get_my_top_artists", "user-top-read"
+        )
         return self._client.users.get_my_top_items(
             "artists", time_range=time_range, limit=limit, offset=offset
         )

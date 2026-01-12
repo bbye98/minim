@@ -21,7 +21,7 @@ class CategoriesAPI(SpotifyResourceAPI):
         """
         `Categories > Get Single Browse Category
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-a-category>`_: Get Spotify catalog information for a single
+        /get-a-category>`_: Get Spotify catalog information for a
         category.
 
         Parameters

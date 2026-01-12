@@ -322,11 +322,11 @@ class UsersAPI(SpotifyResourceAPI):
         ).json()
 
     @TTLCache.cached_method(ttl="user")
-    def get_my_profile(self) -> dict[str, Any]:
+    def get_me(self) -> dict[str, Any]:
         """
         `Users > Get Current User's Profile
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-current-users-profile>`_: Get detailed profile information
+        /get-current-users-profile>`__: Get detailed profile information
         for the current user.
 
         .. admonition:: Authorization scopes and user authentication
@@ -354,7 +354,7 @@ class UsersAPI(SpotifyResourceAPI):
         profile : dict[str, Any]
             Current user's profile information.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -388,20 +388,18 @@ class UsersAPI(SpotifyResourceAPI):
                     "uri": <str>
                   }
         """
-        self._client._require_authentication("users.get_my_profile")
+        self._client._require_authentication("users.get_me")
         return self._client._request("GET", "me").json()
 
     @TTLCache.cached_method(ttl="user")
-    def get_user_profile(
-        self, user_id: str | None = None, /
-    ) -> dict[str, Any]:
+    def get_user(self, user_id: str | None = None, /) -> dict[str, Any]:
         """
         `Users > Get Current User's Profile
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-current-users-profile>`_: Get detailed profile information
+        /get-current-users-profile>`__: Get detailed profile information
         for the current user․
         `Users > Get User's Profile <https://developer.spotify.com
-        /documentation/web-api/reference/get-users-profile>`_: Get
+        /documentation/web-api/reference/get-users-profile>`__: Get
         public profile information for a Spotify user.
 
         .. admonition:: Authorization scopes
@@ -500,7 +498,7 @@ class UsersAPI(SpotifyResourceAPI):
                      }
         """
         if user_id is None:
-            return self.get_my_profile()
+            return self.get_me()
         self._validate_type("user_id", user_id, str)
         return self._client._request("GET", f"users/{user_id}").json()
 
@@ -582,7 +580,7 @@ class UsersAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the current user's top
             artists or tracks.
 
-            .. admonition:: Sample response
+            .. admonition:: Sample responses
                :class: dropdown
 
                .. tab:: :code:`resource_type="artists"`
@@ -706,6 +704,7 @@ class UsersAPI(SpotifyResourceAPI):
                        "total": <int>
                      }
         """
+        self._client._require_scopes("users.get_my_top_items", "user-top-read")
         self._validate_type("item_type", item_type, str)
         item_type = item_type.strip().lower()
         if item_type not in {"artists", "tracks"}:
@@ -713,9 +712,6 @@ class UsersAPI(SpotifyResourceAPI):
                 f"Invalid item type {item_type!r}. "
                 "Valid values: 'artists', 'tracks'."
             )
-        self._client._require_scopes(
-            f"users.get_top_{item_type}", "user-top-read"
-        )
         params = {}
         if time_range is not None:
             self._client.users._validate_time_range(time_range)
@@ -905,7 +901,7 @@ class UsersAPI(SpotifyResourceAPI):
                   }
         """
         self._client._require_scopes(
-            "users.get_followed_artists", "user-follow-read"
+            "users.get_my_followed_artists", "user-follow-read"
         )
         params = {"type": "artist"}
         if cursor is not None:
@@ -2152,12 +2148,12 @@ class UsersAPI(SpotifyResourceAPI):
         """
         `Playlists > Get Current User's Playlists
         <https://developer.spotify.com/documentation/web-api/reference
-        /get-a-list-of-current-users-playlists>`_: Get Spotify catalog
+        /get-a-list-of-current-users-playlists>`__: Get Spotify catalog
         information for playlists owned or followed by the current user․
         `Playlists > Get User's Playlists <https://developer.spotify.com
-        /documentation/web-api/reference/get-list-users-playlists>`_:
+        /documentation/web-api/reference/get-list-users-playlists>`__:
         Get Spotify catalog information for playlists owned or followed
-        by a Spotify user.
+        by a user.
 
         .. admonition:: Authorization scopes
            :class: authorization-scope

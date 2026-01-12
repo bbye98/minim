@@ -31,7 +31,7 @@ class VideosAPI(TIDALResourceAPI):
         """
         `Videos > Get Single Video <https://tidal-music.github.io
         /tidal-api-reference/#/videos/get_videos__id_>`_: Get TIDAL
-        catalog information for a single video․
+        catalog information for a video․
         `Videos > Get Multiple Videos <https://tidal-music.github.io
         /tidal-api-reference/#/videos/get_videos__id_>`_: Get TIDAL
         catalog information for multiple videos.

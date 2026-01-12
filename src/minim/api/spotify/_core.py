@@ -183,8 +183,8 @@ class SpotifyWebAPI(OAuth2APIClient):
 
             .. seealso::
 
-               :meth:`clear_cache` – Clear specific or all cache
-               entries for this client.
+               :meth:`clear_cache` – Clear specific or all cache entries
+               for this client.
 
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.
@@ -349,19 +349,6 @@ class SpotifyWebAPI(OAuth2APIClient):
             scope for match in matches for scope in cls.resolve_scopes(match)
         }
 
-    def _resolve_user_identifier(self) -> str:
-        """
-        Return the Spotify user ID as the user identifier for the
-        current account.
-
-        .. note::
-
-           Invoking this method may call
-           :meth:`~minim.api.spotify.UsersAPI.get_my_profile` and
-           make a request to the Spotify Web API.
-        """
-        return self.users.get_my_profile()["id"]
-
     def _request(
         self,
         method: str,
@@ -434,7 +421,7 @@ class SpotifyWebAPI(OAuth2APIClient):
         .. note::
 
            Invoking this method may call
-           :meth:`~minim.api.spotify.UsersAPI.get_my_profile` and
+           :meth:`~minim.api.spotify.UsersAPI.get_me` and
            make a request to the Spotify Web API.
 
         Parameters
@@ -443,11 +430,23 @@ class SpotifyWebAPI(OAuth2APIClient):
             Name of the endpoint method.
         """
         if self._auth_flow == "client_credentials" or (
-            (subscription := self.users.get_my_profile().get("product"))
-            is not None
+            (subscription := self.users.get_me().get("product")) is not None
             and subscription != "premium"
         ):
             raise RuntimeError(
                 f"{self._QUAL_NAME}.{endpoint_method}() requires "
                 "an active Spotify Premium subscription."
             )
+
+    def _resolve_user_identifier(self) -> str:
+        """
+        Return the Spotify user ID as the user identifier for the
+        current account.
+
+        .. note::
+
+           Invoking this method may call
+           :meth:`~minim.api.spotify.UsersAPI.get_me` and
+           make a request to the Spotify Web API.
+        """
+        return self.users.get_me()["id"]

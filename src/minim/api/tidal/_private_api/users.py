@@ -654,7 +654,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self._client._request(method, f"v2/profiles/block/{user_id}")
 
     @TTLCache.cached_method(ttl="static")
-    def get_my_profile(self) -> dict[str, Any]:
+    def get_me(self) -> dict[str, Any]:
         """
         Get profile information for the current user.
 
@@ -704,7 +704,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "username": <str>
                   }
         """
-        self._client._require_authentication("users.get_my_profile")
+        self._client._require_authentication("users.get_me")
         return self._client._request(
             "GET", "https://login.tidal.com/oauth2/me"
         ).json()
@@ -750,14 +750,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         return self._client._request("GET", "v1/sessions").json()
 
     @TTLCache.cached_method(ttl="user")
-    def get_user_clients(
+    def get_clients(
         self,
         user_id: int | str | None = None,
         /,
         country_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        Get information about an user's TIDAL clients.
+        Get information about a user's TIDAL clients.
 
         .. admonition:: User authentication
            :class: authorization-scope
@@ -816,7 +816,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_user_clients")
+        self._client._require_authentication("users.get_clients")
         if user_id is None:
             user_id = self._client._resolve_user_identifier()
         return self._get_resource_relationship(
@@ -824,14 +824,14 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_user_subscription(
+    def get_subscription(
         self,
         user_id: int | str | None = None,
         /,
         country_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        Get information about an user's TIDAL subscription status.
+        Get information about a user's TIDAL subscription status.
 
         .. admonition:: User authentication
            :class: authorization-scope
@@ -879,7 +879,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "validUntil": <str>
                   }
         """
-        self._client._require_authentication("users.get_user_subscription")
+        self._client._require_authentication("users.get_subscription")
         if user_id is None:
             user_id = self._client._resolve_user_identifier()
         return self._get_resource_relationship(
@@ -3094,7 +3094,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_user_following(
+    def get_followed_users(
         self,
         user_id: int | str | None = None,
         /,

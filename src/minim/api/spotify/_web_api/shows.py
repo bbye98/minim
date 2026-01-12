@@ -22,7 +22,7 @@ class ShowsAPI(SpotifyResourceAPI):
         """
         `Shows > Get Show <https://developer.spotify.com/documentation
         /web-api/reference/get-a-show>`_: Get Spotify catalog
-        information for a single show․
+        information for a show․
         `Shows > Get Several Shows <https://developer.spotify.com
         /documentation/web-api/reference/get-multiple-shows>`_: Get
         Spotify catalog information for multiple shows.

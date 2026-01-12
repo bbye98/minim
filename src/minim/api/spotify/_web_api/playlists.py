@@ -91,7 +91,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
                * :code:`"description,uri"` – Returns only the playlist
                  description and URI.
                * :code:`"tracks.items(added_at,added_by.id)"` – Returns
-                 only the date added amd the Spotify user ID of the user
+                 only the date added and the Spotify user ID of the user
                  who added the track.
                * :code:`"tracks.items(track(name,href,album(name,href)))"`
                  – Drills down into the album details.
@@ -389,8 +389,6 @@ class PlaylistsAPI(SpotifyResourceAPI):
         name : str; keyword-only; optional
             New playlist name.
 
-            **Example**: :code:`"My New Playlist Title"`.
-
         description : str; keyword-only; optional
             New playlist description.
 
@@ -421,6 +419,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
             payload["public"] = public
         if collaborative is not None:
             self._validate_type("collaborative", collaborative, bool)
+            if collaborative:
+                if public is None:
+                    payload["public"] = False
+                elif public:
+                    raise ValueError(
+                        "`public` must be False when `collaborative` is True."
+                    )
             payload["collaborative"] = collaborative
         if not payload:
             raise ValueError("At least one change must be specified.")
@@ -503,7 +508,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
                * :code:`"description,uri"` – Returns only the playlist
                  description and URI.
                * :code:`"tracks.items(added_at,added_by.id)"` – Returns
-                 only the date added amd the Spotify user ID of the user
+                 only the date added and the Spotify user ID of the user
                  who added the track.
                * :code:`"tracks.items(track(name,href,album(name,href)))"`
                  – Drills down into the album details.
@@ -1261,6 +1266,13 @@ class PlaylistsAPI(SpotifyResourceAPI):
             payload["public"] = public
         if collaborative is not None:
             self._validate_type("collaborative", collaborative, bool)
+            if collaborative:
+                if public is None:
+                    payload["public"] = False
+                elif public:
+                    raise ValueError(
+                        "`public` must be False when `collaborative` is True."
+                    )
             payload["collaborative"] = collaborative
         return self._client._request(
             "POST",

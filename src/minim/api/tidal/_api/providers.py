@@ -21,7 +21,7 @@ class ProvidersAPI(TIDALResourceAPI):
         """
         `Providers > Get Single Provider <https://tidal-music.github.io
         /tidal-api-reference/#/providers/get_providers__id_>`_: Get
-        TIDAL catalog information for a single provider․
+        TIDAL catalog information for a provider․
         `Providers > Get Multiple Providers
         <https://tidal-music.github.io/tidal-api-reference/#/providers
         /get_providers>`_: Get TIDAL catalog information for multiple

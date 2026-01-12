@@ -43,7 +43,7 @@ class AlbumsAPI(TIDALResourceAPI):
         """
         `Albums > Get Single Album <https://tidal-music.github.io
         /tidal-api-reference/#/albums/get_albums__id_>`_: Get TIDAL
-        catalog information for a single album․
+        catalog information for an album․
         `Albums > Get Multiple Albums <https://tidal-music.github.io
         /tidal-api-reference/#/albums/get_albums>`_: Get TIDAL catalog
         information for multiple albums.

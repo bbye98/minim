@@ -16,7 +16,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
     """
 
     @TTLCache.cached_method(ttl="user")
-    def get_my_profile(self) -> dict[str, Any]:
+    def get_me(self) -> dict[str, Any]:
         """
         Get detailed profile information for the current user.
 
@@ -33,7 +33,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         profile : dict[str, Any]
             Current user's profile information.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -114,7 +114,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
                     "zone": <str>
                   }
         """
-        self._client._require_authentication("users.get_my_profile")
+        self._client._require_authentication("users.get_me")
         return self._client._request("GET", "user/get").json()
 
     @TTLCache.cached_method(ttl="user")
@@ -136,7 +136,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         last_updates : dict[str, dict[str, int]]
             Current user's last update timestamps.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -206,7 +206,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         token : dict[str, Any]
             User authentication token and profile information.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -408,7 +408,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             Pages of Qobuz content metadata for purchased albums and
             tracks.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -636,7 +636,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         item_ids : dict[str, Any]
             Qobuz IDs of purchased albums and tracks.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::

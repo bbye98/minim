@@ -38,8 +38,8 @@ class ArtistsAPI(TIDALResourceAPI):
         """
         `Artist Roles > Get Single Artist Role
         <https://tidal-music.github.io/tidal-api-reference/#/artistRoles
-        /get_artistRoles>`_: Get TIDAL catalog information for a single
-        artist role․
+        /get_artistRoles>`_: Get TIDAL catalog information for an artist
+        role․
         `Artist Roles > Get Multiple Artist Roles
         <https://tidal-music.github.io/tidal-api-reference/#/artistRoles
         /get_artistRoles__id_>`_: Get TIDAL catalog information for
@@ -111,7 +111,7 @@ class ArtistsAPI(TIDALResourceAPI):
         """
         `Artists > Get Single Artist <https://tidal-music.github.io
         /tidal-api-reference/#/artists/get_artists__id_>`_: Get TIDAL
-        catalog information for a single artist․
+        catalog information for an artist․
         `Artists > Get Multiple Artists <https://tidal-music.github.io
         /tidal-api-reference/#/artists/get_artists>`_: Get TIDAL catalog
         information for multiple artists.
@@ -1366,7 +1366,7 @@ class ArtistsAPI(TIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="daily")
-    def get_artist_radio(
+    def get_artist_mix(
         self,
         artist_id: int | str,
         /,
@@ -1379,8 +1379,7 @@ class ArtistsAPI(TIDALResourceAPI):
         `Artists > Get Artist Radio
         <https://tidal-music.github.io/tidal-api-reference/#/artists
         /get_artists__id__relationships_radio>`_: Get TIDAL catalog
-        information for radio stations generated from an artist's music
-        catalog.
+        information for an artist's mix.
 
         Parameters
         ----------
@@ -1396,8 +1395,8 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the artist
-            radio.
+            Whether to include TIDAL content metadata for the artist's
+            mix.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1406,8 +1405,8 @@ class ArtistsAPI(TIDALResourceAPI):
 
         Returns
         -------
-        radio : dict[str, Any]
-            TIDAL content metadata for the artist radio.
+        mix : dict[str, Any]
+            TIDAL content metadata for the artist's mix.
 
             .. admonition:: Sample response
                :class: dropdown

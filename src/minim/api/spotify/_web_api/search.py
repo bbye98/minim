@@ -73,7 +73,7 @@ class SearchAPI(SpotifyResourceAPI):
 
                * :code:`artist` and :code:`year` can be used when
                  searching albums, artists and tracks. The :code:`year`
-                 filter accepts a single year or a range (e.g.,
+                 filter accepts a year or a range (e.g.,
                  :code:`"year:1955-1960"`).
 
                * :code:`album` can be used when searching albums and

@@ -2824,7 +2824,7 @@ class UsersAPI(TIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="static")
-    def get_my_profile(self) -> dict[str, Any]:
+    def get_me(self) -> dict[str, Any]:
         """
         `Users > Get Current User's Profile
         <https://tidal-music.github.io/tidal-api-reference/#/users
@@ -2866,5 +2866,5 @@ class UsersAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._client._require_scopes("users.get_my_profile", "user.read")
+        self._client._require_scopes("users.get_me", "user.read")
         return self._client._request("GET", "users/me").json()

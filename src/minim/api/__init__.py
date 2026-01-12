@@ -2,7 +2,7 @@ import sqlite3
 
 from .. import MINIM_DIR
 
-__all__ = ["apple", "qobuz", "spotify", "tidal"]
+__all__ = ["apple", "deezer", "qobuz", "spotify", "tidal"]
 
 AUTH_DB_FILE = MINIM_DIR / "auth.db"
 db_connection = sqlite3.connect(AUTH_DB_FILE)

@@ -22,7 +22,7 @@ class AlbumsAPI(SpotifyResourceAPI):
         """
         `Albums > Get Album <https://developer.spotify.com/documentation
         /web-api/reference/get-an-album>`_: Get Spotify catalog
-        information for a single album․
+        information for an album․
         `Albums > Get Several Albums <https://developer.spotify.com
         /documentation/web-api/reference/get-multiple-albums>`_: Get
         Spotify catalog information for multiple albums.

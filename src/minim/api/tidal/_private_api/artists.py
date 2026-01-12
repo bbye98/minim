@@ -23,7 +23,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         self, artist_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for a single artist.
+        Get TIDAL catalog information for an artist.
 
         Parameters
         ----------
@@ -360,7 +360,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="popularity")
-    def get_artist_radio(
+    def get_artist_mix(
         self,
         artist_id: int | str,
         /,
@@ -370,8 +370,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for radio stations generated from
-        an artist's music catalog.
+        Get TIDAL catalog information for the tracks in an artist's mix.
 
         Parameters
         ----------
@@ -388,15 +387,15 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
             **Example**: :code:`"US"`.
 
         limit : int; keyword-only; optional
-            Maximum number of items to return.
+            Maximum number of tracks to return.
 
             **Valid range**: :code:`1` to :code:`100`.
 
             **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
-            Index of the first item to return. Use with `limit` to get
-            the next batch of items.
+            Index of the first track to return. Use with `limit` to get
+            the next batch of tracks.
 
             **Minimum value**: :code:`0`.
 
@@ -405,7 +404,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         radio : dict[str, Any]
-            Page of TIDAL content metadata for the items in the artist
+            Page of TIDAL content metadata for the tracks in the artist
             radio.
 
             .. admonition:: Sample response

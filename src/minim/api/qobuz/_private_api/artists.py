@@ -1048,7 +1048,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         releases : dict[str, Any]
             Page of Qobuz content metadata for the artist's releases.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
@@ -1235,8 +1235,8 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         artists : dict[str, Any]
             Page of Qobuz content metadata for similar artists.
 
-            .. admonition:: Sample responses
-               :dropdown:
+            .. admonition:: Sample response
+               :class: dropdown
 
                .. code::
 

@@ -118,7 +118,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         self, track_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for a single track.
+        Get TIDAL catalog information for a track.
 
         Parameters
         ----------

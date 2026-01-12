@@ -80,7 +80,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         self, video_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for a single video.
+        Get TIDAL catalog information for a video.
 
         Parameters
         ----------

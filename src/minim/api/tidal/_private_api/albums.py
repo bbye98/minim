@@ -21,7 +21,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
         self, album_id: int | str, /, country_code: str | None = None
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for a single album.
+        Get TIDAL catalog information for an album.
 
         Parameters
         ----------

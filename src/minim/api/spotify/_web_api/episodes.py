@@ -26,7 +26,7 @@ class EpisodesAPI(SpotifyResourceAPI):
         """
         `Episodes > Get Episode <https://developer.spotify.com
         /documentation/web-api/reference/get-an-episode>`_: Get Spotify
-        catalog information for a single show episode․
+        catalog information for a show episode․
         `Episodes > Get Several Episodes <https://developer.spotify.com
         /documentation/web-api/reference/get-multiple-episodes>`_: Get
         Spotify catalog information for multiple show episodes.

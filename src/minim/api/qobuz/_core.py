@@ -133,8 +133,8 @@ class PrivateQobuzAPI(APIClient):
 
             .. seealso::
 
-               :meth:`clear_cache` – Clear specific or all cache
-               entries for this client.
+               :meth:`clear_cache` – Clear specific or all cache entries
+               for this client.
 
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.
@@ -209,8 +209,8 @@ class PrivateQobuzAPI(APIClient):
                     user_identifier=user_identifier,
                 )
             ):
-                # If an access token is not provided, try to retrieve it
-                # from local token storage
+                # If a user authentication token is not provided, try
+                # to retrieve it from local token storage
                 user_auth_token = account["access_token"]
                 app_secret = account["client_secret"]
                 self._token_extras = (
@@ -578,13 +578,13 @@ class PrivateQobuzAPI(APIClient):
         .. note::
 
            Invoking this method may call
-           :meth:`~minim.api.tidal.UsersAPI.get_my_profile` and
+           :meth:`~minim.api.tidal.UsersAPI.get_me` and
            make a request to the TIDAL API.
         """
         return (
             self._token_extras.get("user_id")
             or self._token_extras.get("user", {}).get("id")
-            or self.users.get_my_profile()
+            or self.users.get_me()
         )
 
     def set_authorization_flow(
@@ -592,7 +592,7 @@ class PrivateQobuzAPI(APIClient):
         authorization_flow: str | None,
         /,
         *,
-        app_id: str,
+        app_id: str | None = None,
         app_secret: str | None = None,
         user_identifier: str | None = None,
         credential_handler: str | None = None,
@@ -624,15 +624,13 @@ class PrivateQobuzAPI(APIClient):
         app_id : str; keyword-only; optional
             Application ID. If not provided, it is loaded from the
             system environment variable :code:`PRIVATE_QOBUZ_API_APP_ID`
-            or from the local token storage if available, or retrieved
-            from the Qobuz Web Player login page otherwise.
+            or retrieved from the Qobuz Web Player login page.
 
         app_secret : str; keyword-only; optional
             Application secret. If not provided, it is loaded from the
             system environment variable
-            :code:`PRIVATE_QOBUZ_API_APP_SECRET` or from the local token
-            storage if available, or retrieved from the Qobuz Web Player
-            login page otherwise.
+            :code:`PRIVATE_QOBUZ_API_APP_SECRET` or retrieved from the
+            Qobuz Web Player login page.
 
         user_identifier : str; keyword-only; optional
             Identifier for the user account. Used when
@@ -687,7 +685,7 @@ class PrivateQobuzAPI(APIClient):
 
         authenticate : bool; keyword-only; default: :code:`True`
             Whether to immediately initiate the authorization
-            flow to acquire an user authentication token.
+            flow to acquire a user authentication token.
 
             .. important::
 
@@ -709,6 +707,19 @@ class PrivateQobuzAPI(APIClient):
                 f"Valid values: '{flows_str}'."
             )
         self._auth_flow = authorization_flow
+        if app_id is None or app_secret is None:
+            app_id = os.environ.get(f"{self._ENV_VAR_PREFIX}_APP_ID")
+            app_secret = os.environ.get(f"{self._ENV_VAR_PREFIX}_APP_SECRET")
+        if app_id is None:
+            raise ValueError(
+                "An application ID must be provided via the `app_id` "
+                "parameter."
+            )
+        if app_secret is None:
+            raise ValueError(
+                "An application secret must be provided via the "
+                "`app_secret` parameter."
+            )
         self._client.headers["X-App-Id"] = self._app_id = app_id
         self._app_secret = app_secret
         self._user_identifier = user_identifier

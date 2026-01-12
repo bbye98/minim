@@ -46,7 +46,7 @@ class TracksAPI(TIDALResourceAPI):
         """
         `Tracks > Get Single Track <https://tidal-music.github.io
         /tidal-api-reference/#/tracks/get_tracks__id_>`_: Get TIDAL
-        catalog information for a single track․
+        catalog information for a track․
         `Tracks > Get Multiple Tracks <https://tidal-music.github.io
         /tidal-api-reference/#/tracks/get_tracks>`_: Get TIDAL catalog
         information for multiple tracks.
@@ -1477,7 +1477,7 @@ class TracksAPI(TIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="daily")
-    def get_track_radio(
+    def get_track_mix(
         self,
         track_id: str,
         /,
@@ -1490,7 +1490,7 @@ class TracksAPI(TIDALResourceAPI):
         `Tracks > Get Track Radio <https://tidal-music.github.io
         /tidal-api-reference/#/tracks
         /get_tracks__id__relationships_radio>`_: Get TIDAL catalog
-        information for a radio stations generated from a track.
+        information for a track's mix.
 
         Parameters
         ----------
@@ -1500,8 +1500,8 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
-            Whether to include TIDAL content metadata for the track
-            radio.
+            Whether to include TIDAL content metadata for the track's
+            mix.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results.
@@ -1513,8 +1513,8 @@ class TracksAPI(TIDALResourceAPI):
 
         Returns
         -------
-        radio : dict[str, Any]
-            TIDAL content metadata for the track radio.
+        mix : dict[str, Any]
+            TIDAL content metadata for the track's mix.
 
             .. admonition:: Sample response
                :class: dropdown

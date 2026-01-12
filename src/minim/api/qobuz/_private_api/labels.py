@@ -67,7 +67,7 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
         label : dict[str, Any]
             Qobuz content metadata for the label.
 
-            .. admonition:: Sample responses
+            .. admonition:: Sample response
                :class: dropdown
 
                .. code::
