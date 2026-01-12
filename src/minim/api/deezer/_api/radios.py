@@ -56,7 +56,7 @@ class RadiosAPI(DeezerResourceAPI):
         return self._request_resource_relationship("GET", "radio", radio_id)
 
     @TTLCache.cached_method(ttl="static")
-    def get_radios_per_genre(self) -> dict[str, Any]:
+    def get_per_genre_radios(self) -> dict[str, Any]:
         """
         `Radio > Genres <https://developers.deezer.com/api/radio
         /genres>`_: Get Deezer catalog information for radios,
@@ -229,6 +229,71 @@ class RadiosAPI(DeezerResourceAPI):
         return self._request_resource_relationship(
             "GET", "radio", radio_id, "tracks", limit=limit, offset=offset
         )
+
+    @TTLCache.cached_method(ttl="static")
+    def get_genre_radios(
+        self, *, limit: int | None = None, offset: int | None = None
+    ) -> dict[str, Any]:
+        """
+        `Radio > Lists <https://developers.deezer.com/api/radio
+        /lists>`_: Get Deezer catalog information for all genres'
+        radios.
+
+        Parameters
+        ----------
+        limit : int or None; keyword-only; optional
+            Maximum number of radios to return.
+
+            **Minimum value**: :code:`1`.
+
+        offset : int or None; keyword-only; optional
+            Index of the first radio to return. Use with `limit` to get
+            the next batch of radios.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        radios : dict[str, Any]
+            Deezer content metadata for all genres' radios.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "id": <int>,
+                        "md5_image": <str>,
+                        "picture": <str>,
+                        "picture_big": <str>,
+                        "picture_medium": <str>,
+                        "picture_small": <str>,
+                        "picture_xl": <str>,
+                        "title": <str>,
+                        "tracklist": <str>,
+                        "type": "radio"
+                      }
+                    ],
+                    "next": <str>,
+                    "prev": <str>,
+                    "total": <int>
+                  }
+        """
+        params = {}
+        if limit is not None:
+            self._validate_number("limit", limit, int, 1)
+            params["limit"] = limit
+        if offset is not None:
+            self._validate_number("offset", offset, int, 0)
+            params["index"] = offset
+        return self._client._request(
+            "GET", "radio/lists", params=params
+        ).json()
 
     @_copy_docstring(UsersAPI.save_radio)
     def save_radio(

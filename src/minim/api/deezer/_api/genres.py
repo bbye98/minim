@@ -192,8 +192,7 @@ class GenresAPI(DeezerResourceAPI):
         Returns
         -------
         radios : dict[str, Any]
-            Deezer content metadata for the tracks in the genre's
-            radios.
+            Deezer content metadata for the genre's radio.
 
             .. admonition:: Sample response
                :class: dropdown

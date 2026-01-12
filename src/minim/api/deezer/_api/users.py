@@ -2357,7 +2357,7 @@ class UsersAPI(DeezerResourceAPI):
             params={f"album_id{'s' if num_ids > 1 else ''}": album_ids},
         )
 
-    def remove_saved_albums(
+    def remove_saved_album(
         self, album_id: int | str, /, *, user_id: int | str = "me"
     ) -> bool:
         """
@@ -2397,7 +2397,7 @@ class UsersAPI(DeezerResourceAPI):
             Whether the request completed successfully.
         """
         self._client._require_permissions(
-            "users.remove_saved_albums", {"manage_library", "delete_library"}
+            "users.remove_saved_album", {"manage_library", "delete_library"}
         )
         self._validate_deezer_ids(album_id, _recursive=False)
         return self._request_resource_relationship(
@@ -2477,7 +2477,6 @@ class UsersAPI(DeezerResourceAPI):
               :code:`delete_library` permission
                  Delete items from a user's library. `Learn more.
                  <https://developers.deezer.com/api/permissions>`__
-
 
         Parameters
         ----------
@@ -3078,4 +3077,198 @@ class UsersAPI(DeezerResourceAPI):
         self._validate_deezer_ids(radio_id, _recursive=False)
         return self._request_resource_relationship(
             "DELETE", "user", user_id, "radios", params={"radio_id": radio_id}
+        )
+
+    def save_tracks(
+        self,
+        track_ids: int | str | list[int | str],
+        /,
+        *,
+        user_id: int | str = "me",
+    ) -> bool:
+        """
+        `User > Tracks <https://developers.deezer.com/api
+        /actions-post>`__: Add one or more tracks to a user's favorites.
+
+        .. admonition:: Permissions
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`manage_library` permission
+                 Manage a user's library. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
+
+        Parameters
+        ----------
+        track_ids : int, str, or list[int | str]; positional-only
+            Deezer IDs of the tracks.
+
+            **Examples**: :code:`101602968`, :code:`"3541756661"`,
+            :code:`"101602968,3541756661"`,
+            :code:`[101602968, "3541756661"]`.
+
+        user_id : int or str; keyword-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        Returns
+        -------
+        success : bool
+            Whether the request completed successfully.
+        """
+        self._client._require_permissions(
+            "users.save_tracks", "manage_library"
+        )
+        track_ids, num_ids = self._prepare_deezer_ids(track_ids)
+        return self._request_resource_relationship(
+            "POST",
+            "user",
+            user_id,
+            "tracks",
+            params={f"track_id{'s' if num_ids > 1 else ''}": track_ids},
+        )
+
+    def remove_saved_track(
+        self, track_id: int | str, /, *, user_id: int | str = "me"
+    ) -> bool:
+        """
+        `User > Tracks <https://developers.deezer.com/api
+        /actions-delete>`__: Remove a track from a user's favorites.
+
+        .. admonition:: Permissions
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`manage_library` permission
+                 Manage a user's library. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
+
+              :code:`delete_library` permission
+                 Delete items from a user's library. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
+
+        Parameters
+        ----------
+        track_id : int or str; positional-only
+            Deezer ID of the track.
+
+            **Examples**: :code:`101602968`, :code:`"3541756661"`.
+
+        user_id : int or str; keyword-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        Returns
+        -------
+        success : bool
+            Whether the request completed successfully.
+        """
+        self._client._require_permissions(
+            "users.remove_saved_track", {"manage_library", "delete_library"}
+        )
+        self._validate_deezer_ids(track_id, _recursive=False)
+        return self._request_resource_relationship(
+            "DELETE", "user", user_id, "tracks", params={"track_id": track_id}
+        )
+
+    def follow_user(
+        self, follow_user_id: int | str, /, *, user_id: int | str = "me"
+    ) -> bool:
+        """
+        `User > Followings <https://developers.deezer.com/api
+        /actions-post>`__: Follow a user.
+
+        .. admonition:: Permissions
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`manage_community` permission
+                 Manage a user's friends. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
+
+        Parameters
+        ----------
+        follow_user_id : int or str; positional-only
+            Deezer ID of the user to follow.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`.
+
+        user_id : int or str; keyword-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        Returns
+        -------
+        success : bool
+            Whether the request completed successfully.
+        """
+        self._client._require_permissions(
+            "users.follow_user", "manage_community"
+        )
+        self._validate_deezer_ids(follow_user_id, _recursive=False)
+        return self._request_resource_relationship(
+            "POST",
+            "user",
+            user_id,
+            "followings",
+            params={"user_id": follow_user_id},
+        )
+
+    def unfollow_user(
+        self, unfollow_user_id: int | str, /, *, user_id: int | str = "me"
+    ) -> bool:
+        """
+        `User > Followings <https://developers.deezer.com/api
+        /actions-delete>`__: Unfollow a user.
+
+        .. admonition:: Permissions
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`manage_community` permission
+                 Manage a user's friends. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
+
+        Parameters
+        ----------
+        unfollow_user_id : int or str; positional-only
+            Deezer ID of the user to unfollow.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`.
+
+        user_id : int or str; keyword-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        Returns
+        -------
+        success : bool
+            Whether the request completed successfully.
+        """
+        self._client._require_permissions(
+            "users.unfollow_user", "manage_community"
+        )
+        self._validate_deezer_ids(unfollow_user_id, _recursive=False)
+        return self._request_resource_relationship(
+            "DELETE",
+            "user",
+            user_id,
+            "followings",
+            params={"user_id": unfollow_user_id},
         )
