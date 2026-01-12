@@ -821,8 +821,6 @@ class OAuth2APIClient(APIClient):
     _ALLOWED_SCOPES: Any
     #: Authorization endpoint.
     AUTH_URL: str
-    #: Device authorization endpoint.
-    DEVICE_AUTH_URL: str
     #: Token endpoint.
     TOKEN_URL: str
 
@@ -838,6 +836,8 @@ class OAuth2APIClient(APIClient):
     }
     _OPTIONAL_AUTH: bool = False
     _REDIRECT_HANDLERS = {"http.server", "playwright"}
+    #: Device authorization endpoint.
+    DEVICE_AUTH_URL: str | None = None
 
     def __init__(
         self,

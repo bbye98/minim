@@ -713,7 +713,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             album_id, country_code, device_type=device_type, locale=locale
         )
 
-    @_copy_docstring(PrivateUsersAPI.save_albums)
+    @_copy_docstring(PrivateUsersAPI.get_saved_albums)
     def get_saved_albums(
         self,
         user_id: int | str | None = None,

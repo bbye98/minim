@@ -321,10 +321,8 @@ class AlbumsAPI(DeezerResourceAPI):
     ) -> bool:
         return self._client.users.save_albums(album_ids, user_id=user_id)
 
-    @_copy_docstring(UsersAPI.remove_saved_albums)
-    def remove_saved_albums(
+    @_copy_docstring(UsersAPI.remove_saved_album)
+    def remove_saved_album(
         self, album_id: int | str, /, *, user_id: int | str = "me"
     ) -> bool:
-        return self._client.users.remove_saved_albums(
-            album_id, user_id=user_id
-        )
+        return self._client.users.remove_saved_album(album_id, user_id=user_id)
