@@ -8,8 +8,8 @@ import re
 from typing import Any
 
 import httpx
-from playwright.sync_api import sync_playwright
 
+from ... import FOUND
 from .._shared import APIClient, TokenDatabase
 from ._private_api.albums import PrivateAlbumsAPI
 from ._private_api.artists import PrivateArtistsAPI
@@ -23,6 +23,9 @@ from ._private_api.purchases import PrivatePurchasesAPI
 from ._private_api.search import PrivateSearchEndpoints
 from ._private_api.tracks import PrivateTracksAPI
 from ._private_api.users import PrivateUsersAPI
+
+if FOUND["playwright"]:
+    from playwright.sync_api import sync_playwright
 
 
 class PrivateQobuzAPI(APIClient):
@@ -377,6 +380,13 @@ class PrivateQobuzAPI(APIClient):
             User authentication token and profile information.
         """
         if self._credential_handler == "playwright":
+            if not FOUND["playwright"]:
+                raise RuntimeError(
+                    "The Qobuz Web Player login flow uses the "
+                    "`playwright` library, but it could not be found "
+                    "or imported."
+                )
+
             with sync_playwright() as playwright:
                 browser = playwright.firefox.launch(headless=False)
                 context = browser.new_context(
