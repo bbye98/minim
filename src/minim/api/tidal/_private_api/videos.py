@@ -196,7 +196,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         contributors : dict[str, Any]
-            TIDAL content metadata for the video's contributors.
+            Page of TIDAL content metadata for the video's contributors.
 
             .. admonition:: Sample response
                :class: dropdown

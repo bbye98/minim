@@ -197,6 +197,28 @@ class PrivateLabelsAPI(PrivateQobuzResourceAPI):
         -------
         labels : dict[str, Any]
             Page of Qobuz content metadata for the labels.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "labels": {
+                      "items": [
+                        {
+                          "albums_count": <int>,
+                          "id": <int>,
+                          "name": <str>,
+                          "slug": <str>,
+                          "supplier_id": <int>,
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    }
+                  }
         """
         params = {}
         if limit is not None:

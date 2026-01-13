@@ -158,7 +158,7 @@ class GenresAPI(DeezerResourceAPI):
         Returns
         -------
         podcasts : dict[str, Any]
-            Deezer content metadata for the genre's podcasts.
+            Page of Deezer content metadata for the genre's podcasts.
 
             .. admonition:: Sample response
                :class: dropdown

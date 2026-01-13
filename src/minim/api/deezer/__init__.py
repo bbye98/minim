@@ -8,6 +8,8 @@ from ._api.genres import GenresAPI
 from ._api.playlists import PlaylistsAPI
 from ._api.podcasts import PodcastsAPI
 from ._api.radios import RadiosAPI
+from ._api.search import SearchAPI
+from ._api.tracks import TracksAPI
 from ._api.users import UsersAPI
 
 __all__ = [
@@ -21,5 +23,7 @@ __all__ = [
     "PlaylistsAPI",
     "PodcastsAPI",
     "RadiosAPI",
+    "SearchAPI",
+    "TracksAPI",
     "UsersAPI",
 ]

@@ -125,7 +125,7 @@ class RadiosAPI(DeezerResourceAPI):
         Returns
         -------
         radios : dict[str, Any]
-            Deezer content metadata for the top radios.
+            Page of Deezer content metadata for the top radios.
         """
         params = {}
         if limit is not None:
@@ -246,6 +246,8 @@ class RadiosAPI(DeezerResourceAPI):
 
             **Minimum value**: :code:`1`.
 
+            **API default**: :code:`25`.
+
         offset : int or None; keyword-only; optional
             Index of the first radio to return. Use with `limit` to get
             the next batch of radios.
@@ -257,7 +259,7 @@ class RadiosAPI(DeezerResourceAPI):
         Returns
         -------
         radios : dict[str, Any]
-            Deezer content metadata for all genres' radios.
+            Page of Deezer content metadata for all genres' radios.
 
             .. admonition:: Sample response
                :class: dropdown

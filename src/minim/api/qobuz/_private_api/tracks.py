@@ -401,7 +401,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Parameters
         ----------
         track_id : int or str; positional-only
-            TIDAL ID of the track.
+            Qobuz ID of the track.
 
             **Examples**: :code:`23929516`, :code:`"344521217"`.
 
@@ -954,7 +954,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Parameters
         ----------
         track_id : int or str; positional-only
-            TIDAL ID of the track.
+            Qobuz ID of the track.
 
             **Examples**: :code:`23929516`, :code:`"344521217"`.
 
@@ -983,7 +983,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Parameters
         ----------
         track_id : int or str; positional-only
-            TIDAL ID of the track.
+            Qobuz ID of the track.
 
             **Examples**: :code:`23929516`, :code:`"344521217"`.
 

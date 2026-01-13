@@ -43,7 +43,7 @@ class ChartsAPI(DeezerResourceAPI):
         Returns
         -------
         albums : dict[str, Any]
-            Deezer content metadata for the top albums.
+            Page of Deezer content metadata for the top albums.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -120,7 +120,7 @@ class ChartsAPI(DeezerResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Deezer content metadata for the top artists.
+            Page of Deezer content metadata for the top artists.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -182,7 +182,7 @@ class ChartsAPI(DeezerResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Deezer content metadata for the top playlists.
+            Page of Deezer content metadata for the top playlists.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -256,7 +256,7 @@ class ChartsAPI(DeezerResourceAPI):
         Returns
         -------
         podcasts : dict[str, Any]
-            Deezer content metadata for the top podcasts.
+            Page of Deezer content metadata for the top podcasts.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -319,7 +319,7 @@ class ChartsAPI(DeezerResourceAPI):
         Returns
         -------
         tracks : dict[str, Any]
-            Deezer content metadata for the top tracks.
+            Page of Deezer content metadata for the top tracks.
 
             .. admonition:: Sample response
                :class: dropdown

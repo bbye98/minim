@@ -18,6 +18,8 @@ from ._api.genres import GenresAPI
 from ._api.playlists import PlaylistsAPI
 from ._api.podcasts import PodcastsAPI
 from ._api.radios import RadiosAPI
+from ._api.search import SearchAPI
+from ._api.tracks import TracksAPI
 from ._api.users import UsersAPI
 
 
@@ -98,7 +100,7 @@ class DeezerAPI(OAuth2APIClient):
 
             If not provided, the most recently accessed token for the
             client ID and authorization flow is used. If none exists, a
-            new token is obtained and stored using the Spotify user ID
+            new token is obtained and stored using the Deezer user ID
             acquired from a successful authorization.
 
             Prefixing the identifier with a tilde (:code:`~`) bypasses
@@ -202,6 +204,10 @@ class DeezerAPI(OAuth2APIClient):
         self.podcasts: PodcastsAPI = PodcastsAPI(self)
         #: Radios API endpoints for the Deezer API.
         self.radios: RadiosAPI = RadiosAPI(self)
+        #: Search API endpoints for the Deezer API.
+        self.search: SearchAPI = SearchAPI(self)
+        #: Tracks API endpoints for the Deezer API.
+        self.tracks: TracksAPI = TracksAPI(self)
         #: Users API endpoints for the Deezer API.
         self.users: UsersAPI = UsersAPI(self)
 
@@ -504,7 +510,7 @@ class DeezerAPI(OAuth2APIClient):
                 params = {}
             params["access_token"] = self._access_token
         resp = self._client.request(method, endpoint, params=params, **kwargs)
-        if "error" not in resp.text or not (error := resp.json()["error"]):
+        if "error" not in resp.text or not (error := resp.json().get("error")):
             return resp
 
         error_code = error.get("code")
@@ -534,6 +540,15 @@ class DeezerAPI(OAuth2APIClient):
         scopes : str or set[str]; positional-only
             Required authorization scopes.
         """
+        if not self._permissions and self._auth_flow is not None:
+            self._permissions = {
+                perm
+                for perm, bool_ in self.users.get_permissions()[
+                    "permissions"
+                ].items()
+                if bool_
+            }
+
         if isinstance(permissions, str):
             if permissions not in self._permissions:
                 raise RuntimeError(

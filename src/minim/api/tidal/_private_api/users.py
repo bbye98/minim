@@ -2855,8 +2855,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL catalog information for user-created playlists
-            in the user's collection.
+            Page of TIDAL content metadata for user-created playlists in
+            the user's collection.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -3229,8 +3229,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         users : dict[str, Any]
-            TIDAL content metadata for users blocked by the current
-            user.
+            Page of TIDAL content metadata for users blocked by the
+            current user.
 
             **Sample response**: :code:`{'items': [], 'limit': 0,
             'offset': 0, 'totalNumberOfItems': 0}`.

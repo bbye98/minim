@@ -578,8 +578,8 @@ class PrivateQobuzAPI(APIClient):
         .. note::
 
            Invoking this method may call
-           :meth:`~minim.api.tidal.UsersAPI.get_me` and
-           make a request to the TIDAL API.
+           :meth:`~minim.api.qobuz.UsersAPI.get_me` and make a request
+           to the private Qobuz API.
         """
         return (
             self._token_extras.get("user_id")

@@ -104,7 +104,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         items : dict[str, Any]
-            Page of TIDAL content metadata for the featured items.
+            Page of Qobuz content metadata for the featured items.
 
             .. admonition:: Sample response
                :class: dropdown

@@ -255,7 +255,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         contributors : dict[str, Any]
-            TIDAL content metadata for the track's contributors.
+            Page of TIDAL content metadata for the track's contributors.
 
             .. admonition:: Sample response
                :class: dropdown

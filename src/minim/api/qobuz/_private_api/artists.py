@@ -1313,7 +1313,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         artists : dict[str, Any]
-            Page of TIDAL content metadata for the featured artists.
+            Page of Qobuz content metadata for the featured artists.
 
             .. admonition:: Sample response
                :class: dropdown

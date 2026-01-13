@@ -42,8 +42,6 @@ class EditorialAPI(DeezerResourceAPI):
 
             **Minimum value**: :code:`1`.
 
-            **API default**: :code:`10`.
-
         offset : int or None; keyword-only; optional
             Index of the first editorial to return. Use with `limit` to
             get the next batch of editorials. Only applicable when
@@ -200,7 +198,7 @@ class EditorialAPI(DeezerResourceAPI):
         Returns
         -------
         charts : dict[str, Any]
-            Deezer content metadata for the top items.
+            Page of Deezer content metadata for the top items.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -361,7 +359,12 @@ class EditorialAPI(DeezerResourceAPI):
                   }
         """
         return self._request_resource_relationship(
-            "GET", "editorial", editorial_id, "charts", limit=limit
+            "GET",
+            "editorial",
+            editorial_id,
+            "charts",
+            limit=limit,
+            offset=offset,
         )
 
     @TTLCache.cached_method(ttl="daily")
@@ -374,8 +377,8 @@ class EditorialAPI(DeezerResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        `Editorial > Selection <https://developers.deezer.com/api
-        /editorial/selection>`_: Get Deezer catalog information for
+        `Editorial > Releases <https://developers.deezer.com/api
+        /editorial/releases>`_: Get Deezer catalog information for
         new releases selected weekly by the Deezer team.
 
         Parameters
@@ -385,10 +388,25 @@ class EditorialAPI(DeezerResourceAPI):
 
             **Examples**: :code:`0`, :code:`"2"`.
 
+        limit : int or None; keyword-only; optional
+            Maximum number of releases to return.
+
+            **Minimum value**: :code:`1`.
+
+            **API default**: :code:`20`.
+
+        offset : int or None; keyword-only; optional
+            Index of the first release to return. Use with `limit` to
+            get the next batch of releases.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
         Returns
         -------
         albums : dict[str, Any]
-            Deezer content metadata for the newly release albums.
+            Deezer content metadata for the newly released albums.
 
             .. admonition:: Sample response
                :class: dropdown

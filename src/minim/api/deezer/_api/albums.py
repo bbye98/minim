@@ -40,6 +40,8 @@ class AlbumsAPI(DeezerResourceAPI):
 
             **Minimum value**: :code:`1`.
 
+            **API default**: :code:`25`.
+
         offset : int or None; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
             the next batch of tracks.
@@ -256,6 +258,8 @@ class AlbumsAPI(DeezerResourceAPI):
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
+
+            **API default**: :code:`25`.
 
         offset : int or None; keyword-only; optional
             Index of the first track to return. Use with `limit` to get

@@ -190,7 +190,7 @@ class ArtistsAPI(DeezerResourceAPI):
 
             **Minimum value**: :code:`1`.
 
-            **API default**: :code:`5`.
+            **API default**: :code:`25`.
 
         offset : int; keyword-only; optional
             Index of the first album to return. Use with `limit` to get
@@ -265,8 +265,6 @@ class ArtistsAPI(DeezerResourceAPI):
 
             **Minimum value**: :code:`1`.
 
-            **API default**: :code:`5`.
-
         offset : int; keyword-only; optional
             Index of the first user to return. Use with `limit` to get
             the next batch of users.
@@ -333,6 +331,8 @@ class ArtistsAPI(DeezerResourceAPI):
             Maximum number of artists to return.
 
             **Minimum value**: :code:`1`.
+
+            **API default** :code:`20`.
 
         offset : int; keyword-only; optional
             Index of the first artist to return. Use with `limit` to get
@@ -403,6 +403,8 @@ class ArtistsAPI(DeezerResourceAPI):
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
+
+            **API default**: :code:`25`.
 
         offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get
@@ -496,7 +498,7 @@ class ArtistsAPI(DeezerResourceAPI):
 
             **Minimum value**: :code:`1`.
 
-            **API default**: :code:`5`.
+            **API default**: :code:`10`.
 
         offset : int; keyword-only; optional
             Index of the first playlist to return. Use with `limit` to

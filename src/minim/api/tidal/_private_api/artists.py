@@ -780,7 +780,7 @@ class PrivateArtistsAPI(PrivateTIDALResourceAPI):
         Returns
         -------
         similar_artists : dict[str, Any]
-            Pages of TIDAL catalog information for the similar artists.
+            Page of TIDAL catalog information for the similar artists.
 
             .. admonition:: Sample response
                :class: dropdown

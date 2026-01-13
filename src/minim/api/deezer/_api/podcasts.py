@@ -84,6 +84,8 @@ class PodcastsAPI(DeezerResourceAPI):
 
             **Minimum value**: :code:`1`.
 
+            **API default**: :code:`25`.
+
         offset : int or None; keyword-only; optional
             Index of the first episode to return. Use with `limit` to
             get the next batch of episodes.

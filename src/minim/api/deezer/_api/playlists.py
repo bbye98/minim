@@ -184,8 +184,6 @@ class PlaylistsAPI(DeezerResourceAPI):
 
             **Minimum value**: :code:`1`.
 
-            **API default**: :code:`5`.
-
         offset : int; keyword-only; optional
             Index of the first user to return. Use with `limit` to get
             the next batch of users.
@@ -252,6 +250,8 @@ class PlaylistsAPI(DeezerResourceAPI):
             Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
+
+            **API default**: :code:`25`.
 
         offset : int; keyword-only; optional
             Index of the first track to return. Use with `limit` to get

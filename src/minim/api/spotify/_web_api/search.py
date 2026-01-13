@@ -142,8 +142,8 @@ class SearchAPI(SpotifyResourceAPI):
 
         Returns
         -------
-        results : dict[str, Any]
-            Pages of search results for each resource type.
+        items : dict[str, Any]
+            Page of Spotify content metadata for the matching items.
 
             .. admonition:: Sample response
                :class: dropdown

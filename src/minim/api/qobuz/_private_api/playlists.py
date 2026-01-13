@@ -917,7 +917,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Returns
         -------
         playlists : dict[str, Any]
-            Page of TIDAL content metadata for the playlists in the
+            Page of Qobuz content metadata for the playlists in the
             current user's collection.
 
             .. admonition:: Sample response
