@@ -447,6 +447,19 @@ class PlaylistsAPI(DeezerResourceAPI):
             playlist_id, track_ids=track_ids
         )
 
+    @_copy_docstring(UsersAPI.get_user_playlists)
+    def get_user_playlists(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_user_playlists(
+            user_id, limit=limit, offset=offset
+        )
+
     @_copy_docstring(UsersAPI.follow_playlists)
     def follow_playlists(
         self,
@@ -469,4 +482,30 @@ class PlaylistsAPI(DeezerResourceAPI):
     ) -> bool:
         return self._client.users.unfollow_playlist(
             playlist_id, user_id=user_id
+        )
+
+    @_copy_docstring(UsersAPI.get_user_top_playlists)
+    def get_user_top_playlists(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_user_top_playlists(
+            user_id, limit=limit, offset=offset
+        )
+
+    @_copy_docstring(UsersAPI.get_playlist_recommendations)
+    def get_playlist_recommendations(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_playlist_recommendations(
+            user_id, limit=limit, offset=offset
         )

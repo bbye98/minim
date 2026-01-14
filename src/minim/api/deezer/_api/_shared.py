@@ -60,7 +60,9 @@ class DeezerResourceAPI(ResourceAPI):
         if isinstance(deezer_ids, str):
             if _recursive:
                 DeezerResourceAPI._validate_deezer_ids(deezer_ids.split(","))
-            elif not (deezer_ids.isdecimal() or deezer_ids == "me"):
+            elif not (
+                deezer_ids.lstrip("-").isdecimal() or deezer_ids == "me"
+            ):
                 raise ValueError(f"Invalid Deezer ID {deezer_ids!r}.")
         elif not isinstance(deezer_ids, int):
             if _recursive:

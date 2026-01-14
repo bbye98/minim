@@ -129,6 +129,19 @@ class PodcastsAPI(DeezerResourceAPI):
             offset=offset,
         )
 
+    @_copy_docstring(UsersAPI.get_followed_podcasts)
+    def get_followed_podcasts(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_followed_podcasts(
+            user_id, limit=limit, offset=offset
+        )
+
     @_copy_docstring(UsersAPI.follow_podcast)
     def follow_podcast(
         self, podcast_id: int | str, /, *, user_id: int | str = "me"

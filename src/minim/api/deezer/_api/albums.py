@@ -315,6 +315,19 @@ class AlbumsAPI(DeezerResourceAPI):
             "GET", "album", album_id, "tracks", limit=limit, offset=offset
         )
 
+    @_copy_docstring(UsersAPI.get_saved_albums)
+    def get_saved_albums(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_saved_albums(
+            user_id, limit=limit, offset=offset
+        )
+
     @_copy_docstring(UsersAPI.save_albums)
     def save_albums(
         self,
@@ -330,3 +343,42 @@ class AlbumsAPI(DeezerResourceAPI):
         self, album_id: int | str, /, *, user_id: int | str = "me"
     ) -> bool:
         return self._client.users.remove_saved_album(album_id, user_id=user_id)
+
+    @_copy_docstring(UsersAPI.get_user_top_albums)
+    def get_user_top_albums(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_user_top_albums(
+            user_id, limit=limit, offset=offset
+        )
+
+    @_copy_docstring(UsersAPI.get_album_recommendations)
+    def get_album_recommendations(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_album_recommendations(
+            user_id, limit=limit, offset=offset
+        )
+
+    @_copy_docstring(UsersAPI.get_release_recommendations)
+    def get_release_recommendations(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_release_recommendations(
+            user_id, limit=limit, offset=offset
+        )

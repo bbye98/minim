@@ -555,6 +555,19 @@ class ArtistsAPI(DeezerResourceAPI):
             "GET", "artist", artist_id, "playlists", limit=limit, offset=offset
         )
 
+    @_copy_docstring(UsersAPI.get_followed_artists)
+    def get_followed_artists(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_followed_artists(
+            user_id, limit=limit, offset=offset
+        )
+
     @_copy_docstring(UsersAPI.follow_artists)
     def follow_artists(
         self,
@@ -570,3 +583,29 @@ class ArtistsAPI(DeezerResourceAPI):
         self, artist_id: int | str, /, *, user_id: int | str = "me"
     ) -> bool:
         return self._client.users.unfollow_artist(artist_id, user_id=user_id)
+
+    @_copy_docstring(UsersAPI.get_user_top_artists)
+    def get_user_top_artists(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_user_top_artists(
+            user_id, limit=limit, offset=offset
+        )
+
+    @_copy_docstring(UsersAPI.get_artist_recommendations)
+    def get_artist_recommendations(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_artist_recommendations(
+            user_id, limit=limit, offset=offset
+        )

@@ -81,19 +81,156 @@ class UsersAPI(DeezerResourceAPI):
         self._client._require_authentication("users.get_user")
         return self._request_resource_relationship("GET", "user", user_id)
 
-    @TTLCache.cached_method(ttl="user")
-    def get_saved_albums(
-        self,
-        user_id: int | str = "me",
-        /,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
+    @TTLCache.cached_method(ttl="static")
+    def get_permissions(
+        self, user_id: int | str = "me", /
+    ) -> dict[str, dict[str, bool]]:
+        """
+        `User > Permissions <https://developers.deezer.com/api/user
+        /permissions>`_: Get the permissions granted to the client.
+
+        .. admonition:: Permission and user authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access the user's basic information.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        Returns
+        -------
+        permissions: dict[str, dict[str, bool]]
+            Permissions granted to the client.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "permissions": {
+                      "basic_access": true,
+                      "delete_library": true,
+                      "email": true,
+                      "listening_history": true,
+                      "manage_community": true,
+                      "manage_library": true,
+                      "offline_access": true
+                    }
+                  }
+        """
+        self._client._require_authentication("users.get_permissions")
+        return self._request_resource_relationship(
+            "GET", "user", user_id, "permissions"
+        )
+
+    @TTLCache.cached_method(ttl="static")
+    def get_options(self, user_id: int | str = "me", /) -> dict[str, Any]:
+        """
+        `Options <https://developers.deezer.com/api/options>`_: Get a
+        user's options.
+
+        .. admonition:: Permission and user authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access the user's basic information.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        Returns
+        -------
+        options: dict[str, Any]
+            User's options.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "ads_audio": <bool>,
+                    "ads_display": <bool>,
+                    "can_subscribe": <bool>,
+                    "hq": <bool>,
+                    "lossless": <bool>,
+                    "offline": <bool>,
+                    "preview": <bool>,
+                    "radio": <bool>,
+                    "radio_skips": <int>,
+                    "streaming": <bool>,
+                    "streaming_duration": <int>,
+                    "too_many_devices": <bool>,
+                    "type": "options"
+                  }
+        """
+        self._client._require_authentication("users.get_options")
+        return self._request_resource_relationship(
+            "GET", "user", user_id, "options"
+        )
+
+    def send_notification(
+        self, message: str, /, *, user_id: int | str = "me"
+    ) -> dict[str, bool]:
+        """
+        `User > Notification <https://developers.deezer.com/api/user
+        /notifications>`_: Add a notification to a user's feed.
+
+        Parameters
+        ----------
+        message : str
+            Notification message.
+
+        user_id : int or str; keyword-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        Returns
+        -------
+        status : dict[str, bool]
+            Whether the request completed successfully.
+
+            **Sample response**: :code:`{"success": True}`.
+        """
+        self._validate_type("message", message, str)
+        if not len(message):
+            raise ValueError("The message cannot be blank.")
+        return self._request_resource_relationship(
+            "POST",
+            "user",
+            user_id,
+            "notifications",
+            params={"message": message},
+        )
+
+    def get_user_mix_tracks(
+        self, user_id: int | str = "me", /
     ) -> dict[str, Any]:
         """
-        `User > Albums <https://developers.deezer.com/api/user
-        /albums>`__: Get Deezer catalog information for a user's
-        favorite albums.
+        `User > Flow <https://developers.deezer.com/api/user/flow>`_:
+        Get Deezer catalog information for the tracks in a user's Flow
+        mix.
 
         .. admonition:: User authentication
            :class: authorization-scope
@@ -113,24 +250,10 @@ class UsersAPI(DeezerResourceAPI):
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        limit : int or None; keyword-only; optional
-            Maximum number of albums to return.
-
-            **Minimum value**: :code:`1`.
-
-        offset : int or None; keyword-only; optional
-            Index of the first album to return. Use with `limit` to get
-            the next batch of albums.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
         Returns
         -------
-        albums : dict[str, Any]
-            Page of Deezer content metadata for the user's favorite
-            albums.
+        tracks : dict[str, Any]
+            Deezer content metadata for tracks in the user's Flow mix.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -138,9 +261,20 @@ class UsersAPI(DeezerResourceAPI):
                .. code::
 
                   {
-                    "checksum": <str>,
                     "data": [
                       {
+                        "album": {
+                          "cover": <str>,
+                          "cover_big": <str>,
+                          "cover_medium": <str>,
+                          "cover_small": <str>,
+                          "cover_xl": <str>,
+                          "id": <int>,
+                          "md5_image": <str>,
+                          "title": <str>,
+                          "tracklist": <str>,
+                          "type": "album"
+                        },
                         "artist": {
                           "id": <int>,
                           "name": <str>,
@@ -152,37 +286,30 @@ class UsersAPI(DeezerResourceAPI):
                           "tracklist": <str>,
                           "type": "artist"
                         },
-                        "available": <bool>,
-                        "cover": <str>,
-                        "cover_big": <str>,
-                        "cover_medium": <str>,
-                        "cover_small": <str>,
-                        "cover_xl": <str>,
+                        "duration": <int>,
+                        "explicit_content_cover": <int>,
+                        "explicit_content_lyrics": <int>,
                         "explicit_lyrics": <bool>,
                         "id": <int>,
-                        "link": <str>,
                         "md5_image": <str>,
-                        "nb_tracks": <int>,
-                        "record_type": <str>,
-                        "release_date": <str>,
-                        "time_add": <int>,
+                        "preview": <str>,
+                        "rank": <int>,
+                        "readable": <bool>,
                         "title": <str>,
-                        "tracklist": <str>,
-                        "type": "album"
+                        "title_short": <str>,
+                        "title_version": <str>,
+                        "type": "track"
                       }
-                    ],
-                    "next": <str>,
-                    "prev": <str>,
-                    "total": <int>
+                    ]
                   }
         """
-        self._client._require_authentication("users.get_saved_albums")
+        self._client._require_authentication("users.get_user_mix_tracks")
         return self._request_resource_relationship(
-            "GET", "user", user_id, "albums", limit=limit, offset=offset
+            "GET", "user", user_id, "flow"
         )
 
-    @TTLCache.cached_method(ttl="user")
-    def get_followed_artists(
+    @TTLCache.cached_method(ttl="playback")
+    def get_recently_played(
         self,
         user_id: int | str = "me",
         /,
@@ -191,18 +318,18 @@ class UsersAPI(DeezerResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        `User > Artists <https://developers.deezer.com/api/user
-        /artists>`_: Get Deezer catalog information for a user's
-        favorite artists.
+        `User > History <https://developers.deezer.com/api/user
+        /history>`_: Get Deezer catalog information for tracks recently
+        played by a user.
 
-        .. admonition:: User authentication
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              :code:`listening_history` permission
+                 Access the user's listening history. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -214,13 +341,13 @@ class UsersAPI(DeezerResourceAPI):
             :code:`"me"`.
 
         limit : int or None; keyword-only; optional
-            Maximum number of artists to return.
+            Maximum number of tracks to return.
 
             **Minimum value**: :code:`1`.
 
         offset : int or None; keyword-only; optional
-            Index of the first artist to return. Use with `limit` to get
-            the next batch of artists.
+            Index of the first track to return. Use with `limit` to get
+            the next batch of tracks.
 
             **Minimum value**: :code:`0`.
 
@@ -228,9 +355,9 @@ class UsersAPI(DeezerResourceAPI):
 
         Returns
         -------
-        artists : dict[str, Any]
-            Page of Deezer content metadata for the user's favorite
-            artists.
+        tracks : dict[str, Any]
+            Page of Deezer content metadata for the recently played
+            tracks.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -238,23 +365,44 @@ class UsersAPI(DeezerResourceAPI):
                .. code::
 
                   {
-                    "checksum": <str>,
                     "data": [
                       {
+                        "album": {
+                          "cover": <str>,
+                          "cover_big": <str>,
+                          "cover_medium": <str>,
+                          "cover_small": <str>,
+                          "cover_xl": <str>,
+                          "id": <int>,
+                          "md5_image": <str>,
+                          "title": <str>,
+                          "tracklist": <str>,
+                          "type": "album"
+                        },
+                        "artist": {
+                          "id": <int>,
+                          "name": <str>,
+                          "picture": <str>,
+                          "picture_big": <str>,
+                          "picture_medium": <str>,
+                          "picture_small": <str>,
+                          "picture_xl": <str>,
+                          "tracklist": <str>,
+                          "type": "artist"
+                        },
+                        "duration": <int>,
+                        "explicit_content_cover": <int>,
+                        "explicit_content_lyrics": <int>,
+                        "explicit_lyrics": <bool>,
                         "id": <int>,
-                        "link": <str>,
-                        "name": <str>,
-                        "nb_album": <int>,
-                        "nb_fan": <int>,
-                        "picture": <str>,
-                        "picture_big": <str>,
-                        "picture_medium": <str>,
-                        "picture_small": <str>,
-                        "picture_xl": <str>,
-                        "radio": <bool>,
-                        "time_add": <int>,
-                        "tracklist": <str>,
-                        "type": "artist"
+                        "md5_image": <str>,
+                        "preview": <str>,
+                        "rank": <int>,
+                        "readable": <bool>,
+                        "title": <str>,
+                        "title_short": <str>,
+                        "title_version": <str>,
+                        "type": "track"
                       }
                     ],
                     "next": <str>,
@@ -262,9 +410,11 @@ class UsersAPI(DeezerResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_authentication("users.get_followed_artists")
+        self._client._require_permissions(
+            "users.get_recently_played", "listening_history"
+        )
         return self._request_resource_relationship(
-            "GET", "user", user_id, "artists", limit=limit, offset=offset
+            "GET", "user", user_id, "history", limit=limit, offset=offset
         )
 
     @TTLCache.cached_method(ttl="popularity")
@@ -664,862 +814,6 @@ class UsersAPI(DeezerResourceAPI):
         self._client._require_authentication("users.get_my_top_tracks")
         return self._request_resource_relationship(
             "GET", "user", user_id, "charts/tracks", limit=limit, offset=offset
-        )
-
-    def get_user_mix_tracks(
-        self, user_id: int | str = "me", /
-    ) -> dict[str, Any]:
-        """
-        `User > Flow <https://developers.deezer.com/api/user/flow>`_:
-        Get Deezer catalog information for the tracks in a user's Flow
-        mix.
-
-        .. admonition:: User authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
-
-        Parameters
-        ----------
-        user_id : int or str; positional-only; default: :code:`"me"`
-            Deezer ID of the user. If authenticated, :code:`"me"` can be
-            used in lieu of a Deezer ID for the current user.
-
-            **Example**: :code:`5395005364`, :code:`"5395005364"`,
-            :code:`"me"`.
-
-        Returns
-        -------
-        tracks : dict[str, Any]
-            Deezer content metadata for tracks in the user's Flow mix.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "album": {
-                          "cover": <str>,
-                          "cover_big": <str>,
-                          "cover_medium": <str>,
-                          "cover_small": <str>,
-                          "cover_xl": <str>,
-                          "id": <int>,
-                          "md5_image": <str>,
-                          "title": <str>,
-                          "tracklist": <str>,
-                          "type": "album"
-                        },
-                        "artist": {
-                          "id": <int>,
-                          "name": <str>,
-                          "picture": <str>,
-                          "picture_big": <str>,
-                          "picture_medium": <str>,
-                          "picture_small": <str>,
-                          "picture_xl": <str>,
-                          "tracklist": <str>,
-                          "type": "artist"
-                        },
-                        "duration": <int>,
-                        "explicit_content_cover": <int>,
-                        "explicit_content_lyrics": <int>,
-                        "explicit_lyrics": <bool>,
-                        "id": <int>,
-                        "md5_image": <str>,
-                        "preview": <str>,
-                        "rank": <int>,
-                        "readable": <bool>,
-                        "title": <str>,
-                        "title_short": <str>,
-                        "title_version": <str>,
-                        "type": "track"
-                      }
-                    ]
-                  }
-        """
-        self._client._require_authentication("users.get_user_mix_tracks")
-        return self._request_resource_relationship(
-            "GET", "user", user_id, "flow"
-        )
-
-    @TTLCache.cached_method(ttl="user")
-    def get_followed_users(
-        self,
-        user_id: int | str = "me",
-        /,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        `User > Followings <https://developers.deezer.com/api/user
-        /followings>`_: Get Deezer catalog information for other users
-        followed by a user.
-
-        .. admonition:: User authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
-
-        Parameters
-        ----------
-        user_id : int or str; positional-only; default: :code:`"me"`
-            Deezer ID of the user. If authenticated, :code:`"me"` can be
-            used in lieu of a Deezer ID for the current user.
-
-            **Example**: :code:`5395005364`, :code:`"5395005364"`,
-            :code:`"me"`.
-
-        limit : int or None; keyword-only; optional
-            Maximum number of users to return.
-
-            **Minimum value**: :code:`1`.
-
-        offset : int or None; keyword-only; optional
-            Index of the first user to return. Use with `limit` to get
-            the next batch of users.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        users : dict[str, Any]
-            Page of Deezer content metadata for the followed users.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "id": <int>,
-                        "name": <str>,
-                        "picture": <str>,
-                        "picture_big": <str>,
-                        "picture_medium": <str>,
-                        "picture_small": <str>,
-                        "picture_xl": <str>,
-                        "tracklist": <str>,
-                        "type": "user"
-                      }
-                    ],
-                    "next": <str>,
-                    "prev": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client._require_authentication("users.get_followed_users")
-        return self._request_resource_relationship(
-            "GET", "user", user_id, "followings", limit=limit, offset=offset
-        )
-
-    @TTLCache.cached_method(ttl="user")
-    def get_user_followers(
-        self,
-        user_id: int | str = "me",
-        /,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        `User > Followers <https://developers.deezer.com/api/user
-        /followers>`_: Get Deezer catalog information for a user's
-        followers.
-
-        .. admonition:: User authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
-
-        Parameters
-        ----------
-        user_id : int or str; positional-only; default: :code:`"me"`
-            Deezer ID of the user. If authenticated, :code:`"me"` can be
-            used in lieu of a Deezer ID for the current user.
-
-            **Example**: :code:`5395005364`, :code:`"5395005364"`,
-            :code:`"me"`.
-
-        limit : int or None; keyword-only; optional
-            Maximum number of users to return.
-
-            **Minimum value**: :code:`1`.
-
-        offset : int or None; keyword-only; optional
-            Index of the first user to return. Use with `limit` to get
-            the next batch of users.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        users : dict[str, Any]
-            Page of Deezer content metadata for the user's followers.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "id": <int>,
-                        "name": <str>,
-                        "picture": <str>,
-                        "picture_big": <str>,
-                        "picture_medium": <str>,
-                        "picture_small": <str>,
-                        "picture_xl": <str>,
-                        "tracklist": <str>,
-                        "type": "user"
-                      }
-                    ],
-                    "next": <str>,
-                    "prev": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client._require_authentication("users.get_user_followers")
-        return self._request_resource_relationship(
-            "GET", "user", user_id, "followers", limit=limit, offset=offset
-        )
-
-    @TTLCache.cached_method(ttl="playback")
-    def get_recently_played(
-        self,
-        user_id: int | str = "me",
-        /,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        `User > History <https://developers.deezer.com/api/user
-        /history>`_: Get Deezer catalog information for tracks recently
-        played by a user.
-
-        .. admonition:: Permission
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`listening_history` permission
-                 Access the user's listening history. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
-
-        Parameters
-        ----------
-        user_id : int or str; positional-only; default: :code:`"me"`
-            Deezer ID of the user. If authenticated, :code:`"me"` can be
-            used in lieu of a Deezer ID for the current user.
-
-            **Example**: :code:`5395005364`, :code:`"5395005364"`,
-            :code:`"me"`.
-
-        limit : int or None; keyword-only; optional
-            Maximum number of tracks to return.
-
-            **Minimum value**: :code:`1`.
-
-        offset : int or None; keyword-only; optional
-            Index of the first track to return. Use with `limit` to get
-            the next batch of tracks.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        tracks : dict[str, Any]
-            Page of Deezer content metadata for the recently played
-            tracks.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "album": {
-                          "cover": <str>,
-                          "cover_big": <str>,
-                          "cover_medium": <str>,
-                          "cover_small": <str>,
-                          "cover_xl": <str>,
-                          "id": <int>,
-                          "md5_image": <str>,
-                          "title": <str>,
-                          "tracklist": <str>,
-                          "type": "album"
-                        },
-                        "artist": {
-                          "id": <int>,
-                          "name": <str>,
-                          "picture": <str>,
-                          "picture_big": <str>,
-                          "picture_medium": <str>,
-                          "picture_small": <str>,
-                          "picture_xl": <str>,
-                          "tracklist": <str>,
-                          "type": "artist"
-                        },
-                        "duration": <int>,
-                        "explicit_content_cover": <int>,
-                        "explicit_content_lyrics": <int>,
-                        "explicit_lyrics": <bool>,
-                        "id": <int>,
-                        "md5_image": <str>,
-                        "preview": <str>,
-                        "rank": <int>,
-                        "readable": <bool>,
-                        "title": <str>,
-                        "title_short": <str>,
-                        "title_version": <str>,
-                        "type": "track"
-                      }
-                    ],
-                    "next": <str>,
-                    "prev": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client._require_permissions(
-            "users.get_recently_played", "listening_history"
-        )
-        return self._request_resource_relationship(
-            "GET", "user", user_id, "history", limit=limit, offset=offset
-        )
-
-    def send_notification(
-        self, message: str, /, *, user_id: int | str = "me"
-    ) -> dict[str, bool]:
-        """
-        `User > Notification <https://developers.deezer.com/api/user
-        /notifications>`_: Add a notification to a user's feed.
-
-        Parameters
-        ----------
-        message : str
-            Notification message.
-
-        user_id : int or str; keyword-only; default: :code:`"me"`
-            Deezer ID of the user. If authenticated, :code:`"me"` can be
-            used in lieu of a Deezer ID for the current user.
-
-            **Example**: :code:`5395005364`, :code:`"5395005364"`,
-            :code:`"me"`.
-
-        Returns
-        -------
-        status : dict[str, bool]
-            Whether the request completed successfully.
-
-            **Sample response**: :code:`{"success": True}`.
-        """
-        self._validate_type("message", message, str)
-        if not len(message):
-            raise ValueError("The message cannot be blank.")
-        return self._request_resource_relationship(
-            "POST",
-            "user",
-            user_id,
-            "notifications",
-            params={"message": message},
-        )
-
-    @TTLCache.cached_method(ttl="static")
-    def get_permissions(
-        self, user_id: int | str = "me", /
-    ) -> dict[str, dict[str, bool]]:
-        """
-        `User > Permissions <https://developers.deezer.com/api/user
-        /permissions>`_: Get the permissions granted to the client.
-
-        .. admonition:: Permission and user authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access the user's basic information.
-
-        Parameters
-        ----------
-        user_id : int or str; positional-only; default: :code:`"me"`
-            Deezer ID of the user. If authenticated, :code:`"me"` can be
-            used in lieu of a Deezer ID for the current user.
-
-            **Example**: :code:`5395005364`, :code:`"5395005364"`,
-            :code:`"me"`.
-
-        Returns
-        -------
-        permissions: dict[str, dict[str, bool]]
-            Permissions granted to the client.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "permissions": {
-                      "basic_access": true,
-                      "delete_library": true,
-                      "email": true,
-                      "listening_history": true,
-                      "manage_community": true,
-                      "manage_library": true,
-                      "offline_access": true
-                    }
-                  }
-        """
-        self._client._require_authentication("users.get_permissions")
-        return self._request_resource_relationship(
-            "GET", "user", user_id, "permissions"
-        )
-
-    @TTLCache.cached_method(ttl="static")
-    def get_options(self, user_id: int | str = "me", /) -> dict[str, Any]:
-        """
-        `Options <https://developers.deezer.com/api/options>`_: Get a
-        user's options.
-
-        .. admonition:: Permission and user authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access the user's basic information.
-
-        Parameters
-        ----------
-        user_id : int or str; positional-only; default: :code:`"me"`
-            Deezer ID of the user. If authenticated, :code:`"me"` can be
-            used in lieu of a Deezer ID for the current user.
-
-            **Example**: :code:`5395005364`, :code:`"5395005364"`,
-            :code:`"me"`.
-
-        Returns
-        -------
-        options: dict[str, Any]
-            User's options.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "ads_audio": <bool>,
-                    "ads_display": <bool>,
-                    "can_subscribe": <bool>,
-                    "hq": <bool>,
-                    "lossless": <bool>,
-                    "offline": <bool>,
-                    "preview": <bool>,
-                    "radio": <bool>,
-                    "radio_skips": <int>,
-                    "streaming": <bool>,
-                    "streaming_duration": <int>,
-                    "too_many_devices": <bool>,
-                    "type": "options"
-                  }
-        """
-        self._client._require_authentication("users.get_options")
-        return self._request_resource_relationship(
-            "GET", "user", user_id, "options"
-        )
-
-    @TTLCache.cached_method(ttl="user")
-    def get_user_tracks(
-        self,
-        user_id: int | str = "me",
-        /,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        `User > Personal Songs <https://developers.deezer.com/api/user
-        /personal_songs>`_: Get Deezer catalog information for a user's
-        uploaded tracks.
-
-        .. admonition:: User authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
-
-        Parameters
-        ----------
-        user_id : int or str; positional-only; default: :code:`"me"`
-            Deezer ID of the user. If authenticated, :code:`"me"` can be
-            used in lieu of a Deezer ID for the current user.
-
-            **Example**: :code:`5395005364`, :code:`"5395005364"`,
-            :code:`"me"`.
-
-        limit : int or None; keyword-only; optional
-            Maximum number of tracks to return.
-
-            **Minimum value**: :code:`1`.
-
-        offset : int or None; keyword-only; optional
-            Index of the first track to return. Use with `limit` to get
-            the next batch of tracks.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        tracks : dict[str, Any]
-            Page of Deezer content metadata for the user's uploaded
-            tracks.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "album": {
-                          "cover": <str>,
-                          "cover_big": <str>,
-                          "cover_medium": <str>,
-                          "cover_small": <str>,
-                          "cover_xl": <str>,
-                          "id": <int>,
-                          "md5_image": <str>,
-                          "title": <str>,
-                          "tracklist": <str>,
-                          "type": "album"
-                        },
-                        "artist": {
-                          "id": <int>,
-                          "name": <str>,
-                          "picture": <str>,
-                          "picture_big": <str>,
-                          "picture_medium": <str>,
-                          "picture_small": <str>,
-                          "picture_xl": <str>,
-                          "tracklist": <str>,
-                          "type": "artist"
-                        },
-                        "duration": <int>,
-                        "explicit_content_cover": <int>,
-                        "explicit_content_lyrics": <int>,
-                        "explicit_lyrics": <bool>,
-                        "id": <int>,
-                        "md5_image": <str>,
-                        "preview": <str>,
-                        "rank": <int>,
-                        "readable": <bool>,
-                        "title": <str>,
-                        "title_short": <str>,
-                        "title_version": <str>,
-                        "type": "track"
-                      }
-                    ],
-                    "next": <str>,
-                    "prev": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client._require_authentication("users.get_user_tracks")
-        return self._request_resource_relationship(
-            "GET", "user", user_id, "tracks", limit=limit, offset=offset
-        )
-
-    @TTLCache.cached_method(ttl="user")
-    def get_user_playlists(
-        self,
-        user_id: int | str = "me",
-        /,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        `User > Playlists <https://developers.deezer.com/api/user
-        /playlists>`__: Get Deezer catalog information for a user's
-        playlists.
-
-        .. admonition:: User authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
-
-        Parameters
-        ----------
-        user_id : int or str; positional-only; default: :code:`"me"`
-            Deezer ID of the user. If authenticated, :code:`"me"` can be
-            used in lieu of a Deezer ID for the current user.
-
-            **Example**: :code:`5395005364`, :code:`"5395005364"`,
-            :code:`"me"`.
-
-        limit : int or None; keyword-only; optional
-            Maximum number of playlists to return.
-
-            **Minimum value**: :code:`1`.
-
-        offset : int or None; keyword-only; optional
-            Index of the first playlist to return. Use with `limit` to
-            get the next batch of playlists.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        playlists : dict[str, Any]
-            Page of Deezer content metadata for the user's playlists.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "data": [
-                      {
-                        "add_date": <str>,
-                        "checksum": <str>,
-                        "collaborative": <bool>,
-                        "creation_date": <str>,
-                        "creator": {
-                          "id": <int>,
-                          "name": <str>,
-                          "tracklist": <str>,
-                          "type": "user"
-                        },
-                        "duration": <int>,
-                        "fans": <int>,
-                        "id": <int>,
-                        "is_loved_track": <bool>,
-                        "link": <str>,
-                        "md5_image": <str>,
-                        "mod_date": <str>,
-                        "nb_tracks": <int>,
-                        "picture": <str>,
-                        "picture_big": <str>,
-                        "picture_medium": <str>,
-                        "picture_small": <str>,
-                        "picture_type": <str>,
-                        "picture_xl": <str>,
-                        "public": <bool>,
-                        "time_add": <int>,
-                        "time_mod": <int>,
-                        "title": <str>,
-                        "tracklist": <str>,
-                        "type": "playlist"
-                      }
-                    ],
-                    "next": <str>,
-                    "prev": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client._require_authentication("users.get_user_playlists")
-        return self._request_resource_relationship(
-            "GET", "user", user_id, "playlists", limit=limit, offset=offset
-        )
-
-    @TTLCache.cached_method(ttl="user")
-    def get_followed_podcasts(
-        self,
-        user_id: int | str = "me",
-        /,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        `User > Podcasts <https://developers.deezer.com/api/user
-        /podcasts>`_: Get Deezer catalog information for a user's
-        favorite podcasts.
-
-        .. admonition:: User authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
-
-        Parameters
-        ----------
-        user_id : int or str; positional-only; default: :code:`"me"`
-            Deezer ID of the user. If authenticated, :code:`"me"` can be
-            used in lieu of a Deezer ID for the current user.
-
-            **Example**: :code:`5395005364`, :code:`"5395005364"`,
-            :code:`"me"`.
-
-        limit : int or None; keyword-only; optional
-            Maximum number of podcasts to return.
-
-            **Minimum value**: :code:`1`.
-
-        offset : int or None; keyword-only; optional
-            Index of the first podcast to return. Use with `limit` to
-            get the next batch of podcasts.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        podcasts : dict[str, Any]
-            Page of Deezer content metadata for the user's favorite
-            podcasts.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "checksum": <str>,
-                    "data": [
-                      {
-                        "available": <bool>,
-                        "description": <str>,
-                        "fans": <int>,
-                        "id": <int>,
-                        "link": <str>,
-                        "picture": <str>,
-                        "picture_big": <str>,
-                        "picture_medium": <str>,
-                        "picture_small": <str>,
-                        "picture_xl": <str>,
-                        "share": <str>,
-                        "time_add": <int>,
-                        "title": <str>,
-                        "type": "podcast"
-                      }
-                    ],
-                    "next": <str>,
-                    "prev": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client._require_authentication("users.get_followed_podcasts")
-        return self._request_resource_relationship(
-            "GET", "user", user_id, "podcasts", limit=limit, offset=offset
-        )
-
-    @TTLCache.cached_method(ttl="user")
-    def get_followed_radios(
-        self,
-        user_id: int | str = "me",
-        /,
-        *,
-        limit: int | None = None,
-        offset: int | None = None,
-    ) -> dict[str, Any]:
-        """
-        `User > Radios <https://developers.deezer.com/api/user
-        /radios>`_: Get Deezer catalog information for a user's
-        favorite radios.
-
-        .. admonition:: User authentication
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
-
-        Parameters
-        ----------
-        user_id : int or str; positional-only; default: :code:`"me"`
-            Deezer ID of the user. If authenticated, :code:`"me"` can be
-            used in lieu of a Deezer ID for the current user.
-
-            **Example**: :code:`5395005364`, :code:`"5395005364"`,
-            :code:`"me"`.
-
-        limit : int or None; keyword-only; optional
-            Maximum number of radios to return.
-
-            **Minimum value**: :code:`1`.
-
-        offset : int or None; keyword-only; optional
-            Index of the first radio to return. Use with `limit` to
-            get the next batch of radios.
-
-            **Minimum value**: :code:`0`.
-
-            **API default**: :code:`0`.
-
-        Returns
-        -------
-        radios : dict[str, Any]
-            Page of Deezer content metadata for the user's favorite
-            radios.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "checksum": <str>,
-                    "data": [],
-                    "next": <str>,
-                    "prev": <str>,
-                    "total": <int>
-                  }
-        """
-        self._client._require_authentication("users.get_followed_radios")
-        return self._request_resource_relationship(
-            "GET", "user", user_id, "radios", limit=limit, offset=offset
         )
 
     def get_album_recommendations(
@@ -2111,7 +1405,7 @@ class UsersAPI(DeezerResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_saved_tracks(
+    def get_saved_albums(
         self,
         user_id: int | str = "me",
         /,
@@ -2120,9 +1414,9 @@ class UsersAPI(DeezerResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        `User > Tracks <https://developers.deezer.com/api/user
-        /tracks>`_: Get Deezer catalog information for a user's
-        favorite tracks.
+        `User > Albums <https://developers.deezer.com/api/user
+        /albums>`__: Get Deezer catalog information for a user's
+        favorite albums.
 
         .. admonition:: User authentication
            :class: authorization-scope
@@ -2143,13 +1437,13 @@ class UsersAPI(DeezerResourceAPI):
             :code:`"me"`.
 
         limit : int or None; keyword-only; optional
-            Maximum number of tracks to return.
+            Maximum number of albums to return.
 
             **Minimum value**: :code:`1`.
 
         offset : int or None; keyword-only; optional
-            Index of the first track to return. Use with `limit` to get
-            the next batch of tracks.
+            Index of the first album to return. Use with `limit` to get
+            the next batch of albums.
 
             **Minimum value**: :code:`0`.
 
@@ -2157,9 +1451,9 @@ class UsersAPI(DeezerResourceAPI):
 
         Returns
         -------
-        tracks : dict[str, Any]
+        albums : dict[str, Any]
             Page of Deezer content metadata for the user's favorite
-            tracks.
+            albums.
 
             .. admonition:: Sample response
                :class: dropdown
@@ -2170,18 +1464,6 @@ class UsersAPI(DeezerResourceAPI):
                     "checksum": <str>,
                     "data": [
                       {
-                        "album": {
-                          "cover": <str>,
-                          "cover_big": <str>,
-                          "cover_medium": <str>,
-                          "cover_small": <str>,
-                          "cover_xl": <str>,
-                          "id": <int>,
-                          "md5_image": <str>,
-                          "title": <str>,
-                          "tracklist": <str>,
-                          "type": "album"
-                        },
                         "artist": {
                           "id": <int>,
                           "name": <str>,
@@ -2193,19 +1475,23 @@ class UsersAPI(DeezerResourceAPI):
                           "tracklist": <str>,
                           "type": "artist"
                         },
-                        "duration": <int>,
-                        "explicit_content_cover": <int>,
-                        "explicit_content_lyrics": <int>,
+                        "available": <bool>,
+                        "cover": <str>,
+                        "cover_big": <str>,
+                        "cover_medium": <str>,
+                        "cover_small": <str>,
+                        "cover_xl": <str>,
                         "explicit_lyrics": <bool>,
                         "id": <int>,
+                        "link": <str>,
                         "md5_image": <str>,
-                        "preview": <str>,
-                        "rank": <int>,
-                        "readable": <bool>,
+                        "nb_tracks": <int>,
+                        "record_type": <str>,
+                        "release_date": <str>,
+                        "time_add": <int>,
                         "title": <str>,
-                        "title_short": <str>,
-                        "title_version": <str>,
-                        "type": "track"
+                        "tracklist": <str>,
+                        "type": "album"
                       }
                     ],
                     "next": <str>,
@@ -2213,95 +1499,9 @@ class UsersAPI(DeezerResourceAPI):
                     "total": <int>
                   }
         """
-        self._client._require_authentication("users.get_saved_tracks")
+        self._client._require_authentication("users.get_saved_albums")
         return self._request_resource_relationship(
-            "GET", "user", user_id, "tracks", limit=limit, offset=offset
-        )
-
-    def set_episode_resume_point(
-        self, episode_id: int | str, /, position: int
-    ) -> dict[str, Any]:
-        """
-        `Episode > Bookmark <https://developers.deezer.com/api
-        /actions-post>`__: Set a resume point for a podcast episode.
-
-        .. admonition:: Permissions
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
-
-        Parameters
-        ----------
-        episode_id : int or str; positional-only
-            Deezer ID of the episode.
-
-            **Example**: :code:`796445891`, :code:`"822265072"`.
-
-        position : int
-            Playback position within the episode as a percentage.
-
-            **Valid range**: :code:`0` to :code:`100`.
-
-        Returns
-        -------
-        status : dict[str, Any]
-            Whether the request completed successfully.
-
-            **Sample response**: :code:`{'error': [], 'results': True}`.
-        """
-        self._client._require_permissions(
-            "episodes.set_episode_resume_point", "manage_library"
-        )
-        self._validate_deezer_ids(episode_id, _recursive=False)
-        self._validate_number("position", position, int, 0, 100)
-        return self._request_resource_relationship(
-            "POST",
-            "episode",
-            episode_id,
-            "bookmark",
-            params={"offset": position},
-        )
-
-    def remove_episode_resume_point(
-        self, episode_id: int | str, /
-    ) -> dict[str, Any]:
-        """
-        `Episode > Bookmark <https://developers.deezer.com/api
-        /actions-delete>`__: Remove a resume point for a podcast episode.
-
-        .. admonition:: Permissions
-           :class: authorization-scope
-
-           .. tab:: Required
-
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
-
-        Parameters
-        ----------
-        episode_id : int or str; positional-only
-            Deezer ID of the episode.
-
-            **Example**: :code:`796445891`, :code:`"822265072"`.
-
-        Returns
-        -------
-        status : dict[str, Any]
-            Whether the request completed successfully.
-
-            **Sample response**: :code:`{'error': [], 'results': True}`.
-        """
-        self._client._require_permissions(
-            "episodes.remove_episode_resume_point", "manage_library"
-        )
-        self._validate_deezer_ids(episode_id, _recursive=False)
-        return self._request_resource_relationship(
-            "DELETE", "episode", episode_id, "bookmark"
+            "GET", "user", user_id, "albums", limit=limit, offset=offset
         )
 
     def save_albums(
@@ -2402,6 +1602,92 @@ class UsersAPI(DeezerResourceAPI):
         self._validate_deezer_ids(album_id, _recursive=False)
         return self._request_resource_relationship(
             "DELETE", "user", user_id, "albums", params={"album_id": album_id}
+        )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_followed_artists(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User > Artists <https://developers.deezer.com/api/user
+        /artists>`_: Get Deezer catalog information for a user's
+        favorite artists.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access the user's favorite items, playlists, and
+                 followed people.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        limit : int or None; keyword-only; optional
+            Maximum number of artists to return.
+
+            **Minimum value**: :code:`1`.
+
+        offset : int or None; keyword-only; optional
+            Index of the first artist to return. Use with `limit` to get
+            the next batch of artists.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        artists : dict[str, Any]
+            Page of Deezer content metadata for the user's favorite
+            artists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "checksum": <str>,
+                    "data": [
+                      {
+                        "id": <int>,
+                        "link": <str>,
+                        "name": <str>,
+                        "nb_album": <int>,
+                        "nb_fan": <int>,
+                        "picture": <str>,
+                        "picture_big": <str>,
+                        "picture_medium": <str>,
+                        "picture_small": <str>,
+                        "picture_xl": <str>,
+                        "radio": <bool>,
+                        "time_add": <int>,
+                        "tracklist": <str>,
+                        "type": "artist"
+                      }
+                    ],
+                    "next": <str>,
+                    "prev": <str>,
+                    "total": <int>
+                  }
+        """
+        self._client._require_authentication("users.get_followed_artists")
+        return self._request_resource_relationship(
+            "GET", "user", user_id, "artists", limit=limit, offset=offset
         )
 
     def follow_artists(
@@ -2507,6 +1793,217 @@ class UsersAPI(DeezerResourceAPI):
             user_id,
             "artists",
             params={"artist_id": artist_id},
+        )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_user_playlists(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User > Playlists <https://developers.deezer.com/api/user
+        /playlists>`__: Get Deezer catalog information for a user's
+        playlists.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access the user's favorite items, playlists, and
+                 followed people.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        limit : int or None; keyword-only; optional
+            Maximum number of playlists to return.
+
+            **Minimum value**: :code:`1`.
+
+        offset : int or None; keyword-only; optional
+            Index of the first playlist to return. Use with `limit` to
+            get the next batch of playlists.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        playlists : dict[str, Any]
+            Page of Deezer content metadata for the user's playlists.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "add_date": <str>,
+                        "checksum": <str>,
+                        "collaborative": <bool>,
+                        "creation_date": <str>,
+                        "creator": {
+                          "id": <int>,
+                          "name": <str>,
+                          "tracklist": <str>,
+                          "type": "user"
+                        },
+                        "duration": <int>,
+                        "fans": <int>,
+                        "id": <int>,
+                        "is_loved_track": <bool>,
+                        "link": <str>,
+                        "md5_image": <str>,
+                        "mod_date": <str>,
+                        "nb_tracks": <int>,
+                        "picture": <str>,
+                        "picture_big": <str>,
+                        "picture_medium": <str>,
+                        "picture_small": <str>,
+                        "picture_type": <str>,
+                        "picture_xl": <str>,
+                        "public": <bool>,
+                        "time_add": <int>,
+                        "time_mod": <int>,
+                        "title": <str>,
+                        "tracklist": <str>,
+                        "type": "playlist"
+                      }
+                    ],
+                    "next": <str>,
+                    "prev": <str>,
+                    "total": <int>
+                  }
+        """
+        self._client._require_authentication("users.get_user_playlists")
+        return self._request_resource_relationship(
+            "GET", "user", user_id, "playlists", limit=limit, offset=offset
+        )
+
+    def follow_playlists(
+        self,
+        playlist_ids: int | str | list[int | str],
+        /,
+        *,
+        user_id: int | str = "me",
+    ) -> bool:
+        """
+        `User > Playlists <https://developers.deezer.com/api
+        /actions-post>`__: Add one or more playlists to a user's
+        favorites.
+
+        .. admonition:: Permissions
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`manage_library` permission
+                 Manage a user's library. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
+
+        Parameters
+        ----------
+        playlist_ids : int or str; positional-only
+            Deezer IDs of the playlists.
+
+            **Examples**: :code:`13651021241`, :code:`"1495242491"`,
+            :code:`"13651021241,1495242491"`,
+            :code:`[13651021241, "1495242491"]`.
+
+        user_id : int or str; keyword-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        Returns
+        -------
+        success : bool
+            Whether the request completed successfully.
+        """
+        self._client._require_permissions(
+            "users.follow_playlists", "manage_library"
+        )
+        playlist_ids, num_ids = self._prepare_deezer_ids(playlist_ids)
+        return self._request_resource_relationship(
+            "POST",
+            "user",
+            user_id,
+            "playlists",
+            params={f"playlist_id{'s' if num_ids > 1 else ''}": playlist_ids},
+        )
+
+    def unfollow_playlist(
+        self,
+        playlist_id: int | str,
+        /,
+        *,
+        user_id: int | str = "me",
+    ) -> bool:
+        """
+        `User > Playlists <https://developers.deezer.com/api
+        /actions-delete>`__: Remove a playlist from a user's favorites.
+
+        .. admonition:: Permissions
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`manage_library` permission
+                 Manage a user's library. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
+
+              :code:`delete_library` permission
+                 Delete items from a user's library. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
+
+        Parameters
+        ----------
+        playlist_ids : int or str; positional-only
+            Deezer IDs of the playlists.
+
+            **Examples**: :code:`13651021241`, :code:`"1495242491"`,
+            :code:`"13651021241,1495242491"`,
+            :code:`[13651021241, "1495242491"]`.
+
+        user_id : int or str; keyword-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        Returns
+        -------
+        success : bool
+            Whether the request completed successfully.
+        """
+        self._client._require_permissions(
+            "users.unfollow_playlist", {"manage_library", "delete_library"}
+        )
+        self._validate_deezer_ids(playlist_id, _recursive=False)
+        return self._request_resource_relationship(
+            "DELETE",
+            "user",
+            user_id,
+            "playlists",
+            params={"playlist_id": playlist_id},
         )
 
     def create_playlist(
@@ -2778,115 +2275,90 @@ class UsersAPI(DeezerResourceAPI):
             params={"order": self._prepare_deezer_ids(track_ids)[0]},
         )
 
-    def follow_playlists(
+    @TTLCache.cached_method(ttl="user")
+    def get_followed_podcasts(
         self,
-        playlist_ids: int | str | list[int | str],
+        user_id: int | str = "me",
         /,
         *,
-        user_id: int | str = "me",
-    ) -> bool:
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
         """
-        `User > Playlists <https://developers.deezer.com/api
-        /actions-post>`__: Add one or more playlists to a user's
-        favorites.
+        `User > Podcasts <https://developers.deezer.com/api/user
+        /podcasts>`_: Get Deezer catalog information for a user's
+        favorite podcasts.
 
-        .. admonition:: Permissions
+        .. admonition:: User authentication
            :class: authorization-scope
 
            .. tab:: Required
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              User authentication
+                 Access the user's favorite items, playlists, and
+                 followed people.
 
         Parameters
         ----------
-        playlist_ids : int or str; positional-only
-            Deezer IDs of the playlists.
-
-            **Examples**: :code:`13651021241`, :code:`"1495242491"`,
-            :code:`"13651021241,1495242491"`,
-            :code:`[13651021241, "1495242491"]`.
-
-        user_id : int or str; keyword-only; default: :code:`"me"`
+        user_id : int or str; positional-only; default: :code:`"me"`
             Deezer ID of the user. If authenticated, :code:`"me"` can be
             used in lieu of a Deezer ID for the current user.
 
             **Example**: :code:`5395005364`, :code:`"5395005364"`,
             :code:`"me"`.
 
-        Returns
-        -------
-        success : bool
-            Whether the request completed successfully.
-        """
-        self._client._require_permissions(
-            "users.follow_playlists", "manage_library"
-        )
-        playlist_ids, num_ids = self._prepare_deezer_ids(playlist_ids)
-        return self._request_resource_relationship(
-            "POST",
-            "user",
-            user_id,
-            "playlists",
-            params={f"playlist_id{'s' if num_ids > 1 else ''}": playlist_ids},
-        )
+        limit : int or None; keyword-only; optional
+            Maximum number of podcasts to return.
 
-    def unfollow_playlist(
-        self,
-        playlist_id: int | str,
-        /,
-        *,
-        user_id: int | str = "me",
-    ) -> bool:
-        """
-        `User > Playlists <https://developers.deezer.com/api
-        /actions-delete>`__: Remove a playlist from a user's favorites.
+            **Minimum value**: :code:`1`.
 
-        .. admonition:: Permissions
-           :class: authorization-scope
+        offset : int or None; keyword-only; optional
+            Index of the first podcast to return. Use with `limit` to
+            get the next batch of podcasts.
 
-           .. tab:: Required
+            **Minimum value**: :code:`0`.
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
-
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
-
-        Parameters
-        ----------
-        playlist_ids : int or str; positional-only
-            Deezer IDs of the playlists.
-
-            **Examples**: :code:`13651021241`, :code:`"1495242491"`,
-            :code:`"13651021241,1495242491"`,
-            :code:`[13651021241, "1495242491"]`.
-
-        user_id : int or str; keyword-only; default: :code:`"me"`
-            Deezer ID of the user. If authenticated, :code:`"me"` can be
-            used in lieu of a Deezer ID for the current user.
-
-            **Example**: :code:`5395005364`, :code:`"5395005364"`,
-            :code:`"me"`.
+            **API default**: :code:`0`.
 
         Returns
         -------
-        success : bool
-            Whether the request completed successfully.
+        podcasts : dict[str, Any]
+            Page of Deezer content metadata for the user's favorite
+            podcasts.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "checksum": <str>,
+                    "data": [
+                      {
+                        "available": <bool>,
+                        "description": <str>,
+                        "fans": <int>,
+                        "id": <int>,
+                        "link": <str>,
+                        "picture": <str>,
+                        "picture_big": <str>,
+                        "picture_medium": <str>,
+                        "picture_small": <str>,
+                        "picture_xl": <str>,
+                        "share": <str>,
+                        "time_add": <int>,
+                        "title": <str>,
+                        "type": "podcast"
+                      }
+                    ],
+                    "next": <str>,
+                    "prev": <str>,
+                    "total": <int>
+                  }
         """
-        self._client._require_permissions(
-            "users.unfollow_playlist", {"manage_library", "delete_library"}
-        )
-        self._validate_deezer_ids(playlist_id, _recursive=False)
+        self._client._require_authentication("users.get_followed_podcasts")
         return self._request_resource_relationship(
-            "DELETE",
-            "user",
-            user_id,
-            "playlists",
-            params={"playlist_id": playlist_id},
+            "GET", "user", user_id, "podcasts", limit=limit, offset=offset
         )
 
     def follow_podcast(
@@ -2991,6 +2463,161 @@ class UsersAPI(DeezerResourceAPI):
             params={"podcast_id": podcast_id},
         )
 
+    def set_episode_resume_point(
+        self, episode_id: int | str, /, position: int
+    ) -> dict[str, Any]:
+        """
+        `Episode > Bookmark <https://developers.deezer.com/api
+        /actions-post>`__: Set a resume point for a podcast episode.
+
+        .. admonition:: Permissions
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`manage_library` permission
+                 Manage a user's library. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
+
+        Parameters
+        ----------
+        episode_id : int or str; positional-only
+            Deezer ID of the episode.
+
+            **Example**: :code:`796445891`, :code:`"822265072"`.
+
+        position : int
+            Playback position within the episode as a percentage.
+
+            **Valid range**: :code:`0` to :code:`100`.
+
+        Returns
+        -------
+        status : dict[str, Any]
+            Whether the request completed successfully.
+
+            **Sample response**: :code:`{'error': [], 'results': True}`.
+        """
+        self._client._require_permissions(
+            "episodes.set_episode_resume_point", "manage_library"
+        )
+        self._validate_deezer_ids(episode_id, _recursive=False)
+        self._validate_number("position", position, int, 0, 100)
+        return self._request_resource_relationship(
+            "POST",
+            "episode",
+            episode_id,
+            "bookmark",
+            params={"offset": position},
+        )
+
+    def remove_episode_resume_point(
+        self, episode_id: int | str, /
+    ) -> dict[str, Any]:
+        """
+        `Episode > Bookmark <https://developers.deezer.com/api
+        /actions-delete>`__: Remove a resume point for a podcast episode.
+
+        .. admonition:: Permissions
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`manage_library` permission
+                 Manage a user's library. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
+
+        Parameters
+        ----------
+        episode_id : int or str; positional-only
+            Deezer ID of the episode.
+
+            **Example**: :code:`796445891`, :code:`"822265072"`.
+
+        Returns
+        -------
+        status : dict[str, Any]
+            Whether the request completed successfully.
+
+            **Sample response**: :code:`{'error': [], 'results': True}`.
+        """
+        self._client._require_permissions(
+            "episodes.remove_episode_resume_point", "manage_library"
+        )
+        self._validate_deezer_ids(episode_id, _recursive=False)
+        return self._request_resource_relationship(
+            "DELETE", "episode", episode_id, "bookmark"
+        )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_followed_radios(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User > Radios <https://developers.deezer.com/api/user
+        /radios>`_: Get Deezer catalog information for a user's
+        favorite radios.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access the user's favorite items, playlists, and
+                 followed people.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        limit : int or None; keyword-only; optional
+            Maximum number of radios to return.
+
+            **Minimum value**: :code:`1`.
+
+        offset : int or None; keyword-only; optional
+            Index of the first radio to return. Use with `limit` to
+            get the next batch of radios.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        radios : dict[str, Any]
+            Page of Deezer content metadata for the user's favorite
+            radios.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "checksum": <str>,
+                    "data": [],
+                    "next": <str>,
+                    "prev": <str>,
+                    "total": <int>
+                  }
+        """
+        self._client._require_authentication("users.get_followed_radios")
+        return self._request_resource_relationship(
+            "GET", "user", user_id, "radios", limit=limit, offset=offset
+        )
+
     def save_radio(
         self, radio_id: int | str, /, *, user_id: int | str = "me"
     ) -> bool:
@@ -3077,6 +2704,114 @@ class UsersAPI(DeezerResourceAPI):
         self._validate_deezer_ids(radio_id, _recursive=False)
         return self._request_resource_relationship(
             "DELETE", "user", user_id, "radios", params={"radio_id": radio_id}
+        )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_saved_tracks(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User > Tracks <https://developers.deezer.com/api/user
+        /tracks>`_: Get Deezer catalog information for a user's
+        favorite tracks.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access the user's favorite items, playlists, and
+                 followed people.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        limit : int or None; keyword-only; optional
+            Maximum number of tracks to return.
+
+            **Minimum value**: :code:`1`.
+
+        offset : int or None; keyword-only; optional
+            Index of the first track to return. Use with `limit` to get
+            the next batch of tracks.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        tracks : dict[str, Any]
+            Page of Deezer content metadata for the user's favorite
+            tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "checksum": <str>,
+                    "data": [
+                      {
+                        "album": {
+                          "cover": <str>,
+                          "cover_big": <str>,
+                          "cover_medium": <str>,
+                          "cover_small": <str>,
+                          "cover_xl": <str>,
+                          "id": <int>,
+                          "md5_image": <str>,
+                          "title": <str>,
+                          "tracklist": <str>,
+                          "type": "album"
+                        },
+                        "artist": {
+                          "id": <int>,
+                          "name": <str>,
+                          "picture": <str>,
+                          "picture_big": <str>,
+                          "picture_medium": <str>,
+                          "picture_small": <str>,
+                          "picture_xl": <str>,
+                          "tracklist": <str>,
+                          "type": "artist"
+                        },
+                        "duration": <int>,
+                        "explicit_content_cover": <int>,
+                        "explicit_content_lyrics": <int>,
+                        "explicit_lyrics": <bool>,
+                        "id": <int>,
+                        "md5_image": <str>,
+                        "preview": <str>,
+                        "rank": <int>,
+                        "readable": <bool>,
+                        "title": <str>,
+                        "title_short": <str>,
+                        "title_version": <str>,
+                        "type": "track"
+                      }
+                    ],
+                    "next": <str>,
+                    "prev": <str>,
+                    "total": <int>
+                  }
+        """
+        self._client._require_authentication("users.get_saved_tracks")
+        return self._request_resource_relationship(
+            "GET", "user", user_id, "tracks", limit=limit, offset=offset
         )
 
     def save_tracks(
@@ -3177,6 +2912,370 @@ class UsersAPI(DeezerResourceAPI):
         self._validate_deezer_ids(track_id, _recursive=False)
         return self._request_resource_relationship(
             "DELETE", "user", user_id, "tracks", params={"track_id": track_id}
+        )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_user_tracks(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User > Personal Songs <https://developers.deezer.com/api/user
+        /personal_songs>`_: Get Deezer catalog information for a user's
+        uploaded tracks.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access the user's favorite items, playlists, and
+                 followed people.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        limit : int or None; keyword-only; optional
+            Maximum number of tracks to return.
+
+            **Minimum value**: :code:`1`.
+
+        offset : int or None; keyword-only; optional
+            Index of the first track to return. Use with `limit` to get
+            the next batch of tracks.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        tracks : dict[str, Any]
+            Page of Deezer content metadata for the user's uploaded
+            tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "album": {
+                          "cover": <str>,
+                          "cover_big": <str>,
+                          "cover_medium": <str>,
+                          "cover_small": <str>,
+                          "cover_xl": <str>,
+                          "id": <int>,
+                          "md5_image": <str>,
+                          "title": <str>,
+                          "tracklist": <str>,
+                          "type": "album"
+                        },
+                        "artist": {
+                          "id": <int>,
+                          "name": <str>,
+                          "picture": <str>,
+                          "picture_big": <str>,
+                          "picture_medium": <str>,
+                          "picture_small": <str>,
+                          "picture_xl": <str>,
+                          "tracklist": <str>,
+                          "type": "artist"
+                        },
+                        "duration": <int>,
+                        "explicit_content_cover": <int>,
+                        "explicit_content_lyrics": <int>,
+                        "explicit_lyrics": <bool>,
+                        "id": <int>,
+                        "md5_image": <str>,
+                        "preview": <str>,
+                        "rank": <int>,
+                        "readable": <bool>,
+                        "title": <str>,
+                        "title_short": <str>,
+                        "title_version": <str>,
+                        "type": "track"
+                      }
+                    ],
+                    "next": <str>,
+                    "prev": <str>,
+                    "total": <int>
+                  }
+        """
+        self._client._require_authentication("users.get_user_tracks")
+        return self._request_resource_relationship(
+            "GET", "user", user_id, "tracks", limit=limit, offset=offset
+        )
+
+    def update_user_track_details(
+        self,
+        track_id: int | str,
+        /,
+        *,
+        album: str | None = None,
+        artist: str | None = None,
+        title: str | None = None,
+    ) -> bool:
+        """
+        `Track <https://developers.deezer.com/api/actions-post>`__:
+        Update the details of a user-uploaded track.
+
+        .. admonition:: Permissions
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`manage_library` permission
+                 Manage a user's library. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
+
+        Parameters
+        ----------
+        track_id : int or str; positional-only
+            Deezer ID of the track.
+
+            **Examples**: :code:`-3140371023`, :code:`"-3140371043"`.
+
+        album : str; keyword-only; optional
+            Album name.
+
+        artist : str; keyword-only; optional
+            Artist name.
+
+        title : str; keyword-only; optional
+            Track title.
+
+        Returns
+        -------
+        success : bool
+            Whether the request completed successfully.
+        """
+        self._client._require_permissions(
+            "tracks.update_user_track_details", "manage_library"
+        )
+        params = {}
+        if album is not None:
+            self._validate_type("album", album, str)
+            if not len(album):
+                raise ValueError("`album` is blank.")
+            params["album"] = album
+        if artist is not None:
+            self._validate_type("artist", artist, str)
+            if not len(artist):
+                raise ValueError("`artist` is blank.")
+            params["artist"] = artist
+        if title is not None:
+            self._validate_type("title", title, str)
+            if not len(title):
+                raise ValueError("`title` is blank.")
+            params["title"] = title
+        if not params:
+            raise ValueError("At least one change must be specified.")
+        return self._request_resource_relationship(
+            "POST", "track", track_id, params=params
+        )
+
+    def delete_user_track(self, track_id: int | str, /) -> bool:
+        """
+        `Track <https://developers.deezer.com/api/actions-delete>`__:
+        Delete a user-uploaded track.
+
+        .. admonition:: Permissions
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              :code:`delete_library` permission
+                 Delete items from a user's library. `Learn more.
+                 <https://developers.deezer.com/api/permissions>`__
+
+        Parameters
+        ----------
+        track_id : int or str; positional-only
+            Deezer ID of the track.
+
+            **Examples**: :code:`-3140371023`, :code:`"-3140371043"`.
+
+        Returns
+        -------
+        success : bool
+            Whether the request completed successfully.
+        """
+        self._client._require_permissions(
+            "tracks.delete_user_track", "delete_library"
+        )
+        return self._request_resource_relationship("DELETE", "track", track_id)
+
+    @TTLCache.cached_method(ttl="user")
+    def get_followed_users(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User > Followings <https://developers.deezer.com/api/user
+        /followings>`_: Get Deezer catalog information for other users
+        followed by a user.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access the user's favorite items, playlists, and
+                 followed people.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        limit : int or None; keyword-only; optional
+            Maximum number of users to return.
+
+            **Minimum value**: :code:`1`.
+
+        offset : int or None; keyword-only; optional
+            Index of the first user to return. Use with `limit` to get
+            the next batch of users.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        users : dict[str, Any]
+            Page of Deezer content metadata for the followed users.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "id": <int>,
+                        "name": <str>,
+                        "picture": <str>,
+                        "picture_big": <str>,
+                        "picture_medium": <str>,
+                        "picture_small": <str>,
+                        "picture_xl": <str>,
+                        "tracklist": <str>,
+                        "type": "user"
+                      }
+                    ],
+                    "next": <str>,
+                    "prev": <str>,
+                    "total": <int>
+                  }
+        """
+        self._client._require_authentication("users.get_followed_users")
+        return self._request_resource_relationship(
+            "GET", "user", user_id, "followings", limit=limit, offset=offset
+        )
+
+    @TTLCache.cached_method(ttl="user")
+    def get_user_followers(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """
+        `User > Followers <https://developers.deezer.com/api/user
+        /followers>`_: Get Deezer catalog information for a user's
+        followers.
+
+        .. admonition:: User authentication
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              User authentication
+                 Access the user's favorite items, playlists, and
+                 followed people.
+
+        Parameters
+        ----------
+        user_id : int or str; positional-only; default: :code:`"me"`
+            Deezer ID of the user. If authenticated, :code:`"me"` can be
+            used in lieu of a Deezer ID for the current user.
+
+            **Example**: :code:`5395005364`, :code:`"5395005364"`,
+            :code:`"me"`.
+
+        limit : int or None; keyword-only; optional
+            Maximum number of users to return.
+
+            **Minimum value**: :code:`1`.
+
+        offset : int or None; keyword-only; optional
+            Index of the first user to return. Use with `limit` to get
+            the next batch of users.
+
+            **Minimum value**: :code:`0`.
+
+            **API default**: :code:`0`.
+
+        Returns
+        -------
+        users : dict[str, Any]
+            Page of Deezer content metadata for the user's followers.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "data": [
+                      {
+                        "id": <int>,
+                        "name": <str>,
+                        "picture": <str>,
+                        "picture_big": <str>,
+                        "picture_medium": <str>,
+                        "picture_small": <str>,
+                        "picture_xl": <str>,
+                        "tracklist": <str>,
+                        "type": "user"
+                      }
+                    ],
+                    "next": <str>,
+                    "prev": <str>,
+                    "total": <int>
+                  }
+        """
+        self._client._require_authentication("users.get_user_followers")
+        return self._request_resource_relationship(
+            "GET", "user", user_id, "followers", limit=limit, offset=offset
         )
 
     def follow_user(

@@ -297,6 +297,19 @@ class RadiosAPI(DeezerResourceAPI):
             "GET", "radio/lists", params=params
         ).json()
 
+    @_copy_docstring(UsersAPI.get_followed_radios)
+    def get_followed_radios(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_followed_radios(
+            user_id, limit=limit, offset=offset
+        )
+
     @_copy_docstring(UsersAPI.save_radio)
     def save_radio(
         self, radio_id: int | str, /, *, user_id: int | str = "me"
@@ -308,3 +321,16 @@ class RadiosAPI(DeezerResourceAPI):
         self, radio_id: int | str, /, *, user_id: int | str = "me"
     ) -> bool:
         return self._client.users.remove_saved_radio(radio_id, user_id=user_id)
+
+    @_copy_docstring(UsersAPI.get_radio_recommendations)
+    def get_radio_recommendations(
+        self,
+        user_id: int | str = "me",
+        /,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        return self._client.users.get_radio_recommendations(
+            user_id, limit=limit, offset=offset
+        )
