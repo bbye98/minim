@@ -6,7 +6,6 @@ dependencies:
   # CORE DEPENDENCIES
   - cryptography
   - httpx
-  - pyyaml
   # OPTIONAL DEPENDENCIES
   - ffmpeg
   - pytest-playwright
