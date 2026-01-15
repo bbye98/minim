@@ -29,6 +29,9 @@ if FOUND_FFMPEG:
 if FOUND_PILLOW := find_spec("PIL") is not None:
     from PIL import Image
 
+_FFMPEG_CODECS = FFMPEG_CODECS if FOUND_FFMPEG else {}
+
+
 __all__ = [
     "Audio",
     "FLACAudio",
@@ -1514,7 +1517,7 @@ class MP4Audio(Audio):
     """
 
     _CODECS = {
-        "aac": {"ffmpeg": f"-b:a 256k -c:a {FFMPEG_CODECS['aac']} -c:v copy"},
+        "aac": {"ffmpeg": f"-b:a 256k -c:a {_FFMPEG_CODECS.get('aac', 'aac')} -c:v copy"},
         "alac": {"ffmpeg": "-c:a alac -c:v copy"},
     }
     _EXTENSIONS = ["m4a", "aac", "mp4"]
@@ -1734,7 +1737,7 @@ class OggAudio(Audio, _VorbisComment):
             "mutagen": oggopus.OggOpus,
         },
         "vorbis": {
-            "ffmpeg": f"-c:a {FFMPEG_CODECS['vorbis']} -vn",
+            "ffmpeg": f"-c:a {_FFMPEG_CODECS.get('vorbis', 'vorbis')} -vn",
             "mutagen": oggvorbis.OggVorbis,
         },
     }
