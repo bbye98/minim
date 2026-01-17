@@ -2874,16 +2874,106 @@ class PrivateAPI:
             data={"playlist_id": playlist_id},
         )
 
+    def get_playlist_tags(self) -> dict[str, list[dict[str, Any]]]:
+        """
+        Get available playlist tags.
+
+        Returns
+        -------
+        playlist_tags : `dict`
+            Qobuz catalog information for playlist tags.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "tags": [
+                      {
+                        "color": <str>,
+                        "featured_tag_id": <str>,
+                        "genre_tag": None,
+                        "is_discover": <str>,
+                        "name_json": <str>,
+                        "position": <str>,
+                        "slug": <str>
+                      }
+                    ]
+                  }
+        """
+        return self._get_json(f"{self.API_URL}/playlist/getTags")
+
+    ### PURCHASES #############################################################
+
+    def get_purchases(
+        self, type: str = "albums", *, limit: int = None, offset: int = None
+    ) -> dict[str, Any]:
+        """
+        Get the current user's purchases.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Parameters
+        ----------
+        type : `str`, default: :code:`"albums"`
+            Media type.
+
+            **Valid values**: :code:`"albums"` and :code:`"tracks"`.
+
+        limit : `int`, keyword-only, optional
+            The maximum number of albums or tracks to return.
+
+            **Default**: :code:`50`.
+
+        offset : `int`, keyword-only, optional
+            The index of the first album or track to return. Use with
+            `limit` to get the next page of albums or tracks.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        purchases : `dict`
+            A dictionary containing Qobuz catalog information for the
+            current user's purchases.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "offset": <int>,
+                    "limit": <int>,
+                    "total": <int>,
+                    "items": <list>
+                  }
+        """
+
+        self._check_authentication("get_purchases")
+
+        if type not in (MEDIA_TYPES := {"albums", "tracks"}):
+            emsg = (
+                f"Invalid media type. Valid values: {', '.join(MEDIA_TYPES)}."
+            )
+            raise ValueError(emsg)
+
+        return self._get_json(
+            f"{self.API_URL}/purchase/getUserPurchases",
+            params={"type": type, "limit": limit, "offset": offset},
+        )[type]
+
     ### SEARCH ################################################################
 
     def search(
         self,
         query: str,
-        type: str = None,
+        type: str = "catalog",
         *,
-        hi_res: bool = False,
-        new_release: bool = False,
-        strict: bool = False,
         limit: int = 10,
         offset: int = 0,
     ) -> dict[str, Any]:
@@ -2895,22 +2985,25 @@ class PrivateAPI:
         query : `str`
             Search query.
 
+            .. tip::
+
+               Searches can be narrowed using tags, such as
+               :code:`#ByMainArtist`, :code:`#ByComposer`,
+               :code:`#ByPerformer`, :code:`#ByReleaseName`,
+               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#HiRes`.
+
+               Use strict matching instead of fuzzy search by wrapping
+               the keyword string in double quotes.
+
+            **Example**: :code:`"Galantis" #ByMainArtist #HiRes`.
+
         type : `str`, keyword-only, optional
-            Category to search in. If specified, only matching releases
-            and tracks will be returned.
+            Resource type.
 
-            **Valid values**: :code:`"MainArtist"`, :code:`"Composer"`,
-            :code:`"Performer"`, :code:`"ReleaseName"`, and
-            :code:`"Label"`.
-
-        hi_res : `bool`, keyword-only, :code:`False`
-            High-resolution audio only.
-
-        new_release : `bool`, keyword-only, :code:`False`
-            New releases only.
-
-        strict : `bool`, keyword-only, :code:`False`
-            Enable exact word or phrase matching.
+            **Valid values**: :code:`"album"`, :code:`"artist"`,
+            :code:`"catalog"`, :code:`"playlist"`, :code:`"story"`,
+            :code:`"track"`.
 
         limit : `int`, keyword-only, default: :code:`10`
             Maximum number of results to return.
@@ -3244,32 +3337,8 @@ class PrivateAPI:
                     }
                   }
         """
-
-        if type and type not in (
-            SEARCH_TYPES := {
-                "MainArtist",
-                "Composer",
-                "Performer",
-                "ReleaseName",
-                "Label",
-            }
-        ):
-            emsg = (
-                f"Invalid search type. Valid values: {', '.join(SEARCH_TYPES)}"
-            )
-            raise ValueError(emsg)
-
-        if strict:
-            query = f'"{query}"'
-        if type:
-            query += f" #By{type}"
-        if hi_res:
-            query += " #HiRes"
-        if new_release:
-            query += " #NewRelease"
-
         return self._get_json(
-            f"{self.API_URL}/catalog/search",
+            f"{self.API_URL}/{type}/search",
             params={"query": query, "limit": limit, "offset": offset},
         )
 
@@ -3962,64 +4031,3 @@ class PrivateAPI:
         self._check_authentication("get_profile")
 
         return self._get_json(f"{self.API_URL}/user/get")
-
-    def get_purchases(
-        self, type: str = "albums", *, limit: int = None, offset: int = None
-    ) -> dict[str, Any]:
-        """
-        Get the current user's purchases.
-
-        .. admonition:: User authentication
-           :class: warning
-
-           Requires user authentication via the password flow.
-
-        Parameters
-        ----------
-        type : `str`, default: :code:`"albums"`
-            Media type.
-
-            **Valid values**: :code:`"albums"` and :code:`"tracks"`.
-
-        limit : `int`, keyword-only, optional
-            The maximum number of albums or tracks to return.
-
-            **Default**: :code:`50`.
-
-        offset : `int`, keyword-only, optional
-            The index of the first album or track to return. Use with
-            `limit` to get the next page of albums or tracks.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        purchases : `dict`
-            A dictionary containing Qobuz catalog information for the
-            current user's purchases.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "offset": <int>,
-                    "limit": <int>,
-                    "total": <int>,
-                    "items": <list>
-                  }
-        """
-
-        self._check_authentication("get_purchases")
-
-        if type not in (MEDIA_TYPES := {"albums", "tracks"}):
-            emsg = (
-                f"Invalid media type. Valid values: {', '.join(MEDIA_TYPES)}."
-            )
-            raise ValueError(emsg)
-
-        return self._get_json(
-            f"{self.API_URL}/purchase/getUserPurchases",
-            params={"type": type, "limit": limit, "offset": offset},
-        )[type]
