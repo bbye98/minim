@@ -79,7 +79,6 @@ class _ID3:
         """
         Create an ID3 tag handler.
         """
-
         self._filename = filename
         self._tags = tags
         self._from_file()
@@ -88,7 +87,6 @@ class _ID3:
         """
         Get metadata from the ID3 tags embedded in the audio file.
         """
-
         for field, (frame, base, _) in self._FIELDS.items():
             value = self._tags.getall(frame)
             if value:
@@ -162,7 +160,6 @@ class _ID3:
         """
         Write metadata to file.
         """
-
         for field, (frame, base, func) in self._FIELDS.items():
             value = getattr(self, field)
             if value:
@@ -257,7 +254,6 @@ class _VorbisComment:
         """
         Create a Vorbis comment handler.
         """
-
         self._filename = filename
         self._tags = tags
         self._from_file()
@@ -266,7 +262,6 @@ class _VorbisComment:
         """
         Get metadata from the tags embedded in the FLAC audio file.
         """
-
         for field, (key, _) in self._FIELDS.items():
             value = self._tags.get(key)
             if value:
@@ -351,8 +346,9 @@ class _VorbisComment:
         """
         Write metadata to file.
         """
-
-        for field, (key, func) in (self._FIELDS | self._FIELDS_SPECIAL).items():
+        for field, (key, func) in (
+            self._FIELDS | self._FIELDS_SPECIAL
+        ).items():
             value = getattr(self, field)
             if value:
                 value = utility.format_multivalue(
@@ -558,7 +554,6 @@ class Audio:
         """
         Instantiate an audio file handler.
         """
-
         self._file = pathlib.Path(file).resolve()
         self._pattern = pattern
         self._multivalue = multivalue
@@ -573,7 +568,6 @@ class Audio:
         file : `str` or `pathlib.Path`
             Audio file.
         """
-
         if cls == Audio:
             file = kwargs.get("file")
             if file is None:
@@ -594,7 +588,6 @@ class Audio:
         """
         Get track information from the filename.
         """
-
         if self._pattern:
             groups = re.findall(self._pattern[0], self._file.stem)
             if groups:
@@ -705,7 +698,6 @@ class Audio:
         preserve : `bool`, keyword-only, default: :code:`True`
             Determines whether the original audio file is kept.
         """
-
         if not FOUND_FFMPEG:
             emsg = (
                 "Audio conversion is unavailable because FFmpeg was not found."
@@ -713,7 +705,9 @@ class Audio:
             raise RuntimeError(emsg)
 
         _codec = (
-            codec.capitalize() if codec in {"opus", "vorbis"} else codec.upper()
+            codec.capitalize()
+            if codec in {"opus", "vorbis"}
+            else codec.upper()
         )
         codec = codec.lower()
         if codec in {"m4a", "mp4", "mp4a"}:
@@ -840,7 +834,6 @@ class Audio:
         overwrite : `bool`, keyword-only, default: :code:`False`
             Determines whether existing metadata should be overwritten.
         """
-
         if self.album is None or overwrite:
             self.album = data["collectionName"]
         if self.artist is None or overwrite:
@@ -859,7 +852,9 @@ class Audio:
                             "https://a5.mzstatic.com/"
                             f"{re.search(r'Music.*?(jpg|png|tif)(?=/|$)', self.artwork)[0]}"
                         )
-                    self._artwork_format = pathlib.Path(self.artwork).suffix[1:]
+                    self._artwork_format = pathlib.Path(self.artwork).suffix[
+                        1:
+                    ]
                 else:
                     self.artwork = self.artwork.replace(
                         "100x100bb.jpg",
@@ -936,7 +931,6 @@ class Audio:
         overwrite : `bool`, keyword-only, default: :code:`False`
             Determines whether existing metadata should be overwritten.
         """
-
         if self.album is None or overwrite:
             self.album = data["album"]["title"]
             if album_artists := data["album"].get("artists"):
@@ -1098,7 +1092,6 @@ class Audio:
         overwrite : `bool`, keyword-only, default: :code:`False`
             Determines whether existing metadata should be overwritten.
         """
-
         if self.album is None or overwrite:
             self.album = data["album"]["name"]
             if data["album"]["album_type"] == "single":
@@ -1108,7 +1101,9 @@ class Audio:
         if self.artist is None or overwrite:
             self.artist = [a["name"] for a in data["artists"]]
         if self.artwork is None or overwrite:
-            with urllib.request.urlopen(data["album"]["images"][0]["url"]) as r:
+            with urllib.request.urlopen(
+                data["album"]["images"][0]["url"]
+            ) as r:
                 self.artwork = r.read()
             self._artwork_format = "jpg"
         if self.compilation is None or overwrite:
@@ -1192,7 +1187,6 @@ class Audio:
         overwrite : `bool`, keyword-only, default: :code:`False`
             Determines whether existing metadata should be overwritten.
         """
-
         if "resource" in data:
             data = data["resource"]
         if self.album is None or overwrite:
@@ -1366,7 +1360,6 @@ class FLACAudio(Audio, _VorbisComment):
         """
         Create a FLAC audio file handler.
         """
-
         Audio.__init__(
             self, file, pattern=pattern, multivalue=multivalue, sep=sep
         )
@@ -1447,7 +1440,6 @@ class MP3Audio(Audio, _ID3):
         """
         Create a MP3 audio file handler.
         """
-
         _handle = mp3.MP3(file)
         _handle.tags.filename = str(file)
         Audio.__init__(
@@ -1514,7 +1506,9 @@ class MP4Audio(Audio):
     """
 
     _CODECS = {
-        "aac": {"ffmpeg": f"-b:a 256k -c:a {FFMPEG_CODECS['aac']} -c:v copy"},
+        "aac": {
+            "ffmpeg": f"-b:a 256k -c:a {FFMPEG_CODECS['aac'] if FOUND_FFMPEG else 'aac'} -c:v copy"
+        },
         "alac": {"ffmpeg": "-c:a alac -c:v copy"},
     }
     _EXTENSIONS = ["m4a", "aac", "mp4"]
@@ -1549,7 +1543,6 @@ class MP4Audio(Audio):
         """
         Create a MP4 audio file handler.
         """
-
         super().__init__(file, pattern=pattern, multivalue=multivalue, sep=sep)
 
         self._handle = mp4.MP4(file)
@@ -1568,7 +1561,6 @@ class MP4Audio(Audio):
         """
         Get metadata from the tags embedded in the MP4 audio file.
         """
-
         for field, key in self._FIELDS.items():
             value = self._handle.get(key)
             if value:
@@ -1628,7 +1620,6 @@ class MP4Audio(Audio):
         """
         Write metadata to file.
         """
-
         for field, key in self._FIELDS.items():
             value = getattr(self, field)
             if value:
@@ -1734,7 +1725,7 @@ class OggAudio(Audio, _VorbisComment):
             "mutagen": oggopus.OggOpus,
         },
         "vorbis": {
-            "ffmpeg": f"-c:a {FFMPEG_CODECS['vorbis']} -vn",
+            "ffmpeg": f"-c:a {FFMPEG_CODECS['vorbis'] if FOUND_FFMPEG else 'vorbis -strict experimental'} -vn",
             "mutagen": oggvorbis.OggVorbis,
         },
     }
@@ -1849,7 +1840,6 @@ class WAVEAudio(Audio, _ID3):
         """
         Create a WAVE audio file handler.
         """
-
         _handle = wave.WAVE(file)
         if _handle.tags is None:
             _handle.add_tags()
