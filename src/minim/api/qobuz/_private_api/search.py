@@ -96,6 +96,19 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         query : str; positional-only
             Search query.
 
+            .. tip::
+
+               Searches can be narrowed using tags, such as
+               :code:`#ByMainArtist`, :code:`#ByComposer`,
+               :code:`#ByPerformer`, :code:`#ByReleaseName`,
+               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#HiRes`.
+
+               Use strict matching instead of fuzzy search by wrapping
+               the keyword string in double quotes.
+
+            **Example**: :code:`"Galantis" #ByMainArtist #HiRes`.
+
         limit : int; keyword-only; optional
             Maximum number of items to return.
 
@@ -584,6 +597,19 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         query : str; positional-only
             Search query.
 
+            .. tip::
+
+               Searches can be narrowed using tags, such as
+               :code:`#ByMainArtist`, :code:`#ByComposer`,
+               :code:`#ByPerformer`, :code:`#ByReleaseName`,
+               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#HiRes`.
+
+               Use strict matching instead of fuzzy search by wrapping
+               the keyword string in double quotes.
+
+            **Example**: :code:`"Galantis" #ByMainArtist #HiRes`.
+
         limit : int; keyword-only; optional
             Maximum number of albums to return.
 
@@ -709,6 +735,19 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         query : str; positional-only
             Search query.
 
+            .. tip::
+
+               Searches can be narrowed using tags, such as
+               :code:`#ByMainArtist`, :code:`#ByComposer`,
+               :code:`#ByPerformer`, :code:`#ByReleaseName`,
+               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#HiRes`.
+
+               Use strict matching instead of fuzzy search by wrapping
+               the keyword string in double quotes.
+
+            **Example**: :code:`"Galantis" #ByMainArtist #HiRes`.
+
         limit : int; keyword-only; optional
             Maximum number of artists to return.
 
@@ -775,6 +814,19 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         ----------
         query : str; positional-only
             Search query.
+
+            .. tip::
+
+               Searches can be narrowed using tags, such as
+               :code:`#ByMainArtist`, :code:`#ByComposer`,
+               :code:`#ByPerformer`, :code:`#ByReleaseName`,
+               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#HiRes`.
+
+               Use strict matching instead of fuzzy search by wrapping
+               the keyword string in double quotes.
+
+            **Example**: :code:`"Galantis" #ByMainArtist #HiRes`.
 
         offset : int; keyword-only; optional
             Index of the first item to return.
@@ -1035,6 +1087,19 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         query : str; positional-only
             Search query.
 
+            .. tip::
+
+               Searches can be narrowed using tags, such as
+               :code:`#ByMainArtist`, :code:`#ByComposer`,
+               :code:`#ByPerformer`, :code:`#ByReleaseName`,
+               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#HiRes`.
+
+               Use strict matching instead of fuzzy search by wrapping
+               the keyword string in double quotes.
+
+            **Example**: :code:`"Galantis" #ByMainArtist #HiRes`.
+
         limit : int; keyword-only; optional
             Maximum number of playlists to return.
 
@@ -1156,6 +1221,19 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         query : str; positional-only
             Search query.
 
+            .. tip::
+
+               Searches can be narrowed using tags, such as
+               :code:`#ByMainArtist`, :code:`#ByComposer`,
+               :code:`#ByPerformer`, :code:`#ByReleaseName`,
+               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#HiRes`.
+
+               Use strict matching instead of fuzzy search by wrapping
+               the keyword string in double quotes.
+
+            **Example**: :code:`"Galantis" #ByMainArtist #HiRes`.
+
         limit : int; keyword-only; optional
             Maximum number of stories to return.
 
@@ -1234,6 +1312,19 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         ----------
         query : str; positional-only
             Search query.
+
+            .. tip::
+
+               Searches can be narrowed using tags, such as
+               :code:`#ByMainArtist`, :code:`#ByComposer`,
+               :code:`#ByPerformer`, :code:`#ByReleaseName`,
+               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#HiRes`.
+
+               Use strict matching instead of fuzzy search by wrapping
+               the keyword string in double quotes.
+
+            **Example**: :code:`"Galantis" #ByMainArtist #HiRes`.
 
         limit : int; keyword-only; optional
             Maximum number of tracks to return.

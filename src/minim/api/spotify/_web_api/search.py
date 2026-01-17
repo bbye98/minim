@@ -64,26 +64,25 @@ class SearchAPI(SpotifyResourceAPI):
 
             .. tip::
 
-               Searches can be narrowed using field filters. The
-               available filters are :code:`album`, :code:`artist`,
-               :code:`track`, :code:`year`, :code:`upc`,
-               :code:`tag:hipster`, :code:`tag:new`, :code:`isrc`, and
-               :code:`genre`. Each filter applies only to certain result
-               types:
+               Searches can be narrowed using field filters, such as
+               :code:`album`, :code:`artist`, :code:`track`,
+               :code:`year`, :code:`upc`, :code:`tag:hipster`,
+               :code:`tag:new`, :code:`isrc`, and :code:`genre`. Each
+               filter applies only to certain result types:
 
                * :code:`artist` and :code:`year` can be used when
                  searching albums, artists and tracks. The :code:`year`
                  filter accepts a year or a range (e.g.,
-                 :code:`"year:1955-1960"`).
+                 :code:`"year:1955-1960"`),
 
                * :code:`album` can be used when searching albums and
-                 tracks.
+                 tracks,
 
                * :code:`genre` can be used when searching artists and
-                 tracks.
+                 tracks,
 
                * :code:`isrc` and :code:`track` can be used when
-                 searching tracks.
+                 searching tracks, and
 
                * :code:`upc`, :code:`tag:new`, and :code:`tag:hipster`
                  can be used when searching albums. The :code:`tag:new`

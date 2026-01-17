@@ -53,7 +53,7 @@ class SearchAPI(DeezerResourceAPI):
             Search query.
 
         strict : bool; keyword-only; optional
-            Whether to disable fuzzy search and use strict matching.
+            Whether to use strict matching instead of fuzzy search.
 
             **API default**: :code:`False`.
 
@@ -142,8 +142,30 @@ class SearchAPI(DeezerResourceAPI):
         query : str; positional-only
             Search query.
 
+            .. tip::
+
+               Use the Advanced Search feature to narrow down results by
+               specific fields. Provide key–value pairs separated by a
+               colon (:code:`:`), and wrap strings in quotes:
+
+               * :code:`artist` - Artist name, e.g.,
+                 :code:`artist:"aloe blacc"`.
+               * :code:`album` - Album name, e.g.,
+                 :code:`album:"good things"`.
+               * :code:`track` - Track name, e.g.,
+                 :code:`track:"i need a dollar"`.
+               * :code:`label` - Label name, e.g.,
+                 :code:`label:"because music"`.
+               * :code:`dur_min` / :code:`dur_max` - Track duration in
+                 seconds, e.g., :code:`dur_min:300 dur_max:500`.
+               * :code:`bpm_min` / :code:`bpm_max` - Track tempo (BPM),
+                 e.g., :code:`bpm_min:120 bpm_max:200`.
+
+            **Example**: :code:`artist:"aloe blacc"
+            track:"i need a dollar" bpm_min:120 dur_min:300`
+
         strict : bool; keyword-only; optional
-            Whether to disable fuzzy search and use strict matching.
+            Whether to use strict matching instead of fuzzy search.
 
             **API default**: :code:`False`.
 
@@ -250,8 +272,30 @@ class SearchAPI(DeezerResourceAPI):
         query : str; positional-only
             Search query.
 
+            .. tip::
+
+               Use the Advanced Search feature to narrow down results by
+               specific fields. Provide key–value pairs separated by a
+               colon (:code:`:`), and wrap strings in quotes:
+
+               * :code:`artist` - Artist name, e.g.,
+                 :code:`artist:"aloe blacc"`.
+               * :code:`album` - Album name, e.g.,
+                 :code:`album:"good things"`.
+               * :code:`track` - Track name, e.g.,
+                 :code:`track:"i need a dollar"`.
+               * :code:`label` - Label name, e.g.,
+                 :code:`label:"because music"`.
+               * :code:`dur_min` / :code:`dur_max` - Track duration in
+                 seconds, e.g., :code:`dur_min:300 dur_max:500`.
+               * :code:`bpm_min` / :code:`bpm_max` - Track tempo (BPM),
+                 e.g., :code:`bpm_min:120 bpm_max:200`.
+
+            **Example**: :code:`artist:"aloe blacc"
+            track:"i need a dollar" bpm_min:120 dur_min:300`
+
         strict : bool; keyword-only; optional
-            Whether to disable fuzzy search and use strict matching.
+            Whether to use strict matching instead of fuzzy search.
 
             **API default**: :code:`False`.
 
@@ -345,7 +389,7 @@ class SearchAPI(DeezerResourceAPI):
             Search query.
 
         strict : bool; keyword-only; optional
-            Whether to disable fuzzy search and use strict matching.
+            Whether to use strict matching instead of fuzzy search.
 
             **API default**: :code:`False`.
 
@@ -450,7 +494,7 @@ class SearchAPI(DeezerResourceAPI):
             Search query.
 
         strict : bool; keyword-only; optional
-            Whether to disable fuzzy search and use strict matching.
+            Whether to use strict matching instead of fuzzy search.
 
             **API default**: :code:`False`.
 
@@ -544,7 +588,7 @@ class SearchAPI(DeezerResourceAPI):
             Search query.
 
         strict : bool; keyword-only; optional
-            Whether to disable fuzzy search and use strict matching.
+            Whether to use strict matching instead of fuzzy search.
 
             **API default**: :code:`False`.
 
@@ -634,8 +678,30 @@ class SearchAPI(DeezerResourceAPI):
         query : str; positional-only
             Search query.
 
+            .. tip::
+
+               Use the Advanced Search feature to narrow down results by
+               specific fields. Provide key–value pairs separated by a
+               colon (:code:`:`), and wrap strings in quotes:
+
+               * :code:`artist` - Artist name, e.g.,
+                 :code:`artist:"aloe blacc"`.
+               * :code:`album` - Album name, e.g.,
+                 :code:`album:"good things"`.
+               * :code:`track` - Track name, e.g.,
+                 :code:`track:"i need a dollar"`.
+               * :code:`label` - Label name, e.g.,
+                 :code:`label:"because music"`.
+               * :code:`dur_min` / :code:`dur_max` - Track duration in
+                 seconds, e.g., :code:`dur_min:300 dur_max:500`.
+               * :code:`bpm_min` / :code:`bpm_max` - Track tempo (BPM),
+                 e.g., :code:`bpm_min:120 bpm_max:200`.
+
+            **Example**: :code:`artist:"aloe blacc"
+            track:"i need a dollar" bpm_min:120 dur_min:300`
+
         strict : bool; keyword-only; optional
-            Whether to disable fuzzy search and use strict matching.
+            Whether to use strict matching instead of fuzzy search.
 
             **API default**: :code:`False`.
 
@@ -756,7 +822,7 @@ class SearchAPI(DeezerResourceAPI):
             Search query.
 
         strict : bool; keyword-only; optional
-            Whether to disable fuzzy search and use strict matching.
+            Whether to use strict matching instead of fuzzy search.
 
             **API default**: :code:`False`.
 
@@ -855,7 +921,7 @@ class SearchAPI(DeezerResourceAPI):
             Search query.
 
         strict : bool; keyword-only; optional
-            Whether to disable fuzzy search and use strict matching.
+            Whether to use strict matching instead of fuzzy search.
 
             **API default**: :code:`False`.
 
