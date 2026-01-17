@@ -23,7 +23,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         "tracks",
     }
 
-    def save(
+    def save_items(
         self,
         *,
         album_ids: str | list[str] | None = None,
@@ -72,7 +72,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": "success"}`.
         """
-        self._client._require_authentication("favorites.save")
+        self._client._require_authentication("favorites.save_items")
         payload = {}
         if album_ids is not None:
             payload["album_ids"] = self._prepare_album_ids(album_ids)
@@ -93,7 +93,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             "POST", "favorite/create", data=payload
         ).json()
 
-    def remove_saved(
+    def remove_saved_items(
         self,
         *,
         album_ids: str | list[str] | None = None,
@@ -142,7 +142,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": "success"}`.
         """
-        self._client._require_authentication("favorites.remove_saved")
+        self._client._require_authentication("favorites.remove_saved_items")
         payload = {}
         if album_ids is not None:
             payload["album_ids"] = self._prepare_album_ids(album_ids)
@@ -164,7 +164,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         ).json()
 
     @TTLCache.cached_method(ttl="user")
-    def get_my_saved(
+    def get_my_saved_items(
         self,
         item_type: str | None = None,
         /,
@@ -428,7 +428,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        self._client._require_authentication("favorites.get_my_saved")
+        self._client._require_authentication("favorites.get_my_saved_items")
         params = {}
         if item_type is not None:
             self._validate_type("item_type", item_type, str)
@@ -450,7 +450,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         ).json()
 
     @TTLCache.cached_method(ttl="user")
-    def get_my_saved_ids(self) -> dict[str, Any]:
+    def get_my_saved_item_ids(self) -> dict[str, Any]:
         """
         Get Qobuz IDs of the items in the current user's favorites.
 
@@ -481,13 +481,13 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
                     "tracks": <list[int]>,
                   }
         """
-        self._client._require_authentication("favorites.get_my_saved_ids")
+        self._client._require_authentication("favorites.get_my_saved_item_ids")
         return self._client._request(
             "GET", "favorite/getUserFavoriteIds"
         ).json()
 
     @TTLCache.cached_method(ttl="user")
-    def is_saved(
+    def is_item_saved(
         self, item_type: str, item_id: int | str, /
     ) -> dict[str, bool]:
         """
@@ -521,7 +521,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": <bool>}`.
         """
-        self._client._require_authentication("favorites.is_saved")
+        self._client._require_authentication("favorites.is_item_saved")
         self._validate_type("item_type", item_type, str)
         item_type = item_type.strip().lower()
         if f"{item_type}s" not in self._FAVORITE_TYPES:
@@ -542,7 +542,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             params={"type": item_type, "item_id": item_id},
         ).json()
 
-    def toggle_saved(
+    def toggle_item_saved(
         self, item_type: str, item_id: int | str, /
     ) -> dict[str, bool]:
         """
@@ -576,7 +576,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": <bool>}`.
         """
-        self._client._require_authentication("favorites.toggle_saved")
+        self._client._require_authentication("favorites.toggle_item_saved")
         self._validate_type("item_type", item_type, str)
         item_type = item_type.strip().lower()
         if f"{item_type}s" not in self._FAVORITE_TYPES:

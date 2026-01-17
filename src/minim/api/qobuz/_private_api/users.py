@@ -316,32 +316,32 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             "POST", "user/login", params=params
         ).json()
 
-    @_copy_docstring(PrivateFavoritesAPI.save)
-    def save(
+    @_copy_docstring(PrivateFavoritesAPI.save_items)
+    def save_items(
         self,
         *,
         album_ids: str | list[str] | None = None,
         artist_ids: int | str | list[int | str] | None = None,
         track_ids: int | str | list[int | str] | None = None,
     ) -> dict[str, str]:
-        return self._client.favorites.save(
+        return self._client.favorites.save_items(
             album_ids=album_ids, artist_ids=artist_ids, track_ids=track_ids
         )
 
-    @_copy_docstring(PrivateFavoritesAPI.remove_saved)
-    def remove_saved(
+    @_copy_docstring(PrivateFavoritesAPI.remove_saved_items)
+    def remove_saved_items(
         self,
         *,
         album_ids: str | list[str] | None = None,
         artist_ids: int | str | list[int | str] | None = None,
         track_ids: int | str | list[int | str] | None = None,
     ) -> dict[str, str]:
-        return self._client.favorites.remove_saved(
+        return self._client.favorites.remove_saved_items(
             album_ids=album_ids, artist_ids=artist_ids, track_ids=track_ids
         )
 
-    @_copy_docstring(PrivateFavoritesAPI.get_my_saved)
-    def get_my_saved(
+    @_copy_docstring(PrivateFavoritesAPI.get_my_saved_items)
+    def get_my_saved_items(
         self,
         item_type: str,
         /,
@@ -349,25 +349,25 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         limit: int | None = None,
         offset: int | None = None,
     ) -> dict[str, Any]:
-        return self._client.favorites.get_my_saved(
+        return self._client.favorites.get_my_saved_items(
             item_type, limit=limit, offset=offset
         )
 
-    @_copy_docstring(PrivateFavoritesAPI.get_my_saved_ids)
-    def get_my_saved_ids(self) -> dict[str, Any]:
-        return self._client.favorites.get_my_saved_ids()
+    @_copy_docstring(PrivateFavoritesAPI.get_my_saved_item_ids)
+    def get_my_saved_item_ids(self) -> dict[str, Any]:
+        return self._client.favorites.get_my_saved_item_ids()
 
-    @_copy_docstring(PrivateFavoritesAPI.is_saved)
-    def is_saved(
+    @_copy_docstring(PrivateFavoritesAPI.is_item_saved)
+    def is_item_saved(
         self, item_type: str, item_id: int | str, /
     ) -> dict[str, bool]:
-        return self._client.favorites.is_saved(item_type, item_id)
+        return self._client.favorites.is_item_saved(item_type, item_id)
 
-    @_copy_docstring(PrivateFavoritesAPI.toggle_saved)
-    def toggle_saved(
+    @_copy_docstring(PrivateFavoritesAPI.toggle_item_saved)
+    def toggle_item_saved(
         self, item_type: str, item_id: int | str, /
     ) -> dict[str, bool]:
-        return self._client.favorites.toggle_saved(item_type, item_id)
+        return self._client.favorites.toggle_item_saved(item_type, item_id)
 
     @TTLCache.cached_method(ttl="user")
     def get_my_purchases(

@@ -1376,7 +1376,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": "success"}`.
         """
-        return self._client.favorites.save(artist_ids=artist_ids)
+        return self._client.favorites.save_items(artist_ids=artist_ids)
 
     def unfollow_artists(self, artist_ids: list[int | str], /) -> None:
         """
@@ -1405,7 +1405,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": "success"}`.
         """
-        return self._client.favorites.remove_saved(artist_ids=artist_ids)
+        return self._client.favorites.remove_saved_items(artist_ids=artist_ids)
 
     def get_my_followed_artists(
         self,
@@ -1481,7 +1481,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        return self._client.favorites.get_my_saved(
+        return self._client.favorites.get_my_saved_items(
             "artists", limit=limit, offset=offset
         )
 
@@ -1503,7 +1503,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": <bool>}`.
         """
-        return self._client.favorites.is_saved("artist", artist_id)
+        return self._client.favorites.is_item_saved("artist", artist_id)
 
     def toggle_artist_followed(
         self, artist_id: int | str, /
@@ -1525,7 +1525,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": "success"}`.
         """
-        return self._client.favorites.toggle_saved("artist", artist_id)
+        return self._client.favorites.toggle_item_saved("artist", artist_id)
 
     @_copy_docstring(PrivateSearchEndpoints.search_artists)
     def search_artists(

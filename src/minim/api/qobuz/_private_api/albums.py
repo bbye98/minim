@@ -505,7 +505,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": "success"}`.
         """
-        return self._client.favorites.save(album_ids=album_ids)
+        return self._client.favorites.save_items(album_ids=album_ids)
 
     def remove_saved_albums(
         self, album_ids: str | list[str] | None = None, /
@@ -536,7 +536,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": "success"}`.
         """
-        return self._client.favorites.remove_saved(album_ids=album_ids)
+        return self._client.favorites.remove_saved_items(album_ids=album_ids)
 
     def get_my_saved_albums(
         self,
@@ -666,7 +666,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        return self._client.favorites.get_my_saved(
+        return self._client.favorites.get_my_saved_items(
             "albums", limit=limit, offset=offset
         )
 
@@ -698,7 +698,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": <bool>}`.
         """
-        return self._client.favorites.is_saved("album", album_id)
+        return self._client.favorites.is_item_saved("album", album_id)
 
     def toggle_album_saved(self, album_id: str, /) -> dict[str, str]:
         """
@@ -728,7 +728,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": <bool>}`.
         """
-        return self._client.favorites.toggle_saved("album", album_id)
+        return self._client.favorites.toggle_item_saved("album", album_id)
 
     @_copy_docstring(PrivateSearchEndpoints.search_albums)
     def search_albums(

@@ -746,7 +746,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": "success"}`.
         """
-        return self._client.favorites.save(track_ids=track_ids)
+        return self._client.favorites.save_items(track_ids=track_ids)
 
     def remove_saved_tracks(
         self, track_ids: int | str | list[int | str], /
@@ -778,7 +778,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": "success"}`.
         """
-        return self._client.favorites.remove_saved(track_ids=track_ids)
+        return self._client.favorites.remove_saved_items(track_ids=track_ids)
 
     def get_my_saved_tracks(
         self, *, limit: int | None = None, offset: int | None = None
@@ -935,7 +935,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        return self._client.favorites.get_my_saved(
+        return self._client.favorites.get_my_saved_items(
             "tracks", limit=limit, offset=offset
         )
 
@@ -966,7 +966,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": <bool>}`.
         """
-        return self._client.favorites.is_saved("track", track_id)
+        return self._client.favorites.is_item_saved("track", track_id)
 
     def toggle_track_saved(self, track_id: int | str, /) -> dict[str, bool]:
         """
@@ -995,7 +995,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
             **Sample response**: :code:`{"status": <bool>}`.
         """
-        return self._client.favorites.toggle_saved("track", track_id)
+        return self._client.favorites.toggle_item_saved("track", track_id)
 
     @_copy_docstring(PrivateSearchEndpoints.search_tracks)
     def search_tracks(

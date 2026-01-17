@@ -102,7 +102,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
                Searches can be narrowed using tags, such as
                :code:`#ByMainArtist`, :code:`#ByComposer`,
                :code:`#ByPerformer`, :code:`#ByReleaseName`,
-               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#ByLabel`, :code:`#NewRelease`, and
                :code:`#HiRes`.
 
                Use strict matching instead of fuzzy search by wrapping
@@ -603,7 +603,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
                Searches can be narrowed using tags, such as
                :code:`#ByMainArtist`, :code:`#ByComposer`,
                :code:`#ByPerformer`, :code:`#ByReleaseName`,
-               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#ByLabel`, :code:`#NewRelease`, and
                :code:`#HiRes`.
 
                Use strict matching instead of fuzzy search by wrapping
@@ -741,7 +741,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
                Searches can be narrowed using tags, such as
                :code:`#ByMainArtist`, :code:`#ByComposer`,
                :code:`#ByPerformer`, :code:`#ByReleaseName`,
-               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#ByLabel`, :code:`#NewRelease`, and
                :code:`#HiRes`.
 
                Use strict matching instead of fuzzy search by wrapping
@@ -821,7 +821,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
                Searches can be narrowed using tags, such as
                :code:`#ByMainArtist`, :code:`#ByComposer`,
                :code:`#ByPerformer`, :code:`#ByReleaseName`,
-               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#ByLabel`, :code:`#NewRelease`, and
                :code:`#HiRes`.
 
                Use strict matching instead of fuzzy search by wrapping
@@ -1093,7 +1093,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
                Searches can be narrowed using tags, such as
                :code:`#ByMainArtist`, :code:`#ByComposer`,
                :code:`#ByPerformer`, :code:`#ByReleaseName`,
-               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#ByLabel`, :code:`#NewRelease`, and
                :code:`#HiRes`.
 
                Use strict matching instead of fuzzy search by wrapping
@@ -1227,7 +1227,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
                Searches can be narrowed using tags, such as
                :code:`#ByMainArtist`, :code:`#ByComposer`,
                :code:`#ByPerformer`, :code:`#ByReleaseName`,
-               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#ByLabel`, :code:`#NewRelease`, and
                :code:`#HiRes`.
 
                Use strict matching instead of fuzzy search by wrapping
@@ -1319,7 +1319,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
                Searches can be narrowed using tags, such as
                :code:`#ByMainArtist`, :code:`#ByComposer`,
                :code:`#ByPerformer`, :code:`#ByReleaseName`,
-               :code:`#ByLabel`, :code:`"#NewRelease"`, and
+               :code:`#ByLabel`, :code:`#NewRelease`, and
                :code:`#HiRes`.
 
                Use strict matching instead of fuzzy search by wrapping
