@@ -90,6 +90,7 @@ class SearchAPI(DeezerResourceAPI):
         if resource_type is not None:
             endpoint += f"/{resource_type}"
         self._validate_type("query", query, str)
+        query = query.strip()
         if not len(query) and resource_type != "history":
             raise ValueError("No search query provided.")
         params = {"q": query}

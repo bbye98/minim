@@ -65,9 +65,10 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the matching items.
         """
         self._validate_type("query", query, str)
+        query = query.strip()
         if not len(query):
             raise ValueError("No search query provided.")
-        params = {"query": query.strip()}
+        params = {"query": query}
         if limit is not None:
             self._validate_number("limit", limit, int, 1, 500)
             params["limit"] = limit

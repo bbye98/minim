@@ -455,6 +455,7 @@ class SearchAPI(TIDALResourceAPI):
                   }
         """
         self._validate_type("query", query, str)
+        query = query.strip()
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resources(
@@ -876,6 +877,7 @@ class SearchAPI(TIDALResourceAPI):
                   }
         """
         self._validate_type("query", query, str)
+        query = query.strip()
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resource_relationship(
@@ -1395,6 +1397,7 @@ class SearchAPI(TIDALResourceAPI):
                   }
         """
         self._validate_type("query", query, str)
+        query = query.strip()
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resources(
@@ -1728,6 +1731,7 @@ class SearchAPI(TIDALResourceAPI):
                   }
         """
         self._validate_type("query", query, str)
+        query = query.strip()
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resource_relationship(
@@ -1862,6 +1866,7 @@ class SearchAPI(TIDALResourceAPI):
                   }
         """
         self._validate_type("query", query, str)
+        query = query.strip()
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resource_relationship(
@@ -2298,6 +2303,7 @@ class SearchAPI(TIDALResourceAPI):
                   }
         """
         self._validate_type("query", query, str)
+        query = query.strip()
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resource_relationship(
@@ -2480,6 +2486,7 @@ class SearchAPI(TIDALResourceAPI):
                   }
         """
         self._validate_type("query", query, str)
+        query = query.strip()
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resource_relationship(
@@ -2620,6 +2627,7 @@ class SearchAPI(TIDALResourceAPI):
                   }
         """
         self._validate_type("query", query, str)
+        query = query.strip()
         if not len(query):
             raise ValueError("No search query provided.")
         return self._get_resource_relationship(

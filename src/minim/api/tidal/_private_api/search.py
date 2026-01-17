@@ -70,9 +70,10 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         if resource_type is not None:
             endpoint += f"/{resource_type}"
         self._validate_type("query", query, str)
+        query = query.strip()
         if not len(query):
             raise ValueError("No search query provided.")
-        params = {"query": query.strip()}
+        params = {"query": query}
         self._client._resolve_country_code(country_code, params=params)
         if limit is not None:
             self._validate_number("limit", limit, int, 1, 100)

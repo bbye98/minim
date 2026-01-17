@@ -225,10 +225,10 @@ class iTunesSearchAPI(APIClient):
         order: str | None = None,
     ) -> dict[str, Any]:
         """
-        Get Apple catalog information for albums, artists, audiobooks, 
-        ebooks, movies, music, music videos, podcasts, and television 
-        shows using their iTunes IDs, All Music Guide (AMG) IDs, 
-        Universal Product Codes (UPCs), European Article Numbers (EANs), 
+        Get Apple catalog information for albums, artists, audiobooks,
+        ebooks, movies, music, music videos, podcasts, and television
+        shows using their iTunes IDs, All Music Guide (AMG) IDs,
+        Universal Product Codes (UPCs), European Article Numbers (EANs),
         or International Standard Book Numbers (ISBNs).
 
         .. important::
@@ -257,7 +257,7 @@ class iTunesSearchAPI(APIClient):
         optional
             AMG artist IDs.
 
-            **Examples**: :code:`472102`, :code:`"2913530"`, 
+            **Examples**: :code:`472102`, :code:`"2913530"`,
             :code:`[472102, "2913530"]`.
 
         amg_video_ids : int, str, or list[int | str]; keyword-only; \
@@ -277,7 +277,7 @@ class iTunesSearchAPI(APIClient):
         isbns : int, str, or list[int | str]; keyword-only; optional
             ISBNs.
 
-            **Examples**: :code:`9781637993415`, 
+            **Examples**: :code:`9781637993415`,
             :code:`"9781705142110"`,
             :code:`[9781637993415, "9781705142110"]`.
 
@@ -989,6 +989,7 @@ class iTunesSearchAPI(APIClient):
                      }
         """
         ResourceAPI._validate_type("query", query, str)
+        query = query.strip()
         if not len(query):
             raise ValueError("No search query provided.")
         ResourceAPI._validate_country_code(country_code)
