@@ -595,4 +595,4 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             "POST",
             "favorite/toggle",
             params={"type": item_type, "item_id": item_id},
-        )
+        ).json()

@@ -272,6 +272,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
                     f"Invalid item type {item_type!r}. "
                     f"Valid values: '{featured_types_str}'."
                 )
+            params["type"] = item_type
         if genre_ids is not None:
             self._validate_type(
                 "genre_ids", genre_ids, int | str | tuple | list | set

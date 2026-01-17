@@ -185,7 +185,7 @@ class TokenDatabase:
 
         added_at : str, datetime.datetime, or None; keyword-only; \
         optional
-            Time the access token was acquired and added to local 
+            Time the access token was acquired and added to local
             storage.
         """
         db_cursor.execute(
@@ -1602,9 +1602,10 @@ class OAuth2APIClient(APIClient):
             .. important::
 
                If the access token was acquired via a different
-               authorization flow or client, call :meth:`set_flow` first
-               to ensure that all other relevant authorization
-               parameters are set correctly.
+               authorization flow or client, call
+               :meth:`set_authorization_flow` first to ensure that all
+               other relevant authorization parameters are set
+               correctly.
 
         token_type : str or None; default: :code:`"Bearer"`
             Type of the access token.

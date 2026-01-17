@@ -700,7 +700,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         """
         return self._client.favorites.is_saved("album", album_id)
 
-    def toggle_saved_album(self, album_id: str, /) -> dict[str, str]:
+    def toggle_album_saved(self, album_id: str, /) -> dict[str, str]:
         """
         Toggle the saved status of an album.
 

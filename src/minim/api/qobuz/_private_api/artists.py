@@ -90,7 +90,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             **API default**: :code:`0`.
 
         sort_by : str; keyword-only; optional
-            Field to sort the releases by. Only applicable when
+            Field to sort the artist's releases by. Only applicable when
             `subresource` is :code:`"page"`.
 
             **Valid values**: :code:`"relevant"`, :code:`"release_date"`.
@@ -1027,7 +1027,8 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         sort_by : str; keyword-only; optional
             Field to sort the releases by.
 
-            **Valid values**: :code:`"relevant"`, :code:`"release_date"`.
+            **Valid values**: :code:`"relevant"`,
+            :code:`"release_date"`.
 
         descending : bool; keyword-only; optional
             Whether to sort in descending order.
@@ -1504,7 +1505,9 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         """
         return self._client.favorites.is_saved("artist", artist_id)
 
-    def toggle_follow_artist(self, artist_id: int | str, /) -> dict[str, str]:
+    def toggle_artist_followed(
+        self, artist_id: int | str, /
+    ) -> dict[str, str]:
         """
         Toggle the follow status of an artist.
 

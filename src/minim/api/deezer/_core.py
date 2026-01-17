@@ -660,9 +660,10 @@ class DeezerAPI(OAuth2APIClient):
             .. important::
 
                If the access token was acquired via a different
-               authorization flow or client, call :meth:`set_flow` first
-               to ensure that all other relevant authorization
-               parameters are set correctly.
+               authorization flow or client, call
+               :meth:`set_authorization_flow` first to ensure that all
+               other relevant authorization parameters are set
+               correctly.
 
         expires_at : str or datetime.datetime; keyword-only; optional
             Expiration time of the access token. If a string, it must be
