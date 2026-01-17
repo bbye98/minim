@@ -559,7 +559,7 @@ class PrivateAPI:
         self,
         album_id: str,
         *,
-        extras: str | list[str] = None,
+        extras: Union[str, list[str]] = None,
         limit: int = None,
         offset: int = None,
     ) -> dict[str, Any]:
@@ -769,7 +769,7 @@ class PrivateAPI:
         self,
         type: str = "new-releases",
         *,
-        genre_ids: int | str | list[int | str] = None,
+        genre_ids: Union[int, str, list[Union[int, str]]] = None,
         limit: int = None,
         offset: int = None,
     ) -> dict[str, Any]:
@@ -791,7 +791,7 @@ class PrivateAPI:
             :code:`"universal-jeunesse"`, and
             :code:`"universal-chanson"`.
 
-        genre_ids : int, str, or list[int | str], optional
+        genre_ids : `int`, `str`, or `list`, optional
             Qobuz IDs of the genres used to filter the featured albums
             to return.
 
@@ -1026,16 +1026,16 @@ class PrivateAPI:
 
     def get_artist_releases(
         self,
-        artist_id: int | str,
+        artist_id: Union[int, str],
         *,
-        release_types: str | list[str] | None = None,
-        filters: str | list[str] | None = None,
-        limit: int | None = None,
-        offset: int | None = None,
-        order: str | None = None,
-        order_direction: str | None = None,
+        release_types: Union[str, list[str]] = None,
+        filters: Union[str, list[str]] = None,
+        limit: int = None,
+        offset: int = None,
+        order: str = None,
+        order_direction: str = None,
         include_tracks: bool = False,
-        track_limit: int | None = None,
+        track_limit: int = None,
     ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for an artist's releases.
@@ -1223,10 +1223,10 @@ class PrivateAPI:
 
     def get_similar_artists(
         self,
-        artist_id: int | str,
+        artist_id: Union[int, str],
         /,
-        limit: int | None = None,
-        offset: int | None = None,
+        limit: int = None,
+        offset: int = None,
     ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for other artists that are similar
@@ -1326,11 +1326,11 @@ class PrivateAPI:
 
     def get_featured(
         self,
-        type: str | None = None,
-        genre_ids: int | str | list[int | str] | None = None,
+        type: str = None,
+        genre_ids: Union[int, str, list[Union[int, str]]] = None,
         *,
-        limit: int | None = None,
-        offset: int | None = None,
+        limit: int = None,
+        offset: int = None,
     ) -> dict[str, Any]:
         """
         Get Qobuz catalog information for featured albums, artists,
@@ -1538,6 +1538,170 @@ class PrivateAPI:
         )
 
     ### DYNAMIC TRACKS ########################################################
+
+    def get_curated_tracks(self) -> list[dict[str, Any]]:
+        """
+        Get weekly curated tracks for the user.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Parameters
+        ----------
+        limit : `int`, keyword-only, optional
+            The maximum number of tracks to return.
+
+            **Default**: :code:`50`.
+
+        offset : `int`, keyword-only, optional
+            The index of the first track to return. Use with `limit`
+            to get the next page of tracks.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        tracks : `list`
+            Qobuz catalog information for the curated tracks.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "title": <str>,
+                    "baseline": <str>,
+                    "description": <str>,
+                    "type": "weekly",
+                    "step_pagination": <int>,
+                    "images": {
+                      "small": <str>,
+                      "large": <str>
+                    },
+                    "graphics": {
+                      "background": <str>,
+                      "foreground": <str>
+                    },
+                    "duration": <int>,
+                    "generated_at": <int>,
+                    "expires_on": <int>,
+                    "track_count": <int>,
+                    "tracks": {
+                      "offset": <int>,
+                      "limit": <int>,
+                      "items": [
+                        {
+                          "maximum_bit_depth": <int>,
+                          "copyright": <str>,
+                          "performers": <str>,
+                          "audio_info": {
+                            "replaygain_track_peak": <float>,
+                            "replaygain_track_gain": <float>
+                          },
+                          "performer": {
+                            "name": <str>,
+                            "id": <int>
+                          },
+                          "album": {
+                            "image": {
+                              "small": <str>,
+                              "thumbnail": <str>,
+                              "large": <str>
+                            },
+                            "maximum_bit_depth": <int>,
+                            "media_count": <int>,
+                            "artist": {
+                              "image": <str>,
+                              "name": <str>,
+                              "id": <int>,
+                              "albums_count": <int>,
+                              "slug":<str>,
+                              "picture": <str>
+                            },
+                            "upc": <str>,
+                            "released_at": <int>,
+                            "label": {
+                              "name": <str>,
+                              "id": <int>,
+                              "albums_count": <int>,
+                              "supplier_id": <int>,
+                              "slug": <str>
+                            },
+                            "title": <str>,
+                            "qobuz_id": <int>,
+                            "version": <str>,
+                            "duration": <int>,
+                            "parental_warning": <bool>,
+                            "tracks_count": <int>,
+                            "popularity": <int>,
+                            "genre": {
+                              "path": [<int>],
+                              "color": <str>,
+                              "name": <str>,
+                              "id": <int>,
+                              "slug": <str>
+                            },
+                            "maximum_channel_count": <int>,
+                            "id": <str>,
+                            "maximum_sampling_rate": <int>,
+                            "previewable": <bool>,
+                            "sampleable": <bool>,
+                            "displayable": <bool>,
+                            "streamable": <bool>,
+                            "streamable_at": <int>,
+                            "downloadable": <bool>,
+                            "purchasable_at": <int>,
+                            "purchasable": <bool>,
+                            "release_date_original": <str>,
+                            "release_date_download": <str>,
+                            "release_date_stream": <str>,
+                            "release_date_purchase": <str>,
+                            "hires": <bool>,
+                            "hires_streamable": <bool>
+                          },
+                          "work": <str>,
+                          "composer": {
+                            "name": <str>,
+                            "id": <int>
+                          },
+                          "isrc": <str>,
+                          "title": <str>,
+                          "version": <str>,
+                          "duration": <int>,
+                          "parental_warning": <bool>,
+                          "track_number": <int>,
+                          "maximum_channel_count": <int>,
+                          "id": <int>,
+                          "media_number": <int>,
+                          "maximum_sampling_rate": <int>,
+                          "release_date_original": <str>,
+                          "release_date_download": <str>,
+                          "release_date_stream": <str>,
+                          "release_date_purchase": <str>,
+                          "purchasable": <bool>,
+                          "streamable": <bool>,
+                          "previewable": <bool>,
+                          "sampleable": <bool>,
+                          "downloadable": <bool>,
+                          "displayable": <bool>,
+                          "purchasable_at": <int>,
+                          "streamable_at": <int>,
+                          "hires": <bool>,
+                          "hires_streamable": <bool>
+                        }
+                      ]
+                    }
+                  }
+        """
+
+        self._check_authentication("get_curated_tracks")
+
+        return self._get_json(
+            f"{self.API_URL}/dynamic-tracks/get", params={"type": "weekly"}
+        )
 
     # TODO
 
@@ -1753,7 +1917,9 @@ class PrivateAPI:
             )
         self._request("post", f"{self.API_URL}/favorite/delete", data=data)
 
-    def check_favorite(self, type: str, item_id: int | str) -> dict[str, bool]:
+    def check_favorite(
+        self, type: str, item_id: Union[int, str]
+    ) -> dict[str, bool]:
         """
         Check whether an item is in the current user's favorites.
 
@@ -1804,7 +1970,7 @@ class PrivateAPI:
         )
 
     def toggle_favorited(
-        self, type: str, item_id: int | str
+        self, type: str, item_id: Union[int, str]
     ) -> dict[str, bool]:
         """
         Toggle the favorited status of an item.
@@ -1866,7 +2032,7 @@ class PrivateAPI:
         self,
         label_id: Union[int, str],
         *,
-        extras: str | list[str] = None,
+        extras: Union[str, list[str]] = None,
         limit: int = None,
         offset: int = None,
     ) -> dict[str, Any]:
@@ -2906,6 +3072,8 @@ class PrivateAPI:
 
     ### PURCHASES #############################################################
 
+    # TODO
+
     def get_purchases(
         self, type: str = "albums", *, limit: int = None, offset: int = None
     ) -> dict[str, Any]:
@@ -3344,6 +3512,8 @@ class PrivateAPI:
 
     ### TRACKS ################################################################
 
+    # TODO
+
     def get_track(self, track_id: Union[int, str]) -> dict[str, Any]:
         """
         Get Qobuz catalog information for a track.
@@ -3506,7 +3676,6 @@ class PrivateAPI:
                     "hires_streamable": <bool>
                   }
         """
-
         return self._get_json(
             f"{self.API_URL}/track/get", params={"track_id": track_id}
         )
@@ -3653,170 +3822,6 @@ class PrivateAPI:
             },
         )
 
-    def get_curated_tracks(self) -> list[dict[str, Any]]:
-        """
-        Get weekly curated tracks for the user.
-
-        .. admonition:: User authentication
-           :class: warning
-
-           Requires user authentication via the password flow.
-
-        Parameters
-        ----------
-        limit : `int`, keyword-only, optional
-            The maximum number of tracks to return.
-
-            **Default**: :code:`50`.
-
-        offset : `int`, keyword-only, optional
-            The index of the first track to return. Use with `limit`
-            to get the next page of tracks.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        tracks : `list`
-            Qobuz catalog information for the curated tracks.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "title": <str>,
-                    "baseline": <str>,
-                    "description": <str>,
-                    "type": "weekly",
-                    "step_pagination": <int>,
-                    "images": {
-                      "small": <str>,
-                      "large": <str>
-                    },
-                    "graphics": {
-                      "background": <str>,
-                      "foreground": <str>
-                    },
-                    "duration": <int>,
-                    "generated_at": <int>,
-                    "expires_on": <int>,
-                    "track_count": <int>,
-                    "tracks": {
-                      "offset": <int>,
-                      "limit": <int>,
-                      "items": [
-                        {
-                          "maximum_bit_depth": <int>,
-                          "copyright": <str>,
-                          "performers": <str>,
-                          "audio_info": {
-                            "replaygain_track_peak": <float>,
-                            "replaygain_track_gain": <float>
-                          },
-                          "performer": {
-                            "name": <str>,
-                            "id": <int>
-                          },
-                          "album": {
-                            "image": {
-                              "small": <str>,
-                              "thumbnail": <str>,
-                              "large": <str>
-                            },
-                            "maximum_bit_depth": <int>,
-                            "media_count": <int>,
-                            "artist": {
-                              "image": <str>,
-                              "name": <str>,
-                              "id": <int>,
-                              "albums_count": <int>,
-                              "slug":<str>,
-                              "picture": <str>
-                            },
-                            "upc": <str>,
-                            "released_at": <int>,
-                            "label": {
-                              "name": <str>,
-                              "id": <int>,
-                              "albums_count": <int>,
-                              "supplier_id": <int>,
-                              "slug": <str>
-                            },
-                            "title": <str>,
-                            "qobuz_id": <int>,
-                            "version": <str>,
-                            "duration": <int>,
-                            "parental_warning": <bool>,
-                            "tracks_count": <int>,
-                            "popularity": <int>,
-                            "genre": {
-                              "path": [<int>],
-                              "color": <str>,
-                              "name": <str>,
-                              "id": <int>,
-                              "slug": <str>
-                            },
-                            "maximum_channel_count": <int>,
-                            "id": <str>,
-                            "maximum_sampling_rate": <int>,
-                            "previewable": <bool>,
-                            "sampleable": <bool>,
-                            "displayable": <bool>,
-                            "streamable": <bool>,
-                            "streamable_at": <int>,
-                            "downloadable": <bool>,
-                            "purchasable_at": <int>,
-                            "purchasable": <bool>,
-                            "release_date_original": <str>,
-                            "release_date_download": <str>,
-                            "release_date_stream": <str>,
-                            "release_date_purchase": <str>,
-                            "hires": <bool>,
-                            "hires_streamable": <bool>
-                          },
-                          "work": <str>,
-                          "composer": {
-                            "name": <str>,
-                            "id": <int>
-                          },
-                          "isrc": <str>,
-                          "title": <str>,
-                          "version": <str>,
-                          "duration": <int>,
-                          "parental_warning": <bool>,
-                          "track_number": <int>,
-                          "maximum_channel_count": <int>,
-                          "id": <int>,
-                          "media_number": <int>,
-                          "maximum_sampling_rate": <int>,
-                          "release_date_original": <str>,
-                          "release_date_download": <str>,
-                          "release_date_stream": <str>,
-                          "release_date_purchase": <str>,
-                          "purchasable": <bool>,
-                          "streamable": <bool>,
-                          "previewable": <bool>,
-                          "sampleable": <bool>,
-                          "downloadable": <bool>,
-                          "displayable": <bool>,
-                          "purchasable_at": <int>,
-                          "streamable_at": <int>,
-                          "hires": <bool>,
-                          "hires_streamable": <bool>
-                        }
-                      ]
-                    }
-                  }
-        """
-
-        self._check_authentication("get_curated_tracks")
-
-        return self._get_json(
-            f"{self.API_URL}/dynamic-tracks/get", params={"type": "weekly"}
-        )
-
     ### STREAMS ###############################################################
 
     def get_track_stream(
@@ -3938,6 +3943,8 @@ class PrivateAPI:
         ]
 
     ### USER ##################################################################
+
+    # TODO
 
     def get_profile(self) -> dict[str, Any]:
         """
