@@ -579,14 +579,14 @@ class PrivateAPI:
             **Valid values**: :code:`"albumsFromSameArtist"`,
             :code:`"focus"`, :code:`"focusAll"`.
 
-        limit : `int`; keyword-only; optional
+        limit : `int`, keyword-only, optional
             Maximum number of tracks to return.
 
             **Valid range**: :code:`1` to :code:`500`.
 
             **API default**: :code:`500`.
 
-        offset : `int`; keyword-only; optional
+        offset : `int`, keyword-only, optional
             Index of the first track to return. Use with `limit` to get
             the next batch of tracks.
 
@@ -791,7 +791,7 @@ class PrivateAPI:
             :code:`"universal-jeunesse"`, and
             :code:`"universal-chanson"`.
 
-        genre_ids : int, str, or list[int | str]; optional
+        genre_ids : int, str, or list[int | str], optional
             Qobuz IDs of the genres used to filter the featured albums
             to return.
 
@@ -1050,43 +1050,43 @@ class PrivateAPI:
         artist_id : `int` or `str`
             Qobuz artist ID.
 
-        release_types : `str` or `list`; keyword-only; optional
+        release_types : `str` or `list`, keyword-only, optional
             Release types to include in the response.
 
             **Valid values**: :code:`"all"`, :code:`"album"`,
             :code:`"live"`, :code:`"compilation"`, :code:`"epSingle"`,
             :code:`"other"`, :code:`"download"`, :code:`"composer"`.
 
-        filters : `str` or `list`; keyword-only; optional
+        filters : `str` or `list`, keyword-only, optional
             Content filters to apply to the releases.
 
             **Valid values**: :code:`"hires"`, :code:`"explicit"`.
 
-        limit : `int`; keyword-only; optional
+        limit : `int`, keyword-only, optional
             The maximum number of releases to return.
 
             **Default**: :code:`50`.
 
-        offset : `int`; keyword-only; optional
+        offset : `int`, keyword-only, optional
             The index of the first release to return. Use with `limit`
             to get the next page of releases.
 
             **Default**: :code:`0`.
 
-        order : `str`; keyword-only; optional
+        order : `str`, keyword-only, optional
             Field to sort the releases by.
 
             **Valid values**: :code:`"relevant"`, :code:`"release_date"`.
 
-        order_direction : `str`; keyword-only; optional
+        order_direction : `str`, keyword-only, optional
             Order to sort in.
 
             **Valid values**: :code:`"asc"`, :code:`"desc"`.
 
-        include_tracks : `bool`; keyword-only; default: :code:`False`
+        include_tracks : `bool`, keyword-only, default: :code:`False`
             Whether to include tracks in the response.
 
-        track_limit : `int`; keyword-only; optional
+        track_limit : `int`, keyword-only, optional
             The maximum number of tracks to include per release when
             `include_tracks` is :code:`True`.
 
@@ -1234,15 +1234,15 @@ class PrivateAPI:
 
         Parameters
         ----------
-        artist_id : `int` or `str`; positional-only
+        artist_id : `int` or `str`, positional-only
             Qobuz artist ID
 
-        limit : `int`; keyword-only; optional
+        limit : `int`, keyword-only, optional
             The maximum number of artists to return.
 
             **Default**: :code:`25`.
 
-        offset : `int`; keyword-only; optional
+        offset : `int`, keyword-only, optional
             The index of the first artist to return. Use with `limit` to
             get the next batch of artists.
 
@@ -1289,6 +1289,41 @@ class PrivateAPI:
 
     ### CATALOG ###############################################################
 
+    def count_search_matches(self, query: str) -> dict[str, dict[str, int]]:
+        """
+        Get the counts of catalog search results for a given query.
+
+        Parameters
+        ----------
+        query : `str`
+            Search query.
+
+        Returns
+        -------
+        counts : `dict`
+            Counts of the search results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "albums": {
+                      "total": <int>
+                    },
+                    "artists": {
+                      "total": <int>
+                    },
+                    "tracks": {
+                      "total": <int>
+                    }
+                  }
+        """
+        if not len(query):
+            raise ValueError("No search query provided.")
+        return self._get_json("catalog/count", params={"query": query.strip()})
+
     def get_featured(
         self,
         type: str | None = None,
@@ -1303,26 +1338,26 @@ class PrivateAPI:
 
         Parameters
         ----------
-        type : `str`; optional
+        type : `str`, optional
             Type of item to return. If not specified, featured items of
             all types are returned.
 
             **Valid values**: :code:`"albums"`, :code:`"articles"`,
             :code:`"artists"`, :code:`"playlists"`.
 
-        genre_ids : `int`, `str`, or `list`; optional
+        genre_ids : `int`, `str`, or `list`, optional
             Qobuz IDs of the genres used to filter the featured items to
             return.
 
             **Examples**: :code:`10`, :code:`"64"`, :code:`"10,64"`,
             :code:`[10, "64"]`.
 
-        limit : `int`; keyword-only; optional
+        limit : `int`, keyword-only, optional
             The maximum number of items to return per item type.
 
             **Default**: :code:`25`.
 
-        offset : `int`; keyword-only; optional
+        offset : `int`, keyword-only, optional
             The index of the first item to return per item type. Use
             with `limit` to get the next page of items.
 
@@ -1502,13 +1537,336 @@ class PrivateAPI:
             },
         )
 
+    ### DYNAMIC TRACKS ########################################################
+
+    # TODO
+
+    ### FAVORITES #############################################################
+
+    def get_favorites(
+        self, type: str = None, *, limit: int = None, offset: int = None
+    ) -> dict[str, dict]:
+        """
+        Get the current user's favorite albums, artists, and tracks.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Parameters
+        ----------
+        type : `str`
+            Media type to return. If not specified, all of the user's
+            favorite items are returned.
+
+            .. container::
+
+               **Valid values**: :code:`"albums"`, :code:`"artists"`,
+               and :code:`"tracks"`.
+
+        limit : `int`, keyword-only, optional
+            The maximum number of favorited items to return.
+
+            **Default**: :code:`50`.
+
+        offset : `int`, keyword-only, optional
+            The index of the first favorited item to return. Use with
+            `limit` to get the next page of favorited items.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        favorites : `dict`
+            A dictionary containing Qobuz catalog information for the
+            current user's favorite items and the user's ID and email.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "albums": {
+                      "offset": <int>,
+                      "limit": <int>,
+                      "total": <int>,
+                      "items": <list>
+                    },
+                    "user": {
+                      "id": <int>,
+                      "login": <str>
+                    }
+                  }
+        """
+        self._check_authentication("get_favorites")
+
+        if type and type not in (
+            MEDIA_TYPES := {"albums", "artists", "tracks"}
+        ):
+            emsg = (
+                f"Invalid media type. Valid values: {', '.join(MEDIA_TYPES)}."
+            )
+            raise ValueError(emsg)
+
+        return self._get_json_secret(
+            f"{self.API_URL}/favorite/getUserFavorites",
+            "favoritegetUserFavorites",
+            params={"type": type, "limit": limit, "offset": offset},
+        )
+
+    def get_favorite_ids(self) -> dict[str, Any]:
+        """
+        Get Qobuz IDs of the items in the current user's favorites.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Returns
+        -------
+        saved_ids : `dict`
+            Qobuz IDs of the items in the user's favorites.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "albums": <list[str]>,
+                    "articles": [],
+                    "artists": <list[int]>,
+                    "awards": [],
+                    "labels": [],
+                    "tracks": <list[int]>,
+                  }
+        """
+        self._check_authentication("get_favorite_ids")
+        return self._get_json(f"{self.API_URL}/favorite/getUserFavoriteIds")
+
+    def favorite_items(
+        self,
+        *,
+        album_ids: Union[str, list[str]] = None,
+        artist_ids: Union[int, str, list[Union[int, str]]] = None,
+        track_ids: Union[int, str, list[Union[int, str]]] = None,
+    ) -> None:
+        """
+        Favorite albums, artists, and/or tracks.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        .. seealso::
+
+           For playlists, use :meth:`favorite_playlist`.
+
+        Parameters
+        ----------
+        album_ids : `str` or `list`, keyword-only, optional
+            Qobuz album ID(s).
+
+        artist_ids : `int`, `str`, or `list`, keyword-only, optional
+            Qobuz artist ID(s).
+
+        track_ids : `int`, `str`, or `list`, keyword-only, optional
+            Qobuz track ID(s).
+        """
+        self._check_authentication("favorite_items")
+
+        data = {}
+        if album_ids:
+            data["album_ids"] = (
+                ",".join(str(a) for a in album_ids)
+                if isinstance(album_ids, list)
+                else album_ids
+            )
+        if artist_ids:
+            data["artist_ids"] = (
+                ",".join(str(a) for a in artist_ids)
+                if isinstance(artist_ids, list)
+                else artist_ids
+            )
+        if track_ids:
+            data["track_ids"] = (
+                ",".join(str(a) for a in track_ids)
+                if isinstance(track_ids, list)
+                else track_ids
+            )
+        self._request("post", f"{self.API_URL}/favorite/create", data=data)
+
+    def unfavorite_items(
+        self,
+        *,
+        album_ids: Union[str, list[str]] = None,
+        artist_ids: Union[int, str, list[Union[int, str]]] = None,
+        track_ids: Union[int, str, list[Union[int, str]]] = None,
+    ) -> None:
+        """
+        Unfavorite albums, artists, and/or tracks.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        .. seealso::
+
+           For playlists, use :meth:`unfavorite_playlist`.
+
+        Parameters
+        ----------
+        album_ids : `str` or `list`, keyword-only, optional
+            Qobuz album ID(s).
+
+        artist_ids : `int`, `str`, or `list`, keyword-only, optional
+            Qobuz artist ID(s).
+
+        track_ids : `int`, `str`, or `list`, keyword-only, optional
+            Qobuz track ID(s).
+        """
+        self._check_authentication("unfavorite_items")
+
+        data = {}
+        if album_ids:
+            data["album_ids"] = (
+                ",".join(str(a) for a in album_ids)
+                if isinstance(album_ids, list)
+                else album_ids
+            )
+        if artist_ids:
+            data["artist_ids"] = (
+                ",".join(str(a) for a in artist_ids)
+                if isinstance(artist_ids, list)
+                else artist_ids
+            )
+        if track_ids:
+            data["track_ids"] = (
+                ",".join(str(a) for a in track_ids)
+                if isinstance(track_ids, list)
+                else track_ids
+            )
+        self._request("post", f"{self.API_URL}/favorite/delete", data=data)
+
+    def check_favorite(self, type: str, item_id: int | str) -> dict[str, bool]:
+        """
+        Check whether an item is in the current user's favorites.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Parameters
+        ----------
+        type : `str`
+            Type of item.
+
+            **Valid values**: :code:`"album"`, :code:`"artist"`,
+            :code:`"article"`, :code:`"award"`, :code:`"label"`,
+            :code:`"track"`.
+
+        item_id : `int` or `str`
+            Qobuz ID of the item.
+
+        Returns
+        -------
+        saved : `dict`
+            Whether the current user has the specified item in their
+            favorites.
+
+            **Sample response**: :code:`{"status": <bool>}`.
+        """
+        self._check_authentication("check_favorite")
+
+        if f"{type}s" not in (
+            _FAVORITE_TYPES := {
+                "albums",
+                "artists",
+                "articles",
+                "awards",
+                "labels",
+                "tracks",
+            }
+        ):
+            favorite_types = "', '".join(ft[:-1] for ft in _FAVORITE_TYPES)
+            raise ValueError(
+                f"Invalid type {type!r}. Valid values: '{favorite_types}'."
+            )
+        return self._get_json(
+            f"{self.API_URL}/favorite/status",
+            params={"type": type, "item_id": item_id},
+        )
+
+    def toggle_favorited(
+        self, type: str, item_id: int | str
+    ) -> dict[str, bool]:
+        """
+        Toggle the favorited status of an item.
+
+        .. admonition:: User authentication
+           :class: warning
+
+           Requires user authentication via the password flow.
+
+        Parameters
+        ----------
+        type : `str`
+            Type of item.
+
+            **Valid values**: :code:`"album"`, :code:`"artist"`,
+            :code:`"article"`, :code:`"award"`, :code:`"label"`,
+            :code:`"track"`.
+
+        item_id : `int` or `str`
+            Qobuz ID of the item.
+
+        Returns
+        -------
+        saved : dict[str, bool]
+            Whether the current user has the specified item in their
+            favorites.
+
+            **Sample response**: :code:`{"status": <bool>}`.
+        """
+        self._check_authentication("toggle_favorited")
+
+        if f"{type}s" not in (
+            _FAVORITE_TYPES := {
+                "albums",
+                "artists",
+                "articles",
+                "awards",
+                "labels",
+                "tracks",
+            }
+        ):
+            favorite_types = "', '".join(ft[:-1] for ft in _FAVORITE_TYPES)
+            raise ValueError(
+                f"Invalid type {type!r}. Valid values: '{favorite_types}'."
+            )
+        return self._request(
+            "POST",
+            f"{self.API_URL}/favorite/toggle",
+            params={"type": type, "item_id": item_id},
+        ).json()
+
+    ### GENRES ################################################################
+
+    # TODO
+
     ### LABELS ################################################################
 
     def get_label(
         self,
         label_id: Union[int, str],
         *,
-        albums: bool = False,
+        extras: str | list[str] = None,
         limit: int = None,
         offset: int = None,
     ) -> dict[str, Any]:
@@ -1522,9 +1880,11 @@ class PrivateAPI:
 
             **Example**: :code:`1153`.
 
-        albums : `bool`, keyword-only, default: :code:`False`
-            Specifies whether information on the albums released by the
-            record label is returned.
+        extras : `str` or `list`, keyword-only, optional
+            Related resources to include metadata for in the response.
+
+            **Valid values**: :code:`"albums"`, :code:`"focus"`,
+            :code:`"focusAll"`.
 
         limit : `int`, keyword-only, optional
             The maximum number of albums to return. Has no effect if
@@ -1564,10 +1924,65 @@ class PrivateAPI:
             f"{self.API_URL}/label/get",
             params={
                 "label_id": label_id,
-                "extra": "albums" if albums else None,
+                "extra": (
+                    extras
+                    if extras is None or isinstance(extras, str)
+                    else ",".join(extras)
+                ),
                 "limit": limit,
                 "offset": offset,
             },
+        )
+
+    def get_labels(
+        self, *, limit: int = None, offset: int = None
+    ) -> dict[str, Any]:
+        """
+        Get available labels.
+
+        Parameters
+        ----------
+        limit : int; keyword-only; optional
+            The maximum number of labels to return.
+
+            **Default**: :code:`25`.
+
+        offset : int; keyword-only; optional
+            The index of the first label to return. Use with `limit` to
+            get the next page of labels.
+
+            **Default**: :code:`0`.
+
+        Returns
+        -------
+        labels : dict[str, Any]
+            Qobuz catalog information for the labels.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "labels": {
+                      "items": [
+                        {
+                          "albums_count": <int>,
+                          "id": <int>,
+                          "name": <str>,
+                          "slug": <str>,
+                          "supplier_id": <int>,
+                        }
+                      ],
+                      "limit": <int>,
+                      "offset": <int>,
+                      "total": <int>
+                    }
+                  }
+        """
+        return self._get_json(
+            f"{self.API_URL}/label/list",
+            params={"limit": limit, "offset": offset},
         )
 
     ### PLAYLISTS #############################################################
@@ -3548,79 +3963,6 @@ class PrivateAPI:
 
         return self._get_json(f"{self.API_URL}/user/get")
 
-    def get_favorites(
-        self, type: str = None, *, limit: int = None, offset: int = None
-    ) -> dict[str, dict]:
-        """
-        Get the current user's favorite albums, artists, and tracks.
-
-        .. admonition:: User authentication
-           :class: warning
-
-           Requires user authentication via the password flow.
-
-        Parameters
-        ----------
-        type : `str`
-            Media type to return. If not specified, all of the user's
-            favorite items are returned.
-
-            .. container::
-
-               **Valid values**: :code:`"albums"`, :code:`"artists"`,
-               and :code:`"tracks"`.
-
-        limit : `int`, keyword-only, optional
-            The maximum number of favorited items to return.
-
-            **Default**: :code:`50`.
-
-        offset : `int`, keyword-only, optional
-            The index of the first favorited item to return. Use with
-            `limit` to get the next page of favorited items.
-
-            **Default**: :code:`0`.
-
-        Returns
-        -------
-        favorites : `dict`
-            A dictionary containing Qobuz catalog information for the
-            current user's favorite items and the user's ID and email.
-
-            .. admonition:: Sample response
-               :class: dropdown
-
-               .. code::
-
-                  {
-                    "albums": {
-                      "offset": <int>,
-                      "limit": <int>,
-                      "total": <int>,
-                      "items": <list>
-                    },
-                    "user": {
-                      "id": <int>,
-                      "login": <str>
-                    }
-                  }
-        """
-        self._check_authentication("get_favorites")
-
-        if type and type not in (
-            MEDIA_TYPES := {"albums", "artists", "tracks"}
-        ):
-            emsg = (
-                f"Invalid media type. Valid values: {', '.join(MEDIA_TYPES)}."
-            )
-            raise ValueError(emsg)
-
-        return self._get_json_secret(
-            f"{self.API_URL}/favorite/getUserFavorites",
-            "favoritegetUserFavorites",
-            params={"type": type, "limit": limit, "offset": offset},
-        )
-
     def get_purchases(
         self, type: str = "albums", *, limit: int = None, offset: int = None
     ) -> dict[str, Any]:
@@ -3681,212 +4023,3 @@ class PrivateAPI:
             f"{self.API_URL}/purchase/getUserPurchases",
             params={"type": type, "limit": limit, "offset": offset},
         )[type]
-
-    def favorite_items(
-        self,
-        *,
-        album_ids: Union[str, list[str]] = None,
-        artist_ids: Union[int, str, list[Union[int, str]]] = None,
-        track_ids: Union[int, str, list[Union[int, str]]] = None,
-    ) -> None:
-        """
-        Favorite albums, artists, and/or tracks.
-
-        .. admonition:: User authentication
-           :class: warning
-
-           Requires user authentication via the password flow.
-
-        .. seealso::
-
-           For playlists, use :meth:`favorite_playlist`.
-
-        Parameters
-        ----------
-        album_ids : `str` or `list`, keyword-only, optional
-            Qobuz album ID(s).
-
-        artist_ids : `int`, `str`, or `list`, keyword-only, optional
-            Qobuz artist ID(s).
-
-        track_ids : `int`, `str`, or `list`, keyword-only, optional
-            Qobuz track ID(s).
-        """
-        self._check_authentication("favorite_items")
-
-        data = {}
-        if album_ids:
-            data["album_ids"] = (
-                ",".join(str(a) for a in album_ids)
-                if isinstance(album_ids, list)
-                else album_ids
-            )
-        if artist_ids:
-            data["artist_ids"] = (
-                ",".join(str(a) for a in artist_ids)
-                if isinstance(artist_ids, list)
-                else artist_ids
-            )
-        if track_ids:
-            data["track_ids"] = (
-                ",".join(str(a) for a in track_ids)
-                if isinstance(track_ids, list)
-                else track_ids
-            )
-        self._request("post", f"{self.API_URL}/favorite/create", data=data)
-
-    def unfavorite_items(
-        self,
-        *,
-        album_ids: Union[str, list[str]] = None,
-        artist_ids: Union[int, str, list[Union[int, str]]] = None,
-        track_ids: Union[int, str, list[Union[int, str]]] = None,
-    ) -> None:
-        """
-        Unfavorite albums, artists, and/or tracks.
-
-        .. admonition:: User authentication
-           :class: warning
-
-           Requires user authentication via the password flow.
-
-        .. seealso::
-
-           For playlists, use :meth:`unfavorite_playlist`.
-
-        Parameters
-        ----------
-        album_ids : `str` or `list`, keyword-only, optional
-            Qobuz album ID(s).
-
-        artist_ids : `int`, `str`, or `list`, keyword-only, optional
-            Qobuz artist ID(s).
-
-        track_ids : `int`, `str`, or `list`, keyword-only, optional
-            Qobuz track ID(s).
-        """
-        self._check_authentication("unfavorite_items")
-
-        data = {}
-        if album_ids:
-            data["album_ids"] = (
-                ",".join(str(a) for a in album_ids)
-                if isinstance(album_ids, list)
-                else album_ids
-            )
-        if artist_ids:
-            data["artist_ids"] = (
-                ",".join(str(a) for a in artist_ids)
-                if isinstance(artist_ids, list)
-                else artist_ids
-            )
-        if track_ids:
-            data["track_ids"] = (
-                ",".join(str(a) for a in track_ids)
-                if isinstance(track_ids, list)
-                else track_ids
-            )
-        self._request("post", f"{self.API_URL}/favorite/delete", data=data)
-
-    def check_favorite(self, type: str, item_id: int | str) -> dict[str, bool]:
-        """
-        Check whether an item is in the current user's favorites.
-
-        .. admonition:: User authentication
-           :class: warning
-
-           Requires user authentication via the password flow.
-
-        Parameters
-        ----------
-        type : `str`
-            Type of item.
-
-            **Valid values**: :code:`"album"`, :code:`"artist"`,
-            :code:`"article"`, :code:`"award"`, :code:`"label"`,
-            :code:`"track"`.
-
-        item_id : `int` or `str`
-            Qobuz ID of the item.
-
-        Returns
-        -------
-        saved : `dict`
-            Whether the current user has the specified item in their
-            favorites.
-
-            **Sample response**: :code:`{"status": <bool>}`.
-        """
-        self._check_authentication("check_favorite")
-
-        if f"{type}s" not in (
-            _FAVORITE_TYPES := {
-                "albums",
-                "artists",
-                "articles",
-                "awards",
-                "labels",
-                "tracks",
-            }
-        ):
-            favorite_types = "', '".join(ft[:-1] for ft in _FAVORITE_TYPES)
-            raise ValueError(
-                f"Invalid type {type!r}. Valid values: '{favorite_types}'."
-            )
-        return self._get_json(
-            f"{self.API_URL}/favorite/status",
-            params={"type": type, "item_id": item_id},
-        )
-
-    def toggle_favorited(
-        self, type: str, item_id: int | str
-    ) -> dict[str, bool]:
-        """
-        Toggle the favorited status of an item.
-
-        .. admonition:: User authentication
-           :class: warning
-
-           Requires user authentication via the password flow.
-
-        Parameters
-        ----------
-        type : `str`
-            Type of item.
-
-            **Valid values**: :code:`"album"`, :code:`"artist"`,
-            :code:`"article"`, :code:`"award"`, :code:`"label"`,
-            :code:`"track"`.
-
-        item_id : `int` or `str`
-            Qobuz ID of the item.
-
-        Returns
-        -------
-        saved : dict[str, bool]
-            Whether the current user has the specified item in their
-            favorites.
-
-            **Sample response**: :code:`{"status": <bool>}`.
-        """
-        self._check_authentication("toggle_favorited")
-
-        if f"{type}s" not in (
-            _FAVORITE_TYPES := {
-                "albums",
-                "artists",
-                "articles",
-                "awards",
-                "labels",
-                "tracks",
-            }
-        ):
-            favorite_types = "', '".join(ft[:-1] for ft in _FAVORITE_TYPES)
-            raise ValueError(
-                f"Invalid type {type!r}. Valid values: '{favorite_types}'."
-            )
-        return self._request(
-            "POST",
-            f"{self.API_URL}/favorite/toggle",
-            params={"type": type, "item_id": item_id},
-        ).json()
