@@ -321,11 +321,11 @@ class PrivateQobuzAPI(APIClient):
         with httpx.Client(
             base_url=cls.WEB_PLAYER_URL, follow_redirects=True
         ) as client:
-            bundle = client.get(
-                re.search(
-                    "/resources/.*/bundle.js", client.get("login").text
-                ).group(0)  # /resources/8.1.0-b019/bundle.js
-            ).text
+            m = re.search("/resources/.*/bundle.js", client.get("login").text)
+            if m is None:
+                raise RuntimeError("'bundle.js' was not found.")
+            bundle = client.get(m.group(0)).text
+            # /resources/8.1.0-b019/bundle.js
         return (
             re.search(
                 '(?:production:{api:{appId:")(.*?)(?:",appSecret)', bundle

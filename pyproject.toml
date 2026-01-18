@@ -15,8 +15,7 @@ classifiers = [
 ]
 dependencies = [
   "cryptography",
-  "httpx",
-  "pyyaml"
+  "httpx"
 ]
 description = """
 A collection of music service APIs to query media information and
