@@ -1795,7 +1795,7 @@ class OAuth2APIClient(APIClient):
             else set(scopes.split() if isinstance(scopes, str) else scopes)
         )
 
-        if client_id is None or client_secret is None:
+        if client_id is None:
             client_id = os.environ.get(f"{self._ENV_VAR_PREFIX}_CLIENT_ID")
             client_secret = os.environ.get(
                 f"{self._ENV_VAR_PREFIX}_CLIENT_SECRET"
