@@ -78,8 +78,8 @@ class VideosAPI(TIDALResourceAPI):
             **Valid values**: :code:`"albums"`, :code:`"artists"`,
             :code:`"providers"`, :code:`"thumbnailArt"`.
 
-           **Examples**: :code:`"thumbnailArt"`,
-           :code:`["albums", "artists"]`.
+            **Examples**: :code:`"thumbnailArt"`,
+            :code:`["albums", "artists"]`.
 
         Returns
         -------

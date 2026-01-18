@@ -60,7 +60,7 @@ class SearchAPI(TIDALResourceAPI):
 
             **Valid value**: :code:`"directHits"`.
 
-           **Examples**: :code:`"directHits"`, :code:`["directHits"]`.
+            **Examples**: :code:`"directHits"`, :code:`["directHits"]`.
 
         Returns
         -------
@@ -937,7 +937,7 @@ class SearchAPI(TIDALResourceAPI):
             :code:`"playlists"`, :code:`"topHits"`, :code:`"tracks"`,
             :code:`"videos"`.
 
-           **Examples**: :code:`"topHits"`,
+            **Examples**: :code:`"topHits"`,
            :code:`["albums", "tracks"]`.
 
         Returns

@@ -255,7 +255,7 @@ class UsersAPI(TIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_collection(
+    def get_saved_items(
         self,
         *,
         user_id: int | str | None = None,
@@ -298,7 +298,7 @@ class UsersAPI(TIDALResourceAPI):
             :code:`"owners"`, :code:`"playlists"`, :code:`"tracks"`,
             :code:`"videos"`.
 
-           **Examples**: :code:`"albums"`, :code:`["tracks", "videos"]`.
+            **Examples**: :code:`"albums"`, :code:`["tracks", "videos"]`.
 
         Returns
         -------
@@ -2334,7 +2334,7 @@ class UsersAPI(TIDALResourceAPI):
 
             **Valid value**: :code:`"owners"`.
 
-           **Examples**: :code:`"owners"`, :code:`["owners"]`.
+            **Examples**: :code:`"owners"`, :code:`["owners"]`.
 
         Returns
         -------
@@ -2512,7 +2512,7 @@ class UsersAPI(TIDALResourceAPI):
             **Valid values**: :code:`"discoveryMixes"`,
             :code:`"myMixes"`, :code:`"newArrivalMixes"`.
 
-           **Examples**: :code:`"myMixes"`,
+            **Examples**: :code:`"myMixes"`,
            :code:`["discoveryMixes", "newArrivalMixes"]`.
 
         Returns

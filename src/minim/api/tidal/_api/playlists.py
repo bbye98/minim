@@ -159,7 +159,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Valid values**: :code:`"coverArt"`, :code:`"items"`,
             :code:`"ownerProfiles"`, :code:`"owners"`.
 
-           **Examples**: :code:`"coverArt"`,
+            **Examples**: :code:`"coverArt"`,
            :code:`["items", "owners"]`.
 
         cursor : str; keyword-only; optional

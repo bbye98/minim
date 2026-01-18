@@ -887,7 +887,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_saved_ids(
+    def get_saved_item_ids(
         self, user_id: int | str | None = None, /
     ) -> dict[str, list[str]]:
         """
@@ -926,7 +926,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "VIDEO": <list[str]>,
                   }
         """
-        self._client._require_authentication("users.get_saved_ids")
+        self._client._require_authentication("users.get_saved_item_ids")
         return self._get_saved_resources("ids", user_id)
 
     @TTLCache.cached_method(ttl="user")
@@ -3736,7 +3736,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         )
 
     @TTLCache.cached_method(ttl="user")
-    def get_favorite_videos(
+    def get_saved_videos(
         self,
         user_id: int | str | None = None,
         /,
@@ -3865,7 +3865,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
                     "totalNumberOfItems": <int>
                   }
         """
-        self._client._require_authentication("users.get_favorite_videos")
+        self._client._require_authentication("users.get_saved_videos")
         return self._get_saved_resources(
             "videos",
             user_id,

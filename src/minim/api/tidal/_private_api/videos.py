@@ -348,8 +348,8 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             },
         ).json()
 
-    @_copy_docstring(PrivateUsersAPI.get_favorite_videos)
-    def get_favorite_videos(
+    @_copy_docstring(PrivateUsersAPI.get_saved_videos)
+    def get_saved_videos(
         self,
         user_id: int | str | None = None,
         /,
@@ -360,7 +360,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         sort_by: str | None = None,
         descending: bool | None = None,
     ) -> dict[str, Any]:
-        return self._client.users.get_favorite_videos(
+        return self._client.users.get_saved_videos(
             user_id,
             country_code=country_code,
             limit=limit,
