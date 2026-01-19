@@ -80,5 +80,5 @@ class ProvidersAPI(TIDALResourceAPI):
                      }
         """
         return self._get_resources(
-            "providers", provider_ids, country_code=False
+            "providers", provider_ids, country_code=None
         )

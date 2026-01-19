@@ -117,7 +117,7 @@ class TIDALResourceAPI(ResourceAPI):
         resource_type: str,
         resource_identifiers: str | list[str] | None,
         /,
-        country_code: bool | str | None = None,
+        country_code: str | None = None,
         *,
         locale: str | None = None,
         include_explicit: bool | None = None,
@@ -141,8 +141,7 @@ class TIDALResourceAPI(ResourceAPI):
             TIDAL IDs or UUIDs of the resources, or a search query.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. Only optional when it can
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -188,8 +187,9 @@ class TIDALResourceAPI(ResourceAPI):
         """
         if params is None:
             params = {}
-        if country_code is not False:
-            self._client._resolve_country_code(country_code, params)
+        if country_code is not None:
+            self._validate_country_code(country_code)
+            params["countryCode"] = country_code
         if locale is not None:
             self._validate_locale(locale)
             params["locale"] = locale
@@ -232,7 +232,7 @@ class TIDALResourceAPI(ResourceAPI):
         resource_identifier: int | str,
         relationship: str,
         /,
-        country_code: bool | str | None = None,
+        country_code: str | None = None,
         *,
         locale: str | None = None,
         include_explicit: bool | None = None,
@@ -257,8 +257,7 @@ class TIDALResourceAPI(ResourceAPI):
             Related resource type.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. Only optional when it can
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -309,8 +308,9 @@ class TIDALResourceAPI(ResourceAPI):
             self._validate_type("query", resource_identifier, str)
         if params is None:
             params = {}
-        if country_code is not False:
-            self._client._resolve_country_code(country_code, params)
+        if country_code is not None:
+            self._validate_country_code(country_code)
+            params["countryCode"] = country_code
         if locale is not None:
             self._validate_locale(locale)
             params["locale"] = locale

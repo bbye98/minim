@@ -665,7 +665,7 @@ class APIClient(ABC):
     Abstract base class for API clients.
     """
 
-    _ALLOWED_AUTH_FLOWS: set[str | None]
+    _ALLOWED_AUTH_FLOWS: set[str | None] | dict[str, str | None]
     _ENV_VAR_PREFIX: str
     _PROVIDER: str
     _QUAL_NAME: str

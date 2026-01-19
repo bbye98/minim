@@ -33,8 +33,7 @@ class PrivateQobuzAPI(APIClient):
     Private Qobuz API client.
     """
 
-    _ALLOWED_AUTH_FLOWS = {None, "password"}
-    _AUTH_FLOWS = {
+    _ALLOWED_AUTH_FLOWS = {
         None: "unauthenticated client",
         "password": "Qobuz Web Player login flow",
     }
@@ -752,7 +751,7 @@ class PrivateQobuzAPI(APIClient):
             if self._auth_flow is not None:
                 raise ValueError(
                     "`user_auth_token` cannot be None when using the "
-                    f"{self._AUTH_FLOWS[self._auth_flow]}."
+                    f"{self._ALLOWED_AUTH_FLOWS[self._auth_flow]}."
                 )
             if "X-User-Auth-Token" in self._client.headers:
                 del self._client.headers["X-User-Auth-Token"]

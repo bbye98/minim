@@ -1036,8 +1036,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1187,8 +1186,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1383,7 +1381,7 @@ class TracksAPI(TIDALResourceAPI):
             "tracks",
             track_id,
             "owners",
-            country_code=False,
+            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
             share_code=share_code,
@@ -1414,8 +1412,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1581,7 +1578,7 @@ class TracksAPI(TIDALResourceAPI):
             "tracks",
             track_id,
             "radio",
-            country_code=False,
+            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
             share_code=share_code,
@@ -1647,7 +1644,7 @@ class TracksAPI(TIDALResourceAPI):
             "tracks",
             track_id,
             "shares",
-            country_code=False,
+            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
             share_code=share_code,
@@ -1679,8 +1676,7 @@ class TracksAPI(TIDALResourceAPI):
             **Examples**: :code:`46369325`, :code:`"75413016"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1882,7 +1878,7 @@ class TracksAPI(TIDALResourceAPI):
             "tracks",
             track_id,
             "sourceFile",
-            country_code=False,
+            country_code=None,
             include_metadata=include_metadata,
             share_code=share_code,
         )
@@ -1937,7 +1933,7 @@ class TracksAPI(TIDALResourceAPI):
             "tracks",
             track_id,
             "trackStatistics",
-            country_code=False,
+            country_code=None,
             include_metadata=include_metadata,
             share_code=share_code,
         )

@@ -1034,8 +1034,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"36ea71a8-445e-41a4-82ab-6628c581535d"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1296,7 +1295,8 @@ class PlaylistsAPI(TIDALResourceAPI):
         self._validate_uuid(playlist_uuid)
         params = {}
         if country_code is not None:
-            self._client._resolve_country_code(country_code, params)
+            self._validate_country_code(country_code)
+            params["countryCode"] = country_code
         payload = {"data": self._process_playlist_items(items, meta=False)}
         if insert_before is not None:
             payload["meta"] = {"positionBefore": insert_before}
@@ -1503,8 +1503,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1581,8 +1580,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             **Example**: :code:`"550e8400-e29b-41d4-a716-446655440000"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 

@@ -125,8 +125,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
 
         country_code : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. Only optional when it can
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -242,7 +241,8 @@ class UsersAPI(TIDALResourceAPI):
             self._client._validate_tidal_ids(user_id, _recursive=False)
         params = {}
         if country_code is not None:
-            self._client._resolve_country_code(country_code, params)
+            self._validate_country_code(country_code)
+            params["countryCode"] = country_code
         self._client._request(
             method,
             f"userCollections/{user_id}/relationships/{resource_type}",
@@ -1046,7 +1046,7 @@ class UsersAPI(TIDALResourceAPI):
             "albums",
             album_ids,
             user_id=user_id,
-            country_code=False,
+            country_code=None,
         )
 
     @TTLCache.cached_method(ttl="user")
@@ -1349,7 +1349,7 @@ class UsersAPI(TIDALResourceAPI):
             "artists",
             artist_ids,
             user_id=user_id,
-            country_code=False,
+            country_code=None,
         )
 
     @TTLCache.cached_method(ttl="user")
@@ -1590,7 +1590,7 @@ class UsersAPI(TIDALResourceAPI):
         return self._get_collection_relationship(
             "playlists",
             user_id=user_id,
-            country_code=False,
+            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
             sort_by=sort_by,
@@ -2032,7 +2032,7 @@ class UsersAPI(TIDALResourceAPI):
             "tracks",
             track_ids,
             user_id=user_id,
-            country_code=False,
+            country_code=None,
         )
 
     @TTLCache.cached_method(ttl="user")
@@ -2298,7 +2298,7 @@ class UsersAPI(TIDALResourceAPI):
             "videos",
             video_ids,
             user_id=user_id,
-            country_code=False,
+            country_code=None,
         )
 
     @TTLCache.cached_method(ttl="user")
@@ -2394,7 +2394,7 @@ class UsersAPI(TIDALResourceAPI):
         return self._get_resources(
             "userEntitlements",
             user_id,
-            country_code=False,
+            country_code=None,
             expand=expand,
             relationships={"owners"},
         )
@@ -2462,7 +2462,7 @@ class UsersAPI(TIDALResourceAPI):
             "userEntitlements",
             user_id,
             "owners",
-            country_code=False,
+            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
         )
@@ -2498,8 +2498,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -2605,8 +2604,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -2689,8 +2687,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -2771,8 +2768,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL ID is used.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 

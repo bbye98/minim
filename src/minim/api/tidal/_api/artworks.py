@@ -51,8 +51,7 @@ class ArtworksAPI(TIDALResourceAPI):
             :code:`["2xpmpI1s9DzeAPMlmNh9kM", "iWOu0yW0IPH0H5O42lAP"]`.
 
         country_code : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -208,7 +207,7 @@ class ArtworksAPI(TIDALResourceAPI):
             "artworks",
             artwork_id,
             "owners",
-            country_code=False,
+            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
         )

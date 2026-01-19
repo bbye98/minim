@@ -67,8 +67,7 @@ class VideosAPI(TIDALResourceAPI):
             :code:`[QMJMT1701237, "USAT21404265"]`.
 
         country_code : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -664,8 +663,7 @@ class VideosAPI(TIDALResourceAPI):
             **Examples**: :code:`53315642`, :code:`"75623239"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -810,8 +808,7 @@ class VideosAPI(TIDALResourceAPI):
             **Examples**: :code:`53315642`, :code:`"75623239"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -965,8 +962,7 @@ class VideosAPI(TIDALResourceAPI):
             **Examples**: :code:`53315642`, :code:`"75623239"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1047,8 +1043,7 @@ class VideosAPI(TIDALResourceAPI):
             **Examples**: :code:`53315642`, :code:`"75623239"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 

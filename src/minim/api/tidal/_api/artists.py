@@ -96,7 +96,7 @@ class ArtistsAPI(TIDALResourceAPI):
                        }
                      }
         """
-        self._get_resources("artistRoles", artist_role_ids, country_code=False)
+        self._get_resources("artistRoles", artist_role_ids, country_code=None)
 
     @TTLCache.cached_method(ttl="popularity")
     def get_artists(
@@ -145,8 +145,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Example**: :code:`"jayz"`.
 
         country_code : str; keyword-only; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will 
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1014,8 +1013,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1159,8 +1157,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1262,7 +1259,7 @@ class ArtistsAPI(TIDALResourceAPI):
             "artists",
             artist_id,
             "owners",
-            country_code=False,
+            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
         )
@@ -1291,9 +1288,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
-
+            ISO 3166-1 alpha-2 country code.
             **Example**: :code:`"US"`.
 
         include_metadata : bool; keyword-only; default: :code:`False`
@@ -1389,8 +1384,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1548,7 +1542,7 @@ class ArtistsAPI(TIDALResourceAPI):
             "artists",
             artist_id,
             "roles",
-            country_code=False,
+            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
         )
@@ -1578,8 +1572,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1732,8 +1725,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1788,7 +1780,7 @@ class ArtistsAPI(TIDALResourceAPI):
             "artists",
             artist_id,
             "trackProviders",
-            country_code=False,
+            country_code=None,
             include_metadata=include_metadata,
             cursor=cursor,
         )
@@ -1818,8 +1810,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 
@@ -1999,8 +1990,7 @@ class ArtistsAPI(TIDALResourceAPI):
             **Examples**: :code:`1566`, :code:`"4676988"`.
 
         country_code : str; optional
-            ISO 3166-1 alpha-2 country code. If not specified, it will
-            be retrieved from the user's profile.
+            ISO 3166-1 alpha-2 country code.
 
             **Example**: :code:`"US"`.
 

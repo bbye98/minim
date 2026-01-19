@@ -152,10 +152,10 @@ class iTunesSearchAPI(APIClient):
             },
         },
     }
-    _PROVIDER: str = "Apple"
-    _QUAL_NAME: str = "minim.api.apple.iTunesSearchAPI"
+    _PROVIDER = "Apple"
+    _QUAL_NAME = f"minim.api.{_PROVIDER.lower()}.{__qualname__}"
     _RATE_LIMIT_PER_SECOND = 1 / 3
-    BASE_URL: str = "https://itunes.apple.com"
+    BASE_URL = "https://itunes.apple.com"
 
     def _request(
         self,

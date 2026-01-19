@@ -205,7 +205,7 @@ class TIDALAPI(_BaseTIDALAPI):
     }
     _ENV_VAR_PREFIX = "TIDAL_API"
     _QUAL_NAME = f"minim.api.{_BaseTIDALAPI._PROVIDER.lower()}.{__qualname__}"
-    _VERSION = "1.0.30"
+    _VERSION = "1.0.37"
     BASE_URL = "https://openapi.tidal.com/v2"
 
     def __init__(
