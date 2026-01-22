@@ -90,6 +90,15 @@ class TracksAPI(ResourceAPI):
         /track/track-get>`_: Get Musixmatch catalog information for a
         track.
 
+        .. admonition:: Subscription
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              Musixmatch Basic plan
+                 Access music metadata and static lyrics. `Learn more.
+                 <https://about.musixmatch.com/api-pricing>`__
+
         Parameters
         ----------
         track_id : int or str; keyword-only; optional
@@ -100,7 +109,7 @@ class TracksAPI(ResourceAPI):
         common_track_id : int or str; keyword-only; optional
             Musixmatch common ID of the track.
 
-            **Example**: :code:`5920049`, :code:`"40728258"`.
+            **Examples**: :code:`5920049`, :code:`"40728258"`.
 
         isrc : str; keyword-only; optional
             ISRC of the track.
@@ -109,7 +118,83 @@ class TracksAPI(ResourceAPI):
 
         Returns
         -------
-        TODO
+        track : dict[str, Any]
+            Musixmatch content metadata for the track.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "message": {
+                      "body": {
+                        "track": {
+                          "album_coverart_100x100": <str>,
+                          "album_coverart_350x350": <str>,
+                          "album_coverart_500x500": <str>,
+                          "album_coverart_800x800": <str>,
+                          "album_id": <int>,
+                          "album_name": <str>,
+                          "album_vanity_id": <str>,
+                          "artist_id": <int>,
+                          "artist_mbid": <str>,
+                          "artist_name": <str>,
+                          "commontrack_7digital_ids": <list[int]>,
+                          "commontrack_id": <int>,
+                          "commontrack_isrcs": <list[list[str]]>,
+                          "commontrack_itunes_ids": <list[int]>,
+                          "commontrack_spotify_ids": <list[str]>,
+                          "commontrack_vanity_id": <str>,
+                          "explicit": <int>,
+                          "first_release_date": <str>,
+                          "has_lyrics": <int>,
+                          "has_lyrics_crowd": <int>,
+                          "has_richsync": <int>,
+                          "has_subtitles": <int>,
+                          "has_track_structure": <int>,
+                          "instrumental": <int>,
+                          "lyrics_id": <int>,
+                          "num_favourite": <int>,
+                          "primary_genres": {
+                            "music_genre_list": [
+                              {
+                                "music_genre": {
+                                  "music_genre_id": <int>,
+                                  "music_genre_name": <str>,
+                                  "music_genre_name_extended": <str>,
+                                  "music_genre_parent_id": <int>,
+                                  "music_genre_vanity": <str>
+                                }
+                              }
+                            ]
+                          },
+                          "restricted": <int>,
+                          "secondary_genres": {
+                            "music_genre_list": []
+                          },
+                          "subtitle_id": <int>,
+                          "track_edit_url": <str>,
+                          "track_id": <int>,
+                          "track_isrc": <str>,
+                          "track_length": <int>,
+                          "track_mbid": <str>,
+                          "track_name": <str>,
+                          "track_name_translation_list": [],
+                          "track_rating": <int>,
+                          "track_share_url": <str>,
+                          "track_soundcloud_id": <int>,
+                          "track_spotify_id": <str>,
+                          "track_xboxmusic_id": <str>,
+                          "updated_time": <str>
+                        }
+                      },
+                      "header": {
+                        "execute_time": <float>,
+                        "status_code": <int>
+                      }
+                    }
+                  }
         """
         return self._get_track_resource(
             "track.get",
@@ -125,7 +210,81 @@ class TracksAPI(ResourceAPI):
         common_track_id: int | str | None = None,
         isrc: str | None = None,
     ) -> dict[str, Any]:
-        """ """
+        """
+        `Track > track.lyrics.get <https://docs.musixmatch.com
+        /lyrics-api/track/track-lyrics-get>`_: Get Musixmatch catalog
+        information for a track's lyrics.
+
+        .. admonition:: Subscription
+           :class: authorization-scope
+
+           .. tab:: Required
+
+              Musixmatch Basic plan
+                 Access music metadata and static lyrics. `Learn more.
+                 <https://about.musixmatch.com/api-pricing>`__
+
+        Parameters
+        ----------
+        track_id : int or str; keyword-only; optional
+            Musixmatch ID of the track.
+
+            **Examples**: :code:`84584600`, :code:`"359206419"`.
+
+        common_track_id : int or str; keyword-only; optional
+            Musixmatch common ID of the track.
+
+            **Examples**: :code:`5920049`, :code:`"40728258"`.
+
+        isrc : str; keyword-only; optional
+            ISRC of the track.
+
+            **Example**: :code:`"USUM70905526"`.
+
+        Returns
+        -------
+        lyrics : dict[str, Any]
+            Musixmatch content metadata for the track's lyrics.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "message": {
+                      "body": {
+                        "lyrics": {
+                          "action_requested": <str>,
+                          "backlink_url": <str>,
+                          "can_edit": <int>,
+                          "check_validation_overridable": <int>,
+                          "explicit": <int>,
+                          "html_tracking_url": <str>,
+                          "instrumental": <int>,
+                          "locked": <int>,
+                          "lyrics_body": <str>,
+                          "lyrics_copyright": <str>,
+                          "lyrics_id": <int>,
+                          "lyrics_language": <str>,
+                          "lyrics_language_description": <str>,
+                          "pixel_tracking_url": <str>,
+                          "published_status": <int>,
+                          "publisher_list": [],
+                          "restricted": <int>,
+                          "script_tracking_url": <str>,
+                          "updated_time": <str>,
+                          "verified": <int>,
+                          "writer_list": []
+                        }
+                      },
+                      "header": {
+                        "execute_time": <float>,
+                        "status_code": <int>
+                      }
+                    }
+                  }
+        """
         return self._get_track_resource(
             "track.lyrics.get",
             track_id=track_id,

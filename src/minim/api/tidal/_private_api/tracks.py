@@ -27,15 +27,6 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         """
         Get the audio stream data for a track.
 
-        .. admonition:: Subscription
-           :class: authorization-scope dropdown
-
-           .. tab:: Optional
-
-              TIDAL streaming plan
-                 Stream full-length and high-resolution audio.
-                 `Learn more. <https://tidal.com/pricing>`__
-
         Parameters
         ----------
         manifest : bytes or str; positional-only
@@ -343,7 +334,8 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
            .. tab:: Required
 
               TIDAL streaming plan
-                 Access track and video playback information.
+                 Access lyrics. `Learn more.
+                 <https://tidal.com/pricing>`__
 
         Parameters
         ----------

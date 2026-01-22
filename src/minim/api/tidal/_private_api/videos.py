@@ -27,15 +27,6 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         """
         Get the video stream data for a music video.
 
-        .. admonition:: Subscription
-           :class: authorization-scope dropdown
-
-           .. tab:: Optional
-
-              TIDAL streaming plan
-                 Stream full-length and high-resolution audio.
-                 `Learn more. <https://tidal.com/pricing>`__
-
         Parameters
         ----------
         manifest : bytes or str; positional-only
