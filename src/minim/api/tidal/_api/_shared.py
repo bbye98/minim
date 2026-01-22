@@ -61,7 +61,14 @@ class TIDALResourceAPI(ResourceAPI):
 
     @staticmethod
     def _validate_uuids(uuids: str | list[str], /) -> None:
-        """ """
+        """
+        Validate universally unique identifiers (UUIDs).
+
+        Parameters
+        ----------
+        uuids : str or list[str]; positional-only
+            UUIDs.
+        """
         if isinstance(uuids, str):
             ResourceAPI._validate_uuid(uuids)
         elif isinstance(uuids, list | tuple):

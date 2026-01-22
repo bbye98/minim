@@ -1914,7 +1914,8 @@ class ResourceAPI:
     @staticmethod
     def _validate_country_code(country_code: str, /) -> None:
         """
-        Validate a ISO 3166-1 alpha-2 country code.
+        Validate an International Organization for Standardization
+        (ISO) 3166-1 alpha-2 country code.
 
         Parameters
         ----------
@@ -1927,8 +1928,28 @@ class ResourceAPI:
             or not country_code.isalpha()
         ):
             raise ValueError(
-                f"{country_code!r} is not a valid ISO 3166-1 "
-                "alpha-2 country code."
+                f"{country_code!r} is not a valid ISO 3166-1 alpha-2 "
+                "country code."
+            )
+
+    @staticmethod
+    def _validate_language_code(language_code: str, /) -> None:
+        """
+        Validate an International Organization for Standardization
+        (ISO) 639-1 language code.
+
+        Parameters
+        ----------
+        language_code : str; positional-only
+            ISO 639-1 language code.
+        """
+        if (
+            not isinstance(language_code, str)
+            or len(language_code) != 2
+            or not language_code.isalpha()
+        ):
+            raise ValueError(
+                f"{language_code!r} is not a valid ISO 639-1 language code."
             )
 
     @staticmethod

@@ -507,10 +507,10 @@ class PrivateQobuzAPI(APIClient):
             Private Qobuz API endpoint.
 
         signed : bool; keyword-only; default: :code:`False`
-            ...
+            Whether to sign the request.
 
         sig_params : dict[str, Any]; keyword-only; optional
-            ...
+            Parameters to include in the signature.
 
         **kwargs : dict[str, Any]
             Keyword parameters to pass to :meth:`httpx.Client.request`.

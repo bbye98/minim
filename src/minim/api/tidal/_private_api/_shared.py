@@ -125,7 +125,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
         country_code: str | None = None,
     ) -> dict[str, Any]:
         """
-        Get Spotify catalog information for a resource.
+        Get TIDAL catalog information for a resource.
 
         Parameters
         ----------
