@@ -1515,7 +1515,7 @@ class UsersAPI(DeezerResourceAPI):
         `User > Albums <https://developers.deezer.com/api
         /actions-post>`__: Add one or more albums to a user's favorites.
 
-        .. admonition:: Permissions
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
@@ -1702,7 +1702,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Add one or more artists to a user's
         favorites.
 
-        .. admonition:: Permissions
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
@@ -1907,7 +1907,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Add one or more playlists to a user's
         favorites.
 
-        .. admonition:: Permissions
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
@@ -2368,7 +2368,7 @@ class UsersAPI(DeezerResourceAPI):
         `User > Podcasts <https://developers.deezer.com/api
         /actions-post>`__: Add a podcast to a user's favorites.
 
-        .. admonition:: Permissions
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
@@ -2470,7 +2470,7 @@ class UsersAPI(DeezerResourceAPI):
         `Episode > Bookmark <https://developers.deezer.com/api
         /actions-post>`__: Set a resume point for a podcast episode.
 
-        .. admonition:: Permissions
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
@@ -2518,7 +2518,7 @@ class UsersAPI(DeezerResourceAPI):
         `Episode > Bookmark <https://developers.deezer.com/api
         /actions-delete>`__: Remove a resume point for a podcast episode.
 
-        .. admonition:: Permissions
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
@@ -2625,7 +2625,7 @@ class UsersAPI(DeezerResourceAPI):
         `User > Radios <https://developers.deezer.com/api
         /actions-post>`__: Add a radio to a user's favorites.
 
-        .. admonition:: Permissions
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
@@ -2825,7 +2825,7 @@ class UsersAPI(DeezerResourceAPI):
         `User > Tracks <https://developers.deezer.com/api
         /actions-post>`__: Add one or more tracks to a user's favorites.
 
-        .. admonition:: Permissions
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
@@ -3034,7 +3034,7 @@ class UsersAPI(DeezerResourceAPI):
         `Track <https://developers.deezer.com/api/actions-post>`__:
         Update the details of a user-uploaded track.
 
-        .. admonition:: Permissions
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
@@ -3094,7 +3094,7 @@ class UsersAPI(DeezerResourceAPI):
         `Track <https://developers.deezer.com/api/actions-delete>`__:
         Delete a user-uploaded track.
 
-        .. admonition:: Permissions
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
@@ -3285,7 +3285,7 @@ class UsersAPI(DeezerResourceAPI):
         `User > Followings <https://developers.deezer.com/api
         /actions-post>`__: Follow a user.
 
-        .. admonition:: Permissions
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
@@ -3332,7 +3332,7 @@ class UsersAPI(DeezerResourceAPI):
         `User > Followings <https://developers.deezer.com/api
         /actions-delete>`__: Unfollow a user.
 
-        .. admonition:: Permissions
+        .. admonition:: Permission
            :class: authorization-scope
 
            .. tab:: Required
