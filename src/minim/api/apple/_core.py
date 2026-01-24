@@ -626,7 +626,7 @@ class iTunesSearchAPIClient(APIClient):
     ) -> dict[str, Any]:
         """
         Search for audiobooks, ebooks, movies, music, music videos,
-        podcasts, and television shows in the Apple catalog.
+        podcasts, and/or television shows in the Apple catalog.
 
         Parameters
         ----------

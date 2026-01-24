@@ -39,8 +39,8 @@ class SearchAPI(SpotifyResourceAPI):
         """
         `Search > Search for Item <https://developer.spotify.com
         /documentation/web-api/reference/search>`_: Search for albums,
-        artists, playlists, tracks, shows, episodes, and audiobooks in
-        the Spotify catalog.
+        artists, playlists, tracks, shows, episodes, and/or audiobooks
+        in the Spotify catalog.
 
         .. important::
 
