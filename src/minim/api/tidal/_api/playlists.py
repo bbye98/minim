@@ -126,7 +126,7 @@ class PlaylistsAPI(TIDALResourceAPI):
               User authentication
                  Access information on an item's owners.
 
-        .. note::
+        .. important::
 
            Exactly one of `playlist_uuids` or `owner_ids` must be
            provided. When `owner_ids` is specified, the request will
@@ -830,6 +830,11 @@ class PlaylistsAPI(TIDALResourceAPI):
 
               :code:`playlists.write` scope
                  Write to a user's playlists.
+
+        .. important::
+
+           At least one of :code:`name`, :code:`description`, or
+           :code:`public` must be specified.
 
         Parameters
         ----------

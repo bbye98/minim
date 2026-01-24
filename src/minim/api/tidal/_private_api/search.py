@@ -94,8 +94,8 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for albums, artists, playlists,
-        tracks, and videos that match a search query.
+        Search for albums, artists, playlists, tracks, and videos in the
+        TIDAL catalog.
 
         Parameters
         ----------
@@ -402,8 +402,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for albums that match a search
-        query.
+        Search for albums in the TIDAL catalog.
 
         Parameters
         ----------
@@ -518,8 +517,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for artists that match a search
-        query.
+        Search for artists in the TIDAL catalog.
 
         Parameters
         ----------
@@ -606,8 +604,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for playlists that match a search
-        query.
+        Search for playlists in the TIDAL catalog.
 
         Parameters
         ----------
@@ -707,8 +704,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for tracks that match a search
-        query.
+        Search for tracks in the TIDAL catalog.
 
         Parameters
         ----------
@@ -835,8 +831,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get TIDAL catalog information for videos that match a search
-        query.
+        Search for videos in the TIDAL catalog.
 
         Parameters
         ----------

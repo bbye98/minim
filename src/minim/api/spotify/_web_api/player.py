@@ -71,7 +71,7 @@ class PlayerAPI(SpotifyResourceAPI):
         current playback state.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -279,7 +279,7 @@ class PlayerAPI(SpotifyResourceAPI):
         Transfer playback to a new device.
 
         .. admonition:: Authorization scope and subscription
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -334,7 +334,7 @@ class PlayerAPI(SpotifyResourceAPI):
         devices.
 
         .. admonition:: Authorization scope
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -387,7 +387,7 @@ class PlayerAPI(SpotifyResourceAPI):
         and Spotify catalog information for the currently playing item.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -602,7 +602,7 @@ class PlayerAPI(SpotifyResourceAPI):
         Start or resume playback.
 
         .. admonition:: Authorization scope and subscription
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -709,7 +709,7 @@ class PlayerAPI(SpotifyResourceAPI):
         Pause playback.
 
         .. admonition:: Authorization scope and subscription
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -752,7 +752,7 @@ class PlayerAPI(SpotifyResourceAPI):
         the queue.
 
         .. admonition:: Authorization scope and subscription
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -795,7 +795,7 @@ class PlayerAPI(SpotifyResourceAPI):
         item in the queue.
 
         .. admonition:: Authorization scope and subscription
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -839,7 +839,7 @@ class PlayerAPI(SpotifyResourceAPI):
         specific position in the currently playing item.
 
         .. admonition:: Authorization scope and subscription
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -895,7 +895,7 @@ class PlayerAPI(SpotifyResourceAPI):
         /set-repeat-mode-on-users-playback>`_: Set playback repeat mode.
 
         .. admonition:: Authorization scope and subscription
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -959,7 +959,7 @@ class PlayerAPI(SpotifyResourceAPI):
         /set-volume-for-users-playback>`_: Set playback volume.
 
         .. admonition:: Authorization scope and subscription
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -1013,7 +1013,7 @@ class PlayerAPI(SpotifyResourceAPI):
         /toggle-shuffle-for-users-playback>`_: Set playback shuffle state.
 
         .. admonition:: Authorization scope and subscription
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -1069,7 +1069,7 @@ class PlayerAPI(SpotifyResourceAPI):
         items recently played by the current user.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -1085,7 +1085,7 @@ class PlayerAPI(SpotifyResourceAPI):
                   <https://developer.spotify.com/blog
                   /2024-11-27-changes-to-the-web-api>`__
 
-        .. note::
+        .. important::
 
            Exactly one of `played_after` or `played_before` must be
            provided.
@@ -1259,7 +1259,7 @@ class PlayerAPI(SpotifyResourceAPI):
         playing item and queued items.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 
@@ -1482,7 +1482,7 @@ class PlayerAPI(SpotifyResourceAPI):
         /add-to-queue>`_: Add items to the playback queue.
 
         .. admonition:: Authorization scope and subscription
-           :class: entitlement
+           :class: lock
 
            .. tab:: Required
 

@@ -949,6 +949,10 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
               User authentication
                  Access and manage the user's collection.
 
+        .. important::
+
+           Either :code:`name` or :code:`description` must be specified.
+
         Parameters
         ----------
         playlist_uuid : str; positional-only
@@ -1040,7 +1044,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
               User authentication
                  Access and manage the user's collection.
 
-        .. note::
+        .. important::
 
            Exactly one of `item_ids`, `from_album_id`, or
            `from_playlist_uuid` must be provided.

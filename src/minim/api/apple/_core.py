@@ -625,9 +625,8 @@ class iTunesSearchAPI(APIClient):
         include_explicit: bool | str | None = None,
     ) -> dict[str, Any]:
         """
-        Get Apple catalog information for audiobooks, ebooks, movies,
-        music, music videos, podcasts, and television shows that match a
-        search query.
+        Search for audiobooks, ebooks, movies, music, music videos,
+        podcasts, and television shows in the Apple catalog.
 
         Parameters
         ----------

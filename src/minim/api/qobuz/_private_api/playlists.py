@@ -1052,6 +1052,12 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
               User authentication
                  Access and manage your library.
 
+        .. important::
+
+           At least one of :code:`name`, :code:`description`,
+           :code:`public`, :code:`collaborative`, or :code:`track_ids`
+           must be specified.
+
         Parameters
         ----------
         name : str

@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from ..._shared import TTLCache, ResourceAPI
-
-if TYPE_CHECKING:
-    from .. import MusixmatchLyricsAPI
+from ..._shared import TTLCache
+from ._shared import MusixmatchResourceAPI
 
 
-class TracksAPI(ResourceAPI):
+class TracksAPI(MusixmatchResourceAPI):
     """
     Tracks API endpoints for the Musixmatch Lyrics API.
 
@@ -16,8 +14,6 @@ class TracksAPI(ResourceAPI):
        :class:`minim.api.musixmatch.MusixmatchLyricsAPI` and should not
        be instantiated directly.
     """
-
-    _client: "MusixmatchLyricsAPI"
 
     def _get_track_resource(
         self,
@@ -78,6 +74,7 @@ class TracksAPI(ResourceAPI):
             "GET", endpoint, params=(params or {}) | _params
         ).json()
 
+    @TTLCache.cached_method(ttl="popularity")
     def get_track(
         self,
         *,
@@ -98,6 +95,11 @@ class TracksAPI(ResourceAPI):
               Musixmatch Basic plan
                  Access music metadata and static lyrics. `Learn more.
                  <https://about.musixmatch.com/api-pricing>`__
+
+        .. important::
+
+           At least one of :code:`track_id`, :code:`common_track_id`, or
+           :code:`isrc` must be specified.
 
         Parameters
         ----------
@@ -203,6 +205,7 @@ class TracksAPI(ResourceAPI):
             isrc=isrc,
         )
 
+    @TTLCache.cached_method(ttl="static")
     def get_track_lyrics(
         self,
         *,
@@ -223,6 +226,11 @@ class TracksAPI(ResourceAPI):
               Musixmatch Basic plan
                  Access music metadata and static lyrics. `Learn more.
                  <https://about.musixmatch.com/api-pricing>`__
+
+        .. important::
+
+           At least one of :code:`track_id`, :code:`common_track_id`, or
+           :code:`isrc` must be specified.
 
         Parameters
         ----------
@@ -292,6 +300,7 @@ class TracksAPI(ResourceAPI):
             isrc=isrc,
         )
 
+    @TTLCache.cached_method(ttl="static")
     def get_track_lyrics_moods(
         self,
         *,
@@ -315,6 +324,11 @@ class TracksAPI(ResourceAPI):
                  translations, song structure, and lyric analysis.
                  `Learn more. <https://about.musixmatch.com
                  /api-pricing>`__
+
+        .. important::
+
+           At least one of :code:`track_id`, :code:`common_track_id`, or
+           :code:`isrc` must be specified.
 
         Parameters
         ----------
@@ -368,15 +382,16 @@ class TracksAPI(ResourceAPI):
             isrc=isrc,
         )
 
+    @TTLCache.cached_method(ttl="static")
     def get_track_subtitles(
         self,
         *,
         track_id: int | str | None = None,
         common_track_id: int | str | None = None,
         isrc: str | None = None,
-        subtitle_format: str | None = None,
-        subtitle_length: int | str | None = None,
-        subtitle_length_max_deviation: int | str | None = None,
+        format: str | None = None,
+        duration: int | str | None = None,
+        max_duration_deviation: int | str | None = None,
     ) -> dict[str, Any]:
         """
         `Track > track.subtitle.get <https://docs.musixmatch.com
@@ -388,38 +403,101 @@ class TracksAPI(ResourceAPI):
 
            .. tab:: Required
 
-              Musixmatch Enterprise plan
-                 Access extended music metadata, advanced search,
-                 translations, song structure, and lyric analysis.
-                 `Learn more. <https://about.musixmatch.com
-                 /api-pricing>`__
+              Musixmatch Scale plan
+                 Access time-synced lyrics. `Learn more.
+                 <https://about.musixmatch.com/api-pricing>`__
+
+        .. important::
+
+           At least one of :code:`track_id`, :code:`common_track_id`, or
+           :code:`isrc` must be specified.
+
+        Parameters
+        ----------
+        track_id : int or str; keyword-only; optional
+            Musixmatch ID of the track.
+
+            **Examples**: :code:`84584600`, :code:`"359206419"`.
+
+        common_track_id : int or str; keyword-only; optional
+            Musixmatch common ID of the track.
+
+            **Examples**: :code:`5920049`, :code:`"40728258"`.
+
+        isrc : str; keyword-only; optional
+            ISRC of the track.
+
+            **Example**: :code:`"USUM70905526"`.
+
+        format : str; keyword-only; optional
+            Subtitle format.
+
+            **Valid values**: :code:`"lrc"`, :code:`"dfxp"`,
+            :code:`"mxm"`.
+
+            **API default**: :code:`"lrc"`.
+
+        duration : int or str; keyword-only; optional
+            Target subtitle duration, in seconds.
+
+        max_duration_deviation : int or str; keyword-only; optional
+            Maximum deviation allowed from the requested duration. Only
+            applicable when `duration` is specified.
+
+        Returns
+        -------
+        subtitles : dict[str, Any]
+            Musixmatch content metadata for the track's subtitles.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "message": {
+                      "body": {
+                        "subtitle": {
+                          "lyrics_copyright": <str>,
+                          "pixel_tracking_url": <str>,
+                          "script_tracking_url": <str>,
+                          "subtitle_body": <str>,
+                          "subtitle_id": <int>,
+                          "subtitle_language": <str>,
+                          "subtitle_language_description": <str>,
+                          "subtitle_length": <int>,
+                          "updated_time": <str>
+                        }
+                      },
+                      "header": {
+                        "execute_time": <float>,
+                        "instrumental": <int>,
+                        "status_code": <int>,
+                      }
+                    }
+                  }
         """
         params = {}
-        if subtitle_format is not None:
-            self._validate_type("subtitle_format", subtitle_format, str)
-            subtitle_format = subtitle_format.strip().lower()
-            if subtitle_format not in (
-                SUBTITLE_FORMATS := {"lrc", "dfxp", "mxm"}
-            ):
+        if format is not None:
+            self._validate_type("format", format, str)
+            format = format.strip().lower()
+            if format not in (SUBTITLE_FORMATS := {"lrc", "dfxp", "mxm"}):
                 subtitle_formats_str = "', '".join(sorted(SUBTITLE_FORMATS))
                 raise ValueError(
-                    f"Invalid subtitle format {subtitle_format!r}. "
+                    f"Invalid subtitle format {format!r}. "
                     f"Valid values: '{subtitle_formats_str}'."
                 )
-            params["subtitle_format"] = subtitle_format
-        if subtitle_length is not None:
-            self._validate_numeric("subtitle_length", subtitle_length, int, 0)
-            params["f_subtitle_length"] = subtitle_length
-        if subtitle_length_max_deviation is not None:
-            self._validate_numeric(
-                "subtitle_length_max_deviation",
-                subtitle_length_max_deviation,
-                int,
-                0,
-            )
-            params["f_subtitle_length_max_deviation"] = (
-                subtitle_length_max_deviation
-            )
+            params["subtitle_format"] = format
+        if duration is not None:
+            self._validate_numeric("duration", duration, int, 0)
+            params["f_subtitle_length"] = duration
+            if max_duration_deviation is not None:
+                self._validate_numeric(
+                    "max_duration_deviation", max_duration_deviation, int, 0
+                )
+                params["f_subtitle_length_max_deviation"] = (
+                    max_duration_deviation
+                )
         return self._get_track_resource(
             "track.subtitles.get",
             track_id=track_id,
@@ -428,32 +506,109 @@ class TracksAPI(ResourceAPI):
             params=params,
         )
 
-    def get_track_rich_sync(
+    @TTLCache.cached_method(ttl="static")
+    def get_track_rich_sync_lyrics(
         self,
         *,
         track_id: int | str | None = None,
         common_track_id: int | str | None = None,
         isrc: str | None = None,
-        rich_sync_length: int | None = None,
-        rich_sync_length_max_deviation: int | None = None,
+        duration: int | None = None,
+        max_duration_deviation: int | None = None,
     ) -> dict[str, Any]:
-        """ """
+        """
+        `Track > track.richsync.get <https://docs.musixmatch.com
+        /lyrics-api/track/track-richsync-get>`_: Get Musixmatch catalog
+        information for a track's rich sync lyrics.
+
+        .. admonition:: Subscription
+           :class: entitlement
+
+           .. tab:: Required
+
+              Musixmatch Enterprise plan
+                 Access extended music metadata, advanced search,
+                 translations, song structure, and lyric analysis.
+                 `Learn more. <https://about.musixmatch.com
+                 /api-pricing>`__
+
+        .. important::
+
+           At least one of :code:`track_id`, :code:`common_track_id`, or
+           :code:`isrc` must be specified.
+
+        Parameters
+        ----------
+        track_id : int or str; keyword-only; optional
+            Musixmatch ID of the track.
+
+            **Examples**: :code:`84584600`, :code:`"359206419"`.
+
+        common_track_id : int or str; keyword-only; optional
+            Musixmatch common ID of the track.
+
+            **Examples**: :code:`5920049`, :code:`"40728258"`.
+
+        isrc : str; keyword-only; optional
+            ISRC of the track.
+
+            **Example**: :code:`"USUM70905526"`.
+
+        duration : int or str; keyword-only; optional
+            Target rich sync lyrics duration, in seconds.
+
+        max_duration_deviation : int or str; keyword-only; optional
+            Maximum deviation allowed from the requested duration. Only
+            applicable when `duration` is specified.
+
+        Returns
+        -------
+        lyrics : dict[str, Any]
+            Musixmatch content metadata for the track's rich sync
+            lyrics.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "message": {
+                      "body": {
+                        "richsync": {
+                          "html_tracking_url": <str>,
+                          "lyrics_copyright": <str>,
+                          "pixel_tracking_url": <str>,
+                          "publisher_list": [],
+                          "restricted": <int>,
+                          "richssync_language": <str>,
+                          "richsync_avg_count": <int>,
+                          "richsync_body": <str>,
+                          "richsync_id": <int>,
+                          "richsync_language_description": <str>,
+                          "richsync_length": <int>,
+                          "script_tracking_url": <str>,
+                          "updated_time": <str>,
+                          "writer_list": []
+                        }
+                      },
+                      "header": {
+                        "available": <int>,
+                        "execute_time": <float>,
+                        "status_code": <int>
+                      }
+                    }
+                  }
+        """
         params = {}
-        if rich_sync_length is not None:
+        if duration is not None:
+            self._validate_numeric("rich_durationync_length", duration, int, 0)
+            params["f_richsync_length"] = duration
+        if max_duration_deviation is not None:
             self._validate_numeric(
-                "rich_sync_length", rich_sync_length, int, 0
+                "max_duration_deviation", max_duration_deviation, int, 0
             )
-            params["f_richsync_length"] = rich_sync_length
-        if rich_sync_length_max_deviation is not None:
-            self._validate_numeric(
-                "rich_sync_length_max_deviation",
-                rich_sync_length_max_deviation,
-                int,
-                0,
-            )
-            params["f_richsync_length_max_deviation"] = (
-                rich_sync_length_max_deviation
-            )
+            params["f_richsync_length_max_deviation"] = max_duration_deviation
         return self._get_track_resource(
             "track.richsync.get",
             track_id=track_id,
@@ -462,6 +617,7 @@ class TracksAPI(ResourceAPI):
             params=params,
         )
 
+    @TTLCache.cached_method(ttl="search")
     def search_tracks(
         self,
         query: str | None = None,
@@ -475,15 +631,228 @@ class TracksAPI(ResourceAPI):
         genre_id: int | str | None = None,
         language: str | None = None,
         has_lyrics: bool | None = None,
-        release_date_before: str | None = None,
         release_date_after: str | None = None,
-        artist_rating_sort_order: str | None = None,
-        track_rating_sort_order: str | None = None,
+        release_date_before: str | None = None,
+        artist_popularity_sort_order: str | None = None,
+        track_popularity_sort_order: str | None = None,
         page: int | str | None = None,
         limit: int | str | None = None,
     ) -> dict[str, Any]:
-        """ """
+        """
+        `Track > track.search <https://docs.musixmatch.com/lyrics-api
+        /track/track-search>`_: Search for tracks in the Musixmatch
+        catalog.
 
+        .. admonition:: Subscription
+           :class: entitlement
+
+           .. tab:: Required
+
+              Musixmatch Basic plan
+                 Access music metadata and static lyrics. `Learn more.
+                 <https://about.musixmatch.com/api-pricing>`__
+
+        Parameters
+        ----------
+        query : str; optional
+            Search query matching any word in the artist name, track
+            name, or lyrics.
+
+        artist_query : str; keyword-only; optional
+            Search query matching any word in the artist name.
+
+        lyrics_query : str; keyword-only; optional
+            Search query matching any word in the track's lyrics.
+
+        track_query : str; keyword-only; optional
+            Search query matching any word in the track name.
+
+        track_artist_query : str; keyword-only; optional
+            Search query matching any word in the track artist name.
+
+        writer_query : str; keyword-only; optional
+            Search query matching any word in the track writer name.
+
+        artist_id : int or str; keyword-only; optional
+            Musixmatch ID of the artist to filter results by.
+
+        genre_id : int or str; keyword-only; optional
+            Musixmatch genre ID to filter results by.
+
+        language : str; keyword-only; optional
+            ISO 639-1 language code to filter results by lyrics
+            availability.
+
+            **Example**: :code:`"it"`.
+
+        has_lyrics : bool; keyword-only; optional
+            Whether to only include tracks that have lyrics.
+
+            **API default**: :code:`False`.
+
+        release_date_after : str; keyword-only; optional
+            Minimum release date to filter results by, in
+            :code:`YYYYMMDD` format.
+
+        release_date_before : str; keyword-only; optional
+            Maximum release date to filter results by, in
+            :code:`YYYYMMDD` format.
+
+        artist_popularity_sort_order : str; keyword-only; optional
+            Sort order for artist popularity.
+
+            **Valid values**: :code:`"asc"`, :code:`"desc"`.
+
+        track_popularity_sort_order : str; keyword-only; optional
+            Sort order for track popularity.
+
+            **Valid values**: :code:`"asc"`, :code:`"desc"`.
+
+        limit : int or str; keyword-only; optional
+            Maximum number of results to return.
+
+            **Valid range**: :code:`1` to :code:`100`.
+
+            **API default**: :code:`10`.
+
+        page : int or str; keyword-only; optional
+            Page number. Use with `limit` to get the next page of
+            results.
+
+            **Minimum value**: :code:`1`.
+
+            **API default**: :code:`1`.
+
+        Returns
+        -------
+        results : dict[str, Any]
+            Musixmatch content metadata for the search results.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "message": {
+                      "body": {
+                        "track_list": [
+                          {
+                            "track": {
+                              "album_id": <int>,
+                              "album_name": <str>,
+                              "artist_id": <int>,
+                              "artist_name": <str>,
+                              "commontrack_id": <int>,
+                              "commontrack_isrcs": <list[list[str]]>,
+                              "explicit": <int>,
+                              "has_lyrics": <int>,
+                              "has_richsync": <int>,
+                              "has_subtitles": <int>,
+                              "instrumental": <int>,
+                              "num_favourite": <int>,
+                              "primary_genres": {
+                                "music_genre_list": [
+                                  {
+                                    "music_genre": {
+                                      "music_genre_id": <int>,
+                                      "music_genre_name": <str>,
+                                      "music_genre_name_extended": <str>,
+                                      "music_genre_parent_id": <int>,
+                                      "music_genre_vanity": <str>
+                                    }
+                                  }
+                                ]
+                              },
+                              "restricted": <int>,
+                              "track_edit_url": <str>,
+                              "track_id": <int>,
+                              "track_isrc": <str>,
+                              "track_length": <int>,
+                              "track_lyrics_translation_status": [
+                                {
+                                  "from": <str>,
+                                  "perc": <int>,
+                                  "to": <str>
+                                }
+                              ],
+                              "track_name": <str>,
+                              "track_rating": <int>,
+                              "track_share_url": <str>,
+                              "track_spotify_id": <str>,
+                              "updated_time": <str>
+                            }
+                          }
+                        ]
+                      },
+                      "header": {
+                        "available": <int>,
+                        "execute_time": <float>,
+                        "status_code": <int>
+                      }
+                    }
+                  }
+        """
+        params = {}
+        if query is not None:
+            self._validate_type("query", query, str)
+            params["q"] = query
+        if artist_query is not None:
+            self._validate_type("artist_query", artist_query, str)
+            params["q_artist"] = artist_query
+        if lyrics_query is not None:
+            self._validate_type("lyrics_query", lyrics_query, str)
+            params["q_lyrics"] = lyrics_query
+        if track_query is not None:
+            self._validate_type("track_query", track_query, str)
+            params["q_track"] = track_query
+        if track_artist_query is not None:
+            self._validate_type("track_artist_query", track_artist_query, str)
+            params["q_track_artist"] = track_artist_query
+        if writer_query is not None:
+            self._validate_type("writer_query", writer_query, str)
+            params["q_writer"] = writer_query
+        if artist_id is not None:
+            self._validate_numeric("artist_id", artist_id, int)
+            params["f_artist_id"] = artist_id
+        if genre_id is not None:
+            self._validate_numeric("genre_id", genre_id, int)
+            params["f_music_genre_id"] = genre_id
+        if language is not None:
+            self._validate_language_code(language)
+            params["f_lyrics_language"] = language
+        if has_lyrics is not None:
+            self._validate_type("has_lyrics", has_lyrics, bool)
+            params["f_has_lyrics"] = int(has_lyrics)
+        if release_date_after is not None:
+            params["f_first_release_date_min"] = self._prepare_datetime(
+                release_date_after, "%Y%m%d"
+            )
+        if release_date_before is not None:
+            params["f_first_release_date_max"] = self._prepare_datetime(
+                release_date_before, "%Y%m%d"
+            )
+        if artist_popularity_sort_order is not None:
+            self._validate_sort_order(
+                artist_popularity_sort_order, sort_by="artist popularity"
+            )
+            params["s_artist_rating"] = artist_popularity_sort_order
+        if track_popularity_sort_order is not None:
+            self._validate_sort_order(
+                track_popularity_sort_order, sort_by="track popularity"
+            )
+            params["s_track_rating"] = track_popularity_sort_order
+        if limit is not None:
+            self._validate_numeric("limit", limit, int, 1, 100)
+            params["page_size"] = limit
+        if page is not None:
+            self._validate_numeric("page", page, int, 1)
+            params["page"] = page
+        return self._client._request(
+            "GET", "track.search", params=params
+        ).json()
+
+    @TTLCache.cached_method(ttl="static")
     def get_track_lyrics_snippet(
         self,
         *,
@@ -491,7 +860,79 @@ class TracksAPI(ResourceAPI):
         common_track_id: int | str | None = None,
         isrc: str | None = None,
     ) -> dict[str, Any]:
-        """ """
+        """
+        `Track > track.snippet.get <https://docs.musixmatch.com
+        /lyrics-api/track/track-snippet-get>`_: Get Musixmatch catalog
+        information for a snippet of a track's lyrics.
+
+        .. admonition:: Subscription
+           :class: entitlement
+
+           .. tab:: Required
+
+              Musixmatch Basic plan
+                 Access music metadata and static lyrics. `Learn more.
+                 <https://about.musixmatch.com/api-pricing>`__
+
+        .. important::
+
+           At least one of :code:`track_id`, :code:`common_track_id`, or
+           :code:`isrc` must be specified.
+
+        Parameters
+        ----------
+        track_id : int or str; keyword-only; optional
+            Musixmatch ID of the track.
+
+            **Examples**: :code:`84584600`, :code:`"359206419"`.
+
+        common_track_id : int or str; keyword-only; optional
+            Musixmatch common ID of the track.
+
+            **Examples**: :code:`5920049`, :code:`"40728258"`.
+
+        isrc : str; keyword-only; optional
+            ISRC of the track.
+
+            **Example**: :code:`"USUM70905526"`.
+
+        Returns
+        -------
+        snippet : dict[str, Any]
+            Musixmatch content metadata for the snippet of the track's
+            lyrics.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "message": {
+                      "body": {
+                        "snippet": {
+                          "html_tracking_url": <str>,
+                          "instrumental": <int>,
+                          "pixel_tracking_url": <str>,
+                          "region_restriction": {
+                            "allowed": <list[str]>,
+                            "blocked": []
+                          },
+                          "restricted": <int>,
+                          "script_tracking_url": <str>,
+                          "snippet_body": <str>,
+                          "snippet_id": <int>,
+                          "snippet_language": <str>,
+                          "updated_time": <str>
+                        }
+                      },
+                      "header": {
+                        "execute_time": <float>,
+                        "status_code": <int>
+                      }
+                    }
+                  }
+        """
         return self._get_track_resource(
             "track.snippet.get",
             track_id=track_id,
@@ -499,16 +940,110 @@ class TracksAPI(ResourceAPI):
             isrc=isrc,
         )
 
+    @TTLCache.cached_method(ttl="static")
     def get_track_lyrics_translation(
         self,
+        language: str,
         *,
         track_id: int | str | None = None,
         common_track_id: int | str | None = None,
         isrc: str | None = None,
-        language: str | None = None,
         min_translation_ratio: float | str | None = None,
     ) -> dict[str, Any]:
-        """ """
+        """
+        `Track > track.lyrics.translation.get
+        <https://docs.musixmatch.com/lyrics-api/track
+        /track-lyrics-translation-get>`_: Get Musixmatch catalog
+        information for a translation of a track's lyrics.
+
+        .. admonition:: Subscription
+           :class: entitlement
+
+           .. tab:: Required
+
+              Musixmatch Enterprise plan
+                 Access extended music metadata, advanced search,
+                 translations, song structure, and lyric analysis.
+                 `Learn more. <https://about.musixmatch.com
+                 /api-pricing>`__
+
+        .. important::
+
+           At least one of :code:`track_id`, :code:`common_track_id`, or
+           :code:`isrc` must be specified.
+
+        Parameters
+        ----------
+        language : str
+            ISO 639-1 language code for the desired translation
+            language.
+
+            **Example**: :code:`"it"`.
+
+        track_id : int or str; keyword-only; optional
+            Musixmatch ID of the track.
+
+            **Examples**: :code:`84584600`, :code:`"359206419"`.
+
+        common_track_id : int or str; keyword-only; optional
+            Musixmatch common ID of the track.
+
+            **Examples**: :code:`5920049`, :code:`"40728258"`.
+
+        isrc : str; keyword-only; optional
+            ISRC of the track.
+
+            **Example**: :code:`"USUM70905526"`.
+
+        min_translation_ratio : float; keyword-only; optional
+            Minimum translation completion ratio.
+
+            **Valid range**: :code:`0.0` to :code:`1.0`.
+
+        Returns
+        -------
+        translation : dict[str, Any]
+            Musixmatch content metadata for the translation of the
+            track's lyrics.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "message": {
+                      "body": {
+                        "lyrics": {
+                          "explicit": <int>,
+                          "lyrics_body": <str>,
+                          "lyrics_copyright": <str>,
+                          "lyrics_id": <int>,
+                          "lyrics_language": <str>,
+                          "lyrics_translated": {
+                            "html_tracking_url": <str>,
+                            "lyrics_body": <str>,
+                            "pixel_tracking_url": <str>,
+                            "restricted": <int>,
+                            "script_tracking_url": <str>,
+                            "selected_language": <str>
+                          },
+                          "pixel_tracking_url": <str>,
+                          "region_restriction": {
+                            "allowed": <list[str]>,
+                            "blocked": []
+                          },
+                          "script_tracking_url": <str>,
+                          "updated_time": <str>
+                        }
+                      },
+                      "header": {
+                        "execute_time": <float>,
+                        "status_code": <int>
+                      }
+                    }
+                  }
+        """
         params = {}
         if language is not None:
             self._validate_language_code(language)
@@ -526,18 +1061,121 @@ class TracksAPI(ResourceAPI):
             params=params,
         )
 
+    @TTLCache.cached_method(ttl="static")
     def get_track_subtitles_translation(
         self,
+        language: str,
         *,
         track_id: int | str | None = None,
         common_track_id: int | str | None = None,
         isrc: str | None = None,
-        language: str | None = None,
         min_translation_ratio: float | None = None,
-        subtitle_length: int | None = None,
-        subtitle_length_max_deviation: int | None = None,
+        duration: int | None = None,
+        max_duration_deviation: int | None = None,
     ) -> dict[str, Any]:
-        """ """
+        """
+        `Track > track.subtitle.translation.get
+        <https://docs.musixmatch.com/lyrics-api/track
+        /track-subtitle-translation-get>`_: Get Musixmatch catalog
+        information for a translation of a track's subtitles.
+
+        .. admonition:: Subscription
+           :class: entitlement
+
+           .. tab:: Required
+
+              Musixmatch Enterprise plan
+                 Access extended music metadata, advanced search,
+                 translations, song structure, and lyric analysis.
+                 `Learn more. <https://about.musixmatch.com
+                 /api-pricing>`__
+
+        .. important::
+
+           At least one of :code:`track_id`, :code:`common_track_id`, or
+           :code:`isrc` must be specified.
+
+        Parameters
+        ----------
+        language : str
+            ISO 639-1 language code for the desired translation
+            language.
+
+            **Example**: :code:`"it"`.
+
+        track_id : int or str; keyword-only; optional
+            Musixmatch ID of the track.
+
+            **Examples**: :code:`84584600`, :code:`"359206419"`.
+
+        common_track_id : int or str; keyword-only; optional
+            Musixmatch common ID of the track.
+
+            **Examples**: :code:`5920049`, :code:`"40728258"`.
+
+        isrc : str; keyword-only; optional
+            ISRC of the track.
+
+            **Example**: :code:`"USUM70905526"`.
+
+        min_translation_ratio : float; keyword-only; optional
+            Minimum translation completion ratio.
+
+            **Valid range**: :code:`0.0` to :code:`1.0`.
+
+        duration : int or str; keyword-only; optional
+            Target subtitle duration, in seconds.
+
+        max_duration_deviation : int or str; keyword-only; optional
+            Maximum deviation allowed from the requested duration. Only
+            applicable when `duration` is specified.
+
+        Returns
+        -------
+        translation : dict[str, Any]
+            Musixmatch content metadata for the translation of the
+            track's subtitles.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "message": {
+                      "body": {
+                        "subtitle": {
+                          "lyrics_copyright": <str>,
+                          "pixel_tracking_url": <str>,
+                          "region_restriction": {
+                            "allowed": <list[str]>,
+                            "blocked": []
+                          },
+                          "script_tracking_url": <str>,
+                          "subtitle_body": <str>,
+                          "subtitle_id": <int>,
+                          "subtitle_language": <str>,
+                          "subtitle_language_description": <str>,
+                          "subtitle_length": <int>,
+                          "subtitle_translated": {
+                            "html_tracking_url": <str>,
+                            "pixel_tracking_url": <str>,
+                            "restricted": <int>,
+                            "script_tracking_url": <str>,
+                            "selected_language": <str>,
+                            "subtitle_body": <str>,
+                          },
+                          "updated_time": <str>
+                        }
+                      },
+                      "header": {
+                        "execute_time": <float>,
+                        "instrumental": <int>,
+                        "status_code": <int>
+                      }
+                    }
+                  }
+        """
         params = {}
         if language is not None:
             self._validate_language_code(language)
@@ -547,19 +1185,16 @@ class TracksAPI(ResourceAPI):
                 "min_translation_ratio", min_translation_ratio, float, 0.0, 1.0
             )
             params["min_completed"] = min_translation_ratio
-        if subtitle_length is not None:
-            self._validate_numeric("subtitle_length", subtitle_length, int, 0)
-            params["f_subtitle_length"] = subtitle_length
-        if subtitle_length_max_deviation is not None:
-            self._validate_numeric(
-                "subtitle_length_max_deviation",
-                subtitle_length_max_deviation,
-                int,
-                0,
-            )
-            params["f_subtitle_length_max_deviation"] = (
-                subtitle_length_max_deviation
-            )
+        if duration is not None:
+            self._validate_numeric("duration", duration, int, 0)
+            params["f_subtitle_length"] = duration
+            if max_duration_deviation is not None:
+                self._validate_numeric(
+                    "max_duration_deviation", max_duration_deviation, int, 0
+                )
+                params["f_subtitle_length_max_deviation"] = (
+                    max_duration_deviation
+                )
         return self._get_track_resource(
             "track.lyrics.translation.get",
             track_id=track_id,

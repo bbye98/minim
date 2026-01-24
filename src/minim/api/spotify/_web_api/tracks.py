@@ -752,9 +752,9 @@ class TracksAPI(SpotifyResourceAPI):
 
         .. important::
 
-           Up to 5 seed values may be provided in any combination of
-           :code:`seed_artist_ids`, :code:`seed_genres`, and
-           :code:`seed_track_ids`.
+           At least one and up to five seed values may be provided in
+           any combination of :code:`seed_artist_ids`,
+           :code:`seed_genres`, and :code:`seed_track_ids`.
 
         .. hint::
 

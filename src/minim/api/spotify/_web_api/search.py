@@ -38,9 +38,9 @@ class SearchAPI(SpotifyResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Search for Item <https://developer.spotify.com
-        /documentation/web-api/reference/search>`_: Get Spotify catalog
-        information for albums, artists, playlists, tracks, shows,
-        episodes, and/or audiobooks that match a keyword string.
+        /documentation/web-api/reference/search>`_: Search for albums,
+        artists, playlists, tracks, shows, episodes, and audiobooks in
+        the Spotify catalog.
 
         .. important::
 

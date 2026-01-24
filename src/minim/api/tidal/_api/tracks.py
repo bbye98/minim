@@ -59,7 +59,7 @@ class TracksAPI(TIDALResourceAPI):
               User authentication
                  Access information on an item's owners.
 
-        .. note::
+        .. important::
 
            Exactly one of `track_ids`, `isrcs`, or `owner_ids` must
            be provided. When `isrcs` or `owner_ids` is specified, the

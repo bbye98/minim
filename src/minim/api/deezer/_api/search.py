@@ -135,8 +135,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Album <https://developers.deezer.com/api/search
-        /album>`_: Get Deezer catalog information for albums that match
-        a keyword string.
+        /album>`_: Search for albums in the Deezer catalog.
 
         Parameters
         ----------
@@ -265,8 +264,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Artist <https://developers.deezer.com/api/search
-        /artist>`_: Get Deezer catalog information for artists that
-        match a keyword string.
+        /artist>`_: Search for artists in the Deezer catalog.
 
         Parameters
         ----------
@@ -381,8 +379,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Playlist <https://developers.deezer.com/api/search
-        /playlist>`_: Get Deezer catalog information for playlists that
-        match a keyword string.
+        /playlist>`_: Search for playlists in the Deezer catalog.
 
         Parameters
         ----------
@@ -486,8 +483,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Podcast <https://developers.deezer.com/api/search
-        /podcast>`_: Get Deezer catalog information for podcasts that
-        match a keyword string.
+        /podcast>`_: Search for podcasts in the Deezer catalog.
 
         Parameters
         ----------
@@ -580,8 +576,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Radio <https://developers.deezer.com/api/search
-        /radio>`_: Get Deezer catalog information for radios that
-        match a keyword string.
+        /radio>`_: Search for radios in the Deezer catalog.
 
         Parameters
         ----------
@@ -671,8 +666,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > Track <https://developers.deezer.com/api/search
-        /track>`_: Get Deezer catalog information for tracks that match
-        a keyword string.
+        /track>`_: Search for tracks in the Deezer catalog.
 
         Parameters
         ----------
@@ -814,8 +808,7 @@ class SearchAPI(DeezerResourceAPI):
     ) -> dict[str, Any]:
         """
         `Search > User <https://developers.deezer.com/api/search
-        /user>`_: Get Deezer catalog information for users that match
-        a keyword string.
+        /user>`_: Search for users in the Deezer catalog.
 
         Parameters
         ----------

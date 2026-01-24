@@ -124,7 +124,7 @@ class ArtistsAPI(TIDALResourceAPI):
               User authentication
                  Access information on an item's owners.
 
-        .. note::
+        .. important::
 
            Exactly one of `artist_ids` or `handles` must be provided.
            When `handles` is specified, the request will always be sent

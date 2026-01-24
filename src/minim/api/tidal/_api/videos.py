@@ -44,7 +44,7 @@ class VideosAPI(TIDALResourceAPI):
               User authentication
                  Access information on an item's owners.
 
-        .. note::
+        .. important::
 
            Exactly one of `video_ids` or `isrcs` must be provided. If
            `video_ids` is specified, the request will always be sent to

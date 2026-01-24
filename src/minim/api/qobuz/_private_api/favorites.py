@@ -42,6 +42,11 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
               User authentication
                  Access and manage your library.
 
+        .. important::
+
+           At least one of :code:`album_ids`, :code:`artist_ids`, or
+           :code:`track_ids` must be specified.
+
         Parameters
         ----------
         album_ids : str or list[str]; keyword-only; optional
@@ -111,6 +116,11 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
 
               User authentication
                  Access and manage your library.
+
+        .. important::
+
+           At least one of :code:`album_ids`, :code:`artist_ids`, or
+           :code:`track_ids` must be specified.
 
         Parameters
         ----------

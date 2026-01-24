@@ -89,8 +89,8 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for albums, artists, playlists,
-        stories, and/or tracks that match a keyword string.
+        Search for albums, artists, playlists, stories, and/or tracks in
+        the Qobuz catalog.
 
         Parameters
         ----------
@@ -590,8 +590,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for albums that match a keyword
-        string.
+        Search for albums in the Qobuz catalog.
 
         Parameters
         ----------
@@ -728,8 +727,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for artists that match a keyword
-        string.
+        Search for artists in the Qobuz catalog.
 
         Parameters
         ----------
@@ -1080,8 +1078,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for playlists that match a keyword
-        string.
+        Search for playlists in the Qobuz catalog.
 
         Parameters
         ----------
@@ -1214,8 +1211,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for stories that match a keyword
-        string.
+        Search for stories in the Qobuz catalog.
 
         Parameters
         ----------
@@ -1306,8 +1302,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
         offset: int | None = None,
     ) -> dict[str, Any]:
         """
-        Get Qobuz catalog information for tracks that match a keyword
-        string.
+        Search for tracks in the Qobuz catalog.
 
         Parameters
         ----------

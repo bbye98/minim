@@ -37,8 +37,8 @@ class SearchAPI(TIDALResourceAPI):
         """
         `Search Suggestions > Get Search Suggestions
         <https://tidal-music.github.io/tidal-api-reference/#
-        /searchSuggestions/get_searchSuggestions__id_>`_: Get TIDAL
-        catalog information for search suggestions for a keyword string.
+        /searchSuggestions/get_searchSuggestions__id_>`_: Get search
+        suggestions for a keyword string.
 
         Parameters
         ----------
@@ -903,8 +903,8 @@ class SearchAPI(TIDALResourceAPI):
         """
         `Search Results > Search <https://tidal-music.github.io
         /tidal-api-reference/#/searchResults/get_searchResults__id_>`_:
-        Get TIDAL catalog information for albums, artists, playlists,
-        tracks, and videos that match a keyword string.
+        Search for albums, artists, playlists, tracks, and videos in the
+        TIDAL catalog.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown
@@ -1422,9 +1422,8 @@ class SearchAPI(TIDALResourceAPI):
         """
         `Search Results > Search Albums <https://tidal-music.github.io
         /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_albums>`_:
-        Get TIDAL catalog information for albums that match a keyword
-        string.
+        /get_searchResults__id__relationships_albums>`_: Search for
+        albums in the TIDAL catalog.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown
@@ -1583,9 +1582,8 @@ class SearchAPI(TIDALResourceAPI):
         """
         `Search Results > Search Artists <https://tidal-music.github.io
         /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_artists>`_:
-        Get TIDAL catalog information for artists that match a keyword
-        string.
+        /get_searchResults__id__relationships_artists>`_: Search for
+        artists in the TIDAL catalog.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown
@@ -1757,8 +1755,8 @@ class SearchAPI(TIDALResourceAPI):
         `Search Results > Search Playlists
         <https://tidal-music.github.io/tidal-api-reference/#
         /searchResults
-        /get_searchResults__id__relationships_playlists>`_: Get TIDAL
-        catalog information for playlists that match a keyword string.
+        /get_searchResults__id__relationships_playlists>`_: Search for
+        playlists in the TIDAL catalog.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown
@@ -1890,9 +1888,8 @@ class SearchAPI(TIDALResourceAPI):
         """
         `Search Results > Search Top Hits <https://tidal-music.github.io
         /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_topHits>`_:
-        Get TIDAL catalog information for top hits that match a keyword
-        string.
+        /get_searchResults__id__relationships_topHits>`_: Get TIDAL
+        catalog information for top hits that match a keyword string.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown
@@ -2326,9 +2323,8 @@ class SearchAPI(TIDALResourceAPI):
         """
         `Search Results > Search Tracks <https://tidal-music.github.io
         /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_tracks>`_:
-        Get TIDAL catalog information for tracks that match a keyword
-        string.
+        /get_searchResults__id__relationships_tracks>`_: Search for
+        tracks in the TIDAL catalog.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown
@@ -2508,9 +2504,8 @@ class SearchAPI(TIDALResourceAPI):
         """
         `Search Results > Search Videos <https://tidal-music.github.io
         /tidal-api-reference/#/searchResults
-        /get_searchResults__id__relationships_videos>`_:
-        Get TIDAL catalog information for videos that match a keyword
-        string.
+        /get_searchResults__id__relationships_videos>`_: Search for
+        videos in the TIDAL catalog.
 
         .. admonition:: Authorization scope
            :class: entitlement dropdown

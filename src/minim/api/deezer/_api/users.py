@@ -2080,6 +2080,11 @@ class UsersAPI(DeezerResourceAPI):
                  Manage a user's library. `Learn more.
                  <https://developers.deezer.com/api/permissions>`__
 
+        .. important::
+
+           At least one of :code:`name`, :code:`description`,
+           :code:`public`, or :code:`collaborative` must be specified.
+
         Parameters
         ----------
         playlist_id : int or str; positional-only
@@ -3042,6 +3047,11 @@ class UsersAPI(DeezerResourceAPI):
               :code:`manage_library` permission
                  Manage a user's library. `Learn more.
                  <https://developers.deezer.com/api/permissions>`__
+
+        .. important::
+
+           At least one of :code:`album`, :code:`artist`, or
+           :code:`title` must be specified.
 
         Parameters
         ----------

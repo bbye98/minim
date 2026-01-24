@@ -379,6 +379,11 @@ class PlaylistsAPI(SpotifyResourceAPI):
                  <https://developer.spotify.com/documentation/web-api
                  /concepts/scopes#playlist-modify-private>`__
 
+        .. important::
+
+           At least one of :code:`name`, :code:`description`,
+           :code:`public`, or :code:`collaborative` must be specified.
+
         Parameters
         ----------
         playlist_id : str; positional-only

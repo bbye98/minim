@@ -56,7 +56,7 @@ class AlbumsAPI(TIDALResourceAPI):
               User authentication
                  Access information on an item's owners.
 
-        .. note::
+        .. important::
 
            Exactly one of `album_ids`, `barcodes`, or `owner_ids` must
            be provided. When `barcodes` or `owner_ids` is specified, the

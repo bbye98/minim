@@ -1895,6 +1895,28 @@ class ResourceAPI:
         self._client = client
 
     @staticmethod
+    def _prepare_datetime(dt: datetime | str, fmt: str, /) -> str:
+        """
+        Prepare a datetime for use in an API request.
+
+        Parameters
+        ----------
+        dt : datetime.datetime or str; positional-only
+            Datetime.
+
+        fmt : str; positional-only
+            Datetime format.
+
+        Returns
+        -------
+        dt : str
+            Datetime string.
+        """
+        if isinstance(dt, str):
+            dt = datetime.strptime(dt, fmt)
+        return dt.strftime(fmt)
+
+    @staticmethod
     def _validate_barcode(barcode: int | str, /) -> None:
         """
         Validate a Universal Product Code (UPC) or European Article
