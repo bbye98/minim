@@ -52,7 +52,7 @@ class TracksAPI(TIDALResourceAPI):
         information for multiple tracks.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 

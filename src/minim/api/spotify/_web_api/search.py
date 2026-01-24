@@ -48,7 +48,7 @@ class SearchAPI(SpotifyResourceAPI):
            New Zealand, and Australia markets.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 

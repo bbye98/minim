@@ -329,7 +329,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for a track's lyrics.
 
         .. admonition:: Subscription
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -424,7 +424,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         given track.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -570,7 +570,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         Get playback information for a track.
 
         .. admonition:: Subscription
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 

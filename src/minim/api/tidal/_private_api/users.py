@@ -118,7 +118,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Block or unblock a resource for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -604,7 +604,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Follow or unfollow a TIDAL user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -633,7 +633,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Block or unblock a TIDAL user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -659,7 +659,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get profile information for the current user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -715,7 +715,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get information about the current private TIDAL API session.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -760,7 +760,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get information about a user's TIDAL clients.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -834,7 +834,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get information about a user's TIDAL subscription status.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -895,7 +895,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         tracks, and videos in a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -945,7 +945,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for albums in a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1091,7 +1091,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Add albums to a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1143,7 +1143,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Remove albums from a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1181,7 +1181,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for artists blocked by a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1267,7 +1267,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Block an artist for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1297,7 +1297,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Unblock an artist for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1337,7 +1337,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1455,7 +1455,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Add artists to a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1506,7 +1506,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Remove artists from a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1544,7 +1544,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1676,7 +1676,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL IDs of the mixes in the current user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1718,7 +1718,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Add mixes to the current user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1763,7 +1763,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Remove mixes from the current user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1808,7 +1808,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1940,7 +1940,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Add playlists to a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2028,7 +2028,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Remove playlists from a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2105,7 +2105,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2275,7 +2275,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         in the current user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2455,7 +2455,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         playlists in the current user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2627,7 +2627,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         playlists in a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2800,7 +2800,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2935,7 +2935,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3056,7 +3056,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for a user's followers.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3106,7 +3106,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for the people followed by a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3152,7 +3152,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            This endpoint appears to have been deprecated by TIDAL.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3175,7 +3175,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            This endpoint appears to have been deprecated by TIDAL.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3202,7 +3202,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            This endpoint appears to have been deprecated by TIDAL.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3256,7 +3256,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            This endpoint appears to have been deprecated by TIDAL.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3279,7 +3279,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
            This endpoint appears to have been deprecated by TIDAL.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3309,7 +3309,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for tracks in a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3468,7 +3468,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Add tracks to a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3520,7 +3520,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Remove tracks from a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3558,7 +3558,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for tracks blocked by a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3682,7 +3682,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Block a track for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3712,7 +3712,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Unblock a track for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3751,7 +3751,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for videos in a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3889,7 +3889,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Add videos to a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3940,7 +3940,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Remove videos from a user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3977,7 +3977,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for videos blocked by a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -4080,7 +4080,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Block a video for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -4110,7 +4110,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         Unblock a video for a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

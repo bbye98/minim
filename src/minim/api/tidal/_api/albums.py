@@ -49,7 +49,7 @@ class AlbumsAPI(TIDALResourceAPI):
         information for multiple albums.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -1553,7 +1553,7 @@ class AlbumsAPI(TIDALResourceAPI):
         catalog information for an album's owners.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 

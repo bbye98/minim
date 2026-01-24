@@ -982,7 +982,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Get Qobuz catalog information for an artist's releases.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1354,7 +1354,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Follow one or more artists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1383,7 +1383,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Unfollow one or more artists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1418,7 +1418,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
         Get the current user's followed artists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

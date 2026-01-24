@@ -907,7 +907,7 @@ class SearchAPI(TIDALResourceAPI):
         tracks, and videos that match a keyword string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -1427,7 +1427,7 @@ class SearchAPI(TIDALResourceAPI):
         string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -1588,7 +1588,7 @@ class SearchAPI(TIDALResourceAPI):
         string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -1761,7 +1761,7 @@ class SearchAPI(TIDALResourceAPI):
         catalog information for playlists that match a keyword string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -1895,7 +1895,7 @@ class SearchAPI(TIDALResourceAPI):
         string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -2331,7 +2331,7 @@ class SearchAPI(TIDALResourceAPI):
         string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -2513,7 +2513,7 @@ class SearchAPI(TIDALResourceAPI):
         string.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 

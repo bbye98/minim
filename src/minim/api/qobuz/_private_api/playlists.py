@@ -67,7 +67,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Add tracks to a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -148,7 +148,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Create a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -249,7 +249,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Delete a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -286,7 +286,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Remove tracks from a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -370,7 +370,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Get Qobuz catalog information for a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Conditional
 
@@ -863,7 +863,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         followed by the current user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1045,7 +1045,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Update the details of a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1144,7 +1144,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Reorder playlists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1188,7 +1188,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         Reorder items in a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

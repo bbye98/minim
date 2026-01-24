@@ -909,7 +909,7 @@ class SearchAPI(DeezerResourceAPI):
         /history>`_: Get the current user's search history.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

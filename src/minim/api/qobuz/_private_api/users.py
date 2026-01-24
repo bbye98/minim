@@ -21,7 +21,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Get detailed profile information for the current user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -124,7 +124,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         playlists, and purchases.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -378,7 +378,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         the current user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -624,7 +624,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -675,7 +675,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Follow a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -707,7 +707,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Unfollow a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -740,7 +740,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Get Qobuz catalog information for personally curated playlists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -794,7 +794,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -986,7 +986,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         Get track recommendations based on seed tracks.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

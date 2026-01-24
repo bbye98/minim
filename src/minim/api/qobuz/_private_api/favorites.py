@@ -35,7 +35,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -105,7 +105,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -177,7 +177,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -455,7 +455,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         Get Qobuz IDs of the items in the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -494,7 +494,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         Check whether an item is in the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -549,7 +549,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         Toggle the saved status of an item.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

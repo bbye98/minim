@@ -37,7 +37,7 @@ class VideosAPI(TIDALResourceAPI):
         catalog information for multiple videos.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 

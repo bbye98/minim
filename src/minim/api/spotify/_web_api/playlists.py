@@ -32,7 +32,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         catalog information for a playlist.
 
         .. admonition:: Authorization scopes and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Conditional
 
@@ -365,7 +365,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /change-playlist-details>`_: Update the details of a playlist.
 
         .. admonition:: Authorization scopes
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Conditional
 
@@ -449,7 +449,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         Spotify catalog information for items in a playlist.
 
         .. admonition:: Authorization scopes and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Conditional
 
@@ -778,7 +778,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /add-tracks-to-playlist>`_: Add items to a playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -877,7 +877,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -966,7 +966,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         items in a playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1049,7 +1049,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /remove-tracks-playlist>`_: Remove items from a playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1153,7 +1153,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1294,7 +1294,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         /get-featured-playlists>`_: Get featured playlists.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -1423,7 +1423,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         particular category.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -1579,7 +1579,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
         playlist.
 
         .. admonition:: Authorization scopes
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

@@ -483,7 +483,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Save one or more albums to the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -514,7 +514,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Remove one or more albums from the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -549,7 +549,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Get the current user's saved albums.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -675,7 +675,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Check whether an album is in the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -705,7 +705,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         Toggle the saved status of an album.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

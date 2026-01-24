@@ -91,7 +91,7 @@ class TracksAPI(ResourceAPI):
         track.
 
         .. admonition:: Subscription
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -216,7 +216,7 @@ class TracksAPI(ResourceAPI):
         information for a track's lyrics.
 
         .. admonition:: Subscription
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -299,7 +299,68 @@ class TracksAPI(ResourceAPI):
         common_track_id: int | str | None = None,
         isrc: str | None = None,
     ) -> dict[str, Any]:
-        """ """
+        """
+        `Track > track.lyrics.mood.get <https://docs.musixmatch.com
+        /lyrics-api/track/track-lyrics-mood-get>`_: Get Musixmatch
+        catalog information on the five most prevalent moods associated
+        with a track's lyrics.
+
+        .. admonition:: Subscription
+           :class: entitlement
+
+           .. tab:: Required
+
+              Musixmatch Enterprise plan
+                 Access extended music metadata, advanced search,
+                 translations, song structure, and lyric analysis.
+                 `Learn more. <https://about.musixmatch.com
+                 /api-pricing>`__
+
+        Parameters
+        ----------
+        track_id : int or str; keyword-only; optional
+            Musixmatch ID of the track.
+
+            **Examples**: :code:`84584600`, :code:`"359206419"`.
+
+        common_track_id : int or str; keyword-only; optional
+            Musixmatch common ID of the track.
+
+            **Examples**: :code:`5920049`, :code:`"40728258"`.
+
+        isrc : str; keyword-only; optional
+            ISRC of the track.
+
+            **Example**: :code:`"USUM70905526"`.
+
+        Returns
+        -------
+        moods : dict[str, Any]
+            Musixmatch content metadata for the moods associated with
+            the track's lyrics.
+
+            .. admonition:: Sample response
+               :class: dropdown
+
+               .. code::
+
+                  {
+                    "message": {
+                      "body": {
+                        "mood_list": [
+                          {
+                            "label": <str>,
+                            "value": <float>
+                          }
+                        ]
+                      },
+                      "header": {
+                        "execute_time": <float>,
+                        "status_code": <int>
+                      }
+                    }
+                  }
+        """
         return self._get_track_resource(
             "track.lyrics.mood.get",
             track_id=track_id,
@@ -317,7 +378,22 @@ class TracksAPI(ResourceAPI):
         subtitle_length: int | str | None = None,
         subtitle_length_max_deviation: int | str | None = None,
     ) -> dict[str, Any]:
-        """ """
+        """
+        `Track > track.subtitle.get <https://docs.musixmatch.com
+        /lyrics-api/track/track-subtitle-get>`_: Get Musixmatch catalog
+        information for a track's subtitles.
+
+        .. admonition:: Subscription
+           :class: entitlement
+
+           .. tab:: Required
+
+              Musixmatch Enterprise plan
+                 Access extended music metadata, advanced search,
+                 translations, song structure, and lyric analysis.
+                 `Learn more. <https://about.musixmatch.com
+                 /api-pricing>`__
+        """
         params = {}
         if subtitle_format is not None:
             self._validate_type("subtitle_format", subtitle_format, str)

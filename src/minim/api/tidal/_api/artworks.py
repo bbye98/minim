@@ -34,7 +34,7 @@ class ArtworksAPI(TIDALResourceAPI):
         information for multiple artworks.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -162,7 +162,7 @@ class ArtworksAPI(TIDALResourceAPI):
         information for an artwork's owners.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 

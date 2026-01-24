@@ -50,4 +50,4 @@ html_theme_options = {"sidebar_hide_name": True}
 
 
 def setup(app: "Sphinx") -> None:
-    app.add_css_file("authorization_scope_admonition.css")
+    app.add_css_file("admonitions.css")

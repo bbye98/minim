@@ -37,7 +37,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
         Spotify catalog information for multiple audiobooks.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -299,7 +299,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
         for chapters in an audiobook.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 

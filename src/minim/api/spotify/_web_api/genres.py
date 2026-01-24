@@ -20,7 +20,7 @@ class GenresAPI(SpotifyResourceAPI):
         Available seed genres for track recommendations.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -67,7 +67,7 @@ class GenresAPI(SpotifyResourceAPI):
         track recommendations.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

@@ -117,7 +117,7 @@ class ArtistsAPI(TIDALResourceAPI):
         information for multiple artists.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -128,7 +128,7 @@ class ArtistsAPI(TIDALResourceAPI):
 
            Exactly one of `artist_ids` or `handles` must be provided.
            When `handles` is specified, the request will always be sent
-           to the endpoint for multiple artists.   
+           to the endpoint for multiple artists.
 
         Parameters
         ----------
@@ -158,7 +158,7 @@ class ArtistsAPI(TIDALResourceAPI):
             :code:`"similarArtists"`, :code:`"trackProviders"`,
             :code:`"tracks"`, :code:`"videos"`.
 
-            **Examples**: :code:`"profileArt"`, 
+            **Examples**: :code:`"profileArt"`,
             :code:`["albums", "tracks"]`.
 
         Returns
@@ -1210,7 +1210,7 @@ class ArtistsAPI(TIDALResourceAPI):
         information for an artist's owners.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 

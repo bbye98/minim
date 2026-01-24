@@ -21,7 +21,7 @@ class UsersAPI(DeezerResourceAPI):
         information for a Deezer user.
 
         .. admonition:: Permission and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -90,7 +90,7 @@ class UsersAPI(DeezerResourceAPI):
         /permissions>`_: Get the permissions granted to the client.
 
         .. admonition:: Permission and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -140,7 +140,7 @@ class UsersAPI(DeezerResourceAPI):
         user's options.
 
         .. admonition:: Permission and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -233,7 +233,7 @@ class UsersAPI(DeezerResourceAPI):
         mix.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -323,7 +323,7 @@ class UsersAPI(DeezerResourceAPI):
         played by a user.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -432,7 +432,7 @@ class UsersAPI(DeezerResourceAPI):
         top albums.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -530,7 +530,7 @@ class UsersAPI(DeezerResourceAPI):
         top artists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -619,7 +619,7 @@ class UsersAPI(DeezerResourceAPI):
         user's top playlists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -724,7 +724,7 @@ class UsersAPI(DeezerResourceAPI):
         top tracks.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -829,7 +829,7 @@ class UsersAPI(DeezerResourceAPI):
         /api/user/recommendations/albums>`_: Get album recommendations.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -932,7 +932,7 @@ class UsersAPI(DeezerResourceAPI):
         /releases>`_: Get new album recommendations.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1037,7 +1037,7 @@ class UsersAPI(DeezerResourceAPI):
         recommendations.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1126,7 +1126,7 @@ class UsersAPI(DeezerResourceAPI):
         /playlists>`_: Get playlist recommendations.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1231,7 +1231,7 @@ class UsersAPI(DeezerResourceAPI):
         /api/user/recommendations/radios>`_: Get radio recommendations.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1311,7 +1311,7 @@ class UsersAPI(DeezerResourceAPI):
         /api/user/recommendations/tracks>`_: Get track recommendations.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1419,7 +1419,7 @@ class UsersAPI(DeezerResourceAPI):
         favorite albums.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1516,7 +1516,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Add one or more albums to a user's favorites.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1565,7 +1565,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove an album from a user's favorites.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1619,7 +1619,7 @@ class UsersAPI(DeezerResourceAPI):
         favorite artists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1703,7 +1703,7 @@ class UsersAPI(DeezerResourceAPI):
         favorites.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1752,7 +1752,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove an artist from a user's favorites.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1810,7 +1810,7 @@ class UsersAPI(DeezerResourceAPI):
         playlists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1908,7 +1908,7 @@ class UsersAPI(DeezerResourceAPI):
         favorites.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1961,7 +1961,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove a playlist from a user's favorites.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2018,7 +2018,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Create a playlist.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2072,7 +2072,7 @@ class UsersAPI(DeezerResourceAPI):
         /playlist#actions>`__: Update the details of a playlist.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2147,7 +2147,7 @@ class UsersAPI(DeezerResourceAPI):
         /playlist#actions>`__: Update the details of a playlist.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2186,7 +2186,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Add tracks to a playlist.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2232,7 +2232,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Reorder tracks in a playlist.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2290,7 +2290,7 @@ class UsersAPI(DeezerResourceAPI):
         favorite podcasts.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2369,7 +2369,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Add a podcast to a user's favorites.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2420,7 +2420,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove a podcast from a user's favorites.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2471,7 +2471,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Set a resume point for a podcast episode.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2519,7 +2519,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove a resume point for a podcast episode.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2564,7 +2564,7 @@ class UsersAPI(DeezerResourceAPI):
         favorite radios.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2626,7 +2626,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Add a radio to a user's favorites.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2667,7 +2667,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove a radio from a user's favorites.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2721,7 +2721,7 @@ class UsersAPI(DeezerResourceAPI):
         favorite tracks.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2826,7 +2826,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Add one or more tracks to a user's favorites.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2875,7 +2875,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Remove a track from a user's favorites.
 
         .. admonition:: Permissions
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2929,7 +2929,7 @@ class UsersAPI(DeezerResourceAPI):
         uploaded tracks.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3035,7 +3035,7 @@ class UsersAPI(DeezerResourceAPI):
         Update the details of a user-uploaded track.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3095,7 +3095,7 @@ class UsersAPI(DeezerResourceAPI):
         Delete a user-uploaded track.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3135,7 +3135,7 @@ class UsersAPI(DeezerResourceAPI):
         followed by a user.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3214,7 +3214,7 @@ class UsersAPI(DeezerResourceAPI):
         followers.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3286,7 +3286,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-post>`__: Follow a user.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -3333,7 +3333,7 @@ class UsersAPI(DeezerResourceAPI):
         /actions-delete>`__: Unfollow a user.
 
         .. admonition:: Permission
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

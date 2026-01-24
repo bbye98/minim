@@ -225,7 +225,7 @@ class TracksAPI(SpotifyResourceAPI):
         Spotify catalog information for multiple tracks.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -487,7 +487,7 @@ class TracksAPI(SpotifyResourceAPI):
         multiple tracks.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -584,7 +584,7 @@ class TracksAPI(SpotifyResourceAPI):
         and timbre) of a track.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -736,7 +736,7 @@ class TracksAPI(SpotifyResourceAPI):
         tracks, with optional tuning parameters.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1126,7 +1126,7 @@ class TracksAPI(SpotifyResourceAPI):
         information for the current user's top tracks.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

@@ -114,7 +114,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         playlists.
 
         .. admonition:: User authentication and authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Conditional
 
@@ -710,7 +710,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         playlist.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -824,7 +824,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         the details of a playlist.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -892,7 +892,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         Delete a playlist.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1249,7 +1249,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         playlist.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1323,7 +1323,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         playlist.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1409,7 +1409,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         a playlist.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1488,7 +1488,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         catalog information for an playlist's owners.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -1565,7 +1565,7 @@ class PlaylistsAPI(TIDALResourceAPI):
         catalog information for an playlist's owners' profiles.
 
         .. admonition:: User authentication
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 

@@ -28,7 +28,7 @@ class ShowsAPI(SpotifyResourceAPI):
         Spotify catalog information for multiple shows.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -266,7 +266,7 @@ class ShowsAPI(SpotifyResourceAPI):
         Spotify catalog information for episodes in a show.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

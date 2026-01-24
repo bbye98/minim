@@ -262,7 +262,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         for an artist's top tracks.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -397,7 +397,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         information for artists similar to a given artist.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -470,7 +470,7 @@ class ArtistsAPI(SpotifyResourceAPI):
         information for the current user's top artists.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

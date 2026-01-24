@@ -28,7 +28,7 @@ class AlbumsAPI(SpotifyResourceAPI):
         Spotify catalog information for multiple albums.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -314,7 +314,7 @@ class AlbumsAPI(SpotifyResourceAPI):
         Spotify catalog information for tracks in an album.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 

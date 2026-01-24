@@ -45,7 +45,7 @@ class UsersAPI(SpotifyResourceAPI):
         Follow or unfollow one or more artists or Spotify users.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -91,7 +91,7 @@ class UsersAPI(SpotifyResourceAPI):
         or Spotify users.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -146,7 +146,7 @@ class UsersAPI(SpotifyResourceAPI):
         saved in the current user's library.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -231,7 +231,7 @@ class UsersAPI(SpotifyResourceAPI):
         the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -282,7 +282,7 @@ class UsersAPI(SpotifyResourceAPI):
         the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -330,7 +330,7 @@ class UsersAPI(SpotifyResourceAPI):
         for the current user.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -403,7 +403,7 @@ class UsersAPI(SpotifyResourceAPI):
         public profile information for a Spotify user.
 
         .. admonition:: Authorization scopes
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Conditional
 
@@ -519,7 +519,7 @@ class UsersAPI(SpotifyResourceAPI):
         information for the current user's top artists or tracks.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -735,7 +735,7 @@ class UsersAPI(SpotifyResourceAPI):
         playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -787,7 +787,7 @@ class UsersAPI(SpotifyResourceAPI):
         a playlist.
 
         .. admonition:: Authorization scopes and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -827,7 +827,7 @@ class UsersAPI(SpotifyResourceAPI):
         catalog information for artists followed by the current user.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -921,7 +921,7 @@ class UsersAPI(SpotifyResourceAPI):
         one or more artists.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -957,7 +957,7 @@ class UsersAPI(SpotifyResourceAPI):
         one or more Spotify users.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -987,7 +987,7 @@ class UsersAPI(SpotifyResourceAPI):
         Unfollow one or more artists.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1023,7 +1023,7 @@ class UsersAPI(SpotifyResourceAPI):
         Unfollow one or more Spotify users.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1057,7 +1057,7 @@ class UsersAPI(SpotifyResourceAPI):
         is following one or more artists.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1102,7 +1102,7 @@ class UsersAPI(SpotifyResourceAPI):
         is following one or more Spotify users.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1141,7 +1141,7 @@ class UsersAPI(SpotifyResourceAPI):
         user is following a playlist.
 
         .. admonition:: Authorization scope and user authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1190,7 +1190,7 @@ class UsersAPI(SpotifyResourceAPI):
         user's library.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1380,7 +1380,7 @@ class UsersAPI(SpotifyResourceAPI):
         user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1417,7 +1417,7 @@ class UsersAPI(SpotifyResourceAPI):
         current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1455,7 +1455,7 @@ class UsersAPI(SpotifyResourceAPI):
         are saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1505,7 +1505,7 @@ class UsersAPI(SpotifyResourceAPI):
         for the audiobooks saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1624,7 +1624,7 @@ class UsersAPI(SpotifyResourceAPI):
         user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1663,7 +1663,7 @@ class UsersAPI(SpotifyResourceAPI):
         the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1703,7 +1703,7 @@ class UsersAPI(SpotifyResourceAPI):
         audiobooks are saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1753,7 +1753,7 @@ class UsersAPI(SpotifyResourceAPI):
         the show episodes saved in the current user's library.
 
         .. admonition:: Authorization scopes and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1916,7 +1916,7 @@ class UsersAPI(SpotifyResourceAPI):
         current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1953,7 +1953,7 @@ class UsersAPI(SpotifyResourceAPI):
         the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1993,7 +1993,7 @@ class UsersAPI(SpotifyResourceAPI):
         episodes are saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2039,7 +2039,7 @@ class UsersAPI(SpotifyResourceAPI):
         information for playlists owned or followed by the current user.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2156,7 +2156,7 @@ class UsersAPI(SpotifyResourceAPI):
         by a user.
 
         .. admonition:: Authorization scopes
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Conditional
 
@@ -2276,7 +2276,7 @@ class UsersAPI(SpotifyResourceAPI):
         the shows saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2371,7 +2371,7 @@ class UsersAPI(SpotifyResourceAPI):
         user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2406,7 +2406,7 @@ class UsersAPI(SpotifyResourceAPI):
         user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2444,7 +2444,7 @@ class UsersAPI(SpotifyResourceAPI):
         saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2493,7 +2493,7 @@ class UsersAPI(SpotifyResourceAPI):
         the tracks saved in the current user's library.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2664,7 +2664,7 @@ class UsersAPI(SpotifyResourceAPI):
         user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2680,7 +2680,7 @@ class UsersAPI(SpotifyResourceAPI):
         list[str | tuple[str, str | datetime] | dict[str, str | datetime]]; \
         positional-only
             Spotify IDs of the tracks, optionally accompanied by
-            timestamps to maintain a chronological order in the user's 
+            timestamps to maintain a chronological order in the user's
             library. A maximum of 50 IDs can be sent in one request.
 
             **Examples**:
@@ -2697,7 +2697,7 @@ class UsersAPI(SpotifyResourceAPI):
                         "4iV5W9uYEdYUVa79Axb7Rh",
                         ("11dFghVXANMlKmJXsNCbNl", "2017-05-26T00:00:00Z"),
                         {
-                            "id": "7ouMYWpwJ422jRcDASZB7P", 
+                            "id": "7ouMYWpwJ422jRcDASZB7P",
                             "added_at": "2006-06-28T00:00:00Z"
                         }
                     ]
@@ -2759,7 +2759,7 @@ class UsersAPI(SpotifyResourceAPI):
         current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2797,7 +2797,7 @@ class UsersAPI(SpotifyResourceAPI):
         are saved in the current user's library.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

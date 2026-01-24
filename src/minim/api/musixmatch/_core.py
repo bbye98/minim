@@ -81,7 +81,7 @@ class MusixmatchLyricsAPI(APIClient):
         resp = self._client.request(method, endpoint, params=params, **kwargs)
         status = resp.status_code
         if 200 <= status < 300:
-            return resp
+            return resp  # TODO: Responses may have different status code
 
         raise RuntimeError("...")
 

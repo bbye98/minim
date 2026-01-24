@@ -32,7 +32,7 @@ class ChaptersAPI(SpotifyResourceAPI):
         Spotify catalog information for multiple audiobook chapters.
 
         .. admonition:: Third-party application mode
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 

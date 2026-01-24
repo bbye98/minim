@@ -389,7 +389,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Get playback information for a track.
 
         .. admonition:: Subscription
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Optional
 
@@ -514,7 +514,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Report the start of a streaming event.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -624,7 +624,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Report the end of a streaming event.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -723,7 +723,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Save one or more tracks to the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -755,7 +755,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Remove one or more tracks from the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -788,7 +788,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -944,7 +944,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Check whether a track is in the current user's favorites.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -973,7 +973,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         Toggle the saved status of a track.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

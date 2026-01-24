@@ -103,7 +103,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Get TIDAL catalog information for a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Conditional
 
@@ -474,7 +474,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         given playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -618,7 +618,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Create a playlist folder.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -689,7 +689,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Delete playlist folders.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -733,7 +733,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Create a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -858,7 +858,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Move playlists in the current user's collection.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -905,7 +905,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Set the visibility of a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -942,7 +942,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Update the details of a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -986,7 +986,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Delete playlists.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1033,7 +1033,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Add items to a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1140,7 +1140,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Reorder items in a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1206,7 +1206,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Replace an item in a playlist with another item.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1265,7 +1265,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         Remove items from a playlist.
 
         .. admonition:: User authentication
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

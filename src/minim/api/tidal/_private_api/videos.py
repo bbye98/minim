@@ -246,7 +246,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         Get playback information for a video.
 
         .. admonition:: Subscription
-           :class: authorization-scope dropdown
+           :class: entitlement dropdown
 
            .. tab:: Required
 

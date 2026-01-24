@@ -32,7 +32,7 @@ class EpisodesAPI(SpotifyResourceAPI):
         Spotify catalog information for multiple show episodes.
 
         .. admonition:: Authorization scope and third-party application mode
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 

@@ -270,7 +270,7 @@ class UsersAPI(TIDALResourceAPI):
         collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -776,7 +776,7 @@ class UsersAPI(TIDALResourceAPI):
         catalog information for albums in a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -954,7 +954,7 @@ class UsersAPI(TIDALResourceAPI):
         to a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1012,7 +1012,7 @@ class UsersAPI(TIDALResourceAPI):
         albums from a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1069,7 +1069,7 @@ class UsersAPI(TIDALResourceAPI):
         catalog information for artists in a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1255,7 +1255,7 @@ class UsersAPI(TIDALResourceAPI):
         to a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1315,7 +1315,7 @@ class UsersAPI(TIDALResourceAPI):
         artists from a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1368,7 +1368,7 @@ class UsersAPI(TIDALResourceAPI):
         catalog information for owners in a user's collection.
 
         .. admonition:: Authorization scopes
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1465,7 +1465,7 @@ class UsersAPI(TIDALResourceAPI):
         catalog information for playlists in a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1614,7 +1614,7 @@ class UsersAPI(TIDALResourceAPI):
         playlists to a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1674,7 +1674,7 @@ class UsersAPI(TIDALResourceAPI):
         playlists from a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1739,7 +1739,7 @@ class UsersAPI(TIDALResourceAPI):
         catalog information for tracks in a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1940,7 +1940,7 @@ class UsersAPI(TIDALResourceAPI):
         to a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -1998,7 +1998,7 @@ class UsersAPI(TIDALResourceAPI):
         tracks from a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2055,7 +2055,7 @@ class UsersAPI(TIDALResourceAPI):
         catalog information for videos in a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2207,7 +2207,7 @@ class UsersAPI(TIDALResourceAPI):
         to a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2264,7 +2264,7 @@ class UsersAPI(TIDALResourceAPI):
         videos from a user's collection.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2315,7 +2315,7 @@ class UsersAPI(TIDALResourceAPI):
         functionalities a user is entitled to access on TIDAL.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2484,7 +2484,7 @@ class UsersAPI(TIDALResourceAPI):
         mixes.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2590,7 +2590,7 @@ class UsersAPI(TIDALResourceAPI):
         Get TIDAL catalog information for the user's Discovery Mixes.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2673,7 +2673,7 @@ class UsersAPI(TIDALResourceAPI):
         Get TIDAL catalog information for the user's mixes.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2754,7 +2754,7 @@ class UsersAPI(TIDALResourceAPI):
         Get TIDAL catalog information for the user's New Arrival Mixes.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
@@ -2827,7 +2827,7 @@ class UsersAPI(TIDALResourceAPI):
         /get_users_me>`_: Get profile information for the current user.
 
         .. admonition:: Authorization scope
-           :class: authorization-scope
+           :class: entitlement
 
            .. tab:: Required
 
