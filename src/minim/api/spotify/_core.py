@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     import httpx
 
 
-class SpotifyWebAPI(OAuth2APIClient):
+class SpotifyWebAPIClient(OAuth2APIClient):
     """
     Spotify Web API client.
     """

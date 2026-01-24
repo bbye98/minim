@@ -25,7 +25,7 @@ class TracksAPI(SpotifyResourceAPI):
 
     .. note::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.
     """
 

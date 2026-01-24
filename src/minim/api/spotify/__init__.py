@@ -1,4 +1,4 @@
-from ._core import SpotifyWebAPI
+from ._core import SpotifyWebAPIClient
 from ._web_api.albums import AlbumsAPI
 from ._web_api.artists import ArtistsAPI
 from ._web_api.audiobooks import AudiobooksAPI
@@ -15,7 +15,7 @@ from ._web_api.tracks import TracksAPI
 from ._web_api.users import UsersAPI
 
 __all__ = [
-    "SpotifyWebAPI",
+    "SpotifyWebAPIClient",
     "AlbumsAPI",
     "ArtistsAPI",
     "AudiobooksAPI",

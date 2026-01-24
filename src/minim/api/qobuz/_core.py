@@ -20,7 +20,7 @@ from ._private_api.labels import PrivateLabelsAPI
 from ._private_api.genres import PrivateGenresAPI
 from ._private_api.playlists import PrivatePlaylistsAPI
 from ._private_api.purchases import PrivatePurchasesAPI
-from ._private_api.search import PrivateSearchEndpoints
+from ._private_api.search import PrivateSearchAPI
 from ._private_api.tracks import PrivateTracksAPI
 from ._private_api.users import PrivateUsersAPI
 
@@ -28,7 +28,7 @@ if FOUND["playwright"]:
     from playwright.sync_api import sync_playwright
 
 
-class PrivateQobuzAPI(APIClient):
+class PrivateQobuzAPIClient(APIClient):
     """
     Private Qobuz API client.
     """
@@ -184,7 +184,7 @@ class PrivateQobuzAPI(APIClient):
         #: Purchases API endpoints for the private Qobuz API.
         self.purchases: PrivatePurchasesAPI = PrivatePurchasesAPI(self)
         #: Search-related endpoints for the private Qobuz API.
-        self.search: PrivateSearchEndpoints = PrivateSearchEndpoints(self)
+        self.search: PrivateSearchAPI = PrivateSearchAPI(self)
         #: Tracks API endpoints for the private Qobuz API.
         self.tracks: PrivateTracksAPI = PrivateTracksAPI(self)
         #: Users API endpoints for the private Qobuz API.

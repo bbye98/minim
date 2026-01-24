@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import SpotifyWebAPI
+    from .. import SpotifyWebAPIClient
 
 
 class SpotifyResourceAPI(ResourceAPI):
@@ -12,7 +12,7 @@ class SpotifyResourceAPI(ResourceAPI):
     """
 
     _AUDIO_TYPES = {"episode", "track"}
-    _client: "SpotifyWebAPI"
+    _client: "SpotifyWebAPIClient"
 
     @staticmethod
     def _prepare_spotify_ids(

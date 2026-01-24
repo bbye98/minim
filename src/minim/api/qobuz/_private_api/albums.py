@@ -2,7 +2,7 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
-from .search import PrivateSearchEndpoints
+from .search import PrivateSearchAPI
 
 
 class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
@@ -11,7 +11,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -730,7 +730,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         """
         return self._client.favorites.toggle_item_saved("album", album_id)
 
-    @_copy_docstring(PrivateSearchEndpoints.search_albums)
+    @_copy_docstring(PrivateSearchAPI.search_albums)
     def search_albums(
         self,
         query: str,

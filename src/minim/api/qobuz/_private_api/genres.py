@@ -11,7 +11,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
 
     .. note::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 

@@ -3,7 +3,7 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
-from .search import PrivateSearchEndpoints
+from .search import PrivateSearchAPI
 from .users import PrivateUsersAPI
 
 
@@ -13,7 +13,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -1009,7 +1009,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             "GET", "playlist/getUserPlaylists", params=params
         ).json()
 
-    @_copy_docstring(PrivateSearchEndpoints.search_playlists)
+    @_copy_docstring(PrivateSearchAPI.search_playlists)
     def search_playlists(
         self,
         query: str,

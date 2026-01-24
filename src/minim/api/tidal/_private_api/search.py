@@ -10,7 +10,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPI`
+       This class is managed by :class:`minim.api.tidal.PrivateTIDALAPIClient`
        and should not be instantiated directly.
     """
 

@@ -11,7 +11,7 @@ class AlbumsAPI(SpotifyResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.spotify.SpotifyWebAPI`
+       This class is managed by :class:`minim.api.spotify.SpotifyWebAPIClient`
        and should not be instantiated directly.
     """
 

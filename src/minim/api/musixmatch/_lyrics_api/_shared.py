@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import MusixmatchLyricsAPI
+    from .. import MusixmatchLyricsAPIClient
 
 
 class MusixmatchResourceAPI(ResourceAPI):
@@ -11,7 +11,7 @@ class MusixmatchResourceAPI(ResourceAPI):
     Base class for Musixmatch Lyrics API resource endpoint groups.
     """
 
-    _client: "MusixmatchLyricsAPI"
+    _client: "MusixmatchLyricsAPIClient"
 
     @staticmethod
     def _validate_sort_order(

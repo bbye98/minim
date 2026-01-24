@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import PrivateQobuzAPI
+    from .. import PrivateQobuzAPIClient
 
 
 class PrivateQobuzResourceAPI(ResourceAPI):
@@ -12,7 +12,7 @@ class PrivateQobuzResourceAPI(ResourceAPI):
     """
 
     _RELATIONSHIPS: set[str]
-    _client: "PrivateQobuzAPI"
+    _client: "PrivateQobuzAPIClient"
 
     @staticmethod
     def _prepare_album_ids(album_ids: str | list[str], /) -> str:

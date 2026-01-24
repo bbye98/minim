@@ -10,7 +10,7 @@ class ChartsAPI(DeezerResourceAPI):
 
     .. note::
 
-       This class is managed by :class:`minim.api.deezer.DeezerAPI` and
+       This class is managed by :class:`minim.api.deezer.DeezerAPIClient` and
        should not be instantiated directly.
     """
 

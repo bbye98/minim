@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     import httpx
 
 
-class iTunesSearchAPI(APIClient):
+class iTunesSearchAPIClient(APIClient):
     """
     iTunes Search API client.
     """

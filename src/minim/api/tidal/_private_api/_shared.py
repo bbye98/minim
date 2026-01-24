@@ -4,7 +4,7 @@ from ..._shared import ResourceAPI
 from .._api._shared import TIDALResourceAPI
 
 if TYPE_CHECKING:
-    from .. import PrivateTIDALAPI
+    from .. import PrivateTIDALAPIClient
 
 
 class PrivateTIDALResourceAPI(ResourceAPI):
@@ -13,7 +13,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
     """
 
     _PLAYBACK_MODES = {"STREAM", "OFFLINE"}
-    _client: "PrivateTIDALAPI"
+    _client: "PrivateTIDALAPIClient"
 
     _validate_tidal_ids = TIDALResourceAPI._validate_tidal_ids
 

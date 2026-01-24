@@ -23,7 +23,7 @@ from ._api.tracks import TracksAPI
 from ._api.users import UsersAPI
 
 
-class DeezerAPI(OAuth2APIClient):
+class DeezerAPIClient(OAuth2APIClient):
     """
     Deezer API client.
     """

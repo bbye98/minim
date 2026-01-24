@@ -13,7 +13,7 @@ from ._lyrics_api.tracks import TracksAPI
 import httpx
 
 
-class MusixmatchLyricsAPI(APIClient):
+class MusixmatchLyricsAPIClient(APIClient):
     """
     Musixmatch Lyrics API client.
     """

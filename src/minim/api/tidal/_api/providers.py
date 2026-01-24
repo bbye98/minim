@@ -10,7 +10,7 @@ class ProvidersAPI(TIDALResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.tidal.TIDALAPI`
+       This class is managed by :class:`minim.api.tidal.TIDALAPIClient`
        and should not be instantiated directly.
     """
 

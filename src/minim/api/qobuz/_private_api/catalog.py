@@ -2,7 +2,7 @@ from typing import Any
 
 from ..._shared import TTLCache, _copy_docstring
 from ._shared import PrivateQobuzResourceAPI
-from .search import PrivateSearchEndpoints
+from .search import PrivateSearchAPI
 
 
 class PrivateCatalogAPI(PrivateQobuzResourceAPI):
@@ -11,7 +11,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
 
     .. note::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 
@@ -296,7 +296,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
             "GET", "catalog/getFeatured", params=params
         ).json()
 
-    @_copy_docstring(PrivateSearchEndpoints.search)
+    @_copy_docstring(PrivateSearchAPI.search)
     def search(
         self,
         query: str,

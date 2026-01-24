@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import TIDALAPI
+    from .. import TIDALAPIClient
 
 
 class TIDALResourceAPI(ResourceAPI):
@@ -12,7 +12,7 @@ class TIDALResourceAPI(ResourceAPI):
     """
 
     _RELATIONSHIPS: set[str]
-    _client: "TIDALAPI"
+    _client: "TIDALAPIClient"
 
     @staticmethod
     def _process_sort(

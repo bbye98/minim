@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 from ..._shared import ResourceAPI
 
 if TYPE_CHECKING:
-    from .. import DeezerAPI
+    from .. import DeezerAPIClient
 
 
 class DeezerResourceAPI(ResourceAPI):
@@ -11,7 +11,7 @@ class DeezerResourceAPI(ResourceAPI):
     Base class for Deezer API resource endpoint groups.
     """
 
-    _client: "DeezerAPI"
+    _client: "DeezerAPIClient"
 
     @staticmethod
     def _prepare_deezer_ids(

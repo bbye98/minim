@@ -4,7 +4,7 @@ from ..._shared import TTLCache
 from ._shared import PrivateQobuzResourceAPI
 
 
-class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
+class PrivateSearchAPI(PrivateQobuzResourceAPI):
     """
     Search-related endpoints for the private Qobuz API.
 
@@ -15,7 +15,7 @@ class PrivateSearchEndpoints(PrivateQobuzResourceAPI):
 
     .. important::
 
-       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPI`
+       This class is managed by :class:`minim.api.qobuz.PrivateQobuzAPIClient`
        and should not be instantiated directly.
     """
 

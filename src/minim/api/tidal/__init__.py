@@ -1,4 +1,4 @@
-from ._core import TIDALAPI, PrivateTIDALAPI
+from ._core import TIDALAPIClient, PrivateTIDALAPIClient
 from ._api.albums import AlbumsAPI
 from ._api.artists import ArtistsAPI
 from ._api.artworks import ArtworksAPI
@@ -20,8 +20,8 @@ from ._private_api.users import PrivateUsersAPI
 from ._private_api.videos import PrivateVideosAPI
 
 __all__ = [
-    "TIDALAPI",
-    "PrivateTIDALAPI",
+    "TIDALAPIClient",
+    "PrivateTIDALAPIClient",
     "AlbumsAPI",
     "ArtistsAPI",
     "ArtworksAPI",

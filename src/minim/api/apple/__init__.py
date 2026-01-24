@@ -1,3 +1,3 @@
-from ._core import iTunesSearchAPI
+from ._core import iTunesSearchAPIClient
 
-__all__ = ["iTunesSearchAPI"]
+__all__ = ["iTunesSearchAPIClient"]
