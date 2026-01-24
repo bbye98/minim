@@ -621,7 +621,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user_id : int or str; positional-only
             TIDAL ID of the user.
         """
-        self._client._validate_tidal_ids(user_id, _recursive=False)
+        self._validate_tidal_ids(user_id, _recursive=False)
         self._client._request(
             method, "v2/follow", params={"trn": f"trn:user:{user_id}"}
         )
@@ -650,7 +650,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         user_id : int or str; positional-only
             TIDAL ID of the user.
         """
-        self._client._validate_tidal_ids(user_id, _recursive=False)
+        self._validate_tidal_ids(user_id, _recursive=False)
         self._client._request(method, f"v2/profiles/block/{user_id}")
 
     @TTLCache.cached_method(ttl="static")

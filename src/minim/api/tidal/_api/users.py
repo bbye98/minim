@@ -170,7 +170,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, _recursive=False)
         if sort_by is not None:
             self._process_sort(
                 sort_by,
@@ -238,7 +238,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, _recursive=False)
         params = {}
         if country_code is not None:
             self._validate_country_code(country_code)
@@ -747,7 +747,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, _recursive=False)
         self._get_resources(
             "userCollections",
             user_id,
@@ -2390,7 +2390,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, _recursive=False)
         return self._get_resources(
             "userEntitlements",
             user_id,
@@ -2457,7 +2457,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, _recursive=False)
         return self._get_resource_relationship(
             "userEntitlements",
             user_id,
@@ -2562,7 +2562,7 @@ class UsersAPI(TIDALResourceAPI):
         if user_id is None:
             user_id = self._client._my_profile["id"]
         else:
-            self._client._validate_tidal_ids(user_id, _recursive=False)
+            self._validate_tidal_ids(user_id, _recursive=False)
         return self._get_resources(
             "userRecommendations",
             user_id,

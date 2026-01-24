@@ -45,35 +45,6 @@ class _BaseTIDALAPI(OAuth2APIClient):
     AUTH_URL = "https://login.tidal.com/authorize"
     TOKEN_URL = "https://auth.tidal.com/v1/oauth2/token"
 
-    @staticmethod
-    def _validate_tidal_ids(
-        tidal_ids: int | str | list[int | str], /, *, _recursive: bool = True
-    ) -> None:
-        """
-        Validate one or more TIDAL IDs.
-
-        Parameters
-        ----------
-        tidal_ids : int, str, or list[int | str]; positional-only
-            TIDAL IDs.
-        """
-        if not isinstance(tidal_ids, int) and not tidal_ids:
-            raise ValueError("At least one TIDAL ID must be specified.")
-
-        if isinstance(tidal_ids, str):
-            if not tidal_ids.isdecimal():
-                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
-        elif not isinstance(tidal_ids, int):
-            if _recursive:
-                if not isinstance(tidal_ids, tuple | list | str):
-                    raise ValueError("TIDAL IDs must be integers or strings.")
-                for tidal_id in tidal_ids:
-                    _BaseTIDALAPI._validate_tidal_ids(
-                        tidal_id, _recursive=False
-                    )
-            else:
-                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
-
     @classmethod
     def resolve_scopes(
         cls, matches: str | list[str] | None = None

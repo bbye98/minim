@@ -641,7 +641,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
                     "trackReplayGain": <float>
                   }
         """
-        self._client._validate_tidal_ids(track_id, _recursive=False)
+        self._validate_tidal_ids(track_id, _recursive=False)
         self._validate_type("quality", quality, str)
         quality = quality.strip().upper()
         if quality not in self._AUDIO_QUALITIES:

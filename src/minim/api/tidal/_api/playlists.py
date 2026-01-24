@@ -676,7 +676,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             )
         params = {}
         if owner_ids is not None:
-            self._client._validate_tidal_ids(owner_ids)
+            self._validate_tidal_ids(owner_ids)
             params["filter[owners.id]"] = owner_ids
         if sort_by is not None:
             self._process_sort(

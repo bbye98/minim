@@ -1000,7 +1000,7 @@ class TracksAPI(TIDALResourceAPI):
                 )
             params["filter[isrc]"] = isrcs
         elif owner_ids is not None:
-            self._client._validate_tidal_ids(owner_ids)
+            self._validate_tidal_ids(owner_ids)
             params["filter[owners.id]"] = owner_ids
         return self._get_resources(
             "tracks",

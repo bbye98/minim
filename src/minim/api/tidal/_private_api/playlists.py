@@ -1099,12 +1099,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         if item_ids is not None:
             if isinstance(item_ids, str) and "," in item_ids:
                 item_ids = item_ids.split(",")
-            self._client._validate_tidal_ids(item_ids)
+            self._validate_tidal_ids(item_ids)
             if isinstance(item_ids, tuple | list):
                 item_ids = ",".join(str(item_id) for item_id in item_ids)
             data["itemIds"] = str(item_ids)
         elif from_album_id is not None:
-            self._client._validate_tidal_ids(from_album_id, _recursive=False)
+            self._validate_tidal_ids(from_album_id, _recursive=False)
             data["fromAlbumId"] = from_album_id
         else:
             self._validate_uuid(from_playlist_uuid)
@@ -1177,7 +1177,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         )
         if isinstance(from_item_indices, str) and "," in from_item_indices:
             from_item_indices = from_item_indices.split(",")
-        self._client._validate_tidal_ids(from_item_indices)
+        self._validate_tidal_ids(from_item_indices)
         if isinstance(from_item_indices, tuple | list):
             from_item_indices = ",".join(
                 str(item_idx) for item_idx in from_item_indices
@@ -1242,7 +1242,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             "playlists.replace_playlist_items"
         )
         self._validate_number("item_index", item_index, int, 0)
-        self._client._validate_tidal_ids(item_id)
+        self._validate_tidal_ids(item_id)
         self._client._request(
             "POST",
             f"v1/playlists/{playlist_uuid}/items/{item_index}/replace",
@@ -1295,7 +1295,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         self._client._require_authentication("playlists.remove_playlist_items")
         if isinstance(item_indices, str) and "," in item_indices:
             item_indices = item_indices.split(",")
-        self._client._validate_tidal_ids(item_indices)
+        self._validate_tidal_ids(item_indices)
         if isinstance(item_indices, tuple | list):
             item_indices = ",".join(str(item_idx) for item_idx in item_indices)
         self._client._request(

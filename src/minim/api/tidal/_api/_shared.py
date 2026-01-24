@@ -60,6 +60,35 @@ class TIDALResourceAPI(ResourceAPI):
         params["sort"] = f"{'-' if descending else ''}{prefix}{sort_by}"
 
     @staticmethod
+    def _validate_tidal_ids(
+        tidal_ids: int | str | list[int | str], /, *, _recursive: bool = True
+    ) -> None:
+        """
+        Validate one or more TIDAL IDs.
+
+        Parameters
+        ----------
+        tidal_ids : int, str, or list[int | str]; positional-only
+            TIDAL IDs.
+        """
+        if not isinstance(tidal_ids, int) and not tidal_ids:
+            raise ValueError("At least one TIDAL ID must be specified.")
+
+        if isinstance(tidal_ids, str):
+            if not tidal_ids.isdecimal():
+                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
+        elif not isinstance(tidal_ids, int):
+            if _recursive:
+                if not isinstance(tidal_ids, tuple | list | str):
+                    raise ValueError("TIDAL IDs must be integers or strings.")
+                for tidal_id in tidal_ids:
+                    TIDALResourceAPI._validate_tidal_ids(
+                        tidal_id, _recursive=False
+                    )
+            else:
+                raise ValueError(f"Invalid TIDAL ID {tidal_ids!r}.")
+
+    @staticmethod
     def _validate_uuids(uuids: str | list[str], /) -> None:
         """
         Validate universally unique identifiers (UUIDs).
@@ -176,7 +205,7 @@ class TIDALResourceAPI(ResourceAPI):
         default: :code:`"id"`
             Resource identifier type.
 
-            **Valid values**: :code:`"id"`, :code:`"uuid"`, 
+            **Valid values**: :code:`"id"`, :code:`"uuid"`,
             :code:`"query"`.
 
         params : dict[str, Any]; keyword-only; optional
@@ -211,7 +240,7 @@ class TIDALResourceAPI(ResourceAPI):
             )
         if resource_identifiers is not None:
             if resource_identifier_type == "id":
-                self._client._validate_tidal_ids(resource_identifiers)
+                self._validate_tidal_ids(resource_identifiers)
             elif resource_identifier_type == "uuid":
                 self._validate_uuids(resource_identifiers)
             else:
@@ -289,7 +318,7 @@ class TIDALResourceAPI(ResourceAPI):
         default: :code:`"id"`
             Resource identifier type.
 
-            **Valid values**: :code:`"id"`, :code:`"uuid"`, 
+            **Valid values**: :code:`"id"`, :code:`"uuid"`,
             :code:`"query"`.
 
         params : dict[str, Any]; keyword-only; optional
@@ -306,9 +335,7 @@ class TIDALResourceAPI(ResourceAPI):
             TIDAL content metadata for the related resource.
         """
         if resource_identifier_type == "id":
-            self._client._validate_tidal_ids(
-                resource_identifier, _recursive=False
-            )
+            self._validate_tidal_ids(resource_identifier, _recursive=False)
         elif resource_identifier_type == "uuid":
             self._validate_uuid(resource_identifier)
         else:

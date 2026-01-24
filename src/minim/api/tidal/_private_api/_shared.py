@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
 from ..._shared import ResourceAPI
+from .._api._shared import TIDALResourceAPI
 
 if TYPE_CHECKING:
     from .. import PrivateTIDALAPI
@@ -13,6 +14,8 @@ class PrivateTIDALResourceAPI(ResourceAPI):
 
     _PLAYBACK_MODES = {"STREAM", "OFFLINE"}
     _client: "PrivateTIDALAPI"
+
+    _validate_tidal_ids = TIDALResourceAPI._validate_tidal_ids
 
     @staticmethod
     def _prepare_tidal_ids(

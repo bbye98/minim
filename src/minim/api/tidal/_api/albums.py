@@ -58,9 +58,9 @@ class AlbumsAPI(TIDALResourceAPI):
 
         .. note::
 
-           Exactly one of `album_ids`, `barcodes`, or `owner_ids` must 
+           Exactly one of `album_ids`, `barcodes`, or `owner_ids` must
            be provided. When `barcodes` or `owner_ids` is specified, the
-           request will always be sent to the endpoint for multiple 
+           request will always be sent to the endpoint for multiple
            albums.
 
         Parameters
@@ -97,11 +97,11 @@ class AlbumsAPI(TIDALResourceAPI):
             :code:`"providers"`, :code:`"similarAlbums"`,
             :code:`"suggestedCoverArts"`.
 
-            **Examples**: :code:`"coverArt"`, 
+            **Examples**: :code:`"coverArt"`,
             :code:`["artists", "items"]`.
 
         cursor : str; keyword-only; optional
-            Cursor for for fetching the next page of results when 
+            Cursor for for fetching the next page of results when
             retrieving multiple albums.
 
             **Example**: :code:`"3nI1Esi"`.
@@ -1037,7 +1037,7 @@ class AlbumsAPI(TIDALResourceAPI):
                 )
             params["filter[barcodeId]"] = barcodes
         elif owner_ids is not None:
-            self._client._validate_tidal_ids(owner_ids)
+            self._validate_tidal_ids(owner_ids)
             params["filter[owners.id]"] = owner_ids
         return self._get_resources(
             "albums",
