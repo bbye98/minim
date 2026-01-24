@@ -937,7 +937,7 @@ class SearchAPI(TIDALResourceAPI):
             :code:`"videos"`.
 
             **Examples**: :code:`"topHits"`,
-           :code:`["albums", "tracks"]`.
+            :code:`["albums", "tracks"]`.
 
         Returns
         -------

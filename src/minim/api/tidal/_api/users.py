@@ -2512,7 +2512,7 @@ class UsersAPI(TIDALResourceAPI):
             :code:`"myMixes"`, :code:`"newArrivalMixes"`.
 
             **Examples**: :code:`"myMixes"`,
-           :code:`["discoveryMixes", "newArrivalMixes"]`.
+            :code:`["discoveryMixes", "newArrivalMixes"]`.
 
         Returns
         -------

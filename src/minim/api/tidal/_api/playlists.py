@@ -160,7 +160,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             :code:`"ownerProfiles"`, :code:`"owners"`.
 
             **Examples**: :code:`"coverArt"`,
-           :code:`["items", "owners"]`.
+            :code:`["items", "owners"]`.
 
         cursor : str; keyword-only; optional
             Cursor for fetching the next page of results when requesting

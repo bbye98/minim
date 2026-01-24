@@ -35,7 +35,7 @@ class MusixmatchLyricsAPI(APIClient):
 
         # Initialize subclasses for endpoint groups
         #: Tracks API endpoints for the Musixmatch Lyrics API.
-        self.tracks = TracksAPI(self)
+        self.tracks: TracksAPI = TracksAPI(self)
 
         # Store API key
         if isinstance(api_key, str):
