@@ -162,7 +162,7 @@ class SearchAPI(DeezerResourceAPI):
                  e.g., :code:`bpm_min:120 bpm_max:200`.
 
             **Example**: :code:`artist:"aloe blacc"
-            track:"i need a dollar" bpm_min:120 dur_min:300`
+            track:"i need a dollar" bpm_min:120 dur_min:300`.
 
         strict : bool; keyword-only; optional
             Whether to use strict matching instead of fuzzy search.
@@ -291,7 +291,7 @@ class SearchAPI(DeezerResourceAPI):
                  e.g., :code:`bpm_min:120 bpm_max:200`.
 
             **Example**: :code:`artist:"aloe blacc"
-            track:"i need a dollar" bpm_min:120 dur_min:300`
+            track:"i need a dollar" bpm_min:120 dur_min:300`.
 
         strict : bool; keyword-only; optional
             Whether to use strict matching instead of fuzzy search.
@@ -693,7 +693,7 @@ class SearchAPI(DeezerResourceAPI):
                  e.g., :code:`bpm_min:120 bpm_max:200`.
 
             **Example**: :code:`artist:"aloe blacc"
-            track:"i need a dollar" bpm_min:120 dur_min:300`
+            track:"i need a dollar" bpm_min:120 dur_min:300`.
 
         strict : bool; keyword-only; optional
             Whether to use strict matching instead of fuzzy search.

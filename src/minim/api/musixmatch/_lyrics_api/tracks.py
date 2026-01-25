@@ -11,8 +11,8 @@ class TracksAPI(MusixmatchResourceAPI):
     .. important::
 
        This class is managed by
-       :class:`minim.api.musixmatch.MusixmatchLyricsAPIClient` and should not
-       be instantiated directly.
+       :class:`minim.api.musixmatch.MusixmatchLyricsAPIClient` and
+       should not be instantiated directly.
     """
 
     def _get_track_resource(
@@ -645,8 +645,8 @@ class TracksAPI(MusixmatchResourceAPI):
         release_date_before: str | None = None,
         artist_popularity_sort_order: str | None = None,
         track_popularity_sort_order: str | None = None,
-        page: int | str | None = None,
-        limit: int | str | None = None,
+        page: int | None = None,
+        limit: int | None = None,
     ) -> dict[str, Any]:
         """
         `Track > track.search <https://docs.musixmatch.com/lyrics-api
@@ -720,14 +720,14 @@ class TracksAPI(MusixmatchResourceAPI):
 
             **Valid values**: :code:`"asc"`, :code:`"desc"`.
 
-        limit : int or str; keyword-only; optional
+        limit : int; keyword-only; optional
             Maximum number of results to return.
 
             **Valid range**: :code:`1` to :code:`100`.
 
             **API default**: :code:`10`.
 
-        page : int or str; keyword-only; optional
+        page : int; keyword-only; optional
             Page number. Use with `limit` to get the next page of
             results.
 
@@ -738,7 +738,7 @@ class TracksAPI(MusixmatchResourceAPI):
         Returns
         -------
         results : dict[str, Any]
-            Musixmatch content metadata for the search results.
+            Page of Musixmatch content metadata for the matching items.
 
             .. admonition:: Sample response
                :class: response dropdown
@@ -855,10 +855,10 @@ class TracksAPI(MusixmatchResourceAPI):
             )
             params["s_track_rating"] = track_popularity_sort_order
         if limit is not None:
-            self._validate_numeric("limit", limit, int, 1, 100)
+            self._validate_number("limit", limit, int, 1, 100)
             params["page_size"] = limit
         if page is not None:
-            self._validate_numeric("page", page, int, 1)
+            self._validate_number("page", page, int, 1)
             params["page"] = page
         return self._client._request(
             "GET", "track.search", params=params

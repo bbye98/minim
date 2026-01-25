@@ -7,6 +7,7 @@ from typing import Any
 from urllib.parse import urlencode
 
 from .._shared import APIClient
+from ._lyrics_api.albums import AlbumsAPI
 from ._lyrics_api.tracks import TracksAPI
 
 
@@ -34,6 +35,8 @@ class MusixmatchLyricsAPIClient(APIClient):
         super().__init__(enable_cache=enable_cache, user_agent=user_agent)
 
         # Initialize subclasses for endpoint groups
+        #: Albums API endpoints for the Musixmatch Lyrics API.
+        self.albums: AlbumsAPI = AlbumsAPI(self)
         #: Tracks API endpoints for the Musixmatch Lyrics API.
         self.tracks: TracksAPI = TracksAPI(self)
 
@@ -68,7 +71,7 @@ class MusixmatchLyricsAPIClient(APIClient):
                         self._client_key,
                         (
                             f"{self.BASE_URL}/{endpoint}?{urlencode(params)}"
-                            f"{datetime.now().strftime('%Y%m%d')}"
+                            f"{datetime.now(timezone.utc).strftime('%Y%m%d')}"
                         ).encode(),
                         hashlib.sha256,
                     ).digest()

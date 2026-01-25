@@ -944,7 +944,7 @@ class SearchAPI(TIDALResourceAPI):
         Returns
         -------
         results : dict[str, Any]
-            Search results.
+            TIDAL content metadata for the matching items.
 
             .. admonition:: Sample response
                :class: response dropdown
