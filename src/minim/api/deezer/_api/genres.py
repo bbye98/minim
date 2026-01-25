@@ -38,39 +38,41 @@ class GenresAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: dropdown
 
-               .. tab:: Single genre
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single genre
 
-                     {
-                       "id": <int>,
-                       "name": <str>,
-                       "picture": <str>,
-                       "picture_big": <str>,
-                       "picture_medium": <str>,
-                       "picture_small": <str>,
-                       "picture_xl": <str>,
-                       "type": "genre"
-                     }
+                     .. code::
 
-               .. tab:: Available genres
+                        {
+                          "id": <int>,
+                          "name": <str>,
+                          "picture": <str>,
+                          "picture_big": <str>,
+                          "picture_medium": <str>,
+                          "picture_small": <str>,
+                          "picture_xl": <str>,
+                          "type": "genre"
+                        }
 
-                  .. code::
+                  .. tab-item:: Available genres
 
-                     {
-                       "data": [
-                         {
-                           "id": <int>,
-                           "name": <str>,
-                           "picture": <str>,
-                           "picture_big": <str>,
-                           "picture_medium": <str>,
-                           "picture_small": <str>,
-                           "picture_xl": <str>,
-                           "type": "genre"
-                         }
-                       ]
-                     }
+                     .. code::
+
+                        {
+                          "data": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "picture_big": <str>,
+                              "picture_medium": <str>,
+                              "picture_small": <str>,
+                              "picture_xl": <str>,
+                              "type": "genre"
+                            }
+                          ]
+                        }
         """
         if genre_id is None:
             return self._client._request("GET", "genre").json()

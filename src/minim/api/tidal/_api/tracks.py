@@ -54,10 +54,12 @@ class TracksAPI(TIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              User authentication
-                 Access information on an item's owners.
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access information on an item's owners.
 
         .. important::
 
@@ -126,861 +128,863 @@ class TracksAPI(TIDALResourceAPI):
             .. admonition:: Sample responses
                :class: dropdown
 
-               .. tab:: Single track
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single track
 
-                     {
-                       "data": {
-                         "attributes": {
-                           "accessType": <str>,
-                           "availability": <list[str]>,
-                           "bpm": <float>,
-                           "copyright": {
-                             "text": <str>
-                           },
-                           "duration": <str>,
-                           "explicit": <bool>,
-                           "externalLinks": [
-                             {
-                               "href": <str>,
-                               "meta": {
-                                 "type": <str>
-                               }
-                             }
-                           ],
-                           "isrc": <str>,
-                           "key": <str>,
-                           "keyScale": <str>,
-                           "mediaTags": <list[str]>,
-                           "popularity": <float>,
-                           "spotlighted": <bool>,
-                           "title": <str>,
-                           "toneTags": <list[str]>,
-                           "version": <str>
-                         },
-                         "id": <str>,
-                         "relationships": {
-                           "albums": {
-                             "data": [
-                               {
-                                 "id": <str>,
-                                 "type": "albums"
-                               }
-                             ],
-                             "links": {
-                               "self": <str>
-                             }
-                           },
-                           "artists": {
-                             "data": [
-                               {
-                                 "id": <str>,
-                                 "type": "artists"
-                               }
-                             ],
-                             "links": {
-                               "self": <str>
-                             }
-                           },
-                           "genres": {
-                             "data": [],
-                             "links": {
-                               "self": <str>
-                             }
-                           },
-                           "lyrics": {
-                             "data": [],
-                             "links": {
-                               "self": <str>
-                             }
-                           },
-                           "owners": {
-                             "data": [],
-                             "links": {
-                               "self": <str>
-                             }
-                           },
-                           "providers": {
-                             "data": [
-                               {
-                                 "id": <str>,
-                                 "type": "providers"
-                               }
-                             ],
-                             "links": {
-                               "self": <str>
-                             }
-                           },
-                           "radio": {
-                             "data": [
-                               {
-                                 "id": <str>,
-                                 "type": "playlists"
-                               }
-                             ],
-                             "links": {
-                               "self": <str>
-                             }
-                           },
-                           "shares": {
-                             "data": [],
-                             "links": {
-                               "self": <str>
-                             }
-                           },
-                           "similarTracks": {
-                             "data": [
-                               {
-                                 "id": <str>,
-                                 "type": "tracks"
-                               }
-                             ],
-                             "links": {
-                               "meta": {
-                                 "nextCursor": <str>
-                               },
-                               "next": <str>,
-                               "self": <str>
-                             }
-                           },
-                           "sourceFile": {
-                             "links": {
-                               "self": <str>
-                             }
-                           },
-                           "trackStatistics": {
-                             "links": {
-                               "self": <str>
-                             }
-                           }
-                         },
-                         "type": "tracks"
-                       },
-                       "included": [
-                         {
-                           "attributes": {
-                             "accessType": <str>,
-                             "availability": <list[str]>,
-                             "barcodeId": <str>,
-                             "copyright": {
-                               "text": <str>
-                             },
-                             "duration": <str>,
-                             "explicit": <bool>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "mediaTags": <list[str]>,
-                             "numberOfItems": <int>,
-                             "numberOfVolumes": <int>,
-                             "popularity": <float>,
-                             "releaseDate": <str>,
-                             "title": <str>,
-                             "type": "ALBUM"
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "artists": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "coverArt": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "genres": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "items": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "owners": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "providers": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "similarAlbums": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "suggestedCoverArts" : {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "albums"
-                         },
-                         {
-                           "attributes": {
-                             "contributionsEnabled": <bool>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "name": <str>,
-                             "popularity": <float>,
-                             "spotlighted": <bool>
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "albums": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "biography": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "followers": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "following": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "owners": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "profileArt": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "radio": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "roles": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "similarArtists": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "trackProviders": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "tracks": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "videos": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "artists"
-                         },
-                         {
-                           "attributes": {
-                             "accessType": <str>,
-                             "bounded": <bool>,
-                             "createdAt": <str>,
-                             "description": <str>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "lastModifiedAt": <str>,
-                             "name": <str>,
-                             "playlistType": "MIX"
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "coverArt": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "items": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "owners": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "playlists"
-                         },
-                         {
-                           "attributes": {
-                             "name": <str>
-                           },
-                           "id": <str>,
-                           "type": "providers"
-                         },
-                         {
-                           "attributes": {
-                             "accessType": <str>,
-                             "availability": <list[str]>,
-                             "bpm": <float>,
-                             "copyright": {
-                               "text": <str>
-                             },
-                             "createdAt": <str>,
-                             "duration": <str>,
-                             "explicit": <bool>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "isrc": <str>,
-                             "key": <str>,
-                             "keyScale": <str>,
-                             "mediaTags": <list[str]>,
-                             "popularity": <float>,
-                             "spotlighted": <bool>,
-                             "title": <str>,
-                             "toneTags": <list[str]>,
-                             "version": <str>
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "albums": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "artists": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "genres": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "lyrics": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "owners": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "providers": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "radio": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "shares": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "similarTracks": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "sourceFile": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "trackStatistics": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "tracks"
-                         }
-                       ],
-                       "links": {
-                         "meta": {
-                           "nextCursor": <str>
-                         },
-                         "next": <str>,
-                         "self": <str>
-                       }
-                     }
+                     .. code::
 
-               .. tab:: Multiple tracks
+                        {
+                          "data": {
+                            "attributes": {
+                              "accessType": <str>,
+                              "availability": <list[str]>,
+                              "bpm": <float>,
+                              "copyright": {
+                                "text": <str>
+                              },
+                              "duration": <str>,
+                              "explicit": <bool>,
+                              "externalLinks": [
+                                {
+                                  "href": <str>,
+                                  "meta": {
+                                    "type": <str>
+                                  }
+                                }
+                              ],
+                              "isrc": <str>,
+                              "key": <str>,
+                              "keyScale": <str>,
+                              "mediaTags": <list[str]>,
+                              "popularity": <float>,
+                              "spotlighted": <bool>,
+                              "title": <str>,
+                              "toneTags": <list[str]>,
+                              "version": <str>
+                            },
+                            "id": <str>,
+                            "relationships": {
+                              "albums": {
+                                "data": [
+                                  {
+                                    "id": <str>,
+                                    "type": "albums"
+                                  }
+                                ],
+                                "links": {
+                                  "self": <str>
+                                }
+                              },
+                              "artists": {
+                                "data": [
+                                  {
+                                    "id": <str>,
+                                    "type": "artists"
+                                  }
+                                ],
+                                "links": {
+                                  "self": <str>
+                                }
+                              },
+                              "genres": {
+                                "data": [],
+                                "links": {
+                                  "self": <str>
+                                }
+                              },
+                              "lyrics": {
+                                "data": [],
+                                "links": {
+                                  "self": <str>
+                                }
+                              },
+                              "owners": {
+                                "data": [],
+                                "links": {
+                                  "self": <str>
+                                }
+                              },
+                              "providers": {
+                                "data": [
+                                  {
+                                    "id": <str>,
+                                    "type": "providers"
+                                  }
+                                ],
+                                "links": {
+                                  "self": <str>
+                                }
+                              },
+                              "radio": {
+                                "data": [
+                                  {
+                                    "id": <str>,
+                                    "type": "playlists"
+                                  }
+                                ],
+                                "links": {
+                                  "self": <str>
+                                }
+                              },
+                              "shares": {
+                                "data": [],
+                                "links": {
+                                  "self": <str>
+                                }
+                              },
+                              "similarTracks": {
+                                "data": [
+                                  {
+                                    "id": <str>,
+                                    "type": "tracks"
+                                  }
+                                ],
+                                "links": {
+                                  "meta": {
+                                    "nextCursor": <str>
+                                  },
+                                  "next": <str>,
+                                  "self": <str>
+                                }
+                              },
+                              "sourceFile": {
+                                "links": {
+                                  "self": <str>
+                                }
+                              },
+                              "trackStatistics": {
+                                "links": {
+                                  "self": <str>
+                                }
+                              }
+                            },
+                            "type": "tracks"
+                          },
+                          "included": [
+                            {
+                              "attributes": {
+                                "accessType": <str>,
+                                "availability": <list[str]>,
+                                "barcodeId": <str>,
+                                "copyright": {
+                                  "text": <str>
+                                },
+                                "duration": <str>,
+                                "explicit": <bool>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "mediaTags": <list[str]>,
+                                "numberOfItems": <int>,
+                                "numberOfVolumes": <int>,
+                                "popularity": <float>,
+                                "releaseDate": <str>,
+                                "title": <str>,
+                                "type": "ALBUM"
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "artists": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "coverArt": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "genres": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "items": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "owners": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "providers": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "similarAlbums": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "suggestedCoverArts" : {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "albums"
+                            },
+                            {
+                              "attributes": {
+                                "contributionsEnabled": <bool>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "name": <str>,
+                                "popularity": <float>,
+                                "spotlighted": <bool>
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "albums": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "biography": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "followers": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "following": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "owners": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "profileArt": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "radio": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "roles": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "similarArtists": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "trackProviders": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "tracks": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "videos": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "artists"
+                            },
+                            {
+                              "attributes": {
+                                "accessType": <str>,
+                                "bounded": <bool>,
+                                "createdAt": <str>,
+                                "description": <str>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "lastModifiedAt": <str>,
+                                "name": <str>,
+                                "playlistType": "MIX"
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "coverArt": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "items": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "owners": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "playlists"
+                            },
+                            {
+                              "attributes": {
+                                "name": <str>
+                              },
+                              "id": <str>,
+                              "type": "providers"
+                            },
+                            {
+                              "attributes": {
+                                "accessType": <str>,
+                                "availability": <list[str]>,
+                                "bpm": <float>,
+                                "copyright": {
+                                  "text": <str>
+                                },
+                                "createdAt": <str>,
+                                "duration": <str>,
+                                "explicit": <bool>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "isrc": <str>,
+                                "key": <str>,
+                                "keyScale": <str>,
+                                "mediaTags": <list[str]>,
+                                "popularity": <float>,
+                                "spotlighted": <bool>,
+                                "title": <str>,
+                                "toneTags": <list[str]>,
+                                "version": <str>
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "albums": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "artists": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "genres": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "lyrics": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "owners": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "providers": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "radio": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "shares": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "similarTracks": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "sourceFile": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "trackStatistics": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "tracks"
+                            }
+                          ],
+                          "links": {
+                            "meta": {
+                              "nextCursor": <str>
+                            },
+                            "next": <str>,
+                            "self": <str>
+                          }
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple tracks
 
-                     {
-                       "data": [
-                         {
-                           "attributes": {
-                             "accessType": <str>,
-                             "availability": <list[str]>,
-                             "bpm": <float>,
-                             "copyright": {
-                               "text": <str>
-                             },
-                             "duration": <str>,
-                             "explicit": <bool>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "isrc": <str>,
-                             "key": <str>,
-                             "keyScale": <str>,
-                             "mediaTags": <list[str]>,
-                             "popularity": <float>,
-                             "spotlighted": <bool>,
-                             "title": <str>,
-                             "toneTags": <list[str]>,
-                             "version": <str>
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "albums": {
-                               "data": [
-                                 {
-                                   "id": <str>,
-                                   "type": "albums"
-                                 }
-                               ],
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "artists": {
-                               "data": [
-                                 {
-                                   "id": <str>,
-                                   "type": "artists"
-                                 }
-                               ],
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "genres": {
-                               "data": [],
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "lyrics": {
-                               "data": [],
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "owners": {
-                               "data": [],
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "providers": {
-                               "data": [
-                                 {
-                                   "id": <str>,
-                                   "type": "providers"
-                                 }
-                               ],
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "radio": {
-                               "data": [
-                                 {
-                                   "id": <str>,
-                                   "type": "playlists"
-                                 }
-                               ],
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "shares": {
-                               "data": [],
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "similarTracks": {
-                               "data": [
-                                 {
-                                   "id": <str>,
-                                   "type": "tracks"
-                                 }
-                               ],
-                               "links": {
-                                 "meta": {
-                                   "nextCursor": <str>
-                                 },
-                                 "next": <str>,
-                                 "self": <str>
-                               }
-                             },
-                             "sourceFile": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "trackStatistics": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "tracks"
-                         }
-                       ],
-                       "included": [
-                         {
-                           "attributes": {
-                             "accessType": <str>,
-                             "availability": <list[str]>,
-                             "barcodeId": <str>,
-                             "copyright": {
-                               "text": <str>
-                             },
-                             "duration": <str>,
-                             "explicit": <bool>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "mediaTags": <list[str]>,
-                             "numberOfItems": <int>,
-                             "numberOfVolumes": <int>,
-                             "popularity": <float>,
-                             "releaseDate": <str>,
-                             "title": <str>,
-                             "type": "ALBUM"
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "artists": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "coverArt": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "genres": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "items": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "owners": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "providers": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "similarAlbums": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "suggestedCoverArts" : {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "albums"
-                         },
-                         {
-                           "attributes": {
-                             "contributionsEnabled": <bool>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "name": <str>,
-                             "popularity": <float>,
-                             "spotlighted": <bool>
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "albums": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "biography": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "followers": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "following": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "owners": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "profileArt": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "radio": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "roles": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "similarArtists": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "trackProviders": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "tracks": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "videos": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "artists"
-                         },
-                         {
-                           "attributes": {
-                             "accessType": <str>,
-                             "bounded": <bool>,
-                             "createdAt": <str>,
-                             "description": <str>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "lastModifiedAt": <str>,
-                             "name": <str>,
-                             "playlistType": "MIX"
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "coverArt": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "items": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "owners": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "playlists"
-                         },
-                         {
-                           "attributes": {
-                             "name": <str>
-                           },
-                           "id": <str>,
-                           "type": "providers"
-                         },
-                         {
-                           "attributes": {
-                             "accessType": <str>,
-                             "availability": <list[str]>,
-                             "bpm": <float>,
-                             "copyright": {
-                               "text": <str>
-                             },
-                             "createdAt": <str>,
-                             "duration": <str>,
-                             "explicit": <bool>,
-                             "externalLinks": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "type": <str>
-                                 }
-                               }
-                             ],
-                             "isrc": <str>,
-                             "key": <str>,
-                             "keyScale": <str>,
-                             "mediaTags": <list[str]>,
-                             "popularity": <float>,
-                             "spotlighted": <bool>,
-                             "title": <str>,
-                             "toneTags": <list[str]>,
-                             "version": <str>
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "albums": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "artists": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "genres": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "lyrics": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "owners": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "providers": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "radio": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "shares": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "similarTracks": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "sourceFile": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             },
-                             "trackStatistics": {
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "tracks"
-                         }
-                       ],
-                       "links": {
-                         "meta": {
-                           "nextCursor": <str>
-                         },
-                         "next": <str>,
-                         "self": <str>
-                       }
-                     }
+                     .. code::
+
+                        {
+                          "data": [
+                            {
+                              "attributes": {
+                                "accessType": <str>,
+                                "availability": <list[str]>,
+                                "bpm": <float>,
+                                "copyright": {
+                                  "text": <str>
+                                },
+                                "duration": <str>,
+                                "explicit": <bool>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "isrc": <str>,
+                                "key": <str>,
+                                "keyScale": <str>,
+                                "mediaTags": <list[str]>,
+                                "popularity": <float>,
+                                "spotlighted": <bool>,
+                                "title": <str>,
+                                "toneTags": <list[str]>,
+                                "version": <str>
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "albums": {
+                                  "data": [
+                                    {
+                                      "id": <str>,
+                                      "type": "albums"
+                                    }
+                                  ],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "artists": {
+                                  "data": [
+                                    {
+                                      "id": <str>,
+                                      "type": "artists"
+                                    }
+                                  ],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "genres": {
+                                  "data": [],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "lyrics": {
+                                  "data": [],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "owners": {
+                                  "data": [],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "providers": {
+                                  "data": [
+                                    {
+                                      "id": <str>,
+                                      "type": "providers"
+                                    }
+                                  ],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "radio": {
+                                  "data": [
+                                    {
+                                      "id": <str>,
+                                      "type": "playlists"
+                                    }
+                                  ],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "shares": {
+                                  "data": [],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "similarTracks": {
+                                  "data": [
+                                    {
+                                      "id": <str>,
+                                      "type": "tracks"
+                                    }
+                                  ],
+                                  "links": {
+                                    "meta": {
+                                      "nextCursor": <str>
+                                    },
+                                    "next": <str>,
+                                    "self": <str>
+                                  }
+                                },
+                                "sourceFile": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "trackStatistics": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "tracks"
+                            }
+                          ],
+                          "included": [
+                            {
+                              "attributes": {
+                                "accessType": <str>,
+                                "availability": <list[str]>,
+                                "barcodeId": <str>,
+                                "copyright": {
+                                  "text": <str>
+                                },
+                                "duration": <str>,
+                                "explicit": <bool>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "mediaTags": <list[str]>,
+                                "numberOfItems": <int>,
+                                "numberOfVolumes": <int>,
+                                "popularity": <float>,
+                                "releaseDate": <str>,
+                                "title": <str>,
+                                "type": "ALBUM"
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "artists": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "coverArt": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "genres": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "items": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "owners": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "providers": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "similarAlbums": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "suggestedCoverArts" : {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "albums"
+                            },
+                            {
+                              "attributes": {
+                                "contributionsEnabled": <bool>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "name": <str>,
+                                "popularity": <float>,
+                                "spotlighted": <bool>
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "albums": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "biography": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "followers": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "following": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "owners": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "profileArt": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "radio": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "roles": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "similarArtists": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "trackProviders": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "tracks": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "videos": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "artists"
+                            },
+                            {
+                              "attributes": {
+                                "accessType": <str>,
+                                "bounded": <bool>,
+                                "createdAt": <str>,
+                                "description": <str>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "lastModifiedAt": <str>,
+                                "name": <str>,
+                                "playlistType": "MIX"
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "coverArt": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "items": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "owners": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "playlists"
+                            },
+                            {
+                              "attributes": {
+                                "name": <str>
+                              },
+                              "id": <str>,
+                              "type": "providers"
+                            },
+                            {
+                              "attributes": {
+                                "accessType": <str>,
+                                "availability": <list[str]>,
+                                "bpm": <float>,
+                                "copyright": {
+                                  "text": <str>
+                                },
+                                "createdAt": <str>,
+                                "duration": <str>,
+                                "explicit": <bool>,
+                                "externalLinks": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "type": <str>
+                                    }
+                                  }
+                                ],
+                                "isrc": <str>,
+                                "key": <str>,
+                                "keyScale": <str>,
+                                "mediaTags": <list[str]>,
+                                "popularity": <float>,
+                                "spotlighted": <bool>,
+                                "title": <str>,
+                                "toneTags": <list[str]>,
+                                "version": <str>
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "albums": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "artists": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "genres": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "lyrics": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "owners": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "providers": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "radio": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "shares": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "similarTracks": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "sourceFile": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                },
+                                "trackStatistics": {
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "tracks"
+                            }
+                          ],
+                          "links": {
+                            "meta": {
+                              "nextCursor": <str>
+                            },
+                            "next": <str>,
+                            "self": <str>
+                          }
+                        }
         """
         if sum(arg is not None for arg in [track_ids, isrcs, owner_ids]) != 1:
             raise ValueError(

@@ -331,11 +331,13 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         .. admonition:: Subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              TIDAL streaming plan
-                 Access lyrics. `Learn more.
-                 <https://tidal.com/pricing>`__
+              .. tab-item:: Required
+
+                 TIDAL streaming plan
+                    Access lyrics. `Learn more.
+                    <https://tidal.com/pricing>`__
 
         Parameters
         ----------
@@ -426,10 +428,12 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -572,11 +576,13 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
         .. admonition:: Subscription
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              TIDAL streaming plan
-                 Stream full-length and high-resolution audio.
-                 `Learn more. <https://tidal.com/pricing>`__
+              .. tab-item:: Optional
+
+                 TIDAL streaming plan
+                    Stream full-length and high-resolution audio.
+                    `Learn more. <https://tidal.com/pricing>`__
 
         Parameters
         ----------

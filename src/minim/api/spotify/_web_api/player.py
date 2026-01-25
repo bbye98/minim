@@ -73,20 +73,23 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and third-party application mode
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-read-playback-state` scope
-                 Read your currently playing content and Spotify Connect
-                 devices. `Learn more. <https://developer.spotify.com
-                 /documentation/web-api/reference
-                 /get-information-about-the-users-current-playback>`__
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`user-read-playback-state` scope
+                    Read your currently playing content and Spotify
+                    Connect devices. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference
+                    /get-information-about-the-users-current-playback>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -281,17 +284,19 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Spotify Premium subscription
-                 Access the :code:`PUT /me/player` endpoint.
-                 `Learn more. <https://www.spotify.com/us/premium/>`__
+              .. tab-item:: Required
 
-              :code:`user-modify-playback-state` scope
-                 Control playback on your Spotify clients and Spotify
-                 Connect devices. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /reference/transfer-a-users-playback>`__
+                 Spotify Premium subscription
+                    Access the :code:`PUT /me/player` endpoint. `Learn
+                    more. <https://www.spotify.com/us/premium>`__
+
+                 :code:`user-modify-playback-state` scope
+                    Control playback on your Spotify clients and Spotify
+                    Connect devices. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference/transfer-a-users-playback>`__
 
         .. caution::
 
@@ -336,13 +341,16 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-read-playback-state` scope
-                 Read your currently playing content and Spotify Connect
-                 devices. `Learn more. <https://developer.spotify.com
-                 /documentation/web-api/reference
-                 /get-information-about-the-users-current-playback>`__
+              .. tab-item:: Required
+
+                 :code:`user-read-playback-state` scope
+                    Read your currently playing content and Spotify
+                    Connect devices. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference
+                    /get-information-about-the-users-current-playback>`__
 
         Returns
         -------
@@ -389,19 +397,21 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and third-party application mode
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-read-currently-playing` scope
-                  Read your currently playing content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /reference/get-the-users-currently-playing-track>`__
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`user-read-currently-playing` scope
+                    Read your currently playing content. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference/get-the-users-currently-playing-track>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -604,17 +614,19 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Spotify Premium subscription
-                 Access the :code:`PUT /me/player/play` endpoint.
-                 `Learn more. <https://www.spotify.com/us/premium/>`__
+              .. tab-item:: Required
 
-              :code:`user-modify-playback-state` scope
-                 Control playback on your Spotify clients and Spotify
-                 Connect devices. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /reference/transfer-a-users-playback>`__
+                 Spotify Premium subscription
+                    Access the :code:`PUT /me/player/play` endpoint.
+                    `Learn more. <https://www.spotify.com/us/premium>`__
+
+                 :code:`user-modify-playback-state` scope
+                    Control playback on your Spotify clients and Spotify
+                    Connect devices. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference/transfer-a-users-playback>`__
 
         Parameters
         ----------
@@ -711,17 +723,19 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Spotify Premium subscription
-                 Access the :code:`PUT /me/player/pause` endpoint.
-                 `Learn more. <https://www.spotify.com/us/premium/>`__
+              .. tab-item:: Required
 
-              :code:`user-modify-playback-state` scope
-                 Control playback on your Spotify clients and Spotify
-                 Connect devices. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /reference/transfer-a-users-playback>`__
+                 Spotify Premium subscription
+                    Access the :code:`PUT /me/player/pause` endpoint.
+                    `Learn more. <https://www.spotify.com/us/premium>`__
+
+                 :code:`user-modify-playback-state` scope
+                    Control playback on your Spotify clients and Spotify
+                    Connect devices. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference/transfer-a-users-playback>`__
 
         .. caution::
 
@@ -754,17 +768,19 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Spotify Premium subscription
-                 Access the :code:`PUT /me/player/next` endpoint.
-                 `Learn more. <https://www.spotify.com/us/premium/>`__
+              .. tab-item:: Required
 
-              :code:`user-modify-playback-state` scope
-                 Control playback on your Spotify clients and Spotify
-                 Connect devices. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /reference/transfer-a-users-playback>`__
+                 Spotify Premium subscription
+                    Access the :code:`PUT /me/player/next` endpoint.
+                    `Learn more. <https://www.spotify.com/us/premium>`__
+
+                 :code:`user-modify-playback-state` scope
+                    Control playback on your Spotify clients and Spotify
+                    Connect devices. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference/transfer-a-users-playback>`__
 
         .. caution::
 
@@ -797,17 +813,19 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Spotify Premium subscription
-                 Access the :code:`PUT /me/player/previous` endpoint.
-                 `Learn more. <https://www.spotify.com/us/premium/>`__
+              .. tab-item:: Required
 
-              :code:`user-modify-playback-state` scope
-                 Control playback on your Spotify clients and Spotify
-                 Connect devices. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /reference/transfer-a-users-playback>`__
+                 Spotify Premium subscription
+                    Access the :code:`PUT /me/player/previous` endpoint.
+                    `Learn more. <https://www.spotify.com/us/premium>`__
+
+                 :code:`user-modify-playback-state` scope
+                    Control playback on your Spotify clients and Spotify
+                    Connect devices. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference/transfer-a-users-playback>`__
 
         .. caution::
 
@@ -841,17 +859,19 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Spotify Premium subscription
-                 Access the :code:`PUT /me/player/seek` endpoint.
-                 `Learn more. <https://www.spotify.com/us/premium/>`__
+              .. tab-item:: Required
 
-              :code:`user-modify-playback-state` scope
-                 Control playback on your Spotify clients and Spotify
-                 Connect devices. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /reference/transfer-a-users-playback>`__
+                 Spotify Premium subscription
+                    Access the :code:`PUT /me/player/seek` endpoint.
+                    `Learn more. <https://www.spotify.com/us/premium>`__
+
+                 :code:`user-modify-playback-state` scope
+                    Control playback on your Spotify clients and Spotify
+                    Connect devices. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference/transfer-a-users-playback>`__
 
         .. caution::
 
@@ -897,17 +917,19 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Spotify Premium subscription
-                 Access the :code:`PUT /me/player/repeat` endpoint.
-                 `Learn more. <https://www.spotify.com/us/premium/>`__
+              .. tab-item:: Required
 
-              :code:`user-modify-playback-state` scope
-                 Control playback on your Spotify clients and Spotify
-                 Connect devices. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /reference/transfer-a-users-playback>`__
+                 Spotify Premium subscription
+                    Access the :code:`PUT /me/player/repeat` endpoint.
+                    `Learn more. <https://www.spotify.com/us/premium>`__
+
+                 :code:`user-modify-playback-state` scope
+                    Control playback on your Spotify clients and Spotify
+                    Connect devices. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference/transfer-a-users-playback>`__
 
         .. caution::
 
@@ -961,17 +983,19 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Spotify Premium subscription
-                 Access the :code:`PUT /me/player/volume` endpoint.
-                 `Learn more. <https://www.spotify.com/us/premium/>`__
+              .. tab-item:: Required
 
-              :code:`user-modify-playback-state` scope
-                 Control playback on your Spotify clients and Spotify
-                 Connect devices. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /reference/transfer-a-users-playback>`__
+                 Spotify Premium subscription
+                    Access the :code:`PUT /me/player/volume` endpoint.
+                    `Learn more. <https://www.spotify.com/us/premium>`__
+
+                 :code:`user-modify-playback-state` scope
+                    Control playback on your Spotify clients and Spotify
+                    Connect devices. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference/transfer-a-users-playback>`__
 
         .. caution::
 
@@ -1015,17 +1039,19 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Spotify Premium subscription
-                 Access the :code:`PUT /me/player/shuffle` endpoint.
-                 `Learn more. <https://www.spotify.com/us/premium/>`__
+              .. tab-item:: Required
 
-              :code:`user-modify-playback-state` scope
-                 Control playback on your Spotify clients and Spotify
-                 Connect devices. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /reference/transfer-a-users-playback>`__
+                 Spotify Premium subscription
+                    Access the :code:`PUT /me/player/shuffle` endpoint.
+                    `Learn more. <https://www.spotify.com/us/premium>`__
+
+                 :code:`user-modify-playback-state` scope
+                    Control playback on your Spotify clients and Spotify
+                    Connect devices. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference/transfer-a-users-playback>`__
 
         .. caution::
 
@@ -1071,19 +1097,21 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and third-party application mode
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-read-recently-played` scope
-                 Access your recently played items. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-read-recently-played>`__
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`user-read-recently-played` scope
+                    Access your recently played items. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-read-recently-played>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         .. important::
 
@@ -1261,25 +1289,29 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and third-party application mode
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-read-currently-playing` scope
-                  Read your currently playing content. `Learn more.
-                  <https://developer.spotify.com/documentation/web-api
-                  /reference/get-the-users-currently-playing-track>`__
+               .. tab-item:: Required
 
-              :code:`user-read-playback-state` scope
-                 Read your currently playing content and Spotify Connect
-                 devices. `Learn more. <https://developer.spotify.com
-                 /documentation/web-api/reference
-                 /get-information-about-the-users-current-playback>`__
+                  :code:`user-read-currently-playing` scope
+                     Read your currently playing content. `Learn more.
+                     <https://developer.spotify.com/documentation
+                     /web-api/reference
+                     /get-the-users-currently-playing-track>`__
 
-           .. tab:: Optional
+                  :code:`user-read-playback-state` scope
+                     Read your currently playing content and Spotify
+                     Connect devices. `Learn more.
+                     <https://developer.spotify.com/documentation
+                     /web-api/reference
+                     /get-information-about-the-users-current-playback>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+               .. tab-item:: Optional
+
+                  Extended quota mode before November 27, 2024
+                     Access 30-second preview URLs. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         Returns
         -------
@@ -1484,17 +1516,19 @@ class PlayerAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Spotify Premium subscription
-                 Access the :code:`PUT /me/player/queue` endpoint.
-                 `Learn more. <https://www.spotify.com/us/premium/>`__
+              .. tab-item:: Required
 
-              :code:`user-modify-playback-state` scope
-                 Control playback on your Spotify clients and Spotify
-                 Connect devices. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /reference/transfer-a-users-playback>`__
+                 Spotify Premium subscription
+                    Access the :code:`PUT /me/player/queue` endpoint.
+                    `Learn more. <https://www.spotify.com/us/premium>`__
+
+                 :code:`user-modify-playback-state` scope
+                    Control playback on your Spotify clients and Spotify
+                    Connect devices. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /reference/transfer-a-users-playback>`__
 
         Parameters
         ----------

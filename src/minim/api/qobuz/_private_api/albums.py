@@ -485,10 +485,12 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -516,10 +518,12 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -551,10 +555,12 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -677,10 +683,12 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -707,10 +715,12 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------

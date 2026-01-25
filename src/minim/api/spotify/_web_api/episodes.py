@@ -34,19 +34,22 @@ class EpisodesAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and third-party application mode
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-read-playback-position` scope
-                 Read your position in content you have played. `Learn
-                 more. <https://developer.spotify.com/documentation
-                 /web-api/concepts/scopes#user-read-playback-position>`__
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`user-read-playback-position` scope
+                    Read your position in content you have played.
+                    `Learn more. <https://developer.spotify.com
+                    /documentation/web-api/concepts
+                    /scopes#user-read-playback-position>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                     Access 30-second preview URLs. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -85,153 +88,155 @@ class EpisodesAPI(SpotifyResourceAPI):
             .. admonition:: Sample responses
                :class: dropdown
 
-               .. tab:: Single show episode
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single show episode
 
-                     {
-                       "audio_preview_url": <str>,
-                       "description": <str>,
-                       "duration_ms": <int>,
-                       "explicit": <bool>,
-                       "external_urls": {
-                         "spotify": <str>
-                       },
-                       "href": <str>,
-                       "html_description": <str>,
-                       "id": <str>,
-                       "images": [
-                         {
-                           "height": <int>,
-                           "url": <str>,
-                           "width": <int>
-                         }
-                       ],
-                       "is_externally_hosted": <bool>,
-                       "is_playable": <bool>,
-                       "language": <str>,
-                       "languages": <list[str]>,
-                       "name": <str>,
-                       "release_date": <str>,
-                       "release_date_precision": <str>,
-                       "restrictions": {
-                         "reason": <str>
-                       },
-                       "resume_point": {
-                         "fully_played": <bool>,
-                         "resume_position_ms": <int>
-                       },
-                       "show": {
-                         "available_markets": <list[str]>,
-                         "copyrights": [
-                           {
-                             "text": <str>,
-                             "type": <str>
-                           }
-                         ],
-                         "description": <str>,
-                         "explicit": <bool>,
-                         "external_urls": {
-                           "spotify": <str>
-                         },
-                         "href": <str>,
-                         "html_description": <str>,
-                         "id": <str>,
-                         "images": [
-                           {
-                             "height": <int>,
-                             "url": <str>,
-                             "width": <int>
-                           }
-                         ],
-                         "is_externally_hosted": <bool>,
-                         "languages": <list[str]>,
-                         "media_type": <str>,
-                         "name": <str>,
-                         "publisher": <str>,
-                         "total_episodes": <int>,
-                         "type": "show",
-                         "uri": <str>
-                       },
-                       "type": "episode",
-                       "uri": <str>
-                     }
+                     .. code::
 
-               .. tab:: Multiple show episodes
+                        {
+                          "audio_preview_url": <str>,
+                          "description": <str>,
+                          "duration_ms": <int>,
+                          "explicit": <bool>,
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "href": <str>,
+                          "html_description": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "is_externally_hosted": <bool>,
+                          "is_playable": <bool>,
+                          "language": <str>,
+                          "languages": <list[str]>,
+                          "name": <str>,
+                          "release_date": <str>,
+                          "release_date_precision": <str>,
+                          "restrictions": {
+                            "reason": <str>
+                          },
+                          "resume_point": {
+                            "fully_played": <bool>,
+                            "resume_position_ms": <int>
+                          },
+                          "show": {
+                            "available_markets": <list[str]>,
+                            "copyrights": [
+                              {
+                                "text": <str>,
+                                "type": <str>
+                              }
+                            ],
+                            "description": <str>,
+                            "explicit": <bool>,
+                            "external_urls": {
+                              "spotify": <str>
+                            },
+                            "href": <str>,
+                            "html_description": <str>,
+                            "id": <str>,
+                            "images": [
+                              {
+                                "height": <int>,
+                                "url": <str>,
+                                "width": <int>
+                              }
+                            ],
+                            "is_externally_hosted": <bool>,
+                            "languages": <list[str]>,
+                            "media_type": <str>,
+                            "name": <str>,
+                            "publisher": <str>,
+                            "total_episodes": <int>,
+                            "type": "show",
+                            "uri": <str>
+                          },
+                          "type": "episode",
+                          "uri": <str>
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple show episodes
 
-                     {
-                       "episodes": [
-                         {
-                           "audio_preview_url": <str>,
-                           "description": <str>,
-                           "duration_ms": <int>,
-                           "explicit": <bool>,
-                           "external_urls": {
-                             "spotify": <str>
-                           },
-                           "href": <str>,
-                           "html_description": <str>,
-                           "id": <str>,
-                           "images": [
-                             {
-                               "height": <int>,
-                               "url": <str>,
-                               "width": <int>
-                             }
-                           ],
-                           "is_externally_hosted": <bool>,
-                           "is_playable": <bool>,
-                           "language": <str>,
-                           "languages": <list[str]>,
-                           "name": <str>,
-                           "release_date": <str>,
-                           "release_date_precision": <str>,
-                           "restrictions": {
-                             "reason": <str>
-                           },
-                           "resume_point": {
-                             "fully_played": <bool>,
-                             "resume_position_ms": <int>
-                           },
-                           "show": {
-                             "available_markets": <list[str]>,
-                             "copyrights": [
-                               {
-                                 "text": <str>,
-                                 "type": <str>
-                               }
-                             ],
-                             "description": <str>,
-                             "explicit": <bool>,
-                             "external_urls": {
-                               "spotify": <str>
-                             },
-                             "href": <str>,
-                             "html_description": <str>,
-                             "id": <str>,
-                             "images": [
-                               {
-                                 "height": <int>,
-                                 "url": <str>,
-                                 "width": <int>
-                               }
-                             ],
-                             "is_externally_hosted": <bool>,
-                             "languages": <list[str]>,
-                             "media_type": <str>,
-                             "name": <str>,
-                             "publisher": <str>,
-                             "total_episodes": <int>,
-                             "type": "show",
-                             "uri": <str>
-                           },
-                           "type": "episode",
-                           "uri": <str>
-                         }
-                       ]
-                     }
+                     .. code::
+
+                        {
+                          "episodes": [
+                            {
+                              "audio_preview_url": <str>,
+                              "description": <str>,
+                              "duration_ms": <int>,
+                              "explicit": <bool>,
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "href": <str>,
+                              "html_description": <str>,
+                              "id": <str>,
+                              "images": [
+                                {
+                                  "height": <int>,
+                                  "url": <str>,
+                                  "width": <int>
+                                }
+                              ],
+                              "is_externally_hosted": <bool>,
+                              "is_playable": <bool>,
+                              "language": <str>,
+                              "languages": <list[str]>,
+                              "name": <str>,
+                              "release_date": <str>,
+                              "release_date_precision": <str>,
+                              "restrictions": {
+                                "reason": <str>
+                              },
+                              "resume_point": {
+                                "fully_played": <bool>,
+                                "resume_position_ms": <int>
+                              },
+                              "show": {
+                                "available_markets": <list[str]>,
+                                "copyrights": [
+                                  {
+                                    "text": <str>,
+                                    "type": <str>
+                                  }
+                                ],
+                                "description": <str>,
+                                "explicit": <bool>,
+                                "external_urls": {
+                                  "spotify": <str>
+                                },
+                                "href": <str>,
+                                "html_description": <str>,
+                                "id": <str>,
+                                "images": [
+                                  {
+                                    "height": <int>,
+                                    "url": <str>,
+                                    "width": <int>
+                                  }
+                                ],
+                                "is_externally_hosted": <bool>,
+                                "languages": <list[str]>,
+                                "media_type": <str>,
+                                "name": <str>,
+                                "publisher": <str>,
+                                "total_episodes": <int>,
+                                "type": "show",
+                                "uri": <str>
+                              },
+                              "type": "episode",
+                              "uri": <str>
+                            }
+                          ]
+                        }
         """
         self._client._require_scopes(
             "episodes.get_episodes", "user-read-playback-position"

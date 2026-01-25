@@ -69,10 +69,12 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -150,10 +152,12 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -251,10 +255,12 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -288,10 +294,12 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -372,10 +380,12 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement dropdown
 
-           .. tab:: Conditional
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Conditional
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -865,10 +875,12 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -1047,10 +1059,12 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         .. important::
 
@@ -1152,10 +1166,12 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -1196,10 +1212,12 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------

@@ -105,10 +105,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Conditional
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Conditional
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -145,104 +147,106 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             .. admonition:: Sample responses
                :class: dropdown
 
-               .. tab:: Current (:code:`v2`) endpoint
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Current (:code:`v2`) endpoint
 
-                     {
-                       "followInfo": {
-                         "followType": "PLAYLIST",
-                         "followed": <bool>,
-                         "nrOfFollowers": <int>,
-                         "tidalResourceName": <str>
-                       },
-                       "playlist": {
-                         "contentBehavior": <str>,
-                         "created": <str>,
-                         "creator": {
-                           "id": <int>,
-                           "name": <str>,
-                           "picture": <str>,
-                           "type": "USER"
-                         },
-                         "curators": [
-                           {
-                             "handle": <str>,
-                             "id": <int>,
-                             "name": <str>,
-                             "picture": <str>
-                           }
-                         ],
-                         "customImageUrl": <str>,
-                         "description": <str>,
-                         "duration": <int>,
-                         "image": <str>,
-                         "lastItemAddedAt": <str>,
-                         "lastUpdated": <str>,
-                         "numberOfTracks": <int>,
-                         "numberOfVideos": <int>,
-                         "promotedArtists": [
-                           {
-                             "contributionLinkUrl": <str>,
-                             "handle": <str>,
-                             "id": <int>,
-                             "name": <str>,
-                             "picture": <str>,
-                             "type": <str>,
-                             "userId": <int>
-                           }
-                         ],
-                         "sharingLevel": "PUBLIC",
-                         "source": <str>,
-                         "squareImage": <str>,
-                         "status": <str>,
-                         "title": <str>,
-                         "trn": <str>,
-                         "type": "USER",
-                         "url": <str>,
-                         "uuid": <str>
-                       },
-                       "profile": {
-                         "color": <list[str]>,
-                         "name": <str>,
-                         "userId": <int>
-                       }
-                     }
+                     .. code::
 
-               .. tab:: Legacy (:code:`v1`) endpoint
+                        {
+                          "followInfo": {
+                            "followType": "PLAYLIST",
+                            "followed": <bool>,
+                            "nrOfFollowers": <int>,
+                            "tidalResourceName": <str>
+                          },
+                          "playlist": {
+                            "contentBehavior": <str>,
+                            "created": <str>,
+                            "creator": {
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "type": "USER"
+                            },
+                            "curators": [
+                              {
+                                "handle": <str>,
+                                "id": <int>,
+                                "name": <str>,
+                                "picture": <str>
+                              }
+                            ],
+                            "customImageUrl": <str>,
+                            "description": <str>,
+                            "duration": <int>,
+                            "image": <str>,
+                            "lastItemAddedAt": <str>,
+                            "lastUpdated": <str>,
+                            "numberOfTracks": <int>,
+                            "numberOfVideos": <int>,
+                            "promotedArtists": [
+                              {
+                                "contributionLinkUrl": <str>,
+                                "handle": <str>,
+                                "id": <int>,
+                                "name": <str>,
+                                "picture": <str>,
+                                "type": <str>,
+                                "userId": <int>
+                              }
+                            ],
+                            "sharingLevel": "PUBLIC",
+                            "source": <str>,
+                            "squareImage": <str>,
+                            "status": <str>,
+                            "title": <str>,
+                            "trn": <str>,
+                            "type": "USER",
+                            "url": <str>,
+                            "uuid": <str>
+                          },
+                          "profile": {
+                            "color": <list[str]>,
+                            "name": <str>,
+                            "userId": <int>
+                          }
+                        }
 
-                  .. code::
+                  .. tab-item:: Legacy (:code:`v1`) endpoint
 
-                     {
-                       "created": <str>,
-                       "creator": {
-                         "id": <int>
-                       },
-                       "customImageUrl": <str>,
-                       "description": <str>,
-                       "duration": <int>,
-                       "image": <str>,
-                       "lastItemAddedAt": <str>,
-                       "lastUpdated": <str>,
-                       "numberOfTracks": <int>,
-                       "numberOfVideos": <int>,
-                       "popularity": <int>,
-                       "promotedArtists": [
-                         {
-                           "handle": <str>,
-                           "id": <int>,
-                           "name": <str>,
-                           "picture": <str>,
-                           "type": <str>
-                         }
-                       ],
-                       "publicPlaylist": <bool>,
-                       "squareImage": <str>,
-                       "title": <str>,
-                       "type": <str>,
-                       "url": <str>,
-                       "uuid": <str>
-                     }
+                     .. code::
+
+                        {
+                          "created": <str>,
+                          "creator": {
+                            "id": <int>
+                          },
+                          "customImageUrl": <str>,
+                          "description": <str>,
+                          "duration": <int>,
+                          "image": <str>,
+                          "lastItemAddedAt": <str>,
+                          "lastUpdated": <str>,
+                          "numberOfTracks": <int>,
+                          "numberOfVideos": <int>,
+                          "popularity": <int>,
+                          "promotedArtists": [
+                            {
+                              "handle": <str>,
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "type": <str>
+                            }
+                          ],
+                          "publicPlaylist": <bool>,
+                          "squareImage": <str>,
+                          "title": <str>,
+                          "type": <str>,
+                          "url": <str>,
+                          "uuid": <str>
+                        }
         """
         self._validate_uuid(playlist_uuid)
         self._validate_number("version", api_version, int, 1, 2)
@@ -476,10 +480,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -620,10 +626,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -691,10 +699,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -735,10 +745,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -860,10 +872,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -907,10 +921,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -944,10 +960,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         .. important::
 
@@ -992,10 +1010,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1039,10 +1059,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         .. important::
 
@@ -1146,10 +1168,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1212,10 +1236,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1271,10 +1297,12 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------

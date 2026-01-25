@@ -50,65 +50,67 @@ class ArtistsAPI(SpotifyResourceAPI):
             .. admonition:: Sample responses
                :class: dropdown
 
-               .. tab:: Single artist
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single artist
 
-                     {
-                       "external_urls": {
-                         "spotify": <str>
-                       },
-                       "followers": {
-                         "href": <str>,
-                         "total": <int>
-                       },
-                       "genres": <list[str]>,
-                       "href": <str>,
-                       "id": <str>,
-                       "images": [
-                         {
-                           "height": <int>,
-                           "url": <str>,
-                           "width": <int>
-                         }
-                       ],
-                       "name": <str>,
-                       "popularity": <int>,
-                       "type": "artist",
-                       "uri": <str>
-                     }
+                     .. code::
 
-               .. tab:: Multiple artists
+                        {
+                          "external_urls": {
+                            "spotify": <str>
+                          },
+                          "followers": {
+                            "href": <str>,
+                            "total": <int>
+                          },
+                          "genres": <list[str]>,
+                          "href": <str>,
+                          "id": <str>,
+                          "images": [
+                            {
+                              "height": <int>,
+                              "url": <str>,
+                              "width": <int>
+                            }
+                          ],
+                          "name": <str>,
+                          "popularity": <int>,
+                          "type": "artist",
+                          "uri": <str>
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple artists
 
-                     {
-                       "artists": [
-                         {
-                           "external_urls": {
-                             "spotify": <str>
-                           },
-                           "followers": {
-                             "href": <str>,
-                             "total": <int>
-                           },
-                           "genres": <list[str]>,
-                           "href": <str>,
-                           "id": <str>,
-                           "images": [
-                             {
-                               "height": <int>,
-                               "url": <str>,
-                               "width": <int>
-                             }
-                           ],
-                           "name": <str>,
-                           "popularity": <int>,
-                           "type": "artist",
-                           "uri": <str>
-                         }
-                       ]
-                     }
+                     .. code::
+
+                        {
+                          "artists": [
+                            {
+                              "external_urls": {
+                                "spotify": <str>
+                              },
+                              "followers": {
+                                "href": <str>,
+                                "total": <int>
+                              },
+                              "genres": <list[str]>,
+                              "href": <str>,
+                              "id": <str>,
+                              "images": [
+                                {
+                                  "height": <int>,
+                                  "url": <str>,
+                                  "width": <int>
+                                }
+                              ],
+                              "name": <str>,
+                              "popularity": <int>,
+                              "type": "artist",
+                              "uri": <str>
+                            }
+                          ]
+                        }
         """
         return self._get_resources("artists", artist_ids)
 
@@ -264,12 +266,14 @@ class ArtistsAPI(SpotifyResourceAPI):
         .. admonition:: Third-party application mode
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                     Access 30-second preview URLs. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -399,12 +403,15 @@ class ArtistsAPI(SpotifyResourceAPI):
         .. admonition:: Third-party application mode
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access the :code:`GET /artists/{id}/related-artists`
-                  endpoint. `Learn more. <https://developer.spotify.com
-                  /blog/2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Required
+
+                 Extended quota mode before November 27, 2024
+                     Access the :code:`GET /artists/{id}
+                     /related-artists` endpoint. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------
@@ -472,19 +479,21 @@ class ArtistsAPI(SpotifyResourceAPI):
         .. admonition:: Authorization scope and third-party application mode
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user-top-read` scope
-                 Read your top artists and contents. `Learn more.
-                 <https://developer.spotify.com/documentation/web-api
-                 /concepts/scopes#user-top-read>`__
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`user-top-read` scope
+                    Read your top artists and contents. `Learn more.
+                    <https://developer.spotify.com/documentation/web-api
+                    /concepts/scopes#user-top-read>`__
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                     Access 30-second preview URLs. `Learn more.
+                     <https://developer.spotify.com/blog
+                     /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------

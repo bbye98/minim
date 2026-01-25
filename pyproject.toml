@@ -31,11 +31,11 @@ dev = [
   "ruff"
 ]
 docs = [
-  "furo",
   "numpydoc",
+  "shibuya",
   "sphinx",
   "sphinx-copybutton",
-  "sphinx-inline-tabs",
+  "sphinx-design",
   "sphinx-togglebutton"
 ]
 

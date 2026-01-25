@@ -120,10 +120,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -606,10 +608,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -635,10 +639,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -661,10 +667,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Returns
         -------
@@ -717,10 +725,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access client, session, and user account information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access client, session, and user account
+                    information.
 
         Returns
         -------
@@ -762,10 +773,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access client, session, and user account information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access client, session, and user account
+                    information.
 
         Parameters
         ----------
@@ -836,10 +850,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access client, session, and user account information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access client, session, and user account
+                    information.
 
         Parameters
         ----------
@@ -897,10 +914,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -947,10 +966,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1093,10 +1114,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1145,10 +1168,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1183,10 +1208,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1269,10 +1296,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1299,10 +1328,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1339,10 +1370,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1457,10 +1490,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1508,10 +1543,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1546,10 +1583,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1678,10 +1717,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1720,10 +1761,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1765,10 +1808,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1810,10 +1855,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -1942,11 +1989,13 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access user recommendations, and view and modify user's
-                 collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access user recommendations, and view and modify
+                    user's collection.
 
         Parameters
         ----------
@@ -2030,10 +2079,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2107,10 +2158,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2277,10 +2330,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2457,10 +2512,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2629,10 +2686,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2802,10 +2861,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -2937,10 +2998,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3058,10 +3121,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3108,10 +3173,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3154,10 +3221,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3177,10 +3246,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3204,10 +3275,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3258,10 +3331,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3281,10 +3356,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3311,10 +3388,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3470,10 +3549,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3522,10 +3603,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3560,10 +3643,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3684,10 +3769,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3714,10 +3801,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3753,10 +3842,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3891,10 +3982,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3942,10 +4035,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -3979,10 +4074,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -4082,10 +4179,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------
@@ -4112,10 +4211,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage the user's collection.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage the user's collection.
 
         Parameters
         ----------

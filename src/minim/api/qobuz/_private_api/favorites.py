@@ -37,10 +37,12 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         .. important::
 
@@ -112,10 +114,12 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         .. important::
 
@@ -189,10 +193,12 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -467,10 +473,12 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Returns
         -------
@@ -506,10 +514,12 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -561,10 +571,12 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------

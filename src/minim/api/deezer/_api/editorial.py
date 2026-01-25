@@ -59,42 +59,44 @@ class EditorialAPI(DeezerResourceAPI):
             .. admonition:: Sample response
                :class: dropdown
 
-               .. tab:: Single editorial
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single editorial
 
-                     {
-                       "id": <int>,
-                       "name": <str>,
-                       "picture": <str>,
-                       "picture_big": <str>,
-                       "picture_medium": <str>,
-                       "picture_small": <str>,
-                       "picture_xl": <str>,
-                       "type": "editorial"
-                     }
+                     .. code::
 
-               .. tab:: Available editorials
+                        {
+                          "id": <int>,
+                          "name": <str>,
+                          "picture": <str>,
+                          "picture_big": <str>,
+                          "picture_medium": <str>,
+                          "picture_small": <str>,
+                          "picture_xl": <str>,
+                          "type": "editorial"
+                        }
 
-                  .. code::
+                  .. tab-item:: Available editorials
 
-                     {
-                       "data": [
-                         {
-                           "id": <int>,
-                           "name": <str>,
-                           "picture": <str>,
-                           "picture_big": <str>,
-                           "picture_medium": <str>,
-                           "picture_small": <str>,
-                           "picture_xl": <str>,
-                           "type": "editorial"
-                         }
-                       ],
-                       "prev": <str>,
-                       "next": <str>,
-                       "total": <int>
-                     }
+                     .. code::
+
+                        {
+                          "data": [
+                            {
+                              "id": <int>,
+                              "name": <str>,
+                              "picture": <str>,
+                              "picture_big": <str>,
+                              "picture_medium": <str>,
+                              "picture_small": <str>,
+                              "picture_xl": <str>,
+                              "type": "editorial"
+                            }
+                          ],
+                          "prev": <str>,
+                          "next": <str>,
+                          "total": <int>
+                        }
         """
         if editorial_id is None:
             return self._client._request("GET", "editorial").json()

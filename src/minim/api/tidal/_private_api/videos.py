@@ -248,11 +248,13 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         .. admonition:: Subscription
            :class: entitlement dropdown
 
-           .. tab:: Required
+           .. tab-set::
 
-              TIDAL streaming plan
-                 Stream full-length videos.
-                 `Learn more. <https://tidal.com/pricing>`__
+              .. tab-item:: Required
+
+                 TIDAL streaming plan
+                    Stream full-length videos.
+                    `Learn more. <https://tidal.com/pricing>`__
 
         Parameters
         ----------

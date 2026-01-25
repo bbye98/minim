@@ -36,10 +36,12 @@ class ArtworksAPI(TIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              User authentication
-                 Access information on an item's owners.
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access information on an item's owners.
 
         Parameters
         ----------
@@ -70,77 +72,79 @@ class ArtworksAPI(TIDALResourceAPI):
             .. admonition:: Sample responses
                :class: dropdown
 
-               .. tab:: Single artwork
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single artwork
 
-                     {
-                       "data": {
-                         "attributes": {
-                           "files": [
-                             {
-                               "href": <str>,
-                               "meta": {
-                                 "height": <int>,
-                                 "width": <int>
-                               }
-                             }
-                           ],
-                           "mediaType": "IMAGE"
-                         },
-                         "id": <str>,
-                         "relationships": {
-                           "owners": {
-                             "data": [],
-                             "links": {
-                               "self": <str>
-                             }
-                           }
-                         },
-                         "type": "artworks"
-                       },
-                       "included": [],
-                       "links": {
-                         "self": <str>
-                       }
-                     }
+                     .. code::
 
-               .. tab:: Multiple artworks
+                        {
+                          "data": {
+                            "attributes": {
+                              "files": [
+                                {
+                                  "href": <str>,
+                                  "meta": {
+                                    "height": <int>,
+                                    "width": <int>
+                                  }
+                                }
+                              ],
+                              "mediaType": "IMAGE"
+                            },
+                            "id": <str>,
+                            "relationships": {
+                              "owners": {
+                                "data": [],
+                                "links": {
+                                  "self": <str>
+                                }
+                              }
+                            },
+                            "type": "artworks"
+                          },
+                          "included": [],
+                          "links": {
+                            "self": <str>
+                          }
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple artworks
 
-                     {
-                       "data": [
-                         {
-                           "attributes": {
-                             "files": [
-                               {
-                                 "href": <str>,
-                                 "meta": {
-                                   "height": <int>,
-                                   "width": <int>
-                                 }
-                               }
-                             ],
-                             "mediaType": "IMAGE"
-                           },
-                           "id": <str>,
-                           "relationships": {
-                             "owners": {
-                               "data": [],
-                               "links": {
-                                 "self": <str>
-                               }
-                             }
-                           },
-                           "type": "artworks"
-                         }
-                       ],
-                       "included": [],
-                       "links": {
-                         "self": <str>
-                       }
-                     }
+                     .. code::
+
+                        {
+                          "data": [
+                            {
+                              "attributes": {
+                                "files": [
+                                  {
+                                    "href": <str>,
+                                    "meta": {
+                                      "height": <int>,
+                                      "width": <int>
+                                    }
+                                  }
+                                ],
+                                "mediaType": "IMAGE"
+                              },
+                              "id": <str>,
+                              "relationships": {
+                                "owners": {
+                                  "data": [],
+                                  "links": {
+                                    "self": <str>
+                                  }
+                                }
+                              },
+                              "type": "artworks"
+                            }
+                          ],
+                          "included": [],
+                          "links": {
+                            "self": <str>
+                          }
+                        }
         """
         return self._get_resources(
             "artworks", artwork_ids, country_code=country_code, expand=expand
@@ -164,10 +168,12 @@ class ArtworksAPI(TIDALResourceAPI):
         .. admonition:: User authentication
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              User authentication
-                 Access information on an item's owners.
+              .. tab-item:: Optional
+
+                 User authentication
+                    Access information on an item's owners.
 
         Parameters
         ----------

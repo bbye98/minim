@@ -272,10 +272,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
         Parameters
         ----------
@@ -778,10 +780,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
         Parameters
         ----------
@@ -956,10 +960,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -1014,10 +1020,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -1071,10 +1079,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
         Parameters
         ----------
@@ -1257,10 +1267,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -1317,10 +1329,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -1370,16 +1384,18 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scopes
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
-              :code:`user.read` scope
-                 Read access to a user's account information, such as
-                 country and email address.
+              .. tab-item:: Optional
+
+                 :code:`user.read` scope
+                    Read access to a user's account information, such as
+                    country and email address.
 
         Parameters
         ----------
@@ -1467,10 +1483,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
         Parameters
         ----------
@@ -1616,10 +1634,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -1676,10 +1696,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -1741,10 +1763,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
         Parameters
         ----------
@@ -1942,10 +1966,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -2000,10 +2026,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -2057,10 +2085,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.read` scope
-                 Read access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.read` scope
+                    Read access to a user's collection.
 
         Parameters
         ----------
@@ -2209,10 +2239,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -2266,10 +2298,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`collection.write` scope
-                 Write access to a user's collection.
+              .. tab-item:: Required
+
+                 :code:`collection.write` scope
+                    Write access to a user's collection.
 
         Parameters
         ----------
@@ -2317,11 +2351,13 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`entitlements.read` scope
-                 Read functionalities a user is entitled to access on
-                 TIDAL.
+              .. tab-item:: Required
+
+                 :code:`entitlements.read` scope
+                    Read functionalities a user is entitled to access on
+                    TIDAL.
 
         Parameters
         ----------
@@ -2486,10 +2522,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`recommendations.read` scope
-                 Read access to a user's personal recommendations.
+              .. tab-item:: Required
+
+                 :code:`recommendations.read` scope
+                    Read access to a user's personal recommendations.
 
         Parameters
         ----------
@@ -2592,10 +2630,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`recommendations.read` scope
-                 Read access to a user's personal recommendations.
+              .. tab-item:: Required
+
+                 :code:`recommendations.read` scope
+                    Read access to a user's personal recommendations.
 
         Parameters
         ----------
@@ -2675,10 +2715,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`recommendations.read` scope
-                 Read access to a user's personal recommendations.
+              .. tab-item:: Required
+
+                 :code:`recommendations.read` scope
+                    Read access to a user's personal recommendations.
 
         Parameters
         ----------
@@ -2756,10 +2798,12 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`recommendations.read` scope
-                 Read access to a user's personal recommendations.
+              .. tab-item:: Required
+
+                 :code:`recommendations.read` scope
+                    Read access to a user's personal recommendations.
 
         Parameters
         ----------
@@ -2829,11 +2873,13 @@ class UsersAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`user.read` scope
-                 Read access to a user's account information, such as
-                 country and email address.
+              .. tab-item:: Required
+
+                 :code:`user.read` scope
+                    Read access to a user's account information, such as
+                    country and email address.
 
         Returns
         -------

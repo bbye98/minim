@@ -909,10 +909,12 @@ class SearchAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              :code:`search.read` scope
-                 Read personalized search results.
+              .. tab-item:: Optional
+
+                 :code:`search.read` scope
+                    Read personalized search results.
 
         Parameters
         ----------
@@ -1428,10 +1430,12 @@ class SearchAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              :code:`search.read` scope
-                 Read personalized search results.
+              .. tab-item:: Optional
+
+                 :code:`search.read` scope
+                    Read personalized search results.
 
         Parameters
         ----------
@@ -1588,10 +1592,12 @@ class SearchAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              :code:`search.read` scope
-                 Read personalized search results.
+              .. tab-item:: Optional
+
+                 :code:`search.read` scope
+                    Read personalized search results.
 
         Parameters
         ----------
@@ -1761,10 +1767,12 @@ class SearchAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              :code:`search.read` scope
-                 Read personalized search results.
+              .. tab-item:: Optional
+
+                 :code:`search.read` scope
+                    Read personalized search results.
 
         Parameters
         ----------
@@ -1894,10 +1902,12 @@ class SearchAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              :code:`search.read` scope
-                 Read personalized search results.
+              .. tab-item:: Optional
+
+                 :code:`search.read` scope
+                    Read personalized search results.
 
         Parameters
         ----------
@@ -2329,10 +2339,12 @@ class SearchAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              :code:`search.read` scope
-                 Read personalized search results.
+              .. tab-item:: Optional
+
+                 :code:`search.read` scope
+                    Read personalized search results.
 
         Parameters
         ----------
@@ -2510,10 +2522,12 @@ class SearchAPI(TIDALResourceAPI):
         .. admonition:: Authorization scope
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              :code:`search.read` scope
-                 Read personalized search results.
+              .. tab-item:: Optional
+
+                 :code:`search.read` scope
+                    Read personalized search results.
 
         Parameters
         ----------

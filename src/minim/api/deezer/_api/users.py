@@ -23,16 +23,18 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission and user authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's basic information.
+              .. tab-item:: Required
 
-           .. tab:: Optional
+                 User authentication
+                    Access the user's basic information.
 
-              :code:`email` permission
-                 Access the user's email. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Optional
+
+                 :code:`email` permission
+                    Access the user's email. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -92,10 +94,12 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission and user authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's basic information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's basic information.
 
         Parameters
         ----------
@@ -142,10 +146,12 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission and user authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's basic information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's basic information.
 
         Parameters
         ----------
@@ -235,11 +241,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -325,11 +333,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`listening_history` permission
-                 Access the user's listening history. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`listening_history` permission
+                    Access the user's listening history. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -434,11 +444,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -532,11 +544,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -621,11 +635,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -726,11 +742,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -831,11 +849,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -934,11 +954,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1039,11 +1061,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1128,11 +1152,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1233,11 +1259,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1313,11 +1341,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1421,11 +1451,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1518,11 +1550,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -1567,15 +1601,17 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permissions
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -1621,11 +1657,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1705,11 +1743,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -1754,15 +1794,17 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permissions
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -1812,11 +1854,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -1910,11 +1954,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -1963,15 +2009,17 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permissions
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2020,11 +2068,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2074,11 +2124,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         .. important::
 
@@ -2154,15 +2206,17 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permissions
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2193,11 +2247,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2239,11 +2295,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2297,11 +2355,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -2376,11 +2436,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2427,15 +2489,17 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permissions
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2478,11 +2542,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2526,11 +2592,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2571,11 +2639,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -2633,11 +2703,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2674,15 +2746,17 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permissions
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2728,11 +2802,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -2833,11 +2909,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2882,15 +2960,17 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permissions
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -2936,11 +3016,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -3042,11 +3124,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_library` permission
-                 Manage a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_library` permission
+                    Manage a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         .. important::
 
@@ -3107,11 +3191,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`delete_library` permission
-                 Delete items from a user's library. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`delete_library` permission
+                    Delete items from a user's library. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -3147,11 +3233,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -3226,11 +3314,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the user's favorite items, playlists, and
-                 followed people.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's favorite items, playlists, and
+                    followed people.
 
         Parameters
         ----------
@@ -3298,11 +3388,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_community` permission
-                 Manage a user's friends. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_community` permission
+                    Manage a user's friends. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------
@@ -3345,11 +3437,13 @@ class UsersAPI(DeezerResourceAPI):
         .. admonition:: Permission
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              :code:`manage_community` permission
-                 Manage a user's friends. `Learn more.
-                 <https://developers.deezer.com/api/permissions>`__
+              .. tab-item:: Required
+
+                 :code:`manage_community` permission
+                    Manage a user's friends. `Learn more.
+                    <https://developers.deezer.com/api/permissions>`__
 
         Parameters
         ----------

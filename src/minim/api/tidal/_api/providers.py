@@ -43,41 +43,43 @@ class ProvidersAPI(TIDALResourceAPI):
             .. admonition:: Sample responses
                :class: dropdown
 
-               .. tab:: Single provider
+               .. tab-set::
 
-                  .. code::
+                  .. tab-item:: Single provider
 
-                     {
-                       "data": {
-                         "attributes": {
-                           "name": <str>
-                         },
-                         "id": <str>,
-                         "type": "providers"
-                       },
-                       "links": {
-                         "self": <str>
-                       }
-                     }
+                     .. code::
 
-               .. tab:: Multiple providers
+                        {
+                          "data": {
+                            "attributes": {
+                              "name": <str>
+                            },
+                            "id": <str>,
+                            "type": "providers"
+                          },
+                          "links": {
+                            "self": <str>
+                          }
+                        }
 
-                  .. code::
+                  .. tab-item:: Multiple providers
 
-                     {
-                       "data": [
-                         {
-                           "attributes": {
-                             "name": <str>
-                           },
-                           "id": <str>,
-                           "type": "providers"
-                         }
-                       ],
-                       "links": {
-                         "self": <str>
-                       }
-                     }
+                     .. code::
+
+                        {
+                          "data": [
+                            {
+                              "attributes": {
+                                "name": <str>
+                              },
+                              "id": <str>,
+                              "type": "providers"
+                            }
+                          ],
+                          "links": {
+                            "self": <str>
+                          }
+                        }
         """
         return self._get_resources(
             "providers", provider_ids, country_code=None

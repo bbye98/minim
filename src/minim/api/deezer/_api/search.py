@@ -904,10 +904,12 @@ class SearchAPI(DeezerResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the :code:`GET /search/history` endpoint.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the :code:`GET /search/history` endpoint.
 
         Parameters
         ----------

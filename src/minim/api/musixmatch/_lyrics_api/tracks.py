@@ -90,11 +90,13 @@ class TracksAPI(MusixmatchResourceAPI):
         .. admonition:: Subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Musixmatch Basic plan
-                 Access music metadata and static lyrics. `Learn more.
-                 <https://about.musixmatch.com/api-pricing>`__
+              .. tab-item:: Required
+
+                 Musixmatch Basic plan
+                    Access music metadata and static lyrics. `Learn more.
+                    <https://about.musixmatch.com/api-pricing>`__
 
         .. important::
 
@@ -221,11 +223,13 @@ class TracksAPI(MusixmatchResourceAPI):
         .. admonition:: Subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Musixmatch Basic plan
-                 Access music metadata and static lyrics. `Learn more.
-                 <https://about.musixmatch.com/api-pricing>`__
+              .. tab-item:: Required
+
+                 Musixmatch Basic plan
+                    Access music metadata and static lyrics. `Learn more.
+                    <https://about.musixmatch.com/api-pricing>`__
 
         .. important::
 
@@ -317,13 +321,15 @@ class TracksAPI(MusixmatchResourceAPI):
         .. admonition:: Subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Musixmatch Enterprise plan
-                 Access extended music metadata, advanced search,
-                 translations, song structure, and lyric analysis.
-                 `Learn more. <https://about.musixmatch.com
-                 /api-pricing>`__
+              .. tab-item:: Required
+
+                 Musixmatch Enterprise plan
+                    Access extended music metadata, advanced search,
+                    translations, song structure, and lyric analysis.
+                    `Learn more. <https://about.musixmatch.com
+                    /api-pricing>`__
 
         .. important::
 
@@ -401,11 +407,13 @@ class TracksAPI(MusixmatchResourceAPI):
         .. admonition:: Subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Musixmatch Scale plan
-                 Access time-synced lyrics. `Learn more.
-                 <https://about.musixmatch.com/api-pricing>`__
+              .. tab-item:: Required
+
+                 Musixmatch Scale plan
+                    Access time-synced lyrics. `Learn more.
+                    <https://about.musixmatch.com/api-pricing>`__
 
         .. important::
 
@@ -524,13 +532,15 @@ class TracksAPI(MusixmatchResourceAPI):
         .. admonition:: Subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Musixmatch Enterprise plan
-                 Access extended music metadata, advanced search,
-                 translations, song structure, and lyric analysis.
-                 `Learn more. <https://about.musixmatch.com
-                 /api-pricing>`__
+              .. tab-item:: Required
+
+                 Musixmatch Enterprise plan
+                    Access extended music metadata, advanced search,
+                    translations, song structure, and lyric analysis.
+                    `Learn more. <https://about.musixmatch.com
+                    /api-pricing>`__
 
         .. important::
 
@@ -646,11 +656,13 @@ class TracksAPI(MusixmatchResourceAPI):
         .. admonition:: Subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Musixmatch Basic plan
-                 Access music metadata and static lyrics. `Learn more.
-                 <https://about.musixmatch.com/api-pricing>`__
+              .. tab-item:: Required
+
+                 Musixmatch Basic plan
+                    Access music metadata and static lyrics. `Learn more.
+                    <https://about.musixmatch.com/api-pricing>`__
 
         Parameters
         ----------
@@ -868,11 +880,13 @@ class TracksAPI(MusixmatchResourceAPI):
         .. admonition:: Subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Musixmatch Basic plan
-                 Access music metadata and static lyrics. `Learn more.
-                 <https://about.musixmatch.com/api-pricing>`__
+              .. tab-item:: Required
+
+                 Musixmatch Basic plan
+                    Access music metadata and static lyrics. `Learn more.
+                    <https://about.musixmatch.com/api-pricing>`__
 
         .. important::
 
@@ -959,13 +973,15 @@ class TracksAPI(MusixmatchResourceAPI):
         .. admonition:: Subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Musixmatch Enterprise plan
-                 Access extended music metadata, advanced search,
-                 translations, song structure, and lyric analysis.
-                 `Learn more. <https://about.musixmatch.com
-                 /api-pricing>`__
+              .. tab-item:: Required
+
+                 Musixmatch Enterprise plan
+                    Access extended music metadata, advanced search,
+                    translations, song structure, and lyric analysis.
+                    `Learn more. <https://about.musixmatch.com
+                    /api-pricing>`__
 
         .. important::
 
@@ -1082,13 +1098,15 @@ class TracksAPI(MusixmatchResourceAPI):
         .. admonition:: Subscription
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              Musixmatch Enterprise plan
-                 Access extended music metadata, advanced search,
-                 translations, song structure, and lyric analysis.
-                 `Learn more. <https://about.musixmatch.com
-                 /api-pricing>`__
+              .. tab-item:: Required
+
+                 Musixmatch Enterprise plan
+                    Access extended music metadata, advanced search,
+                    translations, song structure, and lyric analysis.
+                    `Learn more. <https://about.musixmatch.com
+                    /api-pricing>`__
 
         .. important::
 

@@ -50,12 +50,14 @@ class SearchAPI(SpotifyResourceAPI):
         .. admonition:: Third-party application mode
            :class: entitlement dropdown
 
-           .. tab:: Optional
+           .. tab-set::
 
-              Extended quota mode before November 27, 2024
-                  Access 30-second preview URLs. `Learn more.
-                  <https://developer.spotify.com/blog
-                  /2024-11-27-changes-to-the-web-api>`__
+              .. tab-item:: Optional
+
+                 Extended quota mode before November 27, 2024
+                    Access 30-second preview URLs. `Learn more.
+                    <https://developer.spotify.com/blog
+                    /2024-11-27-changes-to-the-web-api>`__
 
         Parameters
         ----------

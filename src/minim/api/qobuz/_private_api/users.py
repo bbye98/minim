@@ -23,10 +23,12 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access private profile information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access private profile information.
 
         Returns
         -------
@@ -126,10 +128,12 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access private profile information.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access private profile information.
 
         Returns
         -------
@@ -380,10 +384,12 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access personal collection and favorites.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access personal collection and favorites.
 
         Parameters
         ----------
@@ -626,10 +632,12 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access personal collection and favorites.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access personal collection and favorites.
 
         Returns
         -------
@@ -677,10 +685,12 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -709,10 +719,12 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -742,10 +754,12 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Returns
         -------
@@ -796,10 +810,12 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access and manage your library.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access and manage your library.
 
         Parameters
         ----------
@@ -988,10 +1004,12 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
         .. admonition:: User authentication
            :class: entitlement
 
-           .. tab:: Required
+           .. tab-set::
 
-              User authentication
-                 Access the :code:`POST /dynamic/suggest` endpoint.
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the :code:`POST /dynamic/suggest` endpoint.
 
         Parameters
         ----------
