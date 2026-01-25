@@ -13,10 +13,10 @@
 
 .admonition.response {
     --icon-url: var(--response-icon);
-    --color-1: var(--violet-surface);
-    --color-2: var(--violet-a3);
-    --color-3: var(--violet-9);
-    --color-4: var(--violet-a11);
+    --color-1: var(--iris-surface);
+    --color-2: var(--iris-a3);
+    --color-3: var(--iris-9);
+    --color-4: var(--iris-a11);
 }
 
 .admonition .sd-tab-set>input:checked+label {
