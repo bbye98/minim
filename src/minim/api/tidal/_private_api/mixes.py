@@ -43,7 +43,7 @@ class PrivateMixesAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the tracks in the mix.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

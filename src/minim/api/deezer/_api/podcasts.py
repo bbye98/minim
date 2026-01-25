@@ -34,7 +34,7 @@ class PodcastsAPI(DeezerResourceAPI):
             Deezer content metadata for the podcast.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -100,7 +100,7 @@ class PodcastsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the podcast's episodes.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

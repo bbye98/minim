@@ -199,7 +199,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -328,7 +328,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -421,7 +421,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -525,7 +525,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching podcasts.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -618,7 +618,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching radios.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -732,7 +732,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -852,7 +852,7 @@ class SearchAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the matching users.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -951,7 +951,7 @@ class SearchAPI(DeezerResourceAPI):
             Current user's search history.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

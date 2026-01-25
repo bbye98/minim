@@ -58,7 +58,7 @@ class ArtistsAPI(TIDALResourceAPI):
             TIDAL catalog information for the artist roles.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -171,7 +171,7 @@ class ArtistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the artists.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -1038,7 +1038,7 @@ class ArtistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the artist's albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1177,7 +1177,7 @@ class ArtistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the artist's biography.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1247,7 +1247,7 @@ class ArtistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the artist's owners.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1314,7 +1314,7 @@ class ArtistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the artist's profile art.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1411,7 +1411,7 @@ class ArtistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the artist's mix.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1517,7 +1517,7 @@ class ArtistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the artist's roles.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1599,7 +1599,7 @@ class ArtistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the similar artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1752,7 +1752,7 @@ class ArtistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the artist's track providers.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1848,7 +1848,7 @@ class ArtistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the artist's tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2017,7 +2017,7 @@ class ArtistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the artist's videos.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

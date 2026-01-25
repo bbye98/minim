@@ -43,7 +43,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -128,7 +128,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the album's credits.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -197,7 +197,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             the album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -381,7 +381,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             and videos in the album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -564,7 +564,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -628,7 +628,7 @@ class PrivateAlbumsAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the similar albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

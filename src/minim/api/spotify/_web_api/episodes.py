@@ -86,7 +86,7 @@ class EpisodesAPI(SpotifyResourceAPI):
             Spotify content metadata for the show episodes.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 

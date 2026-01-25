@@ -36,7 +36,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             Current user's profile information.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -141,7 +141,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             Current user's last update timestamps.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -211,7 +211,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             User authentication token and profile information.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -415,7 +415,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -645,7 +645,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             Qobuz IDs of purchased albums and tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -767,7 +767,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the personally curated playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -853,7 +853,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             curated playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1041,7 +1041,7 @@ class PrivateUsersAPI(PrivateQobuzResourceAPI):
             generated from the provided seeds.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

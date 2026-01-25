@@ -93,7 +93,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the video.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -190,7 +190,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the video's contributors.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -296,7 +296,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
             Playback information for the video.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

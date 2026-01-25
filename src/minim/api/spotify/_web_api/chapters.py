@@ -84,7 +84,7 @@ class ChaptersAPI(SpotifyResourceAPI):
             Spotify content metadata for the audiobook chapters.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 

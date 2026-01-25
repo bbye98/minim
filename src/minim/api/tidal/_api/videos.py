@@ -88,7 +88,7 @@ class VideosAPI(TIDALResourceAPI):
             TIDAL content metadata for the videos.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -686,7 +686,7 @@ class VideosAPI(TIDALResourceAPI):
             TIDAL content metadata for the albums containing the videos.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -831,7 +831,7 @@ class VideosAPI(TIDALResourceAPI):
             TIDAL content metadata for the video's artists
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -985,7 +985,7 @@ class VideosAPI(TIDALResourceAPI):
             TIDAL content metadata for the video's providers.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1066,7 +1066,7 @@ class VideosAPI(TIDALResourceAPI):
             TIDAL content metadata for the video's thumbnail.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

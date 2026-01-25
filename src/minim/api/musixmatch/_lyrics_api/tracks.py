@@ -126,7 +126,7 @@ class TracksAPI(MusixmatchResourceAPI):
             Musixmatch content metadata for the track.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -259,7 +259,7 @@ class TracksAPI(MusixmatchResourceAPI):
             Musixmatch content metadata for the track's lyrics.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -360,7 +360,7 @@ class TracksAPI(MusixmatchResourceAPI):
             the track's lyrics.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -458,7 +458,7 @@ class TracksAPI(MusixmatchResourceAPI):
             Musixmatch content metadata for the track's subtitles.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -578,7 +578,7 @@ class TracksAPI(MusixmatchResourceAPI):
             lyrics.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -741,7 +741,7 @@ class TracksAPI(MusixmatchResourceAPI):
             Musixmatch content metadata for the search results.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -917,7 +917,7 @@ class TracksAPI(MusixmatchResourceAPI):
             lyrics.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1023,7 +1023,7 @@ class TracksAPI(MusixmatchResourceAPI):
             track's lyrics.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1155,7 +1155,7 @@ class TracksAPI(MusixmatchResourceAPI):
             track's subtitles.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

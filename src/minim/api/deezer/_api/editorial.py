@@ -57,7 +57,7 @@ class EditorialAPI(DeezerResourceAPI):
             Deezer content metadata for the editorial(s).
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -126,7 +126,7 @@ class EditorialAPI(DeezerResourceAPI):
             Deezer content metadata for the featured albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -203,7 +203,7 @@ class EditorialAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the top items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -411,7 +411,7 @@ class EditorialAPI(DeezerResourceAPI):
             Deezer content metadata for the newly released albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

@@ -68,7 +68,7 @@ class SearchAPI(TIDALResourceAPI):
             Search suggestions and associated TIDAL content metadata.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -516,7 +516,7 @@ class SearchAPI(TIDALResourceAPI):
             TIDAL content metadata for the direct hits.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -947,7 +947,7 @@ class SearchAPI(TIDALResourceAPI):
             Search results.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1467,7 +1467,7 @@ class SearchAPI(TIDALResourceAPI):
             TIDAL content metadata for the matching albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1629,7 +1629,7 @@ class SearchAPI(TIDALResourceAPI):
             TIDAL content metadata for the matching artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1804,7 +1804,7 @@ class SearchAPI(TIDALResourceAPI):
             TIDAL content metadata for the matching playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1939,7 +1939,7 @@ class SearchAPI(TIDALResourceAPI):
             TIDAL content metadata for the matching top hits.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2376,7 +2376,7 @@ class SearchAPI(TIDALResourceAPI):
             TIDAL content metadata for the matching tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2559,7 +2559,7 @@ class SearchAPI(TIDALResourceAPI):
             TIDAL content metadata for the matching videos.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

@@ -34,7 +34,7 @@ class RadiosAPI(DeezerResourceAPI):
             Deezer content metadata for the radio.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -68,7 +68,7 @@ class RadiosAPI(DeezerResourceAPI):
             Deezer content metadata for the radios.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -177,7 +177,7 @@ class RadiosAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the tracks in the radio.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -262,7 +262,7 @@ class RadiosAPI(DeezerResourceAPI):
             Page of Deezer content metadata for all genres' radios.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

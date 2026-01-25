@@ -51,7 +51,7 @@ class UsersAPI(DeezerResourceAPI):
             Profile information for the specified user.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -116,7 +116,7 @@ class UsersAPI(DeezerResourceAPI):
             Permissions granted to the client.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -168,7 +168,7 @@ class UsersAPI(DeezerResourceAPI):
             User's options.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -264,7 +264,7 @@ class UsersAPI(DeezerResourceAPI):
             Deezer content metadata for tracks in the user's Flow mix.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -370,7 +370,7 @@ class UsersAPI(DeezerResourceAPI):
             tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -480,7 +480,7 @@ class UsersAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the user's top albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -580,7 +580,7 @@ class UsersAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the user's top artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -672,7 +672,7 @@ class UsersAPI(DeezerResourceAPI):
             playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -778,7 +778,7 @@ class UsersAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the user's top tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -886,7 +886,7 @@ class UsersAPI(DeezerResourceAPI):
             recommendations.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -991,7 +991,7 @@ class UsersAPI(DeezerResourceAPI):
             recommendations.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1098,7 +1098,7 @@ class UsersAPI(DeezerResourceAPI):
             recommendations.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1189,7 +1189,7 @@ class UsersAPI(DeezerResourceAPI):
             recommendations.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1296,7 +1296,7 @@ class UsersAPI(DeezerResourceAPI):
             recommendations.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1378,7 +1378,7 @@ class UsersAPI(DeezerResourceAPI):
             recommendations.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1488,7 +1488,7 @@ class UsersAPI(DeezerResourceAPI):
             albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1694,7 +1694,7 @@ class UsersAPI(DeezerResourceAPI):
             artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1890,7 +1890,7 @@ class UsersAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the user's playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2392,7 +2392,7 @@ class UsersAPI(DeezerResourceAPI):
             podcasts.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2676,7 +2676,7 @@ class UsersAPI(DeezerResourceAPI):
             radios.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2839,7 +2839,7 @@ class UsersAPI(DeezerResourceAPI):
             tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3053,7 +3053,7 @@ class UsersAPI(DeezerResourceAPI):
             tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3269,7 +3269,7 @@ class UsersAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the followed users.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3350,7 +3350,7 @@ class UsersAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the user's followers.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

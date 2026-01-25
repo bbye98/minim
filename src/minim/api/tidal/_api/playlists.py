@@ -187,7 +187,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the playlists.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -745,7 +745,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the newly created playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -970,7 +970,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the playlist cover art.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1068,7 +1068,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the items in the playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1545,7 +1545,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the playlist's owners.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1624,7 +1624,7 @@ class PlaylistsAPI(TIDALResourceAPI):
             TIDAL content metadata for the playlist's owners' profiles.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

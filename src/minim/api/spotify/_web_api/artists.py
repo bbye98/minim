@@ -48,7 +48,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             Spotify content metadata for the artists.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -182,7 +182,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the artist's albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -302,7 +302,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             Spotify content metadata for the artist's top tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -426,7 +426,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             Spotify content metadata for the related artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -536,7 +536,7 @@ class ArtistsAPI(SpotifyResourceAPI):
             artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
               .. code::
 

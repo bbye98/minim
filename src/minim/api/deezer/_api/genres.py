@@ -36,7 +36,7 @@ class GenresAPI(DeezerResourceAPI):
             Deezer content metadata for the genre(s).
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -98,7 +98,7 @@ class GenresAPI(DeezerResourceAPI):
             Deezer content metadata for the genre's artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -163,7 +163,7 @@ class GenresAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the genre's podcasts.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -197,7 +197,7 @@ class GenresAPI(DeezerResourceAPI):
             Deezer content metadata for the genre's radio.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

@@ -319,7 +319,7 @@ class iTunesSearchAPIClient(APIClient):
             Lookup results.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -723,7 +723,7 @@ class iTunesSearchAPIClient(APIClient):
             Search results.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 

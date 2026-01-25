@@ -680,7 +680,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             Current user's profile information.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -739,7 +739,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             Session information.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -800,7 +800,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             Information about the user's TIDAL clients.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -877,7 +877,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             Information about the user's TIDAL subscription status.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -933,7 +933,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             IDs or UUIDs of the items in the current user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1025,7 +1025,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1243,7 +1243,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1429,7 +1429,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1624,7 +1624,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1914,7 +1914,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             the user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2216,7 +2216,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             current user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2393,7 +2393,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             specified playlist folder in the current user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2570,7 +2570,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             playlists in the current user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2745,7 +2745,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user-created playlists in the user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2920,7 +2920,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             the user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3026,7 +3026,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3447,7 +3447,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3678,7 +3678,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -3901,7 +3901,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -4109,7 +4109,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

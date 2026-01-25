@@ -86,7 +86,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -366,7 +366,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the featured albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -586,7 +586,7 @@ class PrivateAlbumsAPI(PrivateQobuzResourceAPI):
             favorites.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

@@ -147,7 +147,7 @@ class SearchAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the matching items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

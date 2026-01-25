@@ -54,7 +54,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             Deezer content metadata for the playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -198,7 +198,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the playlist's fans.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -267,7 +267,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the artist's top tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -356,7 +356,7 @@ class PlaylistsAPI(DeezerResourceAPI):
             radio.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

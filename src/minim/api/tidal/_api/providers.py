@@ -41,7 +41,7 @@ class ProvidersAPI(TIDALResourceAPI):
             TIDAL content metadata for the providers.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 

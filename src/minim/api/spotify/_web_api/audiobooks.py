@@ -89,7 +89,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
             Spotify content metadata for the audiobooks.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -364,7 +364,7 @@ class AudiobooksAPI(SpotifyResourceAPI):
             chapters.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

@@ -117,7 +117,7 @@ class AlbumsAPI(TIDALResourceAPI):
             TIDAL content metadata for the albums.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -1100,7 +1100,7 @@ class AlbumsAPI(TIDALResourceAPI):
             TIDAL content metadata for the album artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1259,7 +1259,7 @@ class AlbumsAPI(TIDALResourceAPI):
             TIDAL content metadata for the album's cover art.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1362,7 +1362,7 @@ class AlbumsAPI(TIDALResourceAPI):
             album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1591,7 +1591,7 @@ class AlbumsAPI(TIDALResourceAPI):
             TIDAL content metadata for the album's owners.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1664,7 +1664,7 @@ class AlbumsAPI(TIDALResourceAPI):
             TIDAL content metadata for the album's providers.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1751,7 +1751,7 @@ class AlbumsAPI(TIDALResourceAPI):
             TIDAL content metadata for the similar albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1902,7 +1902,7 @@ class AlbumsAPI(TIDALResourceAPI):
             art.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

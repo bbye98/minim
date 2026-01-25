@@ -131,7 +131,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the track.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -249,7 +249,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the track's contributors.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -301,7 +301,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the track's credits.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -360,7 +360,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             time-synced lyrics.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -470,7 +470,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the recommended tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -626,7 +626,7 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
             Playback information for the track.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

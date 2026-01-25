@@ -130,7 +130,7 @@ class PlayerAPI(SpotifyResourceAPI):
             currently playing item.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -358,7 +358,7 @@ class PlayerAPI(SpotifyResourceAPI):
             Metadata of the available Spotify Connect devices.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -452,7 +452,7 @@ class PlayerAPI(SpotifyResourceAPI):
             currently playing item.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1146,7 +1146,7 @@ class PlayerAPI(SpotifyResourceAPI):
             items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1320,7 +1320,7 @@ class PlayerAPI(SpotifyResourceAPI):
             queued items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

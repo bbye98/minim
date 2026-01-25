@@ -74,7 +74,7 @@ class AlbumsAPI(SpotifyResourceAPI):
             Spotify content metadata for the albums.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -372,7 +372,7 @@ class AlbumsAPI(SpotifyResourceAPI):
             album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -495,7 +495,7 @@ class AlbumsAPI(SpotifyResourceAPI):
             releases.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

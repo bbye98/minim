@@ -91,7 +91,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the genre.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -150,7 +150,7 @@ class PrivateGenresAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the genres.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

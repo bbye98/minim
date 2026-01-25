@@ -120,7 +120,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             Spotify content metadata for the playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -561,7 +561,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the playlist items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1226,7 +1226,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             Spotify content metadata for the newly created playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1363,7 +1363,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the featured playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1491,7 +1491,7 @@ class PlaylistsAPI(SpotifyResourceAPI):
             specified category.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

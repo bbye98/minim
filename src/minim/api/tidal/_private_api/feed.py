@@ -25,7 +25,7 @@ class PrivateFeedAPI(PrivateTIDALResourceAPI):
             Feed activities.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

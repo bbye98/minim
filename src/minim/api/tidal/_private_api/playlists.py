@@ -145,7 +145,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the playlist.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -315,7 +315,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             the playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -522,7 +522,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the recommended tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -652,7 +652,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             folder.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -778,7 +778,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
             TIDAL content metadata for the newly created playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

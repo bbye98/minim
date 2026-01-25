@@ -79,7 +79,7 @@ class ShowsAPI(SpotifyResourceAPI):
             Spotify content metadata for the shows.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -332,7 +332,7 @@ class ShowsAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the show's episodes.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

@@ -115,7 +115,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the artist.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -1056,7 +1056,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the artist's releases.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1243,7 +1243,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for similar artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1323,7 +1323,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the featured artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1461,7 +1461,7 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
             favorites.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

@@ -270,7 +270,7 @@ class TracksAPI(SpotifyResourceAPI):
             Spotify content metadata for the tracks.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -523,7 +523,7 @@ class TracksAPI(SpotifyResourceAPI):
             Audio features for the tracks.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -617,7 +617,7 @@ class TracksAPI(SpotifyResourceAPI):
             Audio analysis of the track.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -979,7 +979,7 @@ class TracksAPI(SpotifyResourceAPI):
             generated from the provided seeds and tuning parameters.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1198,7 +1198,7 @@ class TracksAPI(SpotifyResourceAPI):
             tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

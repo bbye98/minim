@@ -126,7 +126,7 @@ class TracksAPI(TIDALResourceAPI):
             TIDAL content metadata for the tracks.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -1062,7 +1062,7 @@ class TracksAPI(TIDALResourceAPI):
             TIDAL content metadata for the albums containing the track.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1212,7 +1212,7 @@ class TracksAPI(TIDALResourceAPI):
             TIDAL content metadata for the track's artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1365,7 +1365,7 @@ class TracksAPI(TIDALResourceAPI):
             TIDAL content metadata for the track's owners.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1438,7 +1438,7 @@ class TracksAPI(TIDALResourceAPI):
             TIDAL content metadata for the track's providers.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1518,7 +1518,7 @@ class TracksAPI(TIDALResourceAPI):
             TIDAL content metadata for the track's mix.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1629,7 +1629,7 @@ class TracksAPI(TIDALResourceAPI):
             TIDAL content metadata for the track's shares.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1702,7 +1702,7 @@ class TracksAPI(TIDALResourceAPI):
             TIDAL content metadata for the similar tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1863,7 +1863,7 @@ class TracksAPI(TIDALResourceAPI):
             TIDAL content metadata for the track's source file.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1922,7 +1922,7 @@ class TracksAPI(TIDALResourceAPI):
             TIDAL content metadata for the track's statistics.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

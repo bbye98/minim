@@ -129,7 +129,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the home page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -390,7 +390,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the explore page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -539,7 +539,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the album page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -877,7 +877,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the artist page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1307,7 +1307,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the mix page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1530,7 +1530,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the personalized mixes page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1612,7 +1612,7 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
             Layout for the video page.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

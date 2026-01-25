@@ -34,7 +34,7 @@ class ArtistsAPI(DeezerResourceAPI):
             Deezer content metadata for the artist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -98,7 +98,7 @@ class ArtistsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the artist's top tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -206,7 +206,7 @@ class ArtistsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the artist's albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -279,7 +279,7 @@ class ArtistsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the artist's fans.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -348,7 +348,7 @@ class ArtistsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the similar artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -421,7 +421,7 @@ class ArtistsAPI(DeezerResourceAPI):
             artist's radio.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -514,7 +514,7 @@ class ArtistsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the artist's playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

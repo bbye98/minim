@@ -232,7 +232,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             favorites.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -486,7 +486,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             Qobuz IDs of the items in the user's favorites.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

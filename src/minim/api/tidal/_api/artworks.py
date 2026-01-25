@@ -70,7 +70,7 @@ class ArtworksAPI(TIDALResourceAPI):
             TIDAL content metadata for the artworks.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -197,7 +197,7 @@ class ArtworksAPI(TIDALResourceAPI):
             TIDAL content metadata for the artwork's owners.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

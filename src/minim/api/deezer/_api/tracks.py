@@ -34,7 +34,7 @@ class TracksAPI(DeezerResourceAPI):
             Deezer content metadata for the track.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

@@ -33,7 +33,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
             Counts of the search results.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -108,7 +108,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the featured items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

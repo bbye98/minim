@@ -101,7 +101,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the updated playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -200,7 +200,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the newly created playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -326,7 +326,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the updated playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -427,7 +427,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -728,7 +728,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Page of Qobuz content metadata for the featured playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -838,7 +838,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for playlist tags.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -933,7 +933,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             current user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1104,7 +1104,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the updated playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1247,7 +1247,7 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the updated playlist.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

@@ -46,7 +46,7 @@ class ChartsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the top albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -123,7 +123,7 @@ class ChartsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the top artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -185,7 +185,7 @@ class ChartsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the top playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -259,7 +259,7 @@ class ChartsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the top podcasts.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -322,7 +322,7 @@ class ChartsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the top tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

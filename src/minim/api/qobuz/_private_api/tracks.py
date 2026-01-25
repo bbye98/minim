@@ -42,7 +42,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             Qobuz content metadata for the tracks.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -446,7 +446,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             Playback information for the track.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -833,7 +833,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             favorites.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

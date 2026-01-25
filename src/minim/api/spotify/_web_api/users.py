@@ -368,7 +368,7 @@ class UsersAPI(SpotifyResourceAPI):
             Current user's profile information.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -451,7 +451,7 @@ class UsersAPI(SpotifyResourceAPI):
             User's profile information.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -600,7 +600,7 @@ class UsersAPI(SpotifyResourceAPI):
             artists or tracks.
 
             .. admonition:: Sample responses
-               :class: dropdown
+               :class: response dropdown
 
                .. tab-set::
 
@@ -886,7 +886,7 @@ class UsersAPI(SpotifyResourceAPI):
             current user.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1290,7 +1290,7 @@ class UsersAPI(SpotifyResourceAPI):
             albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1606,7 +1606,7 @@ class UsersAPI(SpotifyResourceAPI):
             audiobooks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1875,7 +1875,7 @@ class UsersAPI(SpotifyResourceAPI):
             episodes.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2143,7 +2143,7 @@ class UsersAPI(SpotifyResourceAPI):
             playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2275,7 +2275,7 @@ class UsersAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the user's playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2383,7 +2383,7 @@ class UsersAPI(SpotifyResourceAPI):
             Page of Spotify content metadata for the user's saved shows.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2630,7 +2630,7 @@ class UsersAPI(SpotifyResourceAPI):
             tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

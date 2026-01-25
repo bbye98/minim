@@ -130,7 +130,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the matching items.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -437,7 +437,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the matching albums.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -552,7 +552,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the matching artists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -639,7 +639,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
             TIDAL catalog information for the matching playlists.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -739,7 +739,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the matching tracks.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -866,7 +866,7 @@ class PrivateSearchAPI(PrivateTIDALResourceAPI):
             Page of TIDAL content metadata for the matching videos.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

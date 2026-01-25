@@ -309,7 +309,7 @@ class UsersAPI(TIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -828,7 +828,7 @@ class UsersAPI(TIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1126,7 +1126,7 @@ class UsersAPI(TIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1419,7 +1419,7 @@ class UsersAPI(TIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1527,7 +1527,7 @@ class UsersAPI(TIDALResourceAPI):
             folders) in the user's collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -1811,7 +1811,7 @@ class UsersAPI(TIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2133,7 +2133,7 @@ class UsersAPI(TIDALResourceAPI):
             collection.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2378,7 +2378,7 @@ class UsersAPI(TIDALResourceAPI):
             Functionalities a user is entitled to access on TIDAL.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2471,7 +2471,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL content metadata for the user entitlements' owners.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2558,7 +2558,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL content metadata for the items in the mixes.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2666,7 +2666,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL catalog information for the user's Discovery Mixes.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2751,7 +2751,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL catalog information for the user's mixes.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2834,7 +2834,7 @@ class UsersAPI(TIDALResourceAPI):
             TIDAL catalog information for the user's New Arrival Mixes.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -2887,7 +2887,7 @@ class UsersAPI(TIDALResourceAPI):
             Current user's profile information.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 

@@ -56,7 +56,7 @@ class AlbumsAPI(DeezerResourceAPI):
             Deezer content metadata for the album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -206,7 +206,7 @@ class AlbumsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the album's fans.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
@@ -275,7 +275,7 @@ class AlbumsAPI(DeezerResourceAPI):
             Page of Deezer content metadata for the tracks in the album.
 
             .. admonition:: Sample response
-               :class: dropdown
+               :class: response dropdown
 
                .. code::
 
