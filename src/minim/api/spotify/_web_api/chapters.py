@@ -57,12 +57,10 @@ class ChaptersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"0IsXVP0JmcB2adSE338GkK"`
-               * :code:`"0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU"`
-               * :code:`["0IsXVP0JmcB2adSE338GkK",
-                 "3ZXb8FKZGU0EHALYX6uCzU"]`
+            * :code:`"0IsXVP0JmcB2adSE338GkK"`
+            * :code:`"0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU"`
+            * :code:`["0IsXVP0JmcB2adSE338GkK",
+              "3ZXb8FKZGU0EHALYX6uCzU"]`
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content

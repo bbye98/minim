@@ -62,12 +62,10 @@ class AudiobooksAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
-               * :code:`["18yVqkdbdRvS24c0Ilj2ci",
-                 "1HGw3J3NxZO1TP1BTtVhpZ"]`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
+            * :code:`["18yVqkdbdRvS24c0Ilj2ci",
+              "1HGw3J3NxZO1TP1BTtVhpZ"]`
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content

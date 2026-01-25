@@ -47,12 +47,10 @@ class AlbumsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"382ObEPsp2rxGrnsizN5TX"`
-               * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
-               * :code:`["382ObEPsp2rxGrnsizN5TX",
-                 "1A2GTWGtFfWp7KSQTwWOyo"]`
+            * :code:`"382ObEPsp2rxGrnsizN5TX"`
+            * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
+            * :code:`["382ObEPsp2rxGrnsizN5TX",
+              "1A2GTWGtFfWp7KSQTwWOyo"]`
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content

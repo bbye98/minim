@@ -35,12 +35,10 @@ class ArtistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
-               * :code:`["2CIMQHirSU0MQqyYHq0eOx",
-                 "57dN52uHvrHOxijzpIgu3E"]`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
+            * :code:`["2CIMQHirSU0MQqyYHq0eOx",
+              "57dN52uHvrHOxijzpIgu3E"]`
 
         Returns
         -------
@@ -503,14 +501,12 @@ class ArtistsAPI(SpotifyResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"long_term"` – Approximately one year of data,
-                 including all new data as it becomes available.
-               * :code:`"medium_term"` – Approximately the last six
-                 months of data.
-               * :code:`"short_term"` – Approximately the last four
-                 weeks of data.
+            * :code:`"long_term"` – Approximately one year of data,
+              including all new data as it becomes available.
+            * :code:`"medium_term"` – Approximately the last six months
+              of data.
+            * :code:`"short_term"` – Approximately the last four weeks
+              of data.
 
             **API default**: :code:`"medium_term"`.
 

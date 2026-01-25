@@ -88,17 +88,15 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"description,uri"` – Returns only the playlist
-                 description and URI.
-               * :code:`"tracks.items(added_at,added_by.id)"` – Returns
-                 only the date added and the Spotify user ID of the user
-                 who added the track.
-               * :code:`"tracks.items(track(name,href,album(name,href)))"`
-                 – Drills down into the album details.
-               * :code:`"tracks.items(track(name,href,album(!name,href)))"`
-                 – Excludes the album name.
+            * :code:`"description,uri"` – Returns only the playlist
+              description and URI.
+            * :code:`"tracks.items(added_at,added_by.id)"` – Returns
+              only the date added and the Spotify user ID of the user
+              who added the track.
+            * :code:`"tracks.items(track(name,href,album(name,href)))"`
+              – Drills down into the album details.
+            * :code:`"tracks.items(track(name,href,album(!name,href)))"`
+              – Excludes the album name.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -514,17 +512,15 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"description,uri"` – Returns only the playlist
-                 description and URI.
-               * :code:`"tracks.items(added_at,added_by.id)"` – Returns
-                 only the date added and the Spotify user ID of the user
-                 who added the track.
-               * :code:`"tracks.items(track(name,href,album(name,href)))"`
-                 – Drills down into the album details.
-               * :code:`"tracks.items(track(name,href,album(!name,href)))"`
-                 – Excludes the album name.
+            * :code:`"description,uri"` – Returns only the playlist
+              description and URI.
+            * :code:`"tracks.items(added_at,added_by.id)"` – Returns
+              only the date added and the Spotify user ID of the user
+              who added the track.
+            * :code:`"tracks.items(track(name,href,album(name,href)))"`
+              – Drills down into the album details.
+            * :code:`"tracks.items(track(name,href,album(!name,href)))"`
+              – Excludes the album name.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -823,17 +819,15 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
+            * .. code::
 
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
-               * .. code::
-
-                    [
-                        "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
-                        "spotify:track:1301WleyT98MSxVHPZCA6M",
-                        "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
-                    ]
+                 [
+                     "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+                     "spotify:track:1301WleyT98MSxVHPZCA6M",
+                     "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
+                 ]
 
         to_index : int; keyword-only; optional
             Zero-based index at which to insert the tracks and/or shows.
@@ -842,10 +836,8 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`0` – Insert items in the first position.
-               * :code:`2` – Insert items in the third position.
+            * :code:`0` – Insert items in the first position.
+            * :code:`2` – Insert items in the third position.
 
         Returns
         -------
@@ -926,14 +918,12 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`0` – Move items selected by `range_start` and
-                 `range_length` before the current item in the first
-                 position.
-               * :code:`10` – Move items selected by `range_start` and
-                 `range_length` before the current item in the eleventh
-                 position.
+            * :code:`0` – Move items selected by `range_start` and
+              `range_length` before the current item in the first
+              position.
+            * :code:`10` – Move items selected by `range_start` and
+              `range_length` before the current item in the eleventh
+              position.
 
         from_count : int; keyword-only; optional
             Number of items, starting from `range_start`, to be
@@ -1015,17 +1005,15 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
+            * .. code::
 
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
-               * .. code::
-
-                    [
-                        "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
-                        "spotify:track:1301WleyT98MSxVHPZCA6M",
-                        "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
-                    ]
+                 [
+                     "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+                     "spotify:track:1301WleyT98MSxVHPZCA6M",
+                     "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
+                 ]
 
         Returns
         -------
@@ -1100,17 +1088,15 @@ class PlaylistsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
+            * .. code::
 
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7RhQ"`,
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`,
-               * .. code::
-
-                    [
-                        "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
-                        "spotify:track:1301WleyT98MSxVHPZCA6M",
+                 [
+                     "spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+                     "spotify:track:1301WleyT98MSxVHPZCA6M",
                         "spotify:episode:512ojhOuo1ktJprKbVcKyQ",
-                    ]
+                 ]
 
         snapshot_id : str; keyword-only; optional
             Version identifier for the playlist against which to make

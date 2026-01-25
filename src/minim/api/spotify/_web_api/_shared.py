@@ -314,12 +314,10 @@ class SpotifyResourceAPI(ResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"albums"` for artists.
-               * :code:`"chapters"` for audiobooks.
-               * :code:`"episodes"` for shows.
-               * :code:`"tracks"` for albums and playlists.
+            * :code:`"albums"` for artists.
+            * :code:`"chapters"` for audiobooks.
+            * :code:`"episodes"` for shows.
+            * :code:`"tracks"` for albums and playlists.
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content

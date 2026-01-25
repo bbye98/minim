@@ -205,10 +205,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Item name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Item name.
 
             **API default**: :code:`"DATE"`.
 
@@ -436,12 +434,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"FOLDER"` – Playlist folders.
-               * :code:`"PLAYLIST"` – All playlists.
-               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
-               * :code:`"USER_PLAYLIST"` – User-created playlists.
+            * :code:`"FOLDER"` – Playlist folders.
+            * :code:`"PLAYLIST"` – All playlists.
+            * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
+            * :code:`"USER_PLAYLIST"` – User-created playlists.
 
             **Examples**: :code:`"USER_PLAYLIST"`,
             :code:`"FOLDER,USER_PLAYLIST"`,
@@ -452,10 +448,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -556,10 +550,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -1006,10 +998,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Album name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Album name.
 
             **API default**: :code:`"DATE"`.
 
@@ -1410,10 +1400,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Artist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Artist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -1605,10 +1593,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Mix name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Mix name.
 
             **API default**: :code:`"DATE"`.
 
@@ -1775,12 +1761,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"000ec0b01da1ddd752ec5dee553d48"`
-               * :code:`"000ec0b01da1ddd752ec5dee553d48,000dd748ceabd5508947c6a5d3880a"`
-               * :code:`["000ec0b01da1ddd752ec5dee553d48",
-                 "000dd748ceabd5508947c6a5d3880a"]`
+            * :code:`"000ec0b01da1ddd752ec5dee553d48"`
+            * :code:`"000ec0b01da1ddd752ec5dee553d48,000dd748ceabd5508947c6a5d3880a"`
+            * :code:`["000ec0b01da1ddd752ec5dee553d48",
+              "000dd748ceabd5508947c6a5d3880a"]`
 
         on_missing : str; keyword-only; optional
             Behavior when the mixes to be favorited cannot be found in
@@ -1822,12 +1806,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"000ec0b01da1ddd752ec5dee553d48"`
-               * :code:`"000ec0b01da1ddd752ec5dee553d48,000dd748ceabd5508947c6a5d3880a"`
-               * :code:`["000ec0b01da1ddd752ec5dee553d48",
-                 "000dd748ceabd5508947c6a5d3880a"]`
+            * :code:`"000ec0b01da1ddd752ec5dee553d48"`
+            * :code:`"000ec0b01da1ddd752ec5dee553d48,000dd748ceabd5508947c6a5d3880a"`
+            * :code:`["000ec0b01da1ddd752ec5dee553d48",
+              "000dd748ceabd5508947c6a5d3880a"]`
         """
         self._client._require_authentication("users.unfollow_mixes")
         self._client._request(
@@ -1895,10 +1877,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -2004,12 +1984,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
-               * :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
-               * :code:`["0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
-                 "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
+            * :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
+            * :code:`"0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
+            * :code:`["0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
+              "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -2029,14 +2007,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`1` – Legacy
-                 :code:`POST /v1/users/{user_id}/favorites/playlists`
-                 endpoint.
-               * :code:`2` – Current
-                 :code:`PUT /v2/my-collection/playlists/folders/add-favorites`
-                 endpoint.
+            * :code:`1` – Legacy
+              :code:`POST /v1/users/{user_id}/favorites/playlists`
+              endpoint.
+            * :code:`2` – Current
+              :code:`PUT /v2/my-collection/playlists/folders/add-favorites`
+              endpoint.
         """
         self._client._require_authentication("users.follow_playlists")
         params = {"uuids": self._prepare_uuids("playlist", playlist_uuids)}
@@ -2094,12 +2070,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
-               * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
-               * :code:["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
-                 "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]
+            * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
+            * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
+            * :code:["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
+              "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -2111,14 +2085,12 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`1` – Legacy
-                 :code:`POST /v1/users/{user_id}/favorites/playlists`
-                 endpoint.
-               * :code:`2` – Current
-                 :code:`PUT /v2/my-collection/playlists/folders/add-favorites`
-                 endpoint.
+            * :code:`1` – Legacy
+              :code:`POST /v1/users/{user_id}/favorites/playlists`
+              endpoint.
+            * :code:`2` – Current
+              :code:`PUT /v2/my-collection/playlists/folders/add-favorites`
+              endpoint.
         """
         self._client._require_authentication("users.unfollow_playlists")
         self._validate_number("api_version", api_version, int, 1, 2)
@@ -2181,12 +2153,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"FOLDER"` – Playlist folders.
-               * :code:`"PLAYLIST"` – All playlists.
-               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
-               * :code:`"USER_PLAYLIST"` – User-created playlists.
+            * :code:`"FOLDER"` – Playlist folders.
+            * :code:`"PLAYLIST"` – All playlists.
+            * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
+            * :code:`"USER_PLAYLIST"` – User-created playlists.
 
             **Examples**: :code:`"USER_PLAYLIST"`,
             :code:`"FOLDER,USER_PLAYLIST"`,
@@ -2197,10 +2167,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -2358,12 +2326,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"FOLDER"` – Playlist folders.
-               * :code:`"PLAYLIST"` – All playlists.
-               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
-               * :code:`"USER_PLAYLIST"` – User-created playlists.
+            * :code:`"FOLDER"` – Playlist folders.
+            * :code:`"PLAYLIST"` – All playlists.
+            * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
+            * :code:`"USER_PLAYLIST"` – User-created playlists.
 
             **Examples**: :code:`"USER_PLAYLIST"`,
             :code:`"FOLDER,USER_PLAYLIST"`,
@@ -2374,10 +2340,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -2535,12 +2499,10 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"FOLDER"` – Playlist folders.
-               * :code:`"PLAYLIST"` – All playlists.
-               * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
-               * :code:`"USER_PLAYLIST"` – User-created playlists.
+            * :code:`"FOLDER"` – Playlist folders.
+            * :code:`"PLAYLIST"` – All playlists.
+            * :code:`"FAVORITE_PLAYLIST"` – Favorited playlists.
+            * :code:`"USER_PLAYLIST"` – User-created playlists.
 
             **Examples**: :code:`"USER_PLAYLIST"`,
             :code:`"FOLDER,USER_PLAYLIST"`,
@@ -2551,10 +2513,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -2726,10 +2686,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -2901,10 +2859,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Playlist name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Playlist name.
 
             **API default**: :code:`"DATE"`.
 
@@ -3428,10 +3384,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Track name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Track name.
 
             **API default**: :code:`"DATE"`.
 
@@ -3882,10 +3836,8 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"DATE"` - Date added.
-               * :code:`"NAME"` - Video name.
+            * :code:`"DATE"` - Date added.
+            * :code:`"NAME"` - Video name.
 
             **API default**: :code:`"DATE"`.
 

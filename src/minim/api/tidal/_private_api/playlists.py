@@ -132,12 +132,10 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`1` – Legacy
-                 :code:`GET /v1/playlists/{playlist_uuid}` endpoint.
-               * :code:`2` – Current
-                 :code:`GET /v2/user-playlists/{playlist_uuid}` endpoint.
+            * :code:`1` – Legacy
+              :code:`GET /v1/playlists/{playlist_uuid}` endpoint.
+            * :code:`2` – Current
+              :code:`GET /v2/user-playlists/{playlist_uuid}` endpoint.
 
         Returns
         -------
@@ -713,12 +711,10 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"trn:folder:618ff600-dce1-4326-8724-9f0a51f63439"`
-               * :code:`"trn:folder:618ff600-dce1-4326-8724-9f0a51f63439,550e8400-e29b-41d4-a716-446655440000"`
-               * :code:`["trn:folder:618ff600-dce1-4326-8724-9f0a51f63439",
-                 "550e8400-e29b-41d4-a716-446655440000"]`
+            * :code:`"trn:folder:618ff600-dce1-4326-8724-9f0a51f63439"`
+            * :code:`"trn:folder:618ff600-dce1-4326-8724-9f0a51f63439,550e8400-e29b-41d4-a716-446655440000"`
+            * :code:`["trn:folder:618ff600-dce1-4326-8724-9f0a51f63439",
+              "550e8400-e29b-41d4-a716-446655440000"]`
         """
         self._client._require_authentication("users.delete_folders")
         self._client._request(
@@ -886,12 +882,10 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
-               * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
-               * :code:`["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
-                 "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
+            * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
+            * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
+            * :code:`["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
+              "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
 
         folder_uuid : str
             UUID of TIDAL playlist folder to move playlists to. Use
@@ -1024,12 +1018,10 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
-               * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
-               * :code:`["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
-                 "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
+            * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861"`
+            * :code:`"trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861,24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"`
+            * :code:`["trn:playlist:0ae80812-f8d6-4fc4-90ea-b2df4ecc3861",
+              "24c9cc46-2fcd-4afb-bcc6-d6c42315f32e"]`
         """
         self._client._require_authentication("users.delete_playlists")
         self._client._request(

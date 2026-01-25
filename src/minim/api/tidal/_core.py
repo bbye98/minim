@@ -207,11 +207,9 @@ class TIDALAPIClient(_BaseTIDALAPIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"client_credentials"` – Client Credentials Flow.
+            * :code:`"pkce"` – Authorization Code Flow with Proof Key
+              for Code Exchange (PKCE).
+            * :code:`"client_credentials"` – Client Credentials Flow.
 
         client_id : str; keyword-only; optional
             Client ID. Required unless set as system environment
@@ -277,15 +275,12 @@ class TIDALAPIClient(_BaseTIDALAPIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – Show authorization URL in and have the
-                 user manually paste the redirect URL into the terminal.
-               * :code:`"http.server"` – Run a HTTP server to intercept
-                 the redirect after user authorization in any local
-                 browser.
-               * :code:`"playwright"` – Use a Playwright Firefox
-                 browser to complete the user authorization.
+            * :code:`None` – Show authorization URL in and have the user
+               manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept the
+              redirect after user authorization in any local browser.
+            * :code:`"playwright"` – Use a Playwright Firefox browser to
+              complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -539,12 +534,10 @@ class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"device"` – Device Authorization Flow.
+            * :code:`None` – No authentication.
+            * :code:`"pkce"` – Authorization Code Flow with Proof Key
+              for Code Exchange (PKCE).
+            * :code:`"device"` – Device Authorization Flow.
 
         client_id : str; keyword-only; optional
             Client ID. Required unless set as system environment
@@ -959,12 +952,10 @@ class PrivateTIDALAPIClient(_BaseTIDALAPIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"device"` – Device Authorization Flow.
+            * :code:`None` – No authentication.
+            * :code:`"pkce"` – Authorization Code Flow with Proof Key
+              for Code Exchange (PKCE).
+            * :code:`"device"` – Device Authorization Flow.
 
         client_id : str; keyword-only; optional
             Client ID. Required unless set as system environment

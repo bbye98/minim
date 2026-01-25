@@ -104,10 +104,8 @@ class PrivateArtistsAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"get"` – Legacy :code:`artist/get` endpoint.
-               * :code:`"page"` – Current :code:`artist/page` endpoint.
+            * :code:`"get"` – Legacy :code:`artist/get` endpoint.
+            * :code:`"page"` – Current :code:`artist/page` endpoint.
 
         Returns
         -------

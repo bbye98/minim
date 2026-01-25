@@ -268,23 +268,18 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"AUDIO_ONLY"` – 96 kbps AAC audio only.
-               * :code:`"LOW"` – Up to 360p H.264 video, AAC-LC audio.
-               * :code:`"MEDIUM"` – Up to 720p H.264 video, AAC-LC
-                 audio.
-               * :code:`"HIGH"` – Up to 1080p H.264 video, AAC-LC audio.
+            * :code:`"AUDIO_ONLY"` – 96 kbps AAC audio only.
+            * :code:`"LOW"` – Up to 360p H.264 video, AAC-LC audio.
+            * :code:`"MEDIUM"` – Up to 720p H.264 video, AAC-LC audio.
+            * :code:`"HIGH"` – Up to 1080p H.264 video, AAC-LC audio.
 
         intent : str; keyword-only; default: :code:`"STREAM"`
             Playback mode or intended use of the video.
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"OFFLINE"` – Offline download.
-               * :code:`"STREAM"` – Streaming playback.
+            * :code:`"OFFLINE"` – Offline download.
+            * :code:`"STREAM"` – Streaming playback.
 
         preview : bool; keyword-only; default: :code:`False`
             Whether to return a 30-second preview instead of the full

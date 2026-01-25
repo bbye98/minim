@@ -72,11 +72,9 @@ class DeezerAPIClient(OAuth2APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
+            * :code:`None` – No authentication.
+            * :code:`"auth_code"` – Authorization Code Flow.
+            * :code:`"implicit"` – Implicit Grant Flow.
 
         app_id : str; keyword-only; optional
             Application ID. Required unless set as system environment
@@ -135,15 +133,12 @@ class DeezerAPIClient(OAuth2APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – Show authorization URL in and have the
-                 user manually paste the redirect URL into the terminal.
-               * :code:`"http.server"` – Run a HTTP server to intercept
-                 the redirect after user authorization in any local
-                 browser.
-               * :code:`"playwright"` – Use a Playwright Firefox
-                 browser to complete the user authorization.
+            * :code:`None` – Show authorization URL in and have the user
+              manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept the
+              redirect after user authorization in any local browser.
+            * :code:`"playwright"` – Use a Playwright Firefox browser to
+              complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -403,10 +398,8 @@ class DeezerAPIClient(OAuth2APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
+            * :code:`"auth_code"` – Authorization Code Flow.
+            * :code:`"implicit"` – Implicit Grant Flow.
         """
         if not authorization_flow:
             authorization_flow = self._auth_flow
@@ -713,11 +706,9 @@ class DeezerAPIClient(OAuth2APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
+            * :code:`None` – No authentication.
+            * :code:`"auth_code"` – Authorization Code Flow.
+            * :code:`"implicit"` – Implicit Grant Flow.
 
         app_id : str; keyword-only; optional
             Application ID. Required unless set as system environment
@@ -761,15 +752,12 @@ class DeezerAPIClient(OAuth2APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – Show authorization URL in and have the
-                 user manually paste the redirect URL into the terminal.
-               * :code:`"http.server"` – Run a HTTP server to intercept
-                 the redirect after user authorization in any local
-                 browser.
-               * :code:`"playwright"` – Use a Playwright Firefox
-                 browser to complete the user authorization.
+            * :code:`None` – Show authorization URL in and have the user
+              manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept the
+              redirect after user authorization in any local browser.
+            * :code:`"playwright"` – Use a Playwright Firefox browser to
+              complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the

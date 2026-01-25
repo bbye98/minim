@@ -695,10 +695,8 @@ class iTunesSearchAPIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"en_us"` – English.
-               * :code:`"ja_jp"` – Japanese.
+            * :code:`"en_us"` – English.
+            * :code:`"ja_jp"` – Japanese.
 
             **API default**: :code:`"en_us"`.
 

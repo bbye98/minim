@@ -244,11 +244,10 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
-               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
-               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+            * :code:`["7ouMYWpwJ422jRcDASZB7P",
+              "4VqPOruhp5EdPBeR92t6lQ"]`
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -511,11 +510,10 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
-               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
-               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+            * :code:`["7ouMYWpwJ422jRcDASZB7P",
+              "4VqPOruhp5EdPBeR92t6lQ"]`
 
         Returns
         -------
@@ -792,11 +790,10 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"0TnOYISbd1XYRBk9myaseg"`
-               * :code:`"0TnOYISbd1XYRBk9myaseg,57dN52uHvrHOxijzpIgu3E"`
-               * :code:`["0TnOYISbd1XYRBk9myaseg", "57dN52uHvrHOxijzpIgu3E"]`
+            * :code:`"0TnOYISbd1XYRBk9myaseg"`
+            * :code:`"0TnOYISbd1XYRBk9myaseg,57dN52uHvrHOxijzpIgu3E"`
+            * :code:`["0TnOYISbd1XYRBk9myaseg",
+              "57dN52uHvrHOxijzpIgu3E"]`
 
         seed_genres : str or list[str]; optional
             Spotify IDs of seed genres.
@@ -811,11 +808,10 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
-               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
-               * :code:`["7ouMYWpwJ422jRcDASZB7P", "4VqPOruhp5EdPBeR92t6lQ"]`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+            * :code:`["7ouMYWpwJ422jRcDASZB7P",
+              "4VqPOruhp5EdPBeR92t6lQ"]`
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content
@@ -886,21 +882,19 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`-1` – No key detected.
-               * :code:`0` – C.
-               * :code:`1` – C♯ or D♭.
-               * :code:`2` – D
-               * :code:`3` – D♯ or E♭.
-               * :code:`4` – E.
-               * :code:`5` – F.
-               * :code:`6` – F♯ or G♭.
-               * :code:`7` – G.
-               * :code:`8` – G♯ or A♭.
-               * :code:`9` – A.
-               * :code:`10` – A♯ or B♭.
-               * :code:`11` – B.
+            * :code:`-1` – No key detected.
+            * :code:`0` – C.
+            * :code:`1` – C♯ or D♭.
+            * :code:`2` – D
+            * :code:`3` – D♯ or E♭.
+            * :code:`4` – E.
+            * :code:`5` – F.
+            * :code:`6` – F♯ or G♭.
+            * :code:`7` – G.
+            * :code:`8` – G♯ or A♭.
+            * :code:`9` – A.
+            * :code:`10` – A♯ or B♭.
+            * :code:`11` – B.
 
         liveness : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of whether a track was performed live
@@ -955,13 +949,11 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`3` – 3/4.
-               * :code:`4` – 4/4.
-               * :code:`5` – 5/4.
-               * :code:`6` – 6/4.
-               * :code:`7` – 7/4.
+            * :code:`3` – 3/4.
+            * :code:`4` – 4/4.
+            * :code:`5` – 5/4.
+            * :code:`6` – 6/4.
+            * :code:`7` – 7/4.
 
         valence : float or tuple[float, ...]; keyword-only; optional
             Confidence measure of the musical positiveness conveyed by a
@@ -1165,14 +1157,12 @@ class TracksAPI(SpotifyResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"long_term"` – Approximately one year of data,
-                 including all new data as it becomes available.
-               * :code:`"medium_term"` – Approximately the last six
-                 months of data.
-               * :code:`"short_term"` – Approximately the last four
-                 weeks of data.
+            * :code:`"long_term"` – Approximately one year of data,
+              including all new data as it becomes available.
+            * :code:`"medium_term"` – Approximately the last six months
+              of data.
+            * :code:`"short_term"` – Approximately the last four weeks
+              of data.
 
             **API default**: :code:`"medium_term"`.
 

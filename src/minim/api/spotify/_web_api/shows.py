@@ -53,11 +53,10 @@ class ShowsAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
-               * :code:`[5CfCWKI5pZ28U0uOzXkDHe", "5as3aKmN2k11yfDDDSrvaZ"]`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
+            * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
+              "5as3aKmN2k11yfDDDSrvaZ"]`
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content

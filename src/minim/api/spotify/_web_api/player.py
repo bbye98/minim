@@ -637,13 +637,11 @@ class PlayerAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"spotify:album:1Je1IMUlBXcx1Fz0WE7oPT"`
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh"`
-               * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`
-               * :code:`["spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
-                 "spotify:track:1301WleyT98MSxVHPZCA6M"]`
+            * :code:`"spotify:album:1Je1IMUlBXcx1Fz0WE7oPT"`
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh"`
+            * :code:`"spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M"`
+            * :code:`["spotify:track:4iV5W9uYEdYUVa79Axb7Rh",
+              "spotify:track:1301WleyT98MSxVHPZCA6M"]`
 
         device_id : str; keyword-only; optional
             ID of the target playback device. If not specified, the
@@ -660,11 +658,9 @@ class PlayerAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`5` – Sixth item in the context.
-               * :code:`spotify:track:1301WleyT98MSxVHPZCA6M` – Specific
-                 item in the context.
+            * :code:`5` – Sixth item in the context.
+            * :code:`spotify:track:1301WleyT98MSxVHPZCA6M` – Specific
+              item in the context.
 
         position_ms : int; keyword-only; optional
             Playback start position within the first track, in
@@ -944,12 +940,10 @@ class PlayerAPI(SpotifyResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"track"` – Repeat the current track.
-               * :code:`"context"` – Repeat tracks in the current
-                 context (album, artist, or playlist).
-               * :code:`"off"` – Turn repeat off.
+            * :code:`"track"` – Repeat the current track.
+            * :code:`"context"` – Repeat tracks in the current context
+              (album, artist, or playlist).
+            * :code:`"off"` – Turn repeat off.
 
         device_id : str; keyword-only; optional
             ID of the target playback device. If not specified, the

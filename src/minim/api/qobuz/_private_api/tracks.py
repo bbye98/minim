@@ -412,25 +412,21 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         format_id : int or str; keyword-only; optional
             Audio format identifier.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
-
-               * :code:`5` – Constant 320 kbps bitrate MP3.
-               * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
-               * :code:`7` – Up to 24-bit, 96 kHz FLAC.
-               * :code:`27` – Up to 24-bit, 192 kHz FLAC.
+            * :code:`5` – Constant 320 kbps bitrate MP3.
+            * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+            * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+            * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
         intent : str; keyword-only; optional
             Playback mode or intended use of the track.
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"download"` – Offline download.
-               * :code:`"import"` – Library import.
-               * :code:`"stream"` – Streaming playback.
+            * :code:`"download"` – Offline download.
+            * :code:`"import"` – Library import.
+            * :code:`"stream"` – Streaming playback.
 
             **API default**: :code:`"stream"`.
 
@@ -537,14 +533,12 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         format_id : int or str; keyword-only
             Audio format identifier.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
-
-               * :code:`5` – Constant 320 kbps bitrate MP3.
-               * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
-               * :code:`7` – Up to 24-bit, 96 kHz FLAC.
-               * :code:`27` – Up to 24-bit, 192 kHz FLAC.
+            * :code:`5` – Constant 320 kbps bitrate MP3.
+            * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+            * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+            * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
         started_at : int or datetime.datetime; keyword-only
             Unix time at which the streaming started.
@@ -571,11 +565,9 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"download"` – Offline download.
-               * :code:`"import"` – Library import.
-               * :code:`"stream"` – Streaming playback.
+            * :code:`"download"` – Offline download.
+            * :code:`"import"` – Library import.
+            * :code:`"stream"` – Streaming playback.
 
             **API default**: :code:`"stream"`.
 
@@ -649,14 +641,12 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         format_id : int or str; keyword-only
             Audio format identifier.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
-
-               * :code:`5` – Constant 320 kbps bitrate MP3.
-               * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
-               * :code:`7` – Up to 24-bit, 96 kHz FLAC.
-               * :code:`27` – Up to 24-bit, 192 kHz FLAC.
+            * :code:`5` – Constant 320 kbps bitrate MP3.
+            * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+            * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+            * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
         started_at : int or datetime.datetime; keyword-only
             Unix time at which the streaming started.
@@ -686,11 +676,9 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"download"` – Offline download.
-               * :code:`"import"` – Library import.
-               * :code:`"stream"` – Streaming playback.
+            * :code:`"download"` – Offline download.
+            * :code:`"import"` – Library import.
+            * :code:`"stream"` – Streaming playback.
 
             **API default**: :code:`"stream"`.
 
@@ -1071,14 +1059,12 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
         format_id : int or str; keyword-only
             Audio format identifier.
 
-            .. container::
+            **Valid values**:
 
-               **Valid values**:
-
-               * :code:`5` – Constant 320 kbps bitrate MP3.
-               * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
-               * :code:`7` – Up to 24-bit, 96 kHz FLAC.
-               * :code:`27` – Up to 24-bit, 192 kHz FLAC.
+            * :code:`5` – Constant 320 kbps bitrate MP3.
+            * :code:`6` – CD-quality (16-bit, 44.1 kHz) FLAC.
+            * :code:`7` – Up to 24-bit, 96 kHz FLAC.
+            * :code:`27` – Up to 24-bit, 192 kHz FLAC.
 
         started_at : int or datetime.datetime; keyword-only
             Unix time at which the streaming started.
@@ -1105,11 +1091,9 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"download"` – Offline download.
-               * :code:`"import"` – Library import.
-               * :code:`"stream"` – Streaming playback.
+            * :code:`"download"` – Offline download.
+            * :code:`"import"` – Library import.
+            * :code:`"stream"` – Streaming playback.
 
             **API default**: :code:`"stream"`.
 

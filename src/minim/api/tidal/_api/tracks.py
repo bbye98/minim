@@ -73,13 +73,8 @@ class TracksAPI(TIDALResourceAPI):
         track_ids : int, str, or list[int | str]; positional-only; optional
             TIDAL IDs of the tracks.
 
-            **Examples**:
-
-            .. container::
-
-               * :code:`46369325`
-               * :code:`"75413016"`
-               * :code:`[46369325, "75413016"]`
+            **Examples**: :code:`46369325`, :code:`"75413016"`,
+            :code:`[46369325, "75413016"]`.
 
         isrcs : str or list[str]; keyword-only; optional
             International Standard Recording Codes (ISRCs) of the

@@ -975,12 +975,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`46369321`
-               * :code:`"251380836"`
-               * :code:`{"id": "46369321", "types": "albums"}`
-               * :code:`["251380836", {"id": "46369321", "types": "albums"}]`
+            * :code:`46369321`
+            * :code:`"251380836"`
+            * :code:`{"id": "46369321", "types": "albums"}`
+            * :code:`["251380836",
+              {"id": "46369321", "types": "albums"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1035,12 +1034,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`46369321`
-               * :code:`"251380836"`
-               * :code:`{"id": "46369321", "types": "albums"}`
-               * :code:`["251380836", {"id": "46369321", "types": "albums"}]`
+            * :code:`46369321`
+            * :code:`"251380836"`
+            * :code:`{"id": "46369321", "types": "albums"}`
+            * :code:`["251380836",
+              {"id": "46369321", "types": "albums"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1282,12 +1280,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`1566`
-               * :code:`"4676988"`
-               * :code:`{"id": "1566", "types": "artists"}`
-               * :code:`["4676988", {"id": "46369321", "types": "artists"}]`
+            * :code:`1566`
+            * :code:`"4676988"`
+            * :code:`{"id": "1566", "types": "artists"}`
+            * :code:`["4676988",
+              {"id": "46369321", "types": "artists"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1344,12 +1341,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`1566`
-               * :code:`"4676988"`
-               * :code:`{"id": "1566", "types": "artists"}`
-               * :code:`["4676988", {"id": "46369321", "types": "artists"}]`
+            * :code:`1566`
+            * :code:`"4676988"`
+            * :code:`{"id": "1566", "types": "artists"}`
+            * :code:`["4676988",
+              {"id": "46369321", "types": "artists"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1649,24 +1645,22 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`"f0d6f5c4-081f-4348-9b65-ae677d92767b"`
+            * .. code::
 
-               * :code:`"f0d6f5c4-081f-4348-9b65-ae677d92767b"`
-               * .. code::
+                 {
+                     "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+                     "types": "playlists"
+                 }
+            * .. code::
 
-                    {
-                        "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
-                        "types": "playlists"
-                    }
-               * .. code::
-
-                    [
-                        "f0d6f5c4-081f-4348-9b65-ae677d92767b",
-                        {
-                            "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
-                            "types": "playlists"
-                        }
-                    ]
+                 [
+                     "f0d6f5c4-081f-4348-9b65-ae677d92767b",
+                     {
+                         "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+                         "types": "playlists"
+                     }
+                 ]
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1711,24 +1705,22 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`"f0d6f5c4-081f-4348-9b65-ae677d92767b"`
+            * .. code::
 
-               * :code:`"f0d6f5c4-081f-4348-9b65-ae677d92767b"`
-               * .. code::
+                 {
+                     "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+                     "types": "playlists"
+                 }
+            * .. code::
 
-                    {
-                        "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
-                        "types": "playlists"
-                    }
-               * .. code::
-
-                    [
-                        "f0d6f5c4-081f-4348-9b65-ae677d92767b",
-                        {
-                            "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
-                            "types": "playlists"
-                        }
-                    ]
+                 [
+                     "f0d6f5c4-081f-4348-9b65-ae677d92767b",
+                     {
+                         "id": "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+                         "types": "playlists"
+                     }
+                 ]
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -1981,12 +1973,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`46369325`
-               * :code:`"75413016"`
-               * :code:`{"id": "46369325", "types": "tracks"}`
-               * :code:`["75413016", {"id": "46369325", "types": "tracks"}]`
+            * :code:`46369325`
+            * :code:`"75413016"`
+            * :code:`{"id": "46369325", "types": "tracks"}`
+            * :code:`["75413016",
+              {"id": "46369325", "types": "tracks"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -2041,12 +2032,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`46369325`
-               * :code:`"75413016"`
-               * :code:`{"id": "46369325", "types": "tracks"}`
-               * :code:`["75413016", {"id": "46369325", "types": "tracks"}]`
+            * :code:`46369325`
+            * :code:`"75413016"`
+            * :code:`{"id": "46369325", "types": "tracks"}`
+            * :code:`["75413016",
+              {"id": "46369325", "types": "tracks"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -2254,12 +2244,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`53315642`
-               * :code:`"75623239"`
-               * :code:`{"id": "75623239", "types": "videos"}`
-               * :code:`["53315642", {"id": "75623239", "types": "videos"}]`
+            * :code:`53315642`
+            * :code:`"75623239"`
+            * :code:`{"id": "75623239", "types": "videos"}`
+            * :code:`["53315642",
+              {"id": "75623239", "types": "videos"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's
@@ -2313,12 +2302,11 @@ class UsersAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`53315642`
-               * :code:`"75623239"`
-               * :code:`{"id": "75623239", "types": "videos"}`
-               * :code:`["53315642", {"id": "75623239", "types": "videos"}]`
+            * :code:`53315642`
+            * :code:`"75623239"`
+            * :code:`{"id": "75623239", "types": "videos"}`
+            * :code:`["53315642",
+              {"id": "75623239", "types": "videos"}]`
 
         user_id : int or str; keyword-only; optional
             TIDAL ID of the user. If not specified, the current user's

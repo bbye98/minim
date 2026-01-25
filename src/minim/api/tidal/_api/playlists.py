@@ -1286,13 +1286,16 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`(458584456, "tracks")`
+            * :code:`("29597422", "videos")`
+            * :code:`{"id": "35633900", "types": "tracks"}`
+            * .. code::
 
-               * :code:`(458584456, "tracks")`
-               * :code:`("29597422", "videos")`
-               * :code:`{"id": "35633900", "types": "tracks"}`
-               * :code:`[(458584456, "tracks"), ("29597422", "videos"),
-                 {"id": "35633900", "types": "tracks"}]`
+                 [
+                     (458584456, "tracks"),
+                     ("29597422", "videos"),
+                     {"id": "35633900", "types": "tracks"},
+                 ]
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code.
@@ -1363,32 +1366,40 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b",
+              "tracks")`
+            * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+              "videos")`
+            * .. code::
 
-               * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks")`
-               * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos")`
-               * .. code::
+                 {
+                     "id": "35633900",
+                     "meta": {
+                         "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
+                     },
+                     "types": "tracks"
+                 }
+            * .. code::
 
-                    {
-                        "id": "35633900",
-                        "meta": {
-                            "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                        },
-                        "types": "tracks"
-                    }
-               * .. code::
-
-                    [
-                        (458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks"),
-                        ("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos"),
-                        {
-                            "id": "35633900",
-                            "meta": {
-                                "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                            },
-                            "types": "tracks",
-                        },
-                    ]
+                 [
+                     (
+                         458584456,
+                         "f0d6f5c4-081f-4348-9b65-ae677d92767b",
+                         "tracks",
+                     ),
+                     (
+                         "29597422",
+                         "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+                         "videos",
+                     ),
+                     {
+                         "id": "35633900",
+                         "meta": {
+                             "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
+                         },
+                         "types": "tracks",
+                     },
+                 ]
 
             .. seealso::
 
@@ -1451,32 +1462,40 @@ class PlaylistsAPI(TIDALResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b",
+              "tracks")`
+            * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+              "videos")`
+            * .. code::
 
-               * :code:`(458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks")`
-               * :code:`("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos")`
-               * .. code::
+                 {
+                     "id": "35633900",
+                     "meta": {
+                         "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
+                     },
+                     "types": "tracks"
+                 }
+            * .. code::
 
-                    {
-                        "id": "35633900",
-                        "meta": {
-                            "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                        },
-                        "types": "tracks"
-                    }
-               * .. code::
-
-                    [
-                        (458584456, "f0d6f5c4-081f-4348-9b65-ae677d92767b", "tracks"),
-                        ("29597422", "1e4c73df-b805-47cd-9e44-9a8721c5cb45", "videos"),
-                        {
-                            "id": "35633900",
-                            "meta": {
-                                "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
-                            },
-                            "types": "tracks",
-                        },
-                    ]
+                 [
+                     (
+                         458584456,
+                         "f0d6f5c4-081f-4348-9b65-ae677d92767b",
+                         "tracks",
+                     ),
+                     (
+                         "29597422",
+                         "1e4c73df-b805-47cd-9e44-9a8721c5cb45",
+                         "videos",
+                     ),
+                     {
+                         "id": "35633900",
+                         "meta": {
+                             "itemId": "fdd074f0-90c7-4cfb-bb6c-10060e1a3a58"
+                         },
+                         "types": "tracks",
+                     },
+                 ]
 
             .. seealso::
 

@@ -50,12 +50,12 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            .. container::
+            **Valid values**:
 
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -111,12 +111,10 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -372,12 +370,10 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -521,12 +517,10 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -859,12 +853,12 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            .. container::
+            **Valid values**:
 
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -1289,12 +1283,12 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            .. container::
+            **Valid values**:
 
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -1512,12 +1506,12 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            .. container::
+            **Valid values**:
 
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.
@@ -1594,12 +1588,12 @@ class PrivatePagesAPI(PrivateTIDALResourceAPI):
         device_type : str; keyword-only; default: :code:`"BROWSER"`
             Device type.
 
-            .. container::
+            **Valid values**:
 
-               * :code:`"BROWSER"` – Web browser.
-               * :code:`"DESKTOP"` – Desktop TIDAL application.
-               * :code:`"PHONE"` – Mobile TIDAL application.
-               * :code:`"TV"` – Smart TV TIDAL application.
+            * :code:`"BROWSER"` – Web browser.
+            * :code:`"DESKTOP"` – Desktop TIDAL application.
+            * :code:`"PHONE"` – Mobile TIDAL application.
+            * :code:`"TV"` – Smart TV TIDAL application.
 
         locale : str; keyword-only; optional
             IETF BCP 47 language tag.

@@ -682,12 +682,9 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"last-created"` – Most recently created
-                 playlists.
-               * :code:`"editor-picks"` – Most recently created
-                 playlists by Qobuz.
+            * :code:`"last-created"` – Most recently created playlists.
+            * :code:`"editor-picks"` – Most recently created playlists
+              by Qobuz.
 
         genre_ids : int, str, or list[int | str]; keyword-only; optional
             Qobuz IDs of the genres used to filter the playlists to
@@ -889,10 +886,8 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"owner"` – Playlists created by the user.
-               * :code:`"subscriber"` – Playlists followed by the user.
+            * :code:`"owner"` – Playlists created by the user.
+            * :code:`"subscriber"` – Playlists followed by the user.
 
             **Examples**: :code:`"owner"`, :code:`"owner,subscriber"`,
             :code:`["owner", "subscriber"]`.

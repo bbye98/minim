@@ -67,10 +67,8 @@ class PrivateQobuzAPIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"password"` – Qobuz Web Player login flow.
+            * :code:`None` – No authentication.
+            * :code:`"password"` – Qobuz Web Player login flow.
 
         app_id : str; keyword-only; optional
             Application ID. If not provided, it is loaded from the
@@ -115,16 +113,13 @@ class PrivateQobuzAPIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"kwargs"` – User credentials (email or username
-                 and password or its MD5 hash) provided directly via the
-                 `username` and `password` keyword arguments,
-                 respectively.
-               * :code:`"getpass"` – Prompt for credentials in an
-                 echo-free terminal.
-               * :code:`"playwright"` – Open the Qobuz Web Player login
-                 page in a Playwright Firefox browser.
+            * :code:`"kwargs"` – User credentials (email or username and
+              password or its MD5 hash) provided directly via the
+              `username` and `password` keyword arguments, respectively.
+            * :code:`"getpass"` – Prompt for credentials in an echo-free
+              terminal.
+            * :code:`"playwright"` – Open the Qobuz Web Player login
+              page in a Playwright Firefox browser.
 
         enable_cache : bool; keyword-only; default: :code:`True`
             Whether to enable an in-memory time-to-live (TTL) cache with
@@ -440,10 +435,8 @@ class PrivateQobuzAPIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"password"` – Qobuz Web Player login flow.
+            * :code:`None` – No authentication.
+            * :code:`"password"` – Qobuz Web Player login flow.
 
         **kwargs : dict[str, Any]
             Keyword arguments to pass to
@@ -625,10 +618,8 @@ class PrivateQobuzAPIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"password"` – Qobuz Web Player login flow.
+            * :code:`None` – No authentication.
+            * :code:`"password"` – Qobuz Web Player login flow.
 
         app_id : str; keyword-only; optional
             Application ID. If not provided, it is loaded from the
@@ -667,14 +658,12 @@ class PrivateQobuzAPIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"kwargs"` – Use credentials provided directly
-                 via the `username` and `password` keyword arguments.
-               * :code:`"getpass"` – Prompt for credentials in an
-                 echo-free terminal.
-               * :code:`"playwright"` – Open the Qobuz Web Player login
-                 page in a Playwright Firefox browser.
+            * :code:`"kwargs"` – Use credentials provided directly via
+              the `username` and `password` keyword arguments.
+            * :code:`"getpass"` – Prompt for credentials in an echo-free
+              terminal.
+            * :code:`"playwright"` – Open the Qobuz Web Player login
+              page in a Playwright Firefox browser.
 
         store_tokens : bool; keyword-only; default: :code:`True`
             Whether to enable the local token storage for this client.

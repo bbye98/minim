@@ -1827,11 +1827,9 @@ class ArtistsAPI(TIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"FINGERPRINT"` – Collapses tracks that share the
-                 same audio fingerprint.
-               * :code:`"ID"` – Returns every track as a separate item.
+            * :code:`"FINGERPRINT"` – Collapses tracks that share the
+              same audio fingerprint.
+            * :code:`"ID"` – Returns every track as a separate item.
 
         include_metadata : bool; keyword-only; default: :code:`False`
             Whether to include TIDAL content metadata for the artist's

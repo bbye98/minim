@@ -596,25 +596,21 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"LOW"` – 64 kbps (22.05 kHz) MP3 without user
-                 authentication or 96 kbps AAC with user authentication.
-               * :code:`"HIGH"` – 320 kbps AAC.
-               * :code:`"LOSSLESS"` – 1411 kbps (16-bit, 44.1 kHz) ALAC
-                 or FLAC.
-               * :code:`"HI_RES_LOSSLESS"` – Up to 9216 kbps (24-bit,
-                 192 kHz) FLAC.
+            * :code:`"LOW"` – 64 kbps (22.05 kHz) MP3 without user
+              authentication or 96 kbps AAC with user authentication.
+            * :code:`"HIGH"` – 320 kbps AAC.
+            * :code:`"LOSSLESS"` – 1411 kbps (16-bit, 44.1 kHz) ALAC or
+              FLAC.
+            * :code:`"HI_RES_LOSSLESS"` – Up to 9216 kbps (24-bit, 192
+              kHz) FLAC.
 
         intent : str; keyword-only; default: :code:`"STREAM"`
             Playback mode or intended use of the track.
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"OFFLINE"` – Offline download.
-               * :code:`"STREAM"` – Streaming playback.
+            * :code:`"OFFLINE"` – Offline download.
+            * :code:`"STREAM"` – Streaming playback.
 
         preview : bool; keyword-only; default: :code:`False`
             Whether to return a 30-second preview instead of the full

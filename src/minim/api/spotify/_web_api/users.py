@@ -567,14 +567,12 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"long_term"` – Approximately one year of data,
-                 including all new data as it becomes available.
-               * :code:`"medium_term"` – Approximately the last six
-                 months of data.
-               * :code:`"short_term"` – Approximately the last four
-                 weeks of data.
+            * :code:`"long_term"` – Approximately one year of data,
+              including all new data as it becomes available.
+            * :code:`"medium_term"` – Approximately the last six months
+              of data.
+            * :code:`"short_term"` – Approximately the last four weeks
+              of data.
 
             **API default**: :code:`"medium_term"`.
 
@@ -968,12 +966,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
-               * :code:`["2CIMQHirSU0MQqyYHq0eOx",
-                 "57dN52uHvrHOxijzpIgu3E"]`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
+            * :code:`["2CIMQHirSU0MQqyYHq0eOx",
+              "57dN52uHvrHOxijzpIgu3E"]`
         """
         self._client._require_scopes(
             "users.follow_artists", "user-follow-modify"
@@ -1038,12 +1034,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
-               * :code:`["2CIMQHirSU0MQqyYHq0eOx",
-                 "57dN52uHvrHOxijzpIgu3E"]`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
+            * :code:`["2CIMQHirSU0MQqyYHq0eOx",
+              "57dN52uHvrHOxijzpIgu3E"]`
         """
         self._client._require_scopes(
             "users.unfollow_artists", "user-follow-modify"
@@ -1113,12 +1107,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
-               * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
-               * :code:`["2CIMQHirSU0MQqyYHq0eOx",
-                 "57dN52uHvrHOxijzpIgu3E"]`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx"`
+            * :code:`"2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E"`
+            * :code:`["2CIMQHirSU0MQqyYHq0eOx",
+              "57dN52uHvrHOxijzpIgu3E"]`
 
         Returns
         -------
@@ -1445,12 +1437,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"382ObEPsp2rxGrnsizN5TX"`
-               * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
-               * :code:`["382ObEPsp2rxGrnsizN5TX",
-                 "1A2GTWGtFfWp7KSQTwWOyo"]`
+            * :code:`"382ObEPsp2rxGrnsizN5TX"`
+            * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
+            * :code:`["382ObEPsp2rxGrnsizN5TX",
+              "1A2GTWGtFfWp7KSQTwWOyo"]`
         """
         self._client._require_scopes(
             "albums.save_albums", "user-library-modify"
@@ -1484,12 +1474,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"382ObEPsp2rxGrnsizN5TX"`
-               * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
-               * :code:`["382ObEPsp2rxGrnsizN5TX",
-                 "1A2GTWGtFfWp7KSQTwWOyo"]`
+            * :code:`"382ObEPsp2rxGrnsizN5TX"`
+            * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
+            * :code:`["382ObEPsp2rxGrnsizN5TX",
+              "1A2GTWGtFfWp7KSQTwWOyo"]`
         """
         self._client._require_scopes(
             "albums.remove_saved_albums", "user-library-modify"
@@ -1524,12 +1512,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"382ObEPsp2rxGrnsizN5TX"`
-               * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
-               * :code:`["382ObEPsp2rxGrnsizN5TX",
-                 "1A2GTWGtFfWp7KSQTwWOyo"]`
+            * :code:`"382ObEPsp2rxGrnsizN5TX"`
+            * :code:`"382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo"`
+            * :code:`["382ObEPsp2rxGrnsizN5TX",
+              "1A2GTWGtFfWp7KSQTwWOyo"]`
 
         Returns
         -------
@@ -1697,12 +1683,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
-               * :code:`["18yVqkdbdRvS24c0Ilj2ci",
-                 "1HGw3J3NxZO1TP1BTtVhpZ"]`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
+            * :code:`["18yVqkdbdRvS24c0Ilj2ci",
+              "1HGw3J3NxZO1TP1BTtVhpZ"]`
         """
         self._client._require_scopes(
             "audiobooks.save_audiobooks", "user-library-modify"
@@ -1738,12 +1722,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
-               * :code:`["18yVqkdbdRvS24c0Ilj2ci",
-                 "1HGw3J3NxZO1TP1BTtVhpZ"]`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
+            * :code:`["18yVqkdbdRvS24c0Ilj2ci",
+              "1HGw3J3NxZO1TP1BTtVhpZ"]`
         """
         self._client._require_scopes(
             "audiobooks.remove_saved_audiobooks", "user-library-modify"
@@ -1780,12 +1762,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
-               * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
-               * :code:`["18yVqkdbdRvS24c0Ilj2ci",
-                 "1HGw3J3NxZO1TP1BTtVhpZ"]`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci"`
+            * :code:`"18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ"`
+            * :code:`["18yVqkdbdRvS24c0Ilj2ci",
+              "1HGw3J3NxZO1TP1BTtVhpZ"]`
 
         Returns
         -------
@@ -1998,12 +1978,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
-               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
-               * :code:`["77o6BIVlYM3msb4MMIL1jH",
-                 "0Q86acNRm6V9GYx55SXKwf"]`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH"`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
+            * :code:`["77o6BIVlYM3msb4MMIL1jH",
+              "0Q86acNRm6V9GYx55SXKwf"]`
         """
         self._client._require_scopes(
             "episodes.save_episodes", "user-library-modify"
@@ -2037,12 +2015,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
-               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
-               * :code:`["77o6BIVlYM3msb4MMIL1jH",
-                 "0Q86acNRm6V9GYx55SXKwf"]`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH"`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
+            * :code:`["77o6BIVlYM3msb4MMIL1jH",
+              "0Q86acNRm6V9GYx55SXKwf"]`
         """
         self._client._require_scopes(
             "episodes.remove_saved_episodes", "user-library-modify"
@@ -2079,12 +2055,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
-               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
-               * :code:`["77o6BIVlYM3msb4MMIL1jH",
-                 "0Q86acNRm6V9GYx55SXKwf"]`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH"`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
+            * :code:`["77o6BIVlYM3msb4MMIL1jH",
+              "0Q86acNRm6V9GYx55SXKwf"]`
 
         Returns
         -------
@@ -2465,12 +2439,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
-               * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
-                 "5as3aKmN2k11yfDDDSrvaZ"]`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
+            * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
+              "5as3aKmN2k11yfDDDSrvaZ"]`
         """
         self._client._require_scopes("shows.save_shows", "user-library-modify")
         self._manage_saved_entities("PUT", "shows", show_ids)
@@ -2502,12 +2474,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
-               * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
-                 "5as3aKmN2k11yfDDDSrvaZ"]`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
+            * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
+              "5as3aKmN2k11yfDDDSrvaZ"]`
         """
         self._client._require_scopes(
             "shows.remove_saved_shows", "user-library-modify"
@@ -2542,12 +2512,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
-               * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
-               * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
-                 "5as3aKmN2k11yfDDDSrvaZ"]`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe"`
+            * :code:`"5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ"`
+            * :code:`[5CfCWKI5pZ28U0uOzXkDHe",
+              "5as3aKmN2k11yfDDDSrvaZ"]`
 
         Returns
         -------
@@ -2770,22 +2738,20 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
+            * :code:`"4iV5W9uYEdYUVa79Axb7Rh"`
+            * :code:`("4iV5W9uYEdYUVa79Axb7Rh", "2010-01-01T00:00:00Z")`
+            * :code:`{"id": "4iV5W9uYEdYUVa79Axb7Rh",
+              "added_at": "2010-01-01T00:00:00Z"}`
+            * .. code::
 
-               * :code:`"4iV5W9uYEdYUVa79Axb7Rh"`
-               * :code:`("4iV5W9uYEdYUVa79Axb7Rh", "2010-01-01T00:00:00Z")`
-               * :code:`{"id": "4iV5W9uYEdYUVa79Axb7Rh",
-                 "added_at": "2010-01-01T00:00:00Z"}`
-               * .. code::
-
-                    [
-                        "4iV5W9uYEdYUVa79Axb7Rh",
-                        ("11dFghVXANMlKmJXsNCbNl", "2017-05-26T00:00:00Z"),
-                        {
-                            "id": "7ouMYWpwJ422jRcDASZB7P",
-                            "added_at": "2006-06-28T00:00:00Z"
-                        }
-                    ]
+                 [
+                     "4iV5W9uYEdYUVa79Axb7Rh",
+                     ("11dFghVXANMlKmJXsNCbNl", "2017-05-26T00:00:00Z"),
+                     {
+                         "id": "7ouMYWpwJ422jRcDASZB7P",
+                         "added_at": "2006-06-28T00:00:00Z"
+                     }
+                 ]
         """
         self._client._require_scopes(
             "tracks.save_tracks", "user-library-modify"
@@ -2863,12 +2829,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
-               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
-               * :code:`["7ouMYWpwJ422jRcDASZB7P",
-                 "4VqPOruhp5EdPBeR92t6lQ"]`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+            * :code:`["7ouMYWpwJ422jRcDASZB7P",
+              "4VqPOruhp5EdPBeR92t6lQ"]`
         """
         self._client._require_scopes(
             "tracks.remove_saved_tracks", "user-library-modify"
@@ -2903,12 +2867,10 @@ class UsersAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"7ouMYWpwJ422jRcDASZB7P"`
-               * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
-               * :code:`["7ouMYWpwJ422jRcDASZB7P",
-                 "4VqPOruhp5EdPBeR92t6lQ"]`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P"`
+            * :code:`"7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ"`
+            * :code:`["7ouMYWpwJ422jRcDASZB7P",
+              "4VqPOruhp5EdPBeR92t6lQ"]`
 
         Returns
         -------

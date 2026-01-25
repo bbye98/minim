@@ -59,12 +59,10 @@ class EpisodesAPI(SpotifyResourceAPI):
 
             **Examples**:
 
-            .. container::
-
-               * :code:`"77o6BIVlYM3msb4MMIL1jH"`
-               * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
-               * :code:`["77o6BIVlYM3msb4MMIL1jH",
-                 "0Q86acNRm6V9GYx55SXKwf"]`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH"`
+            * :code:`"77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf"`
+            * :code:`["77o6BIVlYM3msb4MMIL1jH",
+              "0Q86acNRm6V9GYx55SXKwf"]`
 
         country_code : str; keyword-only; optional
             ISO 3166-1 alpha-2 country code. If provided, only content

@@ -456,16 +456,14 @@ class TTLCache:
 
             **Valid keys**:
 
-            .. container::
-
-               * :code:`"static"` – Cache indefinitely.
-               * :code:`"daily"` – 1 day.
-               * :code:`"hourly"` – 1 hour.
-               * :code:`"playback"` – 30 seconds.
-               * :code:`"popularity"` – 6 hours.
-               * :code:`"recommendation"` – 12 hours.
-               * :code:`"search"` – 10 minutes.
-               * :code:`"user"` – 1 minute.
+            * :code:`"static"` – Cache indefinitely.
+            * :code:`"daily"` – 1 day.
+            * :code:`"hourly"` – 1 hour.
+            * :code:`"playback"` – 30 seconds.
+            * :code:`"popularity"` – 6 hours.
+            * :code:`"recommendation"` – 12 hours.
+            * :code:`"search"` – 10 minutes.
+            * :code:`"user"` – 1 minute.
 
         Returns
         -------
@@ -540,16 +538,14 @@ class TTLCache:
 
             **Valid keys**:
 
-            .. container::
-
-               * :code:`"static"` – Cache indefinitely.
-               * :code:`"daily"` – 1 day.
-               * :code:`"hourly"` – 1 hour.
-               * :code:`"playback"` – 30 seconds.
-               * :code:`"popularity"` – 6 hours.
-               * :code:`"recommendation"` – 12 hours.
-               * :code:`"search"` – 10 minutes.
-               * :code:`"user"` – 1 minute.
+            * :code:`"static"` – Cache indefinitely.
+            * :code:`"daily"` – 1 day.
+            * :code:`"hourly"` – 1 hour.
+            * :code:`"playback"` – 30 seconds.
+            * :code:`"popularity"` – 6 hours.
+            * :code:`"recommendation"` – 12 hours.
+            * :code:`"search"` – 10 minutes.
+            * :code:`"user"` – 1 minute.
 
         Returns
         -------
@@ -866,15 +862,13 @@ class OAuth2APIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"client_credentials"` – Client Credentials Flow.
-               * :code:`"device"` – Device Authorization Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
+            * :code:`None` – No authentication.
+            * :code:`"auth_code"` – Authorization Code Flow.
+            * :code:`"pkce"` – Authorization Code Flow with Proof Key
+              for Code Exchange (PKCE).
+            * :code:`"client_credentials"` – Client Credentials Flow.
+            * :code:`"device"` – Device Authorization Flow.
+            * :code:`"implicit"` – Implicit Grant Flow.
 
         client_id : str; keyword-only; optional
             Client ID. Required unless set as a system environment
@@ -937,15 +931,13 @@ class OAuth2APIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – Show authorization URL in and have the
-                 user manually paste the redirect URL into the terminal.
-               * :code:`"http.server"` – Run a HTTP server to intercept
-                 the redirect after user authorization in any local
-                 browser.
-               * :code:`"playwright"` – Use a Playwright Firefox
-                 browser to complete the user authorization.
+            * :code:`None` – Show authorization URL in and have the
+              user manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept
+              the redirect after user authorization in any local
+              browser.
+            * :code:`"playwright"` – Use a Playwright Firefox
+              browser to complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
@@ -1354,14 +1346,12 @@ class OAuth2APIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"client_credentials"` – Client Credentials Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
-               * :code:`"refresh_token"` – Refresh Token Flow.
+            * :code:`"auth_code"` – Authorization Code Flow.
+            * :code:`"pkce"` – Authorization Code Flow with Proof Key
+              for Code Exchange (PKCE).
+            * :code:`"client_credentials"` – Client Credentials Flow.
+            * :code:`"implicit"` – Implicit Grant Flow.
+            * :code:`"refresh_token"` – Refresh Token Flow.
         """
         if not authorization_flow:
             authorization_flow = self._auth_flow
@@ -1678,15 +1668,13 @@ class OAuth2APIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – No authentication.
-               * :code:`"auth_code"` – Authorization Code Flow.
-               * :code:`"pkce"` – Authorization Code Flow with Proof Key
-                 for Code Exchange (PKCE).
-               * :code:`"client_credentials"` – Client Credentials Flow.
-               * :code:`"device"` – Device Authorization Flow.
-               * :code:`"implicit"` – Implicit Grant Flow.
+            * :code:`None` – No authentication.
+            * :code:`"auth_code"` – Authorization Code Flow.
+            * :code:`"pkce"` – Authorization Code Flow with Proof Key
+              for Code Exchange (PKCE).
+            * :code:`"client_credentials"` – Client Credentials Flow.
+            * :code:`"device"` – Device Authorization Flow.
+            * :code:`"implicit"` – Implicit Grant Flow.
 
         client_id : str; keyword-only; optional
             Client ID. Required unless set as a system environment
@@ -1730,15 +1718,13 @@ class OAuth2APIClient(APIClient):
 
             **Valid values**:
 
-            .. container::
-
-               * :code:`None` – Show authorization URL in and have the
-                 user manually paste the redirect URL into the terminal.
-               * :code:`"http.server"` – Run a HTTP server to intercept
-                 the redirect after user authorization in any local
-                 browser.
-               * :code:`"playwright"` – Use a Playwright Firefox
-                 browser to complete the user authorization.
+            * :code:`None` – Show authorization URL in and have the
+              user manually paste the redirect URL into the terminal.
+            * :code:`"http.server"` – Run a HTTP server to intercept
+              the redirect after user authorization in any local
+              browser.
+            * :code:`"playwright"` – Use a Playwright Firefox
+              browser to complete the user authorization.
 
         open_browser : bool; keyword-only; default: :code:`False`
             Whether to automatically open the authorization URL in the
