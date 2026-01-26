@@ -44,6 +44,14 @@ class MatcherAPI(MusixmatchResourceAPI):
 
             **Example**: :code:`"USUM70905526"`.
 
+        params : dict[str, Any]; keyword-only; optional
+            Query parameters to include in the request. If not provided,
+            an empty dictionary will be created.
+
+            .. note::
+
+               This `dict` is mutated in-place.
+
         Returns
         -------
         resource : dict[str, Any]
@@ -81,8 +89,8 @@ class MatcherAPI(MusixmatchResourceAPI):
         """
         `Matcher > matcher.lyrics.get <https://docs.musixmatch.com
         /lyrics-api/matcher/matcher-lyrics-get>`_: Match a track by
-        artist and track name or by ISRC, and get Musixmatch
-        catalog information for its lyrics.
+        artist and track name (fuzzy search) or by ISRC, and get
+        Musixmatch catalog information for its lyrics.
 
         .. admonition:: Subscription
            :class: entitlement
@@ -158,8 +166,8 @@ class MatcherAPI(MusixmatchResourceAPI):
         """
         `Matcher > matcher.track.get <https://docs.musixmatch.com
         /lyrics-api/matcher/matcher-track-get>`_: Match a track by
-        artist and track name or by ISRC, and get Musixmatch
-        catalog information for it.
+        artist and track name (fuzzy search) or by ISRC, and get
+        Musixmatch catalog information for it.
 
         .. admonition:: Subscription
            :class: entitlement
@@ -270,8 +278,8 @@ class MatcherAPI(MusixmatchResourceAPI):
         """
         `Matcher > matcher.subtitle.get <https://docs.musixmatch.com
         /lyrics-api/matcher/matcher-subtitle-get>`_: Match a track by
-        artist and track name or by ISRC, and get Musixmatch
-        catalog information for its subtitles.
+        artist and track name (fuzzy search) or by ISRC, and get
+        Musixmatch catalog information for its subtitles.
 
         .. admonition:: Subscription
            :class: entitlement
