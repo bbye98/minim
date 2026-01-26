@@ -1883,7 +1883,7 @@ class ResourceAPI:
     @staticmethod
     def _prepare_datetime(dt: datetime | str, fmt: str, /) -> str:
         """
-        Prepare a datetime for use in an API request.
+        Validate, normalize, and stringify a datetime.
 
         Parameters
         ----------
@@ -1901,6 +1901,32 @@ class ResourceAPI:
         if isinstance(dt, str):
             dt = datetime.strptime(dt, fmt)
         return dt.strftime(fmt)
+
+    @staticmethod
+    def _prepare_string(
+        name: str, string: str, /, *, allow_blank: bool = False
+    ) -> str:
+        """
+        Validate and trim a string.
+
+        Parameters
+        ----------
+        name : str; positional-only.
+            Parameter name for the string.
+
+        string : str; positional-only
+            Keyword string.
+
+        Returns
+        -------
+        string : str
+            Trimmed keyword string.
+        """
+        ResourceAPI._validate_type(name, string, str)
+        string = string.strip()
+        if not allow_blank and not len(string):
+            raise ValueError(f"`{name}` cannot be blank.")
+        return string
 
     @staticmethod
     def _validate_barcode(barcode: int | str, /) -> None:

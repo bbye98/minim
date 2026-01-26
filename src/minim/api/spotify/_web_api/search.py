@@ -479,12 +479,8 @@ class SearchAPI(SpotifyResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         params = {
-            "q": query,
+            "q": self._prepare_string("query", query),
             "type": self._prepare_types(
                 item_types,
                 allowed_types=self._RESOURCE_TYPES,

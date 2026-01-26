@@ -980,8 +980,10 @@ class ArtistsAPI(TIDALResourceAPI):
         params = {}
         if handles is not None:
             if isinstance(handles, list | tuple):
-                for idx, handle in enumerate(handles):
-                    self._validate_type(f"handles[{idx}]", handle, str)
+                handles = [
+                    self._prepare_string(f"handles[{idx}]", handle)
+                    for idx, handle in enumerate(handles)
+                ]
             elif not isinstance(handles, str):
                 raise ValueError(
                     "`handles` must be a string or a list of strings."

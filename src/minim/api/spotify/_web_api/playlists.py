@@ -414,13 +414,11 @@ class PlaylistsAPI(SpotifyResourceAPI):
         self._validate_spotify_id(playlist_id)
         payload = {}
         if name is not None:
-            self._validate_type("name", name, str)
-            if not len(name):
-                raise ValueError("The playlist name cannot be blank.")
-            payload["name"] = name
+            payload["name"] = self._prepare_string("name", name)
         if description is not None:
-            self._validate_type("description", description, str)
-            payload["description"] = description
+            payload["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             payload["public"] = public
@@ -955,8 +953,9 @@ class PlaylistsAPI(SpotifyResourceAPI):
             self._validate_number("from_count", from_count, int, 1)
             payload["range_length"] = from_count
         if snapshot_id is not None:
-            self._validate_type("snapshot_id", snapshot_id, str)
-            payload["snapshot_id"] = snapshot_id
+            payload["snapshot_id"] = self._prepare_string(
+                "snapshot_id", snapshot_id
+            )
         return self._client._request(
             "PUT", f"playlists/{playlist_id}/tracks", json=payload
         ).json()
@@ -1119,8 +1118,9 @@ class PlaylistsAPI(SpotifyResourceAPI):
             )
         }
         if snapshot_id is not None:
-            self._validate_type("snapshot_id", snapshot_id, str)
-            payload["snapshot_id"] = snapshot_id
+            payload["snapshot_id"] = self._prepare_string(
+                "snapshot_id", snapshot_id
+            )
         return self._client._request(
             "DELETE", f"playlists/{playlist_id}/tracks", json=payload
         ).json()
@@ -1257,13 +1257,11 @@ class PlaylistsAPI(SpotifyResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_playlist")
-        self._validate_type("name", name, str)
-        if not len(name):
-            raise ValueError("The playlist name cannot be blank.")
-        payload = {"name": name}
+        payload = {"name": self._prepare_string("name", name)}
         if description is not None:
-            self._validate_type("description", description, str)
-            payload["description"] = description
+            payload["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             self._client._require_scopes(

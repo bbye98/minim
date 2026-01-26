@@ -159,8 +159,9 @@ class SearchAPI(MusixmatchResourceAPI):
         """
         params = {}
         if artist_query is not None:
-            self._validate_type("artist_query", artist_query, str)
-            params["q_artist"] = artist_query
+            params["q_artist"] = self._prepare_string(
+                "artist_query", artist_query
+            )
         if artist_id is not None:
             self._validate_numeric("artist_id", artist_id, int)
             params["f_artist_id"] = artist_id
@@ -356,23 +357,27 @@ class SearchAPI(MusixmatchResourceAPI):
         """
         params = {}
         if query is not None:
-            self._validate_type("query", query, str)
-            params["q"] = query
+            params["q"] = self._prepare_string("query", query)
         if artist_query is not None:
-            self._validate_type("artist_query", artist_query, str)
-            params["q_artist"] = artist_query
+            params["q_artist"] = self._prepare_string(
+                "artist_query", artist_query
+            )
         if lyrics_query is not None:
-            self._validate_type("lyrics_query", lyrics_query, str)
-            params["q_lyrics"] = lyrics_query
+            params["q_lyrics"] = self._prepare_string(
+                "lyrics_query", lyrics_query
+            )
         if track_query is not None:
-            self._validate_type("track_query", track_query, str)
-            params["q_track"] = track_query
+            params["q_track"] = self._prepare_string(
+                "track_query", track_query
+            )
         if track_artist_query is not None:
-            self._validate_type("track_artist_query", track_artist_query, str)
-            params["q_track_artist"] = track_artist_query
+            params["q_track_artist"] = self._prepare_string(
+                "track_artist_query", track_artist_query
+            )
         if writer_query is not None:
-            self._validate_type("writer_query", writer_query, str)
-            params["q_writer"] = writer_query
+            params["q_writer"] = self._prepare_string(
+                "writer_query", writer_query
+            )
         if artist_id is not None:
             self._validate_numeric("artist_id", artist_id, int)
             params["f_artist_id"] = artist_id

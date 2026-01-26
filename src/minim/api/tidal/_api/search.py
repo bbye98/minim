@@ -454,13 +454,9 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         return self._get_resources(
             "searchSuggestions",
-            query,
+            self._prepare_string("query", query),
             country_code=country_code,
             include_explicit=include_explicit,
             expand=expand,
@@ -876,13 +872,9 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         return self._get_resource_relationship(
             "searchSuggestions",
-            query,
+            self._prepare_string("query", query),
             "directHits",
             country_code=country_code,
             include_explicit=include_explicit,
@@ -1397,13 +1389,9 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         return self._get_resources(
             "searchResults",
-            query,
+            self._prepare_string("query", query),
             country_code=country_code,
             include_explicit=include_explicit,
             expand=expand,
@@ -1560,10 +1548,9 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
         return self._get_resource_relationship(
             "searchResults",
-            query,
+            self._prepare_string("query", query),
             "albums",
             country_code=country_code,
             include_explicit=include_explicit,
@@ -1731,13 +1718,9 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         return self._get_resource_relationship(
             "searchResults",
-            query,
+            self._prepare_string("query", query),
             "artists",
             country_code=country_code,
             include_explicit=include_explicit,
@@ -1867,13 +1850,9 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         return self._get_resource_relationship(
             "searchResults",
-            query,
+            self._prepare_string("query", query),
             "playlists",
             country_code=country_code,
             include_explicit=include_explicit,
@@ -2304,13 +2283,9 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         return self._get_resource_relationship(
             "searchResults",
-            query,
+            self._prepare_string("query", query),
             "topHits",
             country_code=country_code,
             include_explicit=include_explicit,
@@ -2487,13 +2462,9 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         return self._get_resource_relationship(
             "searchResults",
-            query,
+            self._prepare_string("query", query),
             "tracks",
             country_code=country_code,
             include_explicit=include_explicit,
@@ -2628,13 +2599,9 @@ class SearchAPI(TIDALResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         return self._get_resource_relationship(
             "searchResults",
-            query,
+            self._prepare_string("query", query),
             "videos",
             country_code=country_code,
             include_explicit=include_explicit,

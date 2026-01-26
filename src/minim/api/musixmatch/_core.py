@@ -2,6 +2,7 @@ import base64
 from datetime import datetime, timezone
 import hashlib
 import hmac
+import json
 import re
 from typing import Any
 from urllib.parse import urlencode
@@ -134,13 +135,24 @@ class MusixmatchLyricsAPIClient(APIClient):
             params["apikey"] = self._api_key
 
         resp = self._client.request(method, endpoint, params=params, **kwargs)
-        resp_json = resp.json()
-        status = resp_json["message"]["header"]["status_code"]
+        status = resp.status_code
+        reason = resp.reason_phrase
+        try:
+            resp_json = resp.json()
+            status = resp_json["message"]["header"]["status_code"]
+            reason = None
+        except json.JSONDecodeError:
+            resp_json = None
         if status == 200:
             return resp
-        raise RuntimeError(
-            f"{status} – {resp_json['message']['header']['hint']}"
-        )
+        emsg = str(status)
+        if reason:
+            emsg += f" {reason}"
+        if resp_json is not None and (
+            hint := resp_json["message"]["header"].get("hint")
+        ):
+            emsg += f" – {hint}"
+        raise RuntimeError(emsg)
 
     def _resolve_client_key(self) -> bytes:
         """
@@ -156,7 +168,11 @@ class MusixmatchLyricsAPIClient(APIClient):
                 r'http[^"]*/_app[^"]*\.js',
                 client.get(
                     "https://www.musixmatch.com/search",
-                    headers={"User-Agent": ""},
+                    headers={
+                        "User-Agent": self._client.headers.get(
+                            "User-Agent", ""
+                        )
+                    },
                 ).text,
             )
             if m is None:

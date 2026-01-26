@@ -474,8 +474,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
                 )
             params["format_id"] = format_id
         if intent is not None:
-            self._validate_type("intent", intent, str)
-            intent = intent.lower()
+            intent = self._prepare_string("intent", intent).lower()
             if intent not in self._INTENTS:
                 intents_str = "', '".join(self._INTENTS)
                 raise ValueError(
@@ -1139,8 +1138,7 @@ class PrivateTracksAPI(PrivateQobuzResourceAPI):
             self._validate_qobuz_ids(device_id, _recursive=False)
             event["device_id"] = device_id
         if intent is not None:
-            self._validate_type("intent", intent, str)
-            intent = intent.lower()
+            intent = self._prepare_string("intent", intent).lower()
             if intent not in self._INTENTS:
                 intents_str = "', '".join(self._INTENTS)
                 raise ValueError(

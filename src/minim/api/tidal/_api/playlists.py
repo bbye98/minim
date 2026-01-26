@@ -799,14 +799,17 @@ class PlaylistsAPI(TIDALResourceAPI):
         if country_code is not None:
             self._validate_country_code(country_code)
             params["countryCode"] = country_code
-        self._validate_type("name", name, str)
-        if not len(name):
-            raise ValueError("The playlist name cannot be blank.")
-        payload = {"data": {"attributes": {"name": name}, "type": "playlists"}}
+        payload = {
+            "data": {
+                "attributes": {"name": self._prepare_string("name", name)},
+                "type": "playlists",
+            }
+        }
         attrs = payload["data"]["attributes"]
         if description is not None:
-            self._validate_type("description", description, str)
-            attrs["description"] = description
+            attrs["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             attrs["accessType"] = "PUBLIC" if public else "UNLISTED"
@@ -882,13 +885,11 @@ class PlaylistsAPI(TIDALResourceAPI):
         }
         attrs = payload["data"]["attributes"]
         if name is not None:
-            self._validate_type("name", name, str)
-            if not len(name):
-                raise ValueError("The playlist name cannot be blank.")
-            attrs["name"] = name
+            attrs["name"] = self._prepare_string("name", name)
         if description is not None:
-            self._validate_type("description", description, str)
-            attrs["description"] = description
+            attrs["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             attrs["accessType"] = "PUBLIC" if public else "UNLISTED"

@@ -676,10 +676,7 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_folder")
-        self._validate_type("name", name, str)
-        if not len(name):
-            raise ValueError("The playlist folder name cannot be blank.")
-        params = {"name": name}
+        params = {"name": self._prepare_string("name", name)}
         if folder_uuid is not None:
             if folder_uuid != "root":
                 self._validate_uuid(folder_uuid)
@@ -836,13 +833,11 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_playlist")
-        self._validate_type("name", name, str)
-        if not len(name):
-            raise ValueError("The playlist name cannot be blank.")
-        params = {"name": name}
+        params = {"name": self._prepare_string("name", name)}
         if description is not None:
-            self._validate_type("description", description, str)
-            params["description"] = description
+            params["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             params["isPublic"] = public
@@ -984,13 +979,11 @@ class PrivatePlaylistsAPI(PrivateTIDALResourceAPI):
         self._validate_uuid(playlist_uuid)
         payload = {}
         if name is not None:
-            self._validate_type("name", name, str)
-            if not len(name):
-                raise ValueError("The playlist name cannot be blank.")
-            payload["title"] = name
+            payload["title"] = self._prepare_string("name", name)
         if description is not None:
-            self._validate_type("description", description, str)
-            payload["description"] = description
+            payload["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if not payload:
             raise ValueError("At least one change must be specified.")
         self._client._request(

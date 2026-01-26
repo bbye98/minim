@@ -987,12 +987,11 @@ class iTunesSearchAPIClient(APIClient):
                           ]
                         }
         """
-        ResourceAPI._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         ResourceAPI._validate_country_code(country_code)
-        params = {"term": query, "country": country_code}
+        params = {
+            "term": ResourceAPI._prepare_string("query", query),
+            "country": country_code,
+        }
         if media_type is None:
             emsg_suffix = ""
         else:

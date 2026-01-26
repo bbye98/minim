@@ -447,8 +447,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
         self._client._require_authentication("favorites.get_my_saved_items")
         params = {}
         if item_type is not None:
-            self._validate_type("item_type", item_type, str)
-            item_type = item_type.strip().lower()
+            item_type = self._prepare_string("item_type", item_type).lower()
             if item_type not in self._FAVORITE_TYPES:
                 favorite_types_str = "', '".join(self._FAVORITE_TYPES)
                 raise ValueError(
@@ -542,8 +541,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": <bool>}`.
         """
         self._client._require_authentication("favorites.is_item_saved")
-        self._validate_type("item_type", item_type, str)
-        item_type = item_type.strip().lower()
+        item_type = self._prepare_string("item_type", item_type).lower()
         if f"{item_type}s" not in self._FAVORITE_TYPES:
             favorite_types_str = "', '".join(
                 ft[:-1] for ft in self._FAVORITE_TYPES
@@ -599,8 +597,7 @@ class PrivateFavoritesAPI(PrivateQobuzResourceAPI):
             **Sample response**: :code:`{"status": <bool>}`.
         """
         self._client._require_authentication("favorites.toggle_item_saved")
-        self._validate_type("item_type", item_type, str)
-        item_type = item_type.strip().lower()
+        item_type = self._prepare_string("item_type", item_type).lower()
         if f"{item_type}s" not in self._FAVORITE_TYPES:
             favorite_types_str = "', '".join(
                 ft[:-1] for ft in self._FAVORITE_TYPES

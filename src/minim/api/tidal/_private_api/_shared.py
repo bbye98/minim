@@ -22,7 +22,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
         tidal_ids: str | list[str], /, *, limit: int = 500
     ) -> str:
         """
-        Normalize, validate, and serialize TIDAL IDs.
+        Validate, normalize, and serialize TIDAL IDs.
 
         Parameters
         ----------
@@ -74,7 +74,7 @@ class PrivateTIDALResourceAPI(ResourceAPI):
         has_prefix: bool = False,
     ) -> str:
         """
-        Normalize, validate, and serialize UUIDs.
+        Validate, normalize, and serialize UUIDs.
 
         Parameters
         ----------

@@ -21,7 +21,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         mix_ids: str | list[str], /, *, limit: int = 100
     ) -> str:
         """
-        Normalize, validate, and serialize TIDAL mix IDs.
+        Validate, normalize, and serialize TIDAL mix IDs.
 
         Parameters
         ----------
@@ -301,8 +301,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             )
         }
         if on_missing is not None:
-            self._validate_type("on_missing", on_missing, str)
-            on_missing = on_missing.strip().upper()
+            on_missing = self._prepare_string("on_missing", on_missing).upper()
             if on_missing not in {"FAIL", "SKIP"}:
                 raise ValueError(
                     f"Invalid behavior {on_missing!r} for missing "
@@ -390,8 +389,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
             user_id = self._client._resolve_user_identifier()
         params = {}
         if cursor is not None:
-            self._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["cursor"] = self._prepare_string("cursor", cursor)
         if limit is not None:
             self._validate_number("limit", limit, int, 1, 50)
             params["limit"] = limit
@@ -478,8 +476,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         else:
             params["limit"] = limit
         if cursor is not None:
-            self._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["cursor"] = self._prepare_string("cursor", cursor)
         if playlist_types is not None:
             self._client.playlists._validate_types(playlist_types)
             params["includeOnly"] = playlist_types
@@ -1676,8 +1673,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self._validate_number("limit", limit, int, 1, 50)
         params = {"limit": limit}
         if cursor is not None:
-            self._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["cursor"] = self._prepare_string("cursor", cursor)
         if sort_by is not None:
             if sort_by not in self._SORT_FIELDS:
                 sort_fields_str = "', '".join(sorted(self._SORT_FIELDS))
@@ -1732,8 +1728,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self._validate_number("limit", limit, int, 1, 50)
         params = {"limit": limit}
         if cursor is not None:
-            self._validate_type("cursor", cursor, str)
-            params["cursor"] = cursor
+            params["cursor"] = self._prepare_string("cursor", cursor)
         return self._client._request(
             "GET", "v2/favorites/mixes/ids", params=params
         ).json()
@@ -1775,8 +1770,7 @@ class PrivateUsersAPI(PrivateTIDALResourceAPI):
         self._client._require_authentication("users.follow_mixes")
         data = {"mixIds": self._prepare_mix_ids(mix_ids)}
         if on_missing is not None:
-            self._validate_type("on_missing", on_missing, str)
-            on_missing = on_missing.strip().upper()
+            on_missing = self._prepare_string("on_missing", on_missing).upper()
             if on_missing not in {"FAIL", "SKIP"}:
                 raise ValueError(
                     f"Invalid behavior {on_missing!r} for missing "

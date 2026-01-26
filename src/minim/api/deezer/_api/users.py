@@ -200,6 +200,16 @@ class UsersAPI(DeezerResourceAPI):
         `User > Notification <https://developers.deezer.com/api/user
         /notifications>`_: Add a notification to a user's feed.
 
+        .. admonition:: Permission and user authentication
+           :class: entitlement
+
+           .. tab-set::
+
+              .. tab-item:: Required
+
+                 User authentication
+                    Access the user's basic information.
+
         Parameters
         ----------
         message : str
@@ -219,15 +229,13 @@ class UsersAPI(DeezerResourceAPI):
 
             **Sample response**: :code:`{"success": True}`.
         """
-        self._validate_type("message", message, str)
-        if not len(message):
-            raise ValueError("The message cannot be blank.")
+        self._client._require_authentication("users.send_notification")
         return self._request_resource_relationship(
             "POST",
             "user",
             user_id,
             "notifications",
-            params={"message": message},
+            params={"message": self._prepare_string("message", message)},
         )
 
     def get_user_mix_tracks(
@@ -2100,11 +2108,12 @@ class UsersAPI(DeezerResourceAPI):
         self._client._require_permissions(
             "users.create_playlist", "manage_library"
         )
-        self._validate_type("name", name, str)
-        if not len(name):
-            raise ValueError("The playlist name cannot be blank.")
         return self._request_resource_relationship(
-            "POST", "user", user_id, "playlists", params={"name": name}
+            "POST",
+            "user",
+            user_id,
+            "playlists",
+            params={"name": self._prepare_string("name", name)},
         )
 
     def update_playlist_details(
@@ -2172,13 +2181,11 @@ class UsersAPI(DeezerResourceAPI):
         )
         params = {}
         if name is not None:
-            self._validate_type("name", name, str)
-            if not len(name):
-                raise ValueError("The playlist name cannot be blank.")
-            params["name"] = name
+            params["name"] = self._prepare_string("name", name)
         if description is not None:
-            self._validate_type("description", description, str)
-            params["description"] = description
+            params["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             params["public"] = public
@@ -3163,20 +3170,11 @@ class UsersAPI(DeezerResourceAPI):
         )
         params = {}
         if album is not None:
-            self._validate_type("album", album, str)
-            if not len(album):
-                raise ValueError("`album` is blank.")
-            params["album"] = album
+            params["album"] = self._prepare_string("album", album)
         if artist is not None:
-            self._validate_type("artist", artist, str)
-            if not len(artist):
-                raise ValueError("`artist` is blank.")
-            params["artist"] = artist
+            params["artist"] = self._prepare_string("artist", artist)
         if title is not None:
-            self._validate_type("title", title, str)
-            if not len(title):
-                raise ValueError("`title` is blank.")
-            params["title"] = title
+            params["title"] = self._prepare_string("title", title)
         if not params:
             raise ValueError("At least one change must be specified.")
         return self._request_resource_relationship(

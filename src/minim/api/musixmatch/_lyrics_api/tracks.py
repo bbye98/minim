@@ -489,8 +489,7 @@ class TracksAPI(MusixmatchResourceAPI):
         """
         params = {}
         if format is not None:
-            self._validate_type("format", format, str)
-            format = format.strip().lower()
+            format = self._prepare_string("format", format).lower()
             if format not in (SUBTITLE_FORMATS := {"lrc", "dfxp", "mxm"}):
                 subtitle_formats_str = "', '".join(sorted(SUBTITLE_FORMATS))
                 raise ValueError(

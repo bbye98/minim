@@ -49,12 +49,10 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query):
-            raise ValueError("No search query provided.")
         return self._client._request(
-            "GET", "catalog/count", params={"query": query.strip()}
+            "GET",
+            "catalog/count",
+            params={"query": self._prepare_string("query", query)},
         ).json()
 
     @TTLCache.cached_method(ttl="daily")
@@ -265,8 +263,7 @@ class PrivateCatalogAPI(PrivateQobuzResourceAPI):
         """
         params = {}
         if item_type is not None:
-            self._validate_type("item_type", item_type, str)
-            item_type = item_type.strip().lower()
+            item_type = self._prepare_string("item_type", item_type).lower()
             if item_type not in self._FEATURED_TYPES:
                 featured_types_str = "', '".join(self._FEATURED_TYPES)
                 raise ValueError(

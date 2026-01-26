@@ -18,7 +18,7 @@ class DeezerResourceAPI(ResourceAPI):
         deezer_ids: int | str | list[int | str], /
     ) -> tuple[str, int]:
         """
-        Normalize, validate, and serialize Deezer IDs.
+        Validate, normalize, and serialize Deezer IDs.
 
         Parameters
         ----------

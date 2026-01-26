@@ -23,7 +23,7 @@ class SpotifyResourceAPI(ResourceAPI):
         enforce_length: bool = True,
     ) -> tuple[str, int]:
         """
-        Normalize, validate, and serialize Spotify IDs.
+        Validate, normalize, and serialize Spotify IDs.
 
         Parameters
         ----------
@@ -79,7 +79,7 @@ class SpotifyResourceAPI(ResourceAPI):
         resource_types: set[str],
     ) -> list[str]:
         """
-        Normalize, validate, and prepare Spotify Uniform Resource
+        Validate, normalize, and prepare Spotify Uniform Resource
         Identifiers (URIs).
 
         Parameters
@@ -181,7 +181,7 @@ class SpotifyResourceAPI(ResourceAPI):
         type_prefix: str = "resource",
     ) -> str:
         """
-        Normalize, validate, and serialize types.
+        Validate, normalize, and serialize types.
 
         Parameters
         ----------

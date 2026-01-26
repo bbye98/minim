@@ -644,16 +644,14 @@ class PrivateTracksAPI(PrivateTIDALResourceAPI):
                   }
         """
         self._validate_tidal_ids(track_id, _recursive=False)
-        self._validate_type("quality", quality, str)
-        quality = quality.strip().upper()
+        quality = self._prepare_string("quality", quality).upper()
         if quality not in self._AUDIO_QUALITIES:
             audio_qualities_str = "', '".join(self._AUDIO_QUALITIES)
             raise ValueError(
                 f"Invalid audio quality {quality!r}. "
                 f"Valid values: '{audio_qualities_str}'."
             )
-        self._validate_type("intent", intent, str)
-        intent = intent.strip().upper()
+        intent = self._prepare_string("intent", intent).upper()
         if intent not in self._PLAYBACK_MODES:
             playback_modes_str = "', '".join(self._PLAYBACK_MODES)
             raise ValueError(

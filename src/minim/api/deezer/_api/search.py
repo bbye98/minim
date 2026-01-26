@@ -26,7 +26,7 @@ class SearchAPI(DeezerResourceAPI):
     def _search_resource(
         self,
         resource_type: str | None,
-        query: str,
+        query: str | None,
         /,
         *,
         strict: bool | None = None,
@@ -89,11 +89,12 @@ class SearchAPI(DeezerResourceAPI):
         endpoint = "search"
         if resource_type is not None:
             endpoint += f"/{resource_type}"
-        self._validate_type("query", query, str)
-        query = query.strip()
-        if not len(query) and resource_type != "history":
-            raise ValueError("No search query provided.")
-        params = {"q": query}
+        if query is not None:
+            params = {"q": self._prepare_string("query", query)}
+        elif resource_type == "history":
+            params = {}
+        else:
+            raise ValueError("`query` cannot be blank.")
         if strict is not None:
             self._validate_type("strict", strict, bool)
             if strict:

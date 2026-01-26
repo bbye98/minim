@@ -516,8 +516,9 @@ class UsersAPI(SpotifyResourceAPI):
         """
         if user_id is None:
             return self.get_me()
-        self._validate_type("user_id", user_id, str)
-        return self._client._request("GET", f"users/{user_id}").json()
+        return self._client._request(
+            "GET", f"users/{self._prepare_string('user_id', user_id)}"
+        ).json()
 
     @TTLCache.cached_method(ttl="hourly")
     def get_my_top_items(
@@ -724,8 +725,7 @@ class UsersAPI(SpotifyResourceAPI):
                         }
         """
         self._client._require_scopes("users.get_my_top_items", "user-top-read")
-        self._validate_type("item_type", item_type, str)
-        item_type = item_type.strip().lower()
+        item_type = self._prepare_string("item_type", item_type).lower()
         if item_type not in {"artists", "tracks"}:
             raise ValueError(
                 f"Invalid item type {item_type!r}. "

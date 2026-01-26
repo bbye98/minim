@@ -223,13 +223,11 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                   }
         """
         self._client._require_authentication("playlists.create_playlist")
-        self._validate_type("name", name, str)
-        if not len(name):
-            raise ValueError("The playlist name cannot be blank.")
-        payload = {"name": name}
+        payload = {"name": self._validate_type("name", name)}
         if description is not None:
-            self._validate_type("description", description, str)
-            payload["description"] = description
+            payload["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             payload["public"] = public
@@ -788,8 +786,9 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
                     }
                   }
         """
-        self._validate_type("playlist_type", playlist_type, str)
-        playlist_type = playlist_type.strip().lower()
+        playlist_type = self._prepare_string(
+            "playlist_type", playlist_type
+        ).lower()
         if playlist_type not in {"last-created", "editor-picks"}:
             raise ValueError(
                 f"Invalid playlist type {playlist_type!r}. "
@@ -1127,13 +1126,11 @@ class PrivatePlaylistsAPI(PrivateQobuzResourceAPI):
         self._validate_qobuz_ids(playlist_id, _recursive=False)
         payload = {}
         if name is not None:
-            self._validate_type("name", name, str)
-            if not len(name):
-                raise ValueError("The playlist name cannot be blank.")
-            payload["name"] = name
+            payload["name"] = self._prepare_string("name", name)
         if description is not None:
-            self._validate_type("description", description, str)
-            payload["description"] = description
+            payload["description"] = self._prepare_string(
+                "description", description, allow_blank=True
+            )
         if public is not None:
             self._validate_type("public", public, bool)
             payload["is_public"] = public

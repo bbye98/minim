@@ -117,7 +117,7 @@ class TIDALResourceAPI(ResourceAPI):
         relationships: set[str] | None = None,
     ) -> list[str]:
         """
-        Normalize, validate, and prepare a list of related resources.
+        Validate, normalize, and prepare a list of related resources.
 
         Parameters
         ----------
@@ -253,11 +253,11 @@ class TIDALResourceAPI(ResourceAPI):
                 ).json()
             params["filter[id]"] = resource_identifiers
         if cursor is not None:
-            self._validate_type("cursor", cursor, str)
-            params["page[cursor]"] = cursor
+            params["page[cursor]"] = self._prepare_string("cursor", cursor)
         if share_code is not None:
-            self._validate_type("share_code", share_code, str)
-            params["shareCode"] = share_code
+            params["shareCode"] = self._prepare_string(
+                "share_code", share_code
+            )
         return self._client._request(
             "GET", resource_type, params=params
         ).json()
@@ -358,11 +358,11 @@ class TIDALResourceAPI(ResourceAPI):
             if include_metadata:
                 params["include"] = relationship
         if cursor is not None:
-            self._validate_type("cursor", cursor, str)
-            params["page[cursor]"] = cursor
+            params["page[cursor]"] = self._prepare_string("cursor", cursor)
         if share_code is not None:
-            self._validate_type("share_code", share_code, str)
-            params["shareCode"] = share_code
+            params["shareCode"] = self._prepare_string(
+                "share_code", share_code
+            )
         return self._client._request(
             "GET",
             f"{resource_type}/{resource_identifier}/relationships/{relationship}",

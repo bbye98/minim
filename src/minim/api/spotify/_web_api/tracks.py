@@ -180,7 +180,7 @@ class TracksAPI(SpotifyResourceAPI):
         self, seed_genres: str | list[str], /, limit: int
     ) -> tuple[str, int]:
         """
-        Normalize, validate, and serialize seed genres.
+        Validate, normalize, and serialize seed genres.
 
         Parameters
         ----------

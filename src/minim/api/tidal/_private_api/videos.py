@@ -310,8 +310,7 @@ class PrivateVideosAPI(PrivateTIDALResourceAPI):
         """
         self._client._require_subscription("videos.get_video_playback_info")
         self._validate_tidal_ids(video_id, _recursive=False)
-        self._validate_type("quality", quality, str)
-        quality = quality.strip().upper()
+        quality = self._prepare_string("quality", quality).upper()
         if quality not in self._VIDEO_QUALITIES:
             video_qualities_str = "', '".join(self._VIDEO_QUALITIES)
             raise ValueError(

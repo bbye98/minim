@@ -170,8 +170,7 @@ class ChartsAPI(MusixmatchResourceAPI):
         """
         params = {}
         if chart_name is not None:
-            self._validate_type("chart_name", chart_name, str)
-            chart_name = chart_name.strip().lower()
+            chart_name = self._prepare_string("chart_name", chart_name).lower()
             if chart_name not in self._CHART_NAMES:
                 chart_names_str = "', '".join(self._CHART_NAMES)
                 raise ValueError(

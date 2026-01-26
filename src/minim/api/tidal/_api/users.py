@@ -42,7 +42,7 @@ class UsersAPI(TIDALResourceAPI):
         _recursive: bool = True,
     ) -> list[dict[str, str]]:
         """
-        Normalize, validate, and prepare a list of resource identifiers.
+        Validate, normalize, and prepare a list of resource identifiers.
 
         Parameters
         ----------
